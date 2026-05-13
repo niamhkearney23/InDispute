@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AML/CTF compliance for digital currency exchanges — ATTICUS</title>
+<meta name="description" content="AML/CTF program builds, outsourced AMLCO and independent reviews for digital currency exchanges (DCEs), OTC desks and crypto-fiat ramps." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@500;600;700&display=swap" rel="stylesheet" />
+<!-- TODO: set data-domain to your real domain once deployed -->
+<script defer data-domain="atticus.example.com" src="https://plausible.io/js/script.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], serif: ['"Source Serif 4"', 'Georgia', 'serif'] },
+    colors: { ink: '#0B1220', paper: '#FBF9F4', accent: '#1F3A5F', rule: '#E5E1D6' },
+  } } };
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body { background: #FBF9F4; color: #0B1220; }
+  .h-display { font-family: 'Source Serif 4', Georgia, serif; letter-spacing: -0.01em; }
+  .rule { border-color: #E5E1D6; }
+</style>
+</head>
+<body class="font-sans antialiased">
+
+<header class="border-b rule">
+  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="index.html" class="font-semibold tracking-[0.08em] text-ink">ATTICUS</a>
+    <nav class="hidden md:flex items-center gap-8 text-sm text-ink/80">
+      <a href="#problem" class="hover:text-ink">In scope</a>
+      <a href="#program" class="hover:text-ink">Program</a>
+      <a href="#pricing" class="hover:text-ink">Pricing</a>
+      <a href="#faq" class="hover:text-ink">FAQ</a>
+    </nav>
+    <a href="#contact" class="text-sm font-medium bg-ink text-paper px-4 py-2 rounded-full hover:bg-accent transition">Book a call</a>
+  </div>
+</header>
+
+<section class="max-w-6xl mx-auto px-6 pt-16 pb-20 md:pt-24 md:pb-28">
+  <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-5">For digital currency exchanges &amp; OTC desks · Already in scope</p>
+  <h1 class="h-display text-4xl md:text-6xl leading-[1.05] max-w-4xl">
+    Digital currency exchanges have been AUSTRAC-registered since 2018.<br /><span class="text-accent">Most still don't have a defensible program.</span>
+  </h1>
+  <p class="mt-6 text-lg md:text-xl text-ink/75 max-w-2xl">
+    Digital currency exchanges (DCEs), crypto-fiat OTC desks and emerging payment rails have been on AUSTRAC's Digital Currency Exchange Register since April 2018. Treasury's regulatory reform agenda is tightening the regime further. We supply the AMLCO, the program rebuilds and the independent reviews that this sector needs to keep its registrations and its banking.
+  </p>
+  <div class="mt-8 flex flex-col sm:flex-row gap-3">
+    <a href="#contact" class="inline-flex justify-center items-center bg-ink text-paper px-6 py-3 rounded-full font-medium hover:bg-accent transition">Book a scoping call</a>
+    <a href="#pricing" class="inline-flex justify-center items-center border border-ink/20 px-6 py-3 rounded-full font-medium hover:border-ink transition">See pricing</a>
+  </div>
+  <p class="mt-4 text-xs text-ink/55">Confidential. We work with exchanges, OTC desks and Web3 startups.</p>
+</section>
+
+<section id="problem" class="border-y rule bg-white/60">
+  <div class="max-w-6xl mx-auto px-6 py-14 grid md:grid-cols-3 gap-10">
+    <div>
+      <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-3">The baseline</p>
+      <h2 class="h-display text-2xl md:text-3xl leading-tight">DCE Register since 2018.</h2>
+      <p class="mt-3 text-ink/75">Exchanging fiat for digital currency (or vice versa) as a business is a designated service. The DCE Register, AMLCO appointment, customer CDD and reporting obligations apply identically to crypto operators.</p>
+    </div>
+    <div>
+      <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-3">The pressure</p>
+      <h2 class="h-display text-2xl md:text-3xl leading-tight">Banking, partner and licensing pressure.</h2>
+      <p class="mt-3 text-ink/75">Australian banks have de-banked many exchanges. Custodians and on-ramps now demand evidence of a defensible program before signing partnerships. ASIC and AUSTRAC are jointly tightening the regime.</p>
+    </div>
+    <div>
+      <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-3">The gap</p>
+      <h2 class="h-display text-2xl md:text-3xl leading-tight">Most exchanges built the tech first.</h2>
+      <p class="mt-3 text-ink/75">Founders are engineers, not AML specialists. The AMLCO is often the COO or general counsel, holding the role alongside everything else. The program is downloaded from a template repo. It won't survive a real review.</p>
+    </div>
+  </div>
+</section>
+
+<section id="program" class="max-w-6xl mx-auto px-6 py-20">
+  <div class="grid md:grid-cols-12 gap-10">
+    <div class="md:col-span-5">
+      <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-4">The program</p>
+      <h2 class="h-display text-3xl md:text-4xl leading-tight">A crypto-grade program. On-chain aware.</h2>
+      <p class="mt-5 text-ink/75">Built around the crypto-specific risk vectors: wallet attribution, sanctions screening of addresses, source-of-funds verification of on-chain origin, mixer/tumbler exposure, cross-chain bridges, and the Travel Rule.</p>
+    </div>
+    <div class="md:col-span-7">
+      <ul class="grid sm:grid-cols-2 gap-x-6 gap-y-4">
+        <li class="flex gap-3"><span class="text-accent font-semibold">01</span><span><strong>ML/TF risk assessment</strong> — asset-by-asset, channel-aware, jurisdiction-aware.</span></li>
+        <li class="flex gap-3"><span class="text-accent font-semibold">02</span><span><strong>Governance &amp; AMLCO</strong> — board oversight, AMLCO independence, reporting cadence to investors/board.</span></li>
+        <li class="flex gap-3"><span class="text-accent font-semibold">03</span><span><strong>Customer onboarding &amp; CDD</strong> — wallet linkage, source-of-funds for on-chain origin, OFAC/UN sanctions screening.</span></li>
+        <li class="flex gap-3"><span class="text-accent font-semibold">04</span><span><strong>Transaction monitoring</strong> — on-chain analytics integration (Chainalysis, TRM, Elliptic), exception thresholds.</span></li>
+        <li class="flex gap-3"><span class="text-accent font-semibold">05</span><span><strong>Reporting</strong> — SMR / IFTI / TTR drafting against crypto-specific fact patterns; Travel Rule readiness.</span></li>
+        <li class="flex gap-3"><span class="text-accent font-semibold">06</span><span><strong>Training</strong> — ops, customer support, finance, engineering tracks.</span></li>
+        <li class="flex gap-3"><span class="text-accent font-semibold">07</span><span><strong>Recordkeeping</strong> — 7-year retention; cold-wallet evidence; on-chain hash chain.</span></li>
+        <li class="flex gap-3"><span class="text-accent font-semibold">08</span><span><strong>Independent review</strong> — annual; investor- and partner-grade.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="pricing" class="border-y rule bg-white/60">
+  <div class="max-w-6xl mx-auto px-6 py-20">
+    <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-4">Engagement tiers</p>
+    <h2 class="h-display text-3xl md:text-4xl leading-tight max-w-2xl">Three offers. Sector-appropriate pricing.</h2>
+    <div class="mt-12 grid md:grid-cols-3 gap-6">
+      <div class="border-2 border-accent rounded-2xl p-7 bg-white flex flex-col relative shadow-sm">
+        <span class="absolute -top-3 left-7 bg-accent text-paper text-[10px] uppercase tracking-[0.18em] font-semibold px-3 py-1 rounded-full">Primary offer</span>
+        <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold">Outsourced AMLCO</p>
+        <h3 class="h-display text-2xl mt-2">Your crypto-grade AMLCO.</h3>
+        <p class="mt-6 text-3xl h-display">From $5,500<span class="text-base text-ink/55"> /mo + GST</span></p>
+        <p class="text-xs text-ink/55">Min 12 months. Crypto-experienced.</p>
+        <ul class="mt-6 space-y-2 text-sm text-ink/80 flex-1">
+          <li>· Named external AMLCO</li>
+          <li>· EDD &amp; high-risk customer sign-off</li>
+          <li>· SMR drafting &amp; AUSTRAC liaison</li>
+          <li>· Travel Rule guidance</li>
+          <li>· Bank, partner &amp; investor documentation</li>
+        </ul>
+        <a href="#contact" class="mt-7 inline-flex justify-center bg-accent text-paper rounded-full py-3 font-medium hover:bg-ink transition">Talk about retaining us</a>
+      </div>
+      <div class="border rule rounded-2xl p-7 bg-white/60 flex flex-col">
+        <p class="text-xs uppercase tracking-[0.18em] text-ink/55 font-semibold">Independent review</p>
+        <h3 class="h-display text-2xl mt-2">Third-party assurance.</h3>
+        <p class="mt-6 text-3xl h-display">From $9,500<span class="text-base text-ink/55"> per review</span></p>
+        <p class="text-xs text-ink/55">Annual minimum; partner-ready.</p>
+        <ul class="mt-6 space-y-2 text-sm text-ink/80 flex-1">
+          <li>· 8 review domains</li>
+          <li>· On-chain &amp; transaction-monitoring sampling</li>
+          <li>· Investor- &amp; partner-grade independence</li>
+          <li>· Written report</li>
+        </ul>
+        <a href="independent-reviews.html" class="mt-7 inline-flex justify-center bg-ink/5 text-ink rounded-full py-3 font-medium hover:bg-ink hover:text-paper transition">Review details</a>
+      </div>
+      <div class="border rule rounded-2xl p-7 bg-white/60 flex flex-col">
+        <p class="text-xs uppercase tracking-[0.18em] text-ink/55 font-semibold">Program rebuild</p>
+        <h3 class="h-display text-2xl mt-2">Done-with-you build.</h3>
+        <p class="mt-6 text-3xl h-display">From $18,500<span class="text-base text-ink/55"> + GST</span></p>
+        <p class="text-xs text-ink/55">Fixed fee. 3–6 weeks.</p>
+        <ul class="mt-6 space-y-2 text-sm text-ink/80 flex-1">
+          <li>· Full program rebuild</li>
+          <li>· Risk assessment refresh</li>
+          <li>· On-chain monitoring config review</li>
+          <li>· Travel Rule readiness</li>
+        </ul>
+        <a href="#contact" class="mt-7 inline-flex justify-center bg-ink/5 text-ink rounded-full py-3 font-medium hover:bg-ink hover:text-paper transition">Scope a rebuild</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq" class="max-w-4xl mx-auto px-6 py-20">
+  <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-4">FAQ</p>
+  <h2 class="h-display text-3xl md:text-4xl leading-tight">Common questions from crypto operators.</h2>
+  <div class="mt-10 divide-y rule">
+    <details class="py-5 group" open>
+      <summary class="flex justify-between items-start cursor-pointer list-none">
+        <span class="font-medium pr-6">We use Chainalysis. Isn't that enough?</span>
+        <span class="text-accent font-mono text-sm group-open:rotate-45 transition">+</span>
+      </summary>
+      <p class="mt-3 text-ink/75">No. Chainalysis (or TRM, Elliptic) gives you on-chain risk scoring — that's a transaction monitoring input, not a program. You still need the risk assessment, AMLCO, CDD procedures, decision logs, training, reporting and independent review wrapping around the tool.</p>
+    </details>
+    <details class="py-5 group">
+      <summary class="flex justify-between items-start cursor-pointer list-none">
+        <span class="font-medium pr-6">Travel Rule — what does that actually require?</span>
+        <span class="text-accent font-mono text-sm group-open:rotate-45 transition">+</span>
+      </summary>
+      <p class="mt-3 text-ink/75">FATF Recommendation 16 (Travel Rule) requires originator and beneficiary information to travel with virtual asset transfers between regulated entities. Australia has implemented a version of this. The mechanics depend on your counterparties and the protocols you use. We map your transfer flows and tell you exactly what to implement.</p>
+    </details>
+    <details class="py-5 group">
+      <summary class="flex justify-between items-start cursor-pointer list-none">
+        <span class="font-medium pr-6">We're pre-revenue. Do we really need a real program?</span>
+        <span class="text-accent font-mono text-sm group-open:rotate-45 transition">+</span>
+      </summary>
+      <p class="mt-3 text-ink/75">If you're providing a designated service to even one customer, yes. Most banks and partners won't engage without it; investors increasingly demand it as part of diligence. The cheapest path is a defensible program from day one.</p>
+    </details>
+  </div>
+</section>
+
+<section id="contact" class="max-w-6xl mx-auto px-6 py-20">
+  <div class="rounded-3xl bg-ink text-paper p-10 md:p-14 grid md:grid-cols-2 gap-10 items-center">
+    <div>
+      <h2 class="h-display text-3xl md:text-4xl leading-tight">A confidential scoping call.</h2>
+      <p class="mt-4 text-paper/75">Tell us your product, your stack and where you are in the regulatory journey. We'll tell you what's missing.</p>
+    </div>
+    <div class="flex flex-col gap-3 md:items-end">
+      <a href="mailto:hello@example.com.au?subject=Crypto%20scoping" class="inline-flex justify-center items-center bg-paper text-ink px-6 py-3 rounded-full font-medium hover:bg-accent hover:text-paper transition"><!-- TODO: replace email -->Email to book a call</a>
+      <a href="tel:+61300000000" class="text-paper/70 text-sm hover:text-paper"><!-- TODO: replace number -->or call 1300 000 000</a>
+    </div>
+  </div>
+</section>
+
+<footer class="border-t rule">
+  <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row gap-4 md:items-center md:justify-between text-sm text-ink/60">
+    <p>© <span id="yr"></span> ATTICUS. Melbourne, Australia.</p>
+    <p>Information here is general and not legal advice.</p>
+  </div>
+</footer>
+<script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+
+</body>
+</html>

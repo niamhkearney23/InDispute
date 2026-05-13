@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Independent AML/CTF program reviews — ATTICUS</title>
+<meta name="description" content="Third-party independent reviews of your AML/CTF program. Required at intervals under the Rules; cannot be performed by your platform vendor. Written report ready for AUSTRAC." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@500;600;700&display=swap" rel="stylesheet" />
+<!-- TODO: set data-domain to your real domain once deployed -->
+<script defer data-domain="atticus.example.com" src="https://plausible.io/js/script.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], serif: ['"Source Serif 4"', 'Georgia', 'serif'] },
+    colors: { ink: '#0B1220', paper: '#FBF9F4', accent: '#1F3A5F', rule: '#E5E1D6' },
+  } } };
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body { background: #FBF9F4; color: #0B1220; }
+  .h-display { font-family: 'Source Serif 4', Georgia, serif; letter-spacing: -0.01em; }
+  .rule { border-color: #E5E1D6; }
+</style>
+</head>
+<body class="font-sans antialiased">
+
+<header class="border-b rule">
+  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="index.html" class="font-semibold tracking-[0.08em] text-ink">ATTICUS</a>
+    <nav class="hidden md:flex items-center gap-8 text-sm text-ink/80">
+      <a href="index.html#services" class="hover:text-ink">Services</a>
+      <a href="#scope" class="hover:text-ink">Scope</a>
+      <a href="#process" class="hover:text-ink">Process</a>
+      <a href="#pricing" class="hover:text-ink">Pricing</a>
+      <a href="#faq" class="hover:text-ink">FAQ</a>
+    </nav>
+    <a href="#contact" class="text-sm font-medium bg-ink text-paper px-4 py-2 rounded-full hover:bg-accent transition">Scope a review</a>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="max-w-6xl mx-auto px-6 pt-16 pb-16 md:pt-24 md:pb-20">
+  <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-5">Independent reviews · Third-party assurance</p>
+  <h1 class="h-display text-4xl md:text-6xl leading-[1.02] max-w-4xl">
+    Your platform vendor can't review<br /><span class="text-accent">its own program.</span>
+  </h1>
+  <p class="mt-7 text-lg md:text-xl text-ink/75 max-w-2xl">
+    Periodic independent review of your AML/CTF program is required under the Rules. The reviewer must be independent of the program's operation — which excludes the platform vendor running your workflows. We provide that independent layer.
+  </p>
+  <div class="mt-8 flex flex-col sm:flex-row gap-3">
+    <a href="#contact" class="inline-flex justify-center items-center bg-ink text-paper px-6 py-3 rounded-full font-medium hover:bg-accent transition">Scope a review</a>
+    <a href="#process" class="inline-flex justify-center items-center border border-ink/20 px-6 py-3 rounded-full font-medium hover:border-ink transition">See the process</a>
+  </div>
+  <p class="mt-4 text-xs text-ink/55">Fixed fee · 2–4 weeks · Written report you can hand to AUSTRAC</p>
+</section>
+
+<!-- Why independent -->
+<section class="border-y rule bg-white/60">
+  <div class="max-w-6xl mx-auto px-6 py-14 grid md:grid-cols-3 gap-10">
+    <div>
+      <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-3">The rule</p>
+      <h2 class="h-display text-2xl md:text-3xl leading-tight">Reviews must be independent of program operation.</h2>
+      <p class="mt-3 text-ink/75">The Rules require the reviewer to have had no role in the design, implementation or ongoing operation of the program being reviewed.</p>
+    </div>
+    <div>
+      <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-3">Who's excluded</p>
+      <h2 class="h-display text-2xl md:text-3xl leading-tight">Anyone who built or runs your program.</h2>
+      <p class="mt-3 text-ink/75">Your AMLCO. Your platform vendor (including InfoTrack, Themis and similar). Your in-house compliance team. The consultant who drafted the program. All non-independent.</p>
+    </div>
+    <div>
+      <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-3">Who qualifies</p>
+      <h2 class="h-display text-2xl md:text-3xl leading-tight">A third party with the relevant expertise.</h2>
+      <p class="mt-3 text-ink/75">Internal staff in a different function may qualify for the smallest entities, but most reporting entities will need a qualified external reviewer who can demonstrate AML/CTF competence.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Scope -->
+<section id="scope" class="max-w-6xl mx-auto px-6 py-20">
+  <div class="grid md:grid-cols-12 gap-10">
+    <div class="md:col-span-5">
+      <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-4">What we review</p>
+      <h2 class="h-display text-3xl md:text-4xl leading-tight">Eight review domains. Mapped to the Rules.</h2>
+      <p class="mt-5 text-ink/75">Each engagement assesses your program against the Rules, your own risk assessment, and a representative sample of your real-world records.</p>
+    </div>
+    <div class="md:col-span-7">
+      <ul class="grid sm:grid-cols-2 gap-x-6 gap-y-4">
+        <li class="flex gap-3"><span class="text-accent font-semibold">01</span><span><strong>Risk assessment</strong> — currency, methodology, calibration against actual book.</span></li>
+        <li class="flex gap-3"><span class="text-accent font-semibold">02</span><span><strong>Governance &amp; AMLCO</strong> — appointment, suitability, board reporting, decision authority.</span></li>
+        <li class="flex gap-3"><span class="text-accent font-semibold">03</span><span><strong>Customer due diligence</strong> — sample of new and existing customer files; UBO, SoF/SoW where relevant.</span></li>
+        <li class="flex gap-3"><span class="text-accent font-semibold">04</span><span><strong>Enhanced due diligence</strong> — trigger application, evidence threshold, sign-off records.</span></li>
+        <li class="flex gap-3"><span class="text-accent font-semibold">05</span><span><strong>Ongoing monitoring</strong> — periodic review cadence by risk band, re-rating, exception handling.</span></li>
+        <li class="flex gap-3"><span class="text-accent font-semibold">06</span><span><strong>Reporting</strong> — SMR / TTR / IFTI completeness, timing, decision log.</span></li>
+        <li class="flex gap-3"><span class="text-accent font-semibold">07</span><span><strong>Training &amp; awareness</strong> — completion by role, currency, attestations.</span></li>
+        <li class="flex gap-3"><span class="text-accent font-semibold">08</span><span><strong>Recordkeeping</strong> — 7-year retention sampling against the schedule.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Process -->
+<section id="process" class="border-y rule bg-white/60">
+  <div class="max-w-6xl mx-auto px-6 py-20">
+    <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-4">Process</p>
+    <h2 class="h-display text-3xl md:text-4xl leading-tight max-w-2xl">Two to four weeks, end to end.</h2>
+
+    <div class="mt-12 grid md:grid-cols-4 gap-6">
+      <div class="border rule rounded-2xl p-6 bg-white">
+        <p class="num text-3xl h-display text-accent">01</p>
+        <h3 class="h-display text-lg mt-3">Scope &amp; engagement</h3>
+        <p class="text-sm text-ink/70 mt-2">20-minute call. We confirm sector, risk profile, sample size and timing. Engagement letter signed.</p>
+        <p class="text-xs text-ink/45 mt-3">Day 0 — Day 3</p>
+      </div>
+      <div class="border rule rounded-2xl p-6 bg-white">
+        <p class="num text-3xl h-display text-accent">02</p>
+        <h3 class="h-display text-lg mt-3">Document review</h3>
+        <p class="text-sm text-ink/70 mt-2">We review your program, risk assessment, training records, decision logs and reporting register. Information request list sent in advance.</p>
+        <p class="text-xs text-ink/45 mt-3">Week 1</p>
+      </div>
+      <div class="border rule rounded-2xl p-6 bg-white">
+        <p class="num text-3xl h-display text-accent">03</p>
+        <h3 class="h-display text-lg mt-3">File sampling &amp; interviews</h3>
+        <p class="text-sm text-ink/70 mt-2">Random sample of customer files (size proportionate to volume). Interviews with AMLCO and one or two operational staff.</p>
+        <p class="text-xs text-ink/45 mt-3">Week 2</p>
+      </div>
+      <div class="border rule rounded-2xl p-6 bg-white">
+        <p class="num text-3xl h-display text-accent">04</p>
+        <h3 class="h-display text-lg mt-3">Report &amp; debrief</h3>
+        <p class="text-sm text-ink/70 mt-2">Written report with findings, rated by severity, plus a remediation plan with prioritised actions. 30-minute debrief with the AMLCO and board chair.</p>
+        <p class="text-xs text-ink/45 mt-3">Week 3 — Week 4</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Deliverables -->
+<section class="max-w-6xl mx-auto px-6 py-20">
+  <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-4">What you receive</p>
+  <h2 class="h-display text-3xl md:text-4xl leading-tight max-w-3xl">A report you can hand to AUSTRAC. A remediation plan you can action.</h2>
+  <div class="mt-10 grid md:grid-cols-3 gap-6">
+    <div class="border rule rounded-2xl p-6 bg-white">
+      <h3 class="h-display text-lg">Written report</h3>
+      <ul class="mt-3 space-y-1.5 text-sm text-ink/75">
+        <li>· Executive summary (1 page)</li>
+        <li>· Scope &amp; methodology statement</li>
+        <li>· Independence declaration</li>
+        <li>· Findings rated by severity</li>
+        <li>· Sample &amp; testing detail</li>
+        <li>· Comparison to prior review (if applicable)</li>
+      </ul>
+    </div>
+    <div class="border rule rounded-2xl p-6 bg-white">
+      <h3 class="h-display text-lg">Remediation plan</h3>
+      <ul class="mt-3 space-y-1.5 text-sm text-ink/75">
+        <li>· Prioritised action list</li>
+        <li>· Owner suggestions</li>
+        <li>· Target completion dates</li>
+        <li>· Severity rationale</li>
+        <li>· Re-test triggers</li>
+      </ul>
+    </div>
+    <div class="border rule rounded-2xl p-6 bg-white">
+      <h3 class="h-display text-lg">Board pack</h3>
+      <ul class="mt-3 space-y-1.5 text-sm text-ink/75">
+        <li>· One-page summary for partners or board</li>
+        <li>· Comparison against peer industry benchmarks</li>
+        <li>· Reviewer's residual risk view</li>
+        <li>· 30-minute live debrief</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing -->
+<section id="pricing" class="border-y rule bg-white/60">
+  <div class="max-w-6xl mx-auto px-6 py-20">
+    <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-4">Pricing</p>
+    <h2 class="h-display text-3xl md:text-4xl leading-tight max-w-2xl">Fixed-fee, scoped to your size.</h2>
+
+    <div class="mt-12 grid md:grid-cols-3 gap-6">
+      <div class="border rule rounded-2xl p-7 bg-white flex flex-col">
+        <p class="text-xs uppercase tracking-[0.18em] text-ink/55 font-semibold">Small</p>
+        <h3 class="h-display text-2xl mt-2">Under 100 customers</h3>
+        <p class="mt-6 text-3xl h-display">$4,500<span class="text-base text-ink/55"> + GST</span></p>
+        <p class="text-xs text-ink/55">Single-office, low–medium risk</p>
+        <ul class="mt-6 space-y-2 text-sm text-ink/80 flex-1">
+          <li>· 8 review domains</li>
+          <li>· Sample size: 10 customer files</li>
+          <li>· 1 AMLCO interview</li>
+          <li>· Written report + remediation plan</li>
+        </ul>
+        <a href="#contact" class="mt-7 inline-flex justify-center bg-ink/5 text-ink rounded-full py-3 font-medium hover:bg-ink hover:text-paper transition">Scope a review</a>
+      </div>
+      <div class="border-2 border-accent rounded-2xl p-7 bg-white flex flex-col relative shadow-sm">
+        <span class="absolute -top-3 left-7 bg-accent text-paper text-[10px] uppercase tracking-[0.18em] font-semibold px-3 py-1 rounded-full">Most chosen</span>
+        <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold">Standard</p>
+        <h3 class="h-display text-2xl mt-2">100–500 customers</h3>
+        <p class="mt-6 text-3xl h-display">$7,500<span class="text-base text-ink/55"> + GST</span></p>
+        <p class="text-xs text-ink/55">Single or dual-office, medium risk</p>
+        <ul class="mt-6 space-y-2 text-sm text-ink/80 flex-1">
+          <li>· 8 review domains</li>
+          <li>· Sample size: 25 customer files</li>
+          <li>· AMLCO + 1–2 staff interviews</li>
+          <li>· Written report + remediation plan</li>
+          <li>· Comparison to peer benchmarks</li>
+        </ul>
+        <a href="#contact" class="mt-7 inline-flex justify-center bg-accent text-paper rounded-full py-3 font-medium hover:bg-ink transition">Scope a review</a>
+      </div>
+      <div class="border rule rounded-2xl p-7 bg-white flex flex-col">
+        <p class="text-xs uppercase tracking-[0.18em] text-ink/55 font-semibold">Complex</p>
+        <h3 class="h-display text-2xl mt-2">500+ or multi-office</h3>
+        <p class="mt-6 text-3xl h-display">From $12,000<span class="text-base text-ink/55"> + GST</span></p>
+        <p class="text-xs text-ink/55">High-risk sectors, international exposure</p>
+        <ul class="mt-6 space-y-2 text-sm text-ink/80 flex-1">
+          <li>· Scoped to your size</li>
+          <li>· Sample size: 50+ files</li>
+          <li>· Multi-office testing</li>
+          <li>· Extended interview pool</li>
+          <li>· Board presentation included</li>
+        </ul>
+        <a href="#contact" class="mt-7 inline-flex justify-center bg-ink/5 text-ink rounded-full py-3 font-medium hover:bg-ink hover:text-paper transition">Bespoke quote</a>
+      </div>
+    </div>
+    <p class="mt-6 text-xs text-ink/55 max-w-3xl">All prices are for a single review engagement. Annual / bi-annual cadence available with a 10% retainer discount. Recommended cadence depends on your sector risk band and prior findings.</p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="max-w-4xl mx-auto px-6 py-20">
+  <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-4">FAQ</p>
+  <h2 class="h-display text-3xl md:text-4xl leading-tight">Common questions.</h2>
+  <div class="mt-10 divide-y rule">
+    <details class="py-5 group" open>
+      <summary class="flex justify-between items-start cursor-pointer list-none">
+        <span class="font-medium pr-6">How often do we need an independent review?</span>
+        <span class="text-accent font-mono text-sm group-open:rotate-45 transition">+</span>
+      </summary>
+      <p class="mt-3 text-ink/75">The Rules require the review to occur at appropriate intervals proportionate to risk. For most low-to-medium-risk reporting entities, that's annual or bi-annual. Higher-risk businesses (TCSPs, MSBs, digital currency exchanges) should plan for annual. We'll recommend a cadence as part of the engagement.</p>
+    </details>
+    <details class="py-5 group">
+      <summary class="flex justify-between items-start cursor-pointer list-none">
+        <span class="font-medium pr-6">Can our auditor or in-house compliance staff do the review?</span>
+        <span class="text-accent font-mono text-sm group-open:rotate-45 transition">+</span>
+      </summary>
+      <p class="mt-3 text-ink/75">Sometimes. Internal staff in a function genuinely independent of the program (e.g. internal audit) may qualify for smaller entities. Most boutique firms don't have that internal segregation, and AUSTRAC has signalled it expects external review at maturity. Your statutory auditor isn't an AML/CTF expert — different competency.</p>
+    </details>
+    <details class="py-5 group">
+      <summary class="flex justify-between items-start cursor-pointer list-none">
+        <span class="font-medium pr-6">Can the platform vendor (e.g. InfoTrack) do our review?</span>
+        <span class="text-accent font-mono text-sm group-open:rotate-45 transition">+</span>
+      </summary>
+      <p class="mt-3 text-ink/75">No. A vendor reviewing the outputs of its own platform fails the independence test. The reviewer must be outside the supply chain that designed or operates the program.</p>
+    </details>
+    <details class="py-5 group">
+      <summary class="flex justify-between items-start cursor-pointer list-none">
+        <span class="font-medium pr-6">What if you find serious problems?</span>
+        <span class="text-accent font-mono text-sm group-open:rotate-45 transition">+</span>
+      </summary>
+      <p class="mt-3 text-ink/75">We rate findings by severity and explain the residual risk plainly. If findings rise to the level of mandatory disclosure (e.g. you've been failing to lodge required SMRs), we'll tell you, but the obligation to disclose sits with your AMLCO and board, not us. We're not the regulator. Our job is to give you a clear-eyed view; what you do with it is your decision.</p>
+    </details>
+    <details class="py-5 group">
+      <summary class="flex justify-between items-start cursor-pointer list-none">
+        <span class="font-medium pr-6">Do you also remediate, or only identify?</span>
+        <span class="text-accent font-mono text-sm group-open:rotate-45 transition">+</span>
+      </summary>
+      <p class="mt-3 text-ink/75">Independent reviews are intentionally separated from remediation, because the reviewer can't review work they did. If you want us to remediate, we'll introduce you to another qualified consultant or take you on as an outsourced AMLCO client — but the next review will be done by a third party.</p>
+    </details>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="contact" class="max-w-6xl mx-auto px-6 pb-20">
+  <div class="rounded-3xl bg-ink text-paper p-10 md:p-14 grid md:grid-cols-2 gap-10 items-center">
+    <div>
+      <h2 class="h-display text-3xl md:text-4xl leading-tight">Scope a review.</h2>
+      <p class="mt-4 text-paper/75">Tell us your sector, customer book size and platform setup. We'll send back a fixed-fee proposal and a 4-week timeline.</p>
+    </div>
+    <div class="flex flex-col gap-3 md:items-end">
+      <a href="mailto:hello@example.com.au?subject=Independent%20review%20scoping" class="inline-flex justify-center items-center bg-paper text-ink px-6 py-3 rounded-full font-medium hover:bg-accent hover:text-paper transition"><!-- TODO: replace email -->Email to scope a review</a>
+      <a href="tel:+61300000000" class="text-paper/70 text-sm hover:text-paper"><!-- TODO: replace number -->or call 1300 000 000</a>
+    </div>
+  </div>
+</section>
+
+<footer class="border-t rule">
+  <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row gap-4 md:items-center md:justify-between text-sm text-ink/60">
+    <p>© <span id="yr"></span> ATTICUS. Melbourne, Australia.</p>
+    <p>Information here is general and not legal advice.</p>
+  </div>
+</footer>
+<script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+
+</body>
+</html>

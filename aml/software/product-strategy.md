@@ -1,6 +1,8 @@
 # Software strategy — service-led, software-augmented
 
-> The thesis: build the service first (validate, learn, get to revenue). Build software *underneath* the service to compress delivery time and lock in recurring revenue. Productise the software as a self-serve Tier 4 SaaS once it's been hardened by ~12 months of internal use. Don't try to be a pure software business in year one.
+> **⚠ Partially superseded May 2026.** This document was written before InfoTrack's AML/CTF Compliance Centre launched. Phase 3 (Tier 4 self-serve SaaS) is **shelved**: a free, well-distributed, Grant-Thornton-credentialed product now occupies that wedge. Phase 1 (template customiser, internal tool) **still applies** and remains useful. Phase 2 (Tier 3 client portal) is **deferred** pending validation of the new positioning. See `competitive-memo.md` for the full rationale.
+
+> The thesis (as originally written): build the service first (validate, learn, get to revenue). Build software *underneath* the service to compress delivery time and lock in recurring revenue. Productise the software as a self-serve Tier 4 SaaS once it's been hardened by ~12 months of internal use. Don't try to be a pure software business in year one.
 
 ---
 

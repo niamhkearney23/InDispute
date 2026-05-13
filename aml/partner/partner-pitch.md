@@ -4,9 +4,18 @@
 
 ---
 
+> **Update — May 2026.** InfoTrack launched the AML/CTF Compliance Centre (free, integrated into PMS, built with Grant Thornton) — which has occupied the mainstream Tier 2 productised-program wedge for law firms, conveyancers, accountants and real estate. The strategy has been re-scoped to two defensible markets:
+>
+> 1. **The human compliance layer above any platform** — outsourced AMLCO, independent reviews, enforcement response. Works alongside InfoTrack or any vendor; not against them.
+> 2. **Sectors without a platform alternative** — TCSPs, DPMS, gambling, MSB, digital currency exchanges, bullion/pawnbrokers. Full stack still applies.
+>
+> The role on offer hasn't changed in shape — we still need a senior AML practitioner — but **the offer is narrower and more defensible than the original chassis described below**. See `competitive-memo.md` for the full reasoning. The original pitch text follows for context, but treat product/pricing details below as the *previous* version.
+
+---
+
 ## The pitch in three sentences
 
-I have built a productised AML/CTF compliance practice for boutique professional firms (lawyers, accountants, real estate, TCSPs, DPMS) — the entire chassis: brand, five sector landing pages, a unified-program template, a 12-point readiness diagnostic, three engagement tiers, a Big 4 channel pitch and outreach playbook. **What's missing is you.** I'm looking for one senior AML practitioner to come in as a co-founder or consulting principal and own the delivery side from day one.
+I have built the operating chassis for an AML/CTF compliance practice — brand, sector landing pages, productised program templates, a 12-point readiness diagnostic, outreach playbooks, channel partner pitch. **What's missing is you.** Post-InfoTrack the offer is narrower (outsourced AMLCO + independent reviews + niche sectors) but the delivery role is the same: I'm looking for one senior AML practitioner to come in as a co-founder or consulting principal and own delivery from day one.
 
 ## Why this is worth a 30-minute call
 
