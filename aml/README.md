@@ -1,4 +1,4 @@
-# InDispute AML — productised AML/CTF for boutique Melbourne law firms
+# ATTICus — productised AML/CTF for boutique Melbourne law firms
 
 Working assets for the AML/CTF compliance product launch ahead of the 1 July 2026 deadline.
 
