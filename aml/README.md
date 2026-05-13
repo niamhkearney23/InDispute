@@ -9,6 +9,8 @@ aml/
 ├── index.html                   # Landing page — law firms
 ├── accountants.html             # Landing page — accountants
 ├── real-estate.html             # Landing page — real estate agencies
+├── tcsp.html                    # Landing page — trust &amp; company service providers
+├── dpms.html                    # Landing page — dealers in precious metals &amp; stones
 ├── checklist.html               # Lead magnet — 12-point readiness checklist (sector-neutral)
 ├── templates/
 │   ├── aml-ctf-program-template.md      # Productised unified program (~30 placeholders)
@@ -25,7 +27,8 @@ aml/
 │   ├── big4-partnership-pitch.md        # The pitch / one-pager / draft MoU framing
 │   ├── big4-target-map.md               # Roles to target + pathways to find current incumbents
 │   ├── big4-outreach-sequence.md        # 3-touch partner-level outreach
-│   └── big4-tracker.csv                 # Per-firm partnership tracker
+│   ├── big4-tracker.csv                 # Per-firm partnership tracker
+│   └── mou-shell.md                     # Fill-in-the-blanks MoU shell (referral / co-investment / hybrid)
 └── assets/                              # (reserved for screenshots, logos)
 ```
 
@@ -48,6 +51,8 @@ python3 -m http.server 8000
 # http://localhost:8000/index.html        — law firms
 # http://localhost:8000/accountants.html  — accountants
 # http://localhost:8000/real-estate.html  — real estate
+# http://localhost:8000/tcsp.html         — trust &amp; company service providers
+# http://localhost:8000/dpms.html         — dealers in precious metals &amp; stones
 # http://localhost:8000/checklist.html    — readiness checklist
 ```
 
