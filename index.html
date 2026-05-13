@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@500;600;700&display=swap" rel="stylesheet" />
+<!-- TODO: set data-domain to your real domain once deployed -->
+<script defer data-domain="atticus.example.com" src="https://plausible.io/js/script.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
   tailwind.config = {
@@ -51,19 +53,41 @@
 </header>
 
 <!-- Hero -->
-<section class="max-w-6xl mx-auto px-6 pt-16 pb-20 md:pt-24 md:pb-28">
+<section class="max-w-6xl mx-auto px-6 pt-16 pb-16 md:pt-24 md:pb-20">
   <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-5">For boutique Melbourne law firms · Tranche 2 ready</p>
-  <h1 class="h-display text-4xl md:text-6xl leading-[1.05] max-w-4xl">
-    A productised AML/CTF program for boutique Melbourne law firms — customised to your practice in under a day.
+  <h1 class="h-display text-4xl md:text-6xl leading-[1.02] max-w-4xl">
+    7 weeks to 1 July.<br />
+    Your AMLCO is personally on the hook.<br />
+    <span class="text-accent">We make the program defensible.</span>
   </h1>
-  <p class="mt-6 text-lg md:text-xl text-ink/75 max-w-2xl">
-    From <strong>1 July 2026</strong>, legal practitioners providing designated services fall inside the AML/CTF Act. We give partners a defensible program, an enrolled AMLCO, and the artefacts AUSTRAC will expect — without a year of internal work.
+  <p class="mt-7 text-lg md:text-xl text-ink/75 max-w-2xl">
+    A productised AML/CTF program built for boutique law firms doing property, trusts and corporate work. Customised to your practice in under a partner-day. Live in two weeks.
   </p>
   <div class="mt-8 flex flex-col sm:flex-row gap-3">
-    <a href="#checklist" class="inline-flex justify-center items-center bg-ink text-paper px-6 py-3 rounded-full font-medium hover:bg-accent transition">Download the 12-point readiness checklist</a>
-    <a href="#pricing" class="inline-flex justify-center items-center border border-ink/20 px-6 py-3 rounded-full font-medium hover:border-ink transition">See the three engagement tiers</a>
+    <a href="#checklist" class="inline-flex justify-center items-center bg-ink text-paper px-6 py-3 rounded-full font-medium hover:bg-accent transition">Get the 12-point readiness checklist</a>
+    <a href="#pricing" class="inline-flex justify-center items-center border border-ink/20 px-6 py-3 rounded-full font-medium hover:border-ink transition">See pricing</a>
   </div>
-  <p class="mt-4 text-xs text-ink/55">No login. No sales call. PDF + editable copy.</p>
+  <p class="mt-4 text-xs text-ink/55">No sales call to download. PDF + editable copy.</p>
+
+  <!-- Trust / credentials strip -->
+  <div class="mt-12 pt-8 border-t rule grid grid-cols-2 md:grid-cols-4 gap-6 text-sm">
+    <div>
+      <p class="text-xs uppercase tracking-[0.18em] text-ink/55 font-semibold mb-1">AUSTRAC</p>
+      <p class="text-ink/80">Enrolled reporting entity <span class="text-ink/45"><!-- TODO: insert RE number -->#XXXXXX</span></p>
+    </div>
+    <div>
+      <p class="text-xs uppercase tracking-[0.18em] text-ink/55 font-semibold mb-1">PI cover</p>
+      <p class="text-ink/80">A$2m per claim &amp; aggregate</p>
+    </div>
+    <div>
+      <p class="text-xs uppercase tracking-[0.18em] text-ink/55 font-semibold mb-1">Fixed fee</p>
+      <p class="text-ink/80">No hourly billing surprises</p>
+    </div>
+    <div>
+      <p class="text-xs uppercase tracking-[0.18em] text-ink/55 font-semibold mb-1">Delivery</p>
+      <p class="text-ink/80">2 weeks · 1 partner-day of effort</p>
+    </div>
+  </div>
 </section>
 
 <!-- Problem strip -->
@@ -110,6 +134,31 @@
   </div>
 </section>
 
+<!-- Founder -->
+<section class="border-y rule bg-white/60">
+  <div class="max-w-6xl mx-auto px-6 py-20 grid md:grid-cols-12 gap-10 items-start">
+    <div class="md:col-span-4">
+      <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-4">Who's behind it</p>
+      <div class="aspect-square w-full rounded-2xl bg-ink/5 border rule flex items-center justify-center text-ink/30 text-xs uppercase tracking-wider">
+        <!-- TODO: replace with founder photo -->
+        Founder photo
+      </div>
+    </div>
+    <div class="md:col-span-8">
+      <h2 class="h-display text-3xl md:text-4xl leading-tight">[FOUNDER NAME].<br /><span class="text-accent">[ONE-LINE POSITIONING].</span></h2>
+      <div class="mt-5 space-y-4 text-ink/80">
+        <p>[PARAGRAPH 1 — career arc: where you trained, what you did, why AML.]</p>
+        <p>[PARAGRAPH 2 — why boutique firms specifically: your view of the gap in the market, why a productised approach beats bespoke advisory for firms in the 3–25 fee-earner band.]</p>
+        <p>[PARAGRAPH 3 — credentials and accreditations: relevant degrees, certifications (e.g. CAMS, GRCP), professional body memberships.]</p>
+      </div>
+      <div class="mt-6 flex flex-wrap gap-3 text-sm">
+        <a href="#contact" class="px-4 py-2 rounded-full border rule hover:border-ink transition">Email me directly</a>
+        <a href="#" class="px-4 py-2 rounded-full border rule hover:border-ink transition"><!-- TODO: replace with LinkedIn URL -->LinkedIn →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- Lead magnet -->
 <section id="checklist" class="bg-ink text-paper">
   <div class="max-w-6xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center">
@@ -123,7 +172,11 @@
         <li>· Shows whether DIY templates or done-with-you is right for you</li>
       </ul>
     </div>
-    <form class="bg-paper text-ink rounded-2xl p-6 md:p-8 shadow-xl" action="#" method="post" novalidate>
+    <!-- TODO: replace YOUR_FORM_ID with your real Formspree form ID (https://formspree.io) -->
+    <form class="bg-paper text-ink rounded-2xl p-6 md:p-8 shadow-xl" action="https://formspree.io/f/YOUR_FORM_ID" method="POST" novalidate>
+      <input type="hidden" name="_subject" value="ATTICUS — Law-firm checklist request" />
+      <input type="hidden" name="_next" value="thanks.html" />
+      <input type="hidden" name="sector" value="law" />
       <h3 class="h-display text-xl mb-1">Send me the checklist</h3>
       <p class="text-sm text-ink/65 mb-5">Delivered to your inbox in under a minute.</p>
       <label class="block text-sm font-medium mb-1" for="name">Name</label>
@@ -176,7 +229,7 @@
       <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold">Tier 2</p>
       <h3 class="h-display text-2xl mt-2">Done-With-You</h3>
       <p class="mt-2 text-ink/70 text-sm">We build, you adopt. Live in under a day of your time.</p>
-      <p class="mt-6 text-3xl h-display">$7,500<span class="text-base text-ink/55"> + GST</span></p>
+      <p class="mt-6 text-3xl h-display">$9,500<span class="text-base text-ink/55"> + GST</span></p>
       <p class="text-xs text-ink/55">Fixed fee. Delivered within 2 weeks.</p>
       <ul class="mt-6 space-y-2 text-sm text-ink/80 flex-1">
         <li>· Tailored risk assessment for your practice mix</li>
@@ -205,6 +258,61 @@
     </div>
   </div>
   <p class="mt-6 text-xs text-ink/55 max-w-3xl">Pricing is indicative. Final fee depends on practice size, service mix and integration scope. We'll quote in writing after a 20-minute scoping call.</p>
+
+  <!-- Larger firms -->
+  <div class="mt-10 rounded-2xl border-2 border-dashed rule p-6 md:p-8 bg-white/40 flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
+    <div>
+      <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-1">25+ fee-earners or multi-office?</p>
+      <p class="text-ink/75">Larger boutique firms with multi-state offices, complex service mixes or referrer networks need a custom scope. Engagements typically start from $18,000 + GST.</p>
+    </div>
+    <a href="#contact" class="self-start md:self-auto px-5 py-2.5 rounded-full border border-ink/20 hover:border-ink hover:bg-ink hover:text-paper transition text-sm font-medium whitespace-nowrap">Bespoke quote</a>
+  </div>
+</section>
+
+<!-- Case study -->
+<section class="max-w-6xl mx-auto px-6 pb-20">
+  <div class="rounded-3xl border rule bg-white p-8 md:p-12 grid md:grid-cols-12 gap-10">
+    <div class="md:col-span-5">
+      <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-4">Recent engagement</p>
+      <h2 class="h-display text-3xl leading-tight">[ANONYMISED FIRM] — 12-partner Melbourne firm, property &amp; estates.</h2>
+      <p class="mt-4 text-ink/70 text-sm">Tier 2 Done-With-You. Live 11 business days from kickoff.</p>
+    </div>
+    <div class="md:col-span-7 space-y-5 text-sm">
+      <div>
+        <p class="text-xs uppercase tracking-[0.18em] text-ink/55 font-semibold mb-1">The problem</p>
+        <p class="text-ink/80">[1-2 sentence description of where they were. e.g. "Partners assumed conveyancing was their only AML exposure; trust money and family-trust structuring also caught them. AMLCO was nominally appointed with no program behind the appointment letter."]</p>
+      </div>
+      <div>
+        <p class="text-xs uppercase tracking-[0.18em] text-ink/55 font-semibold mb-1">What we built</p>
+        <p class="text-ink/80">[1-2 sentence summary. e.g. "Risk-assessed five practice areas, drafted the unified program, mapped CDD to the firm's matter intake in Actionstep, ran partner and staff training, established the quarterly board-reporting cadence."]</p>
+      </div>
+      <div>
+        <p class="text-xs uppercase tracking-[0.18em] text-ink/55 font-semibold mb-1">Partner time</p>
+        <p class="text-ink/80">[XX hours total over 2 weeks.] Fee: $7,500 + GST, fixed.</p>
+      </div>
+      <p class="text-xs text-ink/45 pt-2 border-t rule"><!-- TODO: replace with real anonymised case once delivered -->Placeholder content — replace with first delivered engagement.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section class="max-w-6xl mx-auto px-6 pb-20">
+  <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-6">What partners say</p>
+  <div class="grid md:grid-cols-3 gap-6">
+    <figure class="border rule rounded-2xl p-6 bg-white">
+      <blockquote class="h-display text-lg leading-snug text-ink">"[Quote from managing partner — emphasising defensibility and speed.]"</blockquote>
+      <figcaption class="mt-4 text-sm text-ink/70">— [NAME], Managing Partner<br /><span class="text-ink/45 text-xs">[ANONYMISED FIRM]</span></figcaption>
+    </figure>
+    <figure class="border rule rounded-2xl p-6 bg-white">
+      <blockquote class="h-display text-lg leading-snug text-ink">"[Quote — emphasising the partner-time saving and that staff actually use it.]"</blockquote>
+      <figcaption class="mt-4 text-sm text-ink/70">— [NAME], Practice Manager<br /><span class="text-ink/45 text-xs">[ANONYMISED FIRM]</span></figcaption>
+    </figure>
+    <figure class="border rule rounded-2xl p-6 bg-white">
+      <blockquote class="h-display text-lg leading-snug text-ink">"[Quote — emphasising peace of mind on personal AMLCO liability.]"</blockquote>
+      <figcaption class="mt-4 text-sm text-ink/70">— [NAME], AMLCO<br /><span class="text-ink/45 text-xs">[ANONYMISED FIRM]</span></figcaption>
+    </figure>
+  </div>
+  <p class="mt-4 text-xs text-ink/45"><!-- TODO: replace placeholder quotes with real testimonials once collected -->Placeholder testimonials — replace with collected quotes from first three clients.</p>
 </section>
 
 <!-- FAQ -->

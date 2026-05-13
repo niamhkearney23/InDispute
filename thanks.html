@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Thanks — ATTICUS</title>
+<meta name="description" content="The checklist is on its way to your inbox." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- TODO: set data-domain to your real domain once deployed -->
+<script defer data-domain="atticus.example.com" src="https://plausible.io/js/script.js"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: {
+      fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], serif: ['"Source Serif 4"', 'Georgia', 'serif'] },
+      colors: { ink: '#0B1220', paper: '#FBF9F4', accent: '#1F3A5F', rule: '#E5E1D6' },
+    } },
+  };
+</script>
+<style>
+  body { background: #FBF9F4; color: #0B1220; }
+  .h-display { font-family: 'Source Serif 4', Georgia, serif; letter-spacing: -0.01em; }
+  .rule { border-color: #E5E1D6; }
+</style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col">
+
+<header class="border-b rule">
+  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="index.html" class="font-semibold tracking-[0.08em] text-ink">ATTICUS</a>
+    <a href="index.html" class="text-sm text-ink/70 hover:text-ink">← Back to home</a>
+  </div>
+</header>
+
+<main class="flex-1 flex items-center">
+  <div class="max-w-3xl mx-auto px-6 py-20 text-center">
+    <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-5">Confirmed</p>
+    <h1 class="h-display text-4xl md:text-6xl leading-tight">The checklist is on its way.</h1>
+    <p class="mt-6 text-lg text-ink/75">Check your inbox in the next minute. If it hasn't arrived, look in your spam folder or email <a href="mailto:hello@example.com.au" class="underline">hello@example.com.au</a>.</p>
+    <div class="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
+      <a href="checklist.html?sector=law" class="bg-ink text-paper px-6 py-3 rounded-full font-medium hover:bg-accent transition">Try the interactive version now</a>
+      <a href="index.html#pricing" class="border border-ink/20 px-6 py-3 rounded-full font-medium hover:border-ink transition">See pricing tiers</a>
+    </div>
+  </div>
+</main>
+
+<footer class="border-t rule">
+  <div class="max-w-6xl mx-auto px-6 py-8 text-sm text-ink/60 text-center">
+    © <span id="yr"></span> ATTICUS. Melbourne, Australia.
+  </div>
+</footer>
+<script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+
+</body>
+</html>
