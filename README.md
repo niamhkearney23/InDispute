@@ -11,14 +11,14 @@ aml/
 ├── competitive-memo.md          # Strategic pivot memo (the InfoTrack reality)
 ├── index.html                   # Home — "the human, not the platform"
 ├── independent-reviews.html     # Service line — third-party assurance
-├── accountants.html             # Sector — platform-overflow market
-├── real-estate.html             # Sector — platform-overflow market
+├── compare.html                 # Public comparison — InfoTrack vs ATTICUS vs DIY (NEW)
+├── platform-overflow.html       # Consolidated page for law/accounting/real-estate (NEW)
 ├── tcsp.html                    # Sector — no platform alternative
 ├── dpms.html                    # Sector — no platform alternative
-├── gambling.html                # Sector — no platform alternative (NEW)
-├── msb.html                     # Sector — no platform alternative (NEW)
-├── crypto.html                  # Sector — no platform alternative (NEW)
-├── bullion.html                 # Sector — no platform alternative (NEW)
+├── gambling.html                # Sector — no platform alternative
+├── msb.html                     # Sector — no platform alternative
+├── crypto.html                  # Sector — no platform alternative
+├── bullion.html                 # Sector — no platform alternative
 ├── checklist.html               # Lead magnet — 12-point readiness checklist (sector-neutral)
 ├── templates/
 │   ├── aml-ctf-program-template.md      # Productised unified program (~30 placeholders)
@@ -70,12 +70,17 @@ The landing pages and checklist are pure static HTML — no build step. Either o
 ```sh
 cd aml
 python3 -m http.server 8000
-# http://localhost:8000/index.html        — law firms
-# http://localhost:8000/accountants.html  — accountants
-# http://localhost:8000/real-estate.html  — real estate
-# http://localhost:8000/tcsp.html         — trust &amp; company service providers
-# http://localhost:8000/dpms.html         — dealers in precious metals &amp; stones
-# http://localhost:8000/checklist.html    — readiness checklist
+# http://localhost:8000/index.html              — home
+# http://localhost:8000/compare.html            — InfoTrack vs ATTICUS vs DIY
+# http://localhost:8000/independent-reviews.html
+# http://localhost:8000/platform-overflow.html  — law / accounting / real estate
+# http://localhost:8000/tcsp.html
+# http://localhost:8000/dpms.html
+# http://localhost:8000/gambling.html
+# http://localhost:8000/msb.html
+# http://localhost:8000/crypto.html
+# http://localhost:8000/bullion.html
+# http://localhost:8000/checklist.html
 ```
 
 For deployment: drop the contents of `aml/` onto Netlify, Vercel, GitHub Pages, or any static host. Tailwind loads via CDN. Replace `<!-- TODO -->` placeholders (brand name reaffirmation, contact email, phone, founder bio) before going live, and wire the lead-capture forms to your email tool of choice (Formspree, ConvertKit, HubSpot, etc.).

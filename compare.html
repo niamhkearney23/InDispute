@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>InfoTrack vs ATTICUS vs DIY — honest AML/CTF compliance comparison</title>
+<meta name="description" content="An honest comparison of the three realistic AML/CTF compliance paths for Australian reporting entities: InfoTrack's free Compliance Centre, ATTICUS's outsourced AMLCO + reviews, or full DIY." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@500;600;700&display=swap" rel="stylesheet" />
+<!-- TODO: set data-domain to your real domain once deployed -->
+<script defer data-domain="atticus.example.com" src="https://plausible.io/js/script.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], serif: ['"Source Serif 4"', 'Georgia', 'serif'] },
+    colors: { ink: '#0B1220', paper: '#FBF9F4', accent: '#1F3A5F', rule: '#E5E1D6', good: '#0F7A4A', warn: '#B7791F', risk: '#9A2A2A' },
+  } } };
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body { background: #FBF9F4; color: #0B1220; }
+  .h-display { font-family: 'Source Serif 4', Georgia, serif; letter-spacing: -0.01em; }
+  .rule { border-color: #E5E1D6; }
+  .num { font-feature-settings: 'tnum'; }
+  table.compare { border-collapse: separate; border-spacing: 0; width: 100%; }
+  table.compare th, table.compare td { border-bottom: 1px solid #E5E1D6; padding: 0.85rem 1rem; vertical-align: top; text-align: left; }
+  table.compare th:first-child, table.compare td:first-child { padding-left: 0; font-weight: 500; color: rgba(11,18,32,0.7); }
+  table.compare thead th { font-family: 'Source Serif 4', serif; font-weight: 600; font-size: 1.05rem; padding-bottom: 1rem; }
+  table.compare tbody td { font-size: 0.92rem; line-height: 1.5; }
+  table.compare tbody tr:hover td { background: rgba(11,18,32,0.015); }
+  .tick { color: #0F7A4A; font-weight: 600; }
+  .cross { color: #9A2A2A; font-weight: 600; }
+  .partial { color: #B7791F; font-weight: 600; }
+</style>
+</head>
+<body class="font-sans antialiased">
+
+<header class="border-b rule">
+  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="index.html" class="font-semibold tracking-[0.08em] text-ink">ATTICUS</a>
+    <nav class="hidden md:flex items-center gap-8 text-sm text-ink/80">
+      <a href="index.html#services" class="hover:text-ink">Services</a>
+      <a href="index.html#sectors" class="hover:text-ink">Sectors</a>
+      <a href="compare.html" class="text-ink">Compare</a>
+      <a href="index.html#pricing" class="hover:text-ink">Pricing</a>
+    </nav>
+    <a href="index.html#contact" class="text-sm font-medium bg-ink text-paper px-4 py-2 rounded-full hover:bg-accent transition">Book a call</a>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="max-w-6xl mx-auto px-6 pt-14 pb-10">
+  <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-4">Honest comparison · Updated May 2026</p>
+  <h1 class="h-display text-4xl md:text-5xl leading-tight max-w-3xl">InfoTrack, ATTICUS, or DIY — which path actually fits your firm?</h1>
+  <p class="mt-5 text-lg text-ink/75 max-w-2xl">There are three realistic ways to meet your AML/CTF obligations from 1 July 2026. Each fits a particular shape of firm. We're not going to pretend ATTICUS is right for everyone — for most small law firms doing low-risk conveyancing, it isn't. Here's the honest breakdown.</p>
+</section>
+
+<!-- TL;DR -->
+<section class="max-w-6xl mx-auto px-6 pb-14">
+  <div class="grid md:grid-cols-3 gap-4">
+    <div class="border rule rounded-2xl p-6 bg-white">
+      <p class="text-xs uppercase tracking-[0.18em] text-ink/55 font-semibold mb-2">Best for</p>
+      <h2 class="h-display text-xl">InfoTrack Compliance Centre</h2>
+      <p class="text-sm text-ink/70 mt-3">Small to mid-sized firms in the four covered sectors (law, conveyancing, accounting, real estate) where one partner can credibly act as AMLCO and risk is low-to-medium. The platform does the heavy lifting on workflow.</p>
+      <p class="text-xs text-ink/55 mt-4"><a class="underline hover:no-underline" href="https://infotrack.com.au/aml-ctf-compliance-centre/" target="_blank" rel="noopener">infotrack.com.au →</a></p>
+    </div>
+    <div class="border-2 border-accent rounded-2xl p-6 bg-white relative shadow-sm">
+      <span class="absolute -top-3 left-6 bg-accent text-paper text-[10px] uppercase tracking-[0.18em] font-semibold px-3 py-1 rounded-full">If your platform isn't enough</span>
+      <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-2">Best for</p>
+      <h2 class="h-display text-xl">ATTICUS</h2>
+      <p class="text-sm text-ink/70 mt-3">Firms where one partner can't credibly be the AMLCO; firms with international, trust-structuring or high-value exposure; firms in sectors no platform serves (TCSPs, DPMS, gambling, MSB, crypto, bullion); and every firm needing a periodic independent review.</p>
+      <p class="text-xs text-ink/55 mt-4"><a class="underline hover:no-underline" href="index.html">What we do →</a></p>
+    </div>
+    <div class="border rule rounded-2xl p-6 bg-white">
+      <p class="text-xs uppercase tracking-[0.18em] text-ink/55 font-semibold mb-2">Best for</p>
+      <h2 class="h-display text-xl">DIY (in-house only)</h2>
+      <p class="text-sm text-ink/70 mt-3">Larger firms with a dedicated in-house compliance officer and existing AML expertise. Or operators willing to invest 100+ hours getting up the curve and accept the residual risk on themselves.</p>
+      <p class="text-xs text-ink/55 mt-4">No external vendor. AUSTRAC Starter Kits + your own implementation.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Big comparison table -->
+<section class="max-w-6xl mx-auto px-6 pb-16">
+  <h2 class="h-display text-2xl md:text-3xl mb-6">The honest comparison</h2>
+
+  <div class="overflow-x-auto border rule rounded-2xl bg-white">
+    <table class="compare">
+      <thead>
+        <tr>
+          <th class="w-1/4">&nbsp;</th>
+          <th>InfoTrack Compliance Centre</th>
+          <th>ATTICUS</th>
+          <th>DIY (Starter Kits)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>What it is</th>
+          <td>A free software product layered onto a PMS. Built with Grant Thornton; uses AUSTRAC Starter Kits.</td>
+          <td>A small professional practice. A named external AMLCO, independent reviews and bespoke builds.</td>
+          <td>You and your team, reading the Rules and implementing in-house.</td>
+        </tr>
+        <tr>
+          <th>Sectors covered</th>
+          <td>Law firms, conveyancers, accountants, real estate agents. Nothing else.</td>
+          <td>The four above (as the human layer above any platform) <em>plus</em> TCSPs, DPMS, gambling, MSB, digital currency, bullion.</td>
+          <td>All sectors — but you carry all the work.</td>
+        </tr>
+        <tr>
+          <th>Cost — software</th>
+          <td><span class="tick">$0/mo</span> "complimentary" software.</td>
+          <td>No software fee. Service-only.</td>
+          <td>$0. You build it yourself.</td>
+        </tr>
+        <tr>
+          <th>Cost — per-check</th>
+          <td>Pay-per-use for VOI, PEP, sanctions, adverse-media and bankruptcy/criminal-history checks on every client (and on staff after 31 May 2026). A firm doing 200 onboardings/year typically pays ~$2,000–$6,000 annually depending on check mix.</td>
+          <td>Not applicable — we don't run the checks; you keep your existing provider (InfoTrack, Frankie, GreenID, manual).</td>
+          <td>Whatever provider you pick. Same per-check economics as InfoTrack but without the integrated workflow.</td>
+        </tr>
+        <tr>
+          <th>Cost — service</th>
+          <td>$0 service. No outsourced AMLCO option.</td>
+          <td>$2.8–5.5k/mo outsourced AMLCO retainer; $4.5–12k per independent review; $9.5–24k bespoke build (sector-dependent).</td>
+          <td>$0 cash, ~100+ hours of partner time per year.</td>
+        </tr>
+        <tr>
+          <th>Risk assessment template</th>
+          <td><span class="tick">Yes</span> — free, in-tool.</td>
+          <td><span class="tick">Yes</span> — bespoke if engaged; available standalone too.</td>
+          <td><span class="tick">Yes</span> — AUSTRAC Starter Kit.</td>
+        </tr>
+        <tr>
+          <th>Customer CDD workflow</th>
+          <td><span class="tick">Yes</span> — fully integrated into your PMS. Excellent for low–medium risk.</td>
+          <td><span class="partial">We don't run the workflow</span> — we plug into whatever you use, including InfoTrack.</td>
+          <td><span class="partial">DIY</span> — you build the workflow yourself.</td>
+        </tr>
+        <tr>
+          <th>AMLCO — the named person</th>
+          <td><span class="cross">No</span> — software cannot be your AMLCO. You appoint someone internal.</td>
+          <td><span class="tick">Yes</span> — we are your external AMLCO. Named, qualified, professionally insured.</td>
+          <td><span class="cross">No</span> — internal partner takes the role.</td>
+        </tr>
+        <tr>
+          <th>Forming suspicion / EDD decisions</th>
+          <td><span class="cross">No</span> — judgement isn't a feature of the platform.</td>
+          <td><span class="tick">Yes</span> — that's the whole point. Real-time consultation on hard cases.</td>
+          <td><span class="cross">No</span> — internal team carries this.</td>
+        </tr>
+        <tr>
+          <th>SMR / TTR / IFTI drafting</th>
+          <td><span class="partial">Templates only</span> — you still draft the substantive content.</td>
+          <td><span class="tick">Yes</span> — we draft, you sign, we lodge.</td>
+          <td><span class="cross">No</span> — internal.</td>
+        </tr>
+        <tr>
+          <th>Quarterly board reporting</th>
+          <td><span class="partial">Some reporting outputs</span> — but not authored for you.</td>
+          <td><span class="tick">Yes</span> — we author, you table.</td>
+          <td><span class="cross">No</span> — internal.</td>
+        </tr>
+        <tr>
+          <th>Independent reviews (required at intervals)</th>
+          <td><span class="cross">Cannot do</span> — vendor independence fails the test on its own platform.</td>
+          <td><span class="tick">Yes</span> — our core offer. Written report ready for AUSTRAC.</td>
+          <td><span class="cross">No</span> — you must commission a third party regardless.</td>
+        </tr>
+        <tr>
+          <th>AUSTRAC enforcement response</th>
+          <td><span class="cross">No</span> — not a consulting practice.</td>
+          <td><span class="tick">Yes</span> — rate card + retainer.</td>
+          <td><span class="cross">No</span> — engage a law firm.</td>
+        </tr>
+        <tr>
+          <th>Sector coverage gaps</th>
+          <td>TCSPs, DPMS, gambling, MSB, digital currency, bullion — all unserved.</td>
+          <td>Full stack for those sectors. The human layer for the four InfoTrack covers.</td>
+          <td>Same coverage as the operator's expertise.</td>
+        </tr>
+        <tr>
+          <th>Independence from platform vendor</th>
+          <td><span class="cross">N/A</span> — they are the platform.</td>
+          <td><span class="tick">Yes</span> — not affiliated with any AML platform.</td>
+          <td><span class="tick">Yes</span></td>
+        </tr>
+        <tr>
+          <th>Time required from partners</th>
+          <td>Low ongoing. Adoption is fast because it's inside the PMS.</td>
+          <td>Lowest — the function lives outside the firm.</td>
+          <td>Highest. 60–120+ hours/year of partner time to maintain.</td>
+        </tr>
+        <tr>
+          <th>Personal AMLCO liability</th>
+          <td>Sits on the internal partner you appoint.</td>
+          <td>Sits with us (where we're the named AMLCO) backed by professional indemnity.</td>
+          <td>Sits on the internal partner you appoint.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- The freemium reality -->
+<section class="border-y rule bg-white/60">
+  <div class="max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-12 gap-10">
+    <div class="md:col-span-5">
+      <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-4">Worth knowing</p>
+      <h2 class="h-display text-3xl leading-tight">"Complimentary" doesn't mean free of cost.</h2>
+    </div>
+    <div class="md:col-span-7 space-y-5 text-ink/80">
+      <p>InfoTrack's pricing line is "no charge for the software, you only pay for searches." The software <em>is</em> genuinely free. The searches are not optional — every client onboarding requires a VOI, PEP and sanctions screening at minimum, and most matters require adverse-media and beneficial-owner checks too.</p>
+      <p>The free-until-31-May-2026 window applies only to <em>personnel</em> onboarding — verifying your firm's own staff. Client CDD checks have always been chargeable. After 31 May 2026, even personnel checks revert to pay-per-use.</p>
+      <p>For a small firm doing ~200 client onboardings a year and verifying ~10 internal staff, you're looking at a real annual cost somewhere between $2,000 and $6,000 depending on check mix. That's still cheaper than building it in-house — and the platform's workflow integration is genuinely valuable. But "free" is marketing copy, not the actual unit economics.</p>
+      <p class="text-xs text-ink/55 pt-2 border-t rule">None of which is a criticism. InfoTrack's product is well-built and well-priced for what it does. We just think the cost conversation should be honest about per-check exposure, and the scope conversation should be honest about what software can and can't do.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Decision tree -->
+<section class="max-w-6xl mx-auto px-6 py-16">
+  <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-4">Decision shortcut</p>
+  <h2 class="h-display text-3xl md:text-4xl leading-tight max-w-2xl">Three questions, in order.</h2>
+
+  <div class="mt-10 space-y-4">
+    <div class="border rule rounded-2xl p-6 bg-white">
+      <p class="text-sm font-medium text-ink/55 mb-1">Question 1</p>
+      <h3 class="h-display text-xl">Are you in law, conveyancing, accounting or real estate?</h3>
+      <p class="mt-3 text-sm text-ink/75"><strong>No</strong> — InfoTrack doesn't cover your sector. You need a real program, and almost certainly an external AMLCO. See our sector pages: <a class="text-accent underline" href="tcsp.html">TCSPs</a>, <a class="text-accent underline" href="dpms.html">DPMS</a>, <a class="text-accent underline" href="gambling.html">gambling</a>, <a class="text-accent underline" href="msb.html">MSB</a>, <a class="text-accent underline" href="crypto.html">crypto</a>, <a class="text-accent underline" href="bullion.html">bullion</a>.</p>
+      <p class="mt-2 text-sm text-ink/75"><strong>Yes</strong> — continue to Q2.</p>
+    </div>
+    <div class="border rule rounded-2xl p-6 bg-white">
+      <p class="text-sm font-medium text-ink/55 mb-1">Question 2</p>
+      <h3 class="h-display text-xl">Do you have a partner who can credibly hold the AMLCO role — time, AML knowledge, comfort with personal exposure?</h3>
+      <p class="mt-3 text-sm text-ink/75"><strong>Yes</strong> — InfoTrack's platform plus that partner is likely sufficient for low–medium risk work. You'll still need an independent review at intervals; that part can't sit with InfoTrack.</p>
+      <p class="mt-2 text-sm text-ink/75"><strong>No / unsure</strong> — continue to Q3.</p>
+    </div>
+    <div class="border rule rounded-2xl p-6 bg-white">
+      <p class="text-sm font-medium text-ink/55 mb-1">Question 3</p>
+      <h3 class="h-display text-xl">Does your work touch international clients, complex trust structures, high-value real estate, or repeat high-cash transactions?</h3>
+      <p class="mt-3 text-sm text-ink/75"><strong>Yes</strong> — your risk profile is meaningfully above what an internal nominal-AMLCO can defend. ATTICUS's outsourced AMLCO retainer is built for exactly this.</p>
+      <p class="mt-2 text-sm text-ink/75"><strong>No</strong> — supplement InfoTrack with us only for the independent review (mandatory regardless).</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="max-w-6xl mx-auto px-6 pb-20">
+  <div class="rounded-3xl bg-ink text-paper p-10 md:p-14 grid md:grid-cols-2 gap-10 items-center">
+    <div>
+      <h2 class="h-display text-3xl md:text-4xl leading-tight">Still not sure?</h2>
+      <p class="mt-4 text-paper/75">A 20-minute scoping call. We'll tell you honestly which path fits — including if that's InfoTrack alone with no need for us.</p>
+    </div>
+    <div class="flex flex-col gap-3 md:items-end">
+      <a href="index.html#contact" class="inline-flex justify-center items-center bg-paper text-ink px-6 py-3 rounded-full font-medium hover:bg-accent hover:text-paper transition">Book a call</a>
+      <a href="checklist.html" class="text-paper/70 text-sm hover:text-paper">or take the readiness checklist first →</a>
+    </div>
+  </div>
+</section>
+
+<footer class="border-t rule">
+  <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row gap-4 md:items-center md:justify-between text-sm text-ink/60">
+    <p>© <span id="yr"></span> ATTICUS. Melbourne, Australia.</p>
+    <p>Information here is general and not legal advice. Pricing and features for third-party products are stated as we understand them; check vendor websites for current detail.</p>
+  </div>
+</footer>
+<script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+
+</body>
+</html>
