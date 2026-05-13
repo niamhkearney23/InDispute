@@ -1,0 +1,9 @@
+# TODO: replace https://atticus.example.com with real production domain
+User-agent: *
+Allow: /
+Disallow: /directory.html
+Disallow: /competitive-memo.md
+Disallow: /README.md
+Disallow: /thanks.html
+
+Sitemap: https://atticus.example.com/sitemap.xml
