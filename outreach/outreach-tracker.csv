@@ -1,0 +1,2 @@
+firm_name,suburb,headcount,practice_areas,trust_account,austrac_enrolled,priority,contact_name,contact_title,contact_email,contact_linkedin,source,touch_1_date,touch_2_date,touch_3_date,touch_4_date,replied,reply_sentiment,scoping_call_booked,scoping_call_date,outcome,tier,notes
+Example Firm,Melbourne CBD,12,"Property; Trusts & Estates",Yes,No,High,Jane Smith,Managing Partner,jane@example.com.au,linkedin.com/in/janesmith,LIV directory,2026-05-13,,,,No,,,,,,Hot — recently hired property partner
