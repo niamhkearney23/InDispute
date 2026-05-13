@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ATTICUS — directory</title>
+<meta name="description" content="Every page, document and asset in the ATTICUS AML/CTF launch kit." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: {
+      fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], serif: ['"Source Serif 4"', 'Georgia', 'serif'] },
+      colors: { ink: '#0B1220', paper: '#FBF9F4', accent: '#1F3A5F', rule: '#E5E1D6' },
+    } },
+  };
+</script>
+<style>
+  body { background: #FBF9F4; color: #0B1220; }
+  .h-display { font-family: 'Source Serif 4', Georgia, serif; letter-spacing: -0.01em; }
+  .rule { border-color: #E5E1D6; }
+  .card { transition: all 0.15s; }
+  .card:hover { border-color: #0B1220; transform: translateY(-1px); }
+  .pill { display: inline-flex; align-items: center; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.7rem; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 600; }
+</style>
+</head>
+<body class="font-sans antialiased">
+
+<header class="border-b rule">
+  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="index.html" class="font-semibold tracking-[0.08em] text-ink">ATTICUS</a>
+    <nav class="hidden md:flex items-center gap-8 text-sm text-ink/80">
+      <a href="index.html" class="hover:text-ink">Home</a>
+      <a href="checklist.html" class="hover:text-ink">Checklist</a>
+      <a href="#sectors" class="hover:text-ink">Sectors</a>
+      <a href="#internal" class="hover:text-ink">Internal</a>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-6 py-12 md:py-16">
+
+  <section class="mb-16">
+    <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-4">Directory</p>
+    <h1 class="h-display text-4xl md:text-5xl leading-tight">Everything in the ATTICUS kit.</h1>
+    <p class="mt-4 text-lg text-ink/75 max-w-2xl">Public-facing pages, internal go-to-market documents, and the productised deliverables. Operator-side index — keep this URL private.</p>
+  </section>
+
+  <!-- Public landing pages -->
+  <section id="sectors" class="mb-16">
+    <div class="flex items-baseline justify-between mb-6">
+      <h2 class="h-display text-2xl">Public landing pages</h2>
+      <span class="pill bg-ink/5 text-ink/70">Customer-facing</span>
+    </div>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <a href="index.html" class="card block border rule rounded-2xl p-5 bg-white">
+        <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold">Law firms</p>
+        <h3 class="h-display text-lg mt-2">Boutique Melbourne law firms</h3>
+        <p class="text-sm text-ink/65 mt-2">Property, trusts &amp; estates, corporate / commercial focus.</p>
+        <p class="text-xs text-ink/45 mt-3 font-mono">/index.html</p>
+      </a>
+      <a href="accountants.html" class="card block border rule rounded-2xl p-5 bg-white">
+        <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold">Accountants</p>
+        <h3 class="h-display text-lg mt-2">Boutique accounting firms</h3>
+        <p class="text-sm text-ink/65 mt-2">TCSP-exposed work — SMSF, structuring, trust accounting.</p>
+        <p class="text-xs text-ink/45 mt-3 font-mono">/accountants.html</p>
+      </a>
+      <a href="real-estate.html" class="card block border rule rounded-2xl p-5 bg-white">
+        <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold">Real estate</p>
+        <h3 class="h-display text-lg mt-2">Independent real estate agencies</h3>
+        <p class="text-sm text-ink/65 mt-2">Sales, buyer's agents, off-the-plan.</p>
+        <p class="text-xs text-ink/45 mt-3 font-mono">/real-estate.html</p>
+      </a>
+      <a href="tcsp.html" class="card block border rule rounded-2xl p-5 bg-white">
+        <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold">TCSP</p>
+        <h3 class="h-display text-lg mt-2">Trust &amp; company service providers</h3>
+        <p class="text-sm text-ink/65 mt-2">Highest FATF-flagged risk category in Tranche 2.</p>
+        <p class="text-xs text-ink/45 mt-3 font-mono">/tcsp.html</p>
+      </a>
+      <a href="dpms.html" class="card block border rule rounded-2xl p-5 bg-white">
+        <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold">DPMS</p>
+        <h3 class="h-display text-lg mt-2">Precious metals &amp; stones dealers</h3>
+        <p class="text-sm text-ink/65 mt-2">Bullion, jewellers, scrap gold.</p>
+        <p class="text-xs text-ink/45 mt-3 font-mono">/dpms.html</p>
+      </a>
+      <div class="card block border-2 border-dashed rule rounded-2xl p-5 bg-white/40 text-ink/55">
+        <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold">Coming next</p>
+        <h3 class="h-display text-lg mt-2">Another sector?</h3>
+        <p class="text-sm mt-2">Mortgage brokers, digital currency exchanges, lenders — let me know.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Checklist variants -->
+  <section class="mb-16">
+    <div class="flex items-baseline justify-between mb-6">
+      <h2 class="h-display text-2xl">Readiness checklist</h2>
+      <span class="pill bg-ink/5 text-ink/70">Lead magnet</span>
+    </div>
+    <p class="text-ink/70 mb-5 text-sm max-w-3xl">Same 12-question engine, sector-aware labels. Each landing page passes the right <code class="text-xs bg-ink/5 px-1 rounded">?sector=</code> param. Direct test links:</p>
+    <div class="flex flex-wrap gap-2">
+      <a href="checklist.html?sector=law" class="pill bg-ink text-paper hover:bg-accent">Law</a>
+      <a href="checklist.html?sector=accounting" class="pill bg-ink text-paper hover:bg-accent">Accounting</a>
+      <a href="checklist.html?sector=real-estate" class="pill bg-ink text-paper hover:bg-accent">Real estate</a>
+      <a href="checklist.html?sector=tcsp" class="pill bg-ink text-paper hover:bg-accent">TCSP</a>
+      <a href="checklist.html?sector=dpms" class="pill bg-ink text-paper hover:bg-accent">DPMS</a>
+    </div>
+  </section>
+
+  <!-- Internal docs -->
+  <section id="internal" class="mb-16">
+    <div class="flex items-baseline justify-between mb-6">
+      <h2 class="h-display text-2xl">Internal go-to-market</h2>
+      <span class="pill bg-accent/10 text-accent">Operator only</span>
+    </div>
+
+    <div class="mb-8">
+      <h3 class="h-display text-lg mb-3">Direct outreach (SME-tier)</h3>
+      <div class="grid md:grid-cols-2 gap-4">
+        <a href="outreach/icp-criteria.md" class="card block border rule rounded-2xl p-5 bg-white">
+          <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold">ICP — law firms</p>
+          <h4 class="h-display text-base mt-2">Filters, source list, personas</h4>
+          <p class="text-xs text-ink/45 mt-3 font-mono">/outreach/icp-criteria.md</p>
+        </a>
+        <a href="outreach/icp-criteria-accountants.md" class="card block border rule rounded-2xl p-5 bg-white">
+          <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold">ICP — accountants</p>
+          <h4 class="h-display text-base mt-2">SMSF / TCSP-exposed targeting</h4>
+          <p class="text-xs text-ink/45 mt-3 font-mono">/outreach/icp-criteria-accountants.md</p>
+        </a>
+        <a href="outreach/icp-criteria-real-estate.md" class="card block border rule rounded-2xl p-5 bg-white">
+          <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold">ICP — real estate</p>
+          <h4 class="h-display text-base mt-2">Independent agencies, buyer's agents</h4>
+          <p class="text-xs text-ink/45 mt-3 font-mono">/outreach/icp-criteria-real-estate.md</p>
+        </a>
+        <a href="outreach/email-sequence.md" class="card block border rule rounded-2xl p-5 bg-white">
+          <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold">Email cadence</p>
+          <h4 class="h-display text-base mt-2">4-touch cold sequence + reply playbook</h4>
+          <p class="text-xs text-ink/45 mt-3 font-mono">/outreach/email-sequence.md</p>
+        </a>
+        <a href="outreach/sector-email-variants.md" class="card block border rule rounded-2xl p-5 bg-white">
+          <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold">Sector swaps</p>
+          <h4 class="h-display text-base mt-2">Per-ICP email + objection variants</h4>
+          <p class="text-xs text-ink/45 mt-3 font-mono">/outreach/sector-email-variants.md</p>
+        </a>
+        <a href="outreach/scoping-call-script.md" class="card block border rule rounded-2xl p-5 bg-white">
+          <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold">Scoping call</p>
+          <h4 class="h-display text-base mt-2">20-min script + objection handling</h4>
+          <p class="text-xs text-ink/45 mt-3 font-mono">/outreach/scoping-call-script.md</p>
+        </a>
+        <a href="outreach/outreach-tracker.csv" class="card block border rule rounded-2xl p-5 bg-white">
+          <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold">Tracker</p>
+          <h4 class="h-display text-base mt-2">Per-firm outreach pipeline</h4>
+          <p class="text-xs text-ink/45 mt-3 font-mono">/outreach/outreach-tracker.csv</p>
+        </a>
+      </div>
+    </div>
+
+    <div class="mb-8">
+      <h3 class="h-display text-lg mb-3">Big 4 partnership channel</h3>
+      <div class="grid md:grid-cols-2 gap-4">
+        <a href="channel/big4-partnership-pitch.md" class="card block border rule rounded-2xl p-5 bg-white">
+          <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold">Pitch</p>
+          <h4 class="h-display text-base mt-2">Partnership thesis &amp; commercial structures</h4>
+          <p class="text-sm text-ink/65 mt-2">The one to render and attach to outreach.</p>
+          <p class="text-xs text-ink/45 mt-3 font-mono">/channel/big4-partnership-pitch.md</p>
+        </a>
+        <a href="channel/big4-target-map.md" class="card block border rule rounded-2xl p-5 bg-white">
+          <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold">Targets</p>
+          <h4 class="h-display text-base mt-2">Roles to target at PwC, EY, Deloitte, KPMG</h4>
+          <p class="text-xs text-ink/45 mt-3 font-mono">/channel/big4-target-map.md</p>
+        </a>
+        <a href="channel/big4-outreach-sequence.md" class="card block border rule rounded-2xl p-5 bg-white">
+          <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold">Sequence</p>
+          <h4 class="h-display text-base mt-2">3-touch partner-level outreach</h4>
+          <p class="text-xs text-ink/45 mt-3 font-mono">/channel/big4-outreach-sequence.md</p>
+        </a>
+        <a href="channel/mou-shell.md" class="card block border rule rounded-2xl p-5 bg-white">
+          <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold">MoU</p>
+          <h4 class="h-display text-base mt-2">Fill-in-the-blanks partnership MoU</h4>
+          <p class="text-xs text-ink/45 mt-3 font-mono">/channel/mou-shell.md</p>
+        </a>
+        <a href="channel/big4-tracker.csv" class="card block border rule rounded-2xl p-5 bg-white">
+          <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold">Tracker</p>
+          <h4 class="h-display text-base mt-2">Big 4 partnership pipeline</h4>
+          <p class="text-xs text-ink/45 mt-3 font-mono">/channel/big4-tracker.csv</p>
+        </a>
+      </div>
+    </div>
+
+    <div>
+      <h3 class="h-display text-lg mb-3">Product deliverables (sold to clients)</h3>
+      <div class="grid md:grid-cols-2 gap-4">
+        <a href="templates/aml-ctf-program-template.md" class="card block border rule rounded-2xl p-5 bg-white">
+          <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold">Program</p>
+          <h4 class="h-display text-base mt-2">Unified AML/CTF program template</h4>
+          <p class="text-sm text-ink/65 mt-2">~30 placeholders. Customisable in under a day.</p>
+          <p class="text-xs text-ink/45 mt-3 font-mono">/templates/aml-ctf-program-template.md</p>
+        </a>
+        <a href="templates/risk-assessment-workbook.md" class="card block border rule rounded-2xl p-5 bg-white">
+          <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold">Annexure A</p>
+          <h4 class="h-display text-base mt-2">ML/TF risk assessment workbook</h4>
+          <p class="text-xs text-ink/45 mt-3 font-mono">/templates/risk-assessment-workbook.md</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-t rule pt-10">
+    <p class="text-sm text-ink/55">Markdown files render as plain text in-browser. To convert to PDF for client delivery: open in any markdown editor (Typora, Marked, MacDown) or run through pandoc.</p>
+  </section>
+</main>
+
+<footer class="border-t rule mt-8">
+  <div class="max-w-6xl mx-auto px-6 py-8 text-sm text-ink/60">
+    © <span id="yr"></span> ATTICUS. Internal directory — not for public distribution.
+  </div>
+</footer>
+<script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+
+</body>
+</html>
