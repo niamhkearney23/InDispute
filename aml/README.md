@@ -24,11 +24,20 @@ aml/
 │   ├── scoping-call-script.md           # 20-min call script + objection handling
 │   └── outreach-tracker.csv             # Per-firm tracking sheet
 ├── channel/                             # Big 4 partnership GTM
-│   ├── big4-partnership-pitch.md        # The pitch / one-pager / draft MoU framing
+│   ├── big4-pitch.html                  # Polished HTML pitch (printable / PDF)
+│   ├── big4-partnership-pitch.md        # Markdown source
 │   ├── big4-target-map.md               # Roles to target + pathways to find current incumbents
 │   ├── big4-outreach-sequence.md        # 3-touch partner-level outreach
 │   ├── big4-tracker.csv                 # Per-firm partnership tracker
 │   └── mou-shell.md                     # Fill-in-the-blanks MoU shell (referral / co-investment / hybrid)
+├── partner/                             # Co-founder / delivery-partner search
+│   ├── partner-pitch.html               # Polished HTML pitch (printable / PDF)
+│   ├── partner-pitch.md                 # Markdown source — open offer to AML practitioners
+│   ├── partner-personas.md              # Three target personas
+│   ├── partner-outreach.md              # Sourcing + 3-touch sequence
+│   ├── commercial-structures.md         # Three commercial structures
+│   ├── partner-call-script.md           # First-call script + qualification + Q&amp;A
+│   └── partner-tracker.csv              # Pipeline tracker
 └── assets/                              # (reserved for screenshots, logos)
 ```
 
