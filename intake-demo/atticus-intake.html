@@ -1,0 +1,1343 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Atticus — intake demo</title>
+<meta name="description" content="Atticus — smart matter-opening software for Australian law firms. Interactive demo." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], serif: ['"Source Serif 4"', 'Georgia', 'serif'] },
+    colors: { ink: '#0B1220', paper: '#FBF9F4', accent: '#1F3A5F', rule: '#E5E1D6', good: '#0F7A4A', warn: '#B7791F', risk: '#9A2A2A' },
+  } } };
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body { background: #FBF9F4; color: #0B1220; }
+  .h-display { font-family: 'Source Serif 4', Georgia, serif; letter-spacing: -0.01em; }
+  .rule { border-color: #E5E1D6; }
+  .num { font-feature-settings: 'tnum'; }
+  [hidden] { display: none !important; }
+  .role-pill { transition: all .15s ease; }
+  .role-pill.active { background: #0B1220; color: #FBF9F4; }
+  .toast { animation: slideUp .25s ease both; }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0 } to { transform: none; opacity: 1 } }
+  .drawer { transition: transform .25s ease; }
+  .drawer.closed { transform: translateX(100%); }
+  .step-dot { width: 8px; height: 8px; border-radius: 999px; background: #E5E1D6; transition: all .2s; }
+  .step-dot.active { background: #1F3A5F; width: 24px; }
+  .step-dot.done { background: #0F7A4A; }
+  .fade-in { animation: fadeIn .25s ease both; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px) } to { opacity: 1; transform: none } }
+  /* form polish */
+  .input { width: 100%; border: 1px solid #E5E1D6; background: white; padding: 0.65rem 0.85rem; border-radius: 0.6rem; font-size: 0.95rem; }
+  .input:focus { outline: none; border-color: #1F3A5F; box-shadow: 0 0 0 3px rgba(31,58,95,.12); }
+  .input-label { font-size: 0.875rem; font-weight: 500; color: #0B1220; display: block; margin-bottom: 0.35rem; }
+  .input-helper { font-size: 0.78rem; color: rgba(11,18,32,.55); margin-top: 0.3rem; }
+  .radio-card { display: flex; gap: 0.65rem; align-items: flex-start; padding: 0.75rem 0.9rem; border: 1px solid #E5E1D6; border-radius: 0.6rem; cursor: pointer; background: white; transition: all .15s; }
+  .radio-card:hover { border-color: #0B1220; }
+  .radio-card.selected { border-color: #1F3A5F; box-shadow: 0 0 0 3px rgba(31,58,95,.1); background: #FBF9F4; }
+  .radio-card input { margin-top: 0.2rem; }
+  .pill { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.72rem; font-weight: 500; }
+  .pill-good { background: rgba(15,122,74,.1); color: #0F7A4A; }
+  .pill-warn { background: rgba(183,121,31,.12); color: #B7791F; }
+  .pill-risk { background: rgba(154,42,42,.1); color: #9A2A2A; }
+  .pill-info { background: rgba(31,58,95,.08); color: #1F3A5F; }
+  .pill-neutral { background: rgba(11,18,32,.06); color: rgba(11,18,32,.7); }
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #E5E1D6; border-radius: 4px; }
+</style>
+</head>
+<body class="font-sans antialiased min-h-screen">
+
+<!-- Demo banner -->
+<div class="bg-accent text-paper text-center py-2 text-xs">
+  <span class="font-medium">Atticus demo</span> · single-file preview, no backend · <button id="reset-btn" class="underline hover:no-underline ml-1">Reset data</button>
+</div>
+
+<!-- Header -->
+<header class="border-b rule bg-paper sticky top-0 z-30 backdrop-blur">
+  <div class="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="#" class="font-semibold tracking-[0.08em] text-ink">ATTICUS</a>
+      <span class="pill pill-neutral hidden md:inline-flex">Marshall &amp; Co Lawyers</span>
+    </div>
+    <div class="flex items-center gap-2 bg-ink/5 rounded-full p-1">
+      <button class="role-pill active text-xs font-medium px-3 py-1.5 rounded-full" data-role="lawyer">Lawyer view</button>
+      <button class="role-pill text-xs font-medium px-3 py-1.5 rounded-full" data-role="client">Client view</button>
+      <button class="role-pill text-xs font-medium px-3 py-1.5 rounded-full" data-role="principal">Principal view</button>
+    </div>
+    <div class="flex items-center gap-2 text-xs text-ink/55">
+      <span class="hidden sm:inline">Niamh K · Senior Associate</span>
+      <div class="w-8 h-8 rounded-full bg-accent text-paper flex items-center justify-center font-medium text-sm">NK</div>
+    </div>
+  </div>
+</header>
+
+<!-- =================== LAWYER VIEW =================== -->
+<main id="view-lawyer" class="max-w-7xl mx-auto px-6 py-8">
+  <div class="flex items-end justify-between mb-6 flex-wrap gap-4">
+    <div>
+      <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-2">Your matters</p>
+      <h1 class="h-display text-3xl">Matter intake</h1>
+      <p class="text-sm text-ink/65 mt-1">Open files, send intake, review what comes back, generate the cost disclosure draft.</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <div class="relative">
+        <input id="search" type="search" placeholder="Search client or matter…" class="input pl-9 w-64" />
+        <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      </div>
+      <button id="new-matter-btn" class="inline-flex items-center gap-2 bg-ink text-paper px-4 py-2.5 rounded-full text-sm font-medium hover:bg-accent transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        New matter
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI strip -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+    <div class="border rule rounded-xl p-4 bg-white">
+      <p class="text-xs text-ink/55 font-medium">Awaiting intake</p>
+      <p class="h-display text-2xl mt-1 num" id="kpi-awaiting">—</p>
+    </div>
+    <div class="border rule rounded-xl p-4 bg-white">
+      <p class="text-xs text-ink/55 font-medium">Ready to review</p>
+      <p class="h-display text-2xl mt-1 num" id="kpi-review">—</p>
+    </div>
+    <div class="border rule rounded-xl p-4 bg-white">
+      <p class="text-xs text-ink/55 font-medium">Open matters</p>
+      <p class="h-display text-2xl mt-1 num" id="kpi-open">—</p>
+    </div>
+    <div class="border rule rounded-xl p-4 bg-white">
+      <p class="text-xs text-ink/55 font-medium">Flagged</p>
+      <p class="h-display text-2xl mt-1 num text-risk" id="kpi-flagged">—</p>
+    </div>
+  </div>
+
+  <!-- Matter list -->
+  <div class="border rule rounded-2xl bg-white overflow-hidden">
+    <div class="px-5 py-3 border-b rule flex items-center justify-between text-xs">
+      <div class="flex items-center gap-2">
+        <button class="filter-btn pill pill-info" data-filter="all">All</button>
+        <button class="filter-btn pill pill-neutral" data-filter="intake-sent">Awaiting intake</button>
+        <button class="filter-btn pill pill-neutral" data-filter="intake-complete">Ready to review</button>
+        <button class="filter-btn pill pill-neutral" data-filter="open">Open</button>
+      </div>
+      <p class="text-ink/45 hidden md:block">Sorted by most recent activity</p>
+    </div>
+    <div id="matters-list" class="divide-y rule"></div>
+  </div>
+
+  <p class="text-xs text-ink/45 mt-4">Sample data only. Your firm would see real matters here.</p>
+</main>
+
+<!-- =================== CLIENT VIEW =================== -->
+<main id="view-client" hidden class="max-w-3xl mx-auto px-6 py-10">
+  <div class="border-2 border-dashed border-accent/30 rounded-2xl p-4 mb-6 bg-accent/[0.03]">
+    <p class="text-xs text-accent font-semibold flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+      Preview: this is what your client sees when you send them an intake link.
+    </p>
+  </div>
+
+  <div id="client-intake-shell">
+    <!-- rendered dynamically -->
+  </div>
+</main>
+
+<!-- =================== PRINCIPAL VIEW =================== -->
+<main id="view-principal" hidden class="max-w-7xl mx-auto px-6 py-8">
+  <div class="mb-8">
+    <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-2">Firm overview</p>
+    <h1 class="h-display text-3xl">Marshall &amp; Co Lawyers</h1>
+    <p class="text-sm text-ink/65 mt-1">Practice-wide visibility on every file from first contact to file-open.</p>
+  </div>
+
+  <!-- KPIs -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+    <div class="border rule rounded-xl p-5 bg-white">
+      <p class="text-xs text-ink/55 font-medium">New matters this month</p>
+      <p class="h-display text-3xl mt-1 num" id="p-kpi-new">—</p>
+      <p class="text-xs text-good mt-1">↑ 23% vs last month</p>
+    </div>
+    <div class="border rule rounded-xl p-5 bg-white">
+      <p class="text-xs text-ink/55 font-medium">Avg time to file-open</p>
+      <p class="h-display text-3xl mt-1 num">2.4<span class="text-base text-ink/55"> days</span></p>
+      <p class="text-xs text-good mt-1">↓ from 6.1 days pre-Atticus</p>
+    </div>
+    <div class="border rule rounded-xl p-5 bg-white">
+      <p class="text-xs text-ink/55 font-medium">Intake completion rate</p>
+      <p class="h-display text-3xl mt-1 num">86<span class="text-base text-ink/55">%</span></p>
+      <p class="text-xs text-ink/55 mt-1">Industry baseline ~52%</p>
+    </div>
+    <div class="border rule rounded-xl p-5 bg-white">
+      <p class="text-xs text-ink/55 font-medium">Flags for review</p>
+      <p class="h-display text-3xl mt-1 num text-risk" id="p-kpi-flagged">—</p>
+      <p class="text-xs text-ink/55 mt-1">SOF, conflict, risk score</p>
+    </div>
+  </div>
+
+  <div class="grid lg:grid-cols-3 gap-6">
+    <!-- Pipeline -->
+    <div class="lg:col-span-2 border rule rounded-2xl bg-white overflow-hidden">
+      <div class="px-5 py-4 border-b rule">
+        <h2 class="h-display text-lg">Pipeline by stage</h2>
+      </div>
+      <div class="p-5 space-y-4" id="pipeline-shell"></div>
+    </div>
+
+    <!-- By practice area -->
+    <div class="border rule rounded-2xl bg-white overflow-hidden">
+      <div class="px-5 py-4 border-b rule">
+        <h2 class="h-display text-lg">By practice area</h2>
+      </div>
+      <div class="p-5 space-y-3" id="practice-mix-shell"></div>
+    </div>
+
+    <!-- Lawyer load -->
+    <div class="lg:col-span-2 border rule rounded-2xl bg-white overflow-hidden">
+      <div class="px-5 py-4 border-b rule flex items-center justify-between">
+        <h2 class="h-display text-lg">Lawyer load (active intakes)</h2>
+        <span class="pill pill-neutral">Last 30 days</span>
+      </div>
+      <div class="p-5" id="lawyer-load-shell"></div>
+    </div>
+
+    <!-- Activity feed -->
+    <div class="border rule rounded-2xl bg-white overflow-hidden">
+      <div class="px-5 py-4 border-b rule">
+        <h2 class="h-display text-lg">Recent activity</h2>
+      </div>
+      <div id="activity-shell" class="divide-y rule text-sm"></div>
+    </div>
+  </div>
+
+  <p class="text-xs text-ink/45 mt-8">Sample data. In production, fed live from your firm's matter pipeline.</p>
+</main>
+
+<!-- =================== NEW MATTER DRAWER =================== -->
+<div id="drawer-backdrop" hidden class="fixed inset-0 bg-ink/40 z-40"></div>
+<aside id="new-matter-drawer" class="drawer closed fixed top-0 right-0 h-full w-full md:w-[560px] bg-paper shadow-2xl z-50 overflow-y-auto">
+  <div class="sticky top-0 bg-paper border-b rule px-6 py-4 flex items-center justify-between">
+    <div>
+      <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold">New matter</p>
+      <h2 class="h-display text-xl" id="drawer-title">Open a file</h2>
+    </div>
+    <button id="drawer-close" class="text-ink/55 hover:text-ink p-1">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <!-- step indicator -->
+  <div class="px-6 pt-5 flex items-center justify-center gap-2">
+    <div class="step-dot active" data-dot="1"></div>
+    <div class="step-dot" data-dot="2"></div>
+    <div class="step-dot" data-dot="3"></div>
+  </div>
+
+  <!-- Step 1: practice area -->
+  <div id="step-1" class="p-6 fade-in">
+    <h3 class="h-display text-lg mb-1">What kind of matter is this?</h3>
+    <p class="text-sm text-ink/65 mb-5">We'll tailor the intake questions for your client based on the practice area.</p>
+    <div id="pa-grid" class="space-y-2.5"></div>
+    <div class="mt-6 flex justify-end">
+      <button id="step-1-next" class="bg-ink text-paper px-5 py-2.5 rounded-full text-sm font-medium hover:bg-accent disabled:opacity-40 disabled:cursor-not-allowed" disabled>Continue →</button>
+    </div>
+  </div>
+
+  <!-- Step 2: matter details -->
+  <div id="step-2" hidden class="p-6 fade-in">
+    <h3 class="h-display text-lg mb-1">Quick matter shell</h3>
+    <p class="text-sm text-ink/65 mb-5">Just the basics. The client fills in the rest.</p>
+    <div class="space-y-4">
+      <div>
+        <label class="input-label">Client's name</label>
+        <input id="m-client-name" type="text" class="input" placeholder="e.g. Sarah Mitchell" />
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="input-label">Client's email</label>
+          <input id="m-client-email" type="email" class="input" placeholder="client@example.com" />
+          <p class="input-helper">Where we'll send the intake link.</p>
+        </div>
+        <div>
+          <label class="input-label">Client's mobile</label>
+          <input id="m-client-phone" type="tel" class="input" placeholder="04xx xxx xxx" />
+          <p class="input-helper">Backup SMS reminder.</p>
+        </div>
+      </div>
+      <div>
+        <label class="input-label">Internal description</label>
+        <textarea id="m-description" rows="3" class="input" placeholder="One line for the file. Not shown to the client."></textarea>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="input-label">Responsible lawyer</label>
+          <select id="m-lawyer" class="input">
+            <option>Niamh Kearney</option>
+            <option>James Marshall</option>
+            <option>Priya Reddy</option>
+          </select>
+        </div>
+        <div>
+          <label class="input-label">Referred by</label>
+          <select id="m-referral" class="input">
+            <option>Existing client</option>
+            <option>Website enquiry</option>
+            <option>Word of mouth</option>
+            <option>Accountant referral</option>
+            <option>Other professional</option>
+            <option>Walk-in</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="mt-6 flex justify-between">
+      <button class="step-back text-sm text-ink/65 hover:text-ink">← Back</button>
+      <button id="step-2-next" class="bg-ink text-paper px-5 py-2.5 rounded-full text-sm font-medium hover:bg-accent disabled:opacity-40" disabled>Continue →</button>
+    </div>
+  </div>
+
+  <!-- Step 3: confirm + send -->
+  <div id="step-3" hidden class="p-6 fade-in">
+    <h3 class="h-display text-lg mb-1">Send the client intake link</h3>
+    <p class="text-sm text-ink/65 mb-5">We'll email a secure intake link to your client. It expires in 14 days.</p>
+
+    <div class="border rule rounded-xl p-5 bg-white space-y-3" id="step-3-summary">
+      <!-- filled by JS -->
+    </div>
+
+    <div class="mt-5 space-y-2.5">
+      <label class="flex items-start gap-2.5 text-sm">
+        <input type="checkbox" id="opt-conflict" class="mt-0.5" checked />
+        <span><strong>Run conflict check</strong> against existing client list before opening file.</span>
+      </label>
+      <label class="flex items-start gap-2.5 text-sm">
+        <input type="checkbox" id="opt-cost" class="mt-0.5" checked />
+        <span><strong>Generate cost disclosure draft</strong> from the responses for your review.</span>
+      </label>
+      <label class="flex items-start gap-2.5 text-sm">
+        <input type="checkbox" id="opt-sof" class="mt-0.5" checked />
+        <span><strong>Capture source of funds</strong> per AML/CTF Tranche 2 requirements.</span>
+      </label>
+    </div>
+
+    <div class="mt-6 flex justify-between">
+      <button class="step-back text-sm text-ink/65 hover:text-ink">← Back</button>
+      <button id="send-intake" class="bg-good text-paper px-5 py-2.5 rounded-full text-sm font-medium hover:bg-ink">
+        Send intake link
+      </button>
+    </div>
+  </div>
+</aside>
+
+<!-- =================== MATTER DETAIL MODAL =================== -->
+<div id="matter-detail-backdrop" hidden class="fixed inset-0 bg-ink/40 z-40"></div>
+<aside id="matter-detail-drawer" class="drawer closed fixed top-0 right-0 h-full w-full md:w-[640px] bg-paper shadow-2xl z-50 overflow-y-auto">
+  <div class="sticky top-0 bg-paper border-b rule px-6 py-4 flex items-center justify-between">
+    <div>
+      <p class="text-xs text-ink/55 font-medium" id="md-id">—</p>
+      <h2 class="h-display text-xl" id="md-title">—</h2>
+    </div>
+    <button id="md-close" class="text-ink/55 hover:text-ink p-1">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div id="md-body" class="p-6"></div>
+</aside>
+
+<!-- =================== TOAST =================== -->
+<div id="toast-stack" class="fixed bottom-6 right-6 z-[60] space-y-2"></div>
+
+
+<script>
+/* ===========================================================
+   ATTICUS DEMO — single-file. Vanilla JS. localStorage state.
+   =========================================================== */
+
+const STATE_KEY = 'atticus.intake.demo.v1';
+
+/* ---------- PRACTICE AREA SCHEMAS ---------- */
+const PRACTICE_AREAS = {
+  family: {
+    label: 'Family law',
+    icon: '⚖️',
+    description: 'Separation, parenting, property settlement',
+    color: 'rose',
+    questions: [
+      { id: 'relationshipType', label: 'Type of relationship', type: 'radio', options: ['Marriage', 'De facto', 'Civil partnership', 'Other'] },
+      { id: 'dateOfSeparation', label: 'Date of separation', type: 'date', helper: 'Approximate is fine. We use this to calculate limitation periods for property orders.' },
+      { id: 'children', label: 'Are there children of the relationship?', type: 'radio', options: ['Yes', 'No'] },
+      { id: 'childrenDetails', label: 'Children — names and ages', type: 'textarea', if: { children: 'Yes' }, helper: 'One per line. e.g. "Mia, 7"' },
+      { id: 'currentArrangements', label: 'Current living arrangements', type: 'select', options: ['Both still in the family home', 'Separated under one roof', 'I have moved out', 'My ex has moved out', 'Other'] },
+      { id: 'existingOrders', label: 'Existing court orders or proceedings?', type: 'select', options: ['No', 'Yes — parenting', 'Yes — property', 'Yes — both', "I'm not sure"] },
+      { id: 'dvConcern', label: 'Are there safety or family violence concerns we should be aware of?', type: 'radio', options: ['No', 'Yes'], helper: 'We will not contact the other party. This helps us plan how we communicate with you.' },
+      { id: 'assetsEstimate', label: 'Approximate value of joint assets — your best guess', type: 'select', options: ['Under $500k', '$500k–$1m', '$1m–$3m', '$3m–$10m', 'Over $10m', 'Not sure'] },
+      { id: 'fundingMethod', label: 'How do you plan to fund the legal fees?', type: 'select', options: ['From savings', 'From sale of an asset', 'Family loan', 'Bank loan', 'Litigation funder', 'Legal aid', 'Other'] },
+    ]
+  },
+  conveyancing: {
+    label: 'Conveyancing',
+    icon: '🏠',
+    description: 'Property purchase or sale',
+    color: 'blue',
+    questions: [
+      { id: 'transaction', label: 'Are you buying or selling?', type: 'radio', options: ['Buying', 'Selling', 'Both — selling one and buying another'] },
+      { id: 'propertyAddress', label: 'Property address', type: 'text', helper: 'If you have multiple addresses, list the main one and note others in the description.' },
+      { id: 'propertyType', label: 'Property type', type: 'select', options: ['Residential — established', 'Residential — off the plan', 'Residential — vacant land', 'Commercial', 'Rural'] },
+      { id: 'contractStatus', label: 'Where are you in the process?', type: 'select', options: ['Not yet signed contract', 'Signed — within cooling-off period', 'Signed — unconditional', 'Auction date set', 'Settlement scheduled'] },
+      { id: 'settlementTarget', label: 'Target settlement date (if known)', type: 'date' },
+      { id: 'financeStatus', label: 'Finance', type: 'select', if: { transaction: ['Buying', 'Both — selling one and buying another'] }, options: ['Cash purchase', 'Loan pre-approved', 'Loan application pending', 'Cash + loan combination', 'Not yet sorted'] },
+      { id: 'firstHomeBuyer', label: 'First home buyer?', type: 'radio', if: { transaction: ['Buying', 'Both — selling one and buying another'] }, options: ['Yes', 'No'], helper: 'Affects stamp duty concessions and grant eligibility.' },
+      { id: 'coParties', label: 'Other parties on the title?', type: 'textarea', helper: 'List anyone else who is a co-buyer or co-seller, and their relationship to you. Leave blank if just you.' },
+    ]
+  },
+  commercial: {
+    label: 'Commercial / business',
+    icon: '🏢',
+    description: 'Contracts, structures, advice',
+    color: 'slate',
+    questions: [
+      { id: 'matterDescription', label: 'In a paragraph — what do you need help with?', type: 'textarea' },
+      { id: 'entityType', label: 'What entity is the client?', type: 'select', options: ['Sole trader / individual', 'Partnership', 'Pty Ltd company', 'Trust (discretionary / unit / SMSF)', 'Incorporated association', 'Other'] },
+      { id: 'abnAcn', label: 'ABN / ACN (if applicable)', type: 'text' },
+      { id: 'businessDescription', label: 'Briefly, what does the business do?', type: 'textarea' },
+      { id: 'otherParties', label: 'Other parties to this matter', type: 'textarea', helper: 'Counterparties, co-shareholders, joint venturers — and their relationship.' },
+      { id: 'urgency', label: 'How urgent is this?', type: 'select', options: ['Routine — no time pressure', 'Within a month', 'Within a fortnight', 'Within the week', 'Today / urgent'] },
+      { id: 'priorAdvice', label: 'Prior legal advice on this matter?', type: 'radio', options: ['No', 'Yes — from another firm', 'Yes — internal'] },
+      { id: 'estimatedValue', label: 'Approximate transaction or matter value', type: 'select', options: ['Under $50k', '$50k–$250k', '$250k–$1m', '$1m–$5m', 'Over $5m', 'Not applicable / advice only'] },
+    ]
+  },
+  general: {
+    label: 'General advice',
+    icon: '📋',
+    description: 'Single advice, referral, or unsure',
+    color: 'stone',
+    questions: [
+      { id: 'matterDescription', label: 'What do you need advice on?', type: 'textarea' },
+      { id: 'urgency', label: 'Urgency', type: 'select', options: ['No urgency', 'Within a month', 'Within a fortnight', 'Within the week', 'Today / urgent'] },
+      { id: 'otherParties', label: 'Other parties involved?', type: 'textarea' },
+      { id: 'fundingMethod', label: 'How will the fees be paid?', type: 'select', options: ['From savings', 'From sale of an asset', 'Family loan', 'Insurance', 'Legal aid', 'Other'] },
+    ]
+  }
+};
+
+/* ---------- UNIVERSAL SECTIONS (every intake gets these) ---------- */
+const SECTIONS = {
+  identity: {
+    label: 'Confirming who you are',
+    subtitle: 'Quick details so we can verify ID before our first meeting.',
+    questions: [
+      { id: 'fullName', label: 'Full legal name', type: 'text' },
+      { id: 'preferredName', label: 'What should we call you?', type: 'text', helper: 'Leave blank if same as full name.' },
+      { id: 'dob', label: 'Date of birth', type: 'date' },
+      { id: 'address', label: 'Residential address', type: 'textarea' },
+      { id: 'phone', label: 'Best phone number', type: 'tel' },
+      { id: 'email', label: 'Best email address', type: 'email' },
+      { id: 'idType', label: "Which ID will you bring to our first meeting?", type: 'select', options: ["Australian driver's licence", 'Australian passport', 'Other government photo ID'] },
+    ]
+  },
+  matter: {
+    label: 'Your matter',
+    subtitle: 'These questions are tailored to your matter type.',
+    dynamic: true
+  },
+  cost: {
+    label: 'How the matter is funded',
+    subtitle: "Helps us draft your cost disclosure properly.",
+    questions: [
+      { id: 'budgetRange', label: 'Rough budget you have in mind for this matter', type: 'select', options: ['Under $2,500', '$2,500–$10,000', '$10,000–$25,000', '$25,000–$75,000', 'Over $75,000', "I'd like guidance"] },
+      { id: 'feeStructure', label: 'Preferred fee structure', type: 'select', options: ['Fixed price where possible', 'Hourly rate', 'A mix', 'Whatever works'], helper: "We'll talk through this at our first meeting; this is just a starting point." },
+      { id: 'paymentTiming', label: 'Payment timing', type: 'select', options: ['Pay as we invoice', 'Pay from settlement / completion', 'Retainer in trust upfront', 'Combination'] },
+    ]
+  },
+  sof: {
+    label: 'Source of funds',
+    subtitle: 'Australian law now requires us to record this. Brief is fine.',
+    questions: [
+      { id: 'sofPrimary', label: 'Primary source of the funds for this matter', type: 'select', options: ['Salary / employment income', 'Savings accumulated over time', 'Sale of an asset (property, shares, business)', 'Inheritance or gift', 'Family loan', 'Bank loan', 'Business income / dividends', 'Investments', 'Other'] },
+      { id: 'sofDetail', label: 'Brief detail', type: 'textarea', helper: 'One or two sentences. e.g. "Funds from sale of investment property at 14 Elm St, settled March 2026."' },
+    ]
+  },
+  comms: {
+    label: 'How we communicate',
+    questions: [
+      { id: 'preferredContact', label: 'Preferred contact method', type: 'select', options: ['Email', 'Phone call', 'SMS', 'A mix'] },
+      { id: 'preferredHours', label: 'Best times to reach you', type: 'select', options: ['Business hours', 'Early morning', 'After hours', 'Weekend OK', 'No preference'] },
+      { id: 'urgencyDefault', label: 'How quickly do you expect us to respond?', type: 'select', options: ['Same day', 'Within 24 hours', 'Within 48 hours', 'Whenever sensible'] },
+      { id: 'access', label: 'Any access needs or preferences we should know?', type: 'textarea', helper: 'Interpreter, wheelchair access, neurodiverse-friendly communication, etc. Leave blank if not applicable.' },
+    ]
+  }
+};
+
+/* ---------- SEED DATA ---------- */
+function seedState() {
+  return {
+    matters: [
+      {
+        id: 'm-2026-0142', clientName: 'Sarah Mitchell', clientEmail: 's.mitchell@bigpond.net.au',
+        clientPhone: '0412 388 552', matterType: 'family', responsibleLawyer: 'Niamh Kearney',
+        description: 'Property settlement following separation, two children.', referral: 'Existing client',
+        status: 'intake-complete', createdAt: '2026-05-09', intakeSentAt: '2026-05-09T14:22:00', intakeCompletedAt: '2026-05-11T09:14:00',
+        flags: [],
+        intake: {
+          fullName: 'Sarah Jane Mitchell', preferredName: 'Sarah', dob: '1984-03-21',
+          address: '14 Elgin Street, Carlton VIC 3053', phone: '0412 388 552', email: 's.mitchell@bigpond.net.au',
+          idType: "Australian driver's licence",
+          relationshipType: 'Marriage', dateOfSeparation: '2024-08-15', children: 'Yes',
+          childrenDetails: 'Mia, 8\nOliver, 5', currentArrangements: 'I have moved out',
+          existingOrders: 'No', dvConcern: 'No', assetsEstimate: '$1m–$3m',
+          fundingMethod: 'From savings',
+          budgetRange: '$10,000–$25,000', feeStructure: 'Fixed price where possible', paymentTiming: 'Pay as we invoice',
+          sofPrimary: 'Savings accumulated over time', sofDetail: 'Joint savings account held with the Commonwealth Bank, accumulated over 12 years of marriage.',
+          preferredContact: 'Email', preferredHours: 'Business hours', urgencyDefault: 'Within 24 hours', access: ''
+        }
+      },
+      {
+        id: 'm-2026-0141', clientName: 'David Chen', clientEmail: 'david@chenpharmacy.com.au',
+        clientPhone: '0405 119 224', matterType: 'commercial', responsibleLawyer: 'James Marshall',
+        description: 'Sale of pharmacy business including premises and goodwill.', referral: 'Accountant referral',
+        status: 'intake-sent', createdAt: '2026-05-11', intakeSentAt: '2026-05-11T10:08:00',
+        flags: [], intake: null
+      },
+      {
+        id: 'm-2026-0140', clientName: 'Margaret & Robert Harris', clientEmail: 'r.harris@harriscontractors.com',
+        clientPhone: '0438 776 100', matterType: 'conveyancing', responsibleLawyer: 'Niamh Kearney',
+        description: 'Purchase of investment property, Brunswick — second investment property this year.', referral: 'Existing client',
+        status: 'intake-complete', createdAt: '2026-05-08', intakeSentAt: '2026-05-08T16:30:00', intakeCompletedAt: '2026-05-10T19:42:00',
+        flags: ['sof-review'],
+        intake: {
+          fullName: 'Robert James Harris', preferredName: 'Rob', dob: '1971-11-04',
+          address: '47 Princes Street, Kew VIC 3101', phone: '0438 776 100', email: 'r.harris@harriscontractors.com',
+          idType: 'Australian passport',
+          transaction: 'Buying', propertyAddress: '102/15 Sydney Road, Brunswick VIC 3056',
+          propertyType: 'Residential — established', contractStatus: 'Signed — within cooling-off period',
+          settlementTarget: '2026-07-22', financeStatus: 'Cash purchase', firstHomeBuyer: 'No',
+          coParties: 'Margaret Anne Harris (spouse)',
+          budgetRange: '$2,500–$10,000', feeStructure: 'Fixed price where possible', paymentTiming: 'Pay from settlement / completion',
+          sofPrimary: 'Other', sofDetail: 'Combination of recent business sale proceeds and a family loan from my brother in Singapore.',
+          preferredContact: 'Phone call', preferredHours: 'After hours', urgencyDefault: 'Within 24 hours', access: ''
+        }
+      },
+      {
+        id: 'm-2026-0139', clientName: 'Hassan & Aisha Rahman', clientEmail: 'hassan.rahman@example.com',
+        clientPhone: '0421 559 008', matterType: 'family', responsibleLawyer: 'Priya Reddy',
+        description: 'Parenting arrangements — consent orders. Amicable.', referral: 'Word of mouth',
+        status: 'open', createdAt: '2026-04-22', intakeSentAt: '2026-04-22T11:00:00', intakeCompletedAt: '2026-04-24T17:30:00',
+        flags: [], intake: { fullName: 'Hassan Rahman', preferredName: 'Hassan', children: 'Yes', childrenDetails: 'Layla, 11\nIbrahim, 8\nNoor, 4' }
+      },
+      {
+        id: 'm-2026-0138', clientName: 'Greenway Holdings Pty Ltd', clientEmail: 'pm@greenwayhold.com',
+        clientPhone: '03 9614 8200', matterType: 'commercial', responsibleLawyer: 'James Marshall',
+        description: 'Shareholders agreement — three founders, growth equity round pending.', referral: 'Other professional',
+        status: 'intake-complete', createdAt: '2026-04-30', intakeSentAt: '2026-04-30T15:15:00', intakeCompletedAt: '2026-05-02T10:00:00',
+        flags: ['conflict-check-pending'],
+        intake: { fullName: 'Peter Mansfield', entityType: 'Pty Ltd company', urgency: 'Within a fortnight', estimatedValue: '$1m–$5m' }
+      },
+      {
+        id: 'm-2026-0137', clientName: 'Eliza Tanaka', clientEmail: 'eliza.tanaka@example.com',
+        clientPhone: '0414 287 661', matterType: 'general', responsibleLawyer: 'Niamh Kearney',
+        description: 'Initial consult — possible employment dispute.', referral: 'Website enquiry',
+        status: 'intake-sent', createdAt: '2026-05-12', intakeSentAt: '2026-05-12T08:45:00',
+        flags: [], intake: null
+      }
+    ],
+    activeMatterId: null,
+    activeStep: 1,
+    draft: {}
+  };
+}
+
+/* ---------- STATE ---------- */
+let state = loadState();
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STATE_KEY);
+    if (!raw) return seedState();
+    return JSON.parse(raw);
+  } catch (e) { return seedState(); }
+}
+function saveState() { localStorage.setItem(STATE_KEY, JSON.stringify(state)); }
+function resetState() { state = seedState(); saveState(); renderAll(); toast('Demo data reset.'); }
+
+/* ---------- UTILS ---------- */
+const $ = (s, root = document) => root.querySelector(s);
+const $$ = (s, root = document) => Array.from(root.querySelectorAll(s));
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+function fmtDateTime(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' }) + ' · ' + d.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
+}
+function fmtRelative(iso) {
+  if (!iso) return '—';
+  const ms = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(ms / 60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  if (d < 7) return `${d}d ago`;
+  return fmtDate(iso);
+}
+function statusPill(status) {
+  const map = {
+    'draft': ['Draft', 'pill-neutral'],
+    'intake-sent': ['Awaiting client', 'pill-warn'],
+    'intake-complete': ['Ready to review', 'pill-info'],
+    'open': ['Open', 'pill-good']
+  };
+  const [label, cls] = map[status] || ['—', 'pill-neutral'];
+  return `<span class="pill ${cls}">${label}</span>`;
+}
+function flagPill(flag) {
+  const map = {
+    'sof-review': ['Review source of funds', 'pill-warn'],
+    'conflict-check-pending': ['Conflict check pending', 'pill-warn'],
+    'risk-elevated': ['Elevated risk', 'pill-risk']
+  };
+  const [label, cls] = map[flag] || [flag, 'pill-neutral'];
+  return `<span class="pill ${cls}">${label}</span>`;
+}
+function paLabel(key) { return PRACTICE_AREAS[key]?.label || key; }
+function paIcon(key) { return PRACTICE_AREAS[key]?.icon || '📄'; }
+function nextMatterId() {
+  const ids = state.matters.map(m => parseInt(m.id.split('-').pop()));
+  const max = Math.max(...ids, 0);
+  return 'm-2026-' + String(max + 1).padStart(4, '0');
+}
+function toast(msg, kind = 'info') {
+  const el = document.createElement('div');
+  const bg = kind === 'good' ? 'bg-good' : kind === 'risk' ? 'bg-risk' : 'bg-ink';
+  el.className = `toast ${bg} text-paper px-4 py-3 rounded-xl shadow-lg text-sm max-w-sm`;
+  el.textContent = msg;
+  $('#toast-stack').appendChild(el);
+  setTimeout(() => el.remove(), 4500);
+}
+
+/* ---------- ROLE SWITCHER ---------- */
+function setRole(role) {
+  $$('#view-lawyer, #view-client, #view-principal').forEach(v => v.hidden = true);
+  $$('.role-pill').forEach(b => b.classList.toggle('active', b.dataset.role === role));
+  if (role === 'lawyer') { $('#view-lawyer').hidden = false; renderLawyerView(); }
+  if (role === 'client') {
+    $('#view-client').hidden = false;
+    const m = state.activeMatterId ? state.matters.find(x => x.id === state.activeMatterId) : state.matters.find(x => x.status === 'intake-sent');
+    renderClientView(m);
+  }
+  if (role === 'principal') { $('#view-principal').hidden = false; renderPrincipalView(); }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ---------- LAWYER VIEW ---------- */
+let currentFilter = 'all';
+function renderLawyerView() {
+  // KPIs
+  const awaiting = state.matters.filter(m => m.status === 'intake-sent').length;
+  const review = state.matters.filter(m => m.status === 'intake-complete').length;
+  const open = state.matters.filter(m => m.status === 'open').length;
+  const flagged = state.matters.filter(m => (m.flags || []).length > 0).length;
+  $('#kpi-awaiting').textContent = awaiting;
+  $('#kpi-review').textContent = review;
+  $('#kpi-open').textContent = open;
+  $('#kpi-flagged').textContent = flagged;
+  renderMattersList();
+}
+function renderMattersList() {
+  const q = ($('#search')?.value || '').trim().toLowerCase();
+  let list = [...state.matters];
+  if (currentFilter !== 'all') list = list.filter(m => m.status === currentFilter);
+  if (q) list = list.filter(m => (m.clientName + ' ' + m.description + ' ' + m.id).toLowerCase().includes(q));
+  list.sort((a, b) => (b.intakeCompletedAt || b.intakeSentAt || b.createdAt).localeCompare(a.intakeCompletedAt || a.intakeSentAt || a.createdAt));
+
+  const shell = $('#matters-list');
+  shell.innerHTML = '';
+  if (list.length === 0) {
+    shell.innerHTML = '<div class="p-10 text-center text-sm text-ink/55">No matters match your filter.</div>';
+    return;
+  }
+
+  list.forEach(m => {
+    const row = document.createElement('button');
+    row.className = 'w-full text-left px-5 py-4 hover:bg-ink/[0.02] transition flex items-center gap-4';
+    const flagsHtml = (m.flags || []).map(flagPill).join(' ');
+    row.innerHTML = `
+      <div class="text-2xl">${paIcon(m.matterType)}</div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 mb-0.5 flex-wrap">
+          <span class="font-medium truncate">${m.clientName}</span>
+          ${statusPill(m.status)}
+          ${flagsHtml}
+        </div>
+        <p class="text-sm text-ink/65 truncate">${m.description}</p>
+        <p class="text-xs text-ink/45 mt-1">${paLabel(m.matterType)} · ${m.responsibleLawyer} · ${m.id}</p>
+      </div>
+      <div class="text-right hidden sm:block">
+        <p class="text-xs text-ink/55">${
+          m.status === 'intake-sent' ? 'Sent ' + fmtRelative(m.intakeSentAt) :
+          m.status === 'intake-complete' ? 'Returned ' + fmtRelative(m.intakeCompletedAt) :
+          m.status === 'open' ? 'Opened ' + fmtRelative(m.intakeCompletedAt) :
+          fmtRelative(m.createdAt)
+        }</p>
+      </div>
+    `;
+    row.addEventListener('click', () => openMatterDetail(m.id));
+    shell.appendChild(row);
+  });
+}
+
+/* ---------- NEW MATTER WIZARD ---------- */
+function openWizard() {
+  state.activeStep = 1;
+  state.draft = {};
+  saveState();
+  $('#drawer-backdrop').hidden = false;
+  $('#new-matter-drawer').classList.remove('closed');
+  goStep(1);
+  renderPaGrid();
+}
+function closeWizard() {
+  $('#drawer-backdrop').hidden = true;
+  $('#new-matter-drawer').classList.add('closed');
+}
+function goStep(n) {
+  state.activeStep = n;
+  saveState();
+  [1, 2, 3].forEach(i => { $(`#step-${i}`).hidden = i !== n; });
+  $$('.step-dot').forEach((d, i) => {
+    d.classList.remove('active', 'done');
+    if (i + 1 === n) d.classList.add('active');
+    if (i + 1 < n) d.classList.add('done');
+  });
+  if (n === 3) renderStep3Summary();
+}
+function renderPaGrid() {
+  const grid = $('#pa-grid');
+  grid.innerHTML = '';
+  Object.entries(PRACTICE_AREAS).forEach(([key, pa]) => {
+    const card = document.createElement('label');
+    card.className = 'radio-card';
+    card.innerHTML = `
+      <input type="radio" name="pa" value="${key}" />
+      <div class="flex-1">
+        <div class="flex items-center gap-2"><span class="text-xl">${pa.icon}</span><span class="font-medium">${pa.label}</span></div>
+        <p class="text-sm text-ink/65 mt-1">${pa.description}</p>
+      </div>
+    `;
+    card.querySelector('input').addEventListener('change', () => {
+      $$('.radio-card', grid).forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      state.draft.matterType = key;
+      $('#step-1-next').disabled = false;
+    });
+    grid.appendChild(card);
+  });
+}
+function renderStep3Summary() {
+  const d = state.draft;
+  const pa = PRACTICE_AREAS[d.matterType];
+  $('#step-3-summary').innerHTML = `
+    <div class="flex items-center gap-3">
+      <div class="text-2xl">${pa.icon}</div>
+      <div class="flex-1">
+        <p class="text-xs text-ink/55">${pa.label}</p>
+        <p class="font-medium">${d.clientName || '—'}</p>
+      </div>
+    </div>
+    <div class="text-sm space-y-1 border-t rule pt-3">
+      <p><span class="text-ink/55">Email: </span>${d.clientEmail || '—'}</p>
+      <p><span class="text-ink/55">Mobile: </span>${d.clientPhone || '—'}</p>
+      <p><span class="text-ink/55">Lawyer: </span>${d.responsibleLawyer || '—'}</p>
+      <p><span class="text-ink/55">Description: </span>${d.description || '—'}</p>
+    </div>
+  `;
+}
+
+/* ---------- CLIENT VIEW (intake form) ---------- */
+let clientStep = 0;
+function renderClientView(matter) {
+  if (!matter) {
+    $('#client-intake-shell').innerHTML = `
+      <div class="border rule rounded-2xl bg-white p-10 text-center">
+        <p class="text-sm text-ink/65">No matter currently in intake. Create one from the Lawyer view to preview the client experience.</p>
+      </div>`;
+    return;
+  }
+  const pa = PRACTICE_AREAS[matter.matterType];
+  const isComplete = matter.status === 'intake-complete' || matter.status === 'open';
+
+  if (isComplete) {
+    // Show the "thanks" screen for completed intakes
+    $('#client-intake-shell').innerHTML = `
+      <div class="border rule rounded-2xl bg-white p-10 text-center">
+        <div class="w-14 h-14 bg-good/10 text-good rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <h2 class="h-display text-2xl mb-2">Thanks, ${matter.intake?.preferredName || matter.intake?.fullName?.split(' ')[0] || 'there'}.</h2>
+        <p class="text-ink/70 max-w-md mx-auto">Your intake's been received. ${matter.responsibleLawyer} will be in touch within one business day to confirm your first meeting.</p>
+        <p class="text-xs text-ink/45 mt-6">Submitted ${fmtDateTime(matter.intakeCompletedAt)}</p>
+      </div>`;
+    return;
+  }
+
+  state.activeMatterId = matter.id;
+  saveState();
+
+  const sections = ['intro', 'identity', 'matter', 'cost', 'sof', 'comms', 'review'];
+  const stepNum = clientStep + 1;
+  const totalSteps = sections.length;
+
+  $('#client-intake-shell').innerHTML = `
+    <div class="mb-6">
+      <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-2">Marshall &amp; Co Lawyers</p>
+      <h1 class="h-display text-3xl md:text-4xl">${pa.label} intake</h1>
+      <p class="text-ink/70 mt-2">A few quick questions so we can prepare for our first meeting and confirm what your matter will cost.</p>
+    </div>
+    <div class="flex items-center gap-1.5 mb-8" id="client-progress">
+      ${sections.map((_, i) => `<div class="h-1 flex-1 rounded ${i < stepNum ? 'bg-accent' : 'bg-ink/10'}"></div>`).join('')}
+    </div>
+    <div id="client-form-shell"></div>
+  `;
+
+  renderClientStep();
+}
+
+function renderClientStep() {
+  const matter = state.matters.find(m => m.id === state.activeMatterId);
+  if (!matter) return;
+  const pa = PRACTICE_AREAS[matter.matterType];
+  const sectionMap = ['intro', 'identity', 'matter', 'cost', 'sof', 'comms', 'review'];
+  const which = sectionMap[clientStep];
+  const shell = $('#client-form-shell');
+
+  const draft = matter.intake || {};
+
+  if (which === 'intro') {
+    shell.innerHTML = `
+      <div class="border rule rounded-2xl bg-white p-7 fade-in">
+        <h2 class="h-display text-xl mb-3">Before we start</h2>
+        <p class="text-sm text-ink/75 mb-4">${matter.responsibleLawyer} at Marshall &amp; Co has invited you to complete a short intake before your first meeting. It takes about 8 minutes. Your answers are encrypted and only your matter team can see them.</p>
+        <ul class="space-y-2 text-sm text-ink/75">
+          <li class="flex gap-2"><span class="text-accent">·</span>You can save and come back to it.</li>
+          <li class="flex gap-2"><span class="text-accent">·</span>If a question doesn't apply, write "n/a".</li>
+          <li class="flex gap-2"><span class="text-accent">·</span>If anything is sensitive, you can flag it and we'll discuss it in person.</li>
+        </ul>
+        <button class="cf-next mt-7 bg-ink text-paper px-5 py-2.5 rounded-full text-sm font-medium hover:bg-accent">Let's start →</button>
+      </div>`;
+  } else if (which === 'review') {
+    shell.innerHTML = renderClientReview(matter, pa);
+  } else {
+    const section = which === 'matter' ? { label: pa.label + ' details', subtitle: SECTIONS.matter.subtitle, questions: pa.questions } : SECTIONS[which];
+    shell.innerHTML = `
+      <div class="border rule rounded-2xl bg-white p-7 fade-in">
+        <h2 class="h-display text-xl">${section.label}</h2>
+        ${section.subtitle ? `<p class="text-sm text-ink/65 mt-1 mb-5">${section.subtitle}</p>` : '<div class="mb-5"></div>'}
+        <form id="client-form" class="space-y-5"></form>
+        <div class="mt-7 flex justify-between items-center">
+          <button class="cf-back text-sm text-ink/65 hover:text-ink">← Back</button>
+          <button class="cf-next bg-ink text-paper px-5 py-2.5 rounded-full text-sm font-medium hover:bg-accent">Continue →</button>
+        </div>
+      </div>`;
+    renderQuestions(section.questions, $('#client-form'), draft);
+  }
+
+  $$('.cf-next', shell).forEach(b => b.addEventListener('click', () => advanceClientStep()));
+  $$('.cf-back', shell).forEach(b => b.addEventListener('click', () => { clientStep = Math.max(0, clientStep - 1); renderClientView(matter); }));
+  $$('#submit-intake', shell).forEach(b => b.addEventListener('click', () => submitClientIntake(matter)));
+}
+
+function renderQuestions(questions, form, draft) {
+  questions.forEach(q => {
+    if (q.if && !meetsCondition(q.if, draft)) return;
+    const wrap = document.createElement('div');
+    wrap.innerHTML = renderQuestion(q, draft[q.id]);
+    form.appendChild(wrap);
+    // bind
+    const inputs = wrap.querySelectorAll('input, textarea, select');
+    inputs.forEach(inp => {
+      inp.addEventListener('input', () => {
+        const matter = state.matters.find(m => m.id === state.activeMatterId);
+        matter.intake = matter.intake || {};
+        if (q.type === 'radio') {
+          const sel = wrap.querySelector('input[type="radio"]:checked');
+          matter.intake[q.id] = sel ? sel.value : '';
+        } else {
+          matter.intake[q.id] = inp.value;
+        }
+        saveState();
+        // conditional re-render if question with branching
+        if (q.type === 'radio' || q.type === 'select') {
+          // check if any other questions depend on this; if so, re-render the whole form
+          const dependents = questions.some(other => other.if && other.if[q.id]);
+          if (dependents) {
+            form.innerHTML = '';
+            renderQuestions(questions, form, matter.intake);
+          }
+        }
+      });
+    });
+  });
+}
+
+function meetsCondition(cond, draft) {
+  for (const [field, val] of Object.entries(cond)) {
+    const current = draft[field];
+    if (Array.isArray(val)) {
+      if (!val.includes(current)) return false;
+    } else {
+      if (current !== val) return false;
+    }
+  }
+  return true;
+}
+
+function renderQuestion(q, value) {
+  const helper = q.helper ? `<p class="input-helper">${q.helper}</p>` : '';
+  if (q.type === 'text' || q.type === 'email' || q.type === 'tel' || q.type === 'date') {
+    return `<div>
+      <label class="input-label">${q.label}</label>
+      <input type="${q.type}" class="input" value="${value || ''}" />
+      ${helper}
+    </div>`;
+  }
+  if (q.type === 'textarea') {
+    return `<div>
+      <label class="input-label">${q.label}</label>
+      <textarea class="input" rows="3">${value || ''}</textarea>
+      ${helper}
+    </div>`;
+  }
+  if (q.type === 'select') {
+    return `<div>
+      <label class="input-label">${q.label}</label>
+      <select class="input">
+        <option value="">Choose…</option>
+        ${q.options.map(o => `<option ${value === o ? 'selected' : ''}>${o}</option>`).join('')}
+      </select>
+      ${helper}
+    </div>`;
+  }
+  if (q.type === 'radio') {
+    return `<div>
+      <label class="input-label">${q.label}</label>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        ${q.options.map(o => `
+          <label class="radio-card ${value === o ? 'selected' : ''}">
+            <input type="radio" name="${q.id}" value="${o}" ${value === o ? 'checked' : ''} />
+            <span class="text-sm">${o}</span>
+          </label>
+        `).join('')}
+      </div>
+      ${helper}
+    </div>`;
+  }
+  return '';
+}
+
+function advanceClientStep() {
+  const matter = state.matters.find(m => m.id === state.activeMatterId);
+  clientStep++;
+  if (clientStep === 6) {
+    renderClientView(matter);
+  } else if (clientStep < 7) {
+    renderClientView(matter);
+  }
+}
+
+function renderClientReview(matter, pa) {
+  const intake = matter.intake || {};
+  const rows = (questions) => questions.filter(q => intake[q.id] && (!q.if || meetsCondition(q.if, intake))).map(q => `
+    <div class="flex justify-between gap-4 py-2 border-b rule last:border-b-0">
+      <span class="text-sm text-ink/65">${q.label}</span>
+      <span class="text-sm text-right max-w-[55%]">${(intake[q.id] || '').toString().replace(/\n/g, '<br>')}</span>
+    </div>
+  `).join('');
+
+  return `
+    <div class="border rule rounded-2xl bg-white p-7 fade-in">
+      <h2 class="h-display text-xl mb-1">Review and submit</h2>
+      <p class="text-sm text-ink/65 mb-6">Have a look through. You can edit anything before sending.</p>
+
+      <div class="space-y-6">
+        <section>
+          <h3 class="font-medium text-sm text-accent uppercase tracking-wider mb-2">Who you are</h3>
+          ${rows(SECTIONS.identity.questions)}
+        </section>
+        <section>
+          <h3 class="font-medium text-sm text-accent uppercase tracking-wider mb-2">${pa.label}</h3>
+          ${rows(pa.questions)}
+        </section>
+        <section>
+          <h3 class="font-medium text-sm text-accent uppercase tracking-wider mb-2">Funding</h3>
+          ${rows(SECTIONS.cost.questions)}
+        </section>
+        <section>
+          <h3 class="font-medium text-sm text-accent uppercase tracking-wider mb-2">Source of funds</h3>
+          ${rows(SECTIONS.sof.questions)}
+        </section>
+        <section>
+          <h3 class="font-medium text-sm text-accent uppercase tracking-wider mb-2">Communication</h3>
+          ${rows(SECTIONS.comms.questions)}
+        </section>
+      </div>
+
+      <div class="mt-8 border rule rounded-xl p-4 bg-paper text-sm">
+        <p class="font-medium mb-1">By submitting:</p>
+        <p class="text-ink/70">You confirm the information is true to your knowledge. We'll use it to prepare your file and your cost disclosure. We'll never share it outside Marshall &amp; Co without your permission.</p>
+      </div>
+
+      <div class="mt-6 flex justify-between items-center">
+        <button class="cf-back text-sm text-ink/65 hover:text-ink">← Back</button>
+        <button id="submit-intake" class="bg-good text-paper px-6 py-3 rounded-full text-sm font-medium hover:bg-ink">Submit intake</button>
+      </div>
+    </div>
+  `;
+}
+
+function submitClientIntake(matter) {
+  matter.status = 'intake-complete';
+  matter.intakeCompletedAt = new Date().toISOString();
+  matter.flags = matter.flags || [];
+  const sof = (matter.intake?.sofPrimary || '');
+  const sofDetail = (matter.intake?.sofDetail || '').toLowerCase();
+  const shouldFlag = sof === 'Other' || /loan|gift|overseas|family/.test(sofDetail);
+  if (shouldFlag && !matter.flags.includes('sof-review')) {
+    matter.flags.push('sof-review');
+  }
+  saveState();
+  toast('Intake submitted. Lawyer will review.', 'good');
+  setTimeout(() => {
+    setRole('lawyer');
+    openMatterDetail(matter.id);
+  }, 600);
+}
+
+/* ---------- MATTER DETAIL ---------- */
+function openMatterDetail(matterId) {
+  const m = state.matters.find(x => x.id === matterId);
+  if (!m) return;
+  state.activeMatterId = matterId;
+  saveState();
+  $('#md-id').textContent = m.id + ' · ' + paLabel(m.matterType) + ' · ' + m.responsibleLawyer;
+  $('#md-title').textContent = m.clientName;
+  $('#md-body').innerHTML = renderMatterDetailBody(m);
+  $('#matter-detail-backdrop').hidden = false;
+  $('#matter-detail-drawer').classList.remove('closed');
+  bindMatterDetailActions(m);
+}
+function closeMatterDetail() {
+  $('#matter-detail-backdrop').hidden = true;
+  $('#matter-detail-drawer').classList.add('closed');
+}
+function renderMatterDetailBody(m) {
+  const intake = m.intake || {};
+  const pa = PRACTICE_AREAS[m.matterType];
+
+  const statusBlock = `
+    <div class="border rule rounded-xl p-4 bg-white mb-5">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div>${statusPill(m.status)} ${(m.flags || []).map(flagPill).join(' ')}</div>
+        <p class="text-xs text-ink/55">Created ${fmtDate(m.createdAt)}</p>
+      </div>
+      <p class="text-sm text-ink/75 mt-3">${m.description}</p>
+    </div>
+  `;
+
+  if (m.status === 'intake-sent') {
+    return statusBlock + `
+      <div class="border rule rounded-xl p-5 bg-paper">
+        <p class="text-sm font-medium">Intake link sent to ${m.clientEmail}</p>
+        <p class="text-xs text-ink/65 mt-1">Sent ${fmtDateTime(m.intakeSentAt)} · Expires in 14 days</p>
+        <div class="mt-4 flex gap-2 flex-wrap">
+          <button id="md-preview-client" class="text-sm bg-ink text-paper px-4 py-2 rounded-full hover:bg-accent">Preview as client →</button>
+          <button class="text-sm border rule px-4 py-2 rounded-full hover:border-ink" id="md-resend">Resend link</button>
+          <button class="text-sm border rule px-4 py-2 rounded-full hover:border-ink" id="md-simulate-complete">Simulate client submitting →</button>
+        </div>
+      </div>
+    `;
+  }
+
+  // intake-complete or open — show summary
+  const sumRow = (label, val) => val ? `<div class="flex justify-between py-1.5 border-b rule last:border-0 text-sm gap-3"><span class="text-ink/55 shrink-0">${label}</span><span class="text-right max-w-[60%]">${(val || '').toString().replace(/\n/g,'<br>')}</span></div>` : '';
+
+  const idBlock = `
+    <div class="border rule rounded-xl bg-white mb-4 overflow-hidden">
+      <div class="px-4 py-3 border-b rule bg-paper"><h3 class="font-medium">Identity</h3></div>
+      <div class="px-4 py-2">
+        ${sumRow('Full name', intake.fullName)}
+        ${sumRow('Preferred', intake.preferredName)}
+        ${sumRow('DOB', intake.dob)}
+        ${sumRow('Address', intake.address)}
+        ${sumRow('Phone', intake.phone)}
+        ${sumRow('Email', intake.email)}
+        ${sumRow('ID type', intake.idType)}
+      </div>
+    </div>
+  `;
+  const matterBlock = `
+    <div class="border rule rounded-xl bg-white mb-4 overflow-hidden">
+      <div class="px-4 py-3 border-b rule bg-paper"><h3 class="font-medium">${pa.label}</h3></div>
+      <div class="px-4 py-2">
+        ${pa.questions.map(q => sumRow(q.label, intake[q.id])).join('')}
+      </div>
+    </div>
+  `;
+  const costBlock = `
+    <div class="border rule rounded-xl bg-white mb-4 overflow-hidden">
+      <div class="px-4 py-3 border-b rule bg-paper flex items-center justify-between">
+        <h3 class="font-medium">Cost disclosure data</h3>
+        <span class="pill pill-good">Draft ready</span>
+      </div>
+      <div class="px-4 py-2">
+        ${SECTIONS.cost.questions.map(q => sumRow(q.label, intake[q.id])).join('')}
+      </div>
+      <div class="px-4 py-3 border-t rule bg-paper/60 text-xs text-ink/65 flex items-center justify-between">
+        <span>Draft cost disclosure letter assembled from these responses.</span>
+        <button class="text-accent font-medium hover:underline">Open draft →</button>
+      </div>
+    </div>
+  `;
+  const sofBlock = `
+    <div class="border rule rounded-xl bg-white mb-4 overflow-hidden">
+      <div class="px-4 py-3 border-b rule bg-paper flex items-center justify-between">
+        <h3 class="font-medium">Source of funds</h3>
+        ${(m.flags || []).includes('sof-review') ? '<span class="pill pill-warn">Review needed</span>' : '<span class="pill pill-good">Clear</span>'}
+      </div>
+      <div class="px-4 py-2">
+        ${SECTIONS.sof.questions.map(q => sumRow(q.label, intake[q.id])).join('')}
+      </div>
+      ${(m.flags || []).includes('sof-review') ? `
+        <div class="px-4 py-3 border-t rule bg-warn/[0.08] text-xs">
+          <p class="text-warn font-medium mb-1">Why this was flagged</p>
+          <p class="text-ink/75">Funds source is mixed (business + overseas family loan). Recommend asking for: bank statement showing receipt, brief written confirmation from the family member.</p>
+        </div>
+      ` : ''}
+    </div>
+  `;
+  const commsBlock = `
+    <div class="border rule rounded-xl bg-white mb-4 overflow-hidden">
+      <div class="px-4 py-3 border-b rule bg-paper"><h3 class="font-medium">Communication</h3></div>
+      <div class="px-4 py-2">
+        ${SECTIONS.comms.questions.map(q => sumRow(q.label, intake[q.id])).join('')}
+      </div>
+    </div>
+  `;
+
+  const actionBlock = m.status === 'intake-complete' ? `
+    <div class="border-2 border-accent rounded-xl p-5 bg-accent/[0.04] sticky bottom-4">
+      <p class="text-sm font-medium mb-2">Ready to open the file?</p>
+      <p class="text-xs text-ink/65 mb-3">Conflict check, cost disclosure draft and SOF capture all complete. One click to open.</p>
+      <div class="flex gap-2 flex-wrap">
+        <button id="md-open-file" class="bg-good text-paper px-5 py-2.5 rounded-full text-sm font-medium hover:bg-ink">Open the file →</button>
+        <button id="md-ask-followup" class="border rule px-4 py-2 rounded-full text-sm hover:border-ink">Ask follow-up question</button>
+      </div>
+    </div>
+  ` : '';
+
+  return statusBlock + idBlock + matterBlock + costBlock + sofBlock + commsBlock + actionBlock;
+}
+function bindMatterDetailActions(m) {
+  const previewBtn = $('#md-preview-client');
+  if (previewBtn) previewBtn.addEventListener('click', () => {
+    state.activeMatterId = m.id;
+    clientStep = 0;
+    saveState();
+    closeMatterDetail();
+    setRole('client');
+  });
+  const resendBtn = $('#md-resend');
+  if (resendBtn) resendBtn.addEventListener('click', () => toast('Reminder sent to ' + m.clientEmail));
+  const simBtn = $('#md-simulate-complete');
+  if (simBtn) simBtn.addEventListener('click', () => {
+    // populate a mock intake response
+    m.intake = m.intake || mockIntake(m);
+    m.status = 'intake-complete';
+    m.intakeCompletedAt = new Date().toISOString();
+    saveState();
+    toast('Client just submitted their intake.', 'good');
+    openMatterDetail(m.id);
+    renderLawyerView();
+  });
+  const openBtn = $('#md-open-file');
+  if (openBtn) openBtn.addEventListener('click', () => {
+    m.status = 'open';
+    saveState();
+    toast('File opened. Cost disclosure ready to send.', 'good');
+    openMatterDetail(m.id);
+    renderLawyerView();
+  });
+  const askBtn = $('#md-ask-followup');
+  if (askBtn) askBtn.addEventListener('click', () => toast('Follow-up email drafted.'));
+}
+function mockIntake(m) {
+  // generic plausible response
+  return {
+    fullName: m.clientName, preferredName: m.clientName.split(' ')[0], dob: '1980-01-01',
+    address: 'Sample address, VIC', phone: m.clientPhone, email: m.clientEmail,
+    idType: "Australian driver's licence",
+    budgetRange: '$2,500–$10,000', feeStructure: 'Fixed price where possible', paymentTiming: 'Pay as we invoice',
+    sofPrimary: 'Savings accumulated over time', sofDetail: 'Personal savings held with a major Australian bank.',
+    preferredContact: 'Email', preferredHours: 'Business hours', urgencyDefault: 'Within 24 hours'
+  };
+}
+
+/* ---------- PRINCIPAL VIEW ---------- */
+function renderPrincipalView() {
+  // KPI
+  $('#p-kpi-new').textContent = state.matters.filter(m => m.createdAt >= '2026-05-01').length;
+  $('#p-kpi-flagged').textContent = state.matters.filter(m => (m.flags || []).length > 0).length;
+
+  // Pipeline
+  const stages = [
+    { key: 'intake-sent', label: 'Awaiting client', color: 'pill-warn' },
+    { key: 'intake-complete', label: 'Ready to review', color: 'pill-info' },
+    { key: 'open', label: 'Open', color: 'pill-good' }
+  ];
+  const max = Math.max(1, ...stages.map(s => state.matters.filter(m => m.status === s.key).length));
+  $('#pipeline-shell').innerHTML = stages.map(s => {
+    const count = state.matters.filter(m => m.status === s.key).length;
+    const pct = Math.round((count / Math.max(1, state.matters.length)) * 100);
+    return `
+      <div>
+        <div class="flex items-center justify-between mb-1.5 text-sm">
+          <span><span class="pill ${s.color}">${s.label}</span></span>
+          <span class="text-ink/55">${count} matter${count === 1 ? '' : 's'} · ${pct}%</span>
+        </div>
+        <div class="h-2 bg-ink/5 rounded-full overflow-hidden">
+          <div class="h-full bg-accent rounded-full" style="width: ${(count/max)*100}%"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Practice area mix
+  const counts = {};
+  Object.keys(PRACTICE_AREAS).forEach(k => counts[k] = 0);
+  state.matters.forEach(m => counts[m.matterType] = (counts[m.matterType] || 0) + 1);
+  const totalP = state.matters.length || 1;
+  $('#practice-mix-shell').innerHTML = Object.entries(counts).map(([k, c]) => `
+    <div>
+      <div class="flex items-center justify-between text-sm mb-1">
+        <span class="flex items-center gap-2"><span>${paIcon(k)}</span>${paLabel(k)}</span>
+        <span class="text-ink/55 num">${c}</span>
+      </div>
+      <div class="h-1.5 bg-ink/5 rounded-full overflow-hidden">
+        <div class="h-full bg-ink rounded-full" style="width: ${(c/totalP)*100}%"></div>
+      </div>
+    </div>
+  `).join('');
+
+  // Lawyer load
+  const lawyers = {};
+  state.matters.forEach(m => {
+    if (m.status === 'intake-sent' || m.status === 'intake-complete') {
+      lawyers[m.responsibleLawyer] = (lawyers[m.responsibleLawyer] || 0) + 1;
+    }
+  });
+  $('#lawyer-load-shell').innerHTML = Object.entries(lawyers).length ? Object.entries(lawyers).map(([name, c]) => `
+    <div class="flex items-center gap-3 py-2">
+      <div class="w-9 h-9 rounded-full bg-accent text-paper flex items-center justify-center text-sm font-medium">${name.split(' ').map(s => s[0]).join('').slice(0,2)}</div>
+      <div class="flex-1">
+        <p class="font-medium text-sm">${name}</p>
+        <p class="text-xs text-ink/55">${c} active intake${c === 1 ? '' : 's'}</p>
+      </div>
+      <div class="w-32 h-2 bg-ink/5 rounded-full overflow-hidden">
+        <div class="h-full bg-accent rounded-full" style="width: ${Math.min(100, c*25)}%"></div>
+      </div>
+    </div>
+  `).join('') : '<p class="text-sm text-ink/55">No active intakes.</p>';
+
+  // Activity feed
+  const acts = [];
+  state.matters.forEach(m => {
+    if (m.intakeCompletedAt) acts.push({ when: m.intakeCompletedAt, what: `<strong>${m.clientName}</strong> submitted intake`, who: m.responsibleLawyer });
+    if (m.intakeSentAt) acts.push({ when: m.intakeSentAt, what: `Intake sent to <strong>${m.clientName}</strong>`, who: m.responsibleLawyer });
+    if (m.status === 'open') acts.push({ when: m.intakeCompletedAt, what: `File opened: <strong>${m.clientName}</strong>`, who: m.responsibleLawyer });
+  });
+  acts.sort((a, b) => (b.when || '').localeCompare(a.when || ''));
+  $('#activity-shell').innerHTML = acts.slice(0, 8).map(a => `
+    <div class="px-5 py-3">
+      <p class="text-sm">${a.what}</p>
+      <p class="text-xs text-ink/55 mt-0.5">${a.who} · ${fmtRelative(a.when)}</p>
+    </div>
+  `).join('');
+}
+
+/* ---------- INIT / BIND ---------- */
+function renderAll() {
+  renderLawyerView();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // role pills
+  $$('.role-pill').forEach(b => b.addEventListener('click', () => setRole(b.dataset.role)));
+  // filters
+  $$('.filter-btn').forEach(b => b.addEventListener('click', () => {
+    currentFilter = b.dataset.filter;
+    $$('.filter-btn').forEach(x => { x.classList.remove('pill-info'); x.classList.add('pill-neutral'); });
+    b.classList.remove('pill-neutral'); b.classList.add('pill-info');
+    renderMattersList();
+  }));
+  // search
+  $('#search').addEventListener('input', renderMattersList);
+  // new matter
+  $('#new-matter-btn').addEventListener('click', openWizard);
+  $('#drawer-close').addEventListener('click', closeWizard);
+  $('#drawer-backdrop').addEventListener('click', closeWizard);
+  $$('.step-back').forEach(b => b.addEventListener('click', () => goStep(state.activeStep - 1)));
+  $('#step-1-next').addEventListener('click', () => goStep(2));
+  // step 2 inputs
+  ['m-client-name', 'm-client-email', 'm-client-phone', 'm-description', 'm-lawyer', 'm-referral'].forEach(id => {
+    const el = $('#' + id);
+    el.addEventListener('input', () => {
+      state.draft.clientName = $('#m-client-name').value;
+      state.draft.clientEmail = $('#m-client-email').value;
+      state.draft.clientPhone = $('#m-client-phone').value;
+      state.draft.description = $('#m-description').value;
+      state.draft.responsibleLawyer = $('#m-lawyer').value;
+      state.draft.referral = $('#m-referral').value;
+      $('#step-2-next').disabled = !(state.draft.clientName && state.draft.clientEmail);
+      saveState();
+    });
+  });
+  $('#step-2-next').addEventListener('click', () => goStep(3));
+  $('#send-intake').addEventListener('click', () => {
+    const d = state.draft;
+    const newM = {
+      id: nextMatterId(), clientName: d.clientName, clientEmail: d.clientEmail, clientPhone: d.clientPhone,
+      matterType: d.matterType, responsibleLawyer: d.responsibleLawyer, description: d.description,
+      referral: d.referral, status: 'intake-sent', createdAt: new Date().toISOString(),
+      intakeSentAt: new Date().toISOString(), flags: [], intake: null
+    };
+    state.matters.unshift(newM);
+    saveState();
+    closeWizard();
+    toast('Intake link sent to ' + d.clientEmail, 'good');
+    renderLawyerView();
+  });
+
+  // matter detail
+  $('#md-close').addEventListener('click', closeMatterDetail);
+  $('#matter-detail-backdrop').addEventListener('click', closeMatterDetail);
+
+  // reset
+  $('#reset-btn').addEventListener('click', () => {
+    if (confirm('Reset demo data?')) resetState();
+  });
+
+  // initial render
+  renderLawyerView();
+});
+</script>
+</body>
+</html>
