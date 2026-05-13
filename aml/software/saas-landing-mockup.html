@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ATTICUS Cloud — Phase 3 SaaS landing mockup</title>
+<meta name="description" content="Future-state Tier 4 SaaS landing page mockup. Phase 3 of the software roadmap." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@500;600;700&display=swap" rel="stylesheet" />
+<!-- TODO: set data-domain to your real domain once deployed -->
+<script defer data-domain="atticus.example.com" src="https://plausible.io/js/script.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: {
+      fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], serif: ['"Source Serif 4"', 'Georgia', 'serif'] },
+      colors: { ink: '#0B1220', paper: '#FBF9F4', accent: '#1F3A5F', rule: '#E5E1D6' },
+    } },
+  };
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body { background: #FBF9F4; color: #0B1220; }
+  .h-display { font-family: 'Source Serif 4', Georgia, serif; letter-spacing: -0.01em; }
+  .rule { border-color: #E5E1D6; }
+  .num { font-feature-settings: 'tnum'; }
+  .mock-banner { background: repeating-linear-gradient(45deg, #FEF3C7, #FEF3C7 10px, #FDE68A 10px, #FDE68A 20px); }
+</style>
+</head>
+<body class="font-sans antialiased">
+
+<div class="mock-banner">
+  <div class="max-w-6xl mx-auto px-6 py-1.5 text-center text-xs font-semibold tracking-wider uppercase text-yellow-900">
+    Static mockup · Phase 3 vision · Not a working product
+    <a href="../directory.html" class="ml-3 underline hover:no-underline">← Back to ATTICUS directory</a>
+  </div>
+</div>
+
+<header class="border-b rule bg-paper">
+  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="#" class="font-semibold tracking-[0.08em] text-ink">ATTICUS <span class="text-accent">Cloud</span></a>
+    <nav class="hidden md:flex items-center gap-7 text-sm text-ink/80">
+      <a href="#how" class="hover:text-ink">How it works</a>
+      <a href="#features" class="hover:text-ink">Features</a>
+      <a href="#pricing" class="hover:text-ink">Pricing</a>
+      <a href="../index.html" class="hover:text-ink">Advisory tier</a>
+    </nav>
+    <div class="flex gap-2">
+      <a href="#" class="text-sm hover:text-ink/70">Sign in</a>
+      <a href="#pricing" class="text-sm bg-ink text-paper px-4 py-2 rounded-full hover:bg-accent transition">Start free</a>
+    </div>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="max-w-6xl mx-auto px-6 pt-16 pb-12 md:pt-24">
+  <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-5">Self-serve · From $99/mo</p>
+  <h1 class="h-display text-4xl md:text-6xl leading-[1.04] max-w-4xl">
+    Your AML/CTF program,<br />operated from your browser.
+  </h1>
+  <p class="mt-6 text-lg md:text-xl text-ink/75 max-w-2xl">
+    Built for the smallest captured firms — solo conveyancers, two-partner accounting practices, single-office agencies, individual bullion dealers. Generate the program, operate the program, satisfy AUSTRAC, all in one place. Backed by the same advisory practice that builds the bespoke version.
+  </p>
+  <div class="mt-8 flex flex-col sm:flex-row gap-3">
+    <a href="#pricing" class="inline-flex justify-center items-center bg-ink text-paper px-6 py-3 rounded-full font-medium hover:bg-accent transition">Start a free 14-day trial</a>
+    <a href="../checklist.html?sector=law" class="inline-flex justify-center items-center border border-ink/20 px-6 py-3 rounded-full font-medium hover:border-ink transition">Try the readiness check</a>
+  </div>
+  <p class="mt-4 text-xs text-ink/55">No credit card · Cancel any time · Your data exports as your data</p>
+
+  <!-- Hero stat strip -->
+  <div class="mt-14 pt-8 border-t rule grid grid-cols-2 md:grid-cols-4 gap-6 text-sm">
+    <div>
+      <p class="h-display text-3xl num">12 mins</p>
+      <p class="text-ink/55 text-xs mt-1">From sign-up to your first AML/CTF program in your browser</p>
+    </div>
+    <div>
+      <p class="h-display text-3xl num">5</p>
+      <p class="text-ink/55 text-xs mt-1">Sectors covered out of the box (law, accounting, real estate, TCSPs, DPMS)</p>
+    </div>
+    <div>
+      <p class="h-display text-3xl num">7yr</p>
+      <p class="text-ink/55 text-xs mt-1">Built-in retention schedule for every artefact you generate</p>
+    </div>
+    <div>
+      <p class="h-display text-3xl num">$99/mo</p>
+      <p class="text-ink/55 text-xs mt-1">Starting price · 14-day free trial · ad-hoc advisory available on request</p>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section id="how" class="border-y rule bg-white/60">
+  <div class="max-w-6xl mx-auto px-6 py-20">
+    <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-4">How it works</p>
+    <h2 class="h-display text-3xl md:text-4xl leading-tight max-w-2xl">Sign up. Answer 12 questions. Operate the program from one workspace.</h2>
+
+    <div class="mt-12 grid md:grid-cols-3 gap-6">
+      <div class="bg-white border rule rounded-2xl p-6">
+        <p class="num text-3xl h-display text-accent">01</p>
+        <h3 class="h-display text-lg mt-3">Take the readiness check</h3>
+        <p class="text-sm text-ink/70 mt-2">12 questions. We tell you whether you need the full Cloud subscription, the bespoke advisory tier, or DIY templates.</p>
+      </div>
+      <div class="bg-white border rule rounded-2xl p-6">
+        <p class="num text-3xl h-display text-accent">02</p>
+        <h3 class="h-display text-lg mt-3">Generate your program</h3>
+        <p class="text-sm text-ink/70 mt-2">Pick your sector and service mix. We produce a unified AML/CTF program, an AMLCO appointment letter, a training pack and a CDD workflow — customised in minutes.</p>
+      </div>
+      <div class="bg-white border rule rounded-2xl p-6">
+        <p class="num text-3xl h-display text-accent">03</p>
+        <h3 class="h-display text-lg mt-3">Operate it forever</h3>
+        <p class="text-sm text-ink/70 mt-2">Onboard clients, record CDD, log decisions, run training. When the Rules change, we update your program automatically.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section id="features" class="max-w-6xl mx-auto px-6 py-20">
+  <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-4">What's inside</p>
+  <h2 class="h-display text-3xl md:text-4xl leading-tight max-w-2xl">Everything an AMLCO needs in one workspace. Nothing they don't.</h2>
+
+  <div class="mt-12 grid md:grid-cols-2 gap-8">
+    <div>
+      <h3 class="h-display text-xl">Program engine</h3>
+      <ul class="mt-3 space-y-2 text-sm text-ink/80">
+        <li class="flex gap-2"><span class="text-accent">·</span><span><strong>Sector-aware program generator</strong> — the unified-program-rules template, customised to your service mix.</span></li>
+        <li class="flex gap-2"><span class="text-accent">·</span><span><strong>AMLCO appointment letter</strong> — generated and signed in your browser.</span></li>
+        <li class="flex gap-2"><span class="text-accent">·</span><span><strong>Risk assessment workbook</strong> — scored, exportable.</span></li>
+        <li class="flex gap-2"><span class="text-accent">·</span><span><strong>Training pack</strong> — four role tracks with attestation forms.</span></li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="h-display text-xl">Daily operations</h3>
+      <ul class="mt-3 space-y-2 text-sm text-ink/80">
+        <li class="flex gap-2"><span class="text-accent">·</span><span><strong>Matter intake</strong> — CDD checklist that walks you through ID, beneficial owners, source of funds.</span></li>
+        <li class="flex gap-2"><span class="text-accent">·</span><span><strong>Decision log</strong> — append-only register of every AML decision (immutable, audit-ready).</span></li>
+        <li class="flex gap-2"><span class="text-accent">·</span><span><strong>SMR drafting wizard</strong> — guided drafting with the structure AUSTRAC expects.</span></li>
+        <li class="flex gap-2"><span class="text-accent">·</span><span><strong>Training register</strong> — auto-reminders for annual refreshers.</span></li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="h-display text-xl">Reporting &amp; audit</h3>
+      <ul class="mt-3 space-y-2 text-sm text-ink/80">
+        <li class="flex gap-2"><span class="text-accent">·</span><span><strong>One-click board report</strong> — quarterly summary as a PDF, formatted to AUSTRAC expectations.</span></li>
+        <li class="flex gap-2"><span class="text-accent">·</span><span><strong>Independent-review export</strong> — pack everything your reviewer needs in two clicks.</span></li>
+        <li class="flex gap-2"><span class="text-accent">·</span><span><strong>7-year retention</strong> — built-in. Nothing falls off the shelf.</span></li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="h-display text-xl">Keeping current</h3>
+      <ul class="mt-3 space-y-2 text-sm text-ink/80">
+        <li class="flex gap-2"><span class="text-accent">·</span><span><strong>Regulatory update feed</strong> — when AUSTRAC or the Rules change, we update your program and show you the diff.</span></li>
+        <li class="flex gap-2"><span class="text-accent">·</span><span><strong>One-click adoption</strong> — review the diff, accept, your program is now current.</span></li>
+        <li class="flex gap-2"><span class="text-accent">·</span><span><strong>Advisory upsell</strong> — book a 1-hour AMLCO consult when you hit something hard.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing -->
+<section id="pricing" class="border-y rule bg-white/60">
+  <div class="max-w-6xl mx-auto px-6 py-20">
+    <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-4">Pricing</p>
+    <h2 class="h-display text-3xl md:text-4xl leading-tight max-w-2xl">Cancel any time. 14-day free trial on every plan. Your data stays yours.</h2>
+
+    <div class="mt-12 grid md:grid-cols-3 gap-6">
+      <div class="bg-white border rule rounded-2xl p-7 flex flex-col">
+        <p class="text-xs uppercase tracking-[0.18em] text-ink/55 font-semibold">Starter</p>
+        <h3 class="h-display text-2xl mt-2">$99<span class="text-base text-ink/55"> /mo</span></h3>
+        <p class="text-xs text-ink/55">Single user · Solo or 2-person practice</p>
+        <ul class="mt-6 space-y-2 text-sm text-ink/80 flex-1">
+          <li>· Sector-aware program generator</li>
+          <li>· Annual training pack + attestations</li>
+          <li>· Decision log &amp; SMR drafting</li>
+          <li>· 50 matter records / year</li>
+          <li>· Regulatory update feed</li>
+          <li class="text-ink/45">· Board report PDF (manual export)</li>
+        </ul>
+        <a href="#" class="mt-7 inline-flex justify-center bg-ink/5 text-ink rounded-full py-3 font-medium hover:bg-ink hover:text-paper transition">Start free</a>
+      </div>
+      <div class="bg-white border-2 border-accent rounded-2xl p-7 flex flex-col relative shadow-sm">
+        <span class="absolute -top-3 left-7 bg-accent text-paper text-[10px] uppercase tracking-[0.18em] font-semibold px-3 py-1 rounded-full">Most chosen</span>
+        <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold">Standard</p>
+        <h3 class="h-display text-2xl mt-2">$249<span class="text-base text-ink/55"> /mo</span></h3>
+        <p class="text-xs text-ink/55">Up to 5 users · Small firm</p>
+        <ul class="mt-6 space-y-2 text-sm text-ink/80 flex-1">
+          <li>· Everything in Starter</li>
+          <li>· Up to 5 personnel + role-based training tracks</li>
+          <li>· 300 matter records / year</li>
+          <li>· One-click quarterly board report</li>
+          <li>· Independent-review export pack</li>
+          <li>· Annual 1-hour AMLCO consult included</li>
+        </ul>
+        <a href="#" class="mt-7 inline-flex justify-center bg-accent text-paper rounded-full py-3 font-medium hover:bg-ink transition">Start free</a>
+      </div>
+      <div class="bg-white border rule rounded-2xl p-7 flex flex-col">
+        <p class="text-xs uppercase tracking-[0.18em] text-ink/55 font-semibold">Premium</p>
+        <h3 class="h-display text-2xl mt-2">$499<span class="text-base text-ink/55"> /mo</span></h3>
+        <p class="text-xs text-ink/55">Unlimited users · Multi-office</p>
+        <ul class="mt-6 space-y-2 text-sm text-ink/80 flex-1">
+          <li>· Everything in Standard</li>
+          <li>· Unlimited users + 1,000 matter records / year</li>
+          <li>· Custom-branded program PDFs</li>
+          <li>· Read-only API for DMS integration</li>
+          <li>· Priority support</li>
+          <li>· Quarterly AMLCO consult included</li>
+        </ul>
+        <a href="#" class="mt-7 inline-flex justify-center bg-ink/5 text-ink rounded-full py-3 font-medium hover:bg-ink hover:text-paper transition">Start free</a>
+      </div>
+    </div>
+
+    <p class="mt-8 text-sm text-ink/65 max-w-3xl">Need a custom program or named external AMLCO? See the <a class="underline hover:no-underline text-ink" href="../index.html#pricing">advisory tier</a> — fixed-fee builds from $9,500 and outsourced AMLCO retainers from $2,800/mo.</p>
+  </div>
+</section>
+
+<!-- Trust -->
+<section class="max-w-6xl mx-auto px-6 py-20">
+  <div class="grid md:grid-cols-3 gap-8 text-sm">
+    <div>
+      <p class="font-medium mb-2">Backed by the advisory practice.</p>
+      <p class="text-ink/70">ATTICUS Cloud is built and maintained by the same team that delivers bespoke AML/CTF programs to boutique firms. The software is the productised version of the engagement we run by hand.</p>
+    </div>
+    <div>
+      <p class="font-medium mb-2">Your data stays yours.</p>
+      <p class="text-ink/70">Export your entire workspace as a single archive any time. Cancel and we keep your data for 30 days, then delete it. No lock-in beyond your subscription.</p>
+    </div>
+    <div>
+      <p class="font-medium mb-2">Not a replacement for judgement.</p>
+      <p class="text-ink/70">ATTICUS Cloud is a workflow tool. The AML/CTF Act requires human judgement — particularly on forming suspicion and on EDD decisions. Cloud helps you record and structure those decisions; it doesn't make them for you.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="max-w-6xl mx-auto px-6 pb-20">
+  <div class="rounded-3xl bg-ink text-paper p-10 md:p-14 grid md:grid-cols-2 gap-10 items-center">
+    <div>
+      <h2 class="h-display text-3xl md:text-4xl leading-tight">Start the 14-day trial.</h2>
+      <p class="mt-4 text-paper/75">Generate your program inside ten minutes. If it's not the right fit, the readiness check will tell you which tier is.</p>
+    </div>
+    <div class="flex flex-col gap-3 md:items-end">
+      <a href="#" class="bg-paper text-ink px-6 py-3 rounded-full font-medium hover:bg-accent hover:text-paper transition">Start free</a>
+      <a href="../checklist.html?sector=law" class="text-paper/70 text-sm hover:text-paper">or take the readiness check first →</a>
+    </div>
+  </div>
+</section>
+
+<footer class="border-t rule">
+  <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row gap-4 md:items-center md:justify-between text-sm text-ink/60">
+    <p>© <span id="yr"></span> ATTICUS Cloud. Phase 3 mockup — not a real product yet.</p>
+    <p>Information here is general and not legal advice.</p>
+  </div>
+</footer>
+<script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+
+</body>
+</html>

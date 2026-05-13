@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tier 3 portal mockup — ATTICUS</title>
+<meta name="description" content="Static mockup of the Tier 3 outsourced-AMLCO client portal. Phase 2 of the software roadmap." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@500;600;700&display=swap" rel="stylesheet" />
+<!-- TODO: set data-domain to your real domain once deployed -->
+<script defer data-domain="atticus.example.com" src="https://plausible.io/js/script.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: {
+      fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], serif: ['"Source Serif 4"', 'Georgia', 'serif'] },
+      colors: { ink: '#0B1220', paper: '#FBF9F4', accent: '#1F3A5F', rule: '#E5E1D6',
+        good: '#0F7A4A', warn: '#B7791F', risk: '#9A2A2A' },
+    } },
+  };
+</script>
+<style>
+  body { background: #F7F4ED; color: #0B1220; }
+  .h-display { font-family: 'Source Serif 4', Georgia, serif; letter-spacing: -0.01em; }
+  .rule { border-color: #E5E1D6; }
+  .num { font-feature-settings: 'tnum'; }
+  .nav-link { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.8rem; border-radius: 0.5rem; font-size: 0.875rem; color: rgba(11,18,32,0.7); }
+  .nav-link:hover { background: rgba(11,18,32,0.04); color: #0B1220; }
+  .nav-link.active { background: #0B1220; color: #FBF9F4; }
+  .nav-icon { width: 1rem; height: 1rem; flex-shrink: 0; }
+  .tile { background: white; border: 1px solid #E5E1D6; border-radius: 1rem; padding: 1.25rem; }
+  .badge { display: inline-flex; align-items: center; padding: 0.15rem 0.5rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+  .badge.low { background: rgba(15,122,74,0.1); color: #0F7A4A; }
+  .badge.med { background: rgba(183,121,31,0.1); color: #B7791F; }
+  .badge.high { background: rgba(154,42,42,0.1); color: #9A2A2A; }
+  .badge.muted { background: rgba(11,18,32,0.06); color: rgba(11,18,32,0.6); }
+  .mock-banner { background: repeating-linear-gradient(45deg, #FEF3C7, #FEF3C7 10px, #FDE68A 10px, #FDE68A 20px); }
+</style>
+</head>
+<body class="font-sans antialiased min-h-screen">
+
+<!-- Mockup label -->
+<div class="mock-banner">
+  <div class="max-w-[1400px] mx-auto px-6 py-1.5 text-center text-xs font-semibold tracking-wider uppercase text-yellow-900">
+    Static mockup · Phase 2 vision · Not a working application
+    <a href="../directory.html" class="ml-3 underline hover:no-underline">← Back to ATTICUS directory</a>
+  </div>
+</div>
+
+<div class="flex min-h-[calc(100vh-32px)]">
+
+  <!-- Side nav -->
+  <aside class="w-[240px] bg-white border-r rule flex flex-col">
+    <div class="px-5 py-5 border-b rule">
+      <p class="font-semibold tracking-[0.08em] text-ink">ATTICUS</p>
+      <p class="text-[10px] uppercase tracking-[0.18em] text-accent font-semibold mt-0.5">Tier 3 portal</p>
+    </div>
+
+    <!-- Firm switcher -->
+    <div class="px-3 py-3 border-b rule">
+      <p class="text-[10px] uppercase tracking-[0.18em] text-ink/50 font-semibold mb-1.5 px-2">Firm</p>
+      <button class="w-full text-left px-2 py-2 rounded-lg border rule bg-white hover:border-ink transition text-sm flex items-center justify-between">
+        <span class="truncate">Smith &amp; Co Lawyers</span>
+        <svg class="w-3 h-3" viewBox="0 0 20 20" fill="currentColor"><path d="M5 8l5 5 5-5H5z"/></svg>
+      </button>
+    </div>
+
+    <nav class="flex-1 px-3 py-3 space-y-0.5">
+      <a href="#dashboard" data-view="dashboard" class="nav-link active">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M3 4h6v6H3V4zm8 0h6v3h-6V4zm0 5h6v7h-6V9zM3 12h6v4H3v-4z"/></svg>
+        Dashboard
+      </a>
+      <a href="#clients" data-view="clients" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M10 10a3 3 0 100-6 3 3 0 000 6zM3 17a7 7 0 0114 0H3z"/></svg>
+        Clients
+        <span class="ml-auto badge muted">142</span>
+      </a>
+      <a href="#cdd" data-view="cdd" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a7 7 0 015.83 10.83l3.59 3.58-1.42 1.42-3.58-3.59A7 7 0 119 2zm0 2a5 5 0 100 10 5 5 0 000-10z"/></svg>
+        CDD queue
+        <span class="ml-auto badge high">7</span>
+      </a>
+      <a href="#training" data-view="training" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1L1 6l9 5 9-5-9-5zm0 8L3 6v6l7 4 7-4V6l-7 3z"/></svg>
+        Training
+        <span class="ml-auto badge med">3</span>
+      </a>
+      <a href="#decisions" data-view="decisions" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M4 3h12v2H4V3zm0 4h12v2H4V7zm0 4h8v2H4v-2zm0 4h12v2H4v-2z"/></svg>
+        Decision log
+      </a>
+      <a href="#reports" data-view="reports" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M4 3h10v14H4V3zm2 2v10h6V5H6zm10 0h2v14h-2V5z"/></svg>
+        Reports
+      </a>
+      <a href="#documents" data-view="documents" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M3 3h10l4 4v10H3V3zm10 1.5V8h3.5L13 4.5z"/></svg>
+        Documents
+      </a>
+    </nav>
+
+    <div class="px-3 py-3 border-t rule">
+      <div class="flex items-center gap-3 px-2 py-1.5">
+        <div class="w-8 h-8 rounded-full bg-accent text-paper flex items-center justify-center text-sm font-semibold">JM</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium truncate">J. Maritz</p>
+          <p class="text-xs text-ink/55">External AMLCO</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="flex-1 overflow-auto">
+
+    <!-- Top bar -->
+    <header class="bg-white border-b rule px-8 py-4 flex items-center justify-between sticky top-0 z-10">
+      <div>
+        <h1 class="h-display text-xl"><span id="view-title">Dashboard</span></h1>
+        <p class="text-xs text-ink/55 mt-0.5">Smith &amp; Co Lawyers · 12 partners · Property · Trusts &amp; estates</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button class="text-sm border rule rounded-full px-4 py-1.5 hover:border-ink transition">Generate Q2 board report</button>
+        <button class="text-sm bg-ink text-paper rounded-full px-4 py-1.5 hover:bg-accent transition">+ New decision</button>
+      </div>
+    </header>
+
+    <!-- DASHBOARD VIEW -->
+    <section id="view-dashboard" class="px-8 py-6 space-y-6">
+      <!-- Status strip -->
+      <div class="bg-ink text-paper rounded-2xl p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <p class="text-[10px] uppercase tracking-[0.18em] text-paper/60 font-semibold mb-1">Program status</p>
+          <h2 class="h-display text-2xl">Program live · 7 weeks until 1 July 2026</h2>
+          <p class="text-sm text-paper/70 mt-1">Last reviewed 11 Apr 2026 by J. Maritz · Next independent review due Q3 2026</p>
+        </div>
+        <div class="text-right">
+          <p class="text-[10px] uppercase tracking-[0.18em] text-paper/60 font-semibold mb-1">Next board report</p>
+          <p class="h-display text-3xl num">12 days</p>
+        </div>
+      </div>
+
+      <!-- KPI tiles -->
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="tile">
+          <p class="text-[10px] uppercase tracking-[0.18em] text-ink/55 font-semibold">Open EDD reviews</p>
+          <p class="h-display text-3xl mt-1 num">7</p>
+          <p class="text-xs text-ink/55 mt-1">2 overdue</p>
+        </div>
+        <div class="tile">
+          <p class="text-[10px] uppercase tracking-[0.18em] text-ink/55 font-semibold">High-risk clients</p>
+          <p class="h-display text-3xl mt-1 num">4</p>
+          <p class="text-xs text-ink/55 mt-1">All within review window</p>
+        </div>
+        <div class="tile">
+          <p class="text-[10px] uppercase tracking-[0.18em] text-ink/55 font-semibold">Training overdue</p>
+          <p class="h-display text-3xl mt-1 num">3</p>
+          <p class="text-xs text-ink/55 mt-1">Of 18 personnel</p>
+        </div>
+        <div class="tile">
+          <p class="text-[10px] uppercase tracking-[0.18em] text-ink/55 font-semibold">SMRs YTD</p>
+          <p class="h-display text-3xl mt-1 num">2</p>
+          <p class="text-xs text-ink/55 mt-1">Both acknowledged</p>
+        </div>
+      </div>
+
+      <!-- Two-column row -->
+      <div class="grid lg:grid-cols-3 gap-6">
+        <!-- Activity feed -->
+        <div class="tile lg:col-span-2 !p-0 overflow-hidden">
+          <div class="border-b rule px-5 py-3 flex items-center justify-between">
+            <p class="font-medium text-sm">Recent activity</p>
+            <a class="text-xs text-accent hover:underline" href="#decisions">View decision log →</a>
+          </div>
+          <ul class="divide-y rule text-sm">
+            <li class="px-5 py-3.5 flex items-start gap-4">
+              <span class="badge high mt-0.5">EDD</span>
+              <div class="flex-1">
+                <p><span class="font-medium">Matter M-2026-0412</span> — Acquisition of company shares, source-of-funds question raised by D. Chen.</p>
+                <p class="text-xs text-ink/55 mt-0.5">2 hours ago · Pending AMLCO review</p>
+              </div>
+            </li>
+            <li class="px-5 py-3.5 flex items-start gap-4">
+              <span class="badge low mt-0.5">CDD</span>
+              <div class="flex-1">
+                <p><span class="font-medium">Hartley Family Trust</span> — onboarding CDD completed, beneficial owners verified (3 of 3).</p>
+                <p class="text-xs text-ink/55 mt-0.5">Yesterday · Low risk</p>
+              </div>
+            </li>
+            <li class="px-5 py-3.5 flex items-start gap-4">
+              <span class="badge med mt-0.5">Training</span>
+              <div class="flex-1">
+                <p><span class="font-medium">Annual refresher</span> completed by L. Park (Property paralegal).</p>
+                <p class="text-xs text-ink/55 mt-0.5">Yesterday · Attestation on file</p>
+              </div>
+            </li>
+            <li class="px-5 py-3.5 flex items-start gap-4">
+              <span class="badge high mt-0.5">SMR</span>
+              <div class="flex-1">
+                <p>SMR draft #2026-002 lodged with AUSTRAC re: Matter M-2026-0387.</p>
+                <p class="text-xs text-ink/55 mt-0.5">2 days ago · Acknowledged by AUSTRAC</p>
+              </div>
+            </li>
+            <li class="px-5 py-3.5 flex items-start gap-4">
+              <span class="badge muted mt-0.5">Review</span>
+              <div class="flex-1">
+                <p>Periodic re-rating of <span class="font-medium">Beecroft Holdings Pty Ltd</span> — Low → Medium.</p>
+                <p class="text-xs text-ink/55 mt-0.5">4 days ago</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Upcoming -->
+        <div class="tile !p-0 overflow-hidden">
+          <div class="border-b rule px-5 py-3">
+            <p class="font-medium text-sm">Upcoming reviews</p>
+          </div>
+          <ul class="divide-y rule text-sm">
+            <li class="px-5 py-3.5">
+              <p class="font-medium">Pemberton Estate</p>
+              <p class="text-xs text-ink/55 mt-0.5">High · Due 19 May (6 days)</p>
+            </li>
+            <li class="px-5 py-3.5">
+              <p class="font-medium">Bowen Properties Pty Ltd</p>
+              <p class="text-xs text-ink/55 mt-0.5">High · Due 23 May (10 days)</p>
+            </li>
+            <li class="px-5 py-3.5">
+              <p class="font-medium">Lin Family Trust</p>
+              <p class="text-xs text-ink/55 mt-0.5">Medium · Due 4 Jun (22 days)</p>
+            </li>
+            <li class="px-5 py-3.5">
+              <p class="font-medium">Q2 board report</p>
+              <p class="text-xs text-ink/55 mt-0.5">Due 25 May (12 days)</p>
+            </li>
+            <li class="px-5 py-3.5">
+              <p class="font-medium">Annual independent review</p>
+              <p class="text-xs text-ink/55 mt-0.5">Scheduled 12 Aug</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Risk distribution -->
+      <div class="tile !p-0 overflow-hidden">
+        <div class="border-b rule px-5 py-3 flex items-center justify-between">
+          <p class="font-medium text-sm">Client risk distribution</p>
+          <p class="text-xs text-ink/55">142 active clients · last re-rated 7 days ago</p>
+        </div>
+        <div class="p-5">
+          <div class="flex h-3 rounded-full overflow-hidden border rule">
+            <div class="bg-good" style="width: 65%"></div>
+            <div class="bg-warn" style="width: 28%"></div>
+            <div class="bg-risk" style="width: 7%"></div>
+          </div>
+          <div class="grid grid-cols-3 gap-4 mt-4 text-sm">
+            <div><span class="badge low mr-2">Low</span><span class="num">92 clients (65%)</span></div>
+            <div><span class="badge med mr-2">Medium</span><span class="num">40 clients (28%)</span></div>
+            <div><span class="badge high mr-2">High</span><span class="num">10 clients (7%)</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CLIENT DETAIL VIEW -->
+    <section id="view-clients" class="px-8 py-6 hidden">
+      <div class="mb-6 flex items-baseline gap-3">
+        <button class="text-sm text-ink/55 hover:text-ink">← All clients</button>
+      </div>
+      <div class="flex items-baseline justify-between mb-5">
+        <div>
+          <h2 class="h-display text-3xl">Hartley Family Trust</h2>
+          <p class="text-sm text-ink/65 mt-1">Client #C-0421 · Onboarded 12 Mar 2026 · Trustee Jane Hartley</p>
+        </div>
+        <div class="flex gap-2">
+          <span class="badge low">Risk: Low</span>
+          <span class="badge muted">Active</span>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="border-b rule mb-6">
+        <nav class="flex gap-6 text-sm">
+          <a class="border-b-2 border-ink pb-3 font-medium text-ink">Overview</a>
+          <a class="pb-3 text-ink/55 hover:text-ink">CDD &amp; beneficial owners</a>
+          <a class="pb-3 text-ink/55 hover:text-ink">Matters</a>
+          <a class="pb-3 text-ink/55 hover:text-ink">Decisions</a>
+          <a class="pb-3 text-ink/55 hover:text-ink">Documents</a>
+        </nav>
+      </div>
+
+      <div class="grid lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-6">
+          <!-- CDD checklist -->
+          <div class="tile !p-0 overflow-hidden">
+            <div class="border-b rule px-5 py-3 flex items-center justify-between">
+              <p class="font-medium text-sm">CDD progress</p>
+              <span class="text-xs text-good font-medium">Complete · 12 of 12</span>
+            </div>
+            <ul class="divide-y rule text-sm">
+              <li class="px-5 py-3 flex items-center gap-3"><span class="text-good">✓</span><span class="flex-1">Trustee ID verified (passport, GreenID)</span><span class="text-xs text-ink/55">12 Mar</span></li>
+              <li class="px-5 py-3 flex items-center gap-3"><span class="text-good">✓</span><span class="flex-1">Trust deed reviewed</span><span class="text-xs text-ink/55">12 Mar</span></li>
+              <li class="px-5 py-3 flex items-center gap-3"><span class="text-good">✓</span><span class="flex-1">Beneficial owners identified — Jane Hartley, Michael Hartley, Sarah Hartley</span><span class="text-xs text-ink/55">12 Mar</span></li>
+              <li class="px-5 py-3 flex items-center gap-3"><span class="text-good">✓</span><span class="flex-1">PEP &amp; sanctions screening (ComplyAdvantage) — clear</span><span class="text-xs text-ink/55">12 Mar</span></li>
+              <li class="px-5 py-3 flex items-center gap-3"><span class="text-good">✓</span><span class="flex-1">Source of funds documented</span><span class="text-xs text-ink/55">14 Mar</span></li>
+              <li class="px-5 py-3 flex items-center gap-3"><span class="text-good">✓</span><span class="flex-1">Risk rating assigned: Low</span><span class="text-xs text-ink/55">14 Mar</span></li>
+              <li class="px-5 py-3 flex items-center gap-3"><span class="text-good">✓</span><span class="flex-1">Engagement letter issued and signed</span><span class="text-xs text-ink/55">15 Mar</span></li>
+            </ul>
+          </div>
+
+          <!-- Active matters -->
+          <div class="tile !p-0 overflow-hidden">
+            <div class="border-b rule px-5 py-3 flex items-center justify-between">
+              <p class="font-medium text-sm">Active matters</p>
+              <button class="text-xs text-accent hover:underline">+ New matter</button>
+            </div>
+            <table class="w-full text-sm">
+              <thead class="text-xs uppercase tracking-wider text-ink/55 border-b rule">
+                <tr><th class="px-5 py-2 text-left font-medium">Matter</th><th class="text-left font-medium">Service</th><th class="text-left font-medium">Risk</th><th class="text-left font-medium">Opened</th></tr>
+              </thead>
+              <tbody class="divide-y rule">
+                <tr class="hover:bg-ink/5"><td class="px-5 py-3 font-medium">M-2026-0418</td><td>Property purchase — Hawthorn</td><td><span class="badge low">Low</span></td><td class="text-ink/65">2 Apr 2026</td></tr>
+                <tr class="hover:bg-ink/5"><td class="px-5 py-3 font-medium">M-2026-0367</td><td>Trust variation</td><td><span class="badge low">Low</span></td><td class="text-ink/65">8 Mar 2026</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <!-- Side -->
+          <div class="tile">
+            <p class="text-[10px] uppercase tracking-[0.18em] text-ink/55 font-semibold mb-3">Risk profile</p>
+            <p class="text-sm">Customer: <span class="font-medium">Low</span></p>
+            <p class="text-sm">Service: <span class="font-medium">Low</span></p>
+            <p class="text-sm">Channel: <span class="font-medium">Face-to-face</span></p>
+            <p class="text-sm">Geography: <span class="font-medium">AU only</span></p>
+            <hr class="rule my-3" />
+            <p class="text-xs text-ink/55">Next periodic review: 14 Mar 2029 (Low cadence)</p>
+          </div>
+          <div class="tile">
+            <p class="text-[10px] uppercase tracking-[0.18em] text-ink/55 font-semibold mb-3">Recent decisions</p>
+            <ul class="space-y-2 text-sm">
+              <li class="flex justify-between"><span>Risk rating: Low</span><span class="text-xs text-ink/55">14 Mar</span></li>
+              <li class="flex justify-between"><span>CDD complete · sign-off</span><span class="text-xs text-ink/55">14 Mar</span></li>
+            </ul>
+          </div>
+          <div class="tile">
+            <p class="text-[10px] uppercase tracking-[0.18em] text-ink/55 font-semibold mb-3">Documents</p>
+            <ul class="space-y-2 text-sm">
+              <li>Trust deed.pdf</li>
+              <li>Trustee passport.pdf</li>
+              <li>Engagement letter.pdf</li>
+              <li>CDD pack.pdf</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Placeholder views for the rest -->
+    <section id="view-cdd" class="px-8 py-12 hidden text-center text-ink/55">
+      <p class="text-sm">CDD queue view — pending CDD on new matters and overdue re-verifications. Same data model as the dashboard; filtered to outstanding items.</p>
+    </section>
+    <section id="view-training" class="px-8 py-12 hidden text-center text-ink/55">
+      <p class="text-sm">Training register — completion grid by personnel × track, attestations, overdue flags, auto-reminders.</p>
+    </section>
+    <section id="view-decisions" class="px-8 py-12 hidden text-center text-ink/55">
+      <p class="text-sm">Decision log — append-only register of every AML/CTF decision (onboarding refusal, EDD trigger, SMR lodgement, risk re-rating). Immutable, exportable for audit.</p>
+    </section>
+    <section id="view-reports" class="px-8 py-12 hidden text-center text-ink/55">
+      <p class="text-sm">Reports — one-click quarterly board report PDF, AUSTRAC submissions register, training completion report, independent review export pack.</p>
+    </section>
+    <section id="view-documents" class="px-8 py-12 hidden text-center text-ink/55">
+      <p class="text-sm">Document vault — 7-year retention store with retention tags by document type. Versioned. Audit log per file.</p>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const titles = {
+    dashboard: 'Dashboard',
+    clients: 'Client · Hartley Family Trust',
+    cdd: 'CDD queue',
+    training: 'Training',
+    decisions: 'Decision log',
+    reports: 'Reports',
+    documents: 'Documents',
+  };
+
+  const switchView = (view) => {
+    document.querySelectorAll('[id^="view-"]').forEach(el => {
+      if (el.tagName === 'SECTION') el.classList.add('hidden');
+    });
+    const target = document.getElementById('view-' + view);
+    if (target) target.classList.remove('hidden');
+    document.getElementById('view-title').textContent = titles[view] || 'Dashboard';
+    document.querySelectorAll('.nav-link').forEach(a => {
+      a.classList.toggle('active', a.dataset.view === view);
+    });
+    location.hash = view;
+  };
+
+  document.querySelectorAll('.nav-link').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      switchView(a.dataset.view);
+    });
+  });
+
+  switchView((location.hash || '#dashboard').replace('#', ''));
+</script>
+
+</body>
+</html>
