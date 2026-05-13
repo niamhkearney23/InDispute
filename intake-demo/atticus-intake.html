@@ -366,7 +366,7 @@ const STATE_KEY = 'atticus.intake.demo.v1';
 const PRACTICE_AREAS = {
   family: {
     label: 'Family law',
-    icon: '⚖️',
+    icon: 'FL',
     description: 'Separation, parenting, property settlement',
     color: 'rose',
     questions: [
@@ -383,7 +383,7 @@ const PRACTICE_AREAS = {
   },
   conveyancing: {
     label: 'Conveyancing',
-    icon: '🏠',
+    icon: 'CV',
     description: 'Property purchase or sale',
     color: 'blue',
     questions: [
@@ -399,7 +399,7 @@ const PRACTICE_AREAS = {
   },
   commercial: {
     label: 'Commercial / business',
-    icon: '🏢',
+    icon: 'CM',
     description: 'Contracts, structures, advice',
     color: 'slate',
     questions: [
@@ -415,7 +415,7 @@ const PRACTICE_AREAS = {
   },
   general: {
     label: 'General advice',
-    icon: '📋',
+    icon: 'GA',
     description: 'Single advice, referral, or unsure',
     color: 'stone',
     questions: [
@@ -610,7 +610,16 @@ function flagPill(flag) {
   return `<span class="pill ${cls}">${label}</span>`;
 }
 function paLabel(key) { return PRACTICE_AREAS[key]?.label || key; }
-function paIcon(key) { return PRACTICE_AREAS[key]?.icon || '📄'; }
+function paIcon(key) { return PRACTICE_AREAS[key]?.icon || '—'; }
+function paBadge(key, size = 'md') {
+  const label = paIcon(key);
+  const sizes = {
+    sm: 'w-7 h-7 text-[10px]',
+    md: 'w-9 h-9 text-xs',
+    lg: 'w-11 h-11 text-sm'
+  };
+  return `<span class="inline-flex items-center justify-center ${sizes[size] || sizes.md} rounded-lg bg-accent/10 text-accent font-semibold tracking-wider shrink-0">${label}</span>`;
+}
 function nextMatterId() {
   const ids = state.matters.map(m => parseInt(m.id.split('-').pop()));
   const max = Math.max(...ids, 0);
@@ -672,7 +681,7 @@ function renderMattersList() {
     row.className = 'w-full text-left px-5 py-4 hover:bg-ink/[0.02] transition flex items-center gap-4';
     const flagsHtml = (m.flags || []).map(flagPill).join(' ');
     row.innerHTML = `
-      <div class="text-2xl">${paIcon(m.matterType)}</div>
+      ${paBadge(m.matterType, 'lg')}
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-2 mb-0.5 flex-wrap">
           <span class="font-medium truncate">${m.clientName}</span>
@@ -730,7 +739,7 @@ function renderPaGrid() {
     card.innerHTML = `
       <input type="radio" name="pa" value="${key}" />
       <div class="flex-1">
-        <div class="flex items-center gap-2"><span class="text-xl">${pa.icon}</span><span class="font-medium">${pa.label}</span></div>
+        <div class="flex items-center gap-2.5">${paBadge(key, 'md')}<span class="font-medium">${pa.label}</span></div>
         <p class="text-sm text-ink/65 mt-1">${pa.description}</p>
       </div>
     `;
@@ -748,7 +757,7 @@ function renderStep3Summary() {
   const pa = PRACTICE_AREAS[d.matterType];
   $('#step-3-summary').innerHTML = `
     <div class="flex items-center gap-3">
-      <div class="text-2xl">${pa.icon}</div>
+      ${paBadge(d.matterType, 'lg')}
       <div class="flex-1">
         <p class="text-xs text-ink/55">${pa.label}</p>
         <p class="font-medium">${d.clientName || '—'}</p>
@@ -1228,7 +1237,7 @@ function renderPrincipalView() {
   $('#practice-mix-shell').innerHTML = Object.entries(counts).map(([k, c]) => `
     <div>
       <div class="flex items-center justify-between text-sm mb-1">
-        <span class="flex items-center gap-2"><span>${paIcon(k)}</span>${paLabel(k)}</span>
+        <span class="flex items-center gap-2">${paBadge(k, 'sm')}${paLabel(k)}</span>
         <span class="text-ink/55 num">${c}</span>
       </div>
       <div class="h-1.5 bg-ink/5 rounded-full overflow-hidden">
