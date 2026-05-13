@@ -269,4 +269,4 @@ Replace each of these before adopting the program. None should remain in the fin
 
 ---
 
-*This template is provided by ATTICus for licensed use by a single firm. It is general in nature and must be customised to the Firm's specific circumstances. It is not legal advice.*
+*This template is provided by ATTICUS for licensed use by a single firm. It is general in nature and must be customised to the Firm's specific circumstances. It is not legal advice.*

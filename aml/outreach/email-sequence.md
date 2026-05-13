@@ -23,7 +23,7 @@ Avoid: "compliance solution", "transform", "synergy", "circling back".
 
 Hi {{FIRST_NAME}},
 
-I run ATTICus — we build AML/CTF programs for boutique Melbourne law firms. Most of the firms we speak to are in one of three positions on the new unified-program rules: enrolled and unsure what's next, drafting and stuck, or hoping it doesn't apply.
+I run ATTICUS — we build AML/CTF programs for boutique Melbourne law firms. Most of the firms we speak to are in one of three positions on the new unified-program rules: enrolled and unsure what's next, drafting and stuck, or hoping it doesn't apply.
 
 Two questions:
 
@@ -35,7 +35,7 @@ If yes to (2): {{CHECKLIST_URL}} — 8 minutes, no signup wall, you get a partne
 Happy to be told you have it covered.
 
 {{SENDER_NAME}}
-{{SENDER_TITLE}} · ATTICus
+{{SENDER_TITLE}} · ATTICUS
 {{SENDER_PHONE}}
 
 ---
