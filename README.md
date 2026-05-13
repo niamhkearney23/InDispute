@@ -38,6 +38,11 @@ aml/
 │   ├── commercial-structures.md         # Three commercial structures
 │   ├── partner-call-script.md           # First-call script + qualification + Q&amp;A
 │   └── partner-tracker.csv              # Pipeline tracker
+├── software/                            # Service-led, software-augmented roadmap
+│   ├── product-strategy.md              # Principles + 24-month roadmap + phase specs
+│   ├── template-customiser.html         # Phase 1 working tool (placeholders → customised .md)
+│   ├── portal-mockup.html               # Phase 2 mockup (Tier 3 AMLCO portal)
+│   └── saas-landing-mockup.html         # Phase 3 mockup (Tier 4 self-serve SaaS)
 └── assets/                              # (reserved for screenshots, logos)
 ```
 

@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Template customiser — ATTICUS internal</title>
+<meta name="description" content="Internal tool. Customise the AML/CTF program, AMLCO appointment letter and supporting templates for a new client in under 90 minutes." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<!-- TODO: set data-domain to your real domain once deployed -->
+<script defer data-domain="atticus.example.com" src="https://plausible.io/js/script.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        serif: ['"Source Serif 4"', 'Georgia', 'serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+      },
+      colors: { ink: '#0B1220', paper: '#FBF9F4', accent: '#1F3A5F', rule: '#E5E1D6' },
+    } },
+  };
+</script>
+<style>
+  body { background: #FBF9F4; color: #0B1220; }
+  .h-display { font-family: 'Source Serif 4', Georgia, serif; letter-spacing: -0.01em; }
+  .rule { border-color: #E5E1D6; }
+  .field input, .field select, .field textarea {
+    width: 100%; border: 1px solid #E5E1D6; border-radius: 0.5rem;
+    padding: 0.5rem 0.7rem; font-size: 0.875rem; background: #fff;
+    transition: border-color 0.15s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: none; border-color: #1F3A5F;
+  }
+  .field label {
+    display: block; font-size: 0.75rem; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.06em; color: #6b7280;
+    margin-bottom: 0.3rem;
+  }
+  .field .hint { font-size: 0.7rem; color: #9ca3af; margin-top: 0.25rem; }
+  .preview { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px;
+    line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
+  .preview-rendered { font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.7; }
+  .preview-rendered h1 { font-family: 'Source Serif 4', serif; font-size: 1.875rem; font-weight: 700; margin: 1.2rem 0 0.6rem; }
+  .preview-rendered h2 { font-family: 'Source Serif 4', serif; font-size: 1.375rem; font-weight: 600; margin: 1.4rem 0 0.5rem; border-top: 1px solid #E5E1D6; padding-top: 1rem; }
+  .preview-rendered h3 { font-family: 'Source Serif 4', serif; font-size: 1.125rem; font-weight: 600; margin: 1rem 0 0.4rem; }
+  .preview-rendered p { margin: 0.6rem 0; }
+  .preview-rendered ul, .preview-rendered ol { margin: 0.6rem 0 0.6rem 1.2rem; }
+  .preview-rendered li { margin: 0.2rem 0; }
+  .preview-rendered table { border-collapse: collapse; width: 100%; margin: 0.8rem 0; font-size: 0.875rem; }
+  .preview-rendered th, .preview-rendered td { border: 1px solid #E5E1D6; padding: 0.5rem 0.7rem; text-align: left; }
+  .preview-rendered th { background: #F4F1E9; font-weight: 600; }
+  .preview-rendered blockquote { border-left: 3px solid #1F3A5F; padding: 0.5rem 0.9rem; margin: 0.8rem 0; background: rgba(31,58,95,0.04); color: #374151; font-style: italic; }
+  .preview-rendered code { background: #F4F1E9; padding: 0.1rem 0.3rem; border-radius: 0.2rem; font-size: 0.85em; }
+  .preview-rendered hr { border: none; border-top: 1px solid #E5E1D6; margin: 1.4rem 0; }
+  .preview-rendered .placeholder-missing {
+    background: #fef3c7; color: #92400e; padding: 0 0.2rem; border-radius: 0.2rem;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.85em;
+  }
+  .toast {
+    position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+    background: #0B1220; color: #FBF9F4; padding: 0.6rem 1.2rem; border-radius: 9999px;
+    font-size: 0.875rem; opacity: 0; transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none; z-index: 50;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+</style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col">
+
+<header class="border-b rule">
+  <div class="max-w-[1400px] mx-auto px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-6">
+      <a href="../directory.html" class="font-semibold tracking-[0.08em] text-ink">ATTICUS</a>
+      <span class="text-xs uppercase tracking-[0.18em] text-accent font-semibold">Internal · Template customiser</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <select id="profile-select" class="text-sm border rule rounded-full px-3 py-1.5 bg-white focus:outline-none focus:border-accent">
+        <option value="">— Load saved firm —</option>
+      </select>
+      <button type="button" id="save-profile" class="text-sm border rule rounded-full px-3 py-1.5 hover:border-ink transition">Save firm</button>
+      <button type="button" id="delete-profile" class="text-sm border rule rounded-full px-3 py-1.5 hover:border-ink hover:text-red-700 transition">Delete</button>
+      <button type="button" id="new-profile" class="text-sm bg-ink text-paper rounded-full px-3 py-1.5 hover:bg-accent transition">New firm</button>
+    </div>
+  </div>
+</header>
+
+<main class="flex-1 max-w-[1400px] mx-auto w-full px-6 py-6 grid lg:grid-cols-[420px_1fr] gap-6">
+
+  <!-- Form panel -->
+  <aside class="space-y-5">
+    <section>
+      <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-2">Document</p>
+      <select id="doc-select" class="field-input w-full border rule rounded-lg px-3 py-2 bg-white text-sm focus:outline-none focus:border-accent">
+        <option value="aml-ctf-program-template">Unified AML/CTF program</option>
+        <option value="amlco-appointment-letter">AMLCO appointment letter</option>
+        <option value="risk-assessment-workbook">Risk assessment workbook (Annexure A)</option>
+        <option value="red-flag-indicators">Red-flag indicators (Annexure G)</option>
+        <option value="sample-smr">Sample SMR drafted text</option>
+        <option value="training-pack-outline">Training pack outline</option>
+      </select>
+    </section>
+
+    <details open class="border rule rounded-xl bg-white">
+      <summary class="px-4 py-3 font-medium cursor-pointer text-sm">Firm identity</summary>
+      <div class="px-4 pb-4 pt-1 space-y-3">
+        <div class="field"><label for="f-FIRM_LEGAL_NAME">Firm legal name</label><input id="f-FIRM_LEGAL_NAME" data-ph="FIRM_LEGAL_NAME" placeholder="Smith &amp; Co Lawyers Pty Ltd" /></div>
+        <div class="field"><label for="f-FIRM_ABN">ABN</label><input id="f-FIRM_ABN" data-ph="FIRM_ABN" placeholder="11 222 333 444" /></div>
+        <div class="field"><label for="f-AUSTRAC_RE_ID">AUSTRAC RE ID</label><input id="f-AUSTRAC_RE_ID" data-ph="AUSTRAC_RE_ID" placeholder="Issued on enrolment" /></div>
+        <div class="field"><label for="f-VERSION">Program version</label><input id="f-VERSION" data-ph="VERSION" placeholder="1.0" /></div>
+      </div>
+    </details>
+
+    <details class="border rule rounded-xl bg-white">
+      <summary class="px-4 py-3 font-medium cursor-pointer text-sm">Governance</summary>
+      <div class="px-4 pb-4 pt-1 space-y-3">
+        <div class="field">
+          <label for="f-BOARD_OR_PARTNERSHIP">Governance body</label>
+          <select id="f-BOARD_OR_PARTNERSHIP" data-ph="BOARD_OR_PARTNERSHIP">
+            <option>Partnership</option><option>Board</option><option>Management Committee</option>
+          </select>
+        </div>
+        <div class="field"><label for="f-AMLCO_NAME">AMLCO name</label><input id="f-AMLCO_NAME" data-ph="AMLCO_NAME" placeholder="Jane Smith" /></div>
+        <div class="field">
+          <label for="f-AMLCO_TITLE">AMLCO title</label>
+          <input id="f-AMLCO_TITLE" data-ph="AMLCO_TITLE" placeholder="Managing Partner" />
+        </div>
+        <div class="field">
+          <label for="f-AMLCO_FIRST_NAME">AMLCO first name (for letter)</label>
+          <input id="f-AMLCO_FIRST_NAME" data-ph="AMLCO_FIRST_NAME" placeholder="Jane" />
+        </div>
+        <div class="field"><label for="f-BACKUP_PARTNER">Backup partner (AUSTRAC Online access)</label><input id="f-BACKUP_PARTNER" data-ph="BACKUP_PARTNER" placeholder="John Doe" /></div>
+        <div class="field"><label for="f-BOARD_CHAIR_OR_MANAGING_PARTNER">Board chair / managing partner</label><input id="f-BOARD_CHAIR_OR_MANAGING_PARTNER" data-ph="BOARD_CHAIR_OR_MANAGING_PARTNER" placeholder="Jane Smith" /></div>
+        <div class="field"><label for="f-BOARD_CHAIR_OR_MANAGING_PARTNER_TITLE">Their title</label><input id="f-BOARD_CHAIR_OR_MANAGING_PARTNER_TITLE" data-ph="BOARD_CHAIR_OR_MANAGING_PARTNER_TITLE" placeholder="Managing Partner" /></div>
+      </div>
+    </details>
+
+    <details class="border rule rounded-xl bg-white">
+      <summary class="px-4 py-3 font-medium cursor-pointer text-sm">Dates</summary>
+      <div class="px-4 pb-4 pt-1 space-y-3">
+        <div class="field"><label for="f-APPROVAL_DATE">Approval date</label><input id="f-APPROVAL_DATE" data-ph="APPROVAL_DATE" type="date" /></div>
+        <div class="field"><label for="f-EFFECTIVE_DATE">Effective date</label><input id="f-EFFECTIVE_DATE" data-ph="EFFECTIVE_DATE" type="date" /></div>
+        <div class="field"><label for="f-NEXT_REVIEW_DATE">Next review date</label><input id="f-NEXT_REVIEW_DATE" data-ph="NEXT_REVIEW_DATE" type="date" /></div>
+        <div class="field"><label for="f-DATE">Letter date</label><input id="f-DATE" data-ph="DATE" type="date" /></div>
+      </div>
+    </details>
+
+    <details class="border rule rounded-xl bg-white">
+      <summary class="px-4 py-3 font-medium cursor-pointer text-sm">Services &amp; risk</summary>
+      <div class="px-4 pb-4 pt-1 space-y-3">
+        <div class="field">
+          <label for="f-LIST_DESIGNATED_SERVICES">Designated services list (bulleted)</label>
+          <textarea id="f-LIST_DESIGNATED_SERVICES" data-ph="LIST_DESIGNATED_SERVICES" rows="4" placeholder="- Real estate transactions for clients&#10;- Managing client money / trust account&#10;- Company &amp; trust formation"></textarea>
+        </div>
+        <div class="field"><label for="f-FIRM_SPECIFIC_TRIGGER_1">Firm-specific EDD trigger 1 (optional)</label><input id="f-FIRM_SPECIFIC_TRIGGER_1" data-ph="FIRM_SPECIFIC_TRIGGER_1" /></div>
+        <div class="field"><label for="f-FIRM_SPECIFIC_TRIGGER_2">Firm-specific EDD trigger 2 (optional)</label><input id="f-FIRM_SPECIFIC_TRIGGER_2" data-ph="FIRM_SPECIFIC_TRIGGER_2" /></div>
+      </div>
+    </details>
+
+    <details class="border rule rounded-xl bg-white">
+      <summary class="px-4 py-3 font-medium cursor-pointer text-sm">Operations</summary>
+      <div class="px-4 pb-4 pt-1 space-y-3">
+        <div class="field"><label for="f-DMS_NAME">DMS / matter system</label><input id="f-DMS_NAME" data-ph="DMS_NAME" placeholder="Actionstep, LEAP, NetDocuments…" /></div>
+        <div class="field"><label for="f-HRIS_OR_DMS">HRIS / training record system</label><input id="f-HRIS_OR_DMS" data-ph="HRIS_OR_DMS" placeholder="Employment Hero, BambooHR, DMS…" /></div>
+        <div class="field"><label for="f-ID_VERIFICATION_PROVIDER">ID verification provider</label><input id="f-ID_VERIFICATION_PROVIDER" data-ph="ID_VERIFICATION_PROVIDER" placeholder="GreenID, Frankie, manual…" /></div>
+        <div class="field"><label for="f-SCREENING_PROVIDER">PEP / sanctions screening provider</label><input id="f-SCREENING_PROVIDER" data-ph="SCREENING_PROVIDER" placeholder="ComplyAdvantage, Refinitiv…" /></div>
+      </div>
+    </details>
+
+    <details class="border rule rounded-xl bg-white">
+      <summary class="px-4 py-3 font-medium cursor-pointer text-sm">Thresholds &amp; cadence</summary>
+      <div class="px-4 pb-4 pt-1 space-y-3">
+        <div class="field"><label for="f-BENEFICIAL_OWNER_THRESHOLD">Beneficial owner threshold</label><input id="f-BENEFICIAL_OWNER_THRESHOLD" data-ph="BENEFICIAL_OWNER_THRESHOLD" value="25%" /></div>
+        <div class="field"><label for="f-CASH_THRESHOLD">Cash settlement EDD threshold</label><input id="f-CASH_THRESHOLD" data-ph="CASH_THRESHOLD" value="A$10,000" /></div>
+        <div class="field"><label for="f-PERIODIC_REVIEW_LOW">Low-risk review interval (months)</label><input id="f-PERIODIC_REVIEW_LOW" data-ph="PERIODIC_REVIEW_LOW" value="36" type="number" /></div>
+        <div class="field"><label for="f-PERIODIC_REVIEW_MEDIUM">Medium-risk review interval (months)</label><input id="f-PERIODIC_REVIEW_MEDIUM" data-ph="PERIODIC_REVIEW_MEDIUM" value="24" type="number" /></div>
+        <div class="field"><label for="f-PERIODIC_REVIEW_HIGH">High-risk review interval (months)</label><input id="f-PERIODIC_REVIEW_HIGH" data-ph="PERIODIC_REVIEW_HIGH" value="12" type="number" /></div>
+        <div class="field"><label for="f-HOURS_PER_WEEK">AMLCO hours/week (for appointment letter)</label><input id="f-HOURS_PER_WEEK" data-ph="HOURS_PER_WEEK" value="4" type="number" /></div>
+        <div class="field"><label for="f-BUDGET">Annual AML/CTF budget</label><input id="f-BUDGET" data-ph="BUDGET" placeholder="15,000" /></div>
+        <div class="field"><label for="f-BACKUP_AMLCO">Backup AMLCO</label><input id="f-BACKUP_AMLCO" data-ph="BACKUP_AMLCO" placeholder="Jane Doe" /></div>
+      </div>
+    </details>
+
+    <p id="missing-count" class="text-xs text-ink/60"></p>
+  </aside>
+
+  <!-- Preview panel -->
+  <section class="border rule rounded-xl bg-white overflow-hidden flex flex-col min-h-[700px]">
+    <div class="border-b rule flex items-center justify-between px-4 py-2.5">
+      <div class="flex items-center gap-1">
+        <button type="button" data-view="rendered" class="view-btn px-3 py-1 rounded-full text-xs font-medium bg-ink text-paper">Rendered</button>
+        <button type="button" data-view="markdown" class="view-btn px-3 py-1 rounded-full text-xs font-medium hover:bg-ink/5 transition">Markdown</button>
+      </div>
+      <div class="flex items-center gap-2">
+        <span id="word-count" class="text-xs text-ink/55 num"></span>
+        <button type="button" id="copy-btn" class="text-xs border rule rounded-full px-3 py-1 hover:border-ink transition">Copy</button>
+        <button type="button" id="download-md" class="text-xs border rule rounded-full px-3 py-1 hover:border-ink transition">Download .md</button>
+        <button type="button" id="print-btn" class="text-xs bg-ink text-paper rounded-full px-3 py-1 hover:bg-accent transition">Print / PDF</button>
+      </div>
+    </div>
+    <div id="preview" class="flex-1 overflow-auto p-6 preview-rendered"></div>
+  </section>
+</main>
+
+<div id="toast" class="toast">Saved</div>
+
+<script>
+  // ---------- State ----------
+  const TEMPLATE_PATHS = {
+    'aml-ctf-program-template': '../templates/aml-ctf-program-template.md',
+    'amlco-appointment-letter': '../templates/amlco-appointment-letter.md',
+    'risk-assessment-workbook': '../templates/risk-assessment-workbook.md',
+    'red-flag-indicators': '../templates/red-flag-indicators.md',
+    'sample-smr': '../templates/sample-smr.md',
+    'training-pack-outline': '../templates/training-pack-outline.md',
+  };
+
+  const templateCache = {};
+  let currentView = 'rendered';
+  let currentDocId = 'aml-ctf-program-template';
+
+  // ---------- Persistence ----------
+  const STORAGE_KEY = 'atticus.firms';
+  const loadFirms = () => { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; } };
+  const saveFirms = (firms) => localStorage.setItem(STORAGE_KEY, JSON.stringify(firms));
+  let firms = loadFirms();
+  let currentFirmId = null;
+
+  // ---------- Form helpers ----------
+  const fieldEls = () => document.querySelectorAll('[data-ph]');
+  const readValues = () => {
+    const out = {};
+    fieldEls().forEach(el => { out[el.dataset.ph] = el.value || ''; });
+    return out;
+  };
+  const writeValues = (vals) => {
+    fieldEls().forEach(el => {
+      el.value = (vals && vals[el.dataset.ph]) || el.value || '';
+    });
+  };
+  const clearValues = () => {
+    fieldEls().forEach(el => { if (el.type !== 'number' || !el.defaultValue) el.value = ''; });
+  };
+
+  // ---------- Replace + render ----------
+  const applyValues = (template, values) => {
+    return template.replace(/\{\{([A-Z0-9_]+)\}\}/g, (m, key) => {
+      const v = values[key];
+      if (!v) return `<<MISSING:${key}>>`;
+      return v;
+    });
+  };
+
+  const escapeHtml = (s) => s.replace(/[&<>]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[c]));
+
+  // Lightweight markdown renderer (sufficient for our templates)
+  const renderMarkdown = (md) => {
+    let html = escapeHtml(md);
+
+    // Tables (very simple — pipe rows separated by header divider)
+    html = html.replace(/(?:^\|.+\|\n)+/gm, block => {
+      const lines = block.trim().split('\n');
+      if (lines.length < 2) return block;
+      const divider = lines[1];
+      if (!/^\|\s*[:\-\s|]+\|\s*$/.test(divider)) return block;
+      const header = lines[0].split('|').slice(1, -1).map(s => s.trim());
+      const rows = lines.slice(2).map(l => l.split('|').slice(1, -1).map(s => s.trim()));
+      const thead = '<tr>' + header.map(h => `<th>${h}</th>`).join('') + '</tr>';
+      const tbody = rows.map(r => '<tr>' + r.map(c => `<td>${c}</td>`).join('') + '</tr>').join('');
+      return `<table>${thead}${tbody}</table>`;
+    });
+
+    // Code fences
+    html = html.replace(/```([\s\S]*?)```/g, (m, code) => `<pre><code>${code}</code></pre>`);
+
+    // Headings
+    html = html.replace(/^###### (.*)$/gm, '<h6>$1</h6>')
+               .replace(/^##### (.*)$/gm, '<h5>$1</h5>')
+               .replace(/^#### (.*)$/gm, '<h4>$1</h4>')
+               .replace(/^### (.*)$/gm, '<h3>$1</h3>')
+               .replace(/^## (.*)$/gm, '<h2>$1</h2>')
+               .replace(/^# (.*)$/gm, '<h1>$1</h1>');
+
+    // Horizontal rule
+    html = html.replace(/^---$/gm, '<hr/>');
+
+    // Blockquote
+    html = html.replace(/^&gt; (.*)$/gm, '<blockquote>$1</blockquote>');
+
+    // Lists (unordered)
+    html = html.replace(/(?:^- .*(?:\n|$))+/gm, block => {
+      const items = block.trim().split('\n').map(l => l.replace(/^- /, '').trim());
+      return '<ul>' + items.map(i => `<li>${i}</li>`).join('') + '</ul>';
+    });
+
+    // Lists (ordered)
+    html = html.replace(/(?:^\d+\. .*(?:\n|$))+/gm, block => {
+      const items = block.trim().split('\n').map(l => l.replace(/^\d+\. /, '').trim());
+      return '<ol>' + items.map(i => `<li>${i}</li>`).join('') + '</ol>';
+    });
+
+    // Bold / italic / inline code
+    html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+               .replace(/(?<![*\w])\*([^*\n]+)\*(?!\w)/g, '<em>$1</em>')
+               .replace(/`([^`]+)`/g, '<code>$1</code>');
+
+    // Highlight missing placeholders
+    html = html.replace(/&lt;&lt;MISSING:([A-Z0-9_]+)&gt;&gt;/g, '<span class="placeholder-missing">{{$1}}</span>');
+
+    // Paragraphs — wrap stray text between blank lines
+    html = html.split(/\n\n+/).map(block => {
+      if (/^<(h\d|ul|ol|hr|blockquote|table|pre)/.test(block.trim())) return block;
+      return block.trim() ? `<p>${block.replace(/\n/g, '<br/>')}</p>` : '';
+    }).join('\n');
+
+    return html;
+  };
+
+  // ---------- Fetch template ----------
+  async function getTemplate(id) {
+    if (templateCache[id]) return templateCache[id];
+    const res = await fetch(TEMPLATE_PATHS[id]);
+    if (!res.ok) throw new Error(`Could not load ${id}`);
+    const text = await res.text();
+    templateCache[id] = text;
+    return text;
+  }
+
+  // ---------- Render preview ----------
+  let renderTimer;
+  const renderPreview = async () => {
+    clearTimeout(renderTimer);
+    renderTimer = setTimeout(async () => {
+      try {
+        const template = await getTemplate(currentDocId);
+        const values = readValues();
+        const customised = applyValues(template, values);
+        const previewEl = document.getElementById('preview');
+        if (currentView === 'rendered') {
+          previewEl.className = 'flex-1 overflow-auto p-6 preview-rendered';
+          previewEl.innerHTML = renderMarkdown(customised);
+        } else {
+          previewEl.className = 'flex-1 overflow-auto p-6 preview';
+          previewEl.textContent = customised.replace(/<<MISSING:([A-Z0-9_]+)>>/g, '{{$1}}');
+        }
+        const missing = (customised.match(/<<MISSING:[A-Z0-9_]+>>/g) || []).length;
+        document.getElementById('missing-count').textContent =
+          missing === 0 ? 'All placeholders filled.' :
+          `${missing} placeholder${missing === 1 ? '' : 's'} still missing (highlighted in yellow).`;
+        const words = customised.replace(/<<MISSING:[A-Z0-9_]+>>/g, 'X').split(/\s+/).filter(Boolean).length;
+        document.getElementById('word-count').textContent = `${words.toLocaleString()} words`;
+      } catch (err) {
+        document.getElementById('preview').innerHTML = `<p class="text-red-700">Could not load template: ${err.message}</p>`;
+      }
+    }, 80);
+  };
+
+  // ---------- Profile UI ----------
+  const refreshProfileSelect = () => {
+    const sel = document.getElementById('profile-select');
+    const current = sel.value;
+    sel.innerHTML = '<option value="">— Load saved firm —</option>' +
+      Object.keys(firms).sort().map(id => `<option value="${id}">${firms[id].FIRM_LEGAL_NAME || id}</option>`).join('');
+    sel.value = current;
+  };
+
+  const saveCurrent = () => {
+    const values = readValues();
+    const id = (values.FIRM_LEGAL_NAME || '').trim();
+    if (!id) { toast('Add a firm legal name first'); return; }
+    firms[id] = values;
+    saveFirms(firms);
+    currentFirmId = id;
+    refreshProfileSelect();
+    document.getElementById('profile-select').value = id;
+    toast(`Saved ${id}`);
+  };
+
+  const loadById = (id) => {
+    if (!id || !firms[id]) return;
+    writeValues(firms[id]);
+    currentFirmId = id;
+    renderPreview();
+  };
+
+  const deleteCurrent = () => {
+    if (!currentFirmId) { toast('Nothing selected'); return; }
+    if (!confirm(`Delete saved firm "${currentFirmId}"?`)) return;
+    delete firms[currentFirmId];
+    saveFirms(firms);
+    currentFirmId = null;
+    refreshProfileSelect();
+    toast('Deleted');
+  };
+
+  const newProfile = () => {
+    if (Object.keys(readValues()).some(k => readValues()[k])) {
+      if (!confirm('Clear the form and start a new firm?')) return;
+    }
+    clearValues();
+    currentFirmId = null;
+    document.getElementById('profile-select').value = '';
+    renderPreview();
+  };
+
+  // ---------- Buttons ----------
+  const toast = (msg) => {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 1600);
+  };
+
+  const buildOutput = async () => {
+    const template = await getTemplate(currentDocId);
+    return applyValues(template, readValues()).replace(/<<MISSING:([A-Z0-9_]+)>>/g, '{{$1}}');
+  };
+
+  document.getElementById('copy-btn').addEventListener('click', async () => {
+    const out = await buildOutput();
+    await navigator.clipboard.writeText(out);
+    toast('Copied to clipboard');
+  });
+
+  document.getElementById('download-md').addEventListener('click', async () => {
+    const out = await buildOutput();
+    const firm = readValues().FIRM_LEGAL_NAME || 'untitled-firm';
+    const slug = firm.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const blob = new Blob([out], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${slug}__${currentDocId}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('Downloaded');
+  });
+
+  document.getElementById('print-btn').addEventListener('click', () => {
+    if (currentView !== 'rendered') {
+      document.querySelector('[data-view="rendered"]').click();
+    }
+    setTimeout(() => window.print(), 100);
+  });
+
+  document.getElementById('save-profile').addEventListener('click', saveCurrent);
+  document.getElementById('delete-profile').addEventListener('click', deleteCurrent);
+  document.getElementById('new-profile').addEventListener('click', newProfile);
+  document.getElementById('profile-select').addEventListener('change', e => loadById(e.target.value));
+
+  document.querySelectorAll('.view-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentView = btn.dataset.view;
+      document.querySelectorAll('.view-btn').forEach(b => {
+        b.classList.toggle('bg-ink', b === btn);
+        b.classList.toggle('text-paper', b === btn);
+      });
+      renderPreview();
+    });
+  });
+
+  document.getElementById('doc-select').addEventListener('change', e => {
+    currentDocId = e.target.value;
+    renderPreview();
+  });
+
+  // Form change → re-render
+  document.addEventListener('input', e => {
+    if (e.target.dataset && e.target.dataset.ph) renderPreview();
+  });
+
+  // ---------- Boot ----------
+  refreshProfileSelect();
+  renderPreview();
+</script>
+
+</body>
+</html>
