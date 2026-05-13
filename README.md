@@ -1,16 +1,24 @@
-# ATTICUS — productised AML/CTF for boutique professional firms
+# ATTICUS — the human compliance layer for AML/CTF
 
-Working assets for the AML/CTF compliance product launch ahead of the 1 July 2026 deadline. The product is the same across sectors (program template, risk-assessment workbook, readiness checklist); the marketing surface is ICP-specific. The same engine drives three direct channels and one channel-partnership channel.
+Working assets for an AML/CTF compliance practice positioned as **the human layer above any platform** (outsourced AMLCO, independent reviews, enforcement response) for any firm a platform alone can't serve, **plus sectors no platform serves** (TCSPs, DPMS, gambling, MSB, digital currency, bullion).
+
+**Strategic pivot — May 2026.** Originally positioned as productised programs for boutique professional firms. After InfoTrack launched the free, Grant-Thornton-backed AML/CTF Compliance Centre integrated into PMS, that wedge is occupied. The current strategy is documented in [`competitive-memo.md`](competitive-memo.md). Old artefacts retained for context; some (Tier 4 SaaS) are marked discontinued.
 
 ## Contents
 
 ```
 aml/
-├── index.html                   # Landing page — law firms
-├── accountants.html             # Landing page — accountants
-├── real-estate.html             # Landing page — real estate agencies
-├── tcsp.html                    # Landing page — trust &amp; company service providers
-├── dpms.html                    # Landing page — dealers in precious metals &amp; stones
+├── competitive-memo.md          # Strategic pivot memo (the InfoTrack reality)
+├── index.html                   # Home — "the human, not the platform"
+├── independent-reviews.html     # Service line — third-party assurance
+├── accountants.html             # Sector — platform-overflow market
+├── real-estate.html             # Sector — platform-overflow market
+├── tcsp.html                    # Sector — no platform alternative
+├── dpms.html                    # Sector — no platform alternative
+├── gambling.html                # Sector — no platform alternative (NEW)
+├── msb.html                     # Sector — no platform alternative (NEW)
+├── crypto.html                  # Sector — no platform alternative (NEW)
+├── bullion.html                 # Sector — no platform alternative (NEW)
 ├── checklist.html               # Lead magnet — 12-point readiness checklist (sector-neutral)
 ├── templates/
 │   ├── aml-ctf-program-template.md      # Productised unified program (~30 placeholders)
@@ -38,11 +46,11 @@ aml/
 │   ├── commercial-structures.md         # Three commercial structures
 │   ├── partner-call-script.md           # First-call script + qualification + Q&amp;A
 │   └── partner-tracker.csv              # Pipeline tracker
-├── software/                            # Service-led, software-augmented roadmap
-│   ├── product-strategy.md              # Principles + 24-month roadmap + phase specs
-│   ├── template-customiser.html         # Phase 1 working tool (placeholders → customised .md)
-│   ├── portal-mockup.html               # Phase 2 mockup (Tier 3 AMLCO portal)
-│   └── saas-landing-mockup.html         # Phase 3 mockup (Tier 4 self-serve SaaS)
+├── software/                            # Partially superseded post-pivot
+│   ├── product-strategy.md              # Strategy doc (Phases 2 + 3 deferred / discontinued)
+│   ├── template-customiser.html         # Phase 1 working tool — still useful (placeholders → customised .md)
+│   ├── portal-mockup.html               # Phase 2 mockup — deferred pending validation
+│   └── saas-landing-mockup.html         # Phase 3 mockup — DISCONTINUED (InfoTrack occupies wedge)
 └── assets/                              # (reserved for screenshots, logos)
 ```
 
