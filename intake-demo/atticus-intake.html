@@ -24,6 +24,9 @@
   [hidden] { display: none !important; }
   .role-pill { transition: all .15s ease; }
   .role-pill.active { background: #0B1220; color: #FBF9F4; }
+  .filter-card { cursor: pointer; outline: 2px solid transparent; outline-offset: -2px; transition: all .12s ease; }
+  .filter-card.active { background: #FBF9F4; outline-color: #0B1220; box-shadow: inset 0 0 0 1px #0B1220; }
+  .filter-card.active p:first-child { color: #0B1220; }
   .toast { animation: slideUp .25s ease both; }
   @keyframes slideUp { from { transform: translateY(20px); opacity: 0 } to { transform: none; opacity: 1 } }
   .drawer { transition: transform .25s ease; }
@@ -99,35 +102,30 @@
     </div>
   </div>
 
-  <!-- KPI strip -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-    <div class="border rule rounded-xl p-4 bg-white">
-      <p class="text-xs text-ink/55 font-medium">Awaiting intake</p>
+  <!-- Filter cards (also the KPIs) -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+    <button class="filter-card text-left border rule rounded-xl p-4 bg-white hover:border-ink transition" data-filter="intake-sent">
+      <p class="text-xs text-ink/55 font-medium">Awaiting client</p>
       <p class="h-display text-2xl mt-1 num" id="kpi-awaiting">—</p>
-    </div>
-    <div class="border rule rounded-xl p-4 bg-white">
+    </button>
+    <button class="filter-card text-left border rule rounded-xl p-4 bg-white hover:border-ink transition" data-filter="intake-complete">
       <p class="text-xs text-ink/55 font-medium">Ready to review</p>
       <p class="h-display text-2xl mt-1 num" id="kpi-review">—</p>
-    </div>
-    <div class="border rule rounded-xl p-4 bg-white">
-      <p class="text-xs text-ink/55 font-medium">Open matters</p>
+    </button>
+    <button class="filter-card text-left border rule rounded-xl p-4 bg-white hover:border-ink transition" data-filter="open">
+      <p class="text-xs text-ink/55 font-medium">Open</p>
       <p class="h-display text-2xl mt-1 num" id="kpi-open">—</p>
-    </div>
-    <div class="border rule rounded-xl p-4 bg-white">
+    </button>
+    <button class="filter-card text-left border rule rounded-xl p-4 bg-white hover:border-ink transition" data-filter="flagged">
       <p class="text-xs text-ink/55 font-medium">Flagged</p>
       <p class="h-display text-2xl mt-1 num text-risk" id="kpi-flagged">—</p>
-    </div>
+    </button>
   </div>
 
   <!-- Matter list -->
   <div class="border rule rounded-2xl bg-white overflow-hidden">
     <div class="px-5 py-3 border-b rule flex items-center justify-between text-xs">
-      <div class="flex items-center gap-2">
-        <button class="filter-btn pill pill-info" data-filter="all">All</button>
-        <button class="filter-btn pill pill-neutral" data-filter="intake-sent">Awaiting intake</button>
-        <button class="filter-btn pill pill-neutral" data-filter="intake-complete">Ready to review</button>
-        <button class="filter-btn pill pill-neutral" data-filter="open">Open</button>
-      </div>
+      <p id="list-status" class="text-ink/55"></p>
       <p class="text-ink/45 hidden md:block">Sorted by most recent activity</p>
     </div>
     <div id="matters-list" class="divide-y rule"></div>
@@ -650,6 +648,11 @@ function setRole(role) {
 
 /* ---------- LAWYER VIEW ---------- */
 let currentFilter = 'all';
+function setFilter(name) {
+  currentFilter = name;
+  $$('.filter-card').forEach(c => c.classList.toggle('active', c.dataset.filter === name));
+  renderMattersList();
+}
 function renderLawyerView() {
   // KPIs
   const awaiting = state.matters.filter(m => m.status === 'intake-sent').length;
@@ -665,14 +668,32 @@ function renderLawyerView() {
 function renderMattersList() {
   const q = ($('#search')?.value || '').trim().toLowerCase();
   let list = [...state.matters];
-  if (currentFilter !== 'all') list = list.filter(m => m.status === currentFilter);
+  if (currentFilter === 'flagged') {
+    list = list.filter(m => (m.flags || []).length > 0);
+  } else if (currentFilter !== 'all') {
+    list = list.filter(m => m.status === currentFilter);
+  }
   if (q) list = list.filter(m => (m.clientName + ' ' + m.description + ' ' + m.id).toLowerCase().includes(q));
   list.sort((a, b) => (b.intakeCompletedAt || b.intakeSentAt || b.createdAt).localeCompare(a.intakeCompletedAt || a.intakeSentAt || a.createdAt));
+
+  // status label
+  const total = state.matters.length;
+  const statusEl = $('#list-status');
+  if (statusEl) {
+    if (currentFilter === 'all') {
+      statusEl.innerHTML = `Showing all ${total} matters`;
+    } else {
+      const labels = { 'intake-sent': 'Awaiting client', 'intake-complete': 'Ready to review', 'open': 'Open', 'flagged': 'Flagged' };
+      statusEl.innerHTML = `Showing ${list.length} of ${total} · <button id="clear-filter" class="text-accent font-medium hover:underline ml-1">${labels[currentFilter] || currentFilter} · clear</button>`;
+      const cf = $('#clear-filter');
+      if (cf) cf.addEventListener('click', () => setFilter('all'));
+    }
+  }
 
   const shell = $('#matters-list');
   shell.innerHTML = '';
   if (list.length === 0) {
-    shell.innerHTML = '<div class="p-10 text-center text-sm text-ink/55">No matters match your filter.</div>';
+    shell.innerHTML = '<div class="p-10 text-center text-sm text-ink/55">No matters match this filter.</div>';
     return;
   }
 
@@ -1290,12 +1311,10 @@ function renderAll() {
 document.addEventListener('DOMContentLoaded', () => {
   // role pills
   $$('.role-pill').forEach(b => b.addEventListener('click', () => setRole(b.dataset.role)));
-  // filters
-  $$('.filter-btn').forEach(b => b.addEventListener('click', () => {
-    currentFilter = b.dataset.filter;
-    $$('.filter-btn').forEach(x => { x.classList.remove('pill-info'); x.classList.add('pill-neutral'); });
-    b.classList.remove('pill-neutral'); b.classList.add('pill-info');
-    renderMattersList();
+  // filters (cards double as KPIs)
+  $$('.filter-card').forEach(c => c.addEventListener('click', () => {
+    const next = c.dataset.filter === currentFilter ? 'all' : c.dataset.filter;
+    setFilter(next);
   }));
   // search
   $('#search').addEventListener('input', renderMattersList);
