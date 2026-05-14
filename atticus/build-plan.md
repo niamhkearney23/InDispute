@@ -31,12 +31,13 @@
 9. **Conflict check** — basic: searches the firm's existing matters by client name, ABN, related parties. Returns hits for the lawyer to review.
 10. **Principal dashboard** — firm-wide visibility on pipeline, lawyer load, flagged matters.
 11. **Audit log** — every read, write, send, status change is logged with actor + timestamp. Visible to firm admins.
+12. **LEAP API push-once integration** — on "Open the file," Atticus writes a matter shell into the firm's LEAP workspace (client record, matter shell, cost disclosure PDF, CDD register PDF, conflict-clearance memo, back-reference ID). CSV export is the universal fallback for non-LEAP firms. See **Part 5** for the boundary and the shape of the handoff.
 
 That's it. Everything below is v1+ and explicitly deferred.
 
 ### Explicitly NOT in MVP
 
-- Integration with any practice management system (LEAP, Smokeball, Actionstep). Not yet.
+- Integration with Smokeball or Actionstep. LEAP only for MVP; the rest come in v1. CSV export is the universal fallback.
 - Generating any document other than the cost disclosure letter and SOF memo.
 - Trust accounting, billing, time recording.
 - e-Signature integration (DocuSign, Annature). The cost disclosure can go out as a PDF; manual signing.
@@ -186,6 +187,15 @@ AuditEvent
 
 Subprocessor (firm-visible)
   id, name, purpose, region, lastReviewedAt
+
+PmsMapping
+  id, firmId, provider: 'leap' | 'smokeball' | 'actionstep' | 'csv',
+  credentialRef?, lastPushAt?, lastPushOk?, lastError?
+  (one row per firm; tracks the PMS handoff — see Part 5)
+
+MatterPushLog
+  id, matterId, pmsMappingId, pushedAt, status, payloadJson, pmsMatterId?, error?
+  (append-only record of every push to the PMS, for audit and retry)
 ```
 
 Notes:
@@ -211,7 +221,143 @@ Notes:
 
 ---
 
-## Part 5 — Build sequence
+## Part 5 — Where Atticus stops and the PMS starts
+
+**The single most important positioning question.** Every prospect asks some version of "do I have to drop LEAP/Smokeball/Actionstep?" The answer must be no, and the architecture has to back it up. This section defines the boundary.
+
+### The product boundary
+
+| Concern | Owner |
+|---|---|
+| Client intake responses + version history | **Atticus** |
+| Practice-area-aware question schemas | **Atticus** |
+| Conflict check log (who cleared, when, against what data) | **Atticus** |
+| ID verification record (IDV vendor result, expiry) | **Atticus** |
+| Source-of-funds record + supporting docs | **Atticus** |
+| CDD register (per AML/CTF — held 7 years) | **Atticus** |
+| Cost disclosure draft + version history + acceptance | **Atticus** |
+| Audit log (append-only) | **Atticus** |
+| Re-verification reminders (annual CDD refresh, scope changes) | **Atticus** |
+| Trust accounting | **PMS** |
+| Time recording | **PMS** |
+| Billing / invoicing | **PMS** |
+| Document management (correspondence, briefs, evidence, file notes) | **PMS** |
+| Matter ledger + WIP reporting | **PMS** |
+| Client statement / disbursement tracking | **PMS** |
+| Conflict matching against historical PMS matters (v1 add) | **shared** |
+
+Atticus does not ever do trust accounting, time recording, billing, or DMS. That bright line is the product's saleability.
+
+### How the cost disclosure is built
+
+Atticus assembles the draft cost disclosure from three input streams:
+
+1. **Firm onboarding** (one-time, with the firm admin):
+   - Letterhead artwork, ABN, billing entity, bank account
+   - Hourly rates per lawyer per matter type (with effective-from dates)
+   - Standard scope clauses, payment terms, dispute resolution language
+   - LPUL state (NSW or VIC for MVP — different canonical clauses)
+
+2. **Per-matter setup** (with the responsible lawyer in 60 seconds):
+   - Matter type, responsible lawyer, expected stages (disputes work is stage-based: pre-action → pleadings → discovery → trial → appeal; transactional is single-stage)
+   - Estimated fees per stage or fixed-price quote
+
+3. **Per-matter intake** (with the client, in 8 minutes):
+   - Matter description, scope they want, budget range, fee structure preference
+   - Source of funds, payment timing
+
+**Output:** a draft cost disclosure letter (PDF + DOCX), state-specific, LPUL §174–176 compliant. Canonical clauses lifted from the Law Society's published template; only the matter-specific paragraphs are generated. The lawyer reviews in-app, edits scope and estimate, regenerates, sends from Atticus with a tracked acceptance link. Client accepts in-app or returns with questions.
+
+This is the single piece of generated artwork Atticus produces in MVP. Adding more document automation is a tarpit — there are focused products (Lexis Affinity, LawConnect, NetDocuments) that we will integrate with, not compete with.
+
+### The handoff to the PMS
+
+**MVP — push-once on file-open:**
+
+When the cost disclosure is accepted and the lawyer hits "Open the file" in Atticus, a single API call (or CSV export for unsupported PMS) writes a matter shell into the PMS:
+
+```
+Matter shell payload pushed to PMS on file-open
+─────────────────────────────────────────────────
+Client record
+  - Full legal name, preferred name
+  - DOB, residential address
+  - Phone, email
+  - ABN/ACN (if entity)
+  - Conflict-cleared flag + Atticus conflict-check ID
+  - CDD status snapshot (idVerified, SOF status, BO status, risk rating)
+Matter shell
+  - File number (PMS-assigned or Atticus-suggested)
+  - Matter type, description
+  - Responsible lawyer
+  - Opening date
+  - Estimated fees (from cost disclosure)
+  - Fee structure (fixed / hourly / staged)
+  - Funding source (own / insurance / litigation funder / etc.)
+Attachments stored in PMS DMS
+  - Cost disclosure PDF (the signed/accepted version)
+  - CDD register PDF (the AML record-keeping artefact)
+  - Source of funds memo PDF
+  - Conflict-check clearance memo PDF
+  - Original intake response PDF (audit trail)
+Back-reference
+  - atticus_matter_id (so the PMS can deep-link back if needed)
+```
+
+After the push, the PMS is the source of truth for matter execution. The lawyer drafts letters, records time, raises invoices, and manages documents in their PMS as they always have.
+
+**v1 — live two-way sync** (post-pilot, customer-driven):
+
+For firms with mature workflows, bidirectional updates make sense:
+
+- When a new party joins the matter in the PMS (joinder, third party, novation), the PMS pings Atticus to re-run the conflict check
+- When scope materially changes in the PMS (additional services, expanded retainer), Atticus prompts a cost-disclosure update (an LPUL requirement many firms quietly miss)
+- When CDD re-verification is due (annual or risk-event triggered), Atticus surfaces a task that the PMS can show in its task list
+
+Live sync is significantly more work than push-once. Don't promise it pre-pilot.
+
+### PMS-specific implementation notes
+
+| PMS | AU market share (est.) | API quality | MVP integration approach |
+|---|---|---|---|
+| **LEAP** | ~35–45% | Public REST API, OAuth, well-documented | Build native integration in MVP. Their LEAP for Web is the API surface. |
+| **Smokeball** | ~15–20% | Limited public API, partner programme required | CSV export in MVP. Partner application in v1. |
+| **Actionstep** | ~10–15% | Good public REST API | Build native integration in v1 (post-pilot if MVP capacity is tight). |
+| **Other (FilePro, PracticeEvolve, Lexis Affinity, in-house)** | remainder | varies | CSV export universal fallback. |
+
+**Recommendation:** ship LEAP API integration in MVP M4 (it's the largest AU market share and the cleanest API). Ship CSV export as the universal fallback. Actionstep and Smokeball in v1.
+
+### What Atticus continues to do after file-open
+
+Atticus is not "done" at file-open. It continues to serve as:
+
+1. **The CDD register of record.** AML/CTF requires 7-year retention; the PMS is not built for this. Atticus surfaces:
+   - Annual re-verification reminders for each client
+   - Risk-event triggers (large new transaction, change of beneficial owner, new sanctions designation, PEP status change)
+   - The single source for an AUSTRAC examination
+
+2. **The conflict-check log.** Every time a new party joins a matter, Atticus re-runs the check (manually triggered or via PMS webhook). Cleared by, when, on what data — all timestamped.
+
+3. **The cost disclosure history.** LPUL requires an updated disclosure when scope materially changes. Atticus tracks each version, what changed, and acceptance.
+
+4. **The audit trail for the regulator.** Every read/write/send on a matter is in the audit log. When a Law Society audit comes, the firm exports an Atticus report and hands it over.
+
+### The pitch line for sceptical firms
+
+> "Atticus is the layer between the first phone call and your matter ledger. We own intake, conflicts, source of funds, cost disclosure and the AML register. After file-open, your PMS takes over. We never touch your trust account or your time billing."
+
+That sentence is the single most important thing to land in a sales conversation. It disarms the "you're competing with my LEAP" objection in one breath and reframes Atticus as additive infrastructure, not a replacement.
+
+### Implications for the build plan
+
+- **MVP scope (Part 1) must include LEAP API integration**, not defer it to v1. The cost is ~2 weeks of engineering work and it gates adoption beyond the very first hand-held pilot.
+- **The data model (Part 3) needs a `PmsMapping` table:** which PMS does each firm use, what's the credential, what was the last sync, was the last push successful. Simple, but needs to exist from day one.
+- **The Build sequence (Part 6) Milestone 4** picks up the LEAP integration explicitly.
+- **Pricing (Part 9):** the boundary supports per-firm pricing rather than per-seat — firms aren't displacing PMS seat licenses, they're adding a compliance + intake layer.
+
+---
+
+## Part 6 — Build sequence
 
 Estimates assume one senior full-stack engineer working 4 days/week plus Niamh 3 days/week on product/practitioner design.
 
@@ -278,7 +424,9 @@ Estimates assume one senior full-stack engineer working 4 days/week plus Niamh 3
 
 ---
 
-## Part 6 — Integrations
+## Part 7 — Integrations beyond the PMS
+
+(PMS integration is its own thing — see **Part 5**. LEAP push-once is MVP; Smokeball and Actionstep are v1; CSV export is the universal fallback. The rest of this section covers everything that isn't a PMS.)
 
 ### Build in MVP
 
@@ -289,21 +437,21 @@ Estimates assume one senior full-stack engineer working 4 days/week plus Niamh 3
 
 - **PEXA** — conveyancing workspace creation. Realistic v1 add. Their API is approachable.
 - **InfoTrack / GlobalX** — title and company searches. v1 add.
-- **LEAP / Smokeball / Actionstep PMS export** — "send opened matter to my PMS." Critical for adoption beyond firms that don't yet have a PMS. v1 priority.
 - **Equifax IDP / GreenID / Frankie / FrankieOne** — ID verification. v1 priority once Tranche 2 enforcement begins.
-- **Xero / MYOB** — for invoice issuance from cost disclosure. v1+ add.
+- **Xero / MYOB** — for invoice issuance from cost disclosure. v1+ add. (Note: Atticus does not bill — but the cost disclosure → first invoice handoff has value if both ends are in scope.)
 - **e-Signature (Annature, DocuSign)** — cost disclosure acceptance. Likely v1, depends on customer feedback.
 - **AUSTRAC reporting** — for Tranche 2 compliance. v2.
 
 ### Probably never build
 
 - LawConnect-style document automation. There are better focused products; we partner.
-- Trust accounting. Same.
-- Time recording. Same.
+- Trust accounting. Strictly PMS territory.
+- Time recording. Strictly PMS territory.
+- Document management (DMS). Strictly PMS territory.
 
 ---
 
-## Part 7 — How to staff this
+## Part 8 — How to staff this
 
 **Reality check:** Niamh is a non-technical founder. The cheapest realistic path to a paying pilot is:
 
@@ -330,7 +478,7 @@ Estimates assume one senior full-stack engineer working 4 days/week plus Niamh 3
 
 ---
 
-## Part 8 — Pricing implications for the build
+## Part 9 — Pricing implications for the build
 
 We don't need final pricing to start, but we need to pick a *shape* because it affects what we instrument from day one.
 
@@ -345,7 +493,7 @@ We don't need final pricing to start, but we need to pick a *shape* because it a
 
 ---
 
-## Part 9 — Risks and open questions
+## Part 10 — Risks and open questions
 
 ### Technical risks
 
