@@ -68,7 +68,7 @@
   <div class="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
     <div class="flex items-center gap-3">
       <a href="#" class="font-semibold tracking-[0.08em] text-ink">ATTICUS</a>
-      <span class="pill pill-neutral hidden md:inline-flex">Marshall &amp; Co Lawyers</span>
+      <span id="header-firm-name" class="pill pill-neutral hidden md:inline-flex">Marshall &amp; Co Lawyers</span>
     </div>
     <div class="flex items-center gap-2 bg-ink/5 rounded-full p-1">
       <button class="role-pill active text-xs font-medium px-3 py-1.5 rounded-full" data-role="lawyer">Lawyer view</button>
@@ -131,7 +131,7 @@
     <div id="matters-list" class="divide-y rule"></div>
   </div>
 
-  <p class="text-xs text-ink/45 mt-4">Sample data only. Your firm would see real matters here.</p>
+  <p class="text-xs text-ink/45 mt-4">Sample data — this preview uses six demonstrative matters so the dashboards look alive.</p>
 </main>
 
 <!-- =================== CLIENT VIEW =================== -->
@@ -160,27 +160,27 @@
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
     <div class="border rule rounded-xl p-5 bg-white">
       <p class="text-xs text-ink/55 font-medium">New matters this month</p>
-      <p class="h-display text-3xl mt-2 num text-good">↑ 23<span class="text-xl">%</span></p>
+      <p class="h-display text-2xl xl:text-3xl mt-2 num text-good">↑ 23<span class="text-lg xl:text-xl">%</span></p>
       <p class="text-sm text-ink/65 mt-1"><span class="num" id="p-kpi-new">—</span> new matters · vs last month</p>
     </div>
     <div class="border rule rounded-xl p-5 bg-white">
       <p class="text-xs text-ink/55 font-medium">Avg time to file-open</p>
-      <p class="h-display text-3xl mt-2 num text-good">↓ 3.7<span class="text-xl"> days</span></p>
+      <p class="h-display text-2xl xl:text-3xl mt-2 num text-good">↓ 3.7<span class="text-lg xl:text-xl"> days</span></p>
       <p class="text-sm text-ink/65 mt-1">2.4 days now · vs pre-Atticus</p>
     </div>
     <div class="border rule rounded-xl p-5 bg-white">
       <p class="text-xs text-ink/55 font-medium">Pipeline WIP value</p>
-      <p class="h-display text-3xl mt-2 num text-good">↑ $24<span class="text-xl">k</span></p>
+      <p class="h-display text-2xl xl:text-3xl mt-2 num text-good">↑ $24<span class="text-lg xl:text-xl">k</span></p>
       <p class="text-sm text-ink/65 mt-1"><span class="num" id="p-kpi-wip">—</span> in flight · vs last month</p>
     </div>
     <div class="border rule rounded-xl p-5 bg-white">
       <p class="text-xs text-ink/55 font-medium">Intake completion rate</p>
-      <p class="h-display text-3xl mt-2 num">86<span class="text-xl text-ink/55">%</span></p>
+      <p class="h-display text-2xl xl:text-3xl mt-2 num">86<span class="text-lg xl:text-xl text-ink/55">%</span></p>
       <p class="text-sm text-ink/65 mt-1">Up from 71% last quarter</p>
     </div>
     <div class="border rule rounded-xl p-5 bg-white">
       <p class="text-xs text-ink/55 font-medium">Flags for review</p>
-      <p class="h-display text-3xl mt-2 num text-risk" id="p-kpi-flagged">—</p>
+      <p class="h-display text-2xl xl:text-3xl mt-2 num text-risk" id="p-kpi-flagged">—</p>
       <p class="text-sm text-ink/65 mt-1">SOF, conflict, stale pending</p>
     </div>
   </div>
@@ -277,7 +277,7 @@
       </div>
       <div>
         <label class="input-label">Internal description</label>
-        <textarea id="m-description" rows="3" class="input" placeholder="One line for the file. Not shown to the client."></textarea>
+        <textarea id="m-description" rows="3" class="input" placeholder="One line for the file. Internal — clients never see this."></textarea>
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div>
@@ -1155,11 +1155,7 @@ function renderQuestion(q, value) {
 function advanceClientStep() {
   const matter = state.matters.find(m => m.id === state.activeMatterId);
   clientStep++;
-  if (clientStep === 6) {
-    renderClientView(matter);
-  } else if (clientStep < 7) {
-    renderClientView(matter);
-  }
+  if (clientStep < 7) renderClientView(matter);
 }
 
 function renderClientReview(matter, pa) {
@@ -1392,7 +1388,7 @@ function renderMatterDetailBody(m) {
     <div class="flex items-center justify-between py-2 border-b rule last:border-0 text-sm">
       <span class="text-ink/70">${label}</span>
       <span class="flex items-center gap-1.5">
-        <span class="w-2 h-2 rounded-full ${ok === 'good' ? 'bg-good' : ok === 'warn' ? 'bg-warn' : ok === 'risk' ? 'bg-risk' : 'bg-ink/30'}"></span>
+        <span class="w-2.5 h-2.5 rounded-full ${ok === 'good' ? 'bg-good' : ok === 'warn' ? 'bg-warn' : ok === 'risk' ? 'bg-risk' : 'bg-ink/30'}"></span>
         <span class="text-ink">${value}</span>
       </span>
     </div>
@@ -1606,8 +1602,18 @@ function renderPrincipalView() {
 }
 
 /* ---------- INIT / BIND ---------- */
+function currentRole() {
+  const active = $$('.role-pill').find(b => b.classList.contains('active'));
+  return active ? active.dataset.role : 'lawyer';
+}
 function renderAll() {
-  renderLawyerView();
+  // Re-render whichever view is visible (used after reset and on init).
+  const role = currentRole();
+  if (role === 'principal') renderPrincipalView();
+  else if (role === 'client') {
+    const m = state.activeMatterId ? state.matters.find(x => x.id === state.activeMatterId) : state.matters.find(x => x.status === 'intake-sent');
+    renderClientView(m);
+  } else renderLawyerView();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1666,6 +1672,10 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#reset-btn').addEventListener('click', () => {
     if (confirm('Reset demo data?')) resetState();
   });
+
+  // wire up firm name pulled from FIRM_BRANDING (cuts the rebrand path to one config edit)
+  const headerName = $('#header-firm-name');
+  if (headerName) headerName.textContent = FIRM_BRANDING.firmName;
 
   // initial render
   renderLawyerView();
