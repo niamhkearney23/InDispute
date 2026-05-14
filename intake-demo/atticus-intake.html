@@ -382,14 +382,15 @@ function daysSince(iso) {
 /* In production this would be per-firm config saved on the Firm record.
    Here we hardcode the demo firm so the file is self-contained. */
 const FIRM_BRANDING = {
-  firmName: 'Marshall & Co Lawyers',
-  shortName: 'Marshall & Co',
-  tagline: 'Boutique commercial &amp; family law · Melbourne',
+  firmName: 'Marshall & Hayes',
+  shortName: 'Marshall & Hayes',
+  tagline: 'Commercial disputes &amp; investigations · Melbourne',
   logoUrl: null,                 // null -> render inline SVG wordmark
   accentColor: '#1F3A5F',
   lawyerPhotos: {
     'Niamh Kearney': 'https://ui-avatars.com/api/?name=Niamh+Kearney&background=1F3A5F&color=FBF9F4&size=240&font-size=0.36&bold=true&format=svg',
     'James Marshall': 'https://ui-avatars.com/api/?name=James+Marshall&background=1F3A5F&color=FBF9F4&size=240&font-size=0.36&bold=true&format=svg',
+    'Daniel Hayes': 'https://ui-avatars.com/api/?name=Daniel+Hayes&background=1F3A5F&color=FBF9F4&size=240&font-size=0.36&bold=true&format=svg',
     'Priya Reddy': 'https://ui-avatars.com/api/?name=Priya+Reddy&background=1F3A5F&color=FBF9F4&size=240&font-size=0.36&bold=true&format=svg'
   }
 };
@@ -417,67 +418,70 @@ function firmLogoMark() {
 }
 const SKIP = '__SKIP__';
 
-/* ---------- PRACTICE AREA SCHEMAS ---------- */
+/* ---------- PRACTICE AREA SCHEMAS (DISPUTES FIRM) ---------- */
 const PRACTICE_AREAS = {
-  family: {
-    label: 'Family law',
-    icon: 'FL',
-    description: 'Separation, parenting, property settlement',
-    color: 'rose',
-    questions: [
-      { id: 'relationshipType', label: 'Type of relationship', type: 'radio', options: ['Marriage', 'De facto', 'Civil partnership', 'Other'] },
-      { id: 'dateOfSeparation', label: 'Date of separation', type: 'date', helper: 'Approximate is fine. We use this to calculate limitation periods for property orders.' },
-      { id: 'children', label: 'Are there children of the relationship?', type: 'radio', options: ['Yes', 'No'] },
-      { id: 'childrenDetails', label: 'Children — names and ages', type: 'textarea', if: { children: 'Yes' }, helper: 'One per line. e.g. "Mia, 7"' },
-      { id: 'currentArrangements', label: 'Current living arrangements', type: 'select', options: ['Both still in the family home', 'Separated under one roof', 'I have moved out', 'My ex has moved out', 'Other'] },
-      { id: 'existingOrders', label: 'Existing court orders or proceedings?', type: 'select', options: ['No', 'Yes — parenting', 'Yes — property', 'Yes — both', "I'm not sure"] },
-      { id: 'dvConcern', label: 'Are there safety or family violence concerns we should be aware of?', type: 'radio', options: ['No', 'Yes'], helper: 'We will not contact the other party. This helps us plan how we communicate with you.' },
-      { id: 'assetsEstimate', label: 'Approximate value of joint assets — your best guess', type: 'select', options: ['Under $500k', '$500k–$1m', '$1m–$3m', '$3m–$10m', 'Over $10m', 'Not sure'] },
-      { id: 'fundingMethod', label: 'How do you plan to fund the legal fees?', type: 'select', options: ['From savings', 'From sale of an asset', 'Family loan', 'Bank loan', 'Litigation funder', 'Legal aid', 'Other'] },
-    ]
-  },
-  conveyancing: {
-    label: 'Conveyancing',
-    icon: 'CV',
-    description: 'Property purchase or sale',
-    color: 'blue',
-    questions: [
-      { id: 'transaction', label: 'Are you buying or selling?', type: 'radio', options: ['Buying', 'Selling', 'Both — selling one and buying another'] },
-      { id: 'propertyAddress', label: 'Property address', type: 'text', helper: 'If you have multiple addresses, list the main one and note others in the description.' },
-      { id: 'propertyType', label: 'Property type', type: 'select', options: ['Residential — established', 'Residential — off the plan', 'Residential — vacant land', 'Commercial', 'Rural'] },
-      { id: 'contractStatus', label: 'Where are you in the process?', type: 'select', options: ['Not yet signed contract', 'Signed — within cooling-off period', 'Signed — unconditional', 'Auction date set', 'Settlement scheduled'] },
-      { id: 'settlementTarget', label: 'Target settlement date (if known)', type: 'date' },
-      { id: 'financeStatus', label: 'Finance', type: 'select', if: { transaction: ['Buying', 'Both — selling one and buying another'] }, options: ['Cash purchase', 'Loan pre-approved', 'Loan application pending', 'Cash + loan combination', 'Not yet sorted'] },
-      { id: 'firstHomeBuyer', label: 'First home buyer?', type: 'radio', if: { transaction: ['Buying', 'Both — selling one and buying another'] }, options: ['Yes', 'No'], helper: 'Affects stamp duty concessions and grant eligibility.' },
-      { id: 'coParties', label: 'Other parties on the title?', type: 'textarea', helper: 'List anyone else who is a co-buyer or co-seller, and their relationship to you. Leave blank if just you.' },
-    ]
-  },
   commercial: {
-    label: 'Commercial / business',
-    icon: 'CM',
-    description: 'Contracts, structures, advice',
-    color: 'slate',
+    label: 'Commercial dispute',
+    icon: 'CO',
+    description: 'Contract, shareholder, partnership, supply',
     questions: [
-      { id: 'matterDescription', label: 'In a paragraph — what do you need help with?', type: 'textarea' },
-      { id: 'entityType', label: 'What entity is the client?', type: 'select', options: ['Sole trader / individual', 'Partnership', 'Pty Ltd company', 'Trust (discretionary / unit / SMSF)', 'Incorporated association', 'Other'] },
-      { id: 'abnAcn', label: 'ABN / ACN (if applicable)', type: 'text' },
-      { id: 'businessDescription', label: 'Briefly, what does the business do?', type: 'textarea' },
-      { id: 'otherParties', label: 'Other parties to this matter', type: 'textarea', helper: 'Counterparties, co-shareholders, joint venturers — and their relationship.' },
-      { id: 'urgency', label: 'How urgent is this?', type: 'select', options: ['Routine — no time pressure', 'Within a month', 'Within a fortnight', 'Within the week', 'Today / urgent'] },
-      { id: 'priorAdvice', label: 'Prior legal advice on this matter?', type: 'radio', options: ['No', 'Yes — from another firm', 'Yes — internal'] },
-      { id: 'estimatedValue', label: 'Approximate transaction or matter value', type: 'select', options: ['Under $50k', '$50k–$250k', '$250k–$1m', '$1m–$5m', 'Over $5m', 'Not applicable / advice only'] },
+      { id: 'counterparty', label: 'Counterparty name(s)', type: 'textarea', helper: 'The opposing party / parties. List every named entity and individual you can identify. We use this to run the conflict check before accepting your brief.' },
+      { id: 'relationship', label: 'How are you connected to the counterparty?', type: 'select', options: ['Contract counterparty', 'Co-shareholder / co-director', 'Joint venture partner', 'Supplier or customer', 'Former employee / employer', 'Competitor', 'Other'] },
+      { id: 'disputeType', label: 'Nature of the dispute', type: 'select', options: ['Breach of contract', 'Shareholder / minority oppression', 'Partnership / joint venture', 'Restraint of trade', 'Misleading or deceptive conduct (ACL)', "Director's duties / breach of fiduciary duty", 'Negligence / professional duty', 'Debt recovery', 'Other'] },
+      { id: 'served', label: 'Has anything been served?', type: 'radio', options: ['Nothing yet — correspondence only', 'I have been served', 'I have served the other party', 'Proceedings on foot — both ways'] },
+      { id: 'forum', label: 'Court or tribunal', type: 'select', if: { served: ['I have been served', 'I have served the other party', 'Proceedings on foot — both ways'] }, options: ['Federal Court of Australia', 'Federal Circuit and Family Court', 'Supreme Court of Victoria', 'County Court of Victoria', 'Magistrates Court of Victoria', 'VCAT', 'Other state Supreme Court', 'Other'] },
+      { id: 'proceedingNumber', label: 'Proceeding number (if any)', type: 'text', if: { served: ['I have been served', 'I have served the other party', 'Proceedings on foot — both ways'] } },
+      { id: 'nextDeadline', label: 'Next deadline (filing, hearing, response)', type: 'date', helper: 'If known. Helps us prioritise. Approximate is fine.' },
+      { id: 'amount', label: 'Amount in dispute (rough)', type: 'select', options: ['Under $50k', '$50k–$250k', '$250k–$1m', '$1m–$5m', '$5m–$20m', 'Over $20m', 'Non-monetary / injunctive only', 'Not sure'] },
+      { id: 'limitation', label: 'Limitation period concerns?', type: 'radio', options: ['No', 'Yes — approaching', 'Not sure'] },
+      { id: 'priorAdvice', label: 'Prior legal advice on this matter?', type: 'radio', options: ['No', 'Yes — from another firm', 'Yes — in-house counsel'] },
+      { id: 'documents', label: 'Documents in your possession', type: 'textarea', helper: 'Brief list — contracts, key correspondence, statements, court documents. We will request copies once we accept the brief.' }
     ]
   },
-  general: {
-    label: 'General advice',
-    icon: 'GA',
-    description: 'Single advice, referral, or unsure',
-    color: 'stone',
+  employment: {
+    label: 'Employment dispute',
+    icon: 'EM',
+    description: 'Dismissal, restraint, discrimination, executive',
     questions: [
-      { id: 'matterDescription', label: 'What do you need advice on?', type: 'textarea' },
-      { id: 'urgency', label: 'Urgency', type: 'select', options: ['No urgency', 'Within a month', 'Within a fortnight', 'Within the week', 'Today / urgent'] },
-      { id: 'otherParties', label: 'Other parties involved?', type: 'textarea' },
-      { id: 'fundingMethod', label: 'How will the fees be paid?', type: 'select', options: ['From savings', 'From sale of an asset', 'Family loan', 'Insurance', 'Legal aid', 'Other'] },
+      { id: 'role', label: 'Are you the employer or the employee?', type: 'radio', options: ['Employer', 'Employee / former employee', 'Independent contractor'] },
+      { id: 'counterparty', label: 'Counterparty name', type: 'text', helper: 'The other party in the dispute. Used for conflict check.' },
+      { id: 'positionTitle', label: 'Position / role', type: 'text', if: { role: ['Employee / former employee', 'Independent contractor'] } },
+      { id: 'incidentDate', label: 'Date of incident or termination', type: 'date' },
+      { id: 'claimType', label: 'Nature of the claim', type: 'select', options: ['Unfair dismissal (FWC)', 'General protections / adverse action', 'Restraint of trade enforcement', 'Discrimination / equal opportunity', 'Underpayment / wage claim', 'Executive entitlements / contract', 'Sexual harassment', 'Bullying / psychological injury', 'Other'] },
+      { id: 'filingStatus', label: 'Has anything been filed?', type: 'select', options: ['Nothing yet', 'FWC application', 'Federal Court proceedings', 'State anti-discrimination tribunal', 'Letter of demand exchanged', 'Other'] },
+      { id: 'deadlineAware', label: 'Are you aware of any filing deadlines?', type: 'radio', options: ['No deadlines apply', 'Yes — FWC 21-day window', 'Yes — other statutory deadline', 'Not sure'], helper: 'Unfair-dismissal applications to the Fair Work Commission must be filed within 21 days of termination.' },
+      { id: 'documents', label: 'Documents in your possession', type: 'textarea', helper: 'Employment contract, termination / show-cause letter, correspondence, performance reviews, witness statements.' }
+    ]
+  },
+  regulatory: {
+    label: 'Regulatory & investigations',
+    icon: 'RG',
+    description: 'ASIC, ACCC, ATO, AUSTRAC, AHPRA',
+    questions: [
+      { id: 'regulator', label: 'Regulator involved', type: 'select', options: ['ASIC', 'ACCC', 'AUSTRAC', 'ATO', 'AHPRA', 'APRA', 'TGA', 'EPA', 'AFP / CDPP', 'State regulator', 'Other Commonwealth'] },
+      { id: 'regulatorOther', label: 'Specify regulator', type: 'text', if: { regulator: ['Other Commonwealth', 'State regulator'] } },
+      { id: 'stage', label: 'Current stage', type: 'select', options: ['Informal inquiry / dawn raid concern', 's33 / s30 notice issued', 'Compulsory examination scheduled', 'Civil penalty proceeding', 'Criminal charges laid', 'Enforceable undertaking under discussion', 'Self-report under consideration', 'Other'] },
+      { id: 'subject', label: 'Subject of the investigation', type: 'textarea', helper: 'In a sentence or two — what does the regulator say is the issue?' },
+      { id: 'relatedParties', label: 'Other related parties under investigation', type: 'textarea', helper: 'Directors, employees, associated entities. Critical for the conflict check.' },
+      { id: 'deadlines', label: 'Upcoming deadlines', type: 'textarea', helper: 'Response dates, examination dates, document production dates. Anything with a clock.' },
+      { id: 'lppConcern', label: 'Legal professional privilege concerns?', type: 'radio', options: ['No', 'Yes — protected material likely exists', 'Not sure'], helper: 'Have you held legal communications that the regulator may seek to access?' },
+      { id: 'externalAdvisors', label: 'Other external advisors engaged', type: 'textarea', helper: 'Forensic accountants, PR firm, other lawyers, internal investigators, insurers.' }
+    ]
+  },
+  construction: {
+    label: 'Construction dispute',
+    icon: 'CN',
+    description: 'Payment, defect, delay, adjudication',
+    questions: [
+      { id: 'projectAddress', label: 'Project name or address', type: 'text' },
+      { id: 'yourRole', label: 'Your role on the project', type: 'select', options: ['Principal', 'Head contractor', 'Subcontractor', 'Consultant (engineer, architect, certifier)', 'Supplier', 'Other'] },
+      { id: 'counterparty', label: 'Other parties involved', type: 'textarea', helper: 'Contracting parties — head contractor, principal, subcontractors, consultants. Used for conflict check.' },
+      { id: 'disputeType', label: 'Nature of the dispute', type: 'select', options: ['Payment (under contract)', 'Payment (Security of Payment Act)', 'Variation / scope change', 'Defects', 'Delay / extension of time', 'Termination', 'Negligence / professional duty', 'Other'] },
+      { id: 'contractForm', label: 'Contract form', type: 'select', options: ['AS4000-1997', 'AS2124-1992', 'AS4902-2000', 'AS4903-2000', 'NEC4', 'GC21', 'Bespoke', 'No written contract', 'Other / not sure'] },
+      { id: 'amount', label: 'Amount in dispute', type: 'select', options: ['Under $50k', '$50k–$250k', '$250k–$1m', '$1m–$5m', '$5m–$20m', 'Over $20m', 'Non-monetary'] },
+      { id: 'sopAct', label: 'Security of Payment Act status', type: 'select', options: ['Not applicable', 'Payment claim being prepared', 'Payment claim served', 'Payment schedule due', 'Adjudication application lodged', 'Adjudication response due', 'Determination delivered'], helper: 'Building and Construction Industry Security of Payment Act 2002 (Vic).' },
+      { id: 'nextDeadline', label: 'Next deadline', type: 'date', helper: 'Payment schedule, adjudication response, hearing, etc.' },
+      { id: 'documents', label: 'Documents in your possession', type: 'textarea', helper: 'Contract, payment claim, payment schedule, programme, correspondence, defects list.' }
     ]
   }
 };
@@ -486,7 +490,7 @@ const PRACTICE_AREAS = {
 const SECTIONS = {
   identity: {
     label: 'Confirming who you are',
-    subtitle: 'Quick details so we can verify ID before our first meeting.',
+    subtitle: 'Quick identity details — required before we accept your brief.',
     questions: [
       { id: 'fullName', label: 'Full legal name', type: 'text' },
       { id: 'preferredName', label: 'What should we call you?', type: 'text', helper: 'Leave blank if same as full name.' },
@@ -504,19 +508,21 @@ const SECTIONS = {
   },
   cost: {
     label: 'How the matter is funded',
-    subtitle: "Helps us draft your cost disclosure properly.",
+    subtitle: "Helps us draft your cost disclosure properly. Disputes work is staged — we'll estimate to the next key milestone, then update as the matter progresses.",
     questions: [
-      { id: 'budgetRange', label: 'Rough budget you have in mind for this matter', type: 'select', options: ['Under $2,500', '$2,500–$10,000', '$10,000–$25,000', '$25,000–$75,000', 'Over $75,000', "I'd like guidance"] },
-      { id: 'feeStructure', label: 'Preferred fee structure', type: 'select', options: ['Fixed price where possible', 'Hourly rate', 'A mix', 'Whatever works'], helper: "We'll talk through this at our first meeting; this is just a starting point." },
-      { id: 'paymentTiming', label: 'Payment timing', type: 'select', options: ['Pay as we invoice', 'Pay from settlement / completion', 'Retainer in trust upfront', 'Combination'] },
+      { id: 'fundingType', label: 'Who is funding the fees?', type: 'select', options: ['Self / company funds', 'Insurer (D&O, professional indemnity, employer)', 'Litigation funder (third-party, e.g. Omni Bridgeway, IMF, Woodsford)', 'After-the-event insurance', 'Conditional fee / no-win-no-fee arrangement', 'Mix', "I'd like guidance"] },
+      { id: 'funderName', label: 'Funder or insurer name', type: 'text', if: { fundingType: ['Insurer (D&O, professional indemnity, employer)', 'Litigation funder (third-party, e.g. Omni Bridgeway, IMF, Woodsford)', 'After-the-event insurance'] }, helper: 'And funding agreement reference number if you have one.' },
+      { id: 'budgetRange', label: 'Rough budget to next key milestone', type: 'select', options: ['Under $10,000', '$10,000–$50,000', '$50,000–$150,000', '$150,000–$500,000', 'Over $500,000', "I'd like guidance"], helper: 'For disputes work this is an estimate to the next stage (e.g. statement of claim, mediation, hearing). We update at each stage per LPUL §174.' },
+      { id: 'feeStructure', label: 'Preferred fee structure', type: 'select', options: ['Staged fixed prices', 'Hourly rate', 'Capped fee', 'A mix', 'Whatever works'], helper: "We'll talk through this at our first meeting; this is just a starting point." },
+      { id: 'paymentTiming', label: 'Payment timing', type: 'select', options: ['Pay as we invoice', 'Retainer in trust upfront', 'Pay from settlement / award', 'Combination'] },
     ]
   },
   sof: {
     label: 'Source of funds',
-    subtitle: 'Australian law now requires us to record this. Brief is fine.',
+    subtitle: 'Australian law now requires us to record this. Brief is fine — and if a litigation funder is paying, we capture that here too.',
     questions: [
-      { id: 'sofPrimary', label: 'Primary source of the funds for this matter', type: 'select', options: ['Salary / employment income', 'Savings accumulated over time', 'Sale of an asset (property, shares, business)', 'Inheritance or gift', 'Family loan', 'Bank loan', 'Business income / dividends', 'Investments', 'Other'] },
-      { id: 'sofDetail', label: 'Brief detail', type: 'textarea', helper: 'One or two sentences. e.g. "Funds from sale of investment property at 14 Elm St, settled March 2026."' },
+      { id: 'sofPrimary', label: 'Primary source of the funds for this matter', type: 'select', options: ['Salary / employment income', 'Corporate operating funds', 'Savings accumulated over time', 'Sale of an asset (property, shares, business)', 'Inheritance or gift', 'Family loan', 'Bank loan', 'Insurance proceeds', 'Litigation funder', 'Investments / dividends', 'Other'] },
+      { id: 'sofDetail', label: 'Brief detail', type: 'textarea', helper: 'One or two sentences. e.g. "Funded by Omni Bridgeway under funding deed dated 12 March 2026, ref OB-AU-2026-0184."' },
     ]
   },
   comms: {
@@ -535,85 +541,116 @@ function seedState() {
   return {
     matters: [
       {
-        id: 'm-2026-0142', clientName: 'Sarah Mitchell', clientEmail: 's.mitchell@bigpond.net.au',
-        clientPhone: '0412 388 552', matterType: 'family', responsibleLawyer: 'Niamh Kearney',
-        estimatedFeesAud: 18000,
-        description: 'Property settlement following separation, two children.', referral: 'Existing client',
+        id: 'm-2026-0142', clientName: 'Lila Brennan', clientEmail: 'lila@brennanco.com.au',
+        clientPhone: '0412 388 552', matterType: 'commercial', responsibleLawyer: 'Niamh Kearney',
+        estimatedFeesAud: 65000,
+        description: "Director's duties claim against former co-director — pre-action correspondence.", referral: 'Existing client',
         status: 'intake-complete', createdAt: daysAgo(4), intakeSentAt: daysAgo(4, 14, 22), intakeCompletedAt: daysAgo(2, 9, 14),
         flags: [],
         cdd: { idVerified: true, sourceOfFundsStatus: 'verified', beneficialOwnerStatus: 'n/a', riskRating: 'low' },
         intake: {
-          fullName: 'Sarah Jane Mitchell', preferredName: 'Sarah', dob: '1984-03-21',
-          address: '14 Elgin Street, Carlton VIC 3053', phone: '0412 388 552', email: 's.mitchell@bigpond.net.au',
+          fullName: 'Lila Margaret Brennan', preferredName: 'Lila', dob: '1979-06-12',
+          address: '22 Domain Road, South Yarra VIC 3141', phone: '0412 388 552', email: 'lila@brennanco.com.au',
           idType: "Australian driver's licence",
-          relationshipType: 'Marriage', dateOfSeparation: '2024-08-15', children: 'Yes',
-          childrenDetails: 'Mia, 8\nOliver, 5', currentArrangements: 'I have moved out',
-          existingOrders: 'No', dvConcern: 'No', assetsEstimate: '$1m–$3m',
-          fundingMethod: 'From savings',
-          budgetRange: '$10,000–$25,000', feeStructure: 'Fixed price where possible', paymentTiming: 'Pay as we invoice',
-          sofPrimary: 'Savings accumulated over time', sofDetail: 'Joint savings account held with the Commonwealth Bank, accumulated over 12 years of marriage.',
+          counterparty: 'Edwin Whitcroft (former co-director)\nWhitcroft Capital Pty Ltd (his new entity, ACN 661 482 119)',
+          relationship: 'Co-shareholder / co-director',
+          disputeType: "Director's duties / breach of fiduciary duty",
+          served: 'Nothing yet — correspondence only',
+          nextDeadline: '', amount: '$250k–$1m', limitation: 'No', priorAdvice: 'No',
+          documents: 'Shareholders agreement (2018), board minutes 2024-2025, customer contract diverted to Whitcroft Capital, demand letter.',
+          fundingType: 'Self / company funds',
+          budgetRange: '$50,000–$150,000', feeStructure: 'Staged fixed prices', paymentTiming: 'Pay as we invoice',
+          sofPrimary: 'Corporate operating funds', sofDetail: 'Funded by Brennan & Co Pty Ltd operating account; sole director and shareholder.',
           preferredContact: 'Email', preferredHours: 'Business hours', urgencyDefault: 'Within 24 hours', access: ''
         }
       },
       {
-        id: 'm-2026-0141', clientName: 'David Chen', clientEmail: 'david@chenpharmacy.com.au',
-        clientPhone: '0405 119 224', matterType: 'commercial', responsibleLawyer: 'James Marshall',
-        estimatedFeesAud: 32000,
-        description: 'Sale of pharmacy business including premises and goodwill.', referral: 'Accountant referral',
+        id: 'm-2026-0141', clientName: 'Tower Developments Pty Ltd', clientEmail: 'pm@towerdev.com.au',
+        clientPhone: '0405 119 224', matterType: 'construction', responsibleLawyer: 'James Marshall',
+        estimatedFeesAud: 42000,
+        description: 'Variation and EOT claim against principal — $1.8m delayed payment under AS4000.', referral: 'Quantity surveyor referral',
         status: 'intake-sent', createdAt: daysAgo(4), intakeSentAt: daysAgo(4, 10, 8),
         flags: [],
         cdd: { idVerified: false, sourceOfFundsStatus: 'pending', beneficialOwnerStatus: 'pending', riskRating: 'medium' },
         intake: null
       },
       {
-        id: 'm-2026-0140', clientName: 'Margaret & Robert Harris', clientEmail: 'r.harris@harriscontractors.com',
-        clientPhone: '0438 776 100', matterType: 'conveyancing', responsibleLawyer: 'Niamh Kearney',
-        estimatedFeesAud: 4500,
-        description: 'Purchase of investment property, Brunswick — second investment property this year.', referral: 'Existing client',
+        id: 'm-2026-0140', clientName: 'Karim Patel', clientEmail: 'karim.patel@example.com',
+        clientPhone: '0438 776 100', matterType: 'employment', responsibleLawyer: 'Priya Reddy',
+        estimatedFeesAud: 22000,
+        description: 'Unfair dismissal — FWC 21-day window. 14 days since termination.', referral: 'Word of mouth',
         status: 'intake-complete', createdAt: daysAgo(6), intakeSentAt: daysAgo(6, 16, 30), intakeCompletedAt: daysAgo(3, 19, 42),
         flags: ['sof-review'],
         cdd: { idVerified: true, sourceOfFundsStatus: 'flagged', beneficialOwnerStatus: 'n/a', riskRating: 'medium' },
         intake: {
-          fullName: 'Robert James Harris', preferredName: 'Rob', dob: '1971-11-04',
-          address: '47 Princes Street, Kew VIC 3101', phone: '0438 776 100', email: 'r.harris@harriscontractors.com',
+          fullName: 'Karim Hasan Patel', preferredName: 'Karim', dob: '1986-02-14',
+          address: '8/124 Inkerman Street, St Kilda VIC 3182', phone: '0438 776 100', email: 'karim.patel@example.com',
           idType: 'Australian passport',
-          transaction: 'Buying', propertyAddress: '102/15 Sydney Road, Brunswick VIC 3056',
-          propertyType: 'Residential — established', contractStatus: 'Signed — within cooling-off period',
-          settlementTarget: '2026-07-22', financeStatus: 'Cash purchase', firstHomeBuyer: 'No',
-          coParties: 'Margaret Anne Harris (spouse)',
-          budgetRange: '$2,500–$10,000', feeStructure: 'Fixed price where possible', paymentTiming: 'Pay from settlement / completion',
-          sofPrimary: 'Other', sofDetail: 'Combination of recent business sale proceeds and a family loan from my brother in Singapore.',
-          preferredContact: 'Phone call', preferredHours: 'After hours', urgencyDefault: 'Within 24 hours', access: ''
+          role: 'Employee / former employee',
+          counterparty: 'Ironbark Logistics Pty Ltd (former employer)',
+          positionTitle: 'Senior Logistics Manager',
+          incidentDate: daysAgo(14).split('T')[0],
+          claimType: 'Unfair dismissal (FWC)',
+          filingStatus: 'Letter of demand exchanged',
+          deadlineAware: 'Yes — FWC 21-day window',
+          documents: 'Employment contract (2021), termination letter dated 14 days ago, last three performance reviews (all "exceeds"), email chain with HR re recent restructure.',
+          fundingType: 'Self / company funds',
+          budgetRange: '$10,000–$50,000', feeStructure: 'Capped fee', paymentTiming: 'Pay as we invoice',
+          sofPrimary: 'Family loan', sofDetail: 'Parents loaning AUD$35,000 from their superannuation drawdown to fund the claim. Loan agreement being prepared.',
+          preferredContact: 'Phone call', preferredHours: 'After hours', urgencyDefault: 'Same day', access: ''
         }
       },
       {
-        id: 'm-2026-0139', clientName: 'Hassan & Aisha Rahman', clientEmail: 'hassan.rahman@example.com',
-        clientPhone: '0421 559 008', matterType: 'family', responsibleLawyer: 'Priya Reddy',
-        estimatedFeesAud: 5500,
-        description: 'Parenting arrangements — consent orders. Amicable.', referral: 'Word of mouth',
+        id: 'm-2026-0139', clientName: 'Helios Energy Australia Pty Ltd', clientEmail: 'legal@helios-energy.com.au',
+        clientPhone: '0421 559 008', matterType: 'construction', responsibleLawyer: 'Daniel Hayes',
+        estimatedFeesAud: 38000,
+        description: 'SoP Act adjudication response — solar farm payment claim, Vic Building & Construction Industry SoP Act 2002.', referral: 'In-house counsel direct',
         status: 'open', createdAt: daysAgo(21), intakeSentAt: daysAgo(21, 11), intakeCompletedAt: daysAgo(19, 17, 30),
         flags: [],
-        cdd: { idVerified: true, sourceOfFundsStatus: 'verified', beneficialOwnerStatus: 'n/a', riskRating: 'low' },
-        intake: { fullName: 'Hassan Rahman', preferredName: 'Hassan', children: 'Yes', childrenDetails: 'Layla, 11\nIbrahim, 8\nNoor, 4' }
+        cdd: { idVerified: true, sourceOfFundsStatus: 'verified', beneficialOwnerStatus: 'verified', riskRating: 'low' },
+        intake: {
+          fullName: 'Naomi Shaw',
+          projectAddress: 'Helios Wycheproof Solar Farm, Lalbert VIC',
+          yourRole: 'Principal',
+          counterparty: 'Pinnacle Civil Group Pty Ltd (head contractor)',
+          disputeType: 'Payment (Security of Payment Act)',
+          contractForm: 'AS4902-2000',
+          amount: '$1m–$5m',
+          sopAct: 'Adjudication application lodged'
+        }
       },
       {
-        id: 'm-2026-0138', clientName: 'Greenway Holdings Pty Ltd', clientEmail: 'pm@greenwayhold.com',
-        clientPhone: '03 9614 8200', matterType: 'commercial', responsibleLawyer: 'James Marshall',
-        estimatedFeesAud: 48000,
-        description: 'Shareholders agreement — three founders, growth equity round pending.', referral: 'Other professional',
+        id: 'm-2026-0138', clientName: 'Greenway Holdings v Sterling Pacific', clientEmail: 'pm@greenwayhold.com',
+        clientPhone: '03 9614 8200', matterType: 'commercial', responsibleLawyer: 'Daniel Hayes',
+        estimatedFeesAud: 240000,
+        description: 'Minority oppression and oppression remedy — three founders, growth equity round at the centre.', referral: 'Counsel referral',
         status: 'intake-complete', createdAt: daysAgo(13), intakeSentAt: daysAgo(13, 15, 15), intakeCompletedAt: daysAgo(11, 10),
         flags: ['conflict-check-pending'],
         cdd: { idVerified: true, sourceOfFundsStatus: 'pending', beneficialOwnerStatus: 'pending', riskRating: 'high' },
-        intake: { fullName: 'Peter Mansfield', entityType: 'Pty Ltd company', urgency: 'Within a fortnight', estimatedValue: '$1m–$5m' }
+        intake: {
+          fullName: 'Peter Mansfield (CEO, Greenway Holdings Pty Ltd)',
+          counterparty: 'Sterling Pacific Pty Ltd (ACN 602 119 884)\nMichael Sterling (director)\nLavinia Sterling (director, spouse)',
+          relationship: 'Co-shareholder / co-director',
+          disputeType: 'Shareholder / minority oppression',
+          served: 'Proceedings on foot — both ways',
+          forum: 'Supreme Court of Victoria',
+          proceedingNumber: 'S CI 2026 04829',
+          amount: '$5m–$20m',
+          limitation: 'No', priorAdvice: 'Yes — from another firm',
+          fundingType: 'Litigation funder (third-party, e.g. Omni Bridgeway, IMF, Woodsford)',
+          funderName: 'Omni Bridgeway — funding deed ref OB-AU-2026-0184',
+          sofPrimary: 'Litigation funder',
+          sofDetail: 'Funded by Omni Bridgeway under funding deed dated 12 March 2026, ref OB-AU-2026-0184.'
+        }
       },
       {
-        id: 'm-2026-0137', clientName: 'Eliza Tanaka', clientEmail: 'eliza.tanaka@example.com',
-        clientPhone: '0414 287 661', matterType: 'general', responsibleLawyer: 'Niamh Kearney',
-        estimatedFeesAud: 9000,
-        description: 'Initial consult — possible employment dispute.', referral: 'Website enquiry',
+        id: 'm-2026-0137', clientName: 'Westvale Ports Authority', clientEmail: 'general.counsel@westvale.com.au',
+        clientPhone: '0414 287 661', matterType: 'regulatory', responsibleLawyer: 'James Marshall',
+        estimatedFeesAud: 95000,
+        description: 'ACCC s155 notice — alleged cartel conduct, port stevedoring market. Response due in 19 days.', referral: 'Board referral',
         status: 'intake-sent', createdAt: daysAgo(7), intakeSentAt: daysAgo(6, 8, 45),
         flags: [],
-        cdd: { idVerified: false, sourceOfFundsStatus: 'pending', beneficialOwnerStatus: 'n/a', riskRating: 'low' },
+        cdd: { idVerified: false, sourceOfFundsStatus: 'pending', beneficialOwnerStatus: 'n/a', riskRating: 'high' },
         intake: null
       }
     ],
@@ -1007,7 +1044,7 @@ function renderClientStep() {
             <p class="text-xs text-ink/55 mt-0.5">${matter.responsibleLawyer} · ${FIRM_BRANDING.shortName}</p>
           </div>
         </div>
-        <p class="text-sm text-ink/80 mb-4">Thanks for choosing us. Before we meet, I'd like to know a bit more about your matter so I can come to our first conversation prepared and tell you exactly what it will cost — no surprises.</p>
+        <p class="text-sm text-ink/80 mb-4">Thank you for getting in touch. Before we accept your brief, I'd like to understand the matter, run our conflict check, and confirm what each stage will cost. Five minutes here saves an hour later.</p>
         <ul class="space-y-2 text-sm text-ink/75">
           <li class="flex gap-2"><span class="text-accent">·</span>You can save and come back to it.</li>
           <li class="flex gap-2"><span class="text-accent">·</span>If a question isn't relevant, skip it — there's a "not relevant" toggle on every question.</li>
