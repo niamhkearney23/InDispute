@@ -495,6 +495,7 @@ function seedState() {
         description: 'Property settlement following separation, two children.', referral: 'Existing client',
         status: 'intake-complete', createdAt: daysAgo(4), intakeSentAt: daysAgo(4, 14, 22), intakeCompletedAt: daysAgo(2, 9, 14),
         flags: [],
+        cdd: { idVerified: true, sourceOfFundsStatus: 'verified', beneficialOwnerStatus: 'n/a', riskRating: 'low' },
         intake: {
           fullName: 'Sarah Jane Mitchell', preferredName: 'Sarah', dob: '1984-03-21',
           address: '14 Elgin Street, Carlton VIC 3053', phone: '0412 388 552', email: 's.mitchell@bigpond.net.au',
@@ -513,7 +514,9 @@ function seedState() {
         clientPhone: '0405 119 224', matterType: 'commercial', responsibleLawyer: 'James Marshall',
         description: 'Sale of pharmacy business including premises and goodwill.', referral: 'Accountant referral',
         status: 'intake-sent', createdAt: daysAgo(4), intakeSentAt: daysAgo(4, 10, 8),
-        flags: [], intake: null
+        flags: [],
+        cdd: { idVerified: false, sourceOfFundsStatus: 'pending', beneficialOwnerStatus: 'pending', riskRating: 'medium' },
+        intake: null
       },
       {
         id: 'm-2026-0140', clientName: 'Margaret & Robert Harris', clientEmail: 'r.harris@harriscontractors.com',
@@ -521,6 +524,7 @@ function seedState() {
         description: 'Purchase of investment property, Brunswick — second investment property this year.', referral: 'Existing client',
         status: 'intake-complete', createdAt: daysAgo(6), intakeSentAt: daysAgo(6, 16, 30), intakeCompletedAt: daysAgo(3, 19, 42),
         flags: ['sof-review'],
+        cdd: { idVerified: true, sourceOfFundsStatus: 'flagged', beneficialOwnerStatus: 'n/a', riskRating: 'medium' },
         intake: {
           fullName: 'Robert James Harris', preferredName: 'Rob', dob: '1971-11-04',
           address: '47 Princes Street, Kew VIC 3101', phone: '0438 776 100', email: 'r.harris@harriscontractors.com',
@@ -539,7 +543,9 @@ function seedState() {
         clientPhone: '0421 559 008', matterType: 'family', responsibleLawyer: 'Priya Reddy',
         description: 'Parenting arrangements — consent orders. Amicable.', referral: 'Word of mouth',
         status: 'open', createdAt: daysAgo(21), intakeSentAt: daysAgo(21, 11), intakeCompletedAt: daysAgo(19, 17, 30),
-        flags: [], intake: { fullName: 'Hassan Rahman', preferredName: 'Hassan', children: 'Yes', childrenDetails: 'Layla, 11\nIbrahim, 8\nNoor, 4' }
+        flags: [],
+        cdd: { idVerified: true, sourceOfFundsStatus: 'verified', beneficialOwnerStatus: 'n/a', riskRating: 'low' },
+        intake: { fullName: 'Hassan Rahman', preferredName: 'Hassan', children: 'Yes', childrenDetails: 'Layla, 11\nIbrahim, 8\nNoor, 4' }
       },
       {
         id: 'm-2026-0138', clientName: 'Greenway Holdings Pty Ltd', clientEmail: 'pm@greenwayhold.com',
@@ -547,6 +553,7 @@ function seedState() {
         description: 'Shareholders agreement — three founders, growth equity round pending.', referral: 'Other professional',
         status: 'intake-complete', createdAt: daysAgo(13), intakeSentAt: daysAgo(13, 15, 15), intakeCompletedAt: daysAgo(11, 10),
         flags: ['conflict-check-pending'],
+        cdd: { idVerified: true, sourceOfFundsStatus: 'pending', beneficialOwnerStatus: 'pending', riskRating: 'high' },
         intake: { fullName: 'Peter Mansfield', entityType: 'Pty Ltd company', urgency: 'Within a fortnight', estimatedValue: '$1m–$5m' }
       },
       {
@@ -554,7 +561,9 @@ function seedState() {
         clientPhone: '0414 287 661', matterType: 'general', responsibleLawyer: 'Niamh Kearney',
         description: 'Initial consult — possible employment dispute.', referral: 'Website enquiry',
         status: 'intake-sent', createdAt: daysAgo(7), intakeSentAt: daysAgo(6, 8, 45),
-        flags: [], intake: null
+        flags: [],
+        cdd: { idVerified: false, sourceOfFundsStatus: 'pending', beneficialOwnerStatus: 'n/a', riskRating: 'low' },
+        intake: null
       }
     ],
     activeMatterId: null,
@@ -619,6 +628,49 @@ function flagPill(flag) {
   const [label, cls] = map[flag] || [flag, 'pill-neutral'];
   return `<span class="pill ${cls}">${label}</span>`;
 }
+
+/* ---------- CDD (customer due diligence) ---------- */
+function cddSummary(m) {
+  const cdd = m.cdd || {};
+  const age = daysSince(m.createdAt);
+  const allOk = cdd.idVerified === true
+    && cdd.sourceOfFundsStatus === 'verified'
+    && (cdd.beneficialOwnerStatus === 'verified' || cdd.beneficialOwnerStatus === 'n/a')
+    && !!cdd.riskRating;
+  const hasFlagged = cdd.sourceOfFundsStatus === 'flagged';
+  const pendingFields = [];
+  if (cdd.idVerified !== true) pendingFields.push('ID');
+  if (cdd.sourceOfFundsStatus === 'pending') pendingFields.push('SOF');
+  if (cdd.beneficialOwnerStatus === 'pending') pendingFields.push('Beneficial owners');
+  const isStalePending = pendingFields.length > 0 && age > 7;
+  return { cdd, allOk, hasFlagged, isStalePending, pendingFields, age };
+}
+function cddTooltip(m) {
+  const c = m.cdd || {};
+  return [
+    `ID verification: ${c.idVerified ? 'verified' : 'not yet'}`,
+    `Source of funds: ${c.sourceOfFundsStatus || '—'}`,
+    `Beneficial owners: ${c.beneficialOwnerStatus || '—'}`,
+    `Risk rating: ${c.riskRating || '—'}`
+  ].join('\n');
+}
+function cddBadge(m) {
+  const s = cddSummary(m);
+  const tt = cddTooltip(m).replace(/"/g, '&quot;');
+  if (s.allOk) {
+    return `<span title="CDD complete\n${tt}" class="inline-flex items-center gap-1 pill pill-good"><svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4" stroke-linecap="round"/></svg>CDD</span>`;
+  }
+  if (s.hasFlagged) {
+    return `<span title="CDD review needed\n${tt}" class="pill pill-risk">CDD review</span>`;
+  }
+  const overdue = s.isStalePending ? ' · overdue' : '';
+  return `<span title="CDD ${s.pendingFields.length} pending${overdue}\n${tt}" class="pill pill-warn">CDD ${s.pendingFields.length} pending</span>`;
+}
+function isMatterFlagged(m) {
+  if ((m.flags || []).length > 0) return true;
+  const s = cddSummary(m);
+  return s.hasFlagged || s.isStalePending;
+}
 function paLabel(key) { return PRACTICE_AREAS[key]?.label || key; }
 function paIcon(key) { return PRACTICE_AREAS[key]?.icon || '—'; }
 function paBadge(key, size = 'md') {
@@ -670,7 +722,7 @@ function renderLawyerView() {
   const awaiting = state.matters.filter(m => m.status === 'intake-sent').length;
   const review = state.matters.filter(m => m.status === 'intake-complete').length;
   const open = state.matters.filter(m => m.status === 'open').length;
-  const flagged = state.matters.filter(m => (m.flags || []).length > 0).length;
+  const flagged = state.matters.filter(isMatterFlagged).length;
   $('#kpi-awaiting').textContent = awaiting;
   $('#kpi-review').textContent = review;
   $('#kpi-open').textContent = open;
@@ -694,7 +746,7 @@ function renderMattersList() {
   const q = ($('#search')?.value || '').trim().toLowerCase();
   let list = [...state.matters];
   if (currentFilter === 'flagged') {
-    list = list.filter(m => (m.flags || []).length > 0);
+    list = list.filter(isMatterFlagged);
   } else if (currentFilter !== 'all') {
     list = list.filter(m => m.status === currentFilter);
   }
@@ -742,6 +794,7 @@ function renderMattersList() {
           <span class="font-medium truncate">${m.clientName}</span>
           ${statusPill(m.status)}
           ${actionChip}
+          ${cddBadge(m)}
           ${flagsHtml}
         </div>
         <p class="text-sm text-ink/65 truncate">${m.description}</p>
@@ -1073,11 +1126,16 @@ function submitClientIntake(matter) {
   matter.status = 'intake-complete';
   matter.intakeCompletedAt = new Date().toISOString();
   matter.flags = matter.flags || [];
+  matter.cdd = matter.cdd || { idVerified: false, sourceOfFundsStatus: 'pending', beneficialOwnerStatus: 'n/a', riskRating: 'low' };
   const sof = (matter.intake?.sofPrimary || '');
   const sofDetail = (matter.intake?.sofDetail || '').toLowerCase();
   const shouldFlag = sof === 'Other' || /loan|gift|overseas|family/.test(sofDetail);
-  if (shouldFlag && !matter.flags.includes('sof-review')) {
-    matter.flags.push('sof-review');
+  if (shouldFlag) {
+    matter.cdd.sourceOfFundsStatus = 'flagged';
+    matter.cdd.riskRating = matter.cdd.riskRating === 'low' ? 'medium' : matter.cdd.riskRating;
+    if (!matter.flags.includes('sof-review')) matter.flags.push('sof-review');
+  } else {
+    matter.cdd.sourceOfFundsStatus = 'pending';
   }
   saveState();
   toast('Intake submitted. Lawyer will review.', 'good');
@@ -1209,7 +1267,39 @@ function renderMatterDetailBody(m) {
     </div>
   ` : '';
 
-  return statusBlock + idBlock + matterBlock + costBlock + sofBlock + commsBlock + actionBlock;
+  const cdd = m.cdd || {};
+  const cddSum = cddSummary(m);
+  const cddItem = (label, value, ok) => `
+    <div class="flex items-center justify-between py-2 border-b rule last:border-0 text-sm">
+      <span class="text-ink/70">${label}</span>
+      <span class="flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full ${ok === 'good' ? 'bg-good' : ok === 'warn' ? 'bg-warn' : ok === 'risk' ? 'bg-risk' : 'bg-ink/30'}"></span>
+        <span class="text-ink">${value}</span>
+      </span>
+    </div>
+  `;
+  const cddBlock = `
+    <div class="border rule rounded-xl bg-white mb-4 overflow-hidden">
+      <div class="px-4 py-3 border-b rule bg-paper flex items-center justify-between">
+        <h3 class="font-medium">Customer due diligence (AML)</h3>
+        ${cddSum.allOk ? '<span class="pill pill-good">Complete</span>' :
+          cddSum.hasFlagged ? '<span class="pill pill-risk">Review needed</span>' :
+          cddSum.isStalePending ? '<span class="pill pill-warn">Overdue</span>' :
+          '<span class="pill pill-warn">In progress</span>'}
+      </div>
+      <div class="px-4 py-2">
+        ${cddItem('ID verification', cdd.idVerified ? 'Verified' : 'Not yet', cdd.idVerified ? 'good' : 'warn')}
+        ${cddItem('Source of funds', cdd.sourceOfFundsStatus || '—',
+          cdd.sourceOfFundsStatus === 'verified' ? 'good' :
+          cdd.sourceOfFundsStatus === 'flagged' ? 'risk' : 'warn')}
+        ${cddItem('Beneficial owners', cdd.beneficialOwnerStatus || '—',
+          cdd.beneficialOwnerStatus === 'verified' || cdd.beneficialOwnerStatus === 'n/a' ? 'good' : 'warn')}
+        ${cddItem('Risk rating', (cdd.riskRating || '—').replace(/^./, c => c.toUpperCase()),
+          cdd.riskRating === 'low' ? 'good' : cdd.riskRating === 'high' ? 'risk' : 'warn')}
+      </div>
+    </div>
+  `;
+  return statusBlock + cddBlock + idBlock + matterBlock + costBlock + sofBlock + commsBlock + actionBlock;
 }
 function bindMatterDetailActions(m) {
   const previewBtn = $('#md-preview-client');
@@ -1260,7 +1350,7 @@ function mockIntake(m) {
 function renderPrincipalView() {
   // KPI
   $('#p-kpi-new').textContent = state.matters.filter(m => m.createdAt >= '2026-05-01').length;
-  $('#p-kpi-flagged').textContent = state.matters.filter(m => (m.flags || []).length > 0).length;
+  $('#p-kpi-flagged').textContent = state.matters.filter(isMatterFlagged).length;
 
   // Pipeline
   const stages = [
@@ -1380,7 +1470,9 @@ document.addEventListener('DOMContentLoaded', () => {
       id: nextMatterId(), clientName: d.clientName, clientEmail: d.clientEmail, clientPhone: d.clientPhone,
       matterType: d.matterType, responsibleLawyer: d.responsibleLawyer, description: d.description,
       referral: d.referral, status: 'intake-sent', createdAt: new Date().toISOString(),
-      intakeSentAt: new Date().toISOString(), flags: [], intake: null
+      intakeSentAt: new Date().toISOString(), flags: [],
+      cdd: { idVerified: false, sourceOfFundsStatus: 'pending', beneficialOwnerStatus: 'n/a', riskRating: 'low' },
+      intake: null
     };
     state.matters.unshift(newM);
     saveState();
