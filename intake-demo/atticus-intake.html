@@ -360,6 +360,18 @@
 
 const STATE_KEY = 'atticus.intake.demo.v1';
 
+/* ---------- TIME HELPERS (declared early so seed data can use them) ---------- */
+const MS_PER_DAY = 86400000;
+function daysAgo(n, hour = 9, minute = 0) {
+  const d = new Date(Date.now() - n * MS_PER_DAY);
+  d.setHours(hour, minute, 0, 0);
+  return d.toISOString();
+}
+function daysSince(iso) {
+  if (!iso) return 0;
+  return Math.floor((Date.now() - new Date(iso).getTime()) / MS_PER_DAY);
+}
+
 /* ---------- PRACTICE AREA SCHEMAS ---------- */
 const PRACTICE_AREAS = {
   family: {
@@ -481,7 +493,7 @@ function seedState() {
         id: 'm-2026-0142', clientName: 'Sarah Mitchell', clientEmail: 's.mitchell@bigpond.net.au',
         clientPhone: '0412 388 552', matterType: 'family', responsibleLawyer: 'Niamh Kearney',
         description: 'Property settlement following separation, two children.', referral: 'Existing client',
-        status: 'intake-complete', createdAt: '2026-05-09', intakeSentAt: '2026-05-09T14:22:00', intakeCompletedAt: '2026-05-11T09:14:00',
+        status: 'intake-complete', createdAt: daysAgo(4), intakeSentAt: daysAgo(4, 14, 22), intakeCompletedAt: daysAgo(2, 9, 14),
         flags: [],
         intake: {
           fullName: 'Sarah Jane Mitchell', preferredName: 'Sarah', dob: '1984-03-21',
@@ -500,14 +512,14 @@ function seedState() {
         id: 'm-2026-0141', clientName: 'David Chen', clientEmail: 'david@chenpharmacy.com.au',
         clientPhone: '0405 119 224', matterType: 'commercial', responsibleLawyer: 'James Marshall',
         description: 'Sale of pharmacy business including premises and goodwill.', referral: 'Accountant referral',
-        status: 'intake-sent', createdAt: '2026-05-11', intakeSentAt: '2026-05-11T10:08:00',
+        status: 'intake-sent', createdAt: daysAgo(4), intakeSentAt: daysAgo(4, 10, 8),
         flags: [], intake: null
       },
       {
         id: 'm-2026-0140', clientName: 'Margaret & Robert Harris', clientEmail: 'r.harris@harriscontractors.com',
         clientPhone: '0438 776 100', matterType: 'conveyancing', responsibleLawyer: 'Niamh Kearney',
         description: 'Purchase of investment property, Brunswick — second investment property this year.', referral: 'Existing client',
-        status: 'intake-complete', createdAt: '2026-05-08', intakeSentAt: '2026-05-08T16:30:00', intakeCompletedAt: '2026-05-10T19:42:00',
+        status: 'intake-complete', createdAt: daysAgo(6), intakeSentAt: daysAgo(6, 16, 30), intakeCompletedAt: daysAgo(3, 19, 42),
         flags: ['sof-review'],
         intake: {
           fullName: 'Robert James Harris', preferredName: 'Rob', dob: '1971-11-04',
@@ -526,14 +538,14 @@ function seedState() {
         id: 'm-2026-0139', clientName: 'Hassan & Aisha Rahman', clientEmail: 'hassan.rahman@example.com',
         clientPhone: '0421 559 008', matterType: 'family', responsibleLawyer: 'Priya Reddy',
         description: 'Parenting arrangements — consent orders. Amicable.', referral: 'Word of mouth',
-        status: 'open', createdAt: '2026-04-22', intakeSentAt: '2026-04-22T11:00:00', intakeCompletedAt: '2026-04-24T17:30:00',
+        status: 'open', createdAt: daysAgo(21), intakeSentAt: daysAgo(21, 11), intakeCompletedAt: daysAgo(19, 17, 30),
         flags: [], intake: { fullName: 'Hassan Rahman', preferredName: 'Hassan', children: 'Yes', childrenDetails: 'Layla, 11\nIbrahim, 8\nNoor, 4' }
       },
       {
         id: 'm-2026-0138', clientName: 'Greenway Holdings Pty Ltd', clientEmail: 'pm@greenwayhold.com',
         clientPhone: '03 9614 8200', matterType: 'commercial', responsibleLawyer: 'James Marshall',
         description: 'Shareholders agreement — three founders, growth equity round pending.', referral: 'Other professional',
-        status: 'intake-complete', createdAt: '2026-04-30', intakeSentAt: '2026-04-30T15:15:00', intakeCompletedAt: '2026-05-02T10:00:00',
+        status: 'intake-complete', createdAt: daysAgo(13), intakeSentAt: daysAgo(13, 15, 15), intakeCompletedAt: daysAgo(11, 10),
         flags: ['conflict-check-pending'],
         intake: { fullName: 'Peter Mansfield', entityType: 'Pty Ltd company', urgency: 'Within a fortnight', estimatedValue: '$1m–$5m' }
       },
@@ -541,7 +553,7 @@ function seedState() {
         id: 'm-2026-0137', clientName: 'Eliza Tanaka', clientEmail: 'eliza.tanaka@example.com',
         clientPhone: '0414 287 661', matterType: 'general', responsibleLawyer: 'Niamh Kearney',
         description: 'Initial consult — possible employment dispute.', referral: 'Website enquiry',
-        status: 'intake-sent', createdAt: '2026-05-12', intakeSentAt: '2026-05-12T08:45:00',
+        status: 'intake-sent', createdAt: daysAgo(7), intakeSentAt: daysAgo(6, 8, 45),
         flags: [], intake: null
       }
     ],
@@ -665,6 +677,19 @@ function renderLawyerView() {
   $('#kpi-flagged').textContent = flagged;
   renderMattersList();
 }
+function matterUrgency(m) {
+  if (m.status === 'intake-sent') {
+    const d = daysSince(m.intakeSentAt);
+    if (d > 5) return { borderClass: 'border-l-4 border-risk', days: d, kind: 'client-overdue' };
+    if (d > 3) return { borderClass: 'border-l-4 border-warn', days: d, kind: 'client-slow' };
+  }
+  if (m.status === 'intake-complete') {
+    const d = daysSince(m.intakeCompletedAt);
+    if (d > 2) return { chipHtml: '<span class="pill pill-warn">Action needed</span>', days: d, kind: 'lawyer-overdue' };
+  }
+  return { days: 0 };
+}
+
 function renderMattersList() {
   const q = ($('#search')?.value || '').trim().toLowerCase();
   let list = [...state.matters];
@@ -674,7 +699,14 @@ function renderMattersList() {
     list = list.filter(m => m.status === currentFilter);
   }
   if (q) list = list.filter(m => (m.clientName + ' ' + m.description + ' ' + m.id).toLowerCase().includes(q));
-  list.sort((a, b) => (b.intakeCompletedAt || b.intakeSentAt || b.createdAt).localeCompare(a.intakeCompletedAt || a.intakeSentAt || a.createdAt));
+  // Sort: matters waiting on lawyer action first (oldest = stalest at top), then everything else by recent activity.
+  list.sort((a, b) => {
+    const aNeedsLawyer = a.status === 'intake-complete' ? 1 : 0;
+    const bNeedsLawyer = b.status === 'intake-complete' ? 1 : 0;
+    if (aNeedsLawyer !== bNeedsLawyer) return bNeedsLawyer - aNeedsLawyer;
+    if (aNeedsLawyer === 1) return (a.intakeCompletedAt || '').localeCompare(b.intakeCompletedAt || '');
+    return (b.intakeCompletedAt || b.intakeSentAt || b.createdAt).localeCompare(a.intakeCompletedAt || a.intakeSentAt || a.createdAt);
+  });
 
   // status label
   const total = state.matters.length;
@@ -698,15 +730,18 @@ function renderMattersList() {
   }
 
   list.forEach(m => {
+    const urg = matterUrgency(m);
     const row = document.createElement('button');
-    row.className = 'w-full text-left px-5 py-4 hover:bg-ink/[0.02] transition flex items-center gap-4';
+    row.className = `w-full text-left px-5 py-4 hover:bg-ink/[0.02] transition flex items-center gap-4 ${urg.borderClass || ''}`;
     const flagsHtml = (m.flags || []).map(flagPill).join(' ');
+    const actionChip = urg.chipHtml || '';
     row.innerHTML = `
       ${paBadge(m.matterType, 'lg')}
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-2 mb-0.5 flex-wrap">
           <span class="font-medium truncate">${m.clientName}</span>
           ${statusPill(m.status)}
+          ${actionChip}
           ${flagsHtml}
         </div>
         <p class="text-sm text-ink/65 truncate">${m.description}</p>
