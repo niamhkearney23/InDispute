@@ -372,6 +372,45 @@ function daysSince(iso) {
   return Math.floor((Date.now() - new Date(iso).getTime()) / MS_PER_DAY);
 }
 
+/* ---------- FIRM BRANDING ---------- */
+/* In production this would be per-firm config saved on the Firm record.
+   Here we hardcode the demo firm so the file is self-contained. */
+const FIRM_BRANDING = {
+  firmName: 'Marshall & Co Lawyers',
+  shortName: 'Marshall & Co',
+  tagline: 'Boutique commercial &amp; family law · Melbourne',
+  logoUrl: null,                 // null -> render inline SVG wordmark
+  accentColor: '#1F3A5F',
+  lawyerPhotos: {
+    'Niamh Kearney': 'https://ui-avatars.com/api/?name=Niamh+Kearney&background=1F3A5F&color=FBF9F4&size=240&font-size=0.36&bold=true&format=svg',
+    'James Marshall': 'https://ui-avatars.com/api/?name=James+Marshall&background=1F3A5F&color=FBF9F4&size=240&font-size=0.36&bold=true&format=svg',
+    'Priya Reddy': 'https://ui-avatars.com/api/?name=Priya+Reddy&background=1F3A5F&color=FBF9F4&size=240&font-size=0.36&bold=true&format=svg'
+  }
+};
+function firstName(fullName) {
+  if (!fullName) return 'there';
+  return fullName.split(/[ &]/).filter(Boolean)[0] || 'there';
+}
+function lawyerAvatar(lawyerName, sizePx = 64) {
+  const src = FIRM_BRANDING.lawyerPhotos[lawyerName] || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(lawyerName || '?') + '&background=1F3A5F&color=FBF9F4&size=240&format=svg');
+  return `<img src="${src}" alt="${lawyerName}" class="rounded-full object-cover ring-2 ring-paper" style="width:${sizePx}px;height:${sizePx}px" />`;
+}
+function firmLogoMark() {
+  if (FIRM_BRANDING.logoUrl) {
+    return `<img src="${FIRM_BRANDING.logoUrl}" alt="${FIRM_BRANDING.firmName}" class="h-9" />`;
+  }
+  return `
+    <div class="flex items-center gap-3">
+      <span class="inline-flex items-center justify-center w-10 h-10 rounded-md border border-ink/20 text-ink h-display text-lg" style="font-weight:600">M</span>
+      <div class="leading-tight">
+        <p class="h-display text-lg" style="font-weight:600">${FIRM_BRANDING.shortName}</p>
+        <p class="text-[11px] text-ink/55 tracking-wide">${FIRM_BRANDING.tagline}</p>
+      </div>
+    </div>
+  `;
+}
+const SKIP = '__SKIP__';
+
 /* ---------- PRACTICE AREA SCHEMAS ---------- */
 const PRACTICE_AREAS = {
   family: {
@@ -915,11 +954,16 @@ function renderClientView(matter) {
   const stepNum = clientStep + 1;
   const totalSteps = sections.length;
 
+  const clientFirst = firstName(matter.clientName);
+  const lawyerFirst = firstName(matter.responsibleLawyer);
+
   $('#client-intake-shell').innerHTML = `
+    <div class="pb-5 mb-6 border-b rule">
+      ${firmLogoMark()}
+    </div>
     <div class="mb-6">
-      <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-2">Marshall &amp; Co Lawyers</p>
-      <h1 class="h-display text-3xl md:text-4xl">${pa.label} intake</h1>
-      <p class="text-ink/70 mt-2">A few quick questions so we can prepare for our first meeting and confirm what your matter will cost.</p>
+      <h1 class="h-display text-3xl md:text-4xl leading-tight">${clientFirst}, a few questions before your meeting with ${lawyerFirst}.</h1>
+      <p class="text-ink/70 mt-3">Takes about 8 minutes. Your answers go straight to your matter team — nobody else sees them.</p>
     </div>
     <div class="flex items-center gap-1.5 mb-8" id="client-progress">
       ${sections.map((_, i) => `<div class="h-1 flex-1 rounded ${i < stepNum ? 'bg-accent' : 'bg-ink/10'}"></div>`).join('')}
@@ -941,14 +985,21 @@ function renderClientStep() {
   const draft = matter.intake || {};
 
   if (which === 'intro') {
+    const lawyerFirst = firstName(matter.responsibleLawyer);
     shell.innerHTML = `
       <div class="border rule rounded-2xl bg-white p-7 fade-in">
-        <h2 class="h-display text-xl mb-3">Before we start</h2>
-        <p class="text-sm text-ink/75 mb-4">${matter.responsibleLawyer} at Marshall &amp; Co has invited you to complete a short intake before your first meeting. It takes about 8 minutes. Your answers are encrypted and only your matter team can see them.</p>
+        <div class="flex items-start gap-5 mb-5">
+          ${lawyerAvatar(matter.responsibleLawyer, 72)}
+          <div class="pt-1">
+            <h2 class="h-display text-xl">A note from ${lawyerFirst}</h2>
+            <p class="text-xs text-ink/55 mt-0.5">${matter.responsibleLawyer} · ${FIRM_BRANDING.shortName}</p>
+          </div>
+        </div>
+        <p class="text-sm text-ink/80 mb-4">Thanks for choosing us. Before we meet, I'd like to know a bit more about your matter so I can come to our first conversation prepared and tell you exactly what it will cost — no surprises.</p>
         <ul class="space-y-2 text-sm text-ink/75">
           <li class="flex gap-2"><span class="text-accent">·</span>You can save and come back to it.</li>
-          <li class="flex gap-2"><span class="text-accent">·</span>If a question doesn't apply, write "n/a".</li>
-          <li class="flex gap-2"><span class="text-accent">·</span>If anything is sensitive, you can flag it and we'll discuss it in person.</li>
+          <li class="flex gap-2"><span class="text-accent">·</span>If a question isn't relevant, skip it — there's a "not relevant" toggle on every question.</li>
+          <li class="flex gap-2"><span class="text-accent">·</span>If anything is sensitive, flag it and we'll discuss in person.</li>
         </ul>
         <button class="cf-next mt-7 bg-ink text-paper px-5 py-2.5 rounded-full text-sm font-medium hover:bg-accent">Let's start →</button>
       </div>`;
@@ -980,7 +1031,17 @@ function renderQuestions(questions, form, draft) {
     const wrap = document.createElement('div');
     wrap.innerHTML = renderQuestion(q, draft[q.id]);
     form.appendChild(wrap);
-    // bind
+    // skip toggle
+    const skipBtn = wrap.querySelector('.skip-toggle');
+    if (skipBtn) skipBtn.addEventListener('click', () => {
+      const matter = state.matters.find(m => m.id === state.activeMatterId);
+      matter.intake = matter.intake || {};
+      matter.intake[q.id] = matter.intake[q.id] === SKIP ? '' : SKIP;
+      saveState();
+      form.innerHTML = '';
+      renderQuestions(questions, form, matter.intake);
+    });
+    // bind inputs
     const inputs = wrap.querySelectorAll('input, textarea, select');
     inputs.forEach(inp => {
       inp.addEventListener('input', () => {
@@ -993,9 +1054,7 @@ function renderQuestions(questions, form, draft) {
           matter.intake[q.id] = inp.value;
         }
         saveState();
-        // conditional re-render if question with branching
         if (q.type === 'radio' || q.type === 'select') {
-          // check if any other questions depend on this; if so, re-render the whole form
           const dependents = questions.some(other => other.if && other.if[q.id]);
           if (dependents) {
             form.innerHTML = '';
@@ -1021,43 +1080,62 @@ function meetsCondition(cond, draft) {
 
 function renderQuestion(q, value) {
   const helper = q.helper ? `<p class="input-helper">${q.helper}</p>` : '';
+  const isSkipped = value === SKIP;
+  const skipControl = `
+    <div class="mt-1.5 flex justify-end">
+      <button type="button" class="skip-toggle text-xs ${isSkipped ? 'text-accent' : 'text-ink/50'} hover:text-ink hover:underline" data-qid="${q.id}">
+        ${isSkipped ? 'Restore answer' : 'Skip — not relevant'}
+      </button>
+    </div>`;
+  const skippedNote = isSkipped ? `<p class="text-xs text-ink/45 italic mt-1">Marked not relevant.</p>` : '';
+  const renderValue = isSkipped ? '' : (value || '');
+  const inputCls = `input ${isSkipped ? 'opacity-40 pointer-events-none' : ''}`;
+
   if (q.type === 'text' || q.type === 'email' || q.type === 'tel' || q.type === 'date') {
-    return `<div>
+    return `<div data-q="${q.id}">
       <label class="input-label">${q.label}</label>
-      <input type="${q.type}" class="input" value="${value || ''}" />
+      <input type="${q.type}" class="${inputCls}" value="${renderValue}" ${isSkipped ? 'disabled' : ''} />
       ${helper}
+      ${skippedNote}
+      ${skipControl}
     </div>`;
   }
   if (q.type === 'textarea') {
-    return `<div>
+    return `<div data-q="${q.id}">
       <label class="input-label">${q.label}</label>
-      <textarea class="input" rows="3">${value || ''}</textarea>
+      <textarea class="${inputCls}" rows="3" ${isSkipped ? 'disabled' : ''}>${renderValue}</textarea>
       ${helper}
+      ${skippedNote}
+      ${skipControl}
     </div>`;
   }
   if (q.type === 'select') {
-    return `<div>
+    return `<div data-q="${q.id}">
       <label class="input-label">${q.label}</label>
-      <select class="input">
+      <select class="${inputCls}" ${isSkipped ? 'disabled' : ''}>
         <option value="">Choose…</option>
         ${q.options.map(o => `<option ${value === o ? 'selected' : ''}>${o}</option>`).join('')}
       </select>
       ${helper}
+      ${skippedNote}
+      ${skipControl}
     </div>`;
   }
   if (q.type === 'radio') {
-    return `<div>
+    return `<div data-q="${q.id}" class="${isSkipped ? 'opacity-40 pointer-events-none' : ''}">
       <label class="input-label">${q.label}</label>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
         ${q.options.map(o => `
           <label class="radio-card ${value === o ? 'selected' : ''}">
-            <input type="radio" name="${q.id}" value="${o}" ${value === o ? 'checked' : ''} />
+            <input type="radio" name="${q.id}" value="${o}" ${value === o ? 'checked' : ''} ${isSkipped ? 'disabled' : ''} />
             <span class="text-sm">${o}</span>
           </label>
         `).join('')}
       </div>
       ${helper}
-    </div>`;
+      ${skippedNote}
+    </div>
+    <div class="-mt-3">${skipControl}</div>`;
   }
   return '';
 }
@@ -1074,12 +1152,35 @@ function advanceClientStep() {
 
 function renderClientReview(matter, pa) {
   const intake = matter.intake || {};
-  const rows = (questions) => questions.filter(q => intake[q.id] && (!q.if || meetsCondition(q.if, intake))).map(q => `
-    <div class="flex justify-between gap-4 py-2 border-b rule last:border-b-0">
-      <span class="text-sm text-ink/65">${q.label}</span>
-      <span class="text-sm text-right max-w-[55%]">${(intake[q.id] || '').toString().replace(/\n/g, '<br>')}</span>
+  const lawyerFirst = firstName(matter.responsibleLawyer);
+  const rows = (questions) => questions.filter(q => (intake[q.id] !== undefined && intake[q.id] !== '') && (!q.if || meetsCondition(q.if, intake))).map(q => {
+    const v = intake[q.id];
+    const isSkipped = v === SKIP;
+    const displayVal = isSkipped
+      ? '<span class="text-ink/45 italic">Not relevant</span>'
+      : (v || '').toString().replace(/\n/g, '<br>');
+    return `
+      <div class="flex justify-between gap-4 py-2 border-b rule last:border-b-0">
+        <span class="text-sm text-ink/65">${q.label}</span>
+        <span class="text-sm text-right max-w-[55%]">${displayVal}</span>
+      </div>
+    `;
+  }).join('');
+
+  const nextStep = (icon, title, body) => `
+    <div class="flex items-start gap-3 py-2.5">
+      <div class="w-8 h-8 rounded-full bg-accent/10 text-accent flex items-center justify-center shrink-0">
+        ${icon}
+      </div>
+      <div class="flex-1">
+        <p class="text-sm font-medium">${title}</p>
+        <p class="text-xs text-ink/65 mt-0.5">${body}</p>
+      </div>
     </div>
-  `).join('');
+  `;
+  const ICON_MAIL = '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>';
+  const ICON_DOC = '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m-7 5h8a2 2 0 002-2V7l-5-5H6a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>';
+  const ICON_CAL = '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>';
 
   return `
     <div class="border rule rounded-2xl bg-white p-7 fade-in">
@@ -1109,9 +1210,15 @@ function renderClientReview(matter, pa) {
         </section>
       </div>
 
-      <div class="mt-8 border rule rounded-xl p-4 bg-paper text-sm">
-        <p class="font-medium mb-1">By submitting:</p>
-        <p class="text-ink/70">You confirm the information is true to your knowledge. We'll use it to prepare your file and your cost disclosure. We'll never share it outside Marshall &amp; Co without your permission.</p>
+      <div class="mt-8 border rule rounded-2xl p-5 bg-paper">
+        <p class="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-3">What happens next</p>
+        ${nextStep(ICON_MAIL, "You'll get a confirmation email", 'A copy of your answers, for your records. Within five minutes.')}
+        ${nextStep(ICON_DOC, 'A draft cost agreement', `${lawyerFirst} will review your answers and email a fixed-cost or capped-fee proposal within one business day.`)}
+        ${nextStep(ICON_CAL, 'A calendar invite', 'Our office will reach out to book your first meeting — in person, by phone, or video, whichever you prefer.')}
+      </div>
+
+      <div class="mt-6 border rule rounded-xl p-4 text-sm">
+        <p class="text-ink/70">By submitting you confirm the information is true to your knowledge. We'll use it to prepare your file and your cost disclosure. We'll never share it outside ${FIRM_BRANDING.shortName} without your permission.</p>
       </div>
 
       <div class="mt-6 flex justify-between items-center">
