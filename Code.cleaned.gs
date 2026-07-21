@@ -1089,6 +1089,8 @@ function handleCalendlyWebhook(payload) {
 //
 // Read endpoints (doGet, ?action=...):
 //   ping                 -> liveness check (open)
+//   cases                -> Court Update case-lookup site, HTML (open --
+//                           public-facing content, READY rows only)
 //   list                 -> dashboard rows + summary counts (REQUIRES KEY)
 //   candidate&id=...     -> full profile payload (REQUIRES KEY)
 //
@@ -1111,6 +1113,9 @@ function doGet(e) {
   try {
     if (action === 'ping') {
       return jsonOut_({ ok: true, name: FIRM_NAME, time: new Date().toISOString() });
+    }
+    if (action === 'cases') {
+      return caseLookupPage();
     }
     if (action === 'list') {
       requireFirmKey_(e);
