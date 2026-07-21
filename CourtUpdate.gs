@@ -58,6 +58,7 @@ var EDITION_20260720 = {
   cases: [
     {
       hook: 'The RM300,000 front page',
+      area: 'Defamation',
       tags: ['📰 Defamation', '⚖️ Court of Appeal', '🔥 Damages raised'],
       name: 'Star Media Group Bhd & Ors v Jason Jonathan Lo',
       citation: 'B-02(NCvC)(W)-2076 & 2096-12/2023 · Court of Appeal · Collin Lawrence Sequerah JCA (now FCJ), Faizah binti Jamaludin JCA, Ong Chee Kwan JCA',
@@ -75,6 +76,7 @@ var EDITION_20260720 = {
     },
     {
       hook: 'One defendant asked for security. The whole suit is now on the line.',
+      area: 'Security for costs',
       tags: ['⏳ 14-day deadline', '💣 Automatic strike-out', '💰 Security for costs'],
       name: 'Dato’ Richard Dilaan Morais v Raam Kumar & Ors',
       citation: 'AA-22NCvC-34-04/2024 · High Court of Malaya at Ipoh · Moses Susayan J',
@@ -91,6 +93,7 @@ var EDITION_20260720 = {
     },
     {
       hook: '“A grievance in search of a case”',
+      area: 'Probate',
       tags: ['🪦 Probate', '✂️ Struck out pre-trial', '🔍 No particulars'],
       name: 'Manjula a/p Manikah v Sharmila Nageswaran',
       citation: 'WA-22NCvC-674-11/2025 · High Court of Malaya at Kuala Lumpur · Arziah binti Mohamed Apandi J',
@@ -107,6 +110,7 @@ var EDITION_20260720 = {
     },
     {
       hook: 'Six new BMWs, one overturned trailer, no indemnity',
+      area: 'Insurance',
       tags: ['🚛 Goods-in-transit', '🧾 Escape clause', '🔁 Subrogation'],
       name: 'BLG Swift Logistics Sdn Bhd v Pantrans Haulage Sdn Bhd (Tokio Marine Insurans, Third Party)',
       citation: 'WA-22NCvC-1012-12/2019 · High Court of Malaya at Kuala Lumpur · Raja Ahmad Mohzanuddin Shah J',
@@ -122,6 +126,7 @@ var EDITION_20260720 = {
     },
     {
       hook: 'Being the named nominee doesn’t make it your money',
+      area: 'Estate',
       tags: ['🧾 12 policies', '⚖️ Statutory trust', '🏛️ Order 80'],
       name: 'Chung Soh Eng v Chung Yang Huang & Ors',
       citation: 'WA-24NCvC-5928-12/2025 · High Court of Malaya at Kuala Lumpur · Nixon anak Kennedy Kumbong JC',
@@ -138,6 +143,7 @@ var EDITION_20260720 = {
     },
     {
       hook: 'The RM42 million email that wasn’t a variation',
+      area: 'Commercial contract',
       tags: ['✈️ Aircraft charter', '📉 Formalities matter', '💸 Costs pain'],
       name: 'P-Cube Aviation Pte Ltd v J&T International Logistics (Malaysia) Sdn Bhd',
       citation: 'WA-27NCC-28-05/2024 · High Court of Malaya at Kuala Lumpur (Commercial Division) · Quay Chew Soon J',
@@ -155,6 +161,7 @@ var EDITION_20260720 = {
     },
     {
       hook: 'The defence nobody turned up to defend',
+      area: 'Civil procedure',
       tags: ['🏚️ Liquidation', '📄 Abandoned defence', '🛠️ O.34 r.6(1)'],
       name: 'Tan Kok Aun & Anor v Prolific Properties Sdn Bhd (in liquidation)',
       citation: 'MA-22NCvC-25-04/2024 · High Court of Malaya at Melaka · Dato’ Sri Raja Segaran JC',
@@ -171,6 +178,7 @@ var EDITION_20260720 = {
     },
     {
       hook: 'Unopposed is not the same as automatic',
+      area: 'Companies',
       tags: ['🏢 Winding-up', '🧱 Petition dismissed', '📋 Plead the limb'],
       name: 'Koperasi Tunas Muda Sungai Ara Bhd v Hype Lifestyle Sdn Bhd',
       citation: 'MA-28NCC-23-04/2026 · High Court of Malaya at Melaka · Dato’ Sri Raja Segaran JC',
@@ -521,8 +529,13 @@ function draftCourtUpdateCaseFromDrive(fileId) {
 // SENDER  --  Apps Script only
 // =====================================================================
 
+// All published editions, oldest first. New editions get appended here;
+// the case-lookup site (court-updates/build-site.js) and the sender both
+// read from this registry.
+var COURT_UPDATE_EDITIONS = [EDITION_20260720];
+
 function getLatestCourtUpdateEdition_() {
-  return EDITION_20260720;
+  return COURT_UPDATE_EDITIONS[COURT_UPDATE_EDITIONS.length - 1];
 }
 
 // Test-send the latest edition to a single address. Never sends to a
