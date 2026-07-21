@@ -14,6 +14,17 @@
 // Usage inside Apps Script:
 //   sendCourtUpdateTest('you@firm.com')   -> emails the latest edition
 //
+// Drafting workflow (judgments sourced manually from the kehakiman
+// e-judgment portal, as now):
+//   1. Save the grounds of judgment into the Drive folder -- as a
+//      Google Doc, or as the PDF downloaded from the portal.
+//   2. Run draftCourtUpdateCaseFromDrive('<file id>') -- it extracts
+//      the text (OCR for PDFs), sends it to Claude with the house-style
+//      prompt, and writes the drafted entry into a Google Doc for
+//      editing, returning the structured case object.
+//   3. Edit the draft (the human pass is where accuracy and voice get
+//      locked in), then paste the final object into the edition data.
+//
 // Editorial rules baked into the data below:
 //   - Every figure, citation and quote comes from the source brief;
 //     nothing is invented. Verify against the judgments before any
@@ -326,6 +337,184 @@ function renderCourtUpdateHtml_(edition) {
 
     '</div></body></html>'
   );
+}
+
+// =====================================================================
+// DRAFTING  --  judgment text -> case object (Apps Script only)
+// =====================================================================
+//
+// Feeds the full grounds of judgment (from the kehakiman portal) to
+// Claude and gets back one case object in the edition schema, plus
+// quoteCandidates: verbatim lines from the judgment with paragraph
+// references, for the Obiter of the Week slot. The prompt forbids
+// invention; the paragraph refs exist so every quote can be checked
+// against the judgment in seconds before publication.
+// =====================================================================
+
+var CU_DRAFT_SYSTEM =
+  'You draft one entry for "Court Update -- The Young Lawyers\' Edition", a newsletter for junior ' +
+  'Malaysian lawyers published by a boutique litigation firm. You are given the full text of a single ' +
+  'judgment. Write the entry from that text ONLY -- never invent facts, figures, names, or quotes. ' +
+  'Tone: telling a colleague about the case over coffee. Short sentences, active voice, no headnote-speak. ' +
+  'Humour must come from the facts and the court\'s own words, never from mocking a party; accuracy beats wit. ' +
+  'If the judgment is in Bahasa Malaysia, write the entry in English but keep quotes in the original ' +
+  'language followed by a bracketed English translation. Output JSON only, no prose around it.';
+
+function buildDraftPrompt_(judgmentText) {
+  var schema =
+    '{\n' +
+    '  "hook": "<headline, <=70 chars, story-first, no case name, no colon-cliches>",\n' +
+    '  "tags": ["<emoji + 1-3 words>", "<emoji + 1-3 words>", "<emoji + 1-3 words>"],\n' +
+    '  "name": "<full case name>",\n' +
+    '  "citation": "<case no> \\u00b7 <court> \\u00b7 <coram / judge>",\n' +
+    '  "story": "<2-3 sentences: the human drama, facts only from the judgment>",\n' +
+    '  "courtSaid": "<the holding and key orders/figures in <=2 plain-English sentences>",\n' +
+    '  "whyYouCare": "<the practice point: what a junior lawyer does differently now, <=3 sentences>",\n' +
+    '  "outcome": "<ALLOWED | ALLOWED IN PART | DISMISSED | STRUCK OUT | GRANTED | ...>",\n' +
+    '  "quoteCandidates": [\n' +
+    '    { "quote": "<verbatim from the judgment, <=160 chars>", "para": "<paragraph ref>" }\n' +
+    '    // up to 3, the sharpest lines actually present; empty array if none stand out\n' +
+    '  ]\n' +
+    '}';
+  return {
+    system: CU_DRAFT_SYSTEM,
+    user: 'JUDGMENT TEXT\n\n' + judgmentText +
+          '\n\nReply with JSON matching exactly this schema:\n' + schema
+  };
+}
+
+function cuParseJson_(text) {
+  var t = String(text || '').trim();
+  var fence = t.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fence) t = fence[1].trim();
+  var a = t.indexOf('{');
+  var b = t.lastIndexOf('}');
+  if (a < 0 || b < 0) throw new Error('No JSON in drafting response');
+  return JSON.parse(t.substring(a, b + 1));
+}
+
+// Judgments run long; keep the request within a sane budget. ~180k
+// characters is roughly 45k tokens, comfortably inside the model's
+// window while leaving room for the reply.
+var CU_MAX_JUDGMENT_CHARS = 180000;
+
+function draftCourtUpdateCase(judgmentText) {
+  var text = String(judgmentText || '').trim();
+  if (text.length < 500) throw new Error('That does not look like a full judgment (under 500 characters).');
+  if (text.length > CU_MAX_JUDGMENT_CHARS) {
+    Logger.log('Judgment truncated from ' + text.length + ' to ' + CU_MAX_JUDGMENT_CHARS + ' chars');
+    text = text.substring(0, CU_MAX_JUDGMENT_CHARS);
+  }
+  var prompt = buildDraftPrompt_(text);
+  var payload = {
+    model: ANTHROPIC_MODEL,
+    max_tokens: 3000,
+    system: prompt.system,
+    messages: [{ role: 'user', content: prompt.user }]
+  };
+  var response = UrlFetchApp.fetch('https://api.anthropic.com/v1/messages', {
+    method: 'post',
+    contentType: 'application/json',
+    headers: {
+      'x-api-key': prop('ANTHROPIC_API_KEY'),
+      'anthropic-version': '2023-06-01'
+    },
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  });
+  var code = response.getResponseCode();
+  if (code !== 200) {
+    throw new Error('Anthropic API ' + code + ': ' + response.getContentText().substring(0, 500));
+  }
+  var body = JSON.parse(response.getContentText());
+  var out = '';
+  for (var i = 0; i < body.content.length; i++) {
+    if (body.content[i].type === 'text') { out = body.content[i].text; break; }
+  }
+  return cuParseJson_(out);
+}
+
+// Extract text from a Drive file: Google Docs directly; PDFs via the
+// Drive API OCR conversion (enable the "Drive API" Advanced Service
+// under Services in the Apps Script editor).
+function cuExtractJudgmentText_(fileId) {
+  var file = DriveApp.getFileById(fileId);
+  var mime = file.getMimeType();
+
+  if (mime === MimeType.GOOGLE_DOCS) {
+    return DocumentApp.openById(fileId).getBody().getText();
+  }
+  if (mime === MimeType.PDF) {
+    if (typeof Drive === 'undefined') {
+      throw new Error('PDF extraction needs the Drive Advanced Service: in the Apps Script editor, ' +
+                      'Services (+) -> Drive API -> Add, then run again.');
+    }
+    var temp = Drive.Files.copy(
+      { title: '[temp OCR] ' + file.getName(), mimeType: MimeType.GOOGLE_DOCS },
+      fileId,
+      { ocr: true, ocrLanguage: 'ms' }
+    );
+    try {
+      return DocumentApp.openById(temp.id).getBody().getText();
+    } finally {
+      try { DriveApp.getFileById(temp.id).setTrashed(true); } catch (e) {}
+    }
+  }
+  if (mime === MimeType.PLAIN_TEXT) {
+    return file.getBlob().getDataAsString();
+  }
+  throw new Error('Unsupported file type: ' + mime + ' (use a Google Doc, PDF, or plain text file).');
+}
+
+// One call does the whole drafting step: Drive file -> Claude draft ->
+// editable Google Doc in the firm folder. Returns the case object.
+function draftCourtUpdateCaseFromDrive(fileId) {
+  if (!fileId) throw new Error('Pass a Drive file ID for the judgment.');
+  var judgmentText = cuExtractJudgmentText_(fileId);
+  var drafted = draftCourtUpdateCase(judgmentText);
+
+  var doc = DocumentApp.create('Court Update draft - ' + (drafted.name || 'untitled case'));
+  var docBody = doc.getBody();
+  docBody.appendParagraph('Court Update -- drafted entry (EDIT BEFORE USE)')
+    .setHeading(DocumentApp.ParagraphHeading.TITLE);
+  docBody.appendParagraph('Every figure and quote below must be checked against the judgment before publication.')
+    .editAsText().setItalic(true);
+  docBody.appendParagraph('Hook').setHeading(DocumentApp.ParagraphHeading.HEADING2);
+  docBody.appendParagraph(drafted.hook || '');
+  docBody.appendParagraph('Case').setHeading(DocumentApp.ParagraphHeading.HEADING2);
+  docBody.appendParagraph((drafted.name || '') + '\n' + (drafted.citation || ''));
+  docBody.appendParagraph('Tags').setHeading(DocumentApp.ParagraphHeading.HEADING2);
+  docBody.appendParagraph((drafted.tags || []).join('   '));
+  docBody.appendParagraph('The story').setHeading(DocumentApp.ParagraphHeading.HEADING2);
+  docBody.appendParagraph(drafted.story || '');
+  docBody.appendParagraph('The court said').setHeading(DocumentApp.ParagraphHeading.HEADING2);
+  docBody.appendParagraph(drafted.courtSaid || '');
+  docBody.appendParagraph('Why you care').setHeading(DocumentApp.ParagraphHeading.HEADING2);
+  docBody.appendParagraph(drafted.whyYouCare || '');
+  docBody.appendParagraph('Outcome').setHeading(DocumentApp.ParagraphHeading.HEADING2);
+  docBody.appendParagraph(drafted.outcome || '');
+  docBody.appendParagraph('Obiter candidates (verify each against the paragraph cited)')
+    .setHeading(DocumentApp.ParagraphHeading.HEADING2);
+  (drafted.quoteCandidates || []).forEach(function (q) {
+    docBody.appendListItem('"' + q.quote + '" -- para ' + q.para);
+  });
+  docBody.appendParagraph('Case object JSON (paste into the edition data once edited)')
+    .setHeading(DocumentApp.ParagraphHeading.HEADING2);
+  docBody.appendParagraph(JSON.stringify(drafted, null, 2)).editAsText()
+    .setFontFamily('Courier New').setFontSize(9);
+  doc.saveAndClose();
+
+  try {
+    var docFile = DriveApp.getFileById(doc.getId());
+    DriveApp.getFolderById(prop('FOLDER_ID')).addFile(docFile);
+    DriveApp.getRootFolder().removeFile(docFile);
+  } catch (e) {
+    Logger.log('Could not move draft Doc to folder: ' + e.message);
+  }
+
+  Logger.log('Draft ready: ' + doc.getUrl());
+  drafted.draftDocUrl = doc.getUrl();
+  return drafted;
 }
 
 // =====================================================================
