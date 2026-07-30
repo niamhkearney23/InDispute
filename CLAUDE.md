@@ -16,9 +16,9 @@ This repo powers the **Lawgistics Daily Court Intelligence** workflow. Any sessi
 
 ## Design system (keep consistent)
 
-- Canvas 1080×1350 (4:5). Deep navy `#0B1626`/`#0E1D33` background, gold accent `#C9A227`, cream text `#F4EFE4`, body grey-blue `#CBD5E3`.
-- Fonts: Playfair Display (700/900) for headlines, Inter for everything else (both from @fontsource on npm).
-- Every slide: gold corner frame, "DAILY COURT INTELLIGENCE · date" kicker (Friday feature uses "THE BIG CASE FILE · date"), LAWGISTICS wordmark footer, slide number, citation on judgment slides, disclaimer on final slide.
+- **PRESS style** (approved by Niamh 30 Jul 2026 over navy/gold — do not revert). Newsprint look: cream paper `#F7F5F0`, black `#111` bars top/bottom, red `#D92B2B` tags/emphasis, yellow highlighter `#FFD84D` on 1-2 headline words.
+- Canvas 1080×1350 (4:5). Fonts: Anton (uppercase display headlines), Inter for everything else (@fontsource on npm).
+- Every slide: LAWGISTICS masthead (GISTICS in red) + kicker "DAILY COURT INTELLIGENCE · DD.MM.YY" (Friday: "THE BIG CASE FILE · DD.MM.YY"), red section tag, yellow-bar citation block, thick rule footer with page number and SWIPE → box (COMMENT ↓ on final slide), disclaimer on final slide.
 
 ## Editorial rules
 
