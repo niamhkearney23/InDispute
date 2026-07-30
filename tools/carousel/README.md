@@ -2,7 +2,7 @@
 
 Setup (once per session):
 ```
-npm init -y && npm install @fontsource/playfair-display @fontsource/inter playwright-core
+npm init -y && npm install @fontsource/tiktok-sans playwright-core
 ```
 
 Usage: edit the slide content dicts in build.py, then:
