@@ -22,11 +22,11 @@ body.dark{background:#171D2B;color:#EDE7DC;}
 .title{margin-top:160px;font-size:96px;font-weight:600;line-height:1.12;}
 .cover-sub{margin-top:40px;font-size:38px;line-height:1.5;font-weight:400;color:#6E6858;max-width:820px;}
 .date{margin-top:20px;font-size:26px;font-weight:500;color:#8C8577;letter-spacing:.06em;}
-.case{margin-top:150px;font-size:58px;font-weight:600;line-height:1.22;max-width:900px;}
+.case{margin-top:104px;font-size:50px;font-weight:600;line-height:1.22;max-width:900px;}
 .case span{color:#3A5697;}
-.hold{margin-top:40px;font-size:35px;font-weight:400;line-height:1.5;color:#4E4A3F;max-width:880px;}
-.hold p+p{margin-top:26px;}
-.why{margin-top:34px;font-size:35px;line-height:1.5;font-weight:400;color:#4E4A3F;max-width:880px;}
+.hold{margin-top:34px;font-size:31px;font-weight:400;line-height:1.52;color:#4E4A3F;max-width:880px;}
+.hold p+p{margin-top:22px;}
+.why{margin-top:28px;font-size:31px;line-height:1.52;font-weight:400;color:#4E4A3F;max-width:880px;}
 .why b{font-weight:600;color:#3A5697;}
 .dark .why{color:#A9B0C2;}
 .dark .why b{color:#6E86C9;}
@@ -55,21 +55,21 @@ write("docket-1", f"""<div class="page">
 
 cases = [
  ("White Oak <span>v</span> Insurance Australia",
-  '<p>Greensill fallout. The insurer demanded twelve messages and a draft term sheet created while the parties circled a settlement.</p><p>Held: chat about a &ldquo;general approach&rdquo;, with <b>no element of compromise</b>, is not a negotiation. No privilege.</p>',
-  '<b>Why it matters:</b> a &ldquo;without prejudice&rdquo; label alone protects nothing. The negotiation has to be real.',
+  '<p>The Greensill coverage war, on foot since 2021. White Oak claims on a trade credit policy written by <b>BCC Trade Credit as agent for IAL</b>.</p><p>This round: IAL demanded twelve messages and a draft term sheet created while the parties circled a settlement. White Oak claimed without prejudice privilege.</p><p>Held: the messages canvassed only a &ldquo;general approach&rdquo;. No offer, no admissions, <b>no element of compromise</b>. Not a negotiation, no privilege. The rest failed on relevance.</p>',
+  '<b>Why it matters:</b> privilege is proven document by document. Labels do nothing.',
   '<b>[2026] FCA 769</b> &middot; Federal Court of Australia &middot; Thawley J'),
  ("Elvin <span>v</span> Fair Work Ombudsman",
-  '<p>Massage therapists underpaid. An individual personally on the hook. Then the employer struck a deed of company arrangement with its creditors.</p><p>The Full Court allowed the appeal <b>in part</b> and aired a live question: is the FWO a creditor bound by a DOCA?</p>',
-  '<b>Why it matters:</b> corporate rescue does not switch off workplace risk, especially personal liability.',
-  '<b>[2026] FCAFC 92</b> &middot; Full Court of the Federal Court'),
+  '<p>The FWO won underpayment findings over massage therapists classified under the <b>health professionals award</b>, plus accessorial findings against an individual personally involved.</p><p>On appeal: was the classification right? Were <b>Browne v Dunn</b> and <b>Jones v Dunkel</b> fairly applied against a self-represented litigant? And did the employer&rsquo;s DOCA bind the FWO as a &ldquo;creditor&rdquo;?</p><p>Appeal <b>allowed in part</b>. The FWO&rsquo;s cross-appeal dismissed.</p>',
+  '<b>Why it matters:</b> restructures do not erase workplace risk, and personal liability sits outside the company.',
+  '<b>[2026] FCAFC 92</b> &middot; Full Federal Court &middot; Collier, McDonald &amp; Vandongen JJ &middot; 22 July'),
  ("Smithbridge Guam <span>v</span> Swire Shipping",
-  '<p>A cargo dispute was headed for arbitration. Smithbridge asked the Court to stop it, arguing the <b>Carriage of Goods by Sea Act</b> rendered the arbitration clause in the booking note ineffective.</p>',
-  '<b>Why it matters:</b> Australian cargo law can trump arbitration agreements. Check s 11 before you draft.',
-  '<b>[2026] FCA 884</b> &middot; Federal Court of Australia &middot; S Derrington J'),
+  '<p>A carriage-of-goods dispute under a <b>booking note incorporating bill of lading terms</b>, headed for arbitration.</p><p>Smithbridge sought an anti-arbitration injunction, arguing <b>s 11(2)(b) of the Carriage of Goods by Sea Act 1991 (Cth)</b> rendered the arbitration agreement ineffective for its cargo claim.</p>',
+  '<b>Why it matters:</b> for sea carriage touching Australia, statute can override your arbitration clause. Draft around s 11.',
+  '<b>[2026] FCA 884</b> &middot; Federal Court of Australia &middot; S Derrington J &middot; 9 July'),
  ("Marsden, re Empire Consortium (in&nbsp;liq)",
-  '<p>The liquidator of the collapsed Empire Consortium group pursued <b>Nationwide Plant Hire</b> in the Federal Court.</p>',
-  '<b>Why it matters:</b> liquidator recovery actions are running hot. Counterparties of failed groups are in the firing line.',
-  '<b>[2026] FCA 911</b> &middot; Federal Court of Australia'),
+  '<p>The liquidator of the collapsed <b>Empire Consortium Group</b> pursued Nationwide Plant Hire in the Federal Court.</p><p>The usual battlegrounds in liquidator recovery actions: unfair preferences, uncommercial transactions and unpaid debts. Full judgment breakdown to follow once digested.</p>',
+  '<b>Why it matters:</b> when a counterparty collapses, expect the liquidator to come knocking, sometimes years later.',
+  '<b>[2026] FCA 911</b> &middot; Federal Court of Australia &middot; 16 July'),
 ]
 for i,(c,h,w,m) in enumerate(cases, start=2):
     write(f"docket-{i}", f"""<div class="page">
@@ -83,9 +83,9 @@ for i,(c,h,w,m) in enumerate(cases, start=2):
 write(f"docket-{N}", f"""<body class="dark"><div class="page">
   <div class="top"><div class="pg">{N} / {N}</div></div>
   <div class="case">Grofski <span>v</span> Peabody Energy</div>
-  <div class="hold"><p>A leave-to-appeal fight in an employment dispute with the coal miner&rsquo;s operator.</p><p>Most appeals die at the leave gate. Getting past it is half the battle.</p></div>
-  <div class="why"><b>High Court watch:</b> winter recess. Next judgments expected from August.</div>
-  <div class="bottom"><div><div class="cite"><b>[2026] FCA 921</b> &middot; Federal Court of Australia</div>
+  <div class="hold"><p>Grofski sought <b>leave to appeal</b> in an employment dispute with Peabody&rsquo;s PCI mine management arm.</p><p>Leave is the gate most appeals never clear: you need an arguable error, and usually an injustice worth correcting.</p></div>
+  <div class="why"><b>High Court watch:</b> winter recess since the 17 June judgments. Next delivery days expected in August.</div>
+  <div class="bottom"><div><div class="cite"><b>[2026] FCA 921</b> &middot; Federal Court of Australia &middot; 15 July</div>
   <div class="note">General information only, not legal advice. Check details against the full judgments.</div></div></div>
 </div></body>""")
 print("ok")
