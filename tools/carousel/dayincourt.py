@@ -55,8 +55,8 @@ write("docket-1", f"""<div class="page">
 
 cases = [
  ("White Oak <span>v</span> Insurance Australia",
-  '<p>The Greensill coverage war, on foot since 2021. White Oak claims on a trade credit policy written by <b>BCC Trade Credit as agent for IAL</b>.</p><p>This round: IAL demanded twelve messages and a draft term sheet created while the parties circled a settlement. White Oak claimed without prejudice privilege.</p><p>Held: the messages canvassed only a &ldquo;general approach&rdquo;. No offer, no admissions, <b>no element of compromise</b>. Not a negotiation, no privilege. The rest failed on relevance.</p>',
-  '<b>Why it matters:</b> privilege is proven document by document. Labels do nothing.',
+  '<p>The Greensill coverage war, on foot since 2021. White Oak claims on a trade credit policy written by <b>BCC Trade Credit as agent for IAL</b>.</p><p>This round: IAL demanded twelve messages and a draft term sheet White Oak created while negotiating a possible resolution. White Oak said: without prejudice.</p><p>Held: the documents were <b>not directly relevant</b>. Production refused. The privilege question never needed answering.</p>',
+  '<b>Why it matters:</b> relevance is the first gate. And in April&rsquo;s round, [2026] FCA 530, labels without real compromise failed too.',
   '<b>[2026] FCA 769</b> &middot; Federal Court of Australia &middot; Thawley J'),
  ("Elvin <span>v</span> Fair Work Ombudsman",
   '<p>The FWO won underpayment findings over massage therapists classified under the <b>health professionals award</b>, plus accessorial findings against an individual personally involved.</p><p>On appeal: was the classification right? Were <b>Browne v Dunn</b> and <b>Jones v Dunkel</b> fairly applied against a self-represented litigant? And did the employer&rsquo;s DOCA bind the FWO as a &ldquo;creditor&rdquo;?</p><p>Appeal <b>allowed in part</b>. The FWO&rsquo;s cross-appeal dismissed.</p>',

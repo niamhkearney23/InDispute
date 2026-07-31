@@ -64,25 +64,27 @@ def slide(slug, kicker, n, statement, cite, size="md", dark=False, sub=None, swi
 K_A = "Daily Court Intelligence &middot; 30.07.26"
 K_B = "Daily Court Intelligence &middot; 30.07.26"
 K_F = "The Big Case File &middot; No. 001"
-CITE_A = '<b>White Oak Commercial Finance Europe (Non-Levered) Ltd v Insurance Australia Ltd</b><br>[2026] FCA 769 &middot; Federal Court of Australia &middot; Thawley J'
+CITE_A = '<b>White Oak Commercial Finance Europe (Non-Levered) Ltd v Insurance Australia Ltd</b><br>[2026] FCA 530 &amp; [2026] FCA 769 &middot; Federal Court of Australia &middot; Thawley J'
+CITE_A1 = '<b>White Oak v Insurance Australia (No 3)</b> &middot; [2026] FCA 530 &middot; 28 April 2026 &middot; Thawley J'
+CITE_A2 = '<b>White Oak v Insurance Australia (Without Prejudice Privilege)</b> &middot; [2026] FCA 769 &middot; Thawley J'
 CITE_B = '<b>Elvin v Fair Work Ombudsman</b> &middot; [2026] FCAFC 92<br>Full Court of the Federal Court &middot; Collier, McDonald &amp; Vandongen JJ'
 CITE_F = '<b>MacInnes v Wilson</b> &middot; Federal Court of Australia &middot; Raper J<br>22 July 2026 &middot; appeal filed'
 
 # ── Set A: White Oak ──
 slide("a1", K_A, 1,
-    'The Federal Court just ruled that labelling a message &ldquo;without prejudice&rdquo; protects&hellip; <span class="u">nothing, by itself.</span>',
+    '&ldquo;Without prejudice&rdquo; is not a <span class="u">magic spell.</span> Two rulings in the Greensill insurance wars just showed why.',
     CITE_A, size="lg", swipe="Swipe &rarr;")
 slide("a2", K_A, 2,
-    '<p>After Greensill collapsed, lender White Oak sued insurer IAL under a trade credit policy.</p><p>The insurer demanded <strong>twelve messages and a draft term sheet</strong> created while the parties circled a settlement.</p>',
+    '<p>After Greensill collapsed, White Oak sued IAL on a trade credit policy written by <strong>BCC Trade Credit as IAL&rsquo;s agent</strong>.</p><p>The paper war is enormous. Twice in three months, without prejudice privilege took <span class="u">centre stage.</span></p>',
     CITE_A)
 slide("a3", K_A, 3,
-    '<p>Settlement negotiations are privileged.</p><p>But are messages that merely <em>talk about</em> a dispute, with <span class="u">no offer and no admissions</span>, negotiations at all?</p>'.replace('<em>','<strong>').replace('</em>','</strong>'),
-    CITE_A)
+    '<p>Round one, April. White Oak challenged privilege claims by <strong>BCC and the Tokio Marine parties</strong> over settlement-talk documents.</p><p>Held: messages canvassing a &ldquo;general approach&rdquo;, with <span class="u">no element of compromise</span>, are not negotiations. No privilege.</p>',
+    CITE_A1)
 slide("a4", K_A, 4,
-    '<p>No, said the Court.</p><p>A &ldquo;general approach&rdquo; to a dispute, with <span class="u">no element of compromise</span>, is not a negotiation. No privilege. And irrelevant documents stay put anyway.</p>',
-    CITE_A)
+    '<p>Round two, published this week. IAL demanded twelve messages and a draft term sheet White Oak created while negotiating a resolution.</p><p>Held: <span class="u">not directly relevant.</span> Production refused. The privilege question never needed answering.</p>',
+    CITE_A2)
 slide("a5", K_A, 5,
-    '<p>Substantiate privilege document by document.</p><p>Argue relevance first.</p><p>And make negotiations <span class="u">look like negotiations.</span></p>',
+    '<p>Substantiate privilege document by document, with evidence.</p><p>Argue relevance first. It can end the fight early.</p><p>And make negotiations <span class="u">look like negotiations.</span></p>',
     CITE_A)
 slide("a6", K_A, 6,
     'Be honest: have you ever written &ldquo;without prejudice&rdquo; <span class="u">just in case?</span>',

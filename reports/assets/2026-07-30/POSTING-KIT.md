@@ -10,41 +10,41 @@ Two posts today. Upload the slides in filename order (a1→a6, b1→b6).
 
 "Without prejudice" ≠ invisibility cloak 🪄
 
-The Federal Court just refused privilege over settlement-adjacent messages in the Greensill insurance wars, because talking *about* a dispute isn't the same as negotiating to *end* one.
+Two rulings in the Greensill insurance wars just proved it.
 
-No offer. No admissions. No element of compromise. No privilege.
+April: messages canvassing a "general approach" to a dispute, with no offer and no element of compromise, are not negotiations at all. No privilege. ([2026] FCA 530)
+
+This week: the insurer demanded White Oak's settlement messages and draft term sheet. Production refused, not on privilege, but because the documents weren't relevant. The fight ended at the first gate. ([2026] FCA 769)
 
 Swipe for the breakdown 👉
 
-*White Oak Commercial Finance Europe (Non-Levered) Ltd v Insurance Australia Ltd (Without Prejudice Privilege)* [2026] FCA 769
+*White Oak Commercial Finance Europe (Non-Levered) Ltd v Insurance Australia Ltd*, [2026] FCA 530 and [2026] FCA 769
 
 General information only, not legal advice.
 
 #auslaw #litigation #insurancelaw #commerciallaw #lawstudent #legalpractice #lawyersofinstagram #melbournelawyer
 
-**Alt text:** Dark navy and gold carousel slides summarising the Federal Court's without prejudice privilege ruling in White Oak v Insurance Australia [2026] FCA 769.
+**Alt text:** Minimal cream and navy carousel summarising the Federal Court's without prejudice privilege rulings in the White Oak v Insurance Australia litigation, [2026] FCA 530 and [2026] FCA 769.
 
 ---
 
 ## POST 1, LinkedIn (text post; optionally attach a1.png as the image)
 
-Everyone's favourite magic words just failed in the Federal Court.
+Everyone's favourite magic words are having a rough year in the Federal Court.
 
-In the ongoing Greensill insurance litigation, White Oak Commercial Finance is pursuing Insurance Australia Ltd for losses under a trade credit policy written through BCC Trade Credit. This week's instalment, White Oak Commercial Finance Europe (Non-Levered) Ltd v Insurance Australia Ltd (Without Prejudice Privilege) [2026] FCA 769, wasn't about coverage. It was about documents.
+In the Greensill insurance litigation, White Oak Commercial Finance is pursuing Insurance Australia Ltd for losses under a trade credit policy written through BCC Trade Credit as IAL's agent. The document battles keep producing privilege rulings, and two of them, months apart, make a matched pair every litigator should read.
 
-IAL wanted production of material White Oak said was protected by without prejudice privilege, including a batch of messages and a draft term sheet generated while settlement was in the air.
+Round one: White Oak Commercial Finance Europe (Non-Levered) Ltd v Insurance Australia Ltd (No 3) [2026] FCA 530 (Thawley J, 28 April 2026). White Oak challenged without prejudice privilege claims asserted by BCC and the Tokio Marine parties over settlement-talk documents. The Court held a group of messages did not attract privilege: they canvassed only a general approach the parties might take, with no reference to litigation, no admissions and no observable element of compromise. Talking about a dispute is not negotiating to end it.
 
-Justice Thawley's approach is a masterclass in first principles. The privilege exists to let parties negotiate freely. So the Court asked: were these communications actually negotiations? For a group of the messages, the answer was no, they addressed only a general approach the parties might take to the dispute. No reference to litigation. No admissions. No observable element of compromise. No privilege.
+Round two: White Oak v Insurance Australia Ltd (Without Prejudice Privilege) [2026] FCA 769, published this week. This time IAL sought production of twelve messages and a draft term sheet White Oak created while negotiating a possible resolution. The Court refused production on a simpler basis: the documents were not directly relevant to any issue in the proceeding, so the privilege question never needed answering.
 
-Just as importantly, other documents never got to the privilege question at all, they weren't directly relevant to any issue in the proceeding, so production was refused on that simpler basis.
-
-Three things practitioners should take from this:
+Three takeaways:
 
 1. Without prejudice privilege follows substance, not headers. A label is not a shield.
 2. The asserting party must substantiate the claim with evidence, document by document.
-3. Relevance is the first gate. If you can win on relevance, you may never need to fight about privilege.
+3. Relevance is the first gate. Win there and the privilege fight never starts.
 
-In a market still processing the Greensill fallout, expect more of these interlocutory battles, and expect courts to keep reading the actual messages rather than deferring to the labels on them.
+Expect more of these skirmishes as the Greensill fallout grinds on, and expect courts to keep reading the actual messages rather than deferring to the labels on them.
 
 What do you think?
 
@@ -66,7 +66,7 @@ General information only, not legal advice.
 
 #auslaw #employmentlaw #fairwork #smallbusiness #hrcompliance #insolvency #lawstudent #lawyersofinstagram
 
-**Alt text:** Dark navy and gold carousel slides summarising the Full Federal Court's decision in Elvin v Fair Work Ombudsman [2026] FCAFC 92 on underpayments and deeds of company arrangement.
+**Alt text:** Minimal cream and navy carousel summarising the Full Federal Court's decision in Elvin v Fair Work Ombudsman [2026] FCAFC 92 on underpayments and deeds of company arrangement.
 
 ---
 
@@ -96,4 +96,5 @@ What do you think?
 
 - **Best order:** Post 1 (White Oak) in the morning, Post 2 (Elvin) early afternoon, or hold Post 2 for tomorrow if you'd rather post once a day.
 - **Slides are 1080×1350 (4:5)**, Instagram's preferred carousel format; also works attached to LinkedIn.
+- **Elvin context:** the underlying litigation is the FWO's long-running Foot & Thai Massage (Canberra) matter involving Colin Elvin, which included findings of serious exploitation of migrant workers. Keep the tone factual; it is a serious case.
 - **Verify before posting:** case details were compiled from secondary sources (court sites were unreachable from the research environment), a 2-minute skim of each judgment's catchwords on AustLII is a sensible pre-publication check.

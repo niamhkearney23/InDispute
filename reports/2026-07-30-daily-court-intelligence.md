@@ -22,6 +22,9 @@ What that means for today's edition:
 
 # 📌 JUDGMENT 1
 
+> **CORRECTION (30 July 2026, on verification):** The "no negotiation, no privilege" reasoning described below belongs to the earlier decision in the same proceeding, *White Oak v Insurance Australia (No 3)* [2026] FCA 530 (Thawley J, 28 April 2026), where White Oak defeated without prejudice privilege claims asserted by BCC and the Tokio Marine parties. In *[2026] FCA 769* itself, the Court refused IAL's production application because the twelve messages and draft term sheet were **not directly relevant**, and expressly found it unnecessary to decide the privilege question. The carousel and captions in `reports/assets/2026-07-30/` have been corrected to reflect both decisions accurately; the original text below is retained for the record.
+
+
 # White Oak v Insurance Australia: The "Without Prejudice" Label That Didn't Stick
 
 ## 1. Quick Summary
