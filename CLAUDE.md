@@ -21,6 +21,7 @@ This repo powers the **Lawgistics Daily Court Intelligence** workflow. Any sessi
 - Canvas 1080×1350 (4:5). Font: **TikTok Sans** (@fontsource/tiktok-sans) for everything — statements ~56-64px weight 500, bold via 600.
 - Every slide: "n / 6" top-right, small grey citation block bottom-left, "SWIPE →" bottom-right on slide 1 only, disclaimer microtext on final slide. NO wordmark, NO kicker, NO "comment" CTA (Niamh removed these 30 Jul 2026 — keep slides bare). Nothing else — resist decorating.
 - Copy rules for slides: max ~35 words per slide, short sentences, one underlined phrase; the carousel reads as six sequential statements (hook / facts / issue / ruling / takeaway / question).
+- **NO em dashes (—) anywhere** — slides, captions, LinkedIn posts, articles (Niamh's rule, 30 Jul 2026). Use commas, colons or full stops instead.
 
 ## Editorial rules
 

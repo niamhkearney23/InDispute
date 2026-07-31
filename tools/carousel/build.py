@@ -76,17 +76,17 @@ slide("a2", K_A, 2,
     '<p>After Greensill collapsed, lender White Oak sued insurer IAL under a trade credit policy.</p><p>The insurer demanded <strong>twelve messages and a draft term sheet</strong> created while the parties circled a settlement.</p>',
     CITE_A)
 slide("a3", K_A, 3,
-    '<p>Settlement negotiations are privileged.</p><p>But are messages that merely <em>talk about</em> a dispute &mdash; <span class="u">no offer, no admissions</span> &mdash; negotiations at all?</p>'.replace('<em>','<strong>').replace('</em>','</strong>'),
+    '<p>Settlement negotiations are privileged.</p><p>But are messages that merely <em>talk about</em> a dispute, with <span class="u">no offer and no admissions</span>, negotiations at all?</p>'.replace('<em>','<strong>').replace('</em>','</strong>'),
     CITE_A)
 slide("a4", K_A, 4,
-    '<p>No, said the Court.</p><p>A &ldquo;general approach&rdquo; to a dispute, with <span class="u">no element of compromise</span>, is not a negotiation. No privilege &mdash; and irrelevant documents stay put anyway.</p>',
+    '<p>No, said the Court.</p><p>A &ldquo;general approach&rdquo; to a dispute, with <span class="u">no element of compromise</span>, is not a negotiation. No privilege. And irrelevant documents stay put anyway.</p>',
     CITE_A)
 slide("a5", K_A, 5,
     '<p>Substantiate privilege document by document.</p><p>Argue relevance first.</p><p>And make negotiations <span class="u">look like negotiations.</span></p>',
     CITE_A)
 slide("a6", K_A, 6,
-    'Be honest &mdash; have you ever written &ldquo;without prejudice&rdquo; <span class="u">just in case?</span>',
-    CITE_A, size="lg", dark=True, sub="Tell us in the comments &mdash; and send this to the colleague who does it weekly.",
+    'Be honest: have you ever written &ldquo;without prejudice&rdquo; <span class="u">just in case?</span>',
+    CITE_A, size="lg", dark=True, sub="Tell us in the comments, and send this to the colleague who does it weekly.",
     disclaimer=True)
 
 # ── Set B: Elvin ──
@@ -94,13 +94,13 @@ slide("b1", K_B, 1,
     'A company cut a deal with its creditors. The Fair Work Ombudsman <span class="u">kept coming anyway.</span>',
     CITE_B, size="lg", swipe="Swipe &rarr;")
 slide("b2", K_B, 2,
-    '<p>The FWO sued over underpaid massage therapists &mdash; and won, including findings against an individual <strong>personally involved</strong>.</p><p>Then the employer struck a deed of company arrangement.</p>',
+    '<p>The FWO sued over underpaid massage therapists and won, including findings against an individual <strong>personally involved</strong>.</p><p>Then the employer struck a deed of company arrangement.</p>',
     CITE_B)
 slide("b3", K_B, 3,
     '<p>Three questions on appeal:</p><p>The award classification. Fairness to a <strong>self-represented litigant</strong>. And whether the FWO is even a <span class="u">&ldquo;creditor&rdquo; bound by a DOCA.</span></p>',
     CITE_B)
 slide("b4", K_B, 4,
-    '<p>The Full Court allowed the appeal <strong>in part</strong> &mdash; and dismissed the FWO&rsquo;s cross-appeal.</p><p>Technical evidence rules must be applied <span class="u">carefully against unrepresented parties.</span></p>',
+    '<p>The Full Court allowed the appeal <strong>in part</strong> and dismissed the FWO&rsquo;s cross-appeal.</p><p>Technical evidence rules must be applied <span class="u">carefully against unrepresented parties.</span></p>',
     CITE_B)
 slide("b5", K_B, 5,
     '<p>Audit award classifications.</p><p>Assume personal liability <span class="u">survives corporate rescue.</span></p><p>And over-invest in fairness against self-represented opponents.</p>',
@@ -115,20 +115,20 @@ slide("f1", K_F, 1,
     'Charlotte MacInnes sued Rebel Wilson over four Instagram posts. The Federal Court just threw out <span class="u">every claim.</span>',
     CITE_F, size="lg", swipe="Swipe &rarr;")
 slide("f2", K_F, 2,
-    '<p>MacInnes starred in <strong>The Deb</strong> &mdash; Wilson&rsquo;s directorial debut.</p><p>She said Wilson&rsquo;s posts painted her as <span class="u">changing her story</span> about an on-set incident, to boost her career.</p>',
+    '<p>MacInnes starred in <strong>The Deb</strong>, Wilson&rsquo;s directorial debut.</p><p>She said Wilson&rsquo;s posts painted her as <span class="u">changing her story</span> about an on-set incident, to boost her career.</p>',
     CITE_F)
 slide("f3", K_F, 3,
-    '<p>To win, she had to prove the posts <strong>conveyed her meanings</strong>, that they were <strong>defamatory</strong> &mdash; and that they caused <span class="u">serious harm.</span></p>',
+    '<p>To win, she had to prove the posts <strong>conveyed her meanings</strong>, that they were <strong>defamatory</strong>, and that they caused <span class="u">serious harm.</span></p>',
     CITE_F)
 slide("f4", K_F, 4,
-    '<p>Only one meaning was conveyed: that she <strong>changed her account</strong>.</p><p>The Court found that was <span class="u">substantially true</span> &mdash; and no serious harm was proven. Dismissed, with costs.</p>',
+    '<p>Only one meaning was conveyed: that she <strong>changed her account</strong>.</p><p>The Court found that was <span class="u">substantially true</span>. No serious harm was proven either. Dismissed, with costs.</p>',
     CITE_F)
 slide("f5", K_F, 5,
-    '<p>Serious harm is the gatekeeper now.</p><p>Courts decide what posts mean &mdash; not plaintiffs.</p><p>And truth remains <span class="u">the complete defence.</span></p>',
+    '<p>Serious harm is the gatekeeper now.</p><p>Courts decide what posts mean, not plaintiffs.</p><p>And truth remains <span class="u">the complete defence.</span></p>',
     CITE_F)
 slide("f6", K_F, 6,
     'Litigating on Instagram: <span class="u">risky genius</span> or terrible template?',
-    CITE_F, size="lg", dark=True, sub="Wilson posted her side while cameras rolled &mdash; and won. Drop your take below.",
+    CITE_F, size="lg", dark=True, sub="Wilson posted her side while cameras rolled, and won. Drop your take below.",
     disclaimer=True)
 
 print(json.dumps(sorted(p.name for p in OUT.glob('*.html'))))
