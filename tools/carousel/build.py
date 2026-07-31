@@ -54,8 +54,7 @@ def slide(slug, kicker, n, statement, cite, size="md", dark=False, sub=None, swi
     swipe_html = f'<div class="swipe">{swipe}</div>' if swipe else ''
     html = f"""<!doctype html><html><head><meta charset="utf-8"><style>{CSS}</style></head>
 <body class="{'dark' if dark else ''}"><div class="page">
-  <div class="top"><div class="brand">Lawgistics.</div><div class="pg">{n} / 6</div></div>
-  <div class="kicker">{kicker}</div>
+  <div class="top"><div></div><div class="pg">{n} / 6</div></div>
   <div class="statement {size}">{statement}</div>
   {sub_html}
   <div class="bottom"><div><div class="cite">{cite}</div>{disc}</div>{swipe_html}</div>
@@ -88,7 +87,7 @@ slide("a5", K_A, 5,
 slide("a6", K_A, 6,
     'Be honest &mdash; have you ever written &ldquo;without prejudice&rdquo; <span class="u">just in case?</span>',
     CITE_A, size="lg", dark=True, sub="Tell us in the comments &mdash; and send this to the colleague who does it weekly.",
-    swipe="Comment &darr;", disclaimer=True)
+    disclaimer=True)
 
 # ── Set B: Elvin ──
 slide("b1", K_B, 1,
@@ -109,7 +108,7 @@ slide("b5", K_B, 5,
 slide("b6", K_B, 6,
     'Should self-represented litigants get <span class="u">more slack</span> on evidence rules?',
     CITE_B, size="lg", dark=True, sub="Or does that shortchange the represented side? Drop your take below.",
-    swipe="Comment &darr;", disclaimer=True)
+    disclaimer=True)
 
 # ── Set F: Big Case File No. 1 — Rebel Wilson ──
 slide("f1", K_F, 1,
@@ -130,6 +129,6 @@ slide("f5", K_F, 5,
 slide("f6", K_F, 6,
     'Litigating on Instagram: <span class="u">risky genius</span> or terrible template?',
     CITE_F, size="lg", dark=True, sub="Wilson posted her side while cameras rolled &mdash; and won. Drop your take below.",
-    swipe="Comment &darr;", disclaimer=True)
+    disclaimer=True)
 
 print(json.dumps(sorted(p.name for p in OUT.glob('*.html'))))

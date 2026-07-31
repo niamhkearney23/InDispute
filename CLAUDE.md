@@ -19,7 +19,7 @@ This repo powers the **Lawgistics Daily Court Intelligence** workflow. Any sessi
 - **MINIMAL style** (approved by Niamh 30 Jul 2026 from her reference images, replacing earlier navy/gold and Press directions — do not revert). Quiet-luxury editorial: ONE statement per slide, huge whitespace, no boxes/bars/tags.
 - Palette matches Niamh's existing Lawgistics Instagram grid: warm cream `#EDE7DC` background, deep navy `#171D2B` text, steel-blue underline accent `#3A5697` (4px underline on 1 key phrase per slide). Final slide of each carousel inverts: navy background, cream text, accent `#6E86C9`.
 - Canvas 1080×1350 (4:5). Font: **TikTok Sans** (@fontsource/tiktok-sans) for everything — statements ~56-64px weight 500, bold via 600.
-- Every slide: "Lawgistics." wordmark top-left + tiny letterspaced kicker below it ("DAILY COURT INTELLIGENCE · DD.MM.YY"; Friday: "THE BIG CASE FILE · NO. 00X"), "n / 6" top-right, small grey citation block bottom-left, "SWIPE →" on slide 1 / "COMMENT ↓" on slide 6, disclaimer microtext on final slide. Nothing else — resist decorating.
+- Every slide: "n / 6" top-right, small grey citation block bottom-left, "SWIPE →" bottom-right on slide 1 only, disclaimer microtext on final slide. NO wordmark, NO kicker, NO "comment" CTA (Niamh removed these 30 Jul 2026 — keep slides bare). Nothing else — resist decorating.
 - Copy rules for slides: max ~35 words per slide, short sentences, one underlined phrase; the carousel reads as six sequential statements (hook / facts / issue / ruling / takeaway / question).
 
 ## Editorial rules
