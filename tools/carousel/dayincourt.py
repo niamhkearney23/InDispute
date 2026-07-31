@@ -22,9 +22,14 @@ body.dark{background:#171D2B;color:#EDE7DC;}
 .title{margin-top:160px;font-size:96px;font-weight:600;line-height:1.12;}
 .cover-sub{margin-top:40px;font-size:38px;line-height:1.5;font-weight:400;color:#6E6858;max-width:820px;}
 .date{margin-top:20px;font-size:26px;font-weight:500;color:#8C8577;letter-spacing:.06em;}
-.case{margin-top:190px;font-size:58px;font-weight:600;line-height:1.22;max-width:900px;}
+.case{margin-top:150px;font-size:58px;font-weight:600;line-height:1.22;max-width:900px;}
 .case span{color:#3A5697;}
-.hold{margin-top:44px;font-size:42px;font-weight:400;line-height:1.45;color:#4E4A3F;max-width:880px;}
+.hold{margin-top:40px;font-size:35px;font-weight:400;line-height:1.5;color:#4E4A3F;max-width:880px;}
+.hold p+p{margin-top:26px;}
+.why{margin-top:34px;font-size:35px;line-height:1.5;font-weight:400;color:#4E4A3F;max-width:880px;}
+.why b{font-weight:600;color:#3A5697;}
+.dark .why{color:#A9B0C2;}
+.dark .why b{color:#6E86C9;}
 .hold b{font-weight:600;color:#171D2B;}
 .dark .hold{color:#A9B0C2;}
 .dark .hold b{color:#EDE7DC;}
@@ -50,30 +55,36 @@ write("docket-1", f"""<div class="page">
 
 cases = [
  ("White Oak <span>v</span> Insurance Australia",
-  'A &ldquo;without prejudice&rdquo; label alone <b>doesn&rsquo;t create privilege</b>. Genuine negotiation does.',
+  '<p>Greensill fallout. The insurer demanded twelve messages and a draft term sheet created while the parties circled a settlement.</p><p>Held: chat about a &ldquo;general approach&rdquo;, with <b>no element of compromise</b>, is not a negotiation. No privilege.</p>',
+  '<b>Why it matters:</b> a &ldquo;without prejudice&rdquo; label alone protects nothing. The negotiation has to be real.',
   '<b>[2026] FCA 769</b> &middot; Federal Court of Australia &middot; Thawley J'),
  ("Elvin <span>v</span> Fair Work Ombudsman",
-  'Underpayment appeal <b>allowed in part</b>. Is the FWO a creditor bound by a DOCA? Now a live question.',
+  '<p>Massage therapists underpaid. An individual personally on the hook. Then the employer struck a deed of company arrangement with its creditors.</p><p>The Full Court allowed the appeal <b>in part</b> and aired a live question: is the FWO a creditor bound by a DOCA?</p>',
+  '<b>Why it matters:</b> corporate rescue does not switch off workplace risk, especially personal liability.',
   '<b>[2026] FCAFC 92</b> &middot; Full Court of the Federal Court'),
  ("Smithbridge Guam <span>v</span> Swire Shipping",
-  '<b>Anti-suit injunction</b> granted in a carriage-of-goods dispute.',
-  '<b>[2026] FCA 884</b> &middot; Federal Court of Australia &middot; admiralty'),
+  '<p>A cargo dispute was headed for arbitration. Smithbridge asked the Court to stop it, arguing the <b>Carriage of Goods by Sea Act</b> rendered the arbitration clause in the booking note ineffective.</p>',
+  '<b>Why it matters:</b> Australian cargo law can trump arbitration agreements. Check s 11 before you draft.',
+  '<b>[2026] FCA 884</b> &middot; Federal Court of Australia &middot; S Derrington J'),
  ("Marsden, re Empire Consortium (in&nbsp;liq)",
-  'Insolvency: <b>liquidator proceedings</b> against Nationwide Plant Hire.',
+  '<p>The liquidator of the collapsed Empire Consortium group pursued <b>Nationwide Plant Hire</b> in the Federal Court.</p>',
+  '<b>Why it matters:</b> liquidator recovery actions are running hot. Counterparties of failed groups are in the firing line.',
   '<b>[2026] FCA 911</b> &middot; Federal Court of Australia'),
 ]
-for i,(c,h,m) in enumerate(cases, start=2):
+for i,(c,h,w,m) in enumerate(cases, start=2):
     write(f"docket-{i}", f"""<div class="page">
   <div class="top"><div class="pg">{i} / {N}</div></div>
   <div class="case">{c}</div>
   <div class="hold">{h}</div>
+  <div class="why">{w}</div>
   <div class="bottom"><div class="cite">{m}</div></div>
 </div>""")
 
 write(f"docket-{N}", f"""<body class="dark"><div class="page">
   <div class="top"><div class="pg">{N} / {N}</div></div>
   <div class="case">Grofski <span>v</span> Peabody Energy</div>
-  <div class="hold">Leave to appeal <b>refused</b> in an employment dispute.<br><br>And the High Court? Winter recess. Next judgments expected from August.</div>
+  <div class="hold"><p>A leave-to-appeal fight in an employment dispute with the coal miner&rsquo;s operator.</p><p>Most appeals die at the leave gate. Getting past it is half the battle.</p></div>
+  <div class="why"><b>High Court watch:</b> winter recess. Next judgments expected from August.</div>
   <div class="bottom"><div><div class="cite"><b>[2026] FCA 921</b> &middot; Federal Court of Australia</div>
   <div class="note">General information only, not legal advice. Check details against the full judgments.</div></div></div>
 </div></body>""")
