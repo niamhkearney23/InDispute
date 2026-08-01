@@ -133,4 +133,30 @@ slide("f6", K_F, 6,
     CITE_F, size="lg", dark=True, sub="Wilson posted her side while cameras rolled, and won. Drop your take below.",
     disclaimer=True)
 
+
+
+# ── Set G: Hanson v Faruqi (edition 01.08.26) ──
+K_G = "Daily Court Intelligence &middot; 01.08.26"
+CITE_G = '<b>Hanson v Faruqi</b> &middot; Full Court of the Federal Court &middot; 27 July 2026<br>on appeal from Faruqi v Hanson [2024] FCA 1264 &middot; FCAFC number to be confirmed'
+
+slide("g1", K_G, 1,
+    'Hanson lost. The Full Federal Court says telling a senator to &ldquo;piss off back to Pakistan&rdquo; <span class="u">broke the law.</span>',
+    CITE_G, size="lg", swipe="Swipe &rarr;")
+slide("g2", K_G, 2,
+    '<p>September 2022. Senator Mehreen Faruqi tweeted about the Queen&rsquo;s death. Senator Pauline Hanson replied: pack your bags and <strong>piss off back to Pakistan</strong>.</p><p>In 2024 the Federal Court found the post breached <span class="u">section 18C</span> of the Racial Discrimination Act.</p>',
+    CITE_G)
+slide("g3", K_G, 3,
+    '<p>On appeal, Hanson went big.</p><p>She argued the post did not breach s 18C. And that s 18C itself is <span class="u">constitutionally invalid</span>, an impermissible burden on political communication.</p>',
+    CITE_G)
+slide("g4", K_G, 4,
+    '<p>Three judges. <strong>Unanimous.</strong></p><p>The post was correctly characterised as anti-Muslim and Islamophobic, a variant of the racist slogan <span class="u">&ldquo;go back to where you came from&rdquo;</span>.</p><p>Section 18C is valid. The fair comment defence failed.</p>',
+    CITE_G)
+slide("g5", K_G, 5,
+    '<p>Section 18C has teeth, and it just survived a full constitutional assault.</p><p>Public figures are not exempt. <span class="u">Political speech is not a licence for racism.</span></p><p>Hanson has 28 days to try the High Court.</p>',
+    CITE_G)
+slide("g6", K_G, 6,
+    'Will the High Court take this on? <span class="u">And should it?</span>',
+    CITE_G, size="lg", dark=True, sub="Hanson says she will fight on. Drop your prediction below.",
+    disclaimer=True)
+
 print(json.dumps(sorted(p.name for p in OUT.glob('*.html'))))
