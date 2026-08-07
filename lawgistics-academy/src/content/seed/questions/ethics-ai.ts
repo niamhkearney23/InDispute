@@ -7,12 +7,13 @@ import { TRUE_FALSE_OPTIONS, type SeedQuestion } from '../types';
  * what changes every few months; the obligations do not, and a module built on
  * the former is out of date before anyone sits it.
  *
- * That is also why there are few citations here. The specific practice notes
- * governing disclosure of AI use to a court are recent, differ between courts,
- * and are being revised: pinning content to one of them would teach a rule that
- * may not apply in the court the learner is standing in. The safer and more
- * useful instruction is to read the practice note of the court you are in, and
- * that is what these questions say.
+ * The practice notes are named, with their dates, because as at August 2026
+ * all three principal Australian courts have one and they are specific enough
+ * to be worth knowing: NSW SC Gen 23 (commenced 3 February 2025), the Federal
+ * Court's GPN-AI (16 April 2026), and Victoria's SC Gen 25 (14 May 2026). They
+ * do not say identical things, which is why the questions still end with the
+ * instruction to read the one for the court you are in rather than to remember
+ * a single national rule that does not exist.
  *
  * NOT VERIFIED. Drafted without a qualified reader, like everything else here,
  * and this is the module most likely to be relied on directly, so it wants a
@@ -44,7 +45,8 @@ export const ETHICS_AI_QUESTIONS: SeedQuestion[] = [
     memoryTrick: 'Pressing enter is sending it.',
     concepts: ['ai-confidentiality', 'ai-supervision'],
     skills: ['professional-judgment', 'attention-to-detail'],
-    sourceReference: 'Australian Solicitors’ Conduct Rules r 9',
+    sourceReference:
+      'Australian Solicitors’ Conduct Rules r 9; Supreme Court of NSW Practice Note SC Gen 23, which permits certain material to be entered only where it stays within the provider’s controlled environment and is not used for training',
   },
   {
     slug: 'ai-fabricated-citation',
@@ -97,19 +99,48 @@ export const ETHICS_AI_QUESTIONS: SeedQuestion[] = [
     stem: 'You used a generative AI tool to help prepare submissions. What should you do about telling the court?',
     options: [
       { id: 'a', text: 'Nothing; how a document was drafted is not the court’s concern' },
-      { id: 'b', text: 'Check the practice note of the court you are in, because several now require disclosure' },
+      { id: 'b', text: 'Read the practice note of the court you are in, because each of the principal courts now has one and they differ' },
       { id: 'c', text: 'Always disclose, in every court, in every document' },
       { id: 'd', text: 'Disclose only if the other side asks' },
     ],
     correct: ['b'],
     explanation:
-      'Australian courts have been issuing practice notes and guidelines on generative AI, and they do not all say the same thing. Some require disclosure in defined circumstances, some restrict use in preparing affidavit evidence, some are silent. The obligation is on you to know the rule in the court you are appearing in, and it is a rule that has been changing quickly.',
+      'As at August 2026 the principal Australian courts each have a practice note on generative AI: the Supreme Court of New South Wales in SC Gen 23, which commenced on 3 February 2025 and applies across NSW courts; the Federal Court in GPN-AI, published on 16 April 2026; and the Supreme Court of Victoria in SC Gen 25, issued on 14 May 2026. They are not identical. Victoria requires a court user to be able to identify which parts of a document were produced using AI and to explain how the output was verified. Knowing that one of them exists is not the same as knowing which applies to you.',
     whyItMatters:
-      'A junior is often the one who actually prepares the document, and so is often the only person who knows how it was prepared.',
+      'A junior is usually the person who actually prepared the document, and so is often the only person who knows how it was prepared. If the court asks which parts were AI-assisted and how they were checked, that answer has to exist before the question is asked.',
     commonMisconception:
-      'That there is one national rule. There is not, and assuming the rule from your last matter is how you get caught out.',
+      'That there is one national rule. There is not, and carrying the rule from your last matter into a different court is how this goes wrong.',
     concepts: ['ai-candour', 'ai-competence'],
     skills: ['professional-judgment', 'procedural-sequencing'],
+    sourceReference:
+      'Supreme Court of NSW Practice Note SC Gen 23; Federal Court GPN-AI; Supreme Court of Victoria Practice Note SC Gen 25',
+    sourceUrl: 'https://supremecourt.nsw.gov.au/practice-procedure/generative-artificial-intelligence.html',
+  },
+  {
+    slug: 'ai-affidavit-prohibition',
+    domain: 'ethics-and-ai',
+    type: 'multiple_choice',
+    difficulty: 2,
+    jurisdiction: 'NSW',
+    scenario:
+      'A witness is struggling to put their recollection into words. You are preparing their affidavit in a NSW proceeding and consider asking an AI tool to draft it from your notes.',
+    stem: 'What does Practice Note SC Gen 23 require?',
+    options: [
+      { id: 'a', text: 'Generative AI must not be used to generate the content of an affidavit or witness statement' },
+      { id: 'b', text: 'It may be used if the witness approves the final wording' },
+      { id: 'c', text: 'It may be used if the use is disclosed to the court' },
+      { id: 'd', text: 'It may be used for the background sections only' },
+    ],
+    correct: ['a'],
+    explanation:
+      'SC Gen 23 prohibits using generative AI to generate the content of affidavits, witness statements, character references and other material intended to reflect a deponent or witness’s evidence or opinion. The reason is not fussiness about drafting. An affidavit is supposed to be the witness’s account in their own words; a fluent machine version is a document that reads better than the truth and is no longer their recollection. Approval after the fact does not cure it, because a witness asked to approve polished words tends to adopt them.',
+    whyItMatters:
+      'Preparing affidavits is delegated to juniors constantly, and this is the exact task where the tool is most tempting and most prohibited.',
+    memoryTrick: 'The witness’s words, or it is not their evidence.',
+    concepts: ['ai-candour', 'ai-supervision'],
+    skills: ['professional-judgment', 'written-communication'],
+    sourceReference: 'Supreme Court of NSW Practice Note SC Gen 23',
+    sourceUrl: 'https://supremecourt.nsw.gov.au/documents/Practice-and-Procedure/Practice-Notes/general/current/PN_SC_Gen_23.pdf',
   },
   {
     slug: 'ai-privilege-third-party',

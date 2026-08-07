@@ -9,6 +9,14 @@ import { TRUE_FALSE_OPTIONS, type SeedQuestion } from '../types';
  * same the question says so rather than pretending at a distinction; where the
  * source differs the source is named.
  *
+ * The Bar Council has issued its own guidance, which these questions cite:
+ * Circular No 342/2023 of November 2023, the first formal advisory to the
+ * Malaysian Bar on generative AI, and Circular No 242/2025 of July 2025, a
+ * substantially expanded update. Naming them matters more here than in the
+ * Australian half, because a Malaysian practitioner asked where the obligation
+ * comes from should be pointing at their own regulator rather than at a court
+ * practice note from another country.
+ *
  * NOT VERIFIED, and drafted without any Malaysian legal qualification. Of
  * everything in this repository, an ethics module is the worst thing to be
  * wrong about, because it is the content a learner is most likely to act on
@@ -40,7 +48,8 @@ export const ETHICS_AI_MY_QUESTIONS: SeedQuestion[] = [
     memoryTrick: 'Pressing enter is sending it.',
     concepts: ['ai-confidentiality', 'ai-supervision'],
     skills: ['professional-judgment', 'attention-to-detail'],
-    sourceReference: 'Evidence Act 1950 s 126; Legal Profession Act 1976',
+    sourceReference:
+      'Evidence Act 1950 s 126; Legal Profession Act 1976; Bar Council Circular No 342/2023 and Circular No 242/2025 on generative AI',
   },
   {
     slug: 'my-ai-fabricated-citation',
@@ -65,6 +74,32 @@ export const ETHICS_AI_MY_QUESTIONS: SeedQuestion[] = [
     memoryTrick: 'If you have not read it, you cannot cite it.',
     concepts: ['ai-verification', 'ai-candour'],
     skills: ['professional-judgment', 'attention-to-detail'],
+    sourceReference:
+      'Bar Council Circular No 342/2023, which lists hallucinated citations first among the risks it identifies',
+  },
+  {
+    slug: 'my-ai-bar-council-guidance',
+    domain: 'ethics-and-ai',
+    type: 'multiple_choice',
+    difficulty: 2,
+    jurisdiction: 'MY_GENERAL',
+    stem: 'Where does the Malaysian Bar’s own guidance on generative AI come from?',
+    options: [
+      { id: 'a', text: 'There is none; practitioners rely on overseas court practice notes' },
+      { id: 'b', text: 'Bar Council circulars, beginning with Circular No 342/2023 and expanded by Circular No 242/2025' },
+      { id: 'c', text: 'The Evidence Act 1950 alone' },
+      { id: 'd', text: 'The terms of service of the tool being used' },
+    ],
+    correct: ['b'],
+    explanation:
+      'The Bar Council issued Circular No 342/2023 in November 2023 as its first formal advisory to the Malaysian Bar on generative AI, identifying risks including hallucinated citations, bias, threats to client confidentiality and data privacy, and security risks. Circular No 242/2025, in July 2025, substantially expanded it. The consistent position across both is that these tools are guidance only: the advocate and solicitor applies their own mind, and bears responsibility for the content and the advice.',
+    whyItMatters:
+      'Asked where the obligation comes from, the answer should be your own regulator, not a court practice note from another country that does not bind you.',
+    commonMisconception:
+      'That because the tools are new there is no local guidance yet. There has been since 2023, and it has already been updated once.',
+    concepts: ['ai-competence', 'ai-supervision'],
+    skills: ['professional-judgment', 'statutory-analysis'],
+    sourceReference: 'Bar Council Circular No 342/2023; Bar Council Circular No 242/2025',
   },
   {
     slug: 'my-ai-responsibility',
