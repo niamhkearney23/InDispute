@@ -67,7 +67,7 @@ export default async function LandingPage() {
             Train like a lawyer.
           </h1>
           <p className="mt-6 max-w-xl text-lg text-slate">
-            Lawgistics Litigation Academy works out what you don’t know, teaches it
+            Lawgistics Academy works out what you don’t know, teaches it
             properly, and remembers to test you again. Built for Australian law students,
             PLT students, graduates and junior lawyers.
           </p>
@@ -122,7 +122,7 @@ export default async function LandingPage() {
 
       <footer className="mx-auto max-w-5xl border-t border-rule px-5 py-8 sm:px-8">
         <p className="text-xs text-muted">
-          Lawgistics Litigation Academy is a training tool. It is not legal advice, and
+          Lawgistics Academy is a training tool. It is not legal advice, and
           progression levels within it are game levels — not professional qualifications
           or titles.
         </p>

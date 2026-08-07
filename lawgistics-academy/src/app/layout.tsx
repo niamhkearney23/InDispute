@@ -17,8 +17,8 @@ const body = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Lawgistics Litigation Academy',
-    template: '%s · Lawgistics Litigation Academy',
+    default: 'Lawgistics Academy',
+    template: '%s · Lawgistics Academy',
   },
   description:
     'Adaptive litigation training for Australian law students, PLT students, graduates and junior lawyers. Train like a lawyer.',

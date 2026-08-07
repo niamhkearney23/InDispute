@@ -1,4 +1,4 @@
-# Lawgistics Litigation Academy
+# Lawgistics Academy
 
 **Train like a lawyer.**
 
@@ -25,7 +25,7 @@ it to me, and remembers to test me again."* Not *"there are lots of features."*
 ### 2. Configure the environment
 
 ```bash
-cd litigation-academy
+cd lawgistics-academy
 cp .env.example .env.local
 ```
 
@@ -224,7 +224,7 @@ delivery view exposes no answer key.
 
 ## Deploying
 
-Vercel, with **Root Directory** set to `litigation-academy`.
+Vercel, with **Root Directory** set to `lawgistics-academy`.
 
 Environment variables: the three Supabase values, plus `NEXT_PUBLIC_SITE_URL` set to the
 deployed origin. Add the deployed origin to Supabase's redirect allow-list under

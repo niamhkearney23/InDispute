@@ -15,7 +15,7 @@ export default async function OnboardingPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <p className="eyebrow mb-3">Welcome to Lawgistics Litigation Academy</p>
+      <p className="eyebrow mb-3">Welcome to Lawgistics Academy</p>
       <h1 className="mb-3 text-3xl sm:text-4xl">Train like a lawyer.</h1>
       <p className="mb-9 text-slate">
         Four quick questions, then a diagnostic of about thirty questions. After that you
