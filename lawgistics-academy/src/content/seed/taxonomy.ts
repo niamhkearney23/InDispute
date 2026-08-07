@@ -42,6 +42,12 @@ export const DOMAINS: SeedDomain[] = [
       'Affidavits, pleadings, correspondence and written submissions, the documents a litigator actually produces.',
   },
   {
+    slug: 'legal-research',
+    name: 'Legal research',
+    description:
+      'Finding the law, checking it is still the law, and being able to say how you know.',
+  },
+  {
     slug: 'ethics-and-ai',
     name: 'Ethics and AI',
     description:
@@ -128,6 +134,15 @@ export const CONCEPTS: SeedConcept[] = [
   { slug: 'ai-supervision', domain: 'ethics-and-ai', name: 'Supervision and responsibility', description: 'Who answers for work a machine helped produce.' },
   { slug: 'ai-privilege', domain: 'ethics-and-ai', name: 'Privilege and AI', description: 'Whether disclosure to a system is disclosure to a third party.' },
   { slug: 'ai-billing', domain: 'ethics-and-ai', name: 'Billing and AI', description: 'Charging for work that took an hour and used to take five.' },
+
+  // Legal research. Ordered roughly as the work happens.
+  { slug: 'research-strategy', domain: 'legal-research', name: 'Where to start', description: 'Getting a framework before going near a database.' },
+  { slug: 'currency', domain: 'legal-research', name: 'Currency', description: 'Whether what you are reading is the law today.' },
+  { slug: 'noting-up', domain: 'legal-research', name: 'Noting up', description: 'Checking a case has not been overruled, distinguished or doubted.' },
+  { slug: 'authoritative-sources', domain: 'legal-research', name: 'Authoritative sources', description: 'Which version of a case or an Act you may rely on and cite.' },
+  { slug: 'search-technique', domain: 'legal-research', name: 'Search technique', description: 'Getting to the right result without reading a thousand.' },
+  { slug: 'recording-research', domain: 'legal-research', name: 'Recording research', description: 'Being able to say what you searched, where, and when.' },
+  { slug: 'knowing-when-to-stop', domain: 'legal-research', name: 'Knowing when to stop', description: 'Recognising the point at which more searching adds nothing.' },
 
   // Malaysia. The domains are the same six, because the shape of litigation
   // work is the same; these are the concepts that have no Australian
