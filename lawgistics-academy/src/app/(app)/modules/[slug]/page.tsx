@@ -3,8 +3,10 @@ import { notFound, redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { getModule } from '@/lib/modules/service';
-import { ButtonLink, Card, Notice, Pill, ScoreBar } from '@/components/ui';
+import { ButtonLink, Card, Notice, Pill, ScoreBar, SectionHeading } from '@/components/ui';
 import { StartModuleButton } from '../start-module-button';
+import { LessonPlayer } from './lesson-player';
+import { lessonForModule } from '@/content/seed/lessons';
 
 export const metadata: Metadata = { title: 'Module' };
 
@@ -26,6 +28,7 @@ export default async function ModulePage({
 
   const { module: definition } = entry;
   const percent = entry.total === 0 ? 0 : Math.round((entry.correctOnce / entry.total) * 100);
+  const lesson = lessonForModule(definition.slug);
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">
@@ -63,8 +66,23 @@ export default async function ModulePage({
         </Card>
       )}
 
+      {lesson && entry.total > 0 ? (
+        <section>
+          <SectionHeading
+            eyebrow={`Lesson, about ${lesson.minutes} minutes`}
+            title={lesson.title}
+          />
+          <LessonPlayer
+            lesson={lesson}
+            country={profile.country}
+            moduleSlug={definition.slug}
+            quizLabel={entry.complete ? 'Answer them again' : 'Start the questions'}
+          />
+        </section>
+      ) : null}
+
       <div className="flex flex-col gap-3 sm:flex-row">
-        {entry.total > 0 ? (
+        {entry.total > 0 && !lesson ? (
           <StartModuleButton
             slug={definition.slug}
             label={entry.complete ? 'Go through it again' : entry.correctOnce > 0 ? 'Continue' : 'Start'}
