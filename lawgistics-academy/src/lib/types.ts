@@ -31,7 +31,12 @@ export type Jurisdiction =
   | 'MY_MALAYA'
   | 'MY_SABAH_SARAWAK';
 
-export type QuestionType = 'multiple_choice' | 'true_false' | 'scenario';
+export type QuestionType =
+  | 'multiple_choice'
+  | 'true_false'
+  | 'scenario'
+  /** Drawn as the court hierarchy; the options are courts. */
+  | 'court_hierarchy';
 
 export type QuestionStatus =
   | 'draft'
