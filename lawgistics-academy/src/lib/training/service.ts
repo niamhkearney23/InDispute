@@ -275,11 +275,30 @@ export async function submitAnswer(args: {
   const db = createServiceClient();
   const now = new Date();
 
-  const { data: session } = await db
-    .from('training_sessions')
-    .select('id, user_id, kind, status, total_answered, correct_count')
-    .eq('id', args.sessionId)
-    .maybeSingle();
+  // The session, the slot and the question are looked up together. None of the
+  // three depends on the answer to another, and asking for them one at a time
+  // costs three network hops before any work begins. The checks that follow are
+  // unchanged, and still happen before anything is written.
+  const [{ data: session }, { data: slot }, { data: version }] = await Promise.all([
+    db
+      .from('training_sessions')
+      .select('id, user_id, kind, status, total_answered, correct_count')
+      .eq('id', args.sessionId)
+      .maybeSingle(),
+    db
+      .from('training_session_questions')
+      .select('id, question_id, question_version_id, answered_at')
+      .eq('session_id', args.sessionId)
+      .eq('question_version_id', args.questionVersionId)
+      .maybeSingle(),
+    db
+      .from('question_versions')
+      .select(
+        'id, question_id, question_type, stem, scenario, options, correct_option_ids, explanation, why_it_matters, common_misconception, memory_trick, difficulty, jurisdiction, court, source_reference, source_url',
+      )
+      .eq('id', args.questionVersionId)
+      .maybeSingle(),
+  ]);
 
   if (!session || session.user_id !== args.userId) {
     return { error: 'Session not found.' };
@@ -288,17 +307,16 @@ export async function submitAnswer(args: {
     return { error: 'This session has already been completed.' };
   }
 
-  const { data: slot } = await db
-    .from('training_session_questions')
-    .select('id, question_id, question_version_id, answered_at')
-    .eq('session_id', args.sessionId)
-    .eq('question_version_id', args.questionVersionId)
-    .maybeSingle();
-
   if (!slot) return { error: 'That question is not part of this session.' };
   if (slot.answered_at) return { error: 'You have already answered this question.' };
 
-  // Claim the slot before doing anything else. This is a compare-and-set: if a
+  // Checked before the claim, so a question that cannot be loaded never gets
+  // claimed and never needs releasing. The claim used to come first, and a
+  // failure here had to undo it; if that undo failed, the question became
+  // permanently unanswerable.
+  if (!version) return { error: 'Question could not be loaded.' };
+
+  // Claim the slot before writing anything. This is a compare-and-set: if a
   // second submission for the same question is already in flight it will match
   // no rows here and stop, rather than recording a duplicate attempt and
   // double-counting the session totals.
@@ -311,23 +329,6 @@ export async function submitAnswer(args: {
 
   if (!claimed || claimed.length === 0) {
     return { error: 'You have already answered this question.' };
-  }
-
-  const { data: version } = await db
-    .from('question_versions')
-    .select(
-      'id, question_id, question_type, stem, scenario, options, correct_option_ids, explanation, why_it_matters, common_misconception, memory_trick, difficulty, jurisdiction, court, source_reference, source_url',
-    )
-    .eq('id', args.questionVersionId)
-    .single();
-
-  if (!version) {
-    // Release the claim, or this question becomes permanently unanswerable.
-    await db
-      .from('training_session_questions')
-      .update({ answered_at: null })
-      .eq('id', slot.id);
-    return { error: 'Question could not be loaded.' };
   }
 
   const correctOptionIds = (version.correct_option_ids ?? []) as string[];
@@ -379,17 +380,68 @@ export async function submitAnswer(args: {
     db.from('question_skills').select('skill_id, weight').eq('question_id', version.question_id),
   ]);
 
+  const conceptIds = (conceptLinks ?? []).map((link) => link.concept_id as string);
+  const skillIds = (skillLinks ?? []).map((link) => link.skill_id as string);
+
+  /*
+   * Read everything, compute, write everything.
+   *
+   * This used to be a loop per concept and a loop per skill, each doing a read
+   * and a write, one after another. A question linked to three concepts and two
+   * skills therefore made sixteen sequential round trips to answer it, on top
+   * of the seven before this point. Against a hosted database each one costs a
+   * network hop, so a single tap took several seconds and the app felt broken
+   * rather than thoughtful.
+   *
+   * The work itself is unchanged. It is the same mastery calculation and the
+   * same scheduler; only the number of conversations with the database is
+   * different. Three reads in parallel, then three writes in parallel, whatever
+   * the question is linked to.
+   */
+  const [
+    { data: masteryRows },
+    { data: scheduleRows },
+    { data: skillRows },
+  ] = await Promise.all([
+    conceptIds.length
+      ? db
+          .from('user_concept_mastery')
+          .select('*')
+          .eq('user_id', args.userId)
+          .in('concept_id', conceptIds)
+      : Promise.resolve({ data: [] as Record<string, unknown>[] }),
+    conceptIds.length
+      ? db
+          .from('review_schedule')
+          .select('*')
+          .eq('user_id', args.userId)
+          .in('concept_id', conceptIds)
+      : Promise.resolve({ data: [] as Record<string, unknown>[] }),
+    skillIds.length
+      ? db
+          .from('user_skill_mastery')
+          .select('*')
+          .eq('user_id', args.userId)
+          .in('skill_id', skillIds)
+      : Promise.resolve({ data: [] as Record<string, unknown>[] }),
+  ]);
+
+  const masteryByConcept = new Map(
+    (masteryRows ?? []).map((row) => [row.concept_id as string, row]),
+  );
+  const scheduleByConcept = new Map(
+    (scheduleRows ?? []).map((row) => [row.concept_id as string, row]),
+  );
+  const masteryBySkill = new Map((skillRows ?? []).map((row) => [row.skill_id as string, row]));
+
   let soonestReviewAt: Date | null = null;
+  const conceptUpserts: Record<string, unknown>[] = [];
+  const scheduleUpserts: Record<string, unknown>[] = [];
+  const skillUpserts: Record<string, unknown>[] = [];
 
   for (const link of conceptLinks ?? []) {
     const conceptId = link.concept_id as string;
-
-    const { data: existing } = await db
-      .from('user_concept_mastery')
-      .select('*')
-      .eq('user_id', args.userId)
-      .eq('concept_id', conceptId)
-      .maybeSingle();
+    const existing = masteryByConcept.get(conceptId);
 
     const priorState = existing
       ? {
@@ -419,30 +471,22 @@ export async function submitAnswer(args: {
               : (priorAvg * priorState.attempts + args.responseMs) / nextState.attempts,
           );
 
-    await db.from('user_concept_mastery').upsert(
-      {
-        user_id: args.userId,
-        concept_id: conceptId,
-        mastery: nextState.mastery,
-        attempts: nextState.attempts,
-        correct: nextState.correct,
-        consecutive_correct: nextState.consecutiveCorrect,
-        consecutive_incorrect: nextState.consecutiveIncorrect,
-        confident_and_wrong: nextState.confidentAndWrong,
-        avg_response_ms: avgResponseMs,
-        last_seen_at: now.toISOString(),
-        updated_at: now.toISOString(),
-      },
-      { onConflict: 'user_id,concept_id' },
-    );
+    conceptUpserts.push({
+      user_id: args.userId,
+      concept_id: conceptId,
+      mastery: nextState.mastery,
+      attempts: nextState.attempts,
+      correct: nextState.correct,
+      consecutive_correct: nextState.consecutiveCorrect,
+      consecutive_incorrect: nextState.consecutiveIncorrect,
+      confident_and_wrong: nextState.confidentAndWrong,
+      avg_response_ms: avgResponseMs,
+      last_seen_at: now.toISOString(),
+      updated_at: now.toISOString(),
+    });
 
     /* --- and reschedule it --- */
-    const { data: schedule } = await db
-      .from('review_schedule')
-      .select('*')
-      .eq('user_id', args.userId)
-      .eq('concept_id', conceptId)
-      .maybeSingle();
+    const schedule = scheduleByConcept.get(conceptId);
 
     const priorReview = schedule
       ? {
@@ -460,21 +504,18 @@ export async function submitAnswer(args: {
       now,
     );
 
-    await db.from('review_schedule').upsert(
-      {
-        user_id: args.userId,
-        concept_id: conceptId,
-        next_review_at: nextReview.nextReviewAt.toISOString(),
-        interval_days: nextReview.intervalDays,
-        ease: nextReview.ease,
-        review_count: nextReview.reviewCount,
-        lapses: nextReview.lapses,
-        last_result: isCorrect,
-        last_reviewed_at: now.toISOString(),
-        updated_at: now.toISOString(),
-      },
-      { onConflict: 'user_id,concept_id' },
-    );
+    scheduleUpserts.push({
+      user_id: args.userId,
+      concept_id: conceptId,
+      next_review_at: nextReview.nextReviewAt.toISOString(),
+      interval_days: nextReview.intervalDays,
+      ease: nextReview.ease,
+      review_count: nextReview.reviewCount,
+      lapses: nextReview.lapses,
+      last_result: isCorrect,
+      last_reviewed_at: now.toISOString(),
+      updated_at: now.toISOString(),
+    });
 
     // Report the soonest return date across the question's concepts.
     if (soonestReviewAt === null || nextReview.nextReviewAt < soonestReviewAt) {
@@ -484,13 +525,7 @@ export async function submitAnswer(args: {
 
   for (const link of skillLinks ?? []) {
     const skillId = link.skill_id as string;
-
-    const { data: existing } = await db
-      .from('user_skill_mastery')
-      .select('*')
-      .eq('user_id', args.userId)
-      .eq('skill_id', skillId)
-      .maybeSingle();
+    const existing = masteryBySkill.get(skillId);
 
     const priorState = existing
       ? {
@@ -510,19 +545,30 @@ export async function submitAnswer(args: {
       weight: Number(link.weight ?? 1),
     });
 
-    await db.from('user_skill_mastery').upsert(
-      {
-        user_id: args.userId,
-        skill_id: skillId,
-        mastery: nextState.mastery,
-        attempts: nextState.attempts,
-        correct: nextState.correct,
-        last_seen_at: now.toISOString(),
-        updated_at: now.toISOString(),
-      },
-      { onConflict: 'user_id,skill_id' },
-    );
+    skillUpserts.push({
+      user_id: args.userId,
+      skill_id: skillId,
+      mastery: nextState.mastery,
+      attempts: nextState.attempts,
+      correct: nextState.correct,
+      last_seen_at: now.toISOString(),
+      updated_at: now.toISOString(),
+    });
   }
+
+  await Promise.all([
+    conceptUpserts.length
+      ? db
+          .from('user_concept_mastery')
+          .upsert(conceptUpserts, { onConflict: 'user_id,concept_id' })
+      : Promise.resolve(),
+    scheduleUpserts.length
+      ? db.from('review_schedule').upsert(scheduleUpserts, { onConflict: 'user_id,concept_id' })
+      : Promise.resolve(),
+    skillUpserts.length
+      ? db.from('user_skill_mastery').upsert(skillUpserts, { onConflict: 'user_id,skill_id' })
+      : Promise.resolve(),
+  ]);
 
   const xpAwarded = await awardXp(db, args.userId, answerXpEvents, {
     sessionId: args.sessionId,
