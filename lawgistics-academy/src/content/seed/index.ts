@@ -9,6 +9,8 @@ import { MALAYSIA_QUESTIONS } from './questions/malaysia';
 import { HIERARCHY_QUESTIONS } from './questions/hierarchy';
 import { ETHICS_AI_QUESTIONS } from './questions/ethics-ai';
 import { ETHICS_AI_MY_QUESTIONS } from './questions/ethics-ai-my';
+import { RESEARCH_QUESTIONS } from './questions/research';
+import { RESEARCH_MY_QUESTIONS } from './questions/research-my';
 import { FACTS } from './facts';
 import { COUNTRIES, JURISDICTION_COUNTRY } from '@/lib/types';
 import type { SeedQuestion } from './types';
@@ -24,6 +26,8 @@ export const QUESTIONS: SeedQuestion[] = [
   ...HIERARCHY_QUESTIONS,
   ...ETHICS_AI_QUESTIONS,
   ...ETHICS_AI_MY_QUESTIONS,
+  ...RESEARCH_QUESTIONS,
+  ...RESEARCH_MY_QUESTIONS,
 ];
 
 export { CONCEPTS, DOMAINS, SKILLS, FACTS };

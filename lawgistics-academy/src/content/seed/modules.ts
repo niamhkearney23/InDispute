@@ -43,7 +43,35 @@ const ETHICS_RATIONALE =
   'new, and most of them do not feel like breaking a rule at the time. That is ' +
   'the reason for covering it before the first week rather than after.';
 
+const RESEARCH_RATIONALE =
+  'Nobody is taught this directly, and it is most of what a junior actually ' +
+  'does. The method is the same everywhere: get a framework from a secondary ' +
+  'source, check that what you are reading is the law today, check what later ' +
+  'courts did to it, cite the version the court will have in front of them, and ' +
+  'be able to say what you searched and when. Get that right and you can walk ' +
+  'into any firm; learn one database instead and you have learned a product.';
+
 export const MODULES: SeedModule[] = [
+  {
+    slug: 'research-au',
+    name: 'Legal research',
+    summary: 'Finding the law, checking it is still the law, and being able to say how you know.',
+    rationale: RESEARCH_RATIONALE,
+    country: 'AU',
+    domains: ['legal-research'],
+    required: false,
+    order: 2,
+  },
+  {
+    slug: 'research-my',
+    name: 'Legal research',
+    summary: 'Finding the law, checking it is still the law, and being able to say how you know.',
+    rationale: RESEARCH_RATIONALE,
+    country: 'MY',
+    domains: ['legal-research'],
+    required: false,
+    order: 2,
+  },
   {
     slug: 'ai-ethics-au',
     name: 'Ethics and AI',
