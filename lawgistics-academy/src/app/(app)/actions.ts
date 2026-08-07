@@ -57,7 +57,7 @@ export async function saveOnboarding(
   const goals = parsed.data.goals.filter((slug) => GOAL_SLUGS.includes(slug as never));
   if (goals.length === 0) return { error: 'Choose at least one area to improve.' };
 
-  // A learner editing their own profile needs no elevated privilege — go
+  // A learner editing their own profile needs no elevated privilege, go
   // through RLS. The trigger on `profiles` blocks any attempt to set is_admin.
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase
@@ -80,18 +80,33 @@ export async function saveOnboarding(
 
 const SESSION_KINDS: SessionKind[] = ['diagnostic', 'daily', 'review', 'practice'];
 
-export async function beginSession(kind: SessionKind) {
+export async function beginSession(
+  kind: SessionKind,
+): Promise<{ error: string } | undefined> {
   const user = await getCurrentUser();
   if (!user) redirect('/login');
   if (!SESSION_KINDS.includes(kind)) redirect('/dashboard');
 
-  const result = await resumeOrStartSession(user.id, kind);
+  let outcome: { sessionId: string } | { error: string };
 
-  if ('error' in result) {
-    redirect(`/dashboard?error=${encodeURIComponent(result.error)}`);
+  try {
+    outcome = await resumeOrStartSession(user.id, kind);
+  } catch (caught) {
+    // Starting a session is the first thing that touches the service-role key,
+    // so a deployment missing SUPABASE_SERVICE_ROLE_KEY fails here and nowhere
+    // earlier. Left unhandled, the thrown error reaches the browser as a
+    // scrubbed server error and the button simply sits there saying
+    // "Preparing", which is indistinguishable from nothing happening at all.
+    outcome = {
+      error: caught instanceof Error ? caught.message : 'Could not start the session.',
+    };
   }
 
-  redirect(`/train/${result.sessionId}`);
+  // Deliberately returned rather than redirected: the message belongs next to
+  // the button that was pressed, not on a page the learner did not ask for.
+  if ('error' in outcome) return { error: outcome.error };
+
+  redirect(`/train/${outcome.sessionId}`);
 }
 
 const answerSchema = z.object({

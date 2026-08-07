@@ -9,7 +9,7 @@ import { Notice } from '@/components/ui';
  * Finishes an implicit-flow email confirmation.
  *
  * When a Supabase project is not using PKCE, the confirmation link comes back
- * with the tokens in the URL fragment — `#access_token=…&refresh_token=…`. A
+ * with the tokens in the URL fragment, `#access_token=…&refresh_token=…`. A
  * fragment is never sent to the server, so the route handler cannot see it and
  * the user lands on a page that looks like nothing happened. This reads it in
  * the browser, sets the session, and carries on.

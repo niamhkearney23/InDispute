@@ -37,7 +37,7 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  // Refreshes the auth token cookie. Do not remove — Server Components cannot
+  // Refreshes the auth token cookie. Do not remove: Server Components cannot
   // write cookies, so without this the session silently expires mid-use.
   const {
     data: { user },

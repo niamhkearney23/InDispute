@@ -52,10 +52,10 @@ npm run dev
 
 **Or on Vercel:** import the repo, set **Root Directory** to `lawgistics-academy`, and add
 the same environment variables. `vercel.json` declares the framework, so you do not need to
-touch the Framework Preset — without it Vercel sniffs the framework at the top of the repo,
+touch the Framework Preset; without it Vercel sniffs the framework at the top of the repo,
 finds no app there, falls back to a static site, and the deploy fails with *No Output
 Directory named "public" found* even though the build succeeded. `NEXT_PUBLIC_` values are baked in at build time, so if you
-add them later you must **redeploy** — restarting is not enough.
+add them later you must **redeploy**; restarting is not enough.
 
 Your three keys are in Supabase under **Project Settings → API**:
 
@@ -73,7 +73,7 @@ never commit it, never send it to a browser.
 Sign up, then go to **`/setup`**. It checks each step, tells you what is missing, and has
 one button that loads all the content and makes you an administrator.
 
-That's it — you're in.
+That's it; you're in.
 
 ### If something is wrong
 
@@ -101,7 +101,7 @@ npx tsx scripts/make-admin.ts them@example.com
 
 ---
 
-## The legal accuracy problem — read this
+## The legal accuracy problem: read this
 
 Legal accuracy is the thing that makes or breaks this product, and it is the one thing
 software cannot verify for you.
@@ -121,33 +121,33 @@ Draft → Requires review → Verified → Published → Superseded/Retired
 - **Publishing is refused** for any question whose current version is not
   `human_verified`. That check is server-side, in `transitionQuestion`.
 - Verification is recorded against the **version**, not the question. Rewrite a question
-  and it drops back to requiring review — nobody inherits someone else's sign-off.
+  and it drops back to requiring review; nobody inherits someone else's sign-off.
 - The AI layer can only ever produce drafts. It has no route to `published`.
 
 The one deliberate compromise: `npm run seed` marks seed questions `published` so a fresh
 install has a working training loop, while every one of them still carries
 `requires_review`. If you would rather nothing be servable until a person has approved it,
 either seed with `--drafts-only`, or press **Withdraw everything unverified** in the
-verification queue — one click, and reversible.
+verification queue: one click, and reversible.
 
 ### Getting it verified
 
 Reviewing 128 items by clicking through a list one page at a time is not a workable
 process, so there are two ways in.
 
-**In the app — `/admin/review`.** One pile, ordered so the items most likely to contain an
+**In the app: `/admin/review`.** One pile, ordered so the items most likely to contain an
 error come first, and with anything already live to learners at the very top. Each item
 shows the full content, the keyed answer, the source, and *what specifically to check*.
 Three outcomes:
 
 | | |
 | --- | --- |
-| **Correct — sign off** | records your name and the date against that exact wording |
+| **Correct and sign off** | records your name and the date against that exact wording |
 | **Needs a change** | withdraws it from learners immediately and records what is wrong |
 | **Remove entirely** | retires it |
 
 Signing off does not publish. Publishing stays a separate, deliberate step. There is
-deliberately **no bulk verify** — a button asserting a hundred times over that someone has
+deliberately **no bulk verify**: a button asserting a hundred times over that someone has
 read the content is precisely what this workflow exists to prevent. Bulk *publish* is
 offered, because it acts only on items that already carry a named sign-off.
 
@@ -155,9 +155,9 @@ Flagging is enforced in the database, not the UI: a trigger withdraws a flagged 
 or fact from circulation the moment it is flagged, so it cannot be left live by a missed
 code path.
 
-**On paper — `npm run review:pack`.** Generates `review-pack.html`: every item laid out to
+**On paper: `npm run review:pack`.** Generates `review-pack.html`: every item laid out to
 be read, with tick boxes and a ruled notes area, printing cleanly to PDF. This is for the
-case that actually matters — handing the content to a senior practitioner who is never
+case that actually matters: handing the content to a senior practitioner who is never
 going to log into an admin panel. It runs from the live database, or from the repository
 before any of this is set up:
 
@@ -170,8 +170,8 @@ npm run review:pack -- --from-seed
 Not everything is equally risky. That the plaintiff bears the onus of proof is hard to get
 wrong; that a rule is numbered 19.6, that a limitation period is six years, or that a
 monetary limit sits at a given figure is easy to get wrong and expensive to get wrong. So
-each item is scored on how *checkable* it is — pinpoint provisions, monetary figures,
-periods, case citations, jurisdiction-specific rules, and above all a missing source — and
+each item is scored on how *checkable* it is: pinpoint provisions, monetary figures,
+periods, case citations, jurisdiction-specific rules, and above all a missing source, and
 the queue leads with the worst. Someone who gets through the first 26 has then done the 26
 that mattered.
 
@@ -182,7 +182,7 @@ reading the content.
 
 Every question version carries a jurisdiction, and it is shown to the learner on the
 question and again in the feedback. A Victorian procedural rule is never presented as
-though it were an ACT rule. `AU_GENERAL` is for genuinely national principles only — when
+though it were an ACT rule. `AU_GENERAL` is for genuinely national principles only, when
 in doubt, tag the specific jurisdiction.
 
 Worth knowing, and covered in the bank itself: the uniform Evidence Acts apply in the
@@ -199,9 +199,9 @@ Content is not filed under broad subjects. Every question links to:
 
 | Edge | Meaning |
 | --- | --- |
-| **Domain** | How content is browsed — Civil Procedure, Evidence, … |
-| **Concepts** | What mastery is tracked against — subpoenas, hearsay, ratio and obiter |
-| **Skills** | The *kind of thinking* a question exercised — procedural sequencing, evidence analysis, attention to detail |
+| **Domain** | How content is browsed: Civil Procedure, Evidence, … |
+| **Concepts** | What mastery is tracked against: subpoenas, hearsay, ratio and obiter |
+| **Skills** | The *kind of thinking* a question exercised: procedural sequencing, evidence analysis, attention to detail |
 | **Jurisdiction** | Which jurisdiction's rule this is |
 | **Difficulty** | 1–5 |
 | **Source** | Reference, URL, date checked |
@@ -209,7 +209,7 @@ Content is not filed under broad subjects. Every question links to:
 Concepts and skills are separate axes on purpose. Concepts drive spaced repetition. Skills
 are what eventually let the system say *"strong in evidence analysis and strategic
 reasoning, weaker in detailed procedural sequencing"* rather than merely *"good at
-Evidence"* — and they are the foundation the career-fit idea would be built on later.
+Evidence"*, and they are the foundation the career-fit idea would be built on later.
 
 ### Immutable history
 
@@ -230,40 +230,40 @@ There is no client-side path to a correct answer before it is submitted.
 ### The daily brief
 
 One verified fact a day, on the dashboard. It is a reason to open the app on a day you
-weren't going to train — origins, distinctions, and the rules everyone assumes they
+weren't going to train: origins, distinctions, and the rules everyone assumes they
 already understand.
 
 Everyone sees the same fact on the same day. That's deliberate: a shared brief is
 something two people in the same cohort can talk about, and a personalised one isn't.
 Rotation is a plain modulo over a stable ordering, computed from the calendar date in the
-learner's own timezone — so nothing repeats until the whole published pool has cycled, the
+learner's own timezone, so nothing repeats until the whole published pool has cycled; the
 same date always gives the same fact, and there is no state to drift.
 
 Facts carry the same provenance and sign-off discipline as questions: jurisdiction,
 source, and human verification before publishing. They are simpler in two ways. Nothing a
 learner does is recorded against a fact, so there is no mastery to protect and no need for
-immutable versioning — correcting a fact just corrects it. And there is no answer key, so
+immutable versioning: correcting a fact just corrects it. And there is no answer key, so
 learners read published facts directly under RLS rather than through a delivery view.
 
 Manage them at `/admin/facts`, which also shows which fact is running today.
 
 ### The engine
 
-Everything tunable lives in `src/lib/learning/config.ts` — nothing is buried in business
+Everything tunable lives in `src/lib/learning/config.ts`; nothing is buried in business
 logic.
 
 **Session mix** (`TRAINING_MIX`): 40% weakest concepts, 30% due for review, 20% new
 material, 10% reinforcement. Any bucket that cannot be filled spills into the others in
-priority order, so a learner always gets a full session — including on day one, when
+priority order, so a learner always gets a full session, including on day one, when
 nothing is weak and nothing is due.
 
 **Mastery** (`src/lib/learning/mastery.ts`): an exponentially-weighted score in 0–100,
 scaled by question difficulty and by stated confidence. Being **certain and wrong** moves
 mastery further than a wrong guess does, because it means a belief needs correcting rather
 than a gap needs filling. Scores are damped until there is enough evidence behind them, so
-two lucky answers never read as "84 — Evidence".
+two lucky answers never read as "84 in Evidence".
 
-**Spaced repetition** (`src/lib/learning/review-scheduler.ts`): a pure function —
+**Spaced repetition** (`src/lib/learning/review-scheduler.ts`): a pure function,
 `(state, outcome, now) → state`. No database, no ambient clock. Wrong answers always come
 back tomorrow whatever the prior interval; correct answers follow an SM-2-style ladder,
 capped by a mastery band so a shaky concept cannot drift out to a month. A correct answer
@@ -289,7 +289,7 @@ that material. It rephrases and connects; it does not state the law.
 ## Testing
 
 ```bash
-npm run test        # 68 tests — engine, content, triage, and the contract tests below
+npm run test        # 68 tests: engine, content, triage, and the contract tests below
 npm run typecheck
 npm run lint
 npm run build
@@ -302,7 +302,7 @@ cannot see:
   TypeScript AST for every Supabase query chain, and checks each table, column, filter,
   write key and embedded relation against it. A typo in a `.select()` string or an
   `.insert()` key is invisible to the compiler and surfaces only as a failed request in
-  production — this catches it at build time.
+  production; this catches it at build time.
 - **`authorisation-contract.test.ts`** asserts that every exported function in a
   `'use server'` module establishes who the caller is, that admin actions require admin
   specifically and check before touching the service-role client, and that privileged
@@ -311,14 +311,14 @@ cannot see:
 - **`session-resume.test.ts`** covers resuming a part-finished session, including when a
   question has been withdrawn from under it.
 
-Both contract tests are mutation-tested — deliberately planted errors were confirmed to
-fail them — so they cannot pass vacuously.
+Both contract tests are mutation-tested: deliberately planted errors were confirmed to
+fail them, so they cannot pass vacuously.
 
 ### Devices
 
-`tools/visual-qa/` renders every page of the real app at five viewports — iPhone SE
+`tools/visual-qa/` renders every page of the real app at five viewports: iPhone SE
 (375px), iPhone 15 Pro, Galaxy S24 (360px, the narrowest common Android), Galaxy S24
-Ultra and a 1440px laptop — and reports horizontal scrolling, elements past the viewport,
+Ultra and a 1440px laptop, and reports horizontal scrolling, elements past the viewport,
 tap targets under 32px, inputs under 16px (below which iOS Safari zooms the page on
 focus), and console errors. It signs in through the real login form, so the auth flow is
 exercised too. See `tools/visual-qa/README.md`.
@@ -362,7 +362,7 @@ src/
       diagnostic/          intro, and the skill map that comes out of it
       dashboard/           today's training, streak, XP, level, skill map
       train/[sessionId]/   the session runner and its summary
-      skills/              full skill map — by area, by skill, and blind spots
+      skills/              full skill map: by area, by skill, and blind spots
     setup/                 first-run: loads content, creates the first admin
     admin/                 question bank, daily brief, versioning
       review/              the verification queue
@@ -396,7 +396,7 @@ simulator · career recommendations · native app · non-Australian jurisdiction
 dashboards.
 
 The design leaves room for them. The skill axis is already recorded per attempt, which is
-what a career-fit signal would eventually read from — and if it is ever built it should be
+what a career-fit signal would eventually read from, and if it is ever built it should be
 framed as *"areas you may enjoy exploring"*, never as a determination about someone's
 career. The version and provenance model is what would let a courtroom simulator or
 drafting lab be added without compromising the verified bank.

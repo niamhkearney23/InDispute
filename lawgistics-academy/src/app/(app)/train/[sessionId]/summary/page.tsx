@@ -46,7 +46,7 @@ export default async function SummaryPage({
         </h1>
         <p className="mt-3 text-slate">
           {perfect
-            ? 'Every answer correct. The concepts you got right today will come back later — spaced out, not forgotten.'
+            ? 'Every answer correct. The concepts you got right today will come back later, spaced out, not forgotten.'
             : accuracy >= 70
               ? 'The concepts you missed are already scheduled to come back tomorrow.'
               : 'Everything you got wrong has been scheduled to return tomorrow. That is exactly how this is meant to work.'}

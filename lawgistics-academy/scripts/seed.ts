@@ -7,7 +7,7 @@
  *   npm run seed
  *   npm run seed -- --drafts-only
  *
- * IMPORTANT — read before going live:
+ * IMPORTANT: read before going live:
  * Every question and fact ships with verification_status = 'requires_review'.
  * The content is drafted to be accurate, but it has not been signed off by an
  * Australian legal practitioner, and no automated process can do that. Work
@@ -57,8 +57,8 @@ async function main() {
   console.log(
     `\nDone.\n\n` +
       (draftsOnly
-        ? '  Content was loaded as drafts. Verify and publish it at /admin/review —\n' +
-          '  until you do, training sessions will be empty.\n'
+        ? '  Content was loaded as drafts. Verify and publish it at /admin/review.\n' +
+          '  Until you do, training sessions will be empty.\n'
         : `  ${summary.awaitingVerification} published question(s) still await human verification.\n` +
           '  Sign them off at /admin/review before real learners use this.\n'),
   );

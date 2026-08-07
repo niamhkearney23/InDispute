@@ -24,7 +24,7 @@ export default async function AdminFactsPage() {
   const unverified = published.filter((f) => f.verification_status !== 'human_verified');
 
   // Same rotation the dashboard uses. The date is resolved in the learner's own
-  // timezone, so this preview is for the default one — a learner in Perth may
+  // timezone, so this preview is for the default one, a learner in Perth may
   // still be seeing yesterday's.
   const previewTimezone = 'Australia/Melbourne';
   const today = pickForDay(published, localDateString(previewTimezone));
@@ -37,7 +37,7 @@ export default async function AdminFactsPage() {
           <h1 className="text-3xl">{facts.length} facts</h1>
           <p className="mt-2 max-w-xl text-slate">
             One published fact is shown to every learner each day, rotating in the order
-            below. Nothing repeats until the whole published pool has been through — at{' '}
+            below. Nothing repeats until the whole published pool has been through, at{' '}
             {published.length} facts that is {published.length} days.
           </p>
         </div>

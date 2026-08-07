@@ -25,7 +25,7 @@ export default async function DiagnosticPage() {
         <h1 className="text-3xl sm:text-4xl">The diagnostic</h1>
         <p className="mt-3 text-slate">
           About {DIAGNOSTIC_QUESTION_COUNT} questions spread evenly across the six
-          foundation areas. It is not a test you pass — it produces the map your daily
+          foundation areas. It is not a test you pass; it produces the map your daily
           training is built from.
         </p>
       </section>
@@ -41,7 +41,7 @@ export default async function DiagnosticPage() {
             interpretation. Nobody starting out knows all of it.
           </Point>
           <Point title="It takes about fifteen minutes.">
-            You can leave partway through — your place is kept and you can pick it up
+            You can leave partway through; your place is kept and you can pick it up
             later.
           </Point>
         </ul>

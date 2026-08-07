@@ -34,7 +34,7 @@ export async function recordReviewDecision(
   const { kind, id, decision, note } = parsed.data;
 
   if (decision === 'flag' && !note) {
-    return { ok: false, error: 'Say what is wrong with it — a flag without a note is a dead end.' };
+    return { ok: false, error: 'Say what is wrong with it, a flag without a note is a dead end.' };
   }
 
   const db = createServiceClient();
@@ -67,7 +67,7 @@ export async function recordReviewDecision(
     if (error) return { ok: false, error: error.message };
 
     // The question's own status follows the decision. Verifying does not publish
-    // on its own — publishing stays a separate, deliberate act.
+    // on its own, publishing stays a separate, deliberate act.
     if (decision === 'retire') {
       await db
         .from('questions')

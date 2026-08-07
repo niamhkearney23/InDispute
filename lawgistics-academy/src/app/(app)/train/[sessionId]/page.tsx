@@ -19,7 +19,7 @@ export default async function TrainPage({
   const plan = await getSessionPlan(user.id, sessionId);
   if (!plan) redirect('/dashboard');
 
-  // Everything answered already — go straight to the summary.
+  // Everything answered already, go straight to the summary.
   if (plan.resumeIndex >= plan.questions.length) {
     redirect(
       plan.kind === 'diagnostic'

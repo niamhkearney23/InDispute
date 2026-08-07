@@ -17,7 +17,7 @@ export default async function NewQuestionPage() {
         <h1 className="text-3xl">Draft a question</h1>
         <p className="mt-2 max-w-2xl text-slate">
           It will be saved as a draft. Nothing reaches a learner until it has been verified
-          by a person and then published — the publish action is refused for anything that
+          by a person and then published, the publish action is refused for anything that
           has not been signed off.
         </p>
       </div>

@@ -120,7 +120,7 @@ async function loadLearnerState(
   };
 }
 
-/** Lowest concept mastery on the question — a chain is as weak as its link. */
+/** Lowest concept mastery on the question, a chain is as weak as its link. */
 function weakestConceptScore(q: BankQuestion, state: LearnerState): number | null {
   let lowest: number | null = null;
   for (const conceptId of q.conceptIds) {
@@ -195,7 +195,7 @@ export async function selectDailyQuestions(
   const preferred = new Set(options.preferredDomainSlugs ?? []);
   const buckets = bucketQuestions(bank, state);
 
-  // Nudge — not force — the learner's stated interests to the front.
+  // Nudge, not force, the learner's stated interests to the front.
   if (preferred.size > 0) {
     for (const key of MIX_FALLBACK_ORDER) {
       buckets[key].sort((a, b) => {

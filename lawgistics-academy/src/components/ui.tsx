@@ -145,7 +145,7 @@ export function Pill({
 
 /**
  * The skill map bar. Colour carries meaning, so the numeric score is always
- * printed alongside it — the bar alone would not be accessible.
+ * printed alongside it; the bar alone would not be accessible.
  */
 export function ScoreBar({
   label,

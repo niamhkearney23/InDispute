@@ -76,7 +76,7 @@ export function validateSeed(): string[] {
     }
 
     if (question.concepts.length === 0) {
-      errors.push(`${where} is not linked to any concept — it cannot drive mastery`);
+      errors.push(`${where} is not linked to any concept; it cannot drive mastery`);
     }
     for (const slug of question.concepts) {
       if (!conceptSlugs.has(slug)) {
@@ -114,7 +114,7 @@ export function validateSeed(): string[] {
     const count = QUESTIONS.filter((q) => q.domain === domain.slug).length;
     if (count < 5) {
       errors.push(
-        `Domain "${domain.slug}" has only ${count} questions — the diagnostic needs at least 5 per domain`,
+        `Domain "${domain.slug}" has only ${count} questions, the diagnostic needs at least 5 per domain`,
       );
     }
   }

@@ -18,7 +18,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             </Link>
             <span className="eyebrow">Admin</span>
           </div>
-          <nav className="flex items-center gap-1 text-sm">
+          <nav className="flex flex-wrap items-center gap-x-1 gap-y-0.5 text-sm">
             <Link
               href="/admin"
               className="rounded-[5px] px-2.5 py-2 whitespace-nowrap text-slate hover:bg-paper hover:text-ink"

@@ -11,7 +11,7 @@ import { buildCombinedSql } from '../scripts/build-combined-sql';
  *
  * Every query in this app goes over PostgREST, which resolves table, column and
  * relationship names at runtime. A typo in a `.select()` string or an `.insert()`
- * key is invisible to TypeScript and to the compiler — it surfaces as a failed
+ * key is invisible to TypeScript and to the compiler; it surfaces as a failed
  * request in production, on a code path that may only run for one user.
  *
  * This test closes that gap without a live database. It parses the SQL
@@ -263,7 +263,7 @@ function objectKeys(node: ts.Node): string[] {
     return node.elements.flatMap(objectKeys);
   }
 
-  // `rows.map(row => ({ ... }))` — reach into the callback body.
+  // `rows.map(row => ({ ... }))`, reach into the callback body.
   if (ts.isCallExpression(node)) {
     return node.arguments.flatMap(objectKeys);
   }
@@ -296,7 +296,7 @@ function checkSelect(
 
     const embedMatch = item.match(/^([\w:]+)(![\w.]+)?\s*\(([\s\S]*)\)$/);
     if (embedMatch) {
-      // `alias:relation!inner(cols)` — the relation is after any alias colon.
+      // `alias:relation!inner(cols)`, the relation is after any alias colon.
       const relationName = embedMatch[1].split(':').pop()!;
       const target = schema.relations.get(table)?.get(relationName);
 
@@ -450,7 +450,7 @@ test('the one-paste SETUP.sql matches the migrations', () => {
   assert.equal(
     committed,
     buildCombinedSql(),
-    'supabase/SETUP.sql is out of date — run `npm run build:sql` and commit the result',
+    'supabase/SETUP.sql is out of date; run `npm run build:sql` and commit the result',
   );
 });
 

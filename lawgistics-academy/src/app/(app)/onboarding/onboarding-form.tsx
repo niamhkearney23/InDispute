@@ -77,7 +77,7 @@ export function OnboardingForm({
         <fieldset>
           <legend className="mb-1 text-lg">What do you want to improve?</legend>
           <p className="mb-4 text-sm text-slate">
-            Choose as many as you like. Your diagnostic still covers everything — this
+            Choose as many as you like. Your diagnostic still covers everything; this
             only nudges what comes up in daily training.
           </p>
           <div className="grid gap-2 sm:grid-cols-2">
@@ -134,7 +134,7 @@ export function OnboardingForm({
             </label>
             <p className="mb-2 text-sm text-slate">
               Every question is tagged with the jurisdiction its rule belongs to. This
-              tells us which one is home — you will still see the others, clearly
+              tells us which one is home; you will still see the others, clearly
               labelled.
             </p>
             <select

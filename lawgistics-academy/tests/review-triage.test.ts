@@ -33,7 +33,7 @@ test('a pinpoint provision is flagged for checking', () => {
   assert.ok(risk.reasons.some((r) => r.includes('Jurisdiction-specific')));
 });
 
-test('a monetary figure is flagged — those get adjusted', () => {
+test('a monetary figure is flagged; those get adjusted', () => {
   const risk = reviewRisk({
     text: 'The jurisdictional limit is $100,000.',
     jurisdiction: 'VIC',
@@ -106,12 +106,12 @@ test('the triage actually separates the shipped bank into usable groups', () => 
 
   // "Check closely" has to be a set someone can get through in one sitting. If
   // it swells past a third of the bank it has stopped prioritising anything.
-  assert.ok(high >= 10, `only ${high} items rated high — the triage is not finding anything`);
+  assert.ok(high >= 10, `only ${high} items rated high; the triage is not finding anything`);
   assert.ok(
     high <= scored.length / 3,
-    `${high} of ${scored.length} rated high — that is not a priority list`,
+    `${high} of ${scored.length} rated high; that is not a priority list`,
   );
-  assert.ok(low >= 5, `only ${low} items rated low — nothing is being de-prioritised`);
+  assert.ok(low >= 5, `only ${low} items rated low; nothing is being de-prioritised`);
 });
 
 test('every shipped item gets at least one concrete reason to check it, or is genuinely low risk', () => {
