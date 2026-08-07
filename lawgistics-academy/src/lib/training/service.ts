@@ -38,11 +38,29 @@ export interface SessionPlan {
   sessionId: string;
   kind: SessionKind;
   questions: DeliveredQuestion[];
-  answeredCount: number;
+  /** Index of the first question still to answer. Equals the length when done. */
+  resumeIndex: number;
 }
 
 function questionCountForGoal(minutes: number): number {
   return QUESTIONS_PER_MINUTE_GOAL[minutes] ?? QUESTIONS_PER_MINUTE_GOAL[10];
+}
+
+/**
+ * Where a resumed session should pick up.
+ *
+ * Pure, because the interesting case is awkward to reach through the database:
+ * a question retired or unpublished mid-session drops out of the delivery view,
+ * so the surviving list is shorter than the list of slots. Counting answered
+ * slots would then point past the learner's actual position and strand them on
+ * a question they have already answered.
+ */
+export function resumeIndexFor(
+  deliveredVersionIds: string[],
+  answeredVersionIds: Set<string>,
+): number {
+  const firstUnanswered = deliveredVersionIds.findIndex((id) => !answeredVersionIds.has(id));
+  return firstUnanswered === -1 ? deliveredVersionIds.length : firstUnanswered;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -171,6 +189,14 @@ export async function getSessionPlan(
 
   const byVersion = new Map((delivery ?? []).map((d) => [d.question_version_id, d]));
 
+  // A question retired or unpublished mid-session drops out of the delivery
+  // view. Track which of the questions that survived have been answered, rather
+  // than counting slots — otherwise the resume index points at the wrong
+  // question and the learner gets stuck on one they have already answered.
+  const answeredVersionIds = new Set(
+    rows.filter((r) => r.answered_at).map((r) => r.question_version_id as string),
+  );
+
   const questions: DeliveredQuestion[] = rows.flatMap((row) => {
     const d = byVersion.get(row.question_version_id);
     if (!d) return [];
@@ -196,7 +222,10 @@ export async function getSessionPlan(
     sessionId,
     kind: session.kind as SessionKind,
     questions,
-    answeredCount: rows.filter((r) => r.answered_at).length,
+    resumeIndex: resumeIndexFor(
+      questions.map((q) => q.questionVersionId),
+      answeredVersionIds,
+    ),
   };
 }
 
@@ -289,7 +318,14 @@ export async function submitAnswer(args: {
     .eq('id', args.questionVersionId)
     .single();
 
-  if (!version) return { error: 'Question could not be loaded.' };
+  if (!version) {
+    // Release the claim, or this question becomes permanently unanswerable.
+    await db
+      .from('training_session_questions')
+      .update({ answered_at: null })
+      .eq('id', slot.id);
+    return { error: 'Question could not be loaded.' };
+  }
 
   const correctOptionIds = (version.correct_option_ids ?? []) as string[];
   const isCorrect = sameSet(args.selectedOptionIds, correctOptionIds);

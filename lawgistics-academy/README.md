@@ -223,11 +223,30 @@ that material. It rephrases and connects; it does not state the law.
 ## Testing
 
 ```bash
-npm run test        # 39 tests — scheduler, mastery, XP, streaks, session composition, daily rotation, content
+npm run test        # 61 tests — engine, content, and the contract tests below
 npm run typecheck
 npm run lint
 npm run build
 ```
+
+Three of the suites are contract tests, aimed at the failure modes TypeScript
+cannot see:
+
+- **`schema-contract.test.ts`** parses the SQL migrations into a schema, walks the
+  TypeScript AST for every Supabase query chain, and checks each table, column, filter,
+  write key and embedded relation against it. A typo in a `.select()` string or an
+  `.insert()` key is invisible to the compiler and surfaces only as a failed request in
+  production — this catches it at build time.
+- **`authorisation-contract.test.ts`** asserts that every exported function in a
+  `'use server'` module establishes who the caller is, that admin actions require admin
+  specifically and check before touching the service-role client, and that privileged
+  modules carry `server-only`. A server action is a public endpoint; the form on the page
+  is not the boundary.
+- **`session-resume.test.ts`** covers resuming a part-finished session, including when a
+  question has been withdrawn from under it.
+
+Both contract tests are mutation-tested — deliberately planted errors were confirmed to
+fail them — so they cannot pass vacuously.
 
 The schema's own guarantees are tested against a real Postgres:
 

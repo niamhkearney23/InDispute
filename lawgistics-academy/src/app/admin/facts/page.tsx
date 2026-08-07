@@ -23,8 +23,11 @@ export default async function AdminFactsPage() {
   const published = facts.filter((f) => f.status === 'published');
   const unverified = published.filter((f) => f.verification_status !== 'human_verified');
 
-  // Same rotation the dashboard uses, so an admin can see what learners see.
-  const today = pickForDay(published, localDateString('Australia/Melbourne'));
+  // Same rotation the dashboard uses. The date is resolved in the learner's own
+  // timezone, so this preview is for the default one — a learner in Perth may
+  // still be seeing yesterday's.
+  const previewTimezone = 'Australia/Melbourne';
+  const today = pickForDay(published, localDateString(previewTimezone));
 
   return (
     <div className="space-y-8">
@@ -60,10 +63,14 @@ export default async function AdminFactsPage() {
 
       {today ? (
         <Card className="bg-paper-sunk">
-          <p className="eyebrow mb-2">Showing today</p>
+          <p className="eyebrow mb-2">Showing today · {previewTimezone}</p>
           <Link href={`/admin/facts/${today.id}`} className="text-lg hover:underline">
             {today.title}
           </Link>
+          <p className="mt-2 text-xs text-muted">
+            Each learner’s day is resolved in their own timezone, so this is the default
+            rather than what every learner sees at this moment.
+          </p>
         </Card>
       ) : null}
 
