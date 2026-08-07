@@ -2,7 +2,7 @@ import 'server-only';
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { localDateString } from '@/lib/learning/progression';
-import type { Jurisdiction } from '@/lib/types';
+import type { Country, Jurisdiction } from '@/lib/types';
 
 /**
  * The daily brief.
@@ -42,6 +42,7 @@ export function pickForDay<T>(pool: T[], localDate: string): T | null {
 
 export async function getFactOfTheDay(
   timezone: string,
+  country: Country,
   now: Date = new Date(),
 ): Promise<DailyFact | null> {
   const supabase = await createSupabaseServerClient();
@@ -52,6 +53,7 @@ export async function getFactOfTheDay(
       'id, title, body, why_it_matters, jurisdiction, court, source_reference, source_url',
     )
     .eq('status', 'published')
+    .eq('country', country)
     .order('sort_order', { ascending: true })
     .order('id', { ascending: true });
 

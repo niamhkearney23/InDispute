@@ -112,6 +112,15 @@ export const CONCEPTS: SeedConcept[] = [
   { slug: 'extrinsic-materials', domain: 'legal-reasoning', name: 'Extrinsic materials', description: 'When you may look outside the statute.' },
   { slug: 'elements-analysis', domain: 'legal-reasoning', name: 'Elements analysis', description: 'Breaking a cause of action into what must be proved.' },
   { slug: 'issue-identification', domain: 'legal-reasoning', name: 'Issue identification', description: 'Finding the question that actually decides the case.' },
+
+  // Malaysia. The domains are the same six, because the shape of litigation
+  // work is the same; these are the concepts that have no Australian
+  // equivalent, or whose Australian equivalent would be misleading.
+  { slug: 'my-court-structure', domain: 'court-system', name: 'Malaysian court structure', description: 'The Federal Court, Court of Appeal, the two High Courts and the subordinate courts.' },
+  { slug: 'my-monetary-jurisdiction', domain: 'court-system', name: 'Malaysian monetary jurisdiction', description: 'Which Malaysian court a claim belongs in, by value.' },
+  { slug: 'syariah-courts', domain: 'court-system', name: 'Syariah courts', description: 'State courts of limited personal jurisdiction, outside the civil hierarchy.' },
+  { slug: 'rules-of-court-2012', domain: 'civil-procedure', name: 'Rules of Court 2012', description: 'The unified rules governing civil procedure in the Malaysian courts.' },
+  { slug: 'evidence-act-1950', domain: 'evidence', name: 'Evidence Act 1950', description: 'The codified Malaysian law of evidence.' },
 ];
 
 export const SKILLS: SeedSkill[] = [

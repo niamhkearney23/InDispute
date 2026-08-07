@@ -5,7 +5,9 @@ import { EVIDENCE_QUESTIONS } from './questions/evidence';
 import { ADVOCACY_QUESTIONS } from './questions/advocacy';
 import { DRAFTING_QUESTIONS } from './questions/drafting';
 import { LEGAL_REASONING_QUESTIONS } from './questions/legal-reasoning';
+import { MALAYSIA_QUESTIONS } from './questions/malaysia';
 import { FACTS } from './facts';
+import { COUNTRIES, JURISDICTION_COUNTRY } from '@/lib/types';
 import type { SeedQuestion } from './types';
 
 export const QUESTIONS: SeedQuestion[] = [
@@ -15,6 +17,7 @@ export const QUESTIONS: SeedQuestion[] = [
   ...ADVOCACY_QUESTIONS,
   ...DRAFTING_QUESTIONS,
   ...LEGAL_REASONING_QUESTIONS,
+  ...MALAYSIA_QUESTIONS,
 ];
 
 export { CONCEPTS, DOMAINS, SKILLS, FACTS };
@@ -109,13 +112,20 @@ export function validateSeed(): string[] {
   }
 
   // The diagnostic spreads round-robin across domains, so a domain with too
-  // few questions produces a lopsided paper.
-  for (const domain of DOMAINS) {
-    const count = QUESTIONS.filter((q) => q.domain === domain.slug).length;
-    if (count < 5) {
-      errors.push(
-        `Domain "${domain.slug}" has only ${count} questions, the diagnostic needs at least 5 per domain`,
-      );
+  // few questions produces a lopsided paper. Counted per country, because a
+  // learner only ever sees one of them: a total of eight split five and three
+  // reads as healthy and is not.
+  for (const country of COUNTRIES) {
+    const inCountry = QUESTIONS.filter((q) => JURISDICTION_COUNTRY[q.jurisdiction] === country);
+    if (inCountry.length === 0) continue;
+
+    for (const domain of DOMAINS) {
+      const count = inCountry.filter((q) => q.domain === domain.slug).length;
+      if (count < 5) {
+        errors.push(
+          `Domain "${domain.slug}" has only ${count} ${country} questions, the diagnostic needs at least 5 per domain per country`,
+        );
+      }
     }
   }
 
