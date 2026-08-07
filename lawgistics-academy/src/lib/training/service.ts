@@ -18,7 +18,7 @@ import {
   type PendingXpEvent,
 } from '@/lib/learning/progression';
 import { coachOnAnswer } from '@/lib/ai/legal-coach';
-import { GOAL_TO_DOMAIN_SLUGS } from '@/lib/types';
+import { asCountry, GOAL_TO_DOMAIN_SLUGS } from '@/lib/types';
 import type {
   AnswerFeedback,
   ConfidenceLevel,
@@ -75,11 +75,12 @@ export async function startSession(
 
   const { data: profile } = await db
     .from('profiles')
-    .select('daily_goal_minutes, improvement_goals')
+    .select('daily_goal_minutes, improvement_goals, country')
     .eq('id', userId)
     .single();
 
   const goalMinutes = profile?.daily_goal_minutes ?? 10;
+  const country = asCountry(profile?.country);
   const preferredDomainSlugs = (profile?.improvement_goals ?? []).flatMap(
     (goal: string) => GOAL_TO_DOMAIN_SLUGS[goal] ?? [],
   );
@@ -89,13 +90,15 @@ export async function startSession(
 
   const selected =
     kind === 'diagnostic'
-      ? await selectDiagnosticQuestions(db, count)
-      : await selectDailyQuestions(db, userId, count, { preferredDomainSlugs });
+      ? await selectDiagnosticQuestions(db, country, count)
+      : await selectDailyQuestions(db, userId, count, { preferredDomainSlugs, country });
 
   if (selected.length === 0) {
     return {
       error:
-        'There are no published questions yet. An administrator needs to publish content before training can start.',
+        country === 'AU'
+          ? 'There are no published questions yet. An administrator needs to publish content before training can start.'
+          : 'There are no published Malaysian questions yet. The Malaysian bank has to be verified and published before training can start; an administrator can do that under Admin, Verify.',
     };
   }
 

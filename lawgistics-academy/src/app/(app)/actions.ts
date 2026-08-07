@@ -9,7 +9,11 @@ import {
   resumeOrStartSession,
   submitAnswer,
 } from '@/lib/training/service';
-import { IMPROVEMENT_GOALS } from '@/lib/types';
+import {
+  IMPROVEMENT_GOALS,
+  JURISDICTION_COUNTRY,
+  JURISDICTION_VALUES,
+} from '@/lib/types';
 import type { AnswerFeedback, SessionKind } from '@/lib/types';
 
 const GOAL_SLUGS = IMPROVEMENT_GOALS.map((g) => g.slug);
@@ -19,18 +23,8 @@ const onboardingSchema = z.object({
   careerStage: z.enum(['law_student', 'plt_student', 'graduate', 'junior_lawyer', 'other']),
   goals: z.array(z.string()).min(1).max(GOAL_SLUGS.length),
   dailyGoalMinutes: z.coerce.number().refine((n) => [5, 10, 15, 20].includes(n)),
-  homeJurisdiction: z.enum([
-    'AU_GENERAL',
-    'CTH',
-    'NSW',
-    'VIC',
-    'QLD',
-    'WA',
-    'SA',
-    'TAS',
-    'ACT',
-    'NT',
-  ]),
+  country: z.enum(['AU', 'MY']),
+  homeJurisdiction: z.enum(JURISDICTION_VALUES),
 });
 
 export type OnboardingState = { error: string | null };
@@ -47,11 +41,22 @@ export async function saveOnboarding(
     careerStage: formData.get('careerStage'),
     goals: formData.getAll('goals').map(String),
     dailyGoalMinutes: formData.get('dailyGoalMinutes'),
+    country: formData.get('country'),
     homeJurisdiction: formData.get('homeJurisdiction'),
   });
 
   if (!parsed.success) {
-    return { error: 'Please answer all four questions before continuing.' };
+    return { error: 'Please answer all five questions before continuing.' };
+  }
+
+  // The form keeps these in step, but the form is not the boundary: this action
+  // is a public endpoint and can be called with any pair. A learner recorded as
+  // Malaysian with a Victorian home jurisdiction would be shown Malaysian
+  // questions labelled with an Australian State, which is exactly the confusion
+  // the whole country split exists to prevent.
+  const { country } = parsed.data;
+  if (JURISDICTION_COUNTRY[parsed.data.homeJurisdiction] !== country) {
+    return { error: 'That jurisdiction does not belong to the country you chose.' };
   }
 
   const goals = parsed.data.goals.filter((slug) => GOAL_SLUGS.includes(slug as never));
@@ -67,6 +72,7 @@ export async function saveOnboarding(
       career_stage: parsed.data.careerStage,
       improvement_goals: goals,
       daily_goal_minutes: parsed.data.dailyGoalMinutes,
+      country,
       home_jurisdiction: parsed.data.homeJurisdiction,
       onboarded_at: new Date().toISOString(),
     })

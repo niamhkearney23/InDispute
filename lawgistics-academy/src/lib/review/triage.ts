@@ -1,4 +1,8 @@
+import { DEFAULT_JURISDICTION } from '@/lib/types';
 import type { Jurisdiction } from '@/lib/types';
+
+/** The "no specific jurisdiction claimed" value for each country. */
+const GENERAL_JURISDICTIONS = new Set<Jurisdiction>(Object.values(DEFAULT_JURISDICTION));
 
 /**
  * Review triage.
@@ -74,7 +78,12 @@ export function reviewRisk(input: TriageInput): ReviewRisk {
     reasons.push('Cites a case; check the citation and that it has not been overruled');
   }
 
-  if (input.jurisdiction !== 'AU_GENERAL') {
+  // Each country has a "general principle" jurisdiction, and an item tagged
+  // with one is making no jurisdiction-specific claim at all. Testing against
+  // AU_GENERAL alone scored every Malaysian item as jurisdiction-specific,
+  // including the ones stating principle, which pushed a third of the combined
+  // bank into "check closely" and stopped the queue prioritising anything.
+  if (!GENERAL_JURISDICTIONS.has(input.jurisdiction)) {
     score += 2;
     reasons.push('Jurisdiction-specific, confirm it is right for that jurisdiction only');
   }

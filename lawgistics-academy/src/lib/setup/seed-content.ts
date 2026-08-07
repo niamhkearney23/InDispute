@@ -2,6 +2,8 @@ import 'server-only';
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { CONCEPTS, DOMAINS, FACTS, QUESTIONS, SKILLS, validateSeed } from '@/content/seed';
+import { JURISDICTION_COUNTRY } from '@/lib/types';
+import type { Country } from '@/lib/types';
 import type { SeedQuestion } from '@/content/seed/types';
 
 /**
@@ -71,6 +73,18 @@ export async function seedContent(
   // every item still carries requires_review until a person signs it off.
   const status = options.publish === false ? 'requires_review' : 'published';
 
+  /**
+   * The Malaysian bank never publishes itself, whatever was asked for.
+   *
+   * The Australian content ships published because an empty app is useless and
+   * the review queue is visibly waiting. The Malaysian content is different in
+   * kind: it was drafted without a Malaysian-qualified reader anywhere in the
+   * loop, and its most checkable claims are exactly the ones a student would
+   * take away and rely on. So the flag on the setup page cannot reach it. It
+   * publishes when a person publishes it, one item at a time.
+   */
+  const statusFor = (country: Country) => (country === 'MY' ? 'requires_review' : status);
+
   /* --- taxonomy ---------------------------------------------------------- */
   const { error: domainError } = await db.from('domains').upsert(
     DOMAINS.map((d, index) => ({
@@ -124,6 +138,10 @@ export async function seedContent(
     const domainId = domainIdBySlug.get(q.domain);
     if (!domainId) throw new Error(`Unknown domain ${q.domain}`);
 
+    // Derived rather than declared, so a question can never claim one country
+    // while carrying the other's jurisdiction.
+    const country = JURISDICTION_COUNTRY[q.jurisdiction];
+
     const { data: existing } = await db
       .from('questions')
       .select('id')
@@ -135,7 +153,7 @@ export async function seedContent(
     if (!questionId) {
       const { data: inserted, error } = await db
         .from('questions')
-        .insert({ slug: q.slug, domain_id: domainId, status })
+        .insert({ slug: q.slug, domain_id: domainId, status: statusFor(country), country })
         .select('id')
         .single();
       if (error) throw error;
@@ -232,11 +250,12 @@ export async function seedContent(
       body: fact.body,
       why_it_matters: fact.whyItMatters ?? null,
       jurisdiction: fact.jurisdiction,
+      country: JURISDICTION_COUNTRY[fact.jurisdiction],
       court: fact.court ?? null,
       domain_id: fact.domain ? domainIdBySlug.get(fact.domain) : null,
       source_reference: fact.sourceReference ?? null,
       source_url: fact.sourceUrl ?? null,
-      status,
+      status: statusFor(JURISDICTION_COUNTRY[fact.jurisdiction]),
       verification_status: 'requires_review',
       sort_order: index,
     })),

@@ -29,21 +29,55 @@ const USER = {
   updated_at: '2026-01-01T00:00:00Z',
 };
 
-const EXP = Math.floor(Date.now() / 1000) + 60 * 60 * 24;
-const ACCESS_TOKEN = [
-  b64url({ alg: 'HS256', typ: 'JWT' }),
-  b64url({ sub: USER_ID, role: 'authenticated', aud: 'authenticated', exp: EXP, email: USER.email }),
-  'signature-not-verified-by-this-mock',
-].join('.');
-
-const SESSION = {
-  access_token: ACCESS_TOKEN,
-  token_type: 'bearer',
-  expires_in: 86400,
-  expires_at: EXP,
-  refresh_token: 'mock-refresh-token',
-  user: USER,
+// A second account that has never completed onboarding, so the onboarding page
+// can actually be rendered rather than redirecting to the dashboard.
+const NEW_USER_ID = '22222222-2222-2222-2222-222222222222';
+const NEW_USER = {
+  ...USER,
+  id: NEW_USER_ID,
+  email: 'new@lawgistics.test',
+  user_metadata: {},
 };
+
+const EXP = Math.floor(Date.now() / 1000) + 60 * 60 * 24;
+
+function tokenFor(user) {
+  return [
+    b64url({ alg: 'HS256', typ: 'JWT' }),
+    b64url({
+      sub: user.id,
+      role: 'authenticated',
+      aud: 'authenticated',
+      exp: EXP,
+      email: user.email,
+    }),
+    'signature-not-verified-by-this-mock',
+  ].join('.');
+}
+
+function sessionFor(user) {
+  return {
+    access_token: tokenFor(user),
+    token_type: 'bearer',
+    expires_in: 86400,
+    expires_at: EXP,
+    refresh_token: `mock-refresh-${user.id}`,
+    user,
+  };
+}
+
+const USERS = [USER, NEW_USER];
+
+/** Reads the subject out of an unsigned mock token. */
+function userFromToken(token) {
+  try {
+    const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString());
+    return USERS.find((u) => u.id === payload.sub) ?? null;
+  } catch {
+    return null;
+  }
+}
+const SESSION = sessionFor(USER);
 
 /* -------------------------------------------------------------------------- */
 /* Fixtures                                                                   */
@@ -170,11 +204,29 @@ const TABLES = {
       career_stage: 'junior_lawyer',
       improvement_goals: ['litigation_knowledge', 'advocacy'],
       daily_goal_minutes: 10,
+      country: 'AU',
       home_jurisdiction: 'VIC',
       timezone: 'Australia/Melbourne',
       onboarded_at: '2026-02-01T00:00:00Z',
       diagnostic_completed_at: '2026-02-01T00:20:00Z',
       is_admin: true,
+    },
+    {
+      // A learner who has not been through onboarding yet. Without this, the
+      // onboarding page redirects to the dashboard and the visual check
+      // silently reports on a page it never rendered.
+      id: NEW_USER_ID,
+      email: NEW_USER.email,
+      display_name: null,
+      career_stage: null,
+      improvement_goals: [],
+      daily_goal_minutes: 10,
+      country: 'AU',
+      home_jurisdiction: 'AU_GENERAL',
+      timezone: 'Australia/Melbourne',
+      onboarded_at: null,
+      diagnostic_completed_at: null,
+      is_admin: false,
     },
   ],
   xp_events: Array.from({ length: 43 }, () => ({ amount: 10 })),
@@ -319,8 +371,22 @@ const server = http.createServer((req, res) => {
     }
 
     // --- GoTrue -----------------------------------------------------------
-    if (url.pathname === '/auth/v1/token') return send(200, SESSION);
-    if (url.pathname === '/auth/v1/user') return send(200, USER);
+    // Which account is signing in decides which fixture the app then sees, so
+    // the onboarding page can be reached with a learner who has not done it.
+    if (url.pathname === '/auth/v1/token') {
+      let email = USER.email;
+      try {
+        email = String(JSON.parse(body || '{}').email ?? USER.email);
+      } catch {
+        /* a malformed body just signs in the default learner */
+      }
+      const user = USERS.find((u) => u.email.toLowerCase() === email.toLowerCase()) ?? USER;
+      return send(200, sessionFor(user));
+    }
+    if (url.pathname === '/auth/v1/user') {
+      const bearer = (req.headers.authorization ?? '').replace('Bearer ', '');
+      return send(200, userFromToken(bearer) ?? USER);
+    }
     if (url.pathname === '/auth/v1/signup') return send(200, { ...SESSION, ...USER });
     if (url.pathname === '/auth/v1/logout') return send(204, {});
 

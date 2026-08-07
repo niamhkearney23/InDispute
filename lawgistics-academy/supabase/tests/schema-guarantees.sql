@@ -301,6 +301,53 @@ select pg_temp.expect(
   (select review_note from public.daily_facts where slug = 'published-fact') = 'Date is wrong',
   'the reviewer''s note is recorded against the item, not lost in a side document');
 
+
+-- -----------------------------------------------------------------------------
+-- Country
+-- -----------------------------------------------------------------------------
+-- Australian and Malaysian civil procedure are different bodies of law, so a
+-- question from the wrong country is not merely less useful, it is wrong. The
+-- boundary has to be visible to the query that builds a session, which means
+-- the delivery view has to carry country without joining back to a table
+-- learners cannot read.
+
+reset role;
+
+select pg_temp.expect(
+  exists (select 1 from information_schema.columns
+          where table_name = 'v_question_delivery' and column_name = 'country'),
+  'the delivery view carries country, so a session can be filtered without a join');
+
+select pg_temp.expect(
+  (select count(*) from pg_enum e join pg_type t on t.oid = e.enumtypid
+   where t.typname = 'jurisdiction' and e.enumlabel like 'MY%') = 4,
+  'the Malaysian jurisdictions exist');
+
+select pg_temp.expect(
+  (select country from public.questions where slug = 'test-question') = 'AU',
+  'a question with no country stated is Australian, which is what every existing row is');
+
+insert into public.questions (id, slug, domain_id, status, country)
+values ('cccccccc-0000-0000-0000-000000000009', 'my-question',
+        'aaaaaaaa-0000-0000-0000-000000000001', 'published', 'MY');
+
+insert into public.question_versions
+  (question_id, version, question_type, stem, options, correct_option_ids,
+   explanation, difficulty, jurisdiction)
+values ('cccccccc-0000-0000-0000-000000000009', 1, 'multiple_choice',
+        'Which court is the apex court of Malaysia?',
+        '[{"id":"a","text":"Federal Court"},{"id":"b","text":"Court of Appeal"}]'::jsonb,
+        array['a'], 'The Federal Court.', 1, 'MY_FEDERAL');
+
+select pg_temp.expect(
+  (select country from public.v_question_delivery
+   where question_id = 'cccccccc-0000-0000-0000-000000000009') = 'MY',
+  'a Malaysian question reaches the delivery view tagged MY');
+
+select pg_temp.expect(
+  (select count(*) from public.v_question_delivery where country = 'AU') = 0,
+  'the Australian test question is still withdrawn, so country is not masking the flag');
+
 \echo ''
 \echo 'All schema guarantees hold.'
 

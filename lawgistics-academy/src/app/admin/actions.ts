@@ -5,19 +5,8 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { checkAdmin } from '@/lib/admin/guard';
 import { createServiceClient } from '@/lib/supabase/service';
+import { JURISDICTION_COUNTRY, JURISDICTION_VALUES } from '@/lib/types';
 
-const JURISDICTIONS = [
-  'AU_GENERAL',
-  'CTH',
-  'NSW',
-  'VIC',
-  'QLD',
-  'WA',
-  'SA',
-  'TAS',
-  'ACT',
-  'NT',
-] as const;
 
 export type AdminState = { error: string | null; ok?: string };
 
@@ -36,7 +25,7 @@ const questionSchema = z.object({
   domainId: z.string().uuid(),
   questionType: z.enum(['multiple_choice', 'true_false', 'scenario']),
   difficulty: z.coerce.number().int().min(1).max(5),
-  jurisdiction: z.enum(JURISDICTIONS),
+  jurisdiction: z.enum(JURISDICTION_VALUES),
   court: z.string().trim().max(200).optional().or(z.literal('')),
   scenario: z.string().trim().max(4000).optional().or(z.literal('')),
   stem: z.string().trim().min(5).max(2000),
@@ -118,6 +107,10 @@ export async function createQuestion(
     .insert({
       slug: data.slug,
       domain_id: data.domainId,
+      // Derived from the jurisdiction rather than asked for separately, so the
+      // two can never disagree. A question tagged MY_FEDERAL but filed as
+      // Australian would be served to the wrong learners.
+      country: JURISDICTION_COUNTRY[data.jurisdiction],
       // New questions always start as drafts. Nothing reaches a learner without
       // passing through the verification workflow.
       status: 'draft',
@@ -194,7 +187,13 @@ export async function updateQuestion(
       JSON.stringify([...data.correctOptionIds].sort()) ||
     current.jurisdiction !== data.jurisdiction;
 
-  await db.from('questions').update({ domain_id: data.domainId }).eq('id', questionId);
+  await db
+    .from('questions')
+    .update({
+      domain_id: data.domainId,
+      country: JURISDICTION_COUNTRY[data.jurisdiction],
+    })
+    .eq('id', questionId);
 
   const linkError = await replaceLinks(questionId, data.conceptIds, data.skillIds);
   if (linkError) return { error: linkError };
