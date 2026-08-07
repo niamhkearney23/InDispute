@@ -36,7 +36,7 @@ General information only, not legal advice.
 
 The High Court has just expanded what "lawful interests" means, and the consequences reach well beyond criminal practice.
 
-In Potter (a pseudonym) v The King [2026] HCA 25, delivered 5 August, a man convicted in South Australia of raping his sleeping wife appealed on the basis that a covert recording used against him was unlawfully obtained. A month before the second offence, his wife had recorded herself confronting him. He admitted the conduct.
+In Potter (a pseudonym) v The King [2026] HCA 25, delivered 5 August, a man convicted in South Australia of raping his sleeping wife appealed on the basis that a covert recording used against him was unlawfully obtained. A month before the last of those offences, his wife had recorded herself confronting him. He admitted the conduct.
 
 Surveillance devices legislation generally prohibits recording a private conversation without the consent of the parties. The relevant exception permits recording where it is reasonably necessary for the protection of the lawful interests of the person making it. The appellant's argument was, in substance, that protecting a lawful interest means protecting a legal position, and that a recording made for personal resolve does not qualify.
 
