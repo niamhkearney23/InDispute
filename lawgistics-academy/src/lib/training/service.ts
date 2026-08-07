@@ -5,7 +5,11 @@ import { after } from 'next/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServiceClient } from '@/lib/supabase/service';
 import { QUESTIONS_PER_MINUTE_GOAL, DIAGNOSTIC_QUESTION_COUNT } from '@/lib/learning/config';
-import { selectDailyQuestions, selectDiagnosticQuestions } from '@/lib/learning/selection';
+import {
+  selectDailyQuestions,
+  selectDiagnosticQuestions,
+  selectModuleQuestions,
+} from '@/lib/learning/selection';
 import { applyAttempt, initialMasteryState } from '@/lib/learning/mastery';
 import {
   describeNextReview,
@@ -866,3 +870,64 @@ async function recordDiagnosticResult(
     .eq('id', userId);
 }
 
+
+/* -------------------------------------------------------------------------- */
+/* Modules                                                                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * A session covering one module.
+ *
+ * Deliberately not a resume of an unfinished module session: a module is worked
+ * through over as many sittings as it takes, and progress is held by the
+ * attempts rather than by the session, so a fresh session each time is simpler
+ * and loses nothing.
+ */
+export async function startModuleSession(
+  userId: string,
+  domainSlugs: string[],
+  count = 8,
+): Promise<{ sessionId: string } | { error: string }> {
+  const db = createServiceClient();
+
+  const { data: profile } = await db
+    .from('profiles')
+    .select('country')
+    .eq('id', userId)
+    .single();
+
+  const country = asCountry(profile?.country);
+  const selected = await selectModuleQuestions(db, userId, country, domainSlugs, count);
+
+  if (selected.length === 0) {
+    return {
+      error:
+        'This module has no published questions yet. An administrator needs to verify and publish them first.',
+    };
+  }
+
+  const { data: session, error } = await db
+    .from('training_sessions')
+    .insert({ user_id: userId, kind: 'practice', planned_question_count: selected.length })
+    .select('id')
+    .single();
+
+  if (error || !session) return { error: error?.message ?? 'Could not start the module.' };
+
+  const { error: insertError } = await db.from('training_session_questions').insert(
+    selected.map((q, index) => ({
+      session_id: session.id,
+      question_id: q.questionId,
+      question_version_id: q.questionVersionId,
+      position: index,
+      reason: q.reason,
+    })),
+  );
+
+  if (insertError) {
+    await db.from('training_sessions').delete().eq('id', session.id);
+    return { error: insertError.message };
+  }
+
+  return { sessionId: session.id as string };
+}

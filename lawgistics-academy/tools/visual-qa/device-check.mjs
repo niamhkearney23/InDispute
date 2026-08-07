@@ -60,6 +60,8 @@ const PAGES = [
   { name: 'onboarding', path: '/onboarding', auth: true, as: 'new@lawgistics.test' },
   { name: 'dashboard', path: '/dashboard', auth: true },
   { name: 'skills', path: '/skills', auth: true },
+  { name: 'modules', path: '/modules', auth: true },
+  { name: 'module', path: '/modules/ai-ethics-au', auth: true },
   { name: 'diagnostic', path: '/diagnostic', auth: true },
   { name: 'diagnostic-results', path: '/diagnostic/results', auth: true },
   { name: 'train', path: `/train/${SESSION_ID}`, auth: true },

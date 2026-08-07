@@ -81,6 +81,7 @@ test('the server actions were actually found', () => {
   // would pass on an empty set.
   assert.deepEqual(names, [
     'answerQuestion',
+    'beginModule',
     'beginSession',
     'completeSetup',
     'createFact',

@@ -2,11 +2,14 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerOverview } from '@/lib/learner-overview';
+import Link from 'next/link';
 import { masteryBand } from '@/lib/learning/mastery';
+import { outstandingRequired } from '@/lib/modules/service';
 import { QUESTIONS_PER_MINUTE_GOAL } from '@/lib/learning/config';
 import {
   ButtonLink,
   Card,
+  Notice,
   Pill,
   ScoreBar,
   SectionHeading,
@@ -41,7 +44,10 @@ export default async function DashboardPage() {
   if (!overview.profile.diagnosticCompletedAt) redirect('/diagnostic');
 
   const { profile, level, skillMap } = overview;
-  const fact = await getFactOfTheDay(profile.timezone, profile.country);
+  const [fact, outstanding] = await Promise.all([
+    getFactOfTheDay(profile.timezone, profile.country),
+    outstandingRequired(user.id, profile.country),
+  ]);
   const questionCount =
     QUESTIONS_PER_MINUTE_GOAL[profile.dailyGoalMinutes] ?? QUESTIONS_PER_MINUTE_GOAL[10];
 
@@ -52,6 +58,19 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
+      {outstanding.length > 0 ? (
+        <Notice tone="warn">
+          <strong>
+            {outstanding.length === 1
+              ? `"${outstanding[0].module.name}" is required and you have not finished it.`
+              : `${outstanding.length} required modules are outstanding.`}
+          </strong>{' '}
+          <Link href="/modules" className="font-medium underline underline-offset-2">
+            Open modules
+          </Link>
+        </Notice>
+      ) : null}
+
       <section>
         <p className="eyebrow mb-2">
           {greeting(new Date(), profile.timezone)}

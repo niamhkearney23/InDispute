@@ -33,6 +33,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
           <nav className="flex items-center gap-0 text-[0.8125rem] sm:gap-1 sm:text-sm">
             <NavLink href="/dashboard">Today</NavLink>
+            <NavLink href="/modules">Modules</NavLink>
             <NavLink href="/skills">Skills</NavLink>
             {profile?.isAdmin ? <NavLink href="/admin">Admin</NavLink> : null}
             <form action="/auth/sign-out" method="post">

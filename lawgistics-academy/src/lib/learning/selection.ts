@@ -323,3 +323,46 @@ export async function selectDiagnosticQuestions(
 
   return chosen;
 }
+
+/**
+ * Questions for a named module.
+ *
+ * Unlike a daily session this is not a mix. A module has a finishing line, so
+ * it serves what is still standing between the learner and it: questions never
+ * answered correctly, easiest first. Once they are all done, it serves the
+ * module again for practice rather than refusing, because revisiting a
+ * completed induction is a reasonable thing to want to do.
+ */
+export async function selectModuleQuestions(
+  db: SupabaseClient,
+  userId: string,
+  country: Country,
+  domainSlugs: string[],
+  count: number,
+): Promise<SelectedQuestion[]> {
+  const bank = (await loadBank(db, country)).filter((q) => domainSlugs.includes(q.domainSlug));
+  if (bank.length === 0) return [];
+
+  const questionIds = bank.map((q) => q.questionId);
+  const { data: attempts } = await db
+    .from('user_question_attempts')
+    .select('question_id, is_correct')
+    .eq('user_id', userId)
+    .in('question_id', questionIds);
+
+  const answeredCorrectly = new Set(
+    (attempts ?? []).filter((a) => a.is_correct).map((a) => a.question_id as string),
+  );
+
+  const outstanding = bank.filter((q) => !answeredCorrectly.has(q.questionId));
+  const pool = outstanding.length > 0 ? outstanding : bank;
+
+  shuffle(pool);
+  pool.sort((a, b) => a.difficulty - b.difficulty);
+
+  return pool.slice(0, count).map((q) => ({
+    questionId: q.questionId,
+    questionVersionId: q.questionVersionId,
+    reason: 'new_material' as SelectionReason,
+  }));
+}
