@@ -203,3 +203,11 @@ test('a lesson only draws a diagram for a country that has one', () => {
     assert.ok(hierarchy.courts.length >= 4, `the ${lesson.country} diagram is too thin to teach from`);
   }
 });
+
+test('every module has a lesson', () => {
+  // Three modules taught and three did not, which reads as unfinished rather
+  // than as a choice. If a module should genuinely have no lesson, this test is
+  // the place to say so out loud.
+  const without = MODULES.filter((m) => !lessonForModule(m.slug)).map((m) => m.slug);
+  assert.deepEqual(without, [], 'these modules go straight to questions with no teaching');
+});
