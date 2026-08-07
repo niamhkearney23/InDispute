@@ -175,6 +175,7 @@ const deliveryQuestions = [
     ],
     difficulty: 1,
     jurisdiction: 'AU_GENERAL',
+    country: 'AU',
     court: null,
   },
   {
@@ -200,6 +201,7 @@ const deliveryQuestions = [
     ],
     difficulty: 4,
     jurisdiction: 'AU_GENERAL',
+    country: 'AU',
     court: null,
   },
   {
@@ -221,6 +223,7 @@ const deliveryQuestions = [
     ],
     difficulty: 1,
     jurisdiction: 'VIC',
+    country: 'AU',
     court: 'County Court of Victoria',
   },
 ];
