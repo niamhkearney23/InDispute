@@ -21,19 +21,24 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-20 border-b border-rule bg-paper/95 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
-          <Link href="/dashboard" className="min-w-0">
+        {/* Tight on a 360px Android: labels are kept on one line and the
+            spacing tightens rather than letting the nav wrap to two rows. */}
+        <div className="mx-auto flex max-w-4xl items-center justify-between gap-2 px-4 py-2.5 sm:gap-4 sm:px-8 sm:py-3.5">
+          <Link
+            href="/dashboard"
+            className="-mx-1 min-w-0 rounded-[5px] px-1 py-2 hover:bg-paper-sunk"
+          >
             <Wordmark compact />
           </Link>
 
-          <nav className="flex items-center gap-1 text-sm">
+          <nav className="flex items-center gap-0 text-[0.8125rem] sm:gap-1 sm:text-sm">
             <NavLink href="/dashboard">Today</NavLink>
-            <NavLink href="/skills">Skill map</NavLink>
+            <NavLink href="/skills">Skills</NavLink>
             {profile?.isAdmin ? <NavLink href="/admin">Admin</NavLink> : null}
             <form action="/auth/sign-out" method="post">
               <button
                 type="submit"
-                className="rounded-[5px] px-2.5 py-1.5 text-slate hover:bg-paper-sunk hover:text-ink"
+                className="rounded-[5px] px-2 py-2 whitespace-nowrap text-slate hover:bg-paper-sunk hover:text-ink sm:px-2.5"
               >
                 Sign out
               </button>
@@ -61,7 +66,7 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
   return (
     <Link
       href={href}
-      className="rounded-[5px] px-2.5 py-1.5 text-slate hover:bg-paper-sunk hover:text-ink"
+      className="rounded-[5px] px-2 py-2 whitespace-nowrap text-slate hover:bg-paper-sunk hover:text-ink sm:px-2.5"
     >
       {children}
     </Link>

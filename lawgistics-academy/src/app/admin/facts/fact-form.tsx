@@ -132,7 +132,7 @@ function Text({
       </label>
       <input
         id={props.name}
-        className="h-10 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-sm outline-none focus:border-burgundy"
+        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10 sm:text-sm"
         {...props}
       />
       {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
@@ -151,7 +151,7 @@ function TextArea({
       </label>
       <textarea
         id={props.name}
-        className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2 text-sm outline-none focus:border-burgundy"
+        className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2 text-base outline-none focus:border-burgundy sm:text-sm"
         {...props}
       />
     </div>
@@ -170,7 +170,7 @@ function Select({
       </label>
       <select
         id={props.name}
-        className="h-10 w-full rounded-[5px] border border-rule-strong bg-paper px-2.5 text-sm outline-none focus:border-burgundy"
+        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-2.5 text-base outline-none focus:border-burgundy sm:h-10 sm:text-sm"
         {...props}
       >
         {children}

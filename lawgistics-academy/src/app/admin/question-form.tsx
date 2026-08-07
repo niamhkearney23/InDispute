@@ -163,7 +163,7 @@ export function QuestionForm({
                     type="button"
                     onClick={() => setType(value)}
                     className={cn(
-                      'rounded-full border px-3 py-1.5 text-xs',
+                      'rounded-full border px-3.5 py-2.5 text-xs',
                       questionType === value
                         ? 'border-ink bg-ink text-paper'
                         : 'border-rule-strong text-slate hover:bg-paper-sunk',
@@ -214,7 +214,7 @@ export function QuestionForm({
                     }
                     aria-pressed={correct.includes(option.id)}
                     className={cn(
-                      'size-8 shrink-0 rounded-[5px] border text-xs font-semibold',
+                      'size-11 shrink-0 rounded-[5px] border text-xs font-semibold sm:size-9',
                       correct.includes(option.id)
                         ? 'border-verdict-correct bg-verdict-correct text-paper'
                         : 'border-rule-strong text-muted hover:bg-paper-sunk',
@@ -227,7 +227,7 @@ export function QuestionForm({
                     onChange={(event) => updateOption(index, event.target.value)}
                     readOnly={questionType === 'true_false'}
                     placeholder={`Option ${option.id.toUpperCase()}`}
-                    className="h-10 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-sm outline-none focus:border-burgundy read-only:bg-paper-sunk read-only:text-muted"
+                    className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10 sm:text-sm read-only:bg-paper-sunk read-only:text-muted"
                   />
                 </div>
               ))}
@@ -241,7 +241,7 @@ export function QuestionForm({
                     { id: String.fromCharCode(97 + current.length), text: '' },
                   ])
                 }
-                className="mt-2 text-xs text-burgundy underline underline-offset-2"
+                className="mt-2 inline-block py-2 text-xs text-burgundy underline underline-offset-2"
                 disabled={options.length >= 8}
               >
                 Add another option
@@ -339,7 +339,7 @@ export function QuestionForm({
       {state.error ? <Notice tone="error">{state.error}</Notice> : null}
       {state.ok ? <Notice tone="neutral">{state.ok}</Notice> : null}
 
-      <div className="sticky bottom-0 -mx-5 border-t border-rule bg-paper/95 px-5 py-3 backdrop-blur-sm sm:mx-0 sm:rounded-md sm:border sm:px-4">
+      <div className="sticky bottom-0 -mx-5 border-t border-rule bg-paper/95 px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:mx-0 sm:rounded-md sm:border sm:px-4">
         <Button type="submit" variant="accent" disabled={pending}>
           {pending ? 'Saving…' : submitLabel}
         </Button>
@@ -376,7 +376,7 @@ function CheckGrid({
             name={name}
             value={item.id}
             defaultChecked={defaultChecked.includes(item.id)}
-            className="mt-1 size-4 accent-[#6b1f2a]"
+            className="mt-0.5 size-5 shrink-0 accent-[#6b1f2a] sm:mt-1 sm:size-4"
           />
           <span>{item.name}</span>
         </label>
@@ -397,7 +397,7 @@ function Text({
       </label>
       <input
         id={props.name}
-        className="h-10 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-sm outline-none focus:border-burgundy"
+        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10 sm:text-sm"
         {...props}
       />
       {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
@@ -417,7 +417,7 @@ function TextArea({
       </label>
       <textarea
         id={props.name}
-        className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2 text-sm outline-none focus:border-burgundy"
+        className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2 text-base outline-none focus:border-burgundy sm:text-sm"
         {...props}
       />
       {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
@@ -438,7 +438,7 @@ function Select({
       </label>
       <select
         id={props.name}
-        className="h-10 w-full rounded-[5px] border border-rule-strong bg-paper px-2.5 text-sm outline-none focus:border-burgundy"
+        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-2.5 text-base outline-none focus:border-burgundy sm:h-10 sm:text-sm"
         {...props}
       >
         {children}

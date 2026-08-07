@@ -192,8 +192,8 @@ function FilterLink({
       href={href}
       className={
         active
-          ? 'rounded-full border border-ink bg-ink px-2.5 py-1 text-paper'
-          : 'rounded-full border border-rule-strong px-2.5 py-1 text-slate hover:bg-paper-sunk'
+          ? 'rounded-full border border-ink bg-ink px-3 py-2 text-paper'
+          : 'rounded-full border border-rule-strong px-3 py-2 text-slate hover:bg-paper-sunk'
       }
     >
       {label}

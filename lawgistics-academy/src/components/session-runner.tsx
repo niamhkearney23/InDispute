@@ -106,7 +106,7 @@ export function SessionRunner({
   }
 
   return (
-    <div className="pb-28">
+    <div>
       {/* Progress ------------------------------------------------------- */}
       <div className="mb-6">
         <div className="mb-2 flex items-baseline justify-between text-xs">
@@ -240,9 +240,12 @@ export function SessionRunner({
         {feedback ? <FeedbackPanel feedback={feedback} /> : null}
       </article>
 
-      {/* Sticky action bar ---------------------------------------------- */}
+      {/* Sticky rather than fixed, so it stays in the document flow and cannot
+          sit on top of the page footer when scrolled to the bottom. The
+          safe-area padding is not decoration either: without it the iPhone home
+          indicator covers "Next question", the only control on this screen. */}
       {answered ? (
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-rule bg-paper/95 backdrop-blur-sm">
+        <div className="sticky bottom-0 z-30 -mx-5 mt-8 border-t border-rule bg-paper/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm sm:-mx-8">
           <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
             <p className="text-sm text-slate tabular-nums">
               {correctSoFar} of {answeredThisSitting} correct
