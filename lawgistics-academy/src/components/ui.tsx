@@ -254,7 +254,7 @@ export function Wordmark({ compact = false }: { compact?: boolean }) {
       </span>
       {!compact ? (
         <span className="text-[0.6875rem] font-medium tracking-[0.16em] text-muted uppercase">
-          Litigation Academy
+          Academy
         </span>
       ) : null}
     </span>
