@@ -1,0 +1,585 @@
+-- =============================================================================
+-- Lawgistics Litigation Academy -- initial schema
+-- =============================================================================
+-- Design notes that matter more than the DDL:
+--
+--  1. Question CONTENT is versioned and immutable. `questions` holds the stable
+--     identity; `question_versions` holds the text. Editing a question mints a
+--     new version. Attempts point at the version, so history never silently
+--     rewrites itself.
+--
+--  2. Answer keys never reach the browser. The base content tables are
+--     admin-only under RLS. Learners read `v_question_delivery`, a definer view
+--     that omits the answer key and all explanatory text. Grading happens
+--     server-side against the base tables using the service role.
+--
+--  3. The knowledge graph is questions -> concepts (what the rule is) and
+--     questions -> skills (what cognitive move it exercises), each weighted.
+--     Mastery is tracked on both axes. That is what makes a skill map -- and
+--     later a career-fit signal -- possible.
+--
+--  4. Every question version carries jurisdiction. A Victorian rule must never
+--     be served as if it were an ACT rule.
+-- =============================================================================
+
+create extension if not exists "pgcrypto";
+
+-- -----------------------------------------------------------------------------
+-- Enums
+-- -----------------------------------------------------------------------------
+create type career_stage as enum (
+  'law_student', 'plt_student', 'graduate', 'junior_lawyer', 'other'
+);
+
+create type jurisdiction as enum (
+  'AU_GENERAL', 'CTH', 'NSW', 'VIC', 'QLD', 'WA', 'SA', 'TAS', 'ACT', 'NT'
+);
+
+create type question_type as enum (
+  'multiple_choice', 'true_false', 'scenario'
+);
+
+-- Draft -> Requires Review -> Verified -> Published -> Superseded
+create type question_status as enum (
+  'draft', 'requires_review', 'verified', 'published', 'superseded', 'retired'
+);
+
+create type verification_status as enum (
+  'unverified', 'ai_drafted', 'requires_review', 'human_verified'
+);
+
+create type confidence_level as enum ('guess', 'somewhat_sure', 'certain');
+
+create type session_kind as enum ('diagnostic', 'daily', 'review', 'practice');
+
+create type session_status as enum ('in_progress', 'completed', 'abandoned');
+
+create type selection_reason as enum (
+  'weakness', 'due_review', 'new_material', 'reinforcement', 'diagnostic_spread'
+);
+
+create type xp_kind as enum (
+  'correct_answer', 'hard_question_bonus', 'session_complete',
+  'perfect_session', 'streak_bonus', 'diagnostic_complete'
+);
+
+-- -----------------------------------------------------------------------------
+-- Helpers
+-- -----------------------------------------------------------------------------
+create or replace function public.touch_updated_at()
+returns trigger language plpgsql as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+-- -----------------------------------------------------------------------------
+-- Profiles
+-- -----------------------------------------------------------------------------
+create table public.profiles (
+  id                      uuid primary key references auth.users (id) on delete cascade,
+  email                   text,
+  display_name            text,
+  career_stage            career_stage,
+  improvement_goals       text[] not null default '{}',
+  daily_goal_minutes      int not null default 10
+                            check (daily_goal_minutes in (5, 10, 15, 20)),
+  home_jurisdiction       jurisdiction not null default 'AU_GENERAL',
+  timezone                text not null default 'Australia/Melbourne',
+  onboarded_at            timestamptz,
+  diagnostic_completed_at timestamptz,
+  is_admin                boolean not null default false,
+  created_at              timestamptz not null default now(),
+  updated_at              timestamptz not null default now()
+);
+
+create trigger profiles_touch before update on public.profiles
+  for each row execute function public.touch_updated_at();
+
+-- SECURITY DEFINER so policies on `profiles` can call it without recursing
+-- through their own RLS. Owned by the migration role, which bypasses RLS.
+-- Declared after `profiles` because a SQL-bodied function is parsed eagerly.
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(
+    (select p.is_admin from public.profiles p where p.id = auth.uid()),
+    false
+  );
+$$;
+
+-- A user may edit their own profile but must not be able to grant themselves
+-- admin. RLS cannot restrict columns, so guard it with a trigger.
+-- Deliberately NOT security definer. This function has to see the *calling*
+-- role in `current_user`; running it as its owner would make every caller look
+-- like the database owner and the check below would pass for anyone.
+create or replace function public.guard_profile_privileges()
+returns trigger language plpgsql set search_path = public as $$
+begin
+  -- The service role and the database owner are trusted: that is how the first
+  -- administrator gets created (scripts/make-admin.ts). Everyone else, including
+  -- an authenticated user editing their own row, is blocked.
+  if new.is_admin is distinct from old.is_admin
+     and current_user not in ('service_role', 'postgres', 'supabase_admin')
+     and not public.is_admin() then
+    raise exception 'is_admin may only be changed by an administrator';
+  end if;
+  new.id := old.id;
+  return new;
+end;
+$$;
+
+create trigger profiles_guard_privileges before update on public.profiles
+  for each row execute function public.guard_profile_privileges();
+
+create or replace function public.handle_new_user()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  insert into public.profiles (id, email, display_name)
+  values (
+    new.id,
+    new.email,
+    coalesce(new.raw_user_meta_data ->> 'display_name', split_part(new.email, '@', 1))
+  )
+  on conflict (id) do nothing;
+
+  insert into public.user_streaks (user_id) values (new.id)
+  on conflict (user_id) do nothing;
+
+  return new;
+end;
+$$;
+
+-- -----------------------------------------------------------------------------
+-- Knowledge graph: domains, concepts, skills, sources
+-- -----------------------------------------------------------------------------
+create table public.domains (
+  id          uuid primary key default gen_random_uuid(),
+  slug        text not null unique,
+  name        text not null,
+  description text,
+  sort_order  int not null default 0,
+  created_at  timestamptz not null default now()
+);
+
+create table public.concepts (
+  id          uuid primary key default gen_random_uuid(),
+  domain_id   uuid not null references public.domains (id) on delete cascade,
+  slug        text not null unique,
+  name        text not null,
+  description text,
+  sort_order  int not null default 0,
+  created_at  timestamptz not null default now()
+);
+create index concepts_domain_idx on public.concepts (domain_id);
+
+-- Skills are the cognitive moves a question exercises. They cut across domains
+-- and are the axis a career-fit signal would eventually read from.
+create table public.skills (
+  id          uuid primary key default gen_random_uuid(),
+  slug        text not null unique,
+  name        text not null,
+  description text,
+  sort_order  int not null default 0,
+  created_at  timestamptz not null default now()
+);
+
+create table public.legal_sources (
+  id            uuid primary key default gen_random_uuid(),
+  title         text not null,
+  citation      text,
+  url           text,
+  source_type   text,          -- legislation | rules | practice_note | case | text | court_website
+  jurisdiction  jurisdiction not null default 'AU_GENERAL',
+  publisher     text,
+  checked_at    date,
+  notes         text,
+  created_at    timestamptz not null default now()
+);
+
+-- -----------------------------------------------------------------------------
+-- Questions (stable identity) + versions (immutable content)
+-- -----------------------------------------------------------------------------
+create table public.questions (
+  id          uuid primary key default gen_random_uuid(),
+  slug        text not null unique,
+  domain_id   uuid not null references public.domains (id) on delete restrict,
+  status      question_status not null default 'draft',
+  created_by  uuid references auth.users (id) on delete set null,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now(),
+  retired_at  timestamptz
+);
+create index questions_status_idx on public.questions (status);
+create index questions_domain_idx on public.questions (domain_id);
+
+create trigger questions_touch before update on public.questions
+  for each row execute function public.touch_updated_at();
+
+create table public.question_versions (
+  id                   uuid primary key default gen_random_uuid(),
+  question_id          uuid not null references public.questions (id) on delete cascade,
+  version              int not null,
+  is_current           boolean not null default true,
+
+  -- content
+  question_type        question_type not null,
+  scenario             text,                    -- optional fact pattern
+  stem                 text not null,
+  options              jsonb not null,          -- [{ "id": "a", "text": "..." }]
+  correct_option_ids   text[] not null,
+  explanation          text not null,           -- why the right answer is right
+  why_it_matters       text,                    -- practical consequence
+  common_misconception text,                    -- what they may be confusing it with
+  memory_trick         text,
+  difficulty           int not null default 2 check (difficulty between 1 and 5),
+
+  -- provenance: the part that makes this asset defensible
+  jurisdiction         jurisdiction not null,
+  court                text,
+  source_id            uuid references public.legal_sources (id) on delete set null,
+  source_reference     text,
+  source_url           text,
+  source_checked_on    date,
+  verification_status  verification_status not null default 'unverified',
+  verified_by          uuid references auth.users (id) on delete set null,
+  verified_at          timestamptz,
+  effective_from       date,
+  superseded_by        uuid references public.question_versions (id) on delete set null,
+
+  created_by           uuid references auth.users (id) on delete set null,
+  created_at           timestamptz not null default now(),
+
+  constraint question_versions_unique_version unique (question_id, version),
+  constraint question_versions_options_is_array check (jsonb_typeof(options) = 'array'),
+  constraint question_versions_has_answer check (array_length(correct_option_ids, 1) >= 1)
+);
+create index question_versions_question_idx on public.question_versions (question_id);
+create unique index question_versions_one_current
+  on public.question_versions (question_id) where is_current;
+
+-- Editing content mints a new version rather than mutating an old one.
+create or replace function public.freeze_question_versions()
+returns trigger language plpgsql as $$
+begin
+  -- Verification/superseding metadata may move on an existing row; the content
+  -- the learner saw may not.
+  if new.stem is distinct from old.stem
+     or new.scenario is distinct from old.scenario
+     or new.options is distinct from old.options
+     or new.correct_option_ids is distinct from old.correct_option_ids
+     or new.question_type is distinct from old.question_type
+     or new.jurisdiction is distinct from old.jurisdiction then
+    raise exception
+      'question_versions content is immutable; create a new version instead';
+  end if;
+  return new;
+end;
+$$;
+
+create trigger question_versions_freeze before update on public.question_versions
+  for each row execute function public.freeze_question_versions();
+
+create table public.question_concepts (
+  question_id uuid not null references public.questions (id) on delete cascade,
+  concept_id  uuid not null references public.concepts (id) on delete cascade,
+  weight      numeric not null default 1.0 check (weight > 0),
+  primary key (question_id, concept_id)
+);
+create index question_concepts_concept_idx on public.question_concepts (concept_id);
+
+create table public.question_skills (
+  question_id uuid not null references public.questions (id) on delete cascade,
+  skill_id    uuid not null references public.skills (id) on delete cascade,
+  weight      numeric not null default 1.0 check (weight > 0),
+  primary key (question_id, skill_id)
+);
+create index question_skills_skill_idx on public.question_skills (skill_id);
+
+-- -----------------------------------------------------------------------------
+-- Training sessions
+-- -----------------------------------------------------------------------------
+create table public.training_sessions (
+  id                     uuid primary key default gen_random_uuid(),
+  user_id                uuid not null references auth.users (id) on delete cascade,
+  kind                   session_kind not null,
+  status                 session_status not null default 'in_progress',
+  planned_question_count int not null default 10,
+  target_minutes         int,
+  focus_domain_ids       uuid[] not null default '{}',
+  total_answered         int not null default 0,
+  correct_count          int not null default 0,
+  xp_awarded             int not null default 0,
+  started_at             timestamptz not null default now(),
+  completed_at           timestamptz
+);
+create index training_sessions_user_idx on public.training_sessions (user_id, started_at desc);
+
+create table public.training_session_questions (
+  id                  uuid primary key default gen_random_uuid(),
+  session_id          uuid not null references public.training_sessions (id) on delete cascade,
+  question_id         uuid not null references public.questions (id) on delete restrict,
+  question_version_id uuid not null references public.question_versions (id) on delete restrict,
+  position            int not null,
+  reason              selection_reason not null default 'new_material',
+  answered_at         timestamptz,
+  constraint training_session_questions_unique_position unique (session_id, position)
+);
+create index tsq_session_idx on public.training_session_questions (session_id);
+
+-- -----------------------------------------------------------------------------
+-- Attempts -- append-only. This is the historical record.
+-- -----------------------------------------------------------------------------
+create table public.user_question_attempts (
+  id                  uuid primary key default gen_random_uuid(),
+  user_id             uuid not null references auth.users (id) on delete cascade,
+  question_id         uuid not null references public.questions (id) on delete restrict,
+  question_version_id uuid not null references public.question_versions (id) on delete restrict,
+  session_id          uuid references public.training_sessions (id) on delete set null,
+  selected_option_ids text[] not null,
+  is_correct          boolean not null,
+  confidence          confidence_level,
+  response_ms         int,
+  xp_awarded          int not null default 0,
+  answered_at         timestamptz not null default now()
+);
+create index attempts_user_idx on public.user_question_attempts (user_id, answered_at desc);
+create index attempts_user_question_idx on public.user_question_attempts (user_id, question_id);
+create index attempts_session_idx on public.user_question_attempts (session_id);
+
+create or replace function public.block_attempt_mutation()
+returns trigger language plpgsql as $$
+begin
+  raise exception 'user_question_attempts is append-only';
+end;
+$$;
+
+create trigger attempts_no_update before update or delete on public.user_question_attempts
+  for each row execute function public.block_attempt_mutation();
+
+-- -----------------------------------------------------------------------------
+-- Mastery + review scheduling
+-- -----------------------------------------------------------------------------
+create table public.user_concept_mastery (
+  user_id              uuid not null references auth.users (id) on delete cascade,
+  concept_id           uuid not null references public.concepts (id) on delete cascade,
+  mastery              numeric not null default 0 check (mastery between 0 and 100),
+  attempts             int not null default 0,
+  correct              int not null default 0,
+  consecutive_correct  int not null default 0,
+  consecutive_incorrect int not null default 0,
+  avg_response_ms      int,
+  confident_and_wrong  int not null default 0,
+  last_seen_at         timestamptz,
+  updated_at           timestamptz not null default now(),
+  primary key (user_id, concept_id)
+);
+
+create table public.user_skill_mastery (
+  user_id     uuid not null references auth.users (id) on delete cascade,
+  skill_id    uuid not null references public.skills (id) on delete cascade,
+  mastery     numeric not null default 0 check (mastery between 0 and 100),
+  attempts    int not null default 0,
+  correct     int not null default 0,
+  last_seen_at timestamptz,
+  updated_at  timestamptz not null default now(),
+  primary key (user_id, skill_id)
+);
+
+-- The scheduler owns this table. Swapping the algorithm should not require a
+-- schema change: interval/ease are generic enough for SM-2 and successors.
+create table public.review_schedule (
+  id             uuid primary key default gen_random_uuid(),
+  user_id        uuid not null references auth.users (id) on delete cascade,
+  concept_id     uuid not null references public.concepts (id) on delete cascade,
+  next_review_at timestamptz not null default now(),
+  interval_days  numeric not null default 1,
+  ease           numeric not null default 2.5,
+  review_count   int not null default 0,
+  lapses         int not null default 0,
+  last_result    boolean,
+  last_reviewed_at timestamptz,
+  updated_at     timestamptz not null default now(),
+  constraint review_schedule_unique unique (user_id, concept_id)
+);
+create index review_schedule_due_idx on public.review_schedule (user_id, next_review_at);
+
+-- -----------------------------------------------------------------------------
+-- Diagnostic, XP, streaks
+-- -----------------------------------------------------------------------------
+create table public.diagnostic_results (
+  id                uuid primary key default gen_random_uuid(),
+  user_id           uuid not null references auth.users (id) on delete cascade,
+  session_id        uuid not null references public.training_sessions (id) on delete cascade,
+  domain_scores     jsonb not null default '{}',   -- { "<domain_slug>": 0-100 }
+  skill_scores      jsonb not null default '{}',
+  priority_domains  text[] not null default '{}',
+  total_questions   int not null default 0,
+  total_correct     int not null default 0,
+  completed_at      timestamptz not null default now(),
+  constraint diagnostic_results_unique_session unique (session_id)
+);
+create index diagnostic_results_user_idx on public.diagnostic_results (user_id, completed_at desc);
+
+-- XP is stored as events, never as a running total, so history stays auditable.
+create table public.xp_events (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid not null references auth.users (id) on delete cascade,
+  session_id uuid references public.training_sessions (id) on delete set null,
+  attempt_id uuid references public.user_question_attempts (id) on delete set null,
+  kind       xp_kind not null,
+  amount     int not null,
+  meta       jsonb not null default '{}',
+  created_at timestamptz not null default now()
+);
+create index xp_events_user_idx on public.xp_events (user_id, created_at desc);
+
+create table public.user_streaks (
+  user_id        uuid primary key references auth.users (id) on delete cascade,
+  current_streak int not null default 0,
+  longest_streak int not null default 0,
+  last_trained_on date,
+  updated_at     timestamptz not null default now()
+);
+
+-- -----------------------------------------------------------------------------
+-- Delivery view: everything a learner is allowed to see BEFORE answering.
+-- Deliberately a definer view -- the base tables stay admin-only.
+-- -----------------------------------------------------------------------------
+create view public.v_question_delivery
+with (security_invoker = false) as
+select
+  q.id                as question_id,
+  q.slug,
+  q.domain_id,
+  d.slug              as domain_slug,
+  d.name              as domain_name,
+  qv.id               as question_version_id,
+  qv.version,
+  qv.question_type,
+  qv.scenario,
+  qv.stem,
+  qv.options,
+  qv.difficulty,
+  qv.jurisdiction,
+  qv.court
+from public.questions q
+join public.question_versions qv
+  on qv.question_id = q.id and qv.is_current
+join public.domains d on d.id = q.domain_id
+where q.status = 'published';
+
+-- -----------------------------------------------------------------------------
+-- Row Level Security
+-- -----------------------------------------------------------------------------
+alter table public.profiles                  enable row level security;
+alter table public.domains                   enable row level security;
+alter table public.concepts                  enable row level security;
+alter table public.skills                    enable row level security;
+alter table public.legal_sources             enable row level security;
+alter table public.questions                 enable row level security;
+alter table public.question_versions         enable row level security;
+alter table public.question_concepts         enable row level security;
+alter table public.question_skills           enable row level security;
+alter table public.training_sessions         enable row level security;
+alter table public.training_session_questions enable row level security;
+alter table public.user_question_attempts    enable row level security;
+alter table public.user_concept_mastery      enable row level security;
+alter table public.user_skill_mastery        enable row level security;
+alter table public.review_schedule           enable row level security;
+alter table public.diagnostic_results        enable row level security;
+alter table public.xp_events                 enable row level security;
+alter table public.user_streaks              enable row level security;
+
+-- Profiles
+create policy profiles_select_own on public.profiles
+  for select to authenticated using (id = auth.uid() or public.is_admin());
+create policy profiles_update_own on public.profiles
+  for update to authenticated using (id = auth.uid() or public.is_admin())
+  with check (id = auth.uid() or public.is_admin());
+create policy profiles_insert_own on public.profiles
+  for insert to authenticated with check (id = auth.uid());
+
+-- Taxonomy is readable by any signed-in learner (it drives the skill map);
+-- only admins may write it.
+create policy domains_read on public.domains
+  for select to authenticated using (true);
+create policy domains_admin on public.domains
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+create policy concepts_read on public.concepts
+  for select to authenticated using (true);
+create policy concepts_admin on public.concepts
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+create policy skills_read on public.skills
+  for select to authenticated using (true);
+create policy skills_admin on public.skills
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+create policy legal_sources_read on public.legal_sources
+  for select to authenticated using (true);
+create policy legal_sources_admin on public.legal_sources
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+-- Question content: admin only. Learners go through v_question_delivery.
+create policy questions_admin on public.questions
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy question_versions_admin on public.question_versions
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy question_concepts_admin on public.question_concepts
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy question_skills_admin on public.question_skills
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+-- Learner-owned data
+create policy sessions_own on public.training_sessions
+  for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+create policy tsq_own on public.training_session_questions
+  for all to authenticated
+  using (exists (select 1 from public.training_sessions s
+                 where s.id = session_id and s.user_id = auth.uid()))
+  with check (exists (select 1 from public.training_sessions s
+                      where s.id = session_id and s.user_id = auth.uid()));
+
+create policy attempts_select_own on public.user_question_attempts
+  for select to authenticated using (user_id = auth.uid());
+create policy attempts_insert_own on public.user_question_attempts
+  for insert to authenticated with check (user_id = auth.uid());
+
+create policy concept_mastery_own on public.user_concept_mastery
+  for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+create policy skill_mastery_own on public.user_skill_mastery
+  for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+create policy review_schedule_own on public.review_schedule
+  for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+create policy diagnostic_results_own on public.diagnostic_results
+  for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+create policy streaks_own on public.user_streaks
+  for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+-- XP is written server-side only; learners read their own ledger.
+create policy xp_events_select_own on public.xp_events
+  for select to authenticated using (user_id = auth.uid());
+
+-- -----------------------------------------------------------------------------
+-- Grants
+-- -----------------------------------------------------------------------------
+revoke all on public.v_question_delivery from anon, authenticated;
+grant select on public.v_question_delivery to authenticated;
+
+grant execute on function public.is_admin() to authenticated;
+
+-- -----------------------------------------------------------------------------
+-- Auth hook: give every new user a profile and a streak row.
+-- -----------------------------------------------------------------------------
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_user();
