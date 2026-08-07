@@ -28,6 +28,16 @@ export interface LessonStep {
   diagram?: boolean;
   /** A line worth remembering after the rest has faded. */
   takeaway?: string;
+  /**
+   * An embedded video for this screen.
+   *
+   * Optional, and everything works without it: the text is the lesson, and a
+   * video that fails to load must not leave a screen with nothing on it. The
+   * host is checked at render time against a short list, because this value
+   * ends up in an iframe src and an unchecked URL there is somebody else's page
+   * running inside yours.
+   */
+  video?: { url: string; caption?: string };
 }
 
 export interface SeedLesson {

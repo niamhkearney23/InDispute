@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { CourtHierarchyDiagram } from '@/components/court-hierarchy-diagram';
 import { Button, Card, cn } from '@/components/ui';
 import type { SeedLesson } from '@/content/seed/lessons';
+import { isEmbeddable } from '@/lib/lessons/embed';
 import type { Country } from '@/lib/types';
 import { StartModuleButton } from '../start-module-button';
 
@@ -61,6 +62,25 @@ export function LessonPlayer({
         <div key={index} className="rise-in">
           <p className="eyebrow mb-2 text-burgundy">{step.heading}</p>
           <p className="text-[1.0625rem] leading-relaxed sm:text-lg">{step.body}</p>
+
+          {step.video && isEmbeddable(step.video.url) ? (
+            <figure className="mt-5">
+              <div className="aspect-video w-full overflow-hidden rounded-md border border-rule bg-paper-sunk">
+                <iframe
+                  src={step.video.url}
+                  title={step.video.caption ?? step.heading}
+                  allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture"
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  className="size-full"
+                />
+              </div>
+              {step.video.caption ? (
+                <figcaption className="mt-2 text-xs text-muted">{step.video.caption}</figcaption>
+              ) : null}
+            </figure>
+          ) : null}
 
           {step.diagram ? (
             <div className="mt-6 border-t border-rule pt-6">

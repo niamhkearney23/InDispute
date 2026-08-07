@@ -8,6 +8,7 @@ import { MODULES, modulesFor, moduleBySlug } from '../src/content/seed/modules';
 import { QUESTIONS } from '../src/content/seed';
 import { LESSONS, lessonForModule } from '../src/content/seed/lessons';
 import { COURT_HIERARCHIES } from '../src/content/seed/court-hierarchies';
+import { isEmbeddable } from '../src/lib/lessons/embed';
 import { DOMAINS } from '../src/content/seed/taxonomy';
 import { COUNTRIES, JURISDICTION_COUNTRY } from '../src/lib/types';
 
@@ -210,4 +211,31 @@ test('every module has a lesson', () => {
   // the place to say so out loud.
   const without = MODULES.filter((m) => !lessonForModule(m.slug)).map((m) => m.slug);
   assert.deepEqual(without, [], 'these modules go straight to questions with no teaching');
+});
+
+test('a lesson video may only be framed from a host we chose', () => {
+  // An iframe src is somebody else's page running inside this one. The question
+  // is not whether a URL looks safe but whether the host was chosen, so this is
+  // an allowlist and the test is mostly about what it refuses.
+  assert.equal(isEmbeddable('https://www.youtube-nocookie.com/embed/abc123'), true);
+  assert.equal(isEmbeddable('https://player.vimeo.com/video/12345'), true);
+
+  assert.equal(isEmbeddable('http://www.youtube.com/embed/abc'), false, 'http is not https');
+  assert.equal(isEmbeddable('https://evil.example.com/embed/abc'), false);
+  assert.equal(isEmbeddable('https://youtube.com.evil.example/embed'), false, 'suffix attack');
+  assert.equal(isEmbeddable('javascript:alert(1)'), false);
+  assert.equal(isEmbeddable('data:text/html,<script>alert(1)</script>'), false);
+  assert.equal(isEmbeddable('not a url at all'), false);
+  assert.equal(isEmbeddable(''), false);
+
+  // Any video actually in the content must pass, or it silently will not show.
+  for (const lesson of LESSONS) {
+    for (const step of lesson.steps) {
+      if (!step.video) continue;
+      assert.ok(
+        isEmbeddable(step.video.url),
+        `${lesson.slug} has a video on "${step.heading}" that will not render`,
+      );
+    }
+  }
 });

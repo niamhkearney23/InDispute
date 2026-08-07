@@ -20,11 +20,12 @@ export default async function ModulesPage() {
   return (
     <div className="space-y-8">
       <section>
-        <p className="eyebrow mb-2">Modules</p>
-        <h1 className="text-3xl sm:text-4xl">Things to have covered</h1>
+        <p className="eyebrow mb-2">Learn</p>
+        <h1 className="text-3xl sm:text-4xl">Lessons, then questions</h1>
         <p className="mt-3 max-w-xl text-slate">
-          Daily training never finishes, which is right for staying sharp and no use for
-          saying whether someone has covered something. A module has a finishing line.
+          Each of these teaches for a few minutes and then asks. Daily training never
+          finishes, which is right for staying sharp and no use for saying whether someone
+          has covered something. A module has a finishing line.
         </p>
       </section>
 
