@@ -23,6 +23,24 @@ export function AuthForm({ mode, next }: { mode: 'login' | 'signup'; next: strin
     setError(null);
     setNotice(null);
 
+    try {
+      await submitCredentials();
+    } catch (caught) {
+      // Without this the button would simply die: an exception thrown in an
+      // async handler is swallowed, `pending` stays true, and the user is left
+      // clicking a disabled button with no explanation. The likeliest cause is
+      // a deployment built without the Supabase environment variables, since
+      // NEXT_PUBLIC_ values are inlined at build time rather than read at boot.
+      setError(
+        caught instanceof Error
+          ? caught.message
+          : 'Something went wrong. Please try again.',
+      );
+      setPending(false);
+    }
+  }
+
+  async function submitCredentials() {
     const supabase = createClient();
 
     if (isSignup) {
@@ -68,7 +86,7 @@ export function AuthForm({ mode, next }: { mode: 'login' | 'signup'; next: strin
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-5 py-12">
-      <Link href="/" className="mb-10 inline-block">
+      <Link href="/" className="mb-10 -mx-1 inline-block rounded-[5px] px-1 py-2">
         <Wordmark />
       </Link>
 

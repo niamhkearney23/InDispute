@@ -248,6 +248,18 @@ cannot see:
 Both contract tests are mutation-tested — deliberately planted errors were confirmed to
 fail them — so they cannot pass vacuously.
 
+### Devices
+
+`tools/visual-qa/` renders every page of the real app at five viewports — iPhone SE
+(375px), iPhone 15 Pro, Galaxy S24 (360px, the narrowest common Android), Galaxy S24
+Ultra and a 1440px laptop — and reports horizontal scrolling, elements past the viewport,
+tap targets under 32px, inputs under 16px (below which iOS Safari zooms the page on
+focus), and console errors. It signs in through the real login form, so the auth flow is
+exercised too. See `tools/visual-qa/README.md`.
+
+Current result: 65 page/device combinations, no horizontal scrolling, no overflow, no
+render errors, and no outstanding issues on any phone viewport.
+
 The schema's own guarantees are tested against a real Postgres:
 
 ```bash
