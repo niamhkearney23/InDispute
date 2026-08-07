@@ -10,4 +10,4 @@ One post per weekday. Fridays: The Big Case File (pop-culture legal breakdown).
 | Sat 1 Aug 2026 (post 2) | ACCC v JustAnswer [2026] FCA 871, "$2 that cost $10 million" + subscription trap ban | reports/assets/2026-08-01/justanswer-slide-*.png | READY |
 | Fri 7 Aug 2026 | Potter (a pseudonym) v The King [2026] HCA 25, covert recording lawful, High Court unanimous | reports/assets/2026-08-07/potter-slide-*.png | READY, lead post |
 | Anytime | Intern program captions (4 options + slide text) | reports/assets/2026-08-07/INTERN-PROGRAM-CAPTIONS.md | READY |
-| Next available weekday | Elvin v Fair Work Ombudsman [2026] FCAFC 92 — "The company cut a deal. The regulator kept coming." | reports/assets/2026-07-30/elvin-slide-*.png | BANKED |
+| Next available weekday | Elvin v Fair Work Ombudsman [2026] FCAFC 92, "The company cut a deal. The regulator kept coming." | reports/assets/2026-07-30/elvin-slide-*.png | BANKED |
