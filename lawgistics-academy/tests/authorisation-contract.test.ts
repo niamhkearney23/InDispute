@@ -85,11 +85,14 @@ test('the server actions were actually found', () => {
     'createFact',
     'createQuestion',
     'finishSession',
+    'publishAllVerified',
+    'recordReviewDecision',
     'saveOnboarding',
     'transitionFact',
     'transitionQuestion',
     'updateFact',
     'updateQuestion',
+    'withdrawAllUnverified',
   ]);
 });
 

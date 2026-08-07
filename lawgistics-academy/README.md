@@ -38,8 +38,8 @@ The service role key bypasses Row Level Security. It must never be prefixed with
 ### 3. Apply the schema
 
 Paste each file in `supabase/migrations/` into the Supabase **SQL Editor** and run them
-**in order** — `0001_init.sql`, then `0002_daily_facts.sql`. Or, with the Supabase CLI
-linked to your project:
+**in order** — `0001_init.sql`, `0002_daily_facts.sql`, then `0003_review_workflow.sql`.
+Or, with the Supabase CLI linked to your project:
 
 ```bash
 npx supabase db push
@@ -103,14 +103,57 @@ Draft → Requires review → Verified → Published → Superseded/Retired
 
 The one deliberate compromise: `npm run seed` marks seed questions `published` so a fresh
 install has a working training loop, while every one of them still carries
-`requires_review` and the admin dashboard headlines the count. If you would rather nothing
-be servable until a person has approved it:
+`requires_review`. If you would rather nothing be servable until a person has approved it,
+either seed with `--drafts-only`, or press **Withdraw everything unverified** in the
+verification queue — one click, and reversible.
+
+### Getting it verified
+
+Reviewing 128 items by clicking through a list one page at a time is not a workable
+process, so there are two ways in.
+
+**In the app — `/admin/review`.** One pile, ordered so the items most likely to contain an
+error come first, and with anything already live to learners at the very top. Each item
+shows the full content, the keyed answer, the source, and *what specifically to check*.
+Three outcomes:
+
+| | |
+| --- | --- |
+| **Correct — sign off** | records your name and the date against that exact wording |
+| **Needs a change** | withdraws it from learners immediately and records what is wrong |
+| **Remove entirely** | retires it |
+
+Signing off does not publish. Publishing stays a separate, deliberate step. There is
+deliberately **no bulk verify** — a button asserting a hundred times over that someone has
+read the content is precisely what this workflow exists to prevent. Bulk *publish* is
+offered, because it acts only on items that already carry a named sign-off.
+
+Flagging is enforced in the database, not the UI: a trigger withdraws a flagged question
+or fact from circulation the moment it is flagged, so it cannot be left live by a missed
+code path.
+
+**On paper — `npm run review:pack`.** Generates `review-pack.html`: every item laid out to
+be read, with tick boxes and a ruled notes area, printing cleanly to PDF. This is for the
+case that actually matters — handing the content to a senior practitioner who is never
+going to log into an admin panel. It runs from the live database, or from the repository
+before any of this is set up:
 
 ```bash
-npm run seed -- --drafts-only
+npm run review:pack -- --from-seed
 ```
 
-Then verify and publish from `/admin`. Training sessions will be empty until you do.
+### How items are prioritised
+
+Not everything is equally risky. That the plaintiff bears the onus of proof is hard to get
+wrong; that a rule is numbered 19.6, that a limitation period is six years, or that a
+monetary limit sits at a given figure is easy to get wrong and expensive to get wrong. So
+each item is scored on how *checkable* it is — pinpoint provisions, monetary figures,
+periods, case citations, jurisdiction-specific rules, and above all a missing source — and
+the queue leads with the worst. Someone who gets through the first 26 has then done the 26
+that mattered.
+
+This is about checkability, not correctness. Nothing in it substitutes for a person
+reading the content.
 
 ### Jurisdiction
 
@@ -223,7 +266,7 @@ that material. It rephrases and connects; it does not state the law.
 ## Testing
 
 ```bash
-npm run test        # 61 tests — engine, content, and the contract tests below
+npm run test        # 68 tests — engine, content, triage, and the contract tests below
 npm run typecheck
 npm run lint
 npm run build
@@ -266,12 +309,12 @@ The schema's own guarantees are tested against a real Postgres:
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/schema-guarantees.sql
 ```
 
-25 checks, run inside a transaction that rolls itself back. Among them: a learner cannot
+30 checks, run inside a transaction that rolls itself back. Among them: a learner cannot
 make themselves an administrator; cannot read another learner's attempts; cannot read the
 question versions table where the answers live; cannot forge XP; cannot write to the daily
 brief; cannot see unpublished facts. And: question content cannot be rewritten in place,
-recorded attempts cannot be altered or deleted, and the delivery view exposes no answer
-key.
+recorded attempts cannot be altered or deleted, the delivery view exposes no answer key,
+and flagging an item in review genuinely withdraws it from learners.
 
 ---
 
@@ -297,20 +340,23 @@ src/
       dashboard/           today's training, streak, XP, level, skill map
       train/[sessionId]/   the session runner and its summary
       skills/              full skill map — by area, by skill, and blind spots
-    admin/                 question bank, daily brief, verification workflow, versioning
+    admin/                 question bank, daily brief, versioning
+      review/              the verification queue
   lib/
     learning/              config, mastery, review-scheduler, progression, selection
     training/service.ts    grading, mastery writes, scheduling, XP
     facts/                 the daily brief and its rotation
+    review/                verification queue and risk triage
     ai/                    provider abstraction + legal coach (both optional)
     supabase/              browser, server (RLS-scoped) and service (privileged) clients
     admin/guard.ts         server-side authorisation
   content/seed/            the question bank and daily facts, as reviewable TypeScript
 supabase/
-  migrations/0001_init.sql, 0002_daily_facts.sql
+  migrations/0001_init.sql, 0002_daily_facts.sql, 0003_review_workflow.sql
   tests/schema-guarantees.sql
 scripts/
   seed.ts                  idempotent; re-versions rather than overwriting
+  review-pack.ts           printable review pack, from the database or the repo
   make-admin.ts
 tests/
 ```

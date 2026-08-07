@@ -13,7 +13,8 @@
     "test": "tsx --conditions=react-server --test tests/*.test.ts",
     "test:db": "psql \"$DATABASE_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/schema-guarantees.sql",
     "qa:devices": "node tools/visual-qa/device-check.mjs",
-    "qa:mock": "node tools/visual-qa/mock-supabase.mjs"
+    "qa:mock": "node tools/visual-qa/mock-supabase.mjs",
+    "review:pack": "tsx scripts/review-pack.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",

@@ -69,6 +69,23 @@ function parseMigrations(): Schema {
     tables.set(table, columns);
   }
 
+  // Later migrations add columns rather than recreating the table, so the
+  // CREATE TABLE statements alone are an incomplete picture of the schema.
+  const alterRe = /alter table public\.(\w+)\s*([\s\S]*?);/g;
+  for (const match of clean.matchAll(alterRe)) {
+    const columns = tables.get(match[1]);
+    if (!columns) continue;
+
+    for (const add of match[2].matchAll(/add column (?:if not exists )?(\w+)([^,]*)/gi)) {
+      columns.add(add[1]);
+      const ref = add[2].match(/references public\.(\w+)/);
+      if (ref) foreignKeys.push({ from: match[1], column: add[1], to: ref[1] });
+    }
+    for (const drop of match[2].matchAll(/drop column (?:if exists )?(\w+)/gi)) {
+      columns.delete(drop[1]);
+    }
+  }
+
   // Views: take the select list and use each item's output name.
   const viewRe = /create view public\.(\w+)[\s\S]*?\sas\s*\n([\s\S]*?)\nfrom /g;
   for (const match of clean.matchAll(viewRe)) {
@@ -315,6 +332,11 @@ test('the migrations parse into a usable schema', () => {
   assert.ok(schema.tables.get('v_question_delivery')?.has('domain_name'));
   assert.ok(schema.tables.has('daily_facts'));
   assert.ok(schema.tables.get('daily_facts')?.has('why_it_matters'));
+
+  // Columns introduced by a later migration's ALTER TABLE, not by CREATE TABLE.
+  assert.ok(schema.tables.get('daily_facts')?.has('review_flagged'));
+  assert.ok(schema.tables.get('question_versions')?.has('review_note'));
+  assert.ok(schema.tables.get('question_versions')?.has('reviewed_by'));
 
   // And that constraint lines were not mistaken for columns.
   assert.ok(!schema.tables.get('question_versions')?.has('constraint'));
