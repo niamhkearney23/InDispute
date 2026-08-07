@@ -18,6 +18,11 @@ import { execFileSync } from 'node:child_process';
 const ROOT = path.join(__dirname, '..');
 const REWRITTEN_BY_NEXT = new Set(['AGENTS.md', 'CLAUDE.md']);
 
+// Built from code points rather than typed, so this file does not have to be
+// exempt from its own rule and can be scanned along with everything else.
+const EM_DASH = String.fromCharCode(0x2014);
+const EN_DASH = String.fromCharCode(0x2013);
+
 function trackedFiles(): string[] {
   return execFileSync('git', ['ls-files'], { cwd: ROOT, encoding: 'utf8' })
     .split('\n')
@@ -34,7 +39,7 @@ test('no file contains an em dash', () => {
 
     const text = fs.readFileSync(full, 'utf8');
     text.split('\n').forEach((line, index) => {
-      if (line.includes('—')) offenders.push(`${file}:${index + 1}  ${line.trim()}`);
+      if (line.includes(EM_DASH)) offenders.push(`${file}:${index + 1}  ${line.trim()}`);
     });
   }
 
@@ -53,7 +58,9 @@ test('no file contains an en dash used as punctuation', () => {
     const text = fs.readFileSync(full, 'utf8');
     text.split('\n').forEach((line, index) => {
       // Flag only a spaced en dash, which is never a range.
-      if (/\s–\s/.test(line)) offenders.push(`${file}:${index + 1}  ${line.trim()}`);
+      if (new RegExp(`\\s${EN_DASH}\\s`).test(line)) {
+        offenders.push(`${file}:${index + 1}  ${line.trim()}`);
+      }
     });
   }
 
@@ -66,5 +73,5 @@ test('the test itself would catch a violation', () => {
   assert.ok(files.length > 50, `only ${files.length} files scanned`);
   assert.ok(files.some((f) => f.endsWith('.tsx')), 'no component files scanned');
   assert.ok(files.some((f) => f.endsWith('.sql')), 'no migrations scanned');
-  assert.ok('a—b'.includes('—'), 'the detection itself is broken');
+  assert.ok(`a${EM_DASH}b`.includes(EM_DASH), 'the detection itself is broken');
 });
