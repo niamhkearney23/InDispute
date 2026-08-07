@@ -37,8 +37,9 @@ The service role key bypasses Row Level Security. It must never be prefixed with
 
 ### 3. Apply the schema
 
-Paste `supabase/migrations/0001_init.sql` into the Supabase **SQL Editor** and run it. Or,
-with the Supabase CLI linked to your project:
+Paste each file in `supabase/migrations/` into the Supabase **SQL Editor** and run them
+**in order** — `0001_init.sql`, then `0002_daily_facts.sql`. Or, with the Supabase CLI
+linked to your project:
 
 ```bash
 npx supabase db push
@@ -51,7 +52,7 @@ npm install
 npm run seed
 ```
 
-That loads 6 domains, 51 concepts, 10 skills and 78 questions.
+That loads 6 domains, 51 concepts, 10 skills, 78 questions and 50 daily facts.
 
 ### 5. Run it
 
@@ -160,6 +161,26 @@ text. Grading happens server-side, in `submitAnswer`, against the base tables.
 
 There is no client-side path to a correct answer before it is submitted.
 
+### The daily brief
+
+One verified fact a day, on the dashboard. It is a reason to open the app on a day you
+weren't going to train — origins, distinctions, and the rules everyone assumes they
+already understand.
+
+Everyone sees the same fact on the same day. That's deliberate: a shared brief is
+something two people in the same cohort can talk about, and a personalised one isn't.
+Rotation is a plain modulo over a stable ordering, computed from the calendar date in the
+learner's own timezone — so nothing repeats until the whole published pool has cycled, the
+same date always gives the same fact, and there is no state to drift.
+
+Facts carry the same provenance and sign-off discipline as questions: jurisdiction,
+source, and human verification before publishing. They are simpler in two ways. Nothing a
+learner does is recorded against a fact, so there is no mastery to protect and no need for
+immutable versioning — correcting a fact just corrects it. And there is no answer key, so
+learners read published facts directly under RLS rather than through a delivery view.
+
+Manage them at `/admin/facts`, which also shows which fact is running today.
+
 ### The engine
 
 Everything tunable lives in `src/lib/learning/config.ts` — nothing is buried in business
@@ -202,7 +223,7 @@ that material. It rephrases and connects; it does not state the law.
 ## Testing
 
 ```bash
-npm run test        # 31 tests — scheduler, mastery, XP, streaks, session composition, content
+npm run test        # 39 tests — scheduler, mastery, XP, streaks, session composition, daily rotation, content
 npm run typecheck
 npm run lint
 npm run build
@@ -214,11 +235,12 @@ The schema's own guarantees are tested against a real Postgres:
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/schema-guarantees.sql
 ```
 
-22 checks, run inside a transaction that rolls itself back. Among them: a learner cannot
+25 checks, run inside a transaction that rolls itself back. Among them: a learner cannot
 make themselves an administrator; cannot read another learner's attempts; cannot read the
-question versions table where the answers live; cannot forge XP. And: question content
-cannot be rewritten in place, recorded attempts cannot be altered or deleted, and the
-delivery view exposes no answer key.
+question versions table where the answers live; cannot forge XP; cannot write to the daily
+brief; cannot see unpublished facts. And: question content cannot be rewritten in place,
+recorded attempts cannot be altered or deleted, and the delivery view exposes no answer
+key.
 
 ---
 
@@ -244,16 +266,17 @@ src/
       dashboard/           today's training, streak, XP, level, skill map
       train/[sessionId]/   the session runner and its summary
       skills/              full skill map — by area, by skill, and blind spots
-    admin/                 question bank, verification workflow, versioning
+    admin/                 question bank, daily brief, verification workflow, versioning
   lib/
     learning/              config, mastery, review-scheduler, progression, selection
     training/service.ts    grading, mastery writes, scheduling, XP
+    facts/                 the daily brief and its rotation
     ai/                    provider abstraction + legal coach (both optional)
     supabase/              browser, server (RLS-scoped) and service (privileged) clients
     admin/guard.ts         server-side authorisation
-  content/seed/            the question bank, as reviewable TypeScript
+  content/seed/            the question bank and daily facts, as reviewable TypeScript
 supabase/
-  migrations/0001_init.sql
+  migrations/0001_init.sql, 0002_daily_facts.sql
   tests/schema-guarantees.sql
 scripts/
   seed.ts                  idempotent; re-versions rather than overwriting

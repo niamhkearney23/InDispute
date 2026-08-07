@@ -26,7 +26,7 @@
 
 import { config } from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
-import { CONCEPTS, DOMAINS, QUESTIONS, SKILLS, validateSeed } from '../src/content/seed';
+import { CONCEPTS, DOMAINS, FACTS, QUESTIONS, SKILLS, validateSeed } from '../src/content/seed';
 import type { SeedQuestion } from '../src/content/seed/types';
 
 config({ path: '.env.local' });
@@ -90,7 +90,7 @@ async function main() {
 
   console.log(
     `Seeding ${DOMAINS.length} domains, ${CONCEPTS.length} concepts, ` +
-      `${SKILLS.length} skills, ${QUESTIONS.length} questions.\n`,
+      `${SKILLS.length} skills, ${QUESTIONS.length} questions, ${FACTS.length} daily facts.\n`,
   );
 
   /* --- taxonomy ---------------------------------------------------------- */
@@ -256,6 +256,30 @@ async function main() {
   console.log(
     `Questions: ${created} created, ${reversioned} re-versioned, ${unchanged} unchanged.`,
   );
+
+  /* --- daily facts -------------------------------------------------------- */
+  // Facts are not versioned: nothing a learner does is recorded against one, so
+  // correcting a fact just corrects it.
+  const { error: factError } = await db.from('daily_facts').upsert(
+    FACTS.map((fact, index) => ({
+      slug: fact.slug,
+      title: fact.title,
+      body: fact.body,
+      why_it_matters: fact.whyItMatters ?? null,
+      jurisdiction: fact.jurisdiction,
+      court: fact.court ?? null,
+      domain_id: fact.domain ? domainIdBySlug.get(fact.domain) : null,
+      source_reference: fact.sourceReference ?? null,
+      source_url: fact.sourceUrl ?? null,
+      status: seedStatus,
+      verification_status: 'requires_review',
+      sort_order: index,
+    })),
+    { onConflict: 'slug' },
+  );
+  if (factError) throw factError;
+
+  console.log(`Daily facts: ${FACTS.length} up to date.`);
 
   const { count } = await db
     .from('question_versions')
