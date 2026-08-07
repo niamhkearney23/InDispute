@@ -5,40 +5,44 @@ import { saveOnboarding, type OnboardingState } from '../actions';
 import { Button, Card, Notice, cn } from '@/components/ui';
 import {
   CAREER_STAGE_LABELS,
+  COUNTRIES,
+  COUNTRY_LABELS,
+  DEFAULT_JURISDICTION,
   IMPROVEMENT_GOALS,
   JURISDICTION_LABELS,
   type CareerStage,
+  type Country,
   type Jurisdiction,
 } from '@/lib/types';
 
 const STAGES: CareerStage[] = ['law_student', 'plt_student', 'graduate', 'junior_lawyer'];
 const MINUTES = [5, 10, 15, 20];
-const JURISDICTIONS: Jurisdiction[] = [
-  'AU_GENERAL',
-  'VIC',
-  'NSW',
-  'QLD',
-  'WA',
-  'SA',
-  'TAS',
-  'ACT',
-  'NT',
-  'CTH',
-];
+
+/**
+ * Ordered as a person would expect to find their own, with the general option
+ * first for anyone who does not want to commit to one.
+ */
+const JURISDICTIONS: Record<Country, Jurisdiction[]> = {
+  AU: ['AU_GENERAL', 'VIC', 'NSW', 'QLD', 'WA', 'SA', 'TAS', 'ACT', 'NT', 'CTH'],
+  MY: ['MY_GENERAL', 'MY_FEDERAL', 'MY_MALAYA', 'MY_SABAH_SARAWAK'],
+};
 
 const initialState: OnboardingState = { error: null };
 
 export function OnboardingForm({
   defaultName,
+  defaultCountry,
   defaultJurisdiction,
 }: {
   defaultName: string;
+  defaultCountry: Country;
   defaultJurisdiction: Jurisdiction;
 }) {
   const [state, formAction, pending] = useActionState(saveOnboarding, initialState);
   const [stage, setStage] = useState<CareerStage>('law_student');
   const [goals, setGoals] = useState<string[]>(['litigation_knowledge']);
   const [minutes, setMinutes] = useState(10);
+  const [country, setCountry] = useState<Country>(defaultCountry);
 
   function toggleGoal(slug: string) {
     setGoals((current) =>
@@ -49,10 +53,32 @@ export function OnboardingForm({
   return (
     <form action={formAction} className="space-y-5">
       <input type="hidden" name="careerStage" value={stage} />
+      <input type="hidden" name="country" value={country} />
       <input type="hidden" name="dailyGoalMinutes" value={minutes} />
       {goals.map((slug) => (
         <input key={slug} type="hidden" name="goals" value={slug} />
       ))}
+
+      <Card>
+        <fieldset>
+          <legend className="mb-1 text-lg">Which country are you training in?</legend>
+          <p className="mb-4 text-sm text-slate">
+            This one is not a preference. Australian and Malaysian law are different
+            bodies of law, so it decides which questions you are ever shown.
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            {COUNTRIES.map((value) => (
+              <Choice
+                key={value}
+                selected={country === value}
+                onClick={() => setCountry(value)}
+                label={COUNTRY_LABELS[value]}
+                centered
+              />
+            ))}
+          </div>
+        </fieldset>
+      </Card>
 
       <Card>
         <fieldset>
@@ -140,10 +166,15 @@ export function OnboardingForm({
             <select
               id="homeJurisdiction"
               name="homeJurisdiction"
-              defaultValue={defaultJurisdiction}
+              // Keyed on country so switching country resets the selection
+              // rather than leaving a Victorian learner in Malaysia.
+              key={country}
+              defaultValue={
+                country === defaultCountry ? defaultJurisdiction : DEFAULT_JURISDICTION[country]
+              }
               className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy"
             >
-              {JURISDICTIONS.map((value) => (
+              {JURISDICTIONS[country].map((value) => (
                 <option key={value} value={value}>
                   {JURISDICTION_LABELS[value]}
                 </option>

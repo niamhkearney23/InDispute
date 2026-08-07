@@ -4,7 +4,8 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { displayScore } from '@/lib/learning/mastery';
 import { levelForXp, type LevelInfo } from '@/lib/learning/progression';
 import { MASTERY } from '@/lib/learning/config';
-import type { CareerStage, Jurisdiction, SkillMapEntry } from '@/lib/types';
+import { asCountry } from '@/lib/types';
+import type { CareerStage, Country, Jurisdiction, SkillMapEntry } from '@/lib/types';
 
 /**
  * Everything the dashboard needs, read through the learner's own session so
@@ -18,6 +19,7 @@ export interface LearnerProfile {
   careerStage: CareerStage | null;
   improvementGoals: string[];
   dailyGoalMinutes: number;
+  country: Country;
   homeJurisdiction: Jurisdiction;
   timezone: string;
   onboardedAt: string | null;
@@ -51,6 +53,7 @@ export async function getLearnerProfile(userId: string): Promise<LearnerProfile 
     careerStage: data.career_stage,
     improvementGoals: data.improvement_goals ?? [],
     dailyGoalMinutes: data.daily_goal_minutes,
+    country: asCountry(data.country),
     homeJurisdiction: data.home_jurisdiction,
     timezone: data.timezone,
     onboardedAt: data.onboarded_at,

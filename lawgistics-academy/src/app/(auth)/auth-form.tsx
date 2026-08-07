@@ -156,7 +156,9 @@ export function AuthForm({
         {isSignup ? 'Already have an account? ' : 'No account yet? '}
         <Link
           href={isSignup ? '/login' : '/signup'}
-          className="font-medium text-burgundy underline underline-offset-4"
+          // Negative margin keeps the sentence on one line while the padding
+          // grows the tap target to something a thumb can actually hit.
+          className="-my-2 inline-block rounded-[5px] px-1 py-2 font-medium text-burgundy underline underline-offset-4"
         >
           {isSignup ? 'Sign in' : 'Create one'}
         </Link>

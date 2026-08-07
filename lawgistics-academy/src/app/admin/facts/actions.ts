@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { checkAdmin } from '@/lib/admin/guard';
+import { JURISDICTION_COUNTRY, JURISDICTION_VALUES } from '@/lib/types';
 import { createServiceClient } from '@/lib/supabase/service';
 import type { AdminState } from '../actions';
 
@@ -17,18 +18,7 @@ const factSchema = z.object({
   title: z.string().trim().min(10).max(300),
   body: z.string().trim().min(60).max(3000),
   whyItMatters: z.string().trim().max(2000).optional().or(z.literal('')),
-  jurisdiction: z.enum([
-    'AU_GENERAL',
-    'CTH',
-    'NSW',
-    'VIC',
-    'QLD',
-    'WA',
-    'SA',
-    'TAS',
-    'ACT',
-    'NT',
-  ]),
+  jurisdiction: z.enum(JURISDICTION_VALUES),
   court: z.string().trim().max(200).optional().or(z.literal('')),
   domainId: z.string().uuid().optional().or(z.literal('')),
   sourceReference: z.string().trim().max(500).optional().or(z.literal('')),
@@ -62,6 +52,8 @@ function toRow(data: z.infer<typeof factSchema>) {
     body: data.body,
     why_it_matters: empty(data.whyItMatters),
     jurisdiction: data.jurisdiction,
+    // Derived, never asked for separately, so the two cannot disagree.
+    country: JURISDICTION_COUNTRY[data.jurisdiction],
     court: empty(data.court),
     domain_id: empty(data.domainId),
     source_reference: empty(data.sourceReference),

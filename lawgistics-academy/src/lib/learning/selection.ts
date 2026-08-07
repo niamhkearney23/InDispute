@@ -9,7 +9,7 @@ import {
   TRAINING_MIX,
   type MixBucket,
 } from './config';
-import type { SelectionReason } from '@/lib/types';
+import type { Country, SelectionReason } from '@/lib/types';
 
 /**
  * Session composition.
@@ -46,11 +46,20 @@ export interface SelectedQuestion {
   reason: SelectionReason;
 }
 
-async function loadBank(db: SupabaseClient): Promise<BankQuestion[]> {
+/**
+ * The question bank, for one country.
+ *
+ * The filter is applied in the query rather than after it. A Malaysian learner
+ * must never hold an Australian question in memory, let alone see one: the two
+ * are different bodies of law, and a rule from the wrong one is not merely
+ * irrelevant, it is wrong.
+ */
+async function loadBank(db: SupabaseClient, country: Country): Promise<BankQuestion[]> {
   const [{ data: rows, error }, { data: links, error: linkError }] = await Promise.all([
     db
       .from('v_question_delivery')
-      .select('question_id, question_version_id, difficulty, domain_id, domain_slug'),
+      .select('question_id, question_version_id, difficulty, domain_id, domain_slug')
+      .eq('country', country),
     db.from('question_concepts').select('question_id, concept_id'),
   ]);
 
@@ -187,9 +196,12 @@ export async function selectDailyQuestions(
   db: SupabaseClient,
   userId: string,
   count: number,
-  options: { preferredDomainSlugs?: string[] } = {},
+  options: { preferredDomainSlugs?: string[]; country: Country },
 ): Promise<SelectedQuestion[]> {
-  const [bank, state] = await Promise.all([loadBank(db), loadLearnerState(db, userId)]);
+  const [bank, state] = await Promise.all([
+    loadBank(db, options.country),
+    loadLearnerState(db, userId),
+  ]);
   if (bank.length === 0) return [];
 
   const preferred = new Set(options.preferredDomainSlugs ?? []);
@@ -264,9 +276,10 @@ export async function selectDailyQuestions(
  */
 export async function selectDiagnosticQuestions(
   db: SupabaseClient,
+  country: Country,
   count: number = DIAGNOSTIC_QUESTION_COUNT,
 ): Promise<SelectedQuestion[]> {
-  const bank = await loadBank(db);
+  const bank = await loadBank(db, country);
   if (bank.length === 0) return [];
 
   const byDomain = new Map<string, BankQuestion[]>();

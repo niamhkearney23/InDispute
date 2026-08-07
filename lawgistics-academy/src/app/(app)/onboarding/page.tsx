@@ -18,12 +18,13 @@ export default async function OnboardingPage() {
       <p className="eyebrow mb-3">Welcome to Lawgistics Academy</p>
       <h1 className="mb-3 text-3xl sm:text-4xl">Train like a lawyer.</h1>
       <p className="mb-9 text-slate">
-        Four quick questions, then a diagnostic of about thirty questions. After that you
+        Five quick questions, then a diagnostic of about thirty questions. After that you
         will have a skill map and a daily session shaped around it.
       </p>
 
       <OnboardingForm
         defaultName={profile?.displayName ?? ''}
+        defaultCountry={profile?.country ?? 'AU'}
         defaultJurisdiction={profile?.homeJurisdiction ?? 'AU_GENERAL'}
       />
     </div>

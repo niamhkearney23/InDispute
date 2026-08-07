@@ -54,7 +54,10 @@ const DEVICES = [
 const PAGES = [
   { name: 'landing', path: '/', auth: false },
   { name: 'login', path: '/login', auth: false },
-  { name: 'onboarding', path: '/onboarding', auth: true },
+  // Signed in as the learner who has not been through onboarding; the default
+  // fixture has, so this page would redirect and the check would quietly
+  // report on the dashboard instead.
+  { name: 'onboarding', path: '/onboarding', auth: true, as: 'new@lawgistics.test' },
   { name: 'dashboard', path: '/dashboard', auth: true },
   { name: 'skills', path: '/skills', auth: true },
   { name: 'diagnostic', path: '/diagnostic', auth: true },
@@ -143,19 +146,62 @@ for (const device of DEVICES) {
   const signedIn = !page.url().includes('/login');
 
   for (const target of PAGES) {
+    // Two kinds of page need their own browser context: one that must be
+    // viewed signed out, and one that must be viewed as a different account.
+    // Both were previously visited on the shared signed-in page, so the
+    // landing page, the login page and onboarding all redirected to the
+    // dashboard and were reported as though they had rendered.
+    //
+    // Signing out and back in on the shared page is not the fix: it leaves a
+    // client-side redirect in flight that interrupts the next navigation, and
+    // then every navigation after it.
+    const needsOwnContext = target.as || target.auth === false;
+    let scopedContext = null;
+    let view = page;
+
     try {
-      await page.goto(BASE + target.path, { waitUntil: 'networkidle', timeout: 20000 });
+      if (needsOwnContext) {
+        scopedContext = await browser.newContext({
+          viewport: device.viewport,
+          deviceScaleFactor: device.dpr,
+          isMobile: device.mobile,
+          hasTouch: device.mobile,
+          userAgent: device.ua,
+        });
+        view = await scopedContext.newPage();
+        view.on('console', (m) => {
+          if (m.type() === 'error') consoleErrors.push(m.text().slice(0, 160));
+        });
+        view.on('pageerror', (e) => consoleErrors.push('PAGEERROR ' + e.message.slice(0, 160)));
+
+        if (target.as) {
+          await view.goto(`${BASE}/login`, { waitUntil: 'networkidle' });
+          await view.fill('#email', target.as);
+          await view.fill('#password', 'password123');
+          await Promise.all([
+            view.waitForURL((u) => !u.pathname.includes('/login'), { timeout: 15000 }).catch(() => {}),
+            view.click('button[type=submit]'),
+          ]);
+        }
+      }
+
+      await view.goto(BASE + target.path, { waitUntil: 'networkidle', timeout: 20000 });
+
+      // A page that redirects elsewhere was never rendered, and reporting "no
+      // problems" for it is worse than reporting nothing: it reads as coverage.
+      const landed = new URL(view.url()).pathname;
+      const redirected = target.path !== landed && !target.path.startsWith(landed);
 
       if (target.answer) {
         // Drive the runner into its answered state so the feedback panel and
         // the sticky action bar are exercised too.
-        await page.click('button[aria-pressed]', { timeout: 5000 }).catch(() => {});
-        await page.getByText('Somewhat sure').click({ timeout: 5000 }).catch(() => {});
-        await page.waitForTimeout(1200);
+        await view.click('button[aria-pressed]', { timeout: 5000 }).catch(() => {});
+        await view.getByText('Somewhat sure').click({ timeout: 5000 }).catch(() => {});
+        await view.waitForTimeout(1200);
       }
 
-      const probe = await page.evaluate(OVERFLOW_PROBE);
-      await page.screenshot({
+      const probe = await view.evaluate(OVERFLOW_PROBE);
+      await view.screenshot({
         path: `${OUT}/${device.name}--${target.name}.png`,
         fullPage: true,
       });
@@ -163,17 +209,21 @@ for (const device of DEVICES) {
       report.push({
         device: device.label,
         page: target.name,
-        url: page.url().replace(BASE, ''),
+        url: view.url().replace(BASE, ''),
+        redirectedTo: redirected ? landed : null,
         ...probe,
         consoleErrors: [...consoleErrors],
       });
       consoleErrors.length = 0;
+
     } catch (error) {
       report.push({
         device: device.label,
         page: target.name,
         error: error.message.split('\n')[0].slice(0, 140),
       });
+    } finally {
+      if (scopedContext) await scopedContext.close();
     }
   }
 
@@ -191,6 +241,7 @@ const problems = report.filter(
     r.error ||
     r.horizontalScroll ||
     (r.smallTargets && r.smallTargets.length) ||
+    r.redirectedTo ||
     (r.zoomers && r.zoomers.length) ||
     (r.consoleErrors && r.consoleErrors.length),
 );
@@ -204,6 +255,7 @@ if (problems.length === 0) {
   for (const p of problems) {
     console.log(`--- ${p.device} :: ${p.page}`);
     if (p.error) console.log(`    ERROR ${p.error}`);
+    if (p.redirectedTo) console.log(`    NOT RENDERED: redirected to ${p.redirectedTo}`);
     if (p.horizontalScroll) console.log(`    HORIZONTAL SCROLL ${p.scrollWidth} > ${p.docWidth}`);
     for (const o of p.offenders ?? []) console.log(`      overflow: <${o.tag}> "${o.text}" [${o.left}..${o.right}] ${o.cls}`);
     for (const t of p.smallTargets ?? []) console.log(`      small tap target ${t.h}px: <${t.tag}> "${t.text}"`);

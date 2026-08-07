@@ -83,7 +83,7 @@ test('a brand new learner gets a full session of new material', async () => {
     user_question_attempts: [],
   });
 
-  const selected = await selectDailyQuestions(db, 'user-1', 10);
+  const selected = await selectDailyQuestions(db, 'user-1', 10, { country: 'AU' });
 
   assert.equal(selected.length, 10, 'a full session is produced on day one');
   assert.equal(
@@ -121,7 +121,7 @@ test('the mix is honoured once a learner has history', async () => {
   });
 
   const count = 10;
-  const selected = await selectDailyQuestions(db, 'user-1', count);
+  const selected = await selectDailyQuestions(db, 'user-1', count, { country: 'AU' });
 
   assert.equal(selected.length, count);
 
@@ -152,7 +152,7 @@ test('a shortfall in one bucket spills into the others rather than shipping a sh
     user_question_attempts: [],
   });
 
-  const selected = await selectDailyQuestions(db, 'user-1', 12);
+  const selected = await selectDailyQuestions(db, 'user-1', 12, { country: 'AU' });
 
   assert.equal(selected.length, 12, 'the session is still full');
   assert.ok(selected.every((q) => q.reason === 'weakness'));
@@ -169,7 +169,7 @@ test('recently answered questions are avoided while there is other material', as
     user_question_attempts: recent,
   });
 
-  const selected = await selectDailyQuestions(db, 'user-1', 10);
+  const selected = await selectDailyQuestions(db, 'user-1', 10, { country: 'AU' });
   const recentIds = new Set(recent.map((r) => r.question_id));
 
   assert.equal(selected.length, 10);
@@ -193,7 +193,7 @@ test('a bank smaller than the session still produces a session', async () => {
     user_question_attempts: small.delivery.map((r) => ({ question_id: r.question_id })),
   });
 
-  const selected = await selectDailyQuestions(db, 'user-1', 10);
+  const selected = await selectDailyQuestions(db, 'user-1', 10, { country: 'AU' });
 
   assert.equal(selected.length, 4, 'it serves what exists rather than repeating within a session');
   assert.equal(new Set(selected.map((q) => q.questionId)).size, 4);
@@ -208,8 +208,8 @@ test('an empty question bank yields an empty session rather than throwing', asyn
     user_question_attempts: [],
   });
 
-  assert.deepEqual(await selectDailyQuestions(db, 'user-1', 10), []);
-  assert.deepEqual(await selectDiagnosticQuestions(db, 30), []);
+  assert.deepEqual(await selectDailyQuestions(db, 'user-1', 10, { country: 'AU' }), []);
+  assert.deepEqual(await selectDiagnosticQuestions(db, 'AU', 30), []);
 });
 
 test('stated interests bias selection without excluding anything', async () => {
@@ -222,6 +222,7 @@ test('stated interests bias selection without excluding anything', async () => {
   });
 
   const selected = await selectDailyQuestions(db, 'user-1', 8, {
+    country: 'AU',
     preferredDomainSlugs: ['advocacy'],
   });
 
@@ -246,7 +247,7 @@ test('the diagnostic spreads evenly across domains', async () => {
     question_concepts: BANK.links,
   });
 
-  const selected = await selectDiagnosticQuestions(db, 24);
+  const selected = await selectDiagnosticQuestions(db, 'AU', 24);
   assert.equal(selected.length, 24);
 
   const domainOf = new Map(
@@ -266,7 +267,7 @@ test('the diagnostic never repeats a question', async () => {
     question_concepts: BANK.links,
   });
 
-  const selected = await selectDiagnosticQuestions(db, 40);
+  const selected = await selectDiagnosticQuestions(db, 'AU', 40);
   assert.equal(new Set(selected.map((q) => q.questionId)).size, selected.length);
 });
 
@@ -276,6 +277,6 @@ test('the diagnostic asks for more questions than exist without hanging', async 
     question_concepts: BANK.links.slice(0, 6),
   });
 
-  const selected = await selectDiagnosticQuestions(db, 30);
+  const selected = await selectDiagnosticQuestions(db, 'AU', 30);
   assert.equal(selected.length, 6);
 });
