@@ -4,6 +4,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import ts from 'typescript';
 
+import { buildCombinedSql } from '../scripts/build-combined-sql';
+
 /**
  * The database contract.
  *
@@ -437,6 +439,19 @@ test('every column filtered or ordered on exists on its table', () => {
   }
 
   assert.deepEqual([...new Set(errors)], []);
+});
+
+test('the one-paste SETUP.sql matches the migrations', () => {
+  // SETUP.sql is committed rather than generated on demand, because the people
+  // who most need it are the ones who will not run a script to produce it. That
+  // makes it exactly the kind of file that silently goes stale.
+  const committed = fs.readFileSync(path.join(ROOT, 'supabase/SETUP.sql'), 'utf8');
+
+  assert.equal(
+    committed,
+    buildCombinedSql(),
+    'supabase/SETUP.sql is out of date — run `npm run build:sql` and commit the result',
+  );
 });
 
 test('learner-facing code never reads the tables that hold answer keys', () => {

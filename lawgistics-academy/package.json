@@ -8,13 +8,15 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "seed": "tsx scripts/seed.ts",
+    "seed": "tsx --conditions=react-server scripts/seed.ts",
     "db:push": "supabase db push",
     "test": "tsx --conditions=react-server --test tests/*.test.ts",
     "test:db": "psql \"$DATABASE_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/schema-guarantees.sql",
     "qa:devices": "node tools/visual-qa/device-check.mjs",
     "qa:mock": "node tools/visual-qa/mock-supabase.mjs",
-    "review:pack": "tsx scripts/review-pack.ts"
+    "review:pack": "tsx --conditions=react-server scripts/review-pack.ts",
+    "doctor": "tsx --conditions=react-server scripts/doctor.ts",
+    "build:sql": "tsx scripts/build-combined-sql.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",

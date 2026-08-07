@@ -4,7 +4,10 @@ import { publicEnv } from '@/lib/env';
 
 type CookiesToSet = Array<{ name: string; value: string; options: CookieOptions }>;
 
-const PUBLIC_PATHS = ['/', '/login', '/signup', '/auth'];
+// /setup is public so the first-run checklist is visible before you have an
+// account. The action behind it still requires a signed-in user, and closes
+// permanently once an administrator exists.
+const PUBLIC_PATHS = ['/', '/login', '/signup', '/auth', '/setup'];
 
 function isPublic(pathname: string) {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
