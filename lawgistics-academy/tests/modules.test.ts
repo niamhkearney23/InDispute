@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import fs from 'node:fs';
+import path from 'node:path';
+
 import { MODULES, modulesFor, moduleBySlug } from '../src/content/seed/modules';
 import { QUESTIONS } from '../src/content/seed';
 import { DOMAINS } from '../src/content/seed/taxonomy';
@@ -95,4 +98,47 @@ test('a module is never described as complete without every question behind it',
   assert.equal(complete(15, 16), false);
   assert.equal(complete(0, 0), false, 'an empty module must not read as complete');
   assert.equal(complete(0, 16), false);
+});
+
+test('tentative content can never be published by the setup page', () => {
+  // Tentative is stronger than unverified. Unverified content ships published
+  // so the app works out of the box, with the review queue visibly waiting.
+  // Tentative content is written ahead of the research that would stand it up,
+  // so it must not be answerable by anyone until a person publishes it
+  // deliberately, one item at a time.
+  const source = fs.readFileSync(
+    path.join(__dirname, '..', 'src/lib/setup/seed-content.ts'),
+    'utf8',
+  );
+
+  assert.match(
+    source,
+    /country === 'MY' \|\| tentative \? 'requires_review' : status/,
+    'the tentative override is gone; check seed-content.ts',
+  );
+  assert.match(
+    source,
+    /status: statusFor\(country, q\.tentative\)/,
+    'questions are inserted without passing the tentative flag through',
+  );
+
+  // And the flag is actually being used, or the guard above guards nothing.
+  const tentative = QUESTIONS.filter((q) => q.tentative);
+  assert.ok(tentative.length >= 5, `only ${tentative.length} tentative questions`);
+
+  // Every tentative question says so in its own file, so a reviewer opening it
+  // knows before reading a word.
+  const files = new Set(
+    fs
+      .readdirSync(path.join(__dirname, '..', 'src/content/seed/questions'))
+      .filter((f) => f.endsWith('.ts')),
+  );
+  for (const file of files) {
+    const text = fs.readFileSync(
+      path.join(__dirname, '..', 'src/content/seed/questions', file),
+      'utf8',
+    );
+    if (!/tentative: true/.test(text)) continue;
+    assert.match(text, /TENTATIVE/, `${file} has tentative questions but does not say so`);
+  }
 });
