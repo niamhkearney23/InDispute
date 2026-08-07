@@ -106,8 +106,11 @@ export default async function AdminHome({
           Seed content ships in this state deliberately — it is drafted to be accurate but
           has not been signed off by an Australian legal practitioner. Work through the
           list below and verify each one before real learners use this.{' '}
-          <Link href="/admin?status=unverified" className="underline underline-offset-2">
-            Show them
+          <Link
+            href="/admin/review"
+            className="font-medium underline underline-offset-2"
+          >
+            Work through them in the verification queue
           </Link>
         </Notice>
       ) : null}

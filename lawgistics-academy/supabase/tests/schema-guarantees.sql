@@ -265,6 +265,42 @@ select pg_temp.expect(
 
 reset role;
 
+-- -----------------------------------------------------------------------------
+-- Review workflow: flagging withdraws content from learners
+-- -----------------------------------------------------------------------------
+-- The point of a flag is that a reviewer has found something wrong. That must
+-- take the item out of circulation immediately, without relying on the UI to
+-- remember -- so it is enforced by trigger, and asserted here.
+
+select pg_temp.expect(
+  (select status from public.questions
+   where id = 'cccccccc-0000-0000-0000-000000000001') = 'published',
+  'the test question starts out published');
+
+update public.question_versions
+set review_flagged = true, review_note = 'Rule number is wrong'
+where id = 'dddddddd-0000-0000-0000-000000000001';
+
+select pg_temp.expect(
+  (select status from public.questions
+   where id = 'cccccccc-0000-0000-0000-000000000001') = 'requires_review',
+  'flagging a question version withdraws the question from learners');
+
+select pg_temp.expect(
+  (select count(*) from public.v_question_delivery) = 0,
+  'a flagged question no longer appears in the delivery view');
+
+update public.daily_facts set review_flagged = true, review_note = 'Date is wrong'
+where slug = 'published-fact';
+
+select pg_temp.expect(
+  (select status from public.daily_facts where slug = 'published-fact') = 'requires_review',
+  'flagging a fact withdraws it from the daily brief');
+
+select pg_temp.expect(
+  (select review_note from public.daily_facts where slug = 'published-fact') = 'Date is wrong',
+  'the reviewer''s note is recorded against the item, not lost in a side document');
+
 \echo ''
 \echo 'All schema guarantees hold.'
 

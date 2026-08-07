@@ -26,6 +26,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               Questions
             </Link>
             <Link
+              href="/admin/review"
+              className="rounded-[5px] px-2.5 py-2 whitespace-nowrap text-slate hover:bg-paper hover:text-ink"
+            >
+              Verify
+            </Link>
+            <Link
               href="/admin/facts"
               className="rounded-[5px] px-2.5 py-2 whitespace-nowrap text-slate hover:bg-paper hover:text-ink"
             >
