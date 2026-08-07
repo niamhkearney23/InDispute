@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { classifyLinkFailure, LINK_FAILURES } from '@/lib/auth/link-failures';
 import { Notice } from '@/components/ui';
 
 /**
@@ -43,7 +44,9 @@ export function AuthFragmentHandler({ next }: { next: string }) {
     (async () => {
       try {
         if (errorDescription) {
-          if (!cancelled) setMessage(errorDescription.replace(/\+/g, ' '));
+          // The fragment is part of the URL, so its text is chosen by whoever
+          // wrote the link. Only the code crosses; the wording is ours.
+          if (!cancelled) setMessage(LINK_FAILURES[classifyLinkFailure(errorDescription)]);
           return;
         }
 
@@ -55,7 +58,7 @@ export function AuthFragmentHandler({ next }: { next: string }) {
         if (cancelled) return;
 
         if (error) {
-          setMessage(error.message);
+          setMessage(LINK_FAILURES[classifyLinkFailure(error.message)]);
           return;
         }
 
@@ -63,7 +66,11 @@ export function AuthFragmentHandler({ next }: { next: string }) {
         router.refresh();
       } catch (caught) {
         if (!cancelled) {
-          setMessage(caught instanceof Error ? caught.message : 'Could not complete sign-in.');
+          setMessage(
+            caught instanceof Error
+              ? LINK_FAILURES[classifyLinkFailure(caught.message)]
+              : LINK_FAILURES.unknown,
+          );
         }
       }
     })();
@@ -77,9 +84,7 @@ export function AuthFragmentHandler({ next }: { next: string }) {
 
   return (
     <div className="mx-auto mb-4 w-full max-w-md px-5">
-      <Notice tone="warn">
-        {message} You can sign in below with the email and password you chose.
-      </Notice>
+      <Notice tone="warn">{message}</Notice>
     </div>
   );
 }

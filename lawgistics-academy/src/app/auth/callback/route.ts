@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { classifyLinkFailure, type LinkFailure } from '@/lib/auth/link-failures';
 
 /**
  * Turns an email confirmation link into a session cookie.
@@ -14,8 +15,9 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
  *                               server, so the browser has to finish the job.
  *                               `AuthFragmentHandler` on /login does that.
  *
- * Anything we cannot complete redirects to /login with a reason, so the failure
- * is legible rather than silent.
+ * Anything we cannot complete redirects to /login with a reason code, so the
+ * failure is legible rather than silent. A code, not a message: see
+ * `lib/auth/link-failures`.
  */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
@@ -25,12 +27,12 @@ export async function GET(request: NextRequest) {
       ? nextParam
       : '/onboarding';
 
-  const fail = (reason: string) =>
-    NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(reason)}`);
+  const fail = (reason: LinkFailure) =>
+    NextResponse.redirect(`${origin}/login?failed=${reason}`);
 
   // Supabase reports its own failures (expired link, already used) this way.
   const supabaseError = searchParams.get('error_description') ?? searchParams.get('error');
-  if (supabaseError) return fail(supabaseError);
+  if (supabaseError) return fail(classifyLinkFailure(supabaseError));
 
   const code = searchParams.get('code');
   const tokenHash = searchParams.get('token_hash');
@@ -40,7 +42,7 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (error) return fail(error.message);
+    if (error) return fail(classifyLinkFailure(error.message));
     return NextResponse.redirect(`${origin}${next}`);
   }
 
@@ -50,7 +52,7 @@ export async function GET(request: NextRequest) {
       // 'signup' is the confirmation we send; anything else Supabase names for us.
       type: (type as 'signup' | 'email' | 'recovery' | 'invite' | 'magiclink') ?? 'signup',
     });
-    if (error) return fail(error.message);
+    if (error) return fail(classifyLinkFailure(error.message));
     return NextResponse.redirect(`${origin}${next}`);
   }
 
