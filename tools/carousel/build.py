@@ -185,4 +185,31 @@ slide("j6", K_J, 6,
     CITE_J, size="lg", dark=True, sub="We all have one.",
     disclaimer=True)
 
+
+
+# ── Set P: Potter v The King (edition 07.08.26) ──
+K_P = "Daily Court Intelligence &middot; 07.08.26"
+CITE_P = '<b>Potter (a pseudonym) v The King</b> &middot; [2026] HCA 25 &middot; 5 August 2026<br>Gageler CJ, Gordon, Steward, Jagot and Beech-Jones JJ'
+
+slide("p1", K_P, 1,
+    'The High Court has ruled that a woman who secretly recorded her husband admitting to raping her <span class="u">broke no law.</span>',
+    CITE_P, size="lg", swipe="Swipe &rarr;")
+slide("p2", K_P, 2,
+    '<p>In South Australia, a man was convicted of raping his wife twice while she slept.</p><p>A month before the second offence, she recorded herself confronting him. <strong>He admitted it.</strong></p>',
+    CITE_P)
+slide("p3", K_P, 3,
+    '<p>Surveillance devices laws generally prohibit recording a private conversation without consent.</p><p>The exception: where recording is <span class="u">reasonably necessary to protect the lawful interests</span> of the person making it.</p>',
+    CITE_P)
+slide("p4", K_P, 4,
+    '<p>She told the court she made the recording to convince herself <strong>never to go back to him.</strong></p><p>The Court, unanimous: replaying it reminded her to avoid <span class="u">the real risk of being raped.</span> That is a lawful interest.</p>',
+    CITE_P)
+slide("p5", K_P, 5,
+    '<p>In the Court&rsquo;s words: the interest of a person in not being raped is <span class="u">deserving of the very strongest protection.</span></p><p>Appeal dismissed. The convictions stand.</p>',
+    CITE_P)
+slide("p6", K_P, 6,
+    'Lawful interests reach beyond litigation. For lawyers in family and criminal practice, this changes the advice.',
+    CITE_P, size="lg", dark=True,
+    sub="Covert recordings by victims of family and sexual violence may now be both lawful and admissible.",
+    disclaimer=True)
+
 print(json.dumps(sorted(p.name for p in OUT.glob('*.html'))))
