@@ -64,7 +64,9 @@ The High Court, unanimously, in Potter (a pseudonym) v The King [2026] HCA 25: a
 
 ## Notes
 
-- Facts, outcome, quotations, date and bench verified against SBS News and Australian Community Media reporting of the judgment (5 to 6 August 2026) and the High Court's recent judgments listing.
+- **Verification (checked twice, independently):** case name, [2026] HCA 25, delivered Wednesday 5 August 2026, bench of Gageler CJ with Gordon, Steward, Jagot and Beech-Jones JJ, unanimous, appeal dismissed. Confirmed against the High Court's recent judgments listing plus AAP-syndicated reporting carried by SBS News, Newcastle Herald, Illawarra Mercury, The Examiner and others (5 to 6 August 2026).
+- Also confirmed: convictions on two counts of raping his sleeping wife, jury could not reach a verdict on two further counts, he is serving nine and a half years, the recording was made a month before the last of the offences, and the complainant's evidence that she made it to "convince myself never to go back to him no matter what happened".
+- Both quotations on the slides are the Court's own words as reported: "The covert recording was the reminder to the complainant, by replaying it to herself, to avoid being exposed to the real risk of being raped" and "The interest of a person in not being raped is an interest deserving of the very strongest protection". The reasoning was expressed in terms of protecting bodily autonomy and integrity.
 - The slides deliberately do not cite a specific section of the South Australian surveillance devices legislation, because the provision number was not confirmed at compile time. Add it from the judgment before publication if you want the precision.
 - Also delivered 5 August: The King v HCZ [2026] HCA 24 (youth sentencing, "special circumstances" under the Youth Justice Act 1992 (Qld)), Mpwerempwer Aboriginal Corporation RNTBC v Minister [2026] HCA 23, and two immigration matters, [2026] HCA 26 and 27. Any of these could carry a future post.
 - Given subject matter, consider turning off or closely moderating comments.

@@ -195,7 +195,7 @@ slide("p1", K_P, 1,
     'The High Court has ruled that a woman who secretly recorded her husband admitting to raping her <span class="u">broke no law.</span>',
     CITE_P, size="lg", swipe="Swipe &rarr;")
 slide("p2", K_P, 2,
-    '<p>In South Australia, a man was convicted of raping his wife twice while she slept.</p><p>A month before the second offence, she recorded herself confronting him. <strong>He admitted it.</strong></p>',
+    '<p>In South Australia, a man was convicted of raping his wife twice while she slept. He is serving nine and a half years.</p><p>A month before the last of those offences, she recorded herself confronting him. <strong>He admitted it.</strong></p>',
     CITE_P)
 slide("p3", K_P, 3,
     '<p>Surveillance devices laws generally prohibit recording a private conversation without consent.</p><p>The exception: where recording is <span class="u">reasonably necessary to protect the lawful interests</span> of the person making it.</p>',
