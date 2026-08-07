@@ -5,6 +5,7 @@ import { EVIDENCE_QUESTIONS } from './questions/evidence';
 import { ADVOCACY_QUESTIONS } from './questions/advocacy';
 import { DRAFTING_QUESTIONS } from './questions/drafting';
 import { LEGAL_REASONING_QUESTIONS } from './questions/legal-reasoning';
+import { FACTS } from './facts';
 import type { SeedQuestion } from './types';
 
 export const QUESTIONS: SeedQuestion[] = [
@@ -16,8 +17,9 @@ export const QUESTIONS: SeedQuestion[] = [
   ...LEGAL_REASONING_QUESTIONS,
 ];
 
-export { CONCEPTS, DOMAINS, SKILLS };
+export { CONCEPTS, DOMAINS, SKILLS, FACTS };
 export * from './types';
+export type { SeedFact } from './facts';
 
 /**
  * Structural checks on the seed content. These catch the errors that would
@@ -90,6 +92,20 @@ export function validateSeed(): string[] {
         errors.push(`${where} references unknown skill "${slug}"`);
       }
     }
+  }
+
+  const seenFactSlugs = new Set<string>();
+  for (const fact of FACTS) {
+    const where = `Fact "${fact.slug}"`;
+
+    if (seenFactSlugs.has(fact.slug)) errors.push(`${where} has a duplicate slug`);
+    seenFactSlugs.add(fact.slug);
+
+    if (fact.domain && !domainSlugs.has(fact.domain)) {
+      errors.push(`${where} references unknown domain "${fact.domain}"`);
+    }
+    if (fact.title.length < 10) errors.push(`${where} has no real title`);
+    if (fact.body.length < 60) errors.push(`${where} has a thin body`);
   }
 
   // The diagnostic spreads round-robin across domains, so a domain with too

@@ -14,6 +14,8 @@ import {
   Stat,
 } from '@/components/ui';
 import { BeginSessionButton } from '../begin-session-button';
+import { DailyBrief } from '@/components/daily-brief';
+import { getFactOfTheDay } from '@/lib/facts/service';
 
 export const metadata: Metadata = { title: 'Today' };
 
@@ -45,6 +47,7 @@ export default async function DashboardPage({
 
   const { error } = await searchParams;
   const { profile, level, skillMap } = overview;
+  const fact = await getFactOfTheDay(profile.timezone);
   const questionCount =
     QUESTIONS_PER_MINUTE_GOAL[profile.dailyGoalMinutes] ?? QUESTIONS_PER_MINUTE_GOAL[10];
 
@@ -82,6 +85,8 @@ export default async function DashboardPage({
           <BeginSessionButton kind="daily" label="Begin training" />
         </div>
       </Card>
+
+      {fact ? <DailyBrief fact={fact} /> : null}
 
       <section className="grid grid-cols-2 gap-5 sm:grid-cols-4">
         <Stat

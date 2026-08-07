@@ -98,6 +98,15 @@ values
    '[{"id":"a","text":"Yes"},{"id":"b","text":"No"}]', array['a'],
    'Because yes.', 2, 'NSW');
 
+insert into public.daily_facts (slug, title, body, jurisdiction, status)
+values
+  ('published-fact', 'A published fact.',
+   'This one is visible to learners because it has been published, and it is long enough to be a real body.',
+   'VIC', 'published'),
+  ('draft-fact', 'A draft fact.',
+   'This one must stay invisible to learners because it is still a draft, and it is long enough to be a real body.',
+   'NSW', 'draft');
+
 -- -----------------------------------------------------------------------------
 -- Content immutability
 -- -----------------------------------------------------------------------------
@@ -232,12 +241,27 @@ select pg_temp.expect_failure(
     values ('22222222-2222-2222-2222-222222222222', 'correct_answer', 999999)$$,
   'a learner cannot forge XP');
 
--- As an administrator: the question bank opens up.
+select pg_temp.expect_failure(
+  $$insert into public.daily_facts (slug, title, body, jurisdiction, status)
+    values ('smuggled', 'A fact a learner wrote themselves',
+            'This should never be insertable by anyone other than an administrator.',
+            'VIC', 'published')$$,
+  'a learner cannot write to the daily brief');
+
+select pg_temp.expect(
+  (select count(*) from public.daily_facts) = 1,
+  'a learner sees published facts only — not drafts');
+
+-- As an administrator: the question bank and the full fact pool open up.
 set local request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
 
 select pg_temp.expect(
   (select count(*) from public.questions) = 2,
   'an administrator can read the whole question bank, drafts included');
+
+select pg_temp.expect(
+  (select count(*) from public.daily_facts) = 2,
+  'an administrator can read draft facts too');
 
 reset role;
 
