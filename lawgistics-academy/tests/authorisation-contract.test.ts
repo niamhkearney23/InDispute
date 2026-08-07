@@ -82,6 +82,7 @@ test('the server actions were actually found', () => {
   assert.deepEqual(names, [
     'answerQuestion',
     'beginSession',
+    'completeSetup',
     'createFact',
     'createQuestion',
     'finishSession',
@@ -130,6 +131,31 @@ test('the admin authorisation check is the first thing an admin action does', ()
     .map((a) => `${a.file}:${a.line} ${a.name}`);
 
   assert.deepEqual(late, []);
+});
+
+test('the first-run setup action cannot be used to seize admin on a live install', () => {
+  // completeSetup is the only action in the app that grants administrator
+  // rights, and it deliberately sits outside /admin because it is the bootstrap.
+  // That makes its own guards the whole of its security, so assert them.
+  const setup = ACTIONS.find((a) => a.name === 'completeSetup');
+  assert.ok(setup, 'completeSetup not found');
+
+  assert.ok(
+    setup.body.includes('getCurrentUser('),
+    'must require a signed-in account, so there is a named user to grant rights to',
+  );
+  assert.ok(
+    setup.body.includes('status.adminExists'),
+    'must close permanently once an administrator exists',
+  );
+  assert.ok(
+    setup.body.includes('SETUP_TOKEN'),
+    'must honour SETUP_TOKEN so a public deployment can be locked down',
+  );
+  assert.ok(
+    setup.body.indexOf('getCurrentUser(') < setup.body.indexOf('createServiceClient('),
+    'must establish the caller before reaching for the service-role client',
+  );
 });
 
 test('the service-role client is never imported into a client component', () => {

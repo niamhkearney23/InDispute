@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { ButtonLink, Notice, Wordmark } from '@/components/ui';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { publicEnv } from '@/lib/env';
@@ -51,12 +52,14 @@ export default async function LandingPage() {
         {!publicEnv.supabaseUrl || !publicEnv.supabaseAnonKey ? (
           <div className="mb-6">
             <Notice tone="warn">
-              Supabase is not configured, so signing in will not work yet. Copy{' '}
+              Supabase is not configured yet, so signing in will not work. Copy{' '}
               <code className="font-mono">.env.example</code> to{' '}
               <code className="font-mono">.env.local</code>, apply the migration in{' '}
-              <code className="font-mono">supabase/migrations</code>, then run{' '}
-              <code className="font-mono">npm run seed</code>. Full steps are in the
-              README.
+              <code className="font-mono">.env.local</code> and fill it in, then open{' '}
+              <Link href="/setup" className="font-medium underline underline-offset-2">
+                /setup
+              </Link>{' '}
+              — it walks through the rest and tells you what is missing.
             </Notice>
           </div>
         ) : null}
