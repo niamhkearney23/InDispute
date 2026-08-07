@@ -5,6 +5,7 @@ import { getLearnerOverview } from '@/lib/learner-overview';
 import Link from 'next/link';
 import { masteryBand } from '@/lib/learning/mastery';
 import { outstandingRequired } from '@/lib/modules/service';
+import { greeting } from '@/lib/greeting';
 import { QUESTIONS_PER_MINUTE_GOAL } from '@/lib/learning/config';
 import {
   ButtonLink,
@@ -21,18 +22,6 @@ import { getFactOfTheDay } from '@/lib/facts/service';
 
 export const metadata: Metadata = { title: 'Today' };
 
-function greeting(date: Date, timezone: string): string {
-  const hour = Number(
-    new Intl.DateTimeFormat('en-AU', {
-      timeZone: timezone,
-      hour: 'numeric',
-      hour12: false,
-    }).format(date),
-  );
-  if (hour < 12) return 'Good morning';
-  if (hour < 18) return 'Good afternoon';
-  return 'Good evening';
-}
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();

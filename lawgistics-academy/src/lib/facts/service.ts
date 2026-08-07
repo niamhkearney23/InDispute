@@ -34,16 +34,22 @@ export function dayNumber(localDate: string): number {
 }
 
 /** Pure, so the rotation can be tested without a database. */
-export function pickForDay<T>(pool: T[], localDate: string): T | null {
+export function pickForDay<T>(pool: T[], localDate: string, offset = 0): T | null {
   if (pool.length === 0) return null;
-  const index = ((dayNumber(localDate) % pool.length) + pool.length) % pool.length;
+  const n = dayNumber(localDate) + offset;
+  const index = ((n % pool.length) + pool.length) % pool.length;
   return pool[index];
 }
 
+/**
+ * `offset` shifts the rotation, so a second surface can show a different fact
+ * on the same day without repeating what the dashboard already said.
+ */
 export async function getFactOfTheDay(
   timezone: string,
   country: Country,
   now: Date = new Date(),
+  offset = 0,
 ): Promise<DailyFact | null> {
   const supabase = await createSupabaseServerClient();
 
@@ -57,7 +63,7 @@ export async function getFactOfTheDay(
     .order('sort_order', { ascending: true })
     .order('id', { ascending: true });
 
-  const chosen = pickForDay(data ?? [], localDateString(timezone, now));
+  const chosen = pickForDay(data ?? [], localDateString(timezone, now), offset);
   if (!chosen) return null;
 
   return {

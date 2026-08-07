@@ -3,6 +3,11 @@ import { redirect } from 'next/navigation';
 import { getCurrentUser, createSupabaseServerClient } from '@/lib/supabase/server';
 import { getLearnerOverview } from '@/lib/learner-overview';
 import { displayScore, masteryBand } from '@/lib/learning/mastery';
+import { getFactOfTheDay } from '@/lib/facts/service';
+import { getModuleProgress } from '@/lib/modules/service';
+import { greeting } from '@/lib/greeting';
+import { AreaBreakdown, type Area } from './area-breakdown';
+import { FactCard } from './fact-card';
 import {
   ButtonLink,
   Card,
@@ -12,7 +17,7 @@ import {
   SectionHeading,
 } from '@/components/ui';
 
-export const metadata: Metadata = { title: 'Skill map' };
+export const metadata: Metadata = { title: 'Your progress' };
 
 export default async function SkillsPage() {
   const user = await getCurrentUser();
@@ -22,6 +27,13 @@ export default async function SkillsPage() {
   if (!overview) redirect('/login');
 
   const supabase = await createSupabaseServerClient();
+  const { profile, level } = overview;
+
+  // A different fact from the one the dashboard is showing today.
+  const [fact, modules] = await Promise.all([
+    getFactOfTheDay(profile.timezone, profile.country, new Date(), 1),
+    getModuleProgress(user.id, profile.country),
+  ]);
 
   const [{ data: conceptRows }, { data: domains }, { data: schedule }] = await Promise.all([
     supabase
@@ -65,17 +77,82 @@ export default async function SkillsPage() {
     .sort((a, b) => b.confidentAndWrong - a.confidentAndWrong)
     .slice(0, 5);
 
+  // The area bars carry their concepts with them, so opening one shows the
+  // level a learner can actually act on rather than a single number per subject.
+  const domainIdBySlug = new Map((domains ?? []).map((d) => [d.slug as string, d.id as string]));
+  const areas: Area[] = overview.skillMap.map((entry) => ({
+    slug: entry.slug,
+    name: entry.name,
+    score: entry.score,
+    attempts: entry.attempts,
+    concepts: concepts
+      .filter((c) => c.domainId === domainIdBySlug.get(entry.slug))
+      .map((c) => ({
+        slug: c.slug,
+        name: c.name,
+        score: c.score,
+        attempts: c.attempts,
+        confidentAndWrong: c.confidentAndWrong,
+      })),
+  }));
+
   return (
     <div className="space-y-9">
       <section>
-        <p className="eyebrow mb-2">Your profile</p>
-        <h1 className="text-3xl sm:text-4xl">Skill map</h1>
-        <p className="mt-3 max-w-xl text-slate">
-          Two views of the same training. By area, which is what you would call a subject.
-          And by skill, which is the kind of thinking a question asked of you. That axis
-          cuts across subjects.
+        <p className="eyebrow mb-2">
+          {greeting(new Date(), profile.timezone)}
+          {profile.displayName ? `, ${profile.displayName}` : ''}
+        </p>
+        <h1 className="text-3xl sm:text-4xl">Where you are</h1>
+        <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-slate">
+          <span>
+            Level {level.level}, <span className="text-ink">{level.name}</span>
+          </span>
+          <span aria-hidden className="text-muted">
+            &middot;
+          </span>
+          <span className="tabular-nums">{overview.totalXp} XP</span>
         </p>
       </section>
+
+      {fact ? (
+        <FactCard
+          title={fact.title}
+          body={fact.body}
+          whyItMatters={fact.whyItMatters}
+          source={fact.sourceReference}
+        />
+      ) : null}
+
+      {modules.length > 0 ? (
+        <section>
+          <SectionHeading eyebrow="Modules" title="Things to have covered" />
+          <div className="grid gap-2.5 sm:grid-cols-2">
+            {modules.map((entry) => (
+              <ButtonLink
+                key={entry.module.slug}
+                href={`/modules/${entry.module.slug}`}
+                variant="outline"
+                className="h-auto w-full flex-col items-start gap-1 px-4 py-3.5 text-left"
+              >
+                <span className="flex w-full items-center justify-between gap-2">
+                  <span className="font-medium">{entry.module.name}</span>
+                  {entry.complete ? (
+                    <Pill tone="correct">Done</Pill>
+                  ) : entry.module.required ? (
+                    <Pill tone="accent">Required</Pill>
+                  ) : null}
+                </span>
+                <span className="text-xs font-normal text-slate">
+                  {entry.total === 0
+                    ? 'Not published yet'
+                    : `${entry.correctOnce} of ${entry.total}`}
+                </span>
+              </ButtonLink>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {!hasData ? (
         <EmptyState
@@ -92,24 +169,11 @@ export default async function SkillsPage() {
       {hasData ? (
         <>
           <section>
-            <SectionHeading eyebrow="By area" title="Foundation areas" />
-            <Card>
-              <div className="divide-y divide-rule">
-                {overview.skillMap.map((entry) => (
-                  <ScoreBar
-                    key={entry.slug}
-                    label={entry.name}
-                    score={entry.score}
-                    band={masteryBand(entry.score)}
-                    sublabel={
-                      entry.attempts === 0
-                        ? 'Not yet assessed'
-                        : `${entry.attempts} answer${entry.attempts === 1 ? '' : 's'}`
-                    }
-                  />
-                ))}
-              </div>
-            </Card>
+            <SectionHeading
+              eyebrow="By area"
+              title="Open one to see what is underneath"
+            />
+            <AreaBreakdown areas={areas} />
           </section>
 
           {overview.skillProfile.length > 0 ? (
