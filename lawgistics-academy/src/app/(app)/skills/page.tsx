@@ -6,6 +6,8 @@ import { displayScore, masteryBand } from '@/lib/learning/mastery';
 import { getFactOfTheDay } from '@/lib/facts/service';
 import { getModuleProgress } from '@/lib/modules/service';
 import { greeting } from '@/lib/greeting';
+import { COUNTRY_LABELS } from '@/lib/types';
+import Link from 'next/link';
 import { AreaBreakdown, type Area } from './area-breakdown';
 import { FactCard } from './fact-card';
 import {
@@ -105,6 +107,10 @@ export default async function SkillsPage() {
         </p>
         <h1 className="text-3xl sm:text-4xl">Where you are</h1>
         <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-slate">
+          <span className="text-muted">{COUNTRY_LABELS[profile.country]}</span>
+          <span aria-hidden className="text-muted">
+            &middot;
+          </span>
           <span>
             Level {level.level}, <span className="text-ink">{level.name}</span>
           </span>
@@ -112,6 +118,14 @@ export default async function SkillsPage() {
             &middot;
           </span>
           <span className="tabular-nums">{overview.totalXp} XP</span>
+        </p>
+        <p className="mt-2 text-sm">
+          <Link
+            href="/onboarding?edit=1"
+            className="-my-2 inline-block rounded-[5px] px-1 py-2 text-slate underline underline-offset-4 hover:text-ink"
+          >
+            Change country or goals
+          </Link>
         </p>
       </section>
 

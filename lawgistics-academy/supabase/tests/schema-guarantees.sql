@@ -348,6 +348,44 @@ select pg_temp.expect(
   (select count(*) from public.v_question_delivery where country = 'AU') = 0,
   'the Australian test question is still withdrawn, so country is not masking the flag');
 
+
+-- -----------------------------------------------------------------------------
+-- Country chosen at signup
+-- -----------------------------------------------------------------------------
+-- The country arrives in the auth user's metadata, written by the browser at
+-- signup. It is therefore whatever the browser felt like sending, and the
+-- trigger has to narrow it rather than trust it.
+
+reset role;
+
+insert into auth.users (id, email, raw_user_meta_data)
+values ('aaaa1111-0000-0000-0000-000000000001', 'my@test',
+        '{"country":"MY","display_name":"Aisha"}'::jsonb);
+
+select pg_temp.expect(
+  (select country from public.profiles where id = 'aaaa1111-0000-0000-0000-000000000001') = 'MY',
+  'a signup that says MY becomes a Malaysian profile');
+
+insert into auth.users (id, email, raw_user_meta_data)
+values ('aaaa1111-0000-0000-0000-000000000002', 'none@test', '{"display_name":"Sam"}'::jsonb);
+
+select pg_temp.expect(
+  (select country from public.profiles where id = 'aaaa1111-0000-0000-0000-000000000002') = 'AU',
+  'a signup that says nothing becomes Australian');
+
+insert into auth.users (id, email, raw_user_meta_data)
+values ('aaaa1111-0000-0000-0000-000000000003', 'junk@test', '{"country":"'' or 1=1 --"}'::jsonb),
+       ('aaaa1111-0000-0000-0000-000000000004', 'sg@test', '{"country":"SG"}'::jsonb),
+       ('aaaa1111-0000-0000-0000-000000000005', 'lower@test', '{"country":"my"}'::jsonb);
+
+select pg_temp.expect(
+  (select count(*) from public.profiles
+   where id in ('aaaa1111-0000-0000-0000-000000000003',
+                'aaaa1111-0000-0000-0000-000000000004',
+                'aaaa1111-0000-0000-0000-000000000005')
+     and country = 'AU') = 3,
+  'anything that is not exactly MY is narrowed to Australian rather than trusted');
+
 \echo ''
 \echo 'All schema guarantees hold.'
 

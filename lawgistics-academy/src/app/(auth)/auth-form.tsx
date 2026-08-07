@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
-import { Button, Notice, Wordmark } from '@/components/ui';
+import { Button, Notice, Wordmark, cn } from '@/components/ui';
+import { COUNTRIES, COUNTRY_LABELS, type Country } from '@/lib/types';
 
 export function AuthForm({
   mode,
@@ -20,6 +21,7 @@ export function AuthForm({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [country, setCountry] = useState<Country>('AU');
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(problem ?? null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -57,7 +59,10 @@ export function AuthForm({
         email,
         password,
         options: {
-          data: { display_name: displayName || email.split('@')[0] },
+          // Read by the profile trigger, which narrows it: anything that is
+          // not exactly 'MY' becomes 'AU', because this value is written by the
+          // browser and is therefore whatever the browser felt like sending.
+          data: { display_name: displayName || email.split('@')[0], country },
           emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
         },
       });
@@ -105,11 +110,41 @@ export function AuthForm({
       <h1 className="mb-2 text-3xl">{isSignup ? 'Create your account' : 'Welcome back'}</h1>
       <p className="mb-8 text-slate">
         {isSignup
-          ? 'A few questions, then a diagnostic. About fifteen minutes to a full skill map.'
+          ? 'Australian and Malaysian litigation. A few questions, then a diagnostic, and about fifteen minutes to a full skill map.'
           : 'Pick up where you left off.'}
       </p>
 
       <form onSubmit={onSubmit} className="space-y-4">
+        {isSignup ? (
+          <fieldset>
+            <legend className="mb-1.5 block text-sm font-medium">
+              Which country are you training in?
+            </legend>
+            <div className="grid grid-cols-2 gap-2">
+              {COUNTRIES.map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={country === value}
+                  onClick={() => setCountry(value)}
+                  className={cn(
+                    'h-11 rounded-[5px] border text-[0.9375rem] transition-colors',
+                    country === value
+                      ? 'border-ink bg-paper-sunk font-medium'
+                      : 'border-rule-strong hover:bg-paper-sunk',
+                  )}
+                >
+                  {COUNTRY_LABELS[value]}
+                </button>
+              ))}
+            </div>
+            <p className="mt-1.5 text-xs text-muted">
+              Australian and Malaysian law are different. This decides which questions
+              you are shown, and you can change it later.
+            </p>
+          </fieldset>
+        ) : null}
+
         {isSignup ? (
           <Field
             label="Name"
