@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { reviewRisk } from '../src/lib/review/triage';
+import { asReviewOrder, sortReviewItems, type ReviewItem } from '../src/lib/review/service';
 import { QUESTIONS, FACTS } from '../src/content/seed';
 
 /**
@@ -126,4 +127,40 @@ test('every shipped item gets at least one concrete reason to check it, or is ge
       assert.ok(risk.reasons.length > 0, `${q.slug} is flagged but says nothing about why`);
     }
   }
+});
+
+/* --- queue ordering ------------------------------------------------------- */
+
+test('simplest first puts the low risk items at the top, and is not just the reverse', () => {
+  const item = (slug: string, score: number, verified: boolean, live: boolean) =>
+    ({
+      slug,
+      risk: { score, level: 'low' as const, reasons: [] },
+      verificationStatus: verified ? 'human_verified' : 'unverified',
+      liveToLearners: live,
+    }) as unknown as ReviewItem;
+
+  const items = [
+    item('hard', 8, false, true),
+    item('easy', 0, false, false),
+    item('middling', 4, false, false),
+    item('easy-but-done', 0, true, false),
+  ];
+
+  const simplest = sortReviewItems(items, 'simplest').map((i) => i.slug);
+
+  // Signed-off items sink whichever way round it is sorted: there is nothing
+  // left to do with them, so they must not occupy the top of the list.
+  assert.deepEqual(simplest, ['easy', 'middling', 'hard', 'easy-but-done']);
+
+  const riskiest = sortReviewItems(items, 'riskiest').map((i) => i.slug);
+  assert.equal(riskiest[0], 'hard', 'live and unverified still comes first');
+});
+
+test('the order asked for in a URL is narrowed to the two we support', () => {
+  assert.equal(asReviewOrder('simplest'), 'simplest');
+  assert.equal(asReviewOrder('riskiest'), 'riskiest');
+  assert.equal(asReviewOrder(undefined), 'riskiest');
+  assert.equal(asReviewOrder('constructor'), 'riskiest');
+  assert.equal(asReviewOrder('; drop table questions'), 'riskiest');
 });

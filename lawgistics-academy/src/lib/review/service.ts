@@ -12,6 +12,15 @@ import type { Jurisdiction, QuestionOption } from '@/lib/types';
  * single pile ordered by risk, not switching between two screens.
  */
 
+/** How the queue is ordered. The URL may only ask for one of these two. */
+export type ReviewOrder = 'riskiest' | 'simplest';
+
+export const REVIEW_ORDERS: ReviewOrder[] = ['riskiest', 'simplest'];
+
+export function asReviewOrder(value: string | undefined): ReviewOrder {
+  return value === 'simplest' ? 'simplest' : 'riskiest';
+}
+
 export interface ReviewItem {
   kind: 'question' | 'fact';
   /** Question id, or fact id. What the actions take. */
@@ -62,7 +71,7 @@ function first<T>(value: unknown): T | null {
   return (Array.isArray(value) ? (value[0] ?? null) : value) as T | null;
 }
 
-export async function getReviewItems(): Promise<ReviewItem[]> {
+export async function getReviewItems(order: ReviewOrder = 'riskiest'): Promise<ReviewItem[]> {
   const db = createServiceClient();
 
   const [{ data: questionRows }, { data: factRows }] = await Promise.all([
@@ -155,9 +164,32 @@ export async function getReviewItems(): Promise<ReviewItem[]> {
     }),
   }));
 
+  return sortReviewItems([...questions, ...facts], order);
+}
+
+/**
+ * Riskiest first is the right default: it puts the items most likely to be
+ * wrong in front of the person checking them. It is also, for the same reason,
+ * a demoralising place to start, because the first twenty are the most
+ * technical things in the bank. Simplest first clears the plain-principle items
+ * quickly, which is real progress and a much better first hour.
+ */
+export function sortReviewItems(items: ReviewItem[], order: ReviewOrder): ReviewItem[] {
+  const sorted = [...items];
+
+  if (order === 'simplest') {
+    return sorted.sort((a, b) => {
+      // Signed-off items sink either way; there is nothing left to do with them.
+      const done = (i: ReviewItem) => (i.verificationStatus === 'human_verified' ? 1 : 0);
+      if (done(a) !== done(b)) return done(a) - done(b);
+      if (a.risk.score !== b.risk.score) return a.risk.score - b.risk.score;
+      return a.slug.localeCompare(b.slug);
+    });
+  }
+
   // Anything already live but unverified first; those are in front of learners
   // right now. Then by risk, then by how much is at stake in getting it wrong.
-  return [...questions, ...facts].sort((a, b) => {
+  return sorted.sort((a, b) => {
     if (a.liveToLearners !== b.liveToLearners) return a.liveToLearners ? -1 : 1;
     if (a.risk.score !== b.risk.score) return b.risk.score - a.risk.score;
     return a.slug.localeCompare(b.slug);
