@@ -51,7 +51,10 @@ npm run dev
 ```
 
 **Or on Vercel:** import the repo, set **Root Directory** to `lawgistics-academy`, and add
-the same environment variables. `NEXT_PUBLIC_` values are baked in at build time, so if you
+the same environment variables. `vercel.json` declares the framework, so you do not need to
+touch the Framework Preset — without it Vercel sniffs the framework at the top of the repo,
+finds no app there, falls back to a static site, and the deploy fails with *No Output
+Directory named "public" found* even though the build succeeded. `NEXT_PUBLIC_` values are baked in at build time, so if you
 add them later you must **redeploy** — restarting is not enough.
 
 Your three keys are in Supabase under **Project Settings → API**:
