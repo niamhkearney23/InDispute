@@ -6,6 +6,8 @@ import path from 'node:path';
 
 import { MODULES, modulesFor, moduleBySlug } from '../src/content/seed/modules';
 import { QUESTIONS } from '../src/content/seed';
+import { LESSONS, lessonForModule } from '../src/content/seed/lessons';
+import { COURT_HIERARCHIES } from '../src/content/seed/court-hierarchies';
 import { DOMAINS } from '../src/content/seed/taxonomy';
 import { COUNTRIES, JURISDICTION_COUNTRY } from '../src/lib/types';
 
@@ -140,5 +142,64 @@ test('tentative content can never be published by the setup page', () => {
     );
     if (!/tentative: true/.test(text)) continue;
     assert.match(text, /TENTATIVE/, `${file} has tentative questions but does not say so`);
+  }
+});
+
+/* -------------------------------------------------------------------------- */
+/* Lessons                                                                    */
+/* -------------------------------------------------------------------------- */
+
+test('every lesson belongs to a module that exists, in the same country', () => {
+  assert.ok(LESSONS.length > 0);
+
+  for (const lesson of LESSONS) {
+    const owner = moduleBySlug(lesson.moduleSlug);
+    assert.ok(owner, `lesson "${lesson.slug}" points at unknown module "${lesson.moduleSlug}"`);
+    assert.equal(
+      owner.country,
+      lesson.country,
+      `lesson "${lesson.slug}" is ${lesson.country} but its module is ${owner.country}`,
+    );
+    assert.equal(
+      lessonForModule(lesson.moduleSlug)?.slug,
+      lesson.slug,
+      `${lesson.moduleSlug} does not resolve back to its lesson`,
+    );
+  }
+
+  const slugs = LESSONS.map((l) => l.slug);
+  assert.equal(new Set(slugs).size, slugs.length, 'two lessons share a slug');
+
+  // One lesson per module, or the page would silently show the first.
+  const moduleSlugs = LESSONS.map((l) => l.moduleSlug);
+  assert.equal(new Set(moduleSlugs).size, moduleSlugs.length, 'a module has two lessons');
+});
+
+test('lessons stay short enough to finish', () => {
+  for (const lesson of LESSONS) {
+    assert.ok(lesson.steps.length >= 3, `${lesson.slug} is too short to be a lesson`);
+    assert.ok(
+      lesson.steps.length <= 6,
+      `${lesson.slug} has ${lesson.steps.length} screens; past six it outlasts attention and costs the quiz too`,
+    );
+    assert.ok(lesson.minutes >= 1 && lesson.minutes <= 6, `${lesson.slug} claims an odd length`);
+
+    for (const step of lesson.steps) {
+      assert.ok(step.heading.length <= 40, `"${step.heading}" is a sentence, not a signpost`);
+      assert.ok(step.body.length >= 80, `a step of "${lesson.slug}" says almost nothing`);
+      assert.ok(
+        step.body.length <= 520,
+        `a step of "${lesson.slug}" is ${step.body.length} characters; if it needs that many it is two steps`,
+      );
+    }
+  }
+});
+
+test('a lesson only draws a diagram for a country that has one', () => {
+  for (const lesson of LESSONS) {
+    if (!lesson.steps.some((s) => s.diagram)) continue;
+    const hierarchy = COURT_HIERARCHIES[lesson.country];
+    assert.ok(hierarchy, `${lesson.slug} draws a diagram but ${lesson.country} has no hierarchy`);
+    assert.ok(hierarchy.courts.length >= 4, `the ${lesson.country} diagram is too thin to teach from`);
   }
 });
