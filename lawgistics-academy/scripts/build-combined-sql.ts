@@ -48,6 +48,5 @@ ${files.map((f) => `--   ${f}`).join('\n')}
 
 if (process.argv[1] && process.argv[1].endsWith('build-combined-sql.ts')) {
   fs.writeFileSync(OUTPUT, buildCombinedSql());
-  // eslint-disable-next-line no-console
   console.log(`Wrote ${OUTPUT}`);
 }

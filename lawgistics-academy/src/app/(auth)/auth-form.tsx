@@ -6,13 +6,22 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Button, Notice, Wordmark } from '@/components/ui';
 
-export function AuthForm({ mode, next }: { mode: 'login' | 'signup'; next: string }) {
+export function AuthForm({
+  mode,
+  next,
+  problem,
+}: {
+  mode: 'login' | 'signup';
+  next: string;
+  /** Something that went wrong before this page loaded — a dead confirmation link. */
+  problem?: string;
+}) {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(problem ?? null);
   const [notice, setNotice] = useState<string | null>(null);
 
   const isSignup = mode === 'signup';
@@ -62,7 +71,10 @@ export function AuthForm({ mode, next }: { mode: 'login' | 'signup'; next: strin
       // With email confirmation switched on, there is no session yet.
       if (!data.session) {
         setNotice(
-          'Check your email to confirm your address, then sign in. If nothing arrives, email confirmation may be enabled without an SMTP provider configured.',
+          'Check your email to confirm your address, then sign in. If the email never ' +
+            'arrives, or the link in it fails, an administrator can confirm the account ' +
+            'directly in Supabase under Authentication → Users, or switch off "Confirm ' +
+            'email" under Authentication → Sign In / Providers → Email.',
         );
         setPending(false);
         return;
