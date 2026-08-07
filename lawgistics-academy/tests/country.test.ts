@@ -14,6 +14,7 @@ import {
   type Country,
 } from '../src/lib/types';
 import { QUESTIONS, FACTS, validateSeed } from '../src/content/seed';
+import { COURT_HIERARCHIES, tiersOf } from '../src/content/seed/court-hierarchies';
 import { selectDailyQuestions, selectDiagnosticQuestions } from '../src/lib/learning/selection';
 
 /**
@@ -77,32 +78,36 @@ test('both banks are large enough to build a session from', () => {
   }
 });
 
-test('no Malaysian question is tagged with an Australian jurisdiction, or the reverse', () => {
-  // The seed files are split by country by convention, and convention is not a
-  // guarantee. A question filed under Malaysia but tagged VIC would be served
-  // to Australian learners with Malaysian content in it.
-  const malaysian = fs.readFileSync(
-    path.join(ROOT, 'src/content/seed/questions/malaysia.ts'),
-    'utf8',
-  );
+test('a seed file never mixes countries except the one that is meant to', () => {
+  // The files are split by country by convention, and convention is not a
+  // guarantee: a question filed under Australia but tagged MY_GENERAL would be
+  // served to Australian learners with Malaysian law in it.
+  //
+  // `hierarchy.ts` is the deliberate exception. It holds the drawn court
+  // questions for both countries, because the diagram is one mechanism and
+  // splitting it would mean two files that have to be kept in step.
+  const SEED_DIR = path.join(ROOT, 'src/content/seed/questions');
+  const MIXED_ON_PURPOSE = new Set(['hierarchy.ts']);
 
-  const slugsInFile = [...malaysian.matchAll(/slug: '([^']+)'/g)].map((m) => m[1]);
-  assert.ok(slugsInFile.length >= 30, `only found ${slugsInFile.length} slugs in the file`);
+  const expected: Record<string, Country> = { 'malaysia.ts': 'MY' };
 
-  for (const slug of slugsInFile) {
-    const question = QUESTIONS.find((q) => q.slug === slug);
-    assert.ok(question, `${slug} is in the Malaysian file but not in QUESTIONS`);
-    assert.equal(
-      JURISDICTION_COUNTRY[question.jurisdiction],
-      'MY',
-      `${slug} is in the Malaysian file but tagged ${question.jurisdiction}`,
-    );
-  }
+  for (const file of fs.readdirSync(SEED_DIR)) {
+    if (!file.endsWith('.ts') || MIXED_ON_PURPOSE.has(file)) continue;
 
-  const malaysianSlugs = new Set(slugsInFile);
-  for (const question of QUESTIONS) {
-    if (JURISDICTION_COUNTRY[question.jurisdiction] === 'MY') {
-      assert.ok(malaysianSlugs.has(question.slug), `${question.slug} is Malaysian but filed elsewhere`);
+    const source = fs.readFileSync(path.join(SEED_DIR, file), 'utf8');
+    const slugs = [...source.matchAll(/slug: '([^']+)'/g)].map((m) => m[1]);
+    assert.ok(slugs.length > 0, `${file} has no questions`);
+
+    const wanted = expected[file] ?? 'AU';
+
+    for (const slug of slugs) {
+      const question = QUESTIONS.find((q) => q.slug === slug);
+      assert.ok(question, `${slug} is in ${file} but not in QUESTIONS`);
+      assert.equal(
+        JURISDICTION_COUNTRY[question.jurisdiction],
+        wanted,
+        `${slug} is in ${file} but tagged ${question.jurisdiction}`,
+      );
     }
   }
 });
@@ -303,5 +308,66 @@ test('every server action accepts every jurisdiction that exists', () => {
       !/z\.enum\(\[\s*'AU_GENERAL'/.test(source),
       `${file} still has its own copy of the jurisdiction list`,
     );
+  }
+});
+
+/* -------------------------------------------------------------------------- */
+/* The drawn hierarchy                                                        */
+/* -------------------------------------------------------------------------- */
+
+test('every option on a hierarchy question is a court in that country diagram', () => {
+  // The option id is what places a court in the picture. An id that is not in
+  // the hierarchy renders as an answer missing from the diagram, which is
+  // unanswerable rather than merely wrong.
+  const drawn = QUESTIONS.filter((q) => q.type === 'court_hierarchy');
+  assert.ok(drawn.length >= 6, `only ${drawn.length} hierarchy questions`);
+
+  for (const question of drawn) {
+    const country = JURISDICTION_COUNTRY[question.jurisdiction];
+    const slugs = new Set(COURT_HIERARCHIES[country].courts.map((c) => c.slug));
+
+    for (const option of question.options) {
+      assert.ok(
+        slugs.has(option.id),
+        `${question.slug} offers "${option.id}", which is not a court in the ${country} hierarchy`,
+      );
+    }
+    for (const id of question.correct) {
+      assert.ok(slugs.has(id), `${question.slug} has answer "${id}" outside the hierarchy`);
+    }
+  }
+});
+
+test('each hierarchy is a single tree that reaches its apex', () => {
+  for (const country of COUNTRIES) {
+    const hierarchy = COURT_HIERARCHIES[country];
+    const bySlug = new Map(hierarchy.courts.map((c) => [c.slug, c]));
+
+    const apexes = hierarchy.courts.filter((c) => c.appealsTo === null);
+    assert.equal(apexes.length, 1, `${country} has ${apexes.length} apex courts`);
+    assert.equal(apexes[0].tier, 0, `the ${country} apex is not drawn at the top`);
+
+    for (const court of hierarchy.courts) {
+      if (!court.appealsTo) continue;
+
+      const parent = bySlug.get(court.appealsTo);
+      assert.ok(parent, `${court.slug} appeals to "${court.appealsTo}", which does not exist`);
+      assert.ok(
+        parent.tier < court.tier,
+        `${court.slug} appeals to ${parent.slug}, which is drawn below it`,
+      );
+
+      // Walk to the top, so a cycle fails here rather than hanging the browser.
+      let cursor = parent;
+      let steps = 0;
+      while (cursor.appealsTo) {
+        cursor = bySlug.get(cursor.appealsTo)!;
+        steps += 1;
+        assert.ok(steps < 20, `appeal route from ${court.slug} does not terminate`);
+      }
+      assert.equal(cursor.slug, apexes[0].slug, `${court.slug} does not reach the apex`);
+    }
+
+    assert.ok(tiersOf(hierarchy).length >= 3, `the ${country} diagram has too few rows to be one`);
   }
 });

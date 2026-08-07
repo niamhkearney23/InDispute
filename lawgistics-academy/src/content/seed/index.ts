@@ -6,6 +6,7 @@ import { ADVOCACY_QUESTIONS } from './questions/advocacy';
 import { DRAFTING_QUESTIONS } from './questions/drafting';
 import { LEGAL_REASONING_QUESTIONS } from './questions/legal-reasoning';
 import { MALAYSIA_QUESTIONS } from './questions/malaysia';
+import { HIERARCHY_QUESTIONS } from './questions/hierarchy';
 import { FACTS } from './facts';
 import { COUNTRIES, JURISDICTION_COUNTRY } from '@/lib/types';
 import type { SeedQuestion } from './types';
@@ -18,6 +19,7 @@ export const QUESTIONS: SeedQuestion[] = [
   ...DRAFTING_QUESTIONS,
   ...LEGAL_REASONING_QUESTIONS,
   ...MALAYSIA_QUESTIONS,
+  ...HIERARCHY_QUESTIONS,
 ];
 
 export { CONCEPTS, DOMAINS, SKILLS, FACTS };

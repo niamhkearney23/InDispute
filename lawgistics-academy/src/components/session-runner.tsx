@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { answerQuestion, finishSession } from '@/app/(app)/actions';
+import { CourtHierarchyDiagram } from '@/components/court-hierarchy-diagram';
+import { JURISDICTION_COUNTRY } from '@/lib/types';
 import { Button, Notice, Pill, cn } from '@/components/ui';
 import {
   CONFIDENCE_LABELS,
@@ -160,6 +162,17 @@ export function SessionRunner({
           {question.stem}
         </h1>
 
+        {question.questionType === 'court_hierarchy' ? (
+          <CourtHierarchyDiagram
+            country={JURISDICTION_COUNTRY[question.jurisdiction]}
+            options={question.options}
+            selected={selected}
+            correctOptionIds={feedback?.correctOptionIds ?? null}
+            answered={answered}
+            disabled={answered || pending}
+            onSelect={(optionId) => setSelected([optionId])}
+          />
+        ) : (
         <div className="space-y-2.5" role="group" aria-label="Answer options">
           {question.options.map((option) => {
             const isSelected = selected.includes(option.id);
@@ -205,6 +218,7 @@ export function SessionRunner({
             );
           })}
         </div>
+        )}
 
         {/* Confidence, asked before the verdict, deliberately ----------- */}
         {!answered && selected.length > 0 ? (

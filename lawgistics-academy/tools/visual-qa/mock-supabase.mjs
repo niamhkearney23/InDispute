@@ -146,7 +146,37 @@ const FACT = {
 
 const SESSION_ID = '99999999-9999-9999-9999-999999999999';
 
+/** By slug rather than by index: position was silently load-bearing. */
+const bySlug = (slug) => {
+  const found = deliveryQuestions.find((q) => q.slug === slug);
+  if (!found) throw new Error(`no delivery fixture for "${slug}"`);
+  return found;
+};
+
 const deliveryQuestions = [
+  {
+    // A drawn court hierarchy question, so the sweep exercises the diagram on
+    // every device rather than only the list of sentences.
+    question_id: 'aaaaaaaa-0000-4000-8000-000000000009',
+    question_version_id: 'bbbbbbbb-0000-4000-8000-000000000009',
+    slug: 'ch-au-appeal-from-intermediate',
+    domain_id: 'd1',
+    domain_slug: 'court-system',
+    domain_name: 'Court System',
+    version: 1,
+    question_type: 'court_hierarchy',
+    scenario: null,
+    stem: 'An appeal from a District or County Court decision ordinarily goes to which court?',
+    options: [
+      { id: 'hca', text: 'High Court of Australia' },
+      { id: 'fca', text: 'Federal Court of Australia' },
+      { id: 'supreme-court', text: 'Supreme Court of the State or Territory' },
+      { id: 'magistrates', text: 'Magistrates or Local Court' },
+    ],
+    difficulty: 1,
+    jurisdiction: 'AU_GENERAL',
+    court: null,
+  },
   {
     question_id: 'aaaaaaaa-0000-4000-8000-000000000001',
     question_version_id: 'bbbbbbbb-0000-4000-8000-000000000001',
@@ -296,7 +326,7 @@ const TABLES = {
       domains: { name: 'Civil Procedure' },
       question_versions: {
         version: 1,
-        stem: deliveryQuestions[0].stem,
+        stem: bySlug('cp-fishing-expedition').stem,
         jurisdiction: 'AU_GENERAL',
         verification_status: 'requires_review',
         is_current: true,
@@ -323,12 +353,29 @@ const TABLES = {
       question_id: 'aaaaaaaa-0000-4000-8000-000000000001',
       version: 1,
       is_current: true,
-      ...deliveryQuestions[0],
+      ...bySlug('cp-fishing-expedition'),
       correct_option_ids: ['b'],
       explanation: 'A subpoena must be directed to identified documents with an apparent relevance to the issues on the pleadings.',
       why_it_matters: 'Broad subpoenas impose real cost on your client and on third parties.',
       common_misconception: 'That anything relevant can be subpoenaed.',
       memory_trick: 'A subpoena proves a case. It does not go looking for one.',
+      source_reference: null,
+      source_url: null,
+      source_checked_on: null,
+      verification_status: 'requires_review',
+    },
+    {
+      id: 'bbbbbbbb-0000-4000-8000-000000000009',
+      question_id: 'aaaaaaaa-0000-4000-8000-000000000009',
+      version: 1,
+      is_current: true,
+      ...bySlug('ch-au-appeal-from-intermediate'),
+      correct_option_ids: ['supreme-court'],
+      explanation:
+        'Appeals run up the hierarchy they belong to. The intermediate court sits below the Supreme Court of its State or Territory.',
+      why_it_matters: 'Filing an appeal in the wrong court wastes time you rarely have.',
+      common_misconception: 'Treating the Federal Court as sitting above the State courts.',
+      memory_trick: null,
       source_reference: null,
       source_url: null,
       source_checked_on: null,
