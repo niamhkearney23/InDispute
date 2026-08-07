@@ -1,5 +1,7 @@
 import 'server-only';
 
+import { after } from 'next/server';
+
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServiceClient } from '@/lib/supabase/service';
 import { QUESTIONS_PER_MINUTE_GOAL, DIAGNOSTIC_QUESTION_COUNT } from '@/lib/learning/config';
@@ -338,21 +340,36 @@ export async function submitAnswer(args: {
   const answerXpEvents = xpForAnswer(isCorrect, version.difficulty);
   const answerXp = answerXpEvents.reduce((total, e) => total + e.amount, 0);
 
-  const { data: attempt, error: attemptError } = await db
-    .from('user_question_attempts')
-    .insert({
-      user_id: args.userId,
-      question_id: version.question_id,
-      question_version_id: version.id,
-      session_id: args.sessionId,
-      selected_option_ids: args.selectedOptionIds,
-      is_correct: isCorrect,
-      confidence: args.confidence,
-      response_ms: args.responseMs,
-      xp_awarded: answerXp,
-    })
-    .select('id')
-    .single();
+  // The attempt is the one write that must succeed before the learner is told
+  // anything: it is the record that they answered. Everything the mastery
+  // calculation needs is fetched alongside it, since none of it depends on the
+  // attempt existing.
+  const [
+    { data: attempt, error: attemptError },
+    { data: conceptLinks },
+    { data: skillLinks },
+  ] = await Promise.all([
+    db
+      .from('user_question_attempts')
+      .insert({
+        user_id: args.userId,
+        question_id: version.question_id,
+        question_version_id: version.id,
+        session_id: args.sessionId,
+        selected_option_ids: args.selectedOptionIds,
+        is_correct: isCorrect,
+        confidence: args.confidence,
+        response_ms: args.responseMs,
+        xp_awarded: answerXp,
+      })
+      .select('id')
+      .single(),
+    db
+      .from('question_concepts')
+      .select('concept_id, weight, concepts(name)')
+      .eq('question_id', version.question_id),
+    db.from('question_skills').select('skill_id, weight').eq('question_id', version.question_id),
+  ]);
 
   if (attemptError || !attempt) {
     // Release the claim so the learner can try again.
@@ -362,23 +379,6 @@ export async function submitAnswer(args: {
       .eq('id', slot.id);
     return { error: attemptError?.message ?? 'Could not record your answer.' };
   }
-
-  await db
-    .from('training_sessions')
-    .update({
-      total_answered: session.total_answered + 1,
-      correct_count: session.correct_count + (isCorrect ? 1 : 0),
-    })
-    .eq('id', args.sessionId);
-
-  /* --- update the knowledge graph --- */
-  const [{ data: conceptLinks }, { data: skillLinks }] = await Promise.all([
-    db
-      .from('question_concepts')
-      .select('concept_id, weight, concepts(name)')
-      .eq('question_id', version.question_id),
-    db.from('question_skills').select('skill_id, weight').eq('question_id', version.question_id),
-  ]);
 
   const conceptIds = (conceptLinks ?? []).map((link) => link.concept_id as string);
   const skillIds = (skillLinks ?? []).map((link) => link.skill_id as string);
@@ -556,23 +556,48 @@ export async function submitAnswer(args: {
     });
   }
 
-  await Promise.all([
-    conceptUpserts.length
-      ? db
-          .from('user_concept_mastery')
-          .upsert(conceptUpserts, { onConflict: 'user_id,concept_id' })
-      : Promise.resolve(),
-    scheduleUpserts.length
-      ? db.from('review_schedule').upsert(scheduleUpserts, { onConflict: 'user_id,concept_id' })
-      : Promise.resolve(),
-    skillUpserts.length
-      ? db.from('user_skill_mastery').upsert(skillUpserts, { onConflict: 'user_id,skill_id' })
-      : Promise.resolve(),
-  ]);
+  /*
+   * The learner waits for none of this.
+   *
+   * Mastery, the review schedule, the session counters and the XP ledger all
+   * have to be written, and all of them are already decided by the time the
+   * verdict is known: the calculations above are pure, and every value is in
+   * hand. Making someone watch a spinner while four writes travel to a database
+   * and back buys them nothing, because nothing on the screen depends on the
+   * answer coming back.
+   *
+   * `after` runs this once the response has been sent, in the same invocation,
+   * so it still completes on a serverless host. If any of it fails the attempt
+   * itself is already recorded, which is the part that must never be lost.
+   */
+  const xpAwarded = answerXpEvents.reduce((total, event) => total + event.amount, 0);
+  const attemptId = attempt.id as string;
 
-  const xpAwarded = await awardXp(db, args.userId, answerXpEvents, {
-    sessionId: args.sessionId,
-    attemptId: attempt.id as string,
+  after(async () => {
+    await Promise.all([
+      conceptUpserts.length
+        ? db
+            .from('user_concept_mastery')
+            .upsert(conceptUpserts, { onConflict: 'user_id,concept_id' })
+        : Promise.resolve(),
+      scheduleUpserts.length
+        ? db.from('review_schedule').upsert(scheduleUpserts, { onConflict: 'user_id,concept_id' })
+        : Promise.resolve(),
+      skillUpserts.length
+        ? db.from('user_skill_mastery').upsert(skillUpserts, { onConflict: 'user_id,skill_id' })
+        : Promise.resolve(),
+      db
+        .from('training_sessions')
+        .update({
+          total_answered: session.total_answered + 1,
+          correct_count: session.correct_count + (isCorrect ? 1 : 0),
+        })
+        .eq('id', args.sessionId),
+      awardXp(db, args.userId, answerXpEvents, {
+        sessionId: args.sessionId,
+        attemptId,
+      }),
+    ]);
   });
 
   /* --- optional AI layer, strictly after everything that matters --- */
