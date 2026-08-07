@@ -144,6 +144,103 @@ export const LESSONS: SeedLesson[] = [
       },
     ],
   },
+  {
+    slug: 'ai-ethics-my-intro',
+    moduleSlug: 'ai-ethics-my',
+    title: 'What does not change',
+    minutes: 3,
+    country: 'MY',
+    steps: [
+      {
+        heading: 'The duties are the old ones',
+        body: 'Nothing in your professional obligations changed because a machine can draft. Confidentiality, competence and responsibility for your own work apply exactly as before. What is new is the number of ways to breach them without it feeling like a breach at the time.',
+        takeaway: 'New tools, same duties.',
+      },
+      {
+        heading: 'The Bar Council has said so',
+        body: 'This is not left to inference. Circular No 342/2023 was the Bar Council\u2019s first formal advisory to the Malaysian Bar on generative AI, listing risks including hallucinated citations, bias, threats to client confidentiality and data privacy. Circular No 242/2025 expanded it substantially.',
+        takeaway: 'Your regulator has already written this down.',
+      },
+      {
+        heading: 'Pressing enter is sending it',
+        body: 'Putting client information into a system run by someone else discloses it to that someone else, and many consumer services reserve the right to keep it and train on it. Section 126 of the Evidence Act 1950 protects professional communications, and that protection assumes you have not handed them to a third party. Removing a name rarely helps, because a matter is usually identifiable from its facts.',
+      },
+      {
+        heading: 'It answers from the wrong country',
+        body: 'These systems are trained overwhelmingly on English and American material. Asked a Malaysian question they will often answer confidently from that material, citing an Act that exists somewhere else. The answer is fluent and familiar, which is exactly what makes it dangerous: it takes a Malaysian lawyer to notice the Act named is not the governing one.',
+        takeaway: 'Confident and foreign reads exactly like confident and correct.',
+      },
+      {
+        heading: 'The document is still yours',
+        body: 'Cause papers filed in your name are your work. The tool owes no duty to the court, cannot be disciplined and cannot be asked to explain itself. If something in it turns out to be wrong, the correction is yours to make and to make promptly, which is survivable in a way that concealing it is not.',
+      },
+    ],
+  },
+  {
+    slug: 'research-au-intro',
+    moduleSlug: 'research-au',
+    title: 'How to actually find the law',
+    minutes: 3,
+    country: 'AU',
+    steps: [
+      {
+        heading: 'Start with a secondary source',
+        body: 'Given an unfamiliar area and two hours, do not open a case database. A practitioner text gives you the structure, the vocabulary and the leading authorities in one pass, written by someone who already knows the area. Searching first means guessing at words you do not yet know are the right words.',
+        takeaway: 'Secondary to find it. Primary to rely on it.',
+      },
+      {
+        heading: 'Check you have today\u2019s law',
+        body: 'Legislation sites publish point-in-time versions, and the one shown by default is not always the one that governs your facts. Two things go wrong: reading today\u2019s text when the conduct happened under an earlier provision, and missing an amendment that has passed but not commenced. Both are invisible unless you look at the compilation date.',
+        takeaway: 'Which version, on what date.',
+      },
+      {
+        heading: 'Note the case up',
+        body: 'A judgment tells you nothing about what happened to it afterwards. It may since have been distinguished into irrelevance, doubted on appeal, or overruled outright. Noting up traces it forward through the cases that have cited it, and it is not optional for anything you intend to rely on.',
+      },
+      {
+        heading: 'Narrow, do not widen',
+        body: 'A thousand results means your search is describing the facts rather than the legal question. Courts do not say the money was not paid back, they say the debt was not discharged. Use the term of art, restrict to appellate courts for statements of principle, and search catchwords rather than full text.',
+        takeaway: 'A big result set usually means the wrong words.',
+      },
+      {
+        heading: 'Know when you are done',
+        body: 'Stop when different starting points keep returning the same small set of authorities. That convergence is the signal. Stopping at the first case that helps is not research, it is confirmation, and it leaves the contrary authority for the other side to find. Record what you searched and when, because you will be asked how you know.',
+        takeaway: 'Stop when the same names arrive by different roads.',
+      },
+    ],
+  },
+  {
+    slug: 'research-my-intro',
+    moduleSlug: 'research-my',
+    title: 'How to actually find the law',
+    minutes: 3,
+    country: 'MY',
+    steps: [
+      {
+        heading: 'Start with a secondary source',
+        body: 'Given an unfamiliar area and two hours, do not open a case database. A practitioner text or commentary gives you the structure, the vocabulary and the leading authorities in one pass. Searching first means guessing at words you do not yet know are the right ones.',
+        takeaway: 'Secondary to find it. Primary to rely on it.',
+      },
+      {
+        heading: 'Go to the official text',
+        body: 'For a federal Act, use the official legislation portal maintained by the Attorney General\u2019s Chambers. A copy on the firm\u2019s shared drive is a snapshot taken on a date nobody recorded, and amending Acts do not update it. The official source is also where you can see whether an amendment has passed, and separately whether it has commenced.',
+        takeaway: 'A saved copy is the most convenient wrong answer available.',
+      },
+      {
+        heading: 'Note the case up',
+        body: 'A judgment says nothing about what happened to it afterwards. It may have been distinguished, doubted or overruled, and even a Federal Court decision can be departed from by the Federal Court itself. Check the subsequent treatment of anything you intend to rely on.',
+      },
+      {
+        heading: 'Cite what the court will have',
+        body: 'Where a reported version exists, cite and quote from it, so your pinpoint references lead the judge to the passage you are relying on. An unreported copy is fine for reading and useless for pinpointing. A summary service is a finding aid, never the thing you rely on.',
+      },
+      {
+        heading: 'Know when you are done',
+        body: 'Stop when different starting points keep returning the same authorities. Stopping at the first helpful case is confirmation rather than research. Record which sources you searched, the terms and the date: you will be asked how you know, someone may take the matter over, and the law will move.',
+        takeaway: 'Stop when the same names arrive by different roads.',
+      },
+    ],
+  },
 ];
 
 export function lessonForModule(moduleSlug: string): SeedLesson | null {
