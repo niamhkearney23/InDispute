@@ -349,6 +349,34 @@ Environment variables: the three Supabase values, plus `NEXT_PUBLIC_SITE_URL` se
 deployed origin. Add the deployed origin to Supabase's redirect allow-list under
 **Authentication → URL Configuration**.
 
+### Where it runs, and why that is one decision rather than two
+
+`vercel.json` pins the functions to `syd1` (Sydney). The Supabase project is in
+`ap-southeast-2` (Sydney). That is not a coincidence and the two must not be
+separated.
+
+Answering a question costs four database round trips and one response to the
+learner. So the function belongs next to the database, not next to the learner:
+moving it towards the user trades one slow hop for four. Concretely, for a
+learner in Malaysia:
+
+| Functions in | What they wait |
+|---|---|
+| Sydney, with the database | ~5ms x 5 to the database, ~90ms once to Malaysia. About **115ms** |
+| Singapore, near the learner | ~90ms x 5 to Sydney, ~5ms once to the learner. About **455ms** |
+| Washington, the Vercel default | ~200ms x 5, plus ~230ms. About **1230ms** |
+
+Pages, fonts and images come from Vercel's global network either way, so the app
+loads quickly everywhere. Only the dynamic work goes to one region.
+
+**When to revisit.** If most learners end up in Malaysia rather than Australia,
+move *both* to Singapore: `sin1` here, and a Supabase project in
+`ap-southeast-1`. Supabase cannot change an existing project's region, so that
+means a new project, `supabase/SETUP.sql`, and `/setup` again. Every question
+and fact lives in this repository, so the content costs nothing to move. What
+does not move is learner history: attempts, mastery and streaks. That makes this
+cheapest to change now and steadily more expensive with every real user.
+
 ---
 
 ## Project structure
