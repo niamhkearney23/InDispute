@@ -148,7 +148,7 @@ export async function createQuestion(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Update — mints a new version when content changed                          */
+/* Update: mints a new version when content changed                          */
 /* -------------------------------------------------------------------------- */
 
 export async function updateQuestion(

@@ -6,7 +6,7 @@ import { Wordmark } from '@/components/ui';
 
 /**
  * Every page under this layout is per-learner and auth-gated. Say so explicitly
- * rather than relying on Next inferring it from a `cookies()` call — if the app
+ * rather than relying on Next inferring it from a `cookies()` call. If the app
  * is ever built without Supabase configured, that call does not happen and these
  * pages would be prerendered and served to everyone.
  */
@@ -53,7 +53,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
       <footer className="mx-auto w-full max-w-4xl px-5 pb-8 sm:px-8">
         <p className="border-t border-rule pt-5 text-xs text-muted">
-          Training content only — not legal advice. Levels are game levels, not
+          Training content only, not legal advice. Levels are game levels, not
           professional titles or qualifications. Always check the current rules of the
           relevant court before acting on a point of procedure.
         </p>

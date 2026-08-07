@@ -43,7 +43,7 @@ export interface ReviewItem {
   verificationStatus: string;
   reviewFlagged: boolean;
   reviewNote: string | null;
-  /** Published while still unverified — the case that matters most. */
+  /** Published while still unverified, the case that matters most. */
   liveToLearners: boolean;
 
   risk: ReviewRisk;
@@ -155,7 +155,7 @@ export async function getReviewItems(): Promise<ReviewItem[]> {
     }),
   }));
 
-  // Anything already live but unverified first — those are in front of learners
+  // Anything already live but unverified first; those are in front of learners
   // right now. Then by risk, then by how much is at stake in getting it wrong.
   return [...questions, ...facts].sort((a, b) => {
     if (a.liveToLearners !== b.liveToLearners) return a.liveToLearners ? -1 : 1;

@@ -15,7 +15,7 @@ import { JURISDICTION_LABELS } from '@/lib/types';
  *
  *  2. It never states the law. The verified question bank does that. The coach
  *     works only from text an admin has already approved, and is asked to
- *     rephrase and connect — not to research.
+ *     rephrase and connect, not to research.
  *
  * The generative features in the roadmap (question drafting, scenario
  * generation, judge simulation) all belong behind this same boundary, and all
@@ -63,7 +63,7 @@ function renderOption(options: QuestionOption[], ids: string[]): string {
 }
 
 /**
- * A short, personal note layered on top of the verified feedback. Additive —
+ * A short, personal note layered on top of the verified feedback. Additive, 
  * the learner already has the full explanation before this resolves.
  */
 export async function coachOnAnswer(context: CoachContext): Promise<string | null> {

@@ -7,7 +7,7 @@ import type { ConfidenceLevel } from '@/lib/types';
  * Deliberately pure: it takes the current state of a concept for one learner
  * plus one outcome, and returns the next state. No database, no clock beyond
  * the `now` you pass in. That makes the algorithm testable today and
- * replaceable tomorrow — a smarter model can be dropped in behind this same
+ * replaceable tomorrow, a smarter model can be dropped in behind this same
  * signature without touching a single call site.
  */
 
@@ -64,7 +64,7 @@ export function scheduleNextReview(
   const reviewCount = state.reviewCount + 1;
 
   if (!outcome.isCorrect) {
-    // A wrong answer resets the ladder. Confidence does not rescue it — if
+    // A wrong answer resets the ladder. Confidence does not rescue it, if
     // anything, being certain and wrong is the clearest call for a fast retest.
     return {
       intervalDays: REVIEW.lapseIntervalDays,

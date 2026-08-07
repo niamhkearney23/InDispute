@@ -8,9 +8,9 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
  * the project is configured, and a route that understands only one of them
  * leaves the user staring at a dead link with no idea why:
  *
- *   ?code=…                     PKCE flow — exchange it for a session.
- *   ?token_hash=…&type=signup   the newer link format — verify it directly.
- *   #access_token=…             implicit flow — the fragment never reaches the
+ *   ?code=…                     PKCE flow, exchange it for a session.
+ *   ?token_hash=…&type=signup   the newer link format, verify it directly.
+ *   #access_token=…             implicit flow, the fragment never reaches the
  *                               server, so the browser has to finish the job.
  *                               `AuthFragmentHandler` on /login does that.
  *

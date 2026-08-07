@@ -20,7 +20,7 @@ export default async function LoginPage({
   );
 }
 
-/** Only ever redirect within this app — never to an attacker-supplied origin. */
+/** Only ever redirect within this app, never to an attacker-supplied origin. */
 function safeNext(next: string | undefined): string {
   if (!next || !next.startsWith('/') || next.startsWith('//')) return '/dashboard';
   return next;
@@ -29,7 +29,7 @@ function safeNext(next: string | undefined): string {
 /**
  * A confirmation link that fails should say so. Previously this parameter was
  * ignored, so a broken link dropped the user on a blank sign-in page with no
- * indication that anything had gone wrong — indistinguishable from the link
+ * indication that anything had gone wrong, indistinguishable from the link
  * simply doing nothing.
  */
 function explain(error: string | undefined): string | undefined {

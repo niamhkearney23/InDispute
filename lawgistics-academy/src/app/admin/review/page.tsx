@@ -34,7 +34,7 @@ export default async function ReviewPage() {
           </strong>{' '}
           That is how the seed content ships so the product works out of the box. If you
           would rather nothing unreviewed were servable while you work through this, use
-          “Withdraw everything unverified” below — it is reversible, and publishing is one
+          “Withdraw everything unverified” below; it is reversible, and publishing is one
           click once an item is signed off.
         </Notice>
       ) : null}
@@ -54,7 +54,7 @@ export default async function ReviewPage() {
         <p className="eyebrow mb-3">Working through it</p>
         <ul className="space-y-2 text-sm text-slate">
           <li>
-            <strong className="text-ink">Correct — sign off</strong> records your name and
+            <strong className="text-ink">Correct and sign off</strong> records your name and
             the date against that exact wording. Rewriting it later clears the sign-off.
           </li>
           <li>
@@ -65,7 +65,7 @@ export default async function ReviewPage() {
             <strong className="text-ink">Remove entirely</strong> retires it for good.
           </li>
           <li>
-            Signing off does not publish. Publishing is a separate, deliberate step — use
+            Signing off does not publish. Publishing is a separate, deliberate step; use
             “Publish everything signed off” when you are ready.
           </li>
         </ul>

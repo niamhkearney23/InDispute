@@ -59,7 +59,7 @@ export default async function SkillsPage() {
 
   const hasData = concepts.length > 0;
 
-  // Confidently wrong is the most actionable signal in the system — surface it.
+  // Confidently wrong is the most actionable signal in the system; surface it.
   const blindSpots = concepts
     .filter((c) => c.confidentAndWrong > 0)
     .sort((a, b) => b.confidentAndWrong - a.confidentAndWrong)
@@ -72,7 +72,7 @@ export default async function SkillsPage() {
         <h1 className="text-3xl sm:text-4xl">Skill map</h1>
         <p className="mt-3 max-w-xl text-slate">
           Two views of the same training. By area, which is what you would call a subject.
-          And by skill, which is the kind of thinking a question asked of you — that axis
+          And by skill, which is the kind of thinking a question asked of you. That axis
           cuts across subjects.
         </p>
       </section>
@@ -211,7 +211,7 @@ export default async function SkillsPage() {
         <p className="eyebrow mb-2">Not yet built</p>
         <p className="text-sm text-slate">
           Once there are hundreds of answers behind a profile, this same data can suggest
-          areas of practice you might enjoy exploring — framed as exactly that, and never
+          areas of practice you might enjoy exploring, framed as exactly that, and never
           as a determination about your career. It is deliberately not in this version.
         </p>
       </Card>
