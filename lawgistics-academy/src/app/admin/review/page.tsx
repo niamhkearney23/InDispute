@@ -1,17 +1,25 @@
 import type { Metadata } from 'next';
 import { requireAdmin } from '@/lib/admin/guard';
-import { getReviewItems, summarise } from '@/lib/review/service';
-import { Card, Notice, Stat } from '@/components/ui';
+import Link from 'next/link';
+import { asReviewOrder, getReviewItems, summarise } from '@/lib/review/service';
+import { Card, Notice, Stat, cn } from '@/components/ui';
 import { ReviewQueue } from './review-queue';
 import { BulkActions } from './bulk-actions';
 
 export const metadata: Metadata = { title: 'Verification' };
 export const dynamic = 'force-dynamic';
 
-export default async function ReviewPage() {
+export default async function ReviewPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ order?: string }>;
+}) {
   await requireAdmin();
 
-  const items = await getReviewItems();
+  const { order: requested } = await searchParams;
+  const order = asReviewOrder(requested);
+
+  const items = await getReviewItems(order);
   const stats = summarise(items);
 
   return (
@@ -20,10 +28,19 @@ export default async function ReviewPage() {
         <p className="eyebrow mb-2">Verification</p>
         <h1 className="text-3xl">Sign off the content</h1>
         <p className="mt-3 max-w-2xl text-slate">
-          Every question and daily fact, ordered so the ones most likely to contain an
-          error come first. Anything already in front of learners but not yet signed off is
-          at the very top.
+          {order === 'simplest'
+            ? 'Every question and daily fact, plainest first. These are the ones you can check quickly and confidently, which is the fastest way to make real progress through the list.'
+            : 'Every question and daily fact, ordered so the ones most likely to contain an error come first. Anything already in front of learners but not yet signed off is at the very top.'}
         </p>
+
+        <div className="mt-5 inline-flex rounded-[5px] border border-rule-strong p-0.5">
+          <OrderTab href="/admin/review" label="Riskiest first" active={order === 'riskiest'} />
+          <OrderTab
+            href="/admin/review?order=simplest"
+            label="Simplest first"
+            active={order === 'simplest'}
+          />
+        </div>
       </section>
 
       {stats.liveUnverified > 0 ? (
@@ -78,5 +95,32 @@ export default async function ReviewPage() {
 
       <ReviewQueue items={items} />
     </div>
+  );
+}
+
+/**
+ * Plain links rather than a control, so switching order works before any
+ * JavaScript has loaded and each ordering has an address you can bookmark.
+ */
+function OrderTab({
+  href,
+  label,
+  active,
+}: {
+  href: string;
+  label: string;
+  active: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-current={active ? 'page' : undefined}
+      className={cn(
+        'rounded-[3px] px-3 py-2 text-sm whitespace-nowrap',
+        active ? 'bg-ink text-paper' : 'text-slate hover:bg-paper hover:text-ink',
+      )}
+    >
+      {label}
+    </Link>
   );
 }
