@@ -7,7 +7,6 @@ import { QUESTIONS_PER_MINUTE_GOAL } from '@/lib/learning/config';
 import {
   ButtonLink,
   Card,
-  Notice,
   Pill,
   ScoreBar,
   SectionHeading,
@@ -32,11 +31,7 @@ function greeting(date: Date, timezone: string): string {
   return 'Good evening';
 }
 
-export default async function DashboardPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ error?: string }>;
-}) {
+export default async function DashboardPage() {
   const user = await getCurrentUser();
   if (!user) redirect('/login');
 
@@ -45,7 +40,6 @@ export default async function DashboardPage({
   if (!overview.profile.onboardedAt) redirect('/onboarding');
   if (!overview.profile.diagnosticCompletedAt) redirect('/diagnostic');
 
-  const { error } = await searchParams;
   const { profile, level, skillMap } = overview;
   const fact = await getFactOfTheDay(profile.timezone);
   const questionCount =
@@ -58,8 +52,6 @@ export default async function DashboardPage({
 
   return (
     <div className="space-y-8">
-      {error ? <Notice tone="warn">{error}</Notice> : null}
-
       <section>
         <p className="eyebrow mb-2">
           {greeting(new Date(), profile.timezone)}
