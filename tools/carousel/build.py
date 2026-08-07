@@ -88,7 +88,7 @@ slide("a5", K_A, 5,
     CITE_A)
 slide("a6", K_A, 6,
     'Be honest: have you ever written &ldquo;without prejudice&rdquo; <span class="u">just in case?</span>',
-    CITE_A, size="lg", dark=True, sub="Tell us in the comments, and send this to the colleague who does it weekly.",
+    CITE_A, size="lg", dark=True, sub="Everyone knows someone who does it weekly.",
     disclaimer=True)
 
 # ── Set B: Elvin ──
@@ -109,7 +109,7 @@ slide("b5", K_B, 5,
     CITE_B)
 slide("b6", K_B, 6,
     'Should self-represented litigants get <span class="u">more slack</span> on evidence rules?',
-    CITE_B, size="lg", dark=True, sub="Or does that shortchange the represented side? Drop your take below.",
+    CITE_B, size="lg", dark=True, sub="Or does that shortchange the represented side?",
     disclaimer=True)
 
 # ── Set F: Big Case File No. 1 — Rebel Wilson ──
@@ -130,7 +130,7 @@ slide("f5", K_F, 5,
     CITE_F)
 slide("f6", K_F, 6,
     'Litigating on Instagram: <span class="u">risky genius</span> or terrible template?',
-    CITE_F, size="lg", dark=True, sub="Wilson posted her side while cameras rolled, and won. Drop your take below.",
+    CITE_F, size="lg", dark=True, sub="Wilson posted her side while cameras rolled, and won.",
     disclaimer=True)
 
 
@@ -156,7 +156,7 @@ slide("g5", K_G, 5,
     CITE_G)
 slide("g6", K_G, 6,
     'Will the High Court take this on? <span class="u">And should it?</span>',
-    CITE_G, size="lg", dark=True, sub="Hanson says she will fight on. Drop your prediction below.",
+    CITE_G, size="lg", dark=True, sub="Hanson says she will fight on.",
     disclaimer=True)
 
 
@@ -182,7 +182,7 @@ slide("j5", K_J, 5,
     CITE_J)
 slide("j6", K_J, 6,
     'Which subscription was <span class="u">hardest to cancel?</span>',
-    CITE_J, size="lg", dark=True, sub="We all have one. Name and shame in the comments.",
+    CITE_J, size="lg", dark=True, sub="We all have one.",
     disclaimer=True)
 
 print(json.dumps(sorted(p.name for p in OUT.glob('*.html'))))
