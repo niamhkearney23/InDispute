@@ -159,4 +159,30 @@ slide("g6", K_G, 6,
     CITE_G, size="lg", dark=True, sub="Hanson says she will fight on. Drop your prediction below.",
     disclaimer=True)
 
+
+
+# ── Set J: ACCC v JustAnswer (edition 01.08.26, post 2) ──
+K_J = "Daily Court Intelligence &middot; 01.08.26"
+CITE_J = '<b>ACCC v JustAnswer LLC</b> &middot; [2026] FCA 871 &middot; Snaden J &middot; 8 July 2026<br>Competition and Consumer Amendment (Unfair Trading Practices) Act 2026'
+
+slide("j1", K_J, 1,
+    'A chat box promised help for <span class="u">two dollars.</span> It cost the company ten million.',
+    CITE_J, size="lg", swipe="Swipe &rarr;")
+slide("j2", K_J, 2,
+    '<p>JustAnswer&rsquo;s website widget told Australians it was sending them to a page to join <strong>for only AU$2, fully refundable</strong>.</p><p>What they actually joined: an ongoing subscription of <span class="u">$45 to $75 a month.</span></p>',
+    CITE_J)
+slide("j3", K_J, 3,
+    '<p>It got worse. For roughly 18 months the company also claimed it was <strong>approved by or affiliated with the Fair Work Ombudsman</strong>.</p><p>It was not.</p>',
+    CITE_J)
+slide("j4", K_J, 4,
+    '<p>JustAnswer admitted the contraventions.</p><p>Justice Snaden ordered <span class="u">$10 million in penalties</span>, refunds for affected consumers, corrective notices and a compliance program.</p>',
+    CITE_J)
+slide("j5", K_J, 5,
+    '<p>And Parliament just went further. From <strong>1 July 2027</strong>, subscription traps, drip pricing and dark patterns become <span class="u">separately unlawful</span>.</p><p>Businesses have twelve months to fix their checkout.</p>',
+    CITE_J)
+slide("j6", K_J, 6,
+    'Which subscription was <span class="u">hardest to cancel?</span>',
+    CITE_J, size="lg", dark=True, sub="We all have one. Name and shame in the comments.",
+    disclaimer=True)
+
 print(json.dumps(sorted(p.name for p in OUT.glob('*.html'))))
