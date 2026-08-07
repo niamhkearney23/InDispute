@@ -7,8 +7,10 @@ import { createSupabaseServerClient, getCurrentUser } from '@/lib/supabase/serve
 import {
   completeSession,
   resumeOrStartSession,
+  startModuleSession,
   submitAnswer,
 } from '@/lib/training/service';
+import { moduleBySlug } from '@/content/seed/modules';
 import {
   IMPROVEMENT_GOALS,
   JURISDICTION_COUNTRY,
@@ -110,6 +112,29 @@ export async function beginSession(
 
   // Deliberately returned rather than redirected: the message belongs next to
   // the button that was pressed, not on a page the learner did not ask for.
+  if ('error' in outcome) return { error: outcome.error };
+
+  redirect(`/train/${outcome.sessionId}`);
+}
+
+export async function beginModule(slug: string): Promise<{ error: string } | undefined> {
+  const user = await getCurrentUser();
+  if (!user) redirect('/login');
+
+  // The slug comes from the URL, so it is narrowed to a module that exists
+  // before it is allowed to choose which questions get served.
+  const definition = moduleBySlug(slug);
+  if (!definition) redirect('/modules');
+
+  let outcome: { sessionId: string } | { error: string };
+  try {
+    outcome = await startModuleSession(user.id, definition.domains);
+  } catch (caught) {
+    outcome = {
+      error: caught instanceof Error ? caught.message : 'Could not start the module.',
+    };
+  }
+
   if ('error' in outcome) return { error: outcome.error };
 
   redirect(`/train/${outcome.sessionId}`);
