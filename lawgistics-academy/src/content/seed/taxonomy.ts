@@ -135,6 +135,14 @@ export const CONCEPTS: SeedConcept[] = [
   { slug: 'ai-privilege', domain: 'ethics-and-ai', name: 'Privilege and AI', description: 'Whether disclosure to a system is disclosure to a third party.' },
   { slug: 'ai-billing', domain: 'ethics-and-ai', name: 'Billing and AI', description: 'Charging for work that took an hour and used to take five.' },
 
+  // The firm-facing half of the same subject. The concepts above are what an
+  // individual owes; these are what an organisation has to be able to show.
+  { slug: 'ai-policy', domain: 'ethics-and-ai', name: 'Approved tools', description: 'Who decides which systems may touch client material, and on what terms.' },
+  { slug: 'ai-client-consent', domain: 'ethics-and-ai', name: 'Telling the client', description: 'What a client is told about AI use, and when consent is needed.' },
+  { slug: 'ai-vendor-terms', domain: 'ethics-and-ai', name: 'Provider terms', description: 'What the provider may retain, use and train on.' },
+  { slug: 'ai-incident', domain: 'ethics-and-ai', name: 'When it goes wrong', description: 'The path a mistake follows, and how fast.' },
+  { slug: 'ai-records', domain: 'ethics-and-ai', name: 'Records', description: 'Being able to show what was used, by whom, and how it was checked.' },
+
   // Legal research. Ordered roughly as the work happens.
   { slug: 'research-strategy', domain: 'legal-research', name: 'Where to start', description: 'Getting a framework before going near a database.' },
   { slug: 'currency', domain: 'legal-research', name: 'Currency', description: 'Whether what you are reading is the law today.' },

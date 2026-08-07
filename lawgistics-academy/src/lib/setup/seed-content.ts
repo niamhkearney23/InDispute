@@ -83,7 +83,8 @@ export async function seedContent(
    * take away and rely on. So the flag on the setup page cannot reach it. It
    * publishes when a person publishes it, one item at a time.
    */
-  const statusFor = (country: Country) => (country === 'MY' ? 'requires_review' : status);
+  const statusFor = (country: Country, tentative = false) =>
+    country === 'MY' || tentative ? 'requires_review' : status;
 
   /* --- taxonomy ---------------------------------------------------------- */
   const { error: domainError } = await db.from('domains').upsert(
@@ -153,7 +154,7 @@ export async function seedContent(
     if (!questionId) {
       const { data: inserted, error } = await db
         .from('questions')
-        .insert({ slug: q.slug, domain_id: domainId, status: statusFor(country), country })
+        .insert({ slug: q.slug, domain_id: domainId, status: statusFor(country, q.tentative), country })
         .select('id')
         .single();
       if (error) throw error;

@@ -11,6 +11,7 @@ import { ETHICS_AI_QUESTIONS } from './questions/ethics-ai';
 import { ETHICS_AI_MY_QUESTIONS } from './questions/ethics-ai-my';
 import { RESEARCH_QUESTIONS } from './questions/research';
 import { RESEARCH_MY_QUESTIONS } from './questions/research-my';
+import { AI_COMPLIANCE_QUESTIONS } from './questions/ai-compliance';
 import { FACTS } from './facts';
 import { COUNTRIES, JURISDICTION_COUNTRY } from '@/lib/types';
 import type { SeedQuestion } from './types';
@@ -28,6 +29,7 @@ export const QUESTIONS: SeedQuestion[] = [
   ...ETHICS_AI_MY_QUESTIONS,
   ...RESEARCH_QUESTIONS,
   ...RESEARCH_MY_QUESTIONS,
+  ...AI_COMPLIANCE_QUESTIONS,
 ];
 
 export { CONCEPTS, DOMAINS, SKILLS, FACTS };

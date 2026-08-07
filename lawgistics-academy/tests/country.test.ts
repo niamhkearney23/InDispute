@@ -87,7 +87,7 @@ test('a seed file never mixes countries except the one that is meant to', () => 
   // questions for both countries, because the diagram is one mechanism and
   // splitting it would mean two files that have to be kept in step.
   const SEED_DIR = path.join(ROOT, 'src/content/seed/questions');
-  const MIXED_ON_PURPOSE = new Set(['hierarchy.ts']);
+  const MIXED_ON_PURPOSE = new Set(['hierarchy.ts', 'ai-compliance.ts']);
 
   // A file is Malaysian if it says so in its name. One rule beats a list that
   // has to be remembered every time a file is added.
@@ -243,7 +243,7 @@ test('the seeder cannot be asked to publish the Malaysian bank', () => {
 
   assert.match(
     source,
-    /const statusFor = \(country: Country\) =>[\s\S]{0,120}?'requires_review'/,
+    /const statusFor = \(country: Country, tentative = false\) =>[\s\S]{0,140}?'requires_review'/,
     'the Malaysian override is gone; check seed-content.ts',
   );
 
