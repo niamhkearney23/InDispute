@@ -174,6 +174,29 @@ const FILTER_METHODS = new Set([
 
 const WRITE_METHODS = new Set(['insert', 'update', 'upsert']);
 
+/** Every object literal pushed into an array of this name, anywhere in the file. */
+function keysPushedInto(arrayName: string, sourceFile: ts.SourceFile): string[] {
+  const keys: string[] = [];
+
+  const visit = (node: ts.Node) => {
+    if (
+      ts.isCallExpression(node) &&
+      ts.isPropertyAccessExpression(node.expression) &&
+      node.expression.name.text === 'push' &&
+      ts.isIdentifier(node.expression.expression) &&
+      node.expression.expression.text === arrayName
+    ) {
+      for (const argument of node.arguments) {
+        if (ts.isObjectLiteralExpression(argument)) keys.push(...objectKeys(argument));
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+
+  visit(sourceFile);
+  return keys;
+}
+
 function sourceFiles(): string[] {
   const files: string[] = [];
   const walk = (dir: string) => {
@@ -227,7 +250,7 @@ function collectUsages(): Usage[] {
           if (method === 'select' && first && ts.isStringLiteral(first)) {
             usage.selects.push(first.text);
           } else if (WRITE_METHODS.has(method) && first) {
-            usage.writeKeys.push(...objectKeys(first));
+            usage.writeKeys.push(...objectKeys(first, sourceFile));
           } else if (FILTER_METHODS.has(method) && first && ts.isStringLiteral(first)) {
             usage.filterColumns.push(first.text);
           }
@@ -248,7 +271,21 @@ function collectUsages(): Usage[] {
 }
 
 /** Keys of an object literal, or of every element of an array literal / map. */
-function objectKeys(node: ts.Node): string[] {
+/**
+ * Column names written by a query.
+ *
+ * The rows being written are not always an object literal sitting inside the
+ * call. Batching several writes into one round trip means building an array
+ * first and passing its name, so an identifier has to be followed back to the
+ * `push` calls that filled it. Without that, moving a write into a batch would
+ * silently drop it out of this check, which is the opposite of what a schema
+ * contract is for.
+ */
+function objectKeys(node: ts.Node, sourceFile?: ts.SourceFile): string[] {
+  if (ts.isIdentifier(node) && sourceFile) {
+    return keysPushedInto(node.text, sourceFile);
+  }
+
   if (ts.isObjectLiteralExpression(node)) {
     return node.properties.flatMap((prop) => {
       if (ts.isSpreadAssignment(prop)) return [];
@@ -260,15 +297,15 @@ function objectKeys(node: ts.Node): string[] {
   }
 
   if (ts.isArrayLiteralExpression(node)) {
-    return node.elements.flatMap(objectKeys);
+    return node.elements.flatMap((e) => objectKeys(e, sourceFile));
   }
 
   // `rows.map(row => ({ ... }))`, reach into the callback body.
   if (ts.isCallExpression(node)) {
-    return node.arguments.flatMap(objectKeys);
+    return node.arguments.flatMap((a) => objectKeys(a, sourceFile));
   }
   if (ts.isArrowFunction(node)) {
-    return objectKeys(node.body);
+    return objectKeys(node.body, sourceFile);
   }
   if (ts.isParenthesizedExpression(node)) {
     return objectKeys(node.expression);
