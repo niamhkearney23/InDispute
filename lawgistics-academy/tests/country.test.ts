@@ -89,7 +89,9 @@ test('a seed file never mixes countries except the one that is meant to', () => 
   const SEED_DIR = path.join(ROOT, 'src/content/seed/questions');
   const MIXED_ON_PURPOSE = new Set(['hierarchy.ts']);
 
-  const expected: Record<string, Country> = { 'malaysia.ts': 'MY' };
+  // A file is Malaysian if it says so in its name. One rule beats a list that
+  // has to be remembered every time a file is added.
+  const isMalaysian = (file: string) => file.includes('malaysia') || file.endsWith('-my.ts');
 
   for (const file of fs.readdirSync(SEED_DIR)) {
     if (!file.endsWith('.ts') || MIXED_ON_PURPOSE.has(file)) continue;
@@ -98,7 +100,7 @@ test('a seed file never mixes countries except the one that is meant to', () => 
     const slugs = [...source.matchAll(/slug: '([^']+)'/g)].map((m) => m[1]);
     assert.ok(slugs.length > 0, `${file} has no questions`);
 
-    const wanted = expected[file] ?? 'AU';
+    const wanted: Country = isMalaysian(file) ? 'MY' : 'AU';
 
     for (const slug of slugs) {
       const question = QUESTIONS.find((q) => q.slug === slug);
@@ -369,5 +371,53 @@ test('each hierarchy is a single tree that reaches its apex', () => {
     }
 
     assert.ok(tiersOf(hierarchy).length >= 3, `the ${country} diagram has too few rows to be one`);
+  }
+});
+
+/* -------------------------------------------------------------------------- */
+/* The ethics module                                                          */
+/* -------------------------------------------------------------------------- */
+
+test('the ethics module exists for both countries and covers the duties, not the tools', () => {
+  const ethics = QUESTIONS.filter((q) => q.domain === 'ethics-and-ai');
+
+  for (const country of COUNTRIES) {
+    const inCountry = ethics.filter((q) => JURISDICTION_COUNTRY[q.jurisdiction] === country);
+    assert.ok(
+      inCountry.length >= 5,
+      `only ${inCountry.length} ${country} ethics questions; the diagnostic needs five`,
+    );
+  }
+
+  // The duties that must be covered wherever this is taught. Named by concept
+  // rather than by wording, so rewriting a question cannot quietly drop one.
+  const MUST_COVER = ['ai-confidentiality', 'ai-verification', 'ai-candour', 'ai-supervision'];
+  for (const country of COUNTRIES) {
+    const covered = new Set(
+      ethics
+        .filter((q) => JURISDICTION_COUNTRY[q.jurisdiction] === country)
+        .flatMap((q) => q.concepts),
+    );
+    for (const concept of MUST_COVER) {
+      assert.ok(covered.has(concept), `${country} ethics module does not cover "${concept}"`);
+    }
+  }
+});
+
+test('the ethics module never suggests it has been checked by anyone', () => {
+  // This is the content a learner is most likely to act on directly rather than
+  // merely be tested on, so an unearned claim of authority here is worse than
+  // anywhere else in the bank.
+  for (const question of QUESTIONS.filter((q) => q.domain === 'ethics-and-ai')) {
+    const prose = [question.explanation, question.whyItMatters].join(' ');
+    assert.ok(
+      !/(has been|independently) (verified|reviewed|approved)/i.test(prose),
+      `${question.slug} claims to have been checked`,
+    );
+  }
+
+  for (const file of ['ethics-ai.ts', 'ethics-ai-my.ts']) {
+    const source = fs.readFileSync(path.join(ROOT, 'src/content/seed/questions', file), 'utf8');
+    assert.match(source, /NOT VERIFIED/, `${file} does not say it is unverified`);
   }
 });

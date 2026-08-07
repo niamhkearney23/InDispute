@@ -42,6 +42,12 @@ export const DOMAINS: SeedDomain[] = [
       'Affidavits, pleadings, correspondence and written submissions, the documents a litigator actually produces.',
   },
   {
+    slug: 'ethics-and-ai',
+    name: 'Ethics and AI',
+    description:
+      'The duties that do not change when the drafting is done by a machine: confidentiality, verification, candour to the court, and who is answerable for the work.',
+  },
+  {
     slug: 'legal-reasoning',
     name: 'Legal Reasoning',
     description:
@@ -112,6 +118,16 @@ export const CONCEPTS: SeedConcept[] = [
   { slug: 'extrinsic-materials', domain: 'legal-reasoning', name: 'Extrinsic materials', description: 'When you may look outside the statute.' },
   { slug: 'elements-analysis', domain: 'legal-reasoning', name: 'Elements analysis', description: 'Breaking a cause of action into what must be proved.' },
   { slug: 'issue-identification', domain: 'legal-reasoning', name: 'Issue identification', description: 'Finding the question that actually decides the case.' },
+
+  // Ethics and AI. Deliberately expressed as duties rather than as tool
+  // behaviour: the tools change every few months, the obligations do not.
+  { slug: 'ai-confidentiality', domain: 'ethics-and-ai', name: 'Confidentiality and AI', description: 'What putting client material into a third party system actually does.' },
+  { slug: 'ai-verification', domain: 'ethics-and-ai', name: 'Verifying output', description: 'The obligation to check what the machine produced before it leaves your desk.' },
+  { slug: 'ai-candour', domain: 'ethics-and-ai', name: 'Candour about AI use', description: 'What a court must be told, and what happens when it is not.' },
+  { slug: 'ai-competence', domain: 'ethics-and-ai', name: 'Competence with the tool', description: 'Understanding a system well enough to be responsible for using it.' },
+  { slug: 'ai-supervision', domain: 'ethics-and-ai', name: 'Supervision and responsibility', description: 'Who answers for work a machine helped produce.' },
+  { slug: 'ai-privilege', domain: 'ethics-and-ai', name: 'Privilege and AI', description: 'Whether disclosure to a system is disclosure to a third party.' },
+  { slug: 'ai-billing', domain: 'ethics-and-ai', name: 'Billing and AI', description: 'Charging for work that took an hour and used to take five.' },
 
   // Malaysia. The domains are the same six, because the shape of litigation
   // work is the same; these are the concepts that have no Australian

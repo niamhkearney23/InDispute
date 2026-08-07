@@ -7,6 +7,8 @@ import { DRAFTING_QUESTIONS } from './questions/drafting';
 import { LEGAL_REASONING_QUESTIONS } from './questions/legal-reasoning';
 import { MALAYSIA_QUESTIONS } from './questions/malaysia';
 import { HIERARCHY_QUESTIONS } from './questions/hierarchy';
+import { ETHICS_AI_QUESTIONS } from './questions/ethics-ai';
+import { ETHICS_AI_MY_QUESTIONS } from './questions/ethics-ai-my';
 import { FACTS } from './facts';
 import { COUNTRIES, JURISDICTION_COUNTRY } from '@/lib/types';
 import type { SeedQuestion } from './types';
@@ -20,6 +22,8 @@ export const QUESTIONS: SeedQuestion[] = [
   ...LEGAL_REASONING_QUESTIONS,
   ...MALAYSIA_QUESTIONS,
   ...HIERARCHY_QUESTIONS,
+  ...ETHICS_AI_QUESTIONS,
+  ...ETHICS_AI_MY_QUESTIONS,
 ];
 
 export { CONCEPTS, DOMAINS, SKILLS, FACTS };
