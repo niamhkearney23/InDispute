@@ -32,7 +32,10 @@ export function SessionRunner({
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [finishing, startFinishing] = useTransition();
+  // Counted for this sitting only. A resumed session starts partway through, so
+  // deriving the tally from the question index would report it wrong.
   const [correctSoFar, setCorrectSoFar] = useState(0);
+  const [answeredThisSitting, setAnsweredThisSitting] = useState(0);
 
   // Set on mount and on every question change by the effect below — reading the
   // clock during render would be impure.
@@ -72,6 +75,7 @@ export function SessionRunner({
         }
 
         setFeedback(result);
+        setAnsweredThisSitting((n) => n + 1);
         if (result.isCorrect) setCorrectSoFar((n) => n + 1);
       });
     },
@@ -241,7 +245,7 @@ export function SessionRunner({
         <div className="fixed inset-x-0 bottom-0 z-30 border-t border-rule bg-paper/95 backdrop-blur-sm">
           <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
             <p className="text-sm text-slate tabular-nums">
-              {correctSoFar} of {index + 1} correct
+              {correctSoFar} of {answeredThisSitting} correct
             </p>
             <Button onClick={next} variant="accent" disabled={finishing}>
               {finishing ? 'Finishing…' : isLast ? 'Finish session' : 'Next question'}

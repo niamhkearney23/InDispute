@@ -20,7 +20,7 @@ export default async function TrainPage({
   if (!plan) redirect('/dashboard');
 
   // Everything answered already — go straight to the summary.
-  if (plan.answeredCount >= plan.questions.length) {
+  if (plan.resumeIndex >= plan.questions.length) {
     redirect(
       plan.kind === 'diagnostic'
         ? `/diagnostic/results?session=${sessionId}`
@@ -33,7 +33,7 @@ export default async function TrainPage({
       sessionId={plan.sessionId}
       kind={plan.kind}
       questions={plan.questions}
-      startIndex={plan.answeredCount}
+      startIndex={plan.resumeIndex}
     />
   );
 }
