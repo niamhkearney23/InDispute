@@ -84,22 +84,29 @@ const OVERFLOW_PROBE = `(() => {
       });
     }
   }
-  // Tap targets that are too small to hit reliably on a phone.
+  // Tap targets that are too small to hit reliably on a phone. A checkbox or
+  // radio wrapped in a label is hit by tapping the label, so measure that
+  // instead: reporting the 20px box when the real target is a 40px row is a
+  // false positive, and false positives are how a check stops being read.
   const smallTargets = [];
   for (const el of document.querySelectorAll('button, a, input, select, [role=button]')) {
-    const r = el.getBoundingClientRect();
+    const ticky = el.tagName === 'INPUT' && /^(checkbox|radio)$/i.test(el.type);
+    const target = ticky ? (el.closest('label') ?? el) : el;
+    const r = target.getBoundingClientRect();
     if (r.width === 0 || r.height === 0) continue;
     if (r.height < 32) {
       smallTargets.push({
         tag: el.tagName.toLowerCase(),
         h: Math.round(r.height),
-        text: (el.textContent || el.getAttribute('aria-label') || '').trim().slice(0, 30),
+        text: (target.textContent || el.getAttribute('aria-label') || '').trim().slice(0, 30),
       });
     }
   }
-  // Inputs below 16px cause iOS Safari to zoom the page on focus.
+  // Text fields below 16px cause iOS Safari to zoom the page on focus. It does
+  // not do this for checkboxes or radios, which have no text to magnify.
   const zoomers = [];
   for (const el of document.querySelectorAll('input, select, textarea')) {
+    if (el.tagName === 'INPUT' && /^(checkbox|radio|range|color|hidden)$/i.test(el.type)) continue;
     const size = parseFloat(getComputedStyle(el).fontSize);
     if (size < 16) zoomers.push({ tag: el.tagName.toLowerCase(), name: el.getAttribute('name'), size });
   }

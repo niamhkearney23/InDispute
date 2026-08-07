@@ -51,38 +51,38 @@ export function reviewRisk(input: TriageInput): ReviewRisk {
 
   if (!input.sourceReference && !input.sourceUrl) {
     score += 4;
-    reasons.push('No source recorded — cannot be checked as it stands');
+    reasons.push('No source recorded, cannot be checked as it stands');
   }
 
   if (PROVISION.test(haystack)) {
     score += 3;
-    reasons.push('Cites a specific provision — check the number and that it is current');
+    reasons.push('Cites a specific provision; check the number and that it is current');
   }
 
   if (MONEY.test(haystack)) {
     score += 3;
-    reasons.push('States a monetary figure — these are adjusted periodically');
+    reasons.push('States a monetary figure; these are adjusted periodically');
   }
 
   if (PERIOD.test(haystack)) {
     score += 2;
-    reasons.push('States a period or count — check it exactly');
+    reasons.push('States a period or count; check it exactly');
   }
 
   if (CASE_CITATION.test(haystack)) {
     score += 2;
-    reasons.push('Cites a case — check the citation and that it has not been overruled');
+    reasons.push('Cites a case; check the citation and that it has not been overruled');
   }
 
   if (input.jurisdiction !== 'AU_GENERAL') {
     score += 2;
-    reasons.push('Jurisdiction-specific — confirm it is right for that jurisdiction only');
+    reasons.push('Jurisdiction-specific, confirm it is right for that jurisdiction only');
   }
 
   // Only count a bare year where nothing more specific already fired. Almost
   // every item that cites a provision or a case also carries a year, so
   // counting both just shifts the whole distribution up by one and separates
-  // nothing -- which is the opposite of what a triage is for.
+  // nothing, which is the opposite of what a triage is for.
   const alreadySpecific = PROVISION.test(haystack) || CASE_CITATION.test(haystack);
   if (!alreadySpecific && YEAR.test(input.text)) {
     score += 1;

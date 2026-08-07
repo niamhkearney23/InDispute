@@ -3,7 +3,7 @@
  * marked up away from a screen.
  *
  * The admin queue is the right tool if you are doing the review yourself. This
- * is for the case that actually matters — handing the content to a senior
+ * is for the case that actually matters: handing the content to a senior
  * practitioner who is not going to log into an admin panel, and getting their
  * corrections back. It prints cleanly to PDF from any browser.
  *
@@ -13,7 +13,7 @@
  * The database is the better source once you are running, because it reflects
  * what is actually there rather than what the repository says should be there.
  * The seed option exists so the content can be reviewed before any of this is
- * set up -- which is the right order to do it in.
+ * set up, which is the right order to do it in.
  */
 
 import fs from 'node:fs';
@@ -80,7 +80,7 @@ function collectFromSeed(): PackItem[] {
   const items: PackItem[] = QUESTIONS.map((q) => ({
     ref: q.slug,
     kind: 'Question' as const,
-    domain: domainName.get(q.domain) ?? '—',
+    domain: domainName.get(q.domain) ?? 'Unassigned',
     jurisdiction: q.jurisdiction,
     court: q.court ?? null,
     heading: q.stem,
@@ -107,7 +107,7 @@ function collectFromSeed(): PackItem[] {
     items.push({
       ref: f.slug,
       kind: 'Daily brief',
-      domain: f.domain ? (domainName.get(f.domain) ?? '—') : '—',
+      domain: f.domain ? (domainName.get(f.domain) ?? 'Unassigned') : 'Unassigned',
       jurisdiction: f.jurisdiction,
       court: f.court ?? null,
       heading: f.title,
@@ -161,7 +161,7 @@ async function collect(): Promise<PackItem[]> {
     items.push({
       ref: question.slug,
       kind: 'Question',
-      domain: first<{ name: string }>(question.domains)?.name ?? '—',
+      domain: first<{ name: string }>(question.domains)?.name ?? 'Unassigned',
       jurisdiction: row.jurisdiction as Jurisdiction,
       court: row.court,
       heading: row.stem as string,
@@ -191,7 +191,7 @@ async function collect(): Promise<PackItem[]> {
     items.push({
       ref: row.slug as string,
       kind: 'Daily brief',
-      domain: first<{ name: string }>(row.domains)?.name ?? '—',
+      domain: first<{ name: string }>(row.domains)?.name ?? 'Unassigned',
       jurisdiction: row.jurisdiction as Jurisdiction,
       court: row.court,
       heading: row.title as string,
@@ -302,7 +302,7 @@ async function main() {
 
   const html = `<!doctype html>
 <html lang="en-AU"><head><meta charset="utf-8">
-<title>Lawgistics Academy — content review pack</title>
+<title>Lawgistics Academy content review pack</title>
 <style>
   :root { --ink:#14110f; --slate:#5c554d; --muted:#8a8177; --rule:#e2dbcd; --burgundy:#6b1f2a; }
   * { box-sizing: border-box; }
@@ -356,7 +356,7 @@ async function main() {
 
 <div class="summary">
   <p><strong>${items.length} items to review.</strong> Ordered so that the ones most
-  likely to contain an error come first — those citing a specific provision, a monetary
+  likely to contain an error come first; those citing a specific provision, a monetary
   figure, a period, or a rule that varies by jurisdiction.</p>
   <table>
     <tr><td>Check closely</td><td><strong>${counts.high}</strong></td></tr>
@@ -384,7 +384,7 @@ ${items.map(renderItem).join('\n')}
 
   console.log(`Wrote ${out}`);
   console.log(
-    `  ${items.length} items — ${counts.high} to check closely, ${counts.medium} worth checking, ${counts.low} lower risk.`,
+    `  ${items.length} items: ${counts.high} to check closely, ${counts.medium} worth checking, ${counts.low} lower risk.`,
   );
   console.log(`  ${counts.live} are live to learners without having been verified.`);
   console.log('\nOpen it in a browser and print to PDF to send it on.');

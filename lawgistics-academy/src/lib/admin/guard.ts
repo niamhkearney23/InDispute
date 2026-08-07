@@ -8,7 +8,7 @@ import { getLearnerProfile } from '@/lib/learner-overview';
  * Server-side admin authorisation.
  *
  * Hiding the admin link in the navigation is presentation, not security. Every
- * admin page and every admin action must call this — the admin write paths use
+ * admin page and every admin action must call this, the admin write paths use
  * the service role client, which bypasses Row Level Security entirely, so this
  * check is the only thing standing between a signed-in learner and the question
  * bank.

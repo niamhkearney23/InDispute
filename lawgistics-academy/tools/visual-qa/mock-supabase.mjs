@@ -99,7 +99,7 @@ const FACT = {
   title: 'The most enforced rule in Australian cross-examination comes from an 1893 case that was never fully reported.',
   body: 'Browne v Dunn (1893) 6 R 67 is a House of Lords decision recorded in an obscure series. It holds that if you intend to contradict a witness or impugn their credit, you must put that case to them so they can answer it. It is cited in Australian courts constantly, more than a century later.',
   why_it_matters:
-    'Breach it and you may lose the very submission your case was built around — or find the witness recalled at your client’s expense.',
+    'Breach it and you may lose the very submission your case was built around, or find the witness recalled at your client’s expense.',
   jurisdiction: 'AU_GENERAL',
   court: null,
   source_reference: 'Browne v Dunn (1893) 6 R 67',
@@ -129,7 +129,7 @@ const deliveryQuestions = [
       { id: 'a', text: 'The accountant is not a party to the proceeding' },
       {
         id: 'b',
-        text: 'The subpoena is oppressive and lacks a legitimate forensic purpose — it is a fishing expedition',
+        text: 'The subpoena is oppressive and lacks a legitimate forensic purpose; it is a fishing expedition',
       },
       { id: 'c', text: 'Accountants’ records are inherently privileged from production' },
       { id: 'd', text: 'The plaintiff has not yet completed discovery' },

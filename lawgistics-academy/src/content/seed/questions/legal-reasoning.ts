@@ -10,13 +10,13 @@ export const LEGAL_REASONING_QUESTIONS: SeedQuestion[] = [
     stem: 'Which part of a judgment is capable of binding a later court?',
     options: [
       { id: 'a', text: 'The whole of the reasons for judgment' },
-      { id: 'b', text: 'The ratio decidendi — the legal principle necessary to the decision on the facts found' },
+      { id: 'b', text: 'The ratio decidendi, the legal principle necessary to the decision on the facts found' },
       { id: 'c', text: 'The headnote prepared by the law reporter' },
       { id: 'd', text: 'The orders made at the end of the judgment' },
     ],
     correct: ['b'],
     explanation:
-      'Only the ratio decidendi binds: the proposition of law necessary to the court’s decision on the facts it found. Everything else in the reasons — observations on hypothetical facts, comments on arguments not needed for the outcome — is obiter dicta and is persuasive only. The headnote is the reporter’s summary and has no authority at all. The orders bind the parties, but they are not a statement of legal principle.',
+      'Only the ratio decidendi binds: the proposition of law necessary to the court’s decision on the facts it found. Everything else in the reasons (observations on hypothetical facts, comments on arguments not needed for the outcome) is obiter dicta and is persuasive only. The headnote is the reporter’s summary and has no authority at all. The orders bind the parties, but they are not a statement of legal principle.',
     whyItMatters:
       'Identifying the ratio is the core skill of using case law. Citing an obiter passage as though it were binding is an error a judge will correct, usually in front of your client.',
     commonMisconception:
@@ -59,14 +59,14 @@ export const LEGAL_REASONING_QUESTIONS: SeedQuestion[] = [
     jurisdiction: 'AU_GENERAL',
     stem: 'A judge of the County Court of Victoria is considering a point decided by the Victorian Court of Appeal. What must the judge do?',
     options: [
-      { id: 'a', text: 'Follow the Court of Appeal decision — it is binding' },
+      { id: 'a', text: 'Follow the Court of Appeal decision; it is binding' },
       { id: 'b', text: 'Treat it as persuasive only and reach an independent view' },
       { id: 'c', text: 'Refer the matter to the High Court' },
       { id: 'd', text: 'Follow it only if the facts are identical' },
     ],
     correct: ['a'],
     explanation:
-      'Courts are bound by decisions of courts above them in the same hierarchy. The Victorian Court of Appeal sits above the County Court in the Victorian hierarchy, so its decisions bind. Identical facts are not required — what matters is whether the ratio applies to the case at hand. A lower court cannot refer a question to the High Court of its own motion.',
+      'Courts are bound by decisions of courts above them in the same hierarchy. The Victorian Court of Appeal sits above the County Court in the Victorian hierarchy, so its decisions bind. Identical facts are not required, what matters is whether the ratio applies to the case at hand. A lower court cannot refer a question to the High Court of its own motion.',
     whyItMatters:
       'Knowing which authorities bind the particular court you are in determines what your submission has to be. Against a binding authority, your argument must be that it is distinguishable, not that it is wrong.',
     commonMisconception:
@@ -93,7 +93,7 @@ export const LEGAL_REASONING_QUESTIONS: SeedQuestion[] = [
     explanation:
       'Australia has a single common law. An intermediate appellate court in one State is not strictly bound by an intermediate appellate court in another, but should not depart from its decision on a matter of Australian common law, or on uniform national legislation, unless convinced the earlier decision is plainly wrong. That principle was stated emphatically by the High Court in Farah Constructions Pty Ltd v Say-Dee Pty Ltd.',
     whyItMatters:
-      'It vastly expands the authority you can usefully rely on. Interstate appellate decisions are not merely interesting — they will ordinarily be followed, and you should be citing them.',
+      'It vastly expands the authority you can usefully rely on. Interstate appellate decisions are not merely interesting; they will ordinarily be followed, and you should be citing them.',
     commonMisconception:
       'Confining research to your own State. On common law and uniform legislation, the whole country is relevant.',
     memoryTrick:
@@ -137,13 +137,13 @@ export const LEGAL_REASONING_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['b'],
     explanation:
-      'Section 15AA requires that the interpretation which would best achieve the purpose or object of the Act be preferred to any other interpretation. Every State and Territory has an equivalent provision. This does not licence a court to disregard the text — purpose is drawn from the statute itself, read as a whole — but it displaces any rule that the literal meaning must prevail regardless of consequence.',
+      'Section 15AA requires that the interpretation which would best achieve the purpose or object of the Act be preferred to any other interpretation. Every State and Territory has an equivalent provision. This does not licence a court to disregard the text, purpose is drawn from the statute itself, read as a whole, but it displaces any rule that the literal meaning must prevail regardless of consequence.',
     whyItMatters:
       'Statutory interpretation is the substance of an enormous proportion of modern litigation. Knowing that purpose is a statutory command, not a last resort, changes how you frame the argument from the outset.',
     commonMisconception:
       'Treating the literal rule as the starting point and purpose as a fallback. The statute reverses that.',
     memoryTrick:
-      '15AA: purpose is preferred. Not consulted — preferred.',
+      '15AA: purpose is preferred. Not consulted: preferred.',
     concepts: ['statutory-interpretation'],
     skills: ['statutory-analysis', 'argument-construction'],
     sourceReference: 'Acts Interpretation Act 1901 (Cth) s 15AA',
@@ -157,14 +157,14 @@ export const LEGAL_REASONING_QUESTIONS: SeedQuestion[] = [
     jurisdiction: 'CTH',
     stem: 'When may extrinsic material such as an explanatory memorandum or a second reading speech be considered in interpreting a Commonwealth Act?',
     options: [
-      { id: 'a', text: 'Never — only the text of the Act may be considered' },
+      { id: 'a', text: 'Never; only the text of the Act may be considered' },
       { id: 'b', text: 'To confirm the ordinary meaning conveyed by the text, or to determine the meaning where the provision is ambiguous or obscure, or where the ordinary meaning leads to a manifestly absurd or unreasonable result' },
       { id: 'c', text: 'Whenever the party relying on it considers it helpful, without restriction' },
       { id: 'd', text: 'Only where the Act expressly incorporates the material' },
     ],
     correct: ['b'],
     explanation:
-      'Section 15AB permits recourse to extrinsic material in defined circumstances: to confirm the meaning conveyed by the ordinary meaning of the text taking into account its context and purpose, or to determine the meaning where the provision is ambiguous or obscure, or where the ordinary meaning leads to a result that is manifestly absurd or unreasonable. Extrinsic material cannot displace clear statutory text — the courts have consistently emphasised that the second reading speech is not the statute.',
+      'Section 15AB permits recourse to extrinsic material in defined circumstances: to confirm the meaning conveyed by the ordinary meaning of the text taking into account its context and purpose, or to determine the meaning where the provision is ambiguous or obscure, or where the ordinary meaning leads to a result that is manifestly absurd or unreasonable. Extrinsic material cannot displace clear statutory text, the courts have consistently emphasised that the second reading speech is not the statute.',
     whyItMatters:
       'Extrinsic material is often the most attractive support for an argument, which is exactly why its limits matter. An argument that leans on a minister’s speech against the clear words of the section will fail.',
     commonMisconception:
@@ -190,7 +190,7 @@ export const LEGAL_REASONING_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['b'],
     explanation:
-      'The High Court has repeatedly said that interpretation begins with the text and ends with the text, but that the text must be considered in its context — including the statute as a whole, its structure, and its purpose — from the outset rather than only after an ambiguity is found. Context is not a remedy applied once a difficulty appears; it is part of reading the provision in the first place.',
+      'The High Court has repeatedly said that interpretation begins with the text and ends with the text, but that the text must be considered in its context, including the statute as a whole, its structure, and its purpose, from the outset rather than only after an ambiguity is found. Context is not a remedy applied once a difficulty appears; it is part of reading the provision in the first place.',
     whyItMatters:
       'It tells you how to build the argument: quote the provision, place it in the statutory scheme, identify the purpose the scheme serves, then return to the words. That is the structure judges expect.',
     commonMisconception:
@@ -219,9 +219,9 @@ export const LEGAL_REASONING_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['b'],
     explanation:
-      'Legal analysis proceeds by elements. Identify the cause of action — here, most likely breach of contract, possibly misleading or deceptive conduct — then list what must be proved for it, and test the client’s account and documents against each requirement. That immediately reveals which elements are strong, which are contestable, and what evidence is missing. Quantum, case research and correspondence all follow from that analysis.',
+      'Legal analysis proceeds by elements. Identify the cause of action (here, most likely breach of contract, possibly misleading or deceptive conduct) then list what must be proved for it, and test the client’s account and documents against each requirement. That immediately reveals which elements are strong, which are contestable, and what evidence is missing. Quantum, case research and correspondence all follow from that analysis.',
     whyItMatters:
-      'It converts a client’s grievance into a legal question you can actually answer. It is also how you spot, early, that the client has a genuine complaint but no cause of action — which is far better discovered in the first conference than after issuing.',
+      'It converts a client’s grievance into a legal question you can actually answer. It is also how you spot, early, that the client has a genuine complaint but no cause of action, which is far better discovered in the first conference than after issuing.',
     commonMisconception:
       'Starting with case research. Without the elements you do not yet know what you are researching.',
     memoryTrick:
@@ -244,7 +244,7 @@ export const LEGAL_REASONING_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['b'],
     explanation:
-      'Distinguishing accepts the earlier decision as correct and binding, and argues that it does not apply because a materially different fact or issue takes the present case outside its ratio. That is quite different from submitting a case was wrongly decided, which is generally not open before a court bound by it. The difference relied on must be material — one that matters to the reasoning, not merely any factual difference.',
+      'Distinguishing accepts the earlier decision as correct and binding, and argues that it does not apply because a materially different fact or issue takes the present case outside its ratio. That is quite different from submitting a case was wrongly decided, which is generally not open before a court bound by it. The difference relied on must be material, one that matters to the reasoning, not merely any factual difference.',
     whyItMatters:
       'When an authority is binding and against you, distinguishing is usually the only argument available. Being able to articulate the material difference in one sentence is the whole of the submission.',
     commonMisconception:
@@ -316,7 +316,7 @@ export const LEGAL_REASONING_QUESTIONS: SeedQuestion[] = [
     options: TRUE_FALSE_OPTIONS,
     correct: ['false'],
     explanation:
-      'False. A dissenting judgment is by definition not part of the court’s decision and binds no one. It may nevertheless be valuable — dissents are sometimes later preferred by an appellate court, and a well-reasoned dissent can supply the analytical framework for an argument that the majority position should be reconsidered by a court free to do so. But it is not authority for the proposition it advances.',
+      'False. A dissenting judgment is by definition not part of the court’s decision and binds no one. It may nevertheless be valuable: dissents are sometimes later preferred by an appellate court, and a well-reasoned dissent can supply the analytical framework for an argument that the majority position should be reconsidered by a court free to do so. But it is not authority for the proposition it advances.',
     whyItMatters:
       'Citing a dissent without identifying it as one is a serious error of candour as well as of research. Doing it deliberately would engage the duty to the court.',
     commonMisconception:

@@ -11,8 +11,8 @@ export const dynamic = 'force-dynamic';
 /**
  * First run.
  *
- * Everything that would otherwise be a terminal command — loading the content,
- * creating the first administrator — happens here, so getting from a fresh
+ * Everything that would otherwise be a terminal command (loading the content,
+ * creating the first administrator) happens here, so getting from a fresh
  * deployment to a working app needs no command line at all.
  */
 export default async function SetupPage() {
@@ -25,8 +25,8 @@ export default async function SetupPage() {
       body: status.envConfigured
         ? status.serviceKeyConfigured
           ? 'Connected.'
-          : 'The two public keys are set, but SUPABASE_SERVICE_ROLE_KEY is missing. Add it and redeploy — note that it must not have a NEXT_PUBLIC_ prefix.'
-        : 'Set NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY, then redeploy. These are read at build time, so a redeploy is required — restarting is not enough.',
+          : 'The two public keys are set, but SUPABASE_SERVICE_ROLE_KEY is missing. Add it and redeploy. Note that it must not have a NEXT_PUBLIC_ prefix.'
+        : 'Set NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY, then redeploy. These are read at build time, so a redeploy is required, restarting is not enough.',
     },
     {
       done: status.schemaReady,
@@ -42,13 +42,13 @@ export default async function SetupPage() {
       title: 'Create your account',
       body: user
         ? `Signed in as ${user.email}.`
-        : 'Sign up, then come back here. If nothing happens when you sign up, email confirmation is on without a mail provider configured — turn it off under Authentication → Sign In / Providers → Email.',
+        : 'Sign up, then come back here. If nothing happens when you sign up, email confirmation is on without a mail provider configured. Turn it off under Authentication → Sign In / Providers → Email.',
     },
     {
       done: status.contentLoaded && status.adminExists,
       title: 'Load the content and claim admin',
       body: status.adminExists
-        ? 'Done — this installation already has an administrator.'
+        ? 'Done; this installation already has an administrator.'
         : 'One button, below.',
     },
   ];
@@ -137,7 +137,7 @@ export default async function SetupPage() {
       <p className="mt-10 border-t border-rule pt-5 text-xs text-muted">
         This page grants administrator rights, so it closes permanently once one
         administrator exists. Between deploying and signing up for the first time, anyone
-        who reaches this URL could claim it — if your deployment is publicly reachable, set
+        who reaches this URL could claim it. If your deployment is publicly reachable, set
         a <code className="font-mono">SETUP_TOKEN</code> environment variable and this page
         will ask for it.
       </p>

@@ -1,4 +1,4 @@
-# Visual QA — does it work on a phone?
+# Visual QA: does it work on a phone?
 
 Renders every page of the real app at real device viewports and reports layout
 problems. Used to verify iPhone, Android and laptop rendering without a device
@@ -8,10 +8,10 @@ lab and without a Supabase project.
 
 For each page × device it asserts:
 
-- **no horizontal scrolling** — the single most common mobile defect
+- **no horizontal scrolling**: the single most common mobile defect
 - **no element extending past the viewport**
 - **tap targets at least 32px tall**
-- **no text input, select or textarea below 16px** — below that, iOS Safari
+- **no text input, select or textarea below 16px**: below that, iOS Safari
   zooms the page when the field is focused, which is disorienting mid-form
 - **no console or page errors**
 
@@ -35,7 +35,7 @@ does not apply.
 
 The app needs something to talk to, so `mock-supabase.mjs` stands in for a real
 project. It speaks the slice of GoTrue and PostgREST the app uses and serves
-fixtures — it is for rendering pages, and deliberately does **not** validate
+fixtures; it is for rendering pages, and deliberately does **not** validate
 query correctness. The schema contract tests do that.
 
 ```bash
@@ -43,10 +43,10 @@ query correctness. The schema contract tests do that.
 npm install
 npx playwright install chromium
 
-# terminal 1 — the stand-in backend
+# terminal 1: the stand-in backend
 node tools/visual-qa/mock-supabase.mjs
 
-# terminal 2 — the app, built against it
+# terminal 2: the app, built against it
 cat > .env.local <<'ENV'
 NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
 NEXT_PUBLIC_SUPABASE_ANON_KEY=mock-anon-key
@@ -64,8 +64,8 @@ Screenshots and a `report.json` land in `/tmp/lawgistics-qa` (override with
 `QA_OUT`).
 
 > Use a **production build**, not `next dev`. The dev server's HMR client can
-> fail to load in sandboxed environments, and when it does React never hydrates
-> — every interactive control silently falls back to a native form submit, which
+> fail to load in sandboxed environments. When it does, React never hydrates
+> and every interactive control silently falls back to a native form submit, which
 > looks exactly like a broken app.
 
 The script signs in through the real login form rather than injecting a cookie,

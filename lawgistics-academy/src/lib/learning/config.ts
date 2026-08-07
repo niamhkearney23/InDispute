@@ -12,7 +12,7 @@
 
 /**
  * The mix the daily session aims for. Shortfalls in one bucket spill into the
- * others in the order listed in `MIX_FALLBACK_ORDER` — a learner with nothing
+ * others in the order listed in `MIX_FALLBACK_ORDER`, a learner with nothing
  * due for review still gets a full session.
  */
 export const TRAINING_MIX = {
@@ -59,8 +59,8 @@ export const MASTERY = {
   learningRate: 0.28,
   /**
    * Confidence multipliers on the mastery move. Being certain and wrong is the
-   * strongest signal in the system — it means a belief needs correcting, not a
-   * gap needs filling — so it moves mastery further than a wrong guess does.
+   * strongest signal in the system; it means a belief needs correcting, not a
+   * gap needs filling, so it moves mastery further than a wrong guess does.
    */
   confidenceWeight: {
     correct: { guess: 0.6, somewhat_sure: 1.0, certain: 1.15 },
@@ -128,7 +128,7 @@ export const XP = {
 
 /**
  * Game levels. Named after the shape of a litigation career because that is
- * motivating — but they are game levels, not qualifications, and the UI says so.
+ * motivating, but they are game levels, not qualifications, and the UI says so.
  */
 export const LEVELS = [
   { level: 1, name: 'Court Observer', xpRequired: 0 },

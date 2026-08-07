@@ -92,11 +92,11 @@ export default async function DashboardPage({
         <Stat
           label="Current level"
           value={level.level}
-          hint={`${level.name} — game level`}
+          hint={`${level.name}, game level`}
         />
         <Stat
           label="Streak"
-          value={overview.currentStreak > 0 ? `${overview.currentStreak}` : '—'}
+          value={overview.currentStreak}
           hint={
             overview.currentStreak > 0
               ? `day${overview.currentStreak === 1 ? '' : 's'} in a row`

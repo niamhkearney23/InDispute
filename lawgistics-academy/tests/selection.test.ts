@@ -11,7 +11,7 @@ import { TRAINING_MIX } from '../src/lib/learning/config';
 /**
  * The selection engine talks to the database through a small, fixed set of
  * queries. Rather than stand up Postgres for this, we hand it a stub that
- * answers those queries from in-memory fixtures — which lets us assert on the
+ * answers those queries from in-memory fixtures, which lets us assert on the
  * composition of a session directly.
  */
 

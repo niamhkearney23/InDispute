@@ -151,7 +151,7 @@ function ReviewCard({
     onError(null);
     if (decision === 'flag' && !note.trim()) {
       setNoteOpen(true);
-      onError('Say what is wrong with it — a flag without a note is a dead end.');
+      onError('Say what is wrong with it, a flag without a note is a dead end.');
       return;
     }
 
@@ -257,9 +257,9 @@ function ReviewCard({
       </div>
 
       {item.risk.reasons.length > 0 && !outcome ? (
-        <ul className="mt-3 space-y-1 text-xs text-slate">
+        <ul className="mt-3 list-disc space-y-1 pl-4 text-xs text-slate">
           {item.risk.reasons.map((reason) => (
-            <li key={reason}>— {reason}</li>
+            <li key={reason}>{reason}</li>
           ))}
         </ul>
       ) : null}
@@ -272,13 +272,13 @@ function ReviewCard({
               onChange={(event) => setNote(event.target.value)}
               rows={2}
               placeholder="What is wrong with it? e.g. “rule number is 19.7, not 19.6”"
-              className="mt-4 w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2 text-base outline-none focus:border-burgundy sm:text-sm"
+              className="mt-4 w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2 text-base outline-none focus:border-burgundy"
             />
           ) : null}
 
           <div className="mt-4 flex flex-wrap gap-2">
             <Button size="sm" variant="primary" disabled={pending} onClick={() => decide('verify')}>
-              {pending ? 'Saving…' : 'Correct — sign off'}
+              {pending ? 'Saving…' : 'Correct and sign off'}
             </Button>
             <Button
               size="sm"

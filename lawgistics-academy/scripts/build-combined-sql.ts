@@ -22,7 +22,7 @@ export function buildCombinedSql(): string {
     .sort();
 
   const header = `-- =============================================================================
--- Lawgistics Academy -- complete database setup
+-- Lawgistics Academy: complete database setup
 -- =============================================================================
 -- Paste this whole file into the Supabase SQL editor and run it, once, on a new
 -- project. It creates every table, view, policy and trigger the app needs.

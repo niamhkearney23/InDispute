@@ -37,7 +37,7 @@ export function SessionRunner({
   const [correctSoFar, setCorrectSoFar] = useState(0);
   const [answeredThisSitting, setAnsweredThisSitting] = useState(0);
 
-  // Set on mount and on every question change by the effect below — reading the
+  // Set on mount and on every question change by the effect below, reading the
   // clock during render would be impure.
   const shownAt = useRef<number>(0);
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -206,7 +206,7 @@ export function SessionRunner({
           })}
         </div>
 
-        {/* Confidence — asked before the verdict, deliberately ----------- */}
+        {/* Confidence, asked before the verdict, deliberately ----------- */}
         {!answered && selected.length > 0 ? (
           <div className="mt-7 rise-in">
             <p className="mb-3 text-sm font-medium">How sure are you?</p>
@@ -225,7 +225,7 @@ export function SessionRunner({
             </div>
             <p className="mt-2.5 text-xs text-muted">
               Answer honestly. Being certain and wrong tells us far more than an admitted
-              guess — and it changes what we test you on next.
+              guess, and it changes what we test you on next.
             </p>
           </div>
         ) : null}

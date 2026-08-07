@@ -110,7 +110,7 @@ export const CAREER_STAGE_LABELS: Record<CareerStage, string> = {
 };
 
 export const JURISDICTION_LABELS: Record<Jurisdiction, string> = {
-  AU_GENERAL: 'Australia — general principle',
+  AU_GENERAL: 'Australia, general principle',
   CTH: 'Commonwealth',
   NSW: 'New South Wales',
   VIC: 'Victoria',

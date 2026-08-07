@@ -34,7 +34,7 @@ begin
     raise notice 'PASS  %  (blocked: %)', label, left(sqlerrm, 60);
     return;
   end;
-  raise exception 'FAIL  % — the statement was allowed when it should have been blocked', label;
+  raise exception 'FAIL  %: the statement was allowed when it should have been blocked', label;
 end;
 $$;
 
@@ -207,7 +207,7 @@ select pg_temp.expect(
 
 select pg_temp.expect(
   (select count(*) from public.question_versions) = 0,
-  'a learner cannot read question versions directly — that is where the answers live');
+  'a learner cannot read question versions directly; that is where the answers live');
 
 select pg_temp.expect(
   (select count(*) from public.v_question_delivery) = 1,
@@ -250,7 +250,7 @@ select pg_temp.expect_failure(
 
 select pg_temp.expect(
   (select count(*) from public.daily_facts) = 1,
-  'a learner sees published facts only — not drafts');
+  'a learner sees published facts only, not drafts');
 
 -- As an administrator: the question bank and the full fact pool open up.
 set local request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';

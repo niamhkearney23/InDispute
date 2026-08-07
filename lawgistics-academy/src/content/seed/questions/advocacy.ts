@@ -37,13 +37,13 @@ export const ADVOCACY_QUESTIONS: SeedQuestion[] = [
     options: TRUE_FALSE_OPTIONS,
     correct: ['true'],
     explanation:
-      'True. Cross-examination is where leading questions belong. The advocate puts propositions and the witness agrees or disagrees. There remain limits — the court may disallow improper questions, including those that are misleading, confusing, unduly harassing, or put in an offensive manner, and particular protections apply to vulnerable witnesses.',
+      'True. Cross-examination is where leading questions belong. The advocate puts propositions and the witness agrees or disagrees. There remain limits; the court may disallow improper questions, including those that are misleading, confusing, unduly harassing, or put in an offensive manner, and particular protections apply to vulnerable witnesses.',
     whyItMatters:
       'Effective cross-examination is a series of short, closed propositions the witness can only accept or deny. Open questions in cross hand the witness the floor, which is almost always a mistake.',
     commonMisconception:
       'Believing "leading questions are not allowed" is a general rule of advocacy. It is a rule about examination in chief.',
     memoryTrick:
-      'In chief you ask. In cross you tell — and wait for the answer.',
+      'In chief you ask. In cross you tell, and wait for the answer.',
     concepts: ['cross-examination', 'questioning-rules'],
     skills: ['oral-communication'],
     sourceReference: 'Evidence Act 1995 (Cth) ss 41–42',
@@ -65,7 +65,7 @@ export const ADVOCACY_QUESTIONS: SeedQuestion[] = [
     explanation:
       'Re-examination is confined to matters arising out of cross-examination. Its purpose is to allow a witness to explain or qualify evidence given in cross that would otherwise leave a misleading impression. New matters may only be raised with leave of the court, and leading questions are no more permitted in re-examination than they are in chief.',
     whyItMatters:
-      'Juniors often want to use re-examination to repair everything that went badly. It cannot do that, and attempting it draws an objection. Deciding whether to re-examine at all — and on what single point — is a real judgment call.',
+      'Juniors often want to use re-examination to repair everything that went badly. It cannot do that, and attempting it draws an objection. Deciding whether to re-examine at all, and on what single point, is a real judgment call.',
     commonMisconception:
       'Treating re-examination as a second examination in chief. It is a narrow, responsive exercise.',
     memoryTrick:
@@ -85,7 +85,7 @@ export const ADVOCACY_QUESTIONS: SeedQuestion[] = [
       { id: 'a', text: 'The duty to the client, because of the retainer' },
       { id: 'b', text: 'The duty to the court, which is paramount' },
       { id: 'c', text: 'Whichever the client instructs' },
-      { id: 'd', text: 'Neither — the solicitor must cease to act immediately' },
+      { id: 'd', text: 'Neither; the solicitor must cease to act immediately' },
     ],
     correct: ['b'],
     explanation:
@@ -93,7 +93,7 @@ export const ADVOCACY_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'This is the rule that decides what you do when a client asks you to mislead the court, or when you discover a document that hurts your case. Getting it wrong ends careers.',
     commonMisconception:
-      'Framing it as a balance between competing duties. It is not a balance — the duty to the court wins.',
+      'Framing it as a balance between competing duties. It is not a balance; the duty to the court wins.',
     memoryTrick:
       'Paramount means exactly that. Nothing sits above it.',
     concepts: ['duty-to-court'],
@@ -111,16 +111,16 @@ export const ADVOCACY_QUESTIONS: SeedQuestion[] = [
       'The night before a hearing you find a recent Court of Appeal decision, binding on the court you are appearing in, that is squarely against the argument you intend to run. Your opponent has not cited it and appears unaware of it.',
     stem: 'What must you do?',
     options: [
-      { id: 'a', text: 'Say nothing — it is the opponent’s job to find their own authorities' },
+      { id: 'a', text: 'Say nothing; it is the opponent’s job to find their own authorities' },
       { id: 'b', text: 'Inform the court of the authority, and then make whatever submissions are properly open about its application' },
       { id: 'c', text: 'Abandon the argument and consent to judgment' },
       { id: 'd', text: 'Disclose it to your opponent but not to the court' },
     ],
     correct: ['b'],
     explanation:
-      'An advocate must inform the court of any binding authority, and of relevant legislation, that they are aware of and that is against their client’s case — even where the opponent has not raised it. Disclosure is not surrender: you may still submit that the authority is distinguishable, that it does not govern the facts, or that it should be understood in a particular way. Withholding it is a breach of the paramount duty to the court.',
+      'An advocate must inform the court of any binding authority, and of relevant legislation, that they are aware of and that is against their client’s case, even where the opponent has not raised it. Disclosure is not surrender: you may still submit that the authority is distinguishable, that it does not govern the facts, or that it should be understood in a particular way. Withholding it is a breach of the paramount duty to the court.',
     whyItMatters:
-      'It comes up more often than juniors expect, usually late at night with a hearing the next morning. The instinct to stay quiet is exactly the instinct the rule exists to override — and the professional consequences of a court discovering the omission are severe.',
+      'It comes up more often than juniors expect, usually late at night with a hearing the next morning. The instinct to stay quiet is exactly the instinct the rule exists to override, and the professional consequences of a court discovering the omission are severe.',
     commonMisconception:
       'Believing the adversarial system means each side finds its own authorities. That is true of the facts; it is not true of binding law against you.',
     memoryTrick:
@@ -159,13 +159,13 @@ export const ADVOCACY_QUESTIONS: SeedQuestion[] = [
     stem: 'Your opponent asks a witness a question you consider objectionable. What is the correct approach?',
     options: [
       { id: 'a', text: 'Interrupt the witness mid-answer and explain at length why the question is unfair' },
-      { id: 'b', text: 'Rise, say "I object", and state the ground shortly — waiting for the court before developing the point' },
+      { id: 'b', text: 'Rise, say "I object", and state the ground shortly, waiting for the court before developing the point' },
       { id: 'c', text: 'Note the objection quietly and raise it in closing submissions' },
       { id: 'd', text: 'Ask the witness not to answer' },
     ],
     correct: ['b'],
     explanation:
-      'An objection should be taken before the answer is given, briefly, and on a stated ground — leading, hearsay, opinion, relevance, form of the question. The advocate rises, identifies the ground in a sentence, and stops. If the court wants argument it will ask for it. Objections are directed to the court, never to the witness, and an objection saved for closing is generally too late to keep the evidence out.',
+      'An objection should be taken before the answer is given, briefly, and on a stated ground: leading, hearsay, opinion, relevance, form of the question. The advocate rises, identifies the ground in a sentence, and stops. If the court wants argument it will ask for it. Objections are directed to the court, never to the witness, and an objection saved for closing is generally too late to keep the evidence out.',
     whyItMatters:
       'Timing is everything: once the answer is out, the damage is done. Equally, an advocate who objects at length and often loses the court’s patience and their own credibility.',
     commonMisconception:
@@ -217,7 +217,7 @@ export const ADVOCACY_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['b'],
     explanation:
-      'A question from the bench tells you what the court is actually worried about, which is more important than your outline. Answer it directly — ideally beginning with "yes" or "no" — then give the reason, then return to your structure. Deferring the question, or referring the court to written submissions instead of answering, both read as evasion.',
+      'A question from the bench tells you what the court is actually worried about, which is more important than your outline. Answer it directly, ideally beginning with "yes" or "no", then give the reason, then return to your structure. Deferring the question, or referring the court to written submissions instead of answering, both read as evasion.',
     whyItMatters:
       'Judicial questions are the single best signal you will get about what will decide the case. An advocate who welcomes them and answers cleanly is far more persuasive than one who protects a script.',
     commonMisconception:
@@ -262,7 +262,7 @@ export const ADVOCACY_QUESTIONS: SeedQuestion[] = [
       'Mid-hearing, the judge asks whether your client would agree to a timetable that differs from the one in your instructions. Your instructing solicitor is present with the client.',
     stem: 'What is the appropriate course?',
     options: [
-      { id: 'a', text: 'Agree on the client’s behalf — timetabling is a procedural matter' },
+      { id: 'a', text: 'Agree on the client’s behalf; timetabling is a procedural matter' },
       { id: 'b', text: 'Ask the court for a short adjournment, or a moment, to take instructions' },
       { id: 'c', text: 'Decline the proposal, since it departs from your instructions' },
       { id: 'd', text: 'Tell the court you have no instructions and cannot assist' },
@@ -271,7 +271,7 @@ export const ADVOCACY_QUESTIONS: SeedQuestion[] = [
     explanation:
       'Where a proposal falls outside your instructions, the correct step is to ask for a short adjournment or a moment to take instructions. Courts grant these routinely and think nothing of it. Agreeing without authority exposes the client and you; refusing outright when the client might well have agreed is equally a failure to serve their interests.',
     whyItMatters:
-      'Juniors are often reluctant to ask, fearing it looks unprepared. It does not — it looks careful. Committing a client to something you were never authorised to agree is the outcome that causes real problems.',
+      'Juniors are often reluctant to ask, fearing it looks unprepared. It does not; it looks careful. Committing a client to something you were never authorised to agree is the outcome that causes real problems.',
     commonMisconception:
       'Assuming procedural matters do not require instructions. Timetables carry cost and risk consequences for the client.',
     memoryTrick:
@@ -294,7 +294,7 @@ export const ADVOCACY_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['b'],
     explanation:
-      'Cross-examination does two things: it extracts concessions that help your case, and it tests evidence that hurts it — by exposing inconsistency, improbability, faulty recollection or lack of a proper basis. Allowing a witness to explain themselves more fully is generally the opposite of what you want, and cross-examination is not the vehicle for your own client’s account.',
+      'Cross-examination does two things: it extracts concessions that help your case, and it tests evidence that hurts it, by exposing inconsistency, improbability, faulty recollection or lack of a proper basis. Allowing a witness to explain themselves more fully is generally the opposite of what you want, and cross-examination is not the vehicle for your own client’s account.',
     whyItMatters:
       'Cross-examination without a defined purpose for each topic is where hearings are lost. Before every line of questioning, you should be able to say what finding it is aimed at.',
     commonMisconception:
@@ -316,7 +316,7 @@ export const ADVOCACY_QUESTIONS: SeedQuestion[] = [
     explanation:
       'False. A lawyer must not coach a witness by advising them what evidence they should give, or by suggesting the content of their answers. What is permitted is quite different and quite broad: explaining the process, taking the witness through the documents, testing their recollection against the material, and explaining the difference between what they actually recall and what they have inferred. The line is between preparing a witness to give their evidence and telling them what their evidence is.',
     whyItMatters:
-      'Witness preparation is delegated to juniors constantly. Crossing this line is professional misconduct and can destroy the client’s case if it emerges in cross-examination — as it usually does.',
+      'Witness preparation is delegated to juniors constantly. Crossing this line is professional misconduct and can destroy the client’s case if it emerges in cross-examination, as it usually does.',
     commonMisconception:
       'Believing that any preparation is improper. Proper preparation is not only permitted but expected; suggesting content is not.',
     memoryTrick:

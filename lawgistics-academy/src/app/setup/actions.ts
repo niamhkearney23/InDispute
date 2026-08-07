@@ -12,10 +12,10 @@ import { getSetupStatus } from '@/lib/setup/status';
  * This is the one action in the app that grants administrator rights, so the
  * conditions are deliberately narrow:
  *
- *   1. you must be signed in — so there is a named account to grant them to;
- *   2. there must be no administrator yet — once one exists this is closed
+ *   1. you must be signed in, so there is a named account to grant them to;
+ *   2. there must be no administrator yet; once one exists this is closed
  *      permanently, and the only way to make another is the command line;
- *   3. if SETUP_TOKEN is set, it must match — optional, for a deployment that
+ *   3. if SETUP_TOKEN is set, it must match. That is optional, for a deployment
  *      is publicly reachable before you have had a chance to claim it.
  *
  * The window this leaves open is between deploying and signing up for the first

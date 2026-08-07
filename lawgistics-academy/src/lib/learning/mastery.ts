@@ -5,7 +5,7 @@ import type { ConfidenceLevel } from '@/lib/types';
  * Mastery is an exponentially-weighted running score in [0, 100], nudged by how
  * hard the question was and how sure the learner said they were.
  *
- * Pure functions only — the persistence layer lives in the training service.
+ * Pure functions only, the persistence layer lives in the training service.
  */
 
 export interface MasteryState {
@@ -79,7 +79,7 @@ export function applyAttempt(state: MasteryState, input: MasteryInput): MasteryS
 /**
  * A score is only worth showing once there is enough evidence behind it.
  * Below the threshold we damp towards zero rather than let two lucky answers
- * read as "84 — Evidence".
+ * read as "84, Evidence".
  */
 export function displayScore(mastery: number, attempts: number): number {
   if (attempts === 0) return 0;

@@ -13,7 +13,7 @@ export function AuthForm({
 }: {
   mode: 'login' | 'signup';
   next: string;
-  /** Something that went wrong before this page loaded — a dead confirmation link. */
+  /** Something that went wrong before this page loaded, such as a dead confirmation link. */
   problem?: string;
 }) {
   const router = useRouter();

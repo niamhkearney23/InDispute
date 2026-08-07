@@ -8,7 +8,7 @@ type CookiesToSet = Array<{ name: string; value: string; options: CookieOptions 
 
 /**
  * Request-scoped client that carries the signed-in user's identity, so every
- * query it makes is subject to Row Level Security. This is the default — reach
+ * query it makes is subject to Row Level Security. This is the default, reach
  * for the service client only where a genuine privilege escalation is required.
  */
 export async function createSupabaseServerClient() {

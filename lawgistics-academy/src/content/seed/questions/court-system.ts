@@ -18,7 +18,7 @@ export const COURT_SYSTEM_QUESTIONS: SeedQuestion[] = [
     explanation:
       'The High Court of Australia sits at the apex of a single, unified Australian judicial hierarchy. It hears appeals from the Federal Court, from the Supreme Courts of the States and Territories, and from any other court exercising federal jurisdiction. Appeals from Australian courts to the Privy Council were progressively removed and were finally ended by the Australia Acts in 1986.',
     whyItMatters:
-      'It tells you where an argument ultimately has to be able to survive. If the High Court has spoken on a point, no Australian court below it can decide otherwise — which is why the first question on any research task is whether the High Court has dealt with it.',
+      'It tells you where an argument ultimately has to be able to survive. If the High Court has spoken on a point, no Australian court below it can decide otherwise, which is why the first question on any research task is whether the High Court has dealt with it.',
     commonMisconception:
       'The Federal Court is sometimes assumed to sit above the State Supreme Courts. It does not. They are parallel hierarchies that meet only at the High Court.',
     memoryTrick:
@@ -40,7 +40,7 @@ export const COURT_SYSTEM_QUESTIONS: SeedQuestion[] = [
       { id: 'a', text: 'A certificate from the trial judge' },
       { id: 'b', text: 'Consent from the other party' },
       { id: 'c', text: 'A grant of special leave to appeal' },
-      { id: 'd', text: 'Nothing — an appeal lies as of right' },
+      { id: 'd', text: 'Nothing; an appeal lies as of right' },
     ],
     correct: ['c'],
     explanation:
@@ -71,7 +71,7 @@ export const COURT_SYSTEM_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['b'],
     explanation:
-      'Victoria’s intermediate court is the County Court of Victoria. Most other States call the equivalent court the District Court — New South Wales, Queensland, South Australia and Western Australia all use that name. Victoria is the exception.',
+      'Victoria’s intermediate court is the County Court of Victoria. Most other States call the equivalent court the District Court: New South Wales, Queensland, South Australia and Western Australia all use that name. Victoria is the exception.',
     whyItMatters:
       'Naming the wrong court in correspondence or on a draft originating process is the kind of error that reads as inexperience immediately. It also matters practically: the County Court has its own rules, practice notes and listing procedures.',
     commonMisconception:
@@ -98,7 +98,7 @@ export const COURT_SYSTEM_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['c'],
     explanation:
-      'New South Wales has the Local Court at the base, the District Court as its intermediate court, and the Supreme Court above that. Note also that the court of summary jurisdiction in NSW is the Local Court, not a "Magistrates’ Court" — although the judicial officers who sit in it are Magistrates.',
+      'New South Wales has the Local Court at the base, the District Court as its intermediate court, and the Supreme Court above that. Note also that the court of summary jurisdiction in NSW is the Local Court, not a "Magistrates’ Court", although the judicial officers who sit in it are Magistrates.',
     whyItMatters:
       'Practitioners moving between States get this wrong constantly, and it shows. If you are briefing agents interstate or drafting for a NSW proceeding, the court names have to be right.',
     commonMisconception:
@@ -147,7 +147,7 @@ export const COURT_SYSTEM_QUESTIONS: SeedQuestion[] = [
     explanation:
       'Appeals from a final civil judgment of the County Court go to the Court of Appeal, which is a division of the Supreme Court of Victoria. The Trial Division hears matters at first instance and appeals from the Magistrates’ Court on questions of law; it does not hear appeals from the County Court.',
     whyItMatters:
-      'Filing an appeal in the wrong court wastes time you usually do not have — appeal periods are short and unforgiving.',
+      'Filing an appeal in the wrong court wastes time you usually do not have; appeal periods are short and unforgiving.',
     commonMisconception:
       'Treating "the Supreme Court" as one undifferentiated destination. Trial Division and Court of Appeal do quite different work.',
     concepts: ['appellate-structure', 'court-hierarchy'],
@@ -170,11 +170,11 @@ export const COURT_SYSTEM_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['b'],
     explanation:
-      'The Federal Circuit and Family Court of Australia (FCFCOA) commenced on 1 September 2021. It operates in two divisions: Division 1, a continuation of the former Family Court, and Division 2, a continuation of the former Federal Circuit Court. Division 2 retains the broader general federal law jurisdiction — migration, bankruptcy, consumer law and so on — alongside family law.',
+      'The Federal Circuit and Family Court of Australia (FCFCOA) commenced on 1 September 2021. It operates in two divisions: Division 1, a continuation of the former Family Court, and Division 2, a continuation of the former Federal Circuit Court. Division 2 retains the broader general federal law jurisdiction, migration, bankruptcy, consumer law and so on, alongside family law.',
     whyItMatters:
       'Older precedents, textbooks and templates still refer to the former courts. Knowing what became what is how you read pre-2021 authorities and correspondence without confusion.',
     commonMisconception:
-      'That the merger folded family law into the Federal Court of Australia. It did not — the FCFCOA is a separate court.',
+      'That the merger folded family law into the Federal Court of Australia. It did not; the FCFCOA is a separate court.',
     concepts: ['federal-jurisdiction', 'court-hierarchy'],
     skills: ['attention-to-detail', 'procedural-sequencing'],
     sourceReference: 'Federal Circuit and Family Court of Australia Act 2021 (Cth)',
@@ -217,9 +217,9 @@ export const COURT_SYSTEM_QUESTIONS: SeedQuestion[] = [
     options: TRUE_FALSE_OPTIONS,
     correct: ['false'],
     explanation:
-      'False. VCAT is a tribunal, not a court. That distinction has real consequences: because a tribunal that is not a "court of a State" cannot be invested with federal jurisdiction, VCAT cannot determine a matter that attracts federal jurisdiction — for example, a dispute between residents of different States. Such a matter has to be dealt with by a court instead.',
+      'False. VCAT is a tribunal, not a court. That distinction has real consequences: because a tribunal that is not a "court of a State" cannot be invested with federal jurisdiction, VCAT cannot determine a matter that attracts federal jurisdiction, for example, a dispute between residents of different States. Such a matter has to be dealt with by a court instead.',
     whyItMatters:
-      'If your client is in one State and the other party is in another, a tribunal may simply have no power to decide the dispute — however convenient and cheap it looked. The proceeding has to be brought somewhere else.',
+      'If your client is in one State and the other party is in another, a tribunal may simply have no power to decide the dispute, however convenient and cheap it looked. The proceeding has to be brought somewhere else.',
     commonMisconception:
       'Treating "tribunal" as just a cheaper word for a small claims court. The constitutional difference is real and it defeats otherwise perfectly good cases.',
     memoryTrick:
@@ -240,7 +240,7 @@ export const COURT_SYSTEM_QUESTIONS: SeedQuestion[] = [
     options: TRUE_FALSE_OPTIONS,
     correct: ['true'],
     explanation:
-      'True. Appeals from interlocutory orders — orders that do not finally determine the rights of the parties — generally require leave. The rationale is to prevent proceedings being fragmented by appeals against every procedural ruling along the way. Appeals from final judgments more often lie as of right, subject to the particular court’s legislation and rules.',
+      'True. Appeals from interlocutory orders, orders that do not finally determine the rights of the parties, generally require leave. The rationale is to prevent proceedings being fragmented by appeals against every procedural ruling along the way. Appeals from final judgments more often lie as of right, subject to the particular court’s legislation and rules.',
     whyItMatters:
       'It changes the advice entirely. An adverse interlocutory ruling usually means an application for leave with its own hurdles and costs risk, not an automatic right of appeal.',
     commonMisconception:
@@ -316,7 +316,7 @@ export const COURT_SYSTEM_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['b'],
     explanation:
-      'The Magistrates’ Court of Victoria has a monetary jurisdictional limit — claims above it must go elsewhere. A claim of around $240,000 exceeds that limit, so it belongs in the County Court, which has unlimited civil jurisdiction in Victoria, or in the Supreme Court. Both are available; which one you choose is a matter of judgment about cost, complexity and listing times rather than power.',
+      'The Magistrates’ Court of Victoria has a monetary jurisdictional limit; claims above it must go elsewhere. A claim of around $240,000 exceeds that limit, so it belongs in the County Court, which has unlimited civil jurisdiction in Victoria, or in the Supreme Court. Both are available; which one you choose is a matter of judgment about cost, complexity and listing times rather than power.',
     whyItMatters:
       'Choosing the court is one of the first real decisions in a matter, and it drives cost exposure for the entire proceeding. Issuing a modest claim in the Supreme Court can attract adverse costs consequences even if you win.',
     commonMisconception:

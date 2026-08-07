@@ -191,7 +191,7 @@ export async function getSessionPlan(
 
   // A question retired or unpublished mid-session drops out of the delivery
   // view. Track which of the questions that survived have been answered, rather
-  // than counting slots — otherwise the resume index points at the wrong
+  // than counting slots, otherwise the resume index points at the wrong
   // question and the learner gets stuck on one they have already answered.
   const answeredVersionIds = new Set(
     rows.filter((r) => r.answered_at).map((r) => r.question_version_id as string),

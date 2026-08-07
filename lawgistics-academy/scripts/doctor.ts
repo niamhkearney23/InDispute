@@ -26,7 +26,7 @@ function report(ok: boolean, label: string, fix?: string) {
 }
 
 async function main() {
-  console.log('\nLawgistics Academy — setup check\n');
+  console.log('\nLawgistics Academy setup check\n');
 
   /* --- environment ------------------------------------------------------- */
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -42,12 +42,12 @@ async function main() {
   report(
     Boolean(anon),
     'NEXT_PUBLIC_SUPABASE_ANON_KEY is set',
-    'Same page — the anon / publishable key.',
+    'Same page: the anon / publishable key.',
   );
   report(
     Boolean(service),
     'SUPABASE_SERVICE_ROLE_KEY is set',
-    'Same page — the service_role / secret key. It must NOT have a NEXT_PUBLIC_\n' +
+    'Same page: the service_role / secret key. It must NOT have a NEXT_PUBLIC_\n' +
       'prefix, and must never be committed.',
   );
 
@@ -90,7 +90,7 @@ async function main() {
   report(
     !review.error,
     'all three migrations have been run',
-    'The review workflow columns are missing — run supabase/migrations/0003_review_workflow.sql.',
+    'The review workflow columns are missing; run supabase/migrations/0003_review_workflow.sql.',
   );
 
   /* --- content ----------------------------------------------------------- */
@@ -122,7 +122,7 @@ async function main() {
   /* --- summary ----------------------------------------------------------- */
   console.log('');
   if (failed) {
-    console.log('Something needs attention — see the ↳ notes above.\n');
+    console.log('Something needs attention; see the ↳ notes above.\n');
     process.exit(1);
   }
 

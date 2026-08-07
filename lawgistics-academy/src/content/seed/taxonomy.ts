@@ -4,7 +4,7 @@ import type { SeedConcept, SeedDomain, SeedSkill } from './types';
  * The knowledge graph's vocabulary.
  *
  * Domains are how content is browsed. Concepts are what mastery is tracked
- * against. Skills are the cognitive moves a question exercises — they cut
+ * against. Skills are the cognitive moves a question exercises; they cut
  * across domains, and they are the axis that eventually says "strong at
  * strategic reasoning, weaker at procedural sequencing" rather than merely
  * "good at Evidence".
@@ -27,7 +27,7 @@ export const DOMAINS: SeedDomain[] = [
     slug: 'evidence',
     name: 'Evidence',
     description:
-      'Relevance, hearsay, opinion, privilege and proof — including which Australian jurisdictions apply the uniform Evidence Acts.',
+      'Relevance, hearsay, opinion, privilege and proof, including which Australian jurisdictions apply the uniform Evidence Acts.',
   },
   {
     slug: 'advocacy',
@@ -39,7 +39,7 @@ export const DOMAINS: SeedDomain[] = [
     slug: 'drafting',
     name: 'Drafting',
     description:
-      'Affidavits, pleadings, correspondence and written submissions — the documents a litigator actually produces.',
+      'Affidavits, pleadings, correspondence and written submissions, the documents a litigator actually produces.',
   },
   {
     slug: 'legal-reasoning',

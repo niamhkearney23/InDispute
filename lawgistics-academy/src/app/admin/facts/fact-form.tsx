@@ -43,7 +43,7 @@ export function FactForm({
       <Card>
         <h2 className="mb-1 text-lg">The fact</h2>
         <p className="mb-4 text-sm text-slate">
-          The title is the hook — one sentence, stated as a proposition. The body explains
+          The title is the hook, one sentence, stated as a proposition. The body explains
           it in two to four sentences.
         </p>
 
@@ -64,7 +64,7 @@ export function FactForm({
         <h2 className="mb-1 text-lg">Classification and source</h2>
         <p className="mb-4 text-sm text-slate">
           A fact without a checkable source cannot be verified. If a rule belongs to one
-          jurisdiction, say so — never leave it as a general principle to be safe.
+          jurisdiction, say so, never leave it as a general principle to be safe.
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
           <Select
@@ -81,7 +81,7 @@ export function FactForm({
           </Select>
           <Text label="Court (optional)" name="court" defaultValue={initial.court} />
           <Select label="Area (optional)" name="domainId" defaultValue={initial.domainId}>
-            <option value="">—</option>
+            <option value="">None</option>
             {domains.map((domain) => (
               <option key={domain.id} value={domain.id}>
                 {domain.name}
@@ -132,7 +132,7 @@ function Text({
       </label>
       <input
         id={props.name}
-        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10 sm:text-sm"
+        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10"
         {...props}
       />
       {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
@@ -151,7 +151,7 @@ function TextArea({
       </label>
       <textarea
         id={props.name}
-        className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2 text-base outline-none focus:border-burgundy sm:text-sm"
+        className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2 text-base outline-none focus:border-burgundy"
         {...props}
       />
     </div>
@@ -170,7 +170,7 @@ function Select({
       </label>
       <select
         id={props.name}
-        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-2.5 text-base outline-none focus:border-burgundy sm:h-10 sm:text-sm"
+        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-2.5 text-base outline-none focus:border-burgundy sm:h-10"
         {...props}
       >
         {children}

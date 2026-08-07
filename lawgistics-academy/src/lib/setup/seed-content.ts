@@ -187,7 +187,7 @@ export async function seedContent(
     const nextVersion = ((latest?.version as number) ?? 0) + 1;
 
     if (currentVersion) {
-      // Retire the old current row first — a partial unique index enforces that
+      // Retire the old current row first, a partial unique index enforces that
       // exactly one version per question may be current.
       const { error } = await db
         .from('question_versions')

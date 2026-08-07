@@ -65,7 +65,7 @@ export default async function AdminHome({
       id: row.id as string,
       slug: row.slug as string,
       status: row.status as QuestionStatus,
-      domain: first<{ name: string }>(row.domains)?.name ?? '—',
+      domain: first<{ name: string }>(row.domains)?.name ?? 'Unassigned',
       stem: version?.stem ?? '',
       version: version?.version ?? 1,
       jurisdiction: version?.jurisdiction ?? 'AU_GENERAL',
@@ -103,7 +103,7 @@ export default async function AdminHome({
         <Notice tone="warn">
           <strong>{unverifiedPublished.length} published question(s) have not been
           verified by a person.</strong>{' '}
-          Seed content ships in this state deliberately — it is drafted to be accurate but
+          Seed content ships in this state deliberately; it is drafted to be accurate but
           has not been signed off by an Australian legal practitioner. Work through the
           list below and verify each one before real learners use this.{' '}
           <Link

@@ -77,7 +77,7 @@ export default async function EditQuestionPage({
       {error === 'verify_first' ? (
         <Notice tone="error">
           This question cannot be published until it has been verified. Verification is a
-          statement by a person that the legal content is correct — it is not something the
+          statement by a person that the legal content is correct; it is not something the
           system can do for you.
         </Notice>
       ) : null}

@@ -7,7 +7,7 @@ import { redirect } from 'next/navigation';
 const LOOP = [
   {
     step: 'Diagnostic',
-    body: 'Around thirty questions across court system, procedure, evidence, advocacy, drafting and reasoning. Not a score — a map.',
+    body: 'Around thirty questions across court system, procedure, evidence, advocacy, drafting and reasoning. Not a score, a map.',
   },
   {
     step: 'Skill map',
@@ -54,12 +54,11 @@ export default async function LandingPage() {
             <Notice tone="warn">
               Supabase is not configured yet, so signing in will not work. Copy{' '}
               <code className="font-mono">.env.example</code> to{' '}
-              <code className="font-mono">.env.local</code>, apply the migration in{' '}
               <code className="font-mono">.env.local</code> and fill it in, then open{' '}
               <Link href="/setup" className="font-medium underline underline-offset-2">
                 /setup
-              </Link>{' '}
-              — it walks through the rest and tells you what is missing.
+              </Link>
+              . It walks through the rest and tells you what is still missing.
             </Notice>
           </div>
         ) : null}
@@ -106,7 +105,7 @@ export default async function LandingPage() {
               <p className="text-slate">
                 A Victorian procedural rule is never served as though it were an ACT rule.
                 Each question records the jurisdiction it belongs to, the court where
-                relevant, its source, and when that source was last checked — and no
+                relevant, its source, and when that source was last checked. No
                 question reaches a learner until a person has verified it.
               </p>
             </div>
@@ -126,7 +125,7 @@ export default async function LandingPage() {
       <footer className="mx-auto max-w-5xl border-t border-rule px-5 py-8 sm:px-8">
         <p className="text-xs text-muted">
           Lawgistics Academy is a training tool. It is not legal advice, and
-          progression levels within it are game levels — not professional qualifications
+          progression levels within it are game levels, not professional qualifications
           or titles.
         </p>
       </footer>

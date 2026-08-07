@@ -10,7 +10,7 @@ import { resumeIndexFor } from '../src/lib/training/service';
  * session was built. It drops out of the delivery view, so the list the learner
  * sees is shorter than the list of slots recorded against the session. Counting
  * answered slots would then overshoot and strand them on a question they have
- * already answered — which the grader would refuse, leaving the session stuck.
+ * already answered, which the grader would refuse, leaving the session stuck.
  */
 
 test('a fresh session starts at the beginning', () => {
@@ -29,7 +29,7 @@ test('a fully answered session reports the end, so the page can send them to the
 test('a question withdrawn mid-session does not push the resume point past the learner', () => {
   // Four were served; the second was retired and no longer appears. The learner
   // answered the first two. Counting answered slots would give 2, which in the
-  // three-question surviving list points at 'c' — skipping nothing, but only by
+  // three-question surviving list points at 'c', skipping nothing, but only by
   // luck. Here they answered three of four, so slot-counting would give 3 and
   // land past 'd', the one question actually left to answer.
   const surviving = ['a', 'c', 'd'];

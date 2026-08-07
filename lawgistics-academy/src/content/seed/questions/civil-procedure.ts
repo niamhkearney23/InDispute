@@ -20,7 +20,7 @@ export const CIVIL_PROCEDURE_QUESTIONS: SeedQuestion[] = [
     explanation:
       'A subpoena is the court’s compulsory process. A subpoena to produce requires the recipient to produce specified documents to the court; a subpoena to give evidence requires attendance to testify. It is the standard mechanism for obtaining material from a person who is not a party. The other three documents do quite different work: an affidavit is a form of sworn evidence, a statement of claim commences a proceeding, and a notice of appearance records that a defendant is participating.',
     whyItMatters:
-      'Banks, employers, hospitals and accountants almost never hand over documents voluntarily, and they should not — they owe duties of confidence to their own customers. A subpoena gives them the court order that answers that problem.',
+      'Banks, employers, hospitals and accountants almost never hand over documents voluntarily, and they should not; they owe duties of confidence to their own customers. A subpoena gives them the court order that answers that problem.',
     commonMisconception:
       'Reaching for discovery instead. Discovery operates between the parties to a proceeding; it does not reach a stranger to the litigation.',
     memoryTrick:
@@ -43,7 +43,7 @@ export const CIVIL_PROCEDURE_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['b'],
     explanation:
-      'Conduct money is an amount provided to the person subpoenaed, sufficient to meet the reasonable expenses of complying — travelling to court, or locating and copying documents. It must be provided a reasonable time before the date for compliance. A subpoena served without conduct money will generally not be enforceable against the recipient.',
+      'Conduct money is an amount provided to the person subpoenaed, sufficient to meet the reasonable expenses of complying: travelling to court, or locating and copying documents. It must be provided a reasonable time before the date for compliance. A subpoena served without conduct money will generally not be enforceable against the recipient.',
     whyItMatters:
       'It is a routine step that is routinely forgotten, and forgetting it can mean the documents simply do not arrive on the return date. That is an adjournment, a wasted appearance and an awkward conversation with the client.',
     commonMisconception:
@@ -66,7 +66,7 @@ export const CIVIL_PROCEDURE_QUESTIONS: SeedQuestion[] = [
     stem: 'What is the strongest basis on which to apply to set the subpoena aside?',
     options: [
       { id: 'a', text: 'The accountant is not a party to the proceeding' },
-      { id: 'b', text: 'The subpoena is oppressive and lacks a legitimate forensic purpose — it is a fishing expedition' },
+      { id: 'b', text: 'The subpoena is oppressive and lacks a legitimate forensic purpose; it is a fishing expedition' },
       { id: 'c', text: 'Accountants’ records are inherently privileged from production' },
       { id: 'd', text: 'The plaintiff has not yet completed discovery' },
     ],
@@ -74,7 +74,7 @@ export const CIVIL_PROCEDURE_QUESTIONS: SeedQuestion[] = [
     explanation:
       'A subpoena must be directed to identified documents with an apparent relevance to the issues on the pleadings, and the issuing party must be able to articulate a legitimate forensic purpose for them. A request framed at that breadth, against a case pleaded that narrowly, is classically oppressive: it is being used to discover whether there might be a case rather than to prove the case actually pleaded. That is an abuse of the court’s process. Non-parties are precisely who subpoenas are aimed at, so (a) is no objection at all, and there is no general privilege attaching to accountants’ records.',
     whyItMatters:
-      'Broad subpoenas are a common tactic and they impose real cost on your client and on third parties. Recognising an oppressive subpoena — and being able to say why in one sentence — is a genuinely useful skill early in practice.',
+      'Broad subpoenas are a common tactic and they impose real cost on your client and on third parties. Recognising an oppressive subpoena, and being able to say why in one sentence, is a genuinely useful skill early in practice.',
     commonMisconception:
       'That anything relevant can be subpoenaed. Relevance is necessary but not sufficient; the subpoena must also be no wider than the forensic purpose requires.',
     memoryTrick:
@@ -97,13 +97,13 @@ export const CIVIL_PROCEDURE_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['b'],
     explanation:
-      'The formula is "possession, custody or power". It reaches beyond documents physically held. "Power" captures documents a party has a presently enforceable right to obtain — for example, records held by that party’s own accountant or by a company it controls. Electronic documents are documents; the medium is irrelevant to the obligation.',
+      'The formula is "possession, custody or power". It reaches beyond documents physically held. "Power" captures documents a party has a presently enforceable right to obtain, for example, records held by that party’s own accountant or by a company it controls. Electronic documents are documents; the medium is irrelevant to the obligation.',
     whyItMatters:
       'Clients routinely say "I don’t have those" when they mean "they’re with my bookkeeper". They are still discoverable, and failing to disclose them exposes the client to serious consequences and you to a professional problem.',
     commonMisconception:
       'That documents held by a third party are automatically outside discovery. If your client can require their production, they are within it.',
     memoryTrick:
-      'Not just what is in the drawer — what you could get out of someone else’s drawer if you asked.',
+      'Not just what is in the drawer: what you could get out of someone else’s drawer if you asked.',
     concepts: ['discovery'],
     skills: ['attention-to-detail', 'professional-judgment'],
   },
@@ -122,7 +122,7 @@ export const CIVIL_PROCEDURE_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['a'],
     explanation:
-      'A pleading states the material facts — the facts which, if proved, establish the cause of action — and not the evidence by which those facts will be proved. It also does not contain argument. The classic formulation is that pleadings state facts, not evidence and not law.',
+      'A pleading states the material facts (the facts which, if proved, establish the cause of action) and not the evidence by which those facts will be proved. It also does not contain argument. The classic formulation is that pleadings state facts, not evidence and not law.',
     whyItMatters:
       'A pleading’s job is to define the issues so both sides know the case they have to meet and the court knows what it is deciding. Overloading it with evidence makes it embarrassing and vulnerable to being struck out; under-pleading it means your client cannot run the case they wanted.',
     commonMisconception:
@@ -147,7 +147,7 @@ export const CIVIL_PROCEDURE_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['b'],
     explanation:
-      'Particulars give detail of an allegation that has already been pleaded — the dates, the representations, the respects in which conduct is said to have been negligent. They fill in the picture; they cannot add to it. A party cannot use particulars to introduce a cause of action that was never pleaded, and a request for further and better particulars is the ordinary response to a pleading that is too vague to answer.',
+      'Particulars give detail of an allegation that has already been pleaded: the dates, the representations, the respects in which conduct is said to have been negligent. They fill in the picture; they cannot add to it. A party cannot use particulars to introduce a cause of action that was never pleaded, and a request for further and better particulars is the ordinary response to a pleading that is too vague to answer.',
     whyItMatters:
       'Requesting particulars is often the cheapest and most effective early step against a thin pleading. It forces the other side to commit to a case, and what they commit to is frequently narrower than the pleading suggested.',
     commonMisconception:
@@ -174,7 +174,7 @@ export const CIVIL_PROCEDURE_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['b'],
     explanation:
-      'Where a defendant fails to file an appearance or defence within the time allowed, the plaintiff may seek default judgment. For a liquidated claim — a debt or a sum capable of precise calculation — judgment can commonly be entered administratively on filing the necessary material. For unliquidated claims, judgment is usually entered for damages to be assessed. Summary judgment is a different remedy directed at a defence that has no real prospect of success; there is no defence here to strike out.',
+      'Where a defendant fails to file an appearance or defence within the time allowed, the plaintiff may seek default judgment. For a liquidated claim, a debt or a sum capable of precise calculation, judgment can commonly be entered administratively on filing the necessary material. For unliquidated claims, judgment is usually entered for damages to be assessed. Summary judgment is a different remedy directed at a defence that has no real prospect of success; there is no defence here to strike out.',
     whyItMatters:
       'It is one of the most common steps in commercial recovery work, and it is fast and cheap compared with a trial. Recognising that a matter has become a default judgment matter is the difference between resolving it in weeks and litigating it for a year.',
     commonMisconception:
@@ -199,7 +199,7 @@ export const CIVIL_PROCEDURE_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['b'],
     explanation:
-      'Section 63 of the Civil Procedure Act 2010 (Vic) allows summary judgment where a claim, defence or counterclaim has "no real prospect of success". That was a deliberate legislative change: it set a lower threshold than the older common law test, which required a case to be so obviously untenable that it could not possibly succeed. The test is not, however, a prediction of who will probably win — a case with a real but weak prospect still goes to trial.',
+      'Section 63 of the Civil Procedure Act 2010 (Vic) allows summary judgment where a claim, defence or counterclaim has "no real prospect of success". That was a deliberate legislative change: it set a lower threshold than the older common law test, which required a case to be so obviously untenable that it could not possibly succeed. The test is not, however, a prediction of who will probably win, a case with a real but weak prospect still goes to trial.',
     whyItMatters:
       'Advising on summary judgment means advising on the actual statutory test in the relevant jurisdiction, not the general idea of it. Applying the old common law formula in Victoria understates your client’s prospects.',
     commonMisconception:
@@ -224,7 +224,7 @@ export const CIVIL_PROCEDURE_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['b'],
     explanation:
-      'The Limitation of Actions Act 1958 (Vic) provides a six year period for actions founded on simple contract, running from the date the cause of action accrued — for contract, ordinarily the date of breach rather than the date loss was discovered. Different periods apply to deeds, to personal injury claims, and to some statutory causes of action, so the period always has to be checked against the specific claim.',
+      'The Limitation of Actions Act 1958 (Vic) provides a six year period for actions founded on simple contract, running from the date the cause of action accrued; for contract, ordinarily the date of breach rather than the date loss was discovered. Different periods apply to deeds, to personal injury claims, and to some statutory causes of action, so the period always has to be checked against the specific claim.',
     whyItMatters:
       'A missed limitation period is the single most common source of professional negligence claims against solicitors. The limitation date should be diarised at the first client meeting, before anything else.',
     commonMisconception:
@@ -245,19 +245,19 @@ export const CIVIL_PROCEDURE_QUESTIONS: SeedQuestion[] = [
     stem: 'What is the general rule about costs in Australian civil litigation?',
     options: [
       { id: 'a', text: 'Each party bears its own costs regardless of outcome' },
-      { id: 'b', text: 'Costs follow the event — the unsuccessful party ordinarily pays the successful party’s costs' },
+      { id: 'b', text: 'Costs follow the event; the unsuccessful party ordinarily pays the successful party’s costs' },
       { id: 'c', text: 'The party who commenced the proceeding pays all costs' },
       { id: 'd', text: 'Costs are always paid out of the sum recovered' },
     ],
     correct: ['b'],
     explanation:
-      'The starting point is that costs follow the event: the losing party ordinarily pays the winner’s costs. It is a discretionary rule, not an entitlement, and courts depart from it — where a winner succeeded on only part of its case, where a party’s conduct wasted costs, or where an offer of compromise was unreasonably refused. Importantly, a costs order rarely covers the whole of what a client actually pays their own lawyers.',
+      'The starting point is that costs follow the event: the losing party ordinarily pays the winner’s costs. It is a discretionary rule, not an entitlement, and courts depart from it, where a winner succeeded on only part of its case, where a party’s conduct wasted costs, or where an offer of compromise was unreasonably refused. Importantly, a costs order rarely covers the whole of what a client actually pays their own lawyers.',
     whyItMatters:
       'Costs drive settlement more than almost anything else. A client needs to understand both their exposure if they lose and the shortfall they will still carry if they win.',
     commonMisconception:
       'Telling a client that winning means their legal costs are covered. On the standard basis, recovery is typically well short of what they have been billed.',
     memoryTrick:
-      'Costs follow the event — but they do not catch up with it.',
+      'Costs follow the event, but they do not catch up with it.',
     concepts: ['costs'],
     skills: ['commercial-reasoning', 'professional-judgment'],
   },
@@ -276,7 +276,7 @@ export const CIVIL_PROCEDURE_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['c'],
     explanation:
-      'Indemnity costs are exceptional. They require some special or unusual feature taking the case out of the ordinary — for example, a case brought or maintained with no reasonable prospects, a serious allegation made without foundation, misconduct causing wasted costs, or the unreasonable rejection of a genuine offer of compromise or Calderbank offer. Recovery on the indemnity basis is substantially more generous than on the standard basis, which is precisely why the threshold is high.',
+      'Indemnity costs are exceptional. They require some special or unusual feature taking the case out of the ordinary, for example, a case brought or maintained with no reasonable prospects, a serious allegation made without foundation, misconduct causing wasted costs, or the unreasonable rejection of a genuine offer of compromise or Calderbank offer. Recovery on the indemnity basis is substantially more generous than on the standard basis, which is precisely why the threshold is high.',
     whyItMatters:
       'A well-timed and properly framed offer creates real costs pressure. Understanding when indemnity costs become available is what makes an offer a strategic instrument rather than a formality.',
     commonMisconception:
@@ -321,7 +321,7 @@ export const CIVIL_PROCEDURE_QUESTIONS: SeedQuestion[] = [
     options: TRUE_FALSE_OPTIONS,
     correct: ['false'],
     explanation:
-      'False. Filing commences the proceeding; service brings the defendant into it. Until the originating process has been served in accordance with the rules, the defendant is not required to respond and the court will not ordinarily proceed against them. Originating process also has a limited life — if it is not served within the period allowed by the rules, it may need to be renewed before it can be served.',
+      'False. Filing commences the proceeding; service brings the defendant into it. Until the originating process has been served in accordance with the rules, the defendant is not required to respond and the court will not ordinarily proceed against them. Originating process also has a limited life, if it is not served within the period allowed by the rules, it may need to be renewed before it can be served.',
     whyItMatters:
       'A proceeding issued just inside a limitation period but not served in time can be worth nothing. Filing is the beginning of the task, not the end of it.',
     commonMisconception:

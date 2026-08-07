@@ -7,7 +7,7 @@ import type { Jurisdiction } from '@/lib/types';
 /**
  * The daily brief.
  *
- * Everyone sees the same fact on the same day. That is deliberate — a shared
+ * Everyone sees the same fact on the same day. That is deliberate, a shared
  * brief is something two people in the same cohort can talk about, which a
  * personalised one is not.
  *

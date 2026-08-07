@@ -11,7 +11,7 @@ import { DOMAINS } from '../src/content/seed/taxonomy';
  * Authorisation, checked structurally.
  *
  * A server action is a public HTTP endpoint. Anyone who can reach the app can
- * invoke one directly, with any arguments they like — the form on the page is
+ * invoke one directly, with any arguments they like; the form on the page is
  * not the boundary. Several of these actions use the service-role client, which
  * bypasses Row Level Security entirely, so a missing check is not a degraded
  * experience but an open door.

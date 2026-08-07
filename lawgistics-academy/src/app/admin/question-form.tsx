@@ -149,7 +149,7 @@ export function QuestionForm({
           >
             {[1, 2, 3, 4, 5].map((value) => (
               <option key={value} value={value}>
-                {value} — {['Foundational', 'Easy', 'Moderate', 'Hard', 'Very hard'][value - 1]}
+                {value}. {['Foundational', 'Easy', 'Moderate', 'Hard', 'Very hard'][value - 1]}
               </option>
             ))}
           </Select>
@@ -198,7 +198,7 @@ export function QuestionForm({
 
           <div>
             <span className="mb-2 block text-sm font-medium">
-              Options — tick the correct answer
+              Options: tick the correct answer
             </span>
             <div className="space-y-2">
               {effectiveOptions.map((option, index) => (
@@ -227,7 +227,7 @@ export function QuestionForm({
                     onChange={(event) => updateOption(index, event.target.value)}
                     readOnly={questionType === 'true_false'}
                     placeholder={`Option ${option.id.toUpperCase()}`}
-                    className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10 sm:text-sm read-only:bg-paper-sunk read-only:text-muted"
+                    className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10 read-only:bg-paper-sunk read-only:text-muted"
                   />
                 </div>
               ))}
@@ -260,7 +260,7 @@ export function QuestionForm({
             defaultValue={initial.explanation}
             rows={5}
             required
-            hint="Why the right answer is right — and, where it helps, why the others are not."
+            hint="Why the right answer is right, and, where it helps, why the others are not."
           />
           <TextArea
             label="Why this matters in practice"
@@ -370,13 +370,13 @@ function CheckGrid({
   return (
     <div className="grid gap-1.5 sm:grid-cols-2">
       {items.map((item) => (
-        <label key={item.id} className="flex items-start gap-2 text-sm">
+        <label key={item.id} className="flex min-h-8 items-start gap-2 py-1 text-sm">
           <input
             type="checkbox"
             name={name}
             value={item.id}
             defaultChecked={defaultChecked.includes(item.id)}
-            className="mt-0.5 size-5 shrink-0 accent-[#6b1f2a] sm:mt-1 sm:size-4"
+            className="mt-0.5 size-6 shrink-0 accent-[#6b1f2a] sm:mt-1 sm:size-4"
           />
           <span>{item.name}</span>
         </label>
@@ -397,7 +397,7 @@ function Text({
       </label>
       <input
         id={props.name}
-        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10 sm:text-sm"
+        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10"
         {...props}
       />
       {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
@@ -417,7 +417,7 @@ function TextArea({
       </label>
       <textarea
         id={props.name}
-        className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2 text-base outline-none focus:border-burgundy sm:text-sm"
+        className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2 text-base outline-none focus:border-burgundy"
         {...props}
       />
       {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
@@ -438,7 +438,7 @@ function Select({
       </label>
       <select
         id={props.name}
-        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-2.5 text-base outline-none focus:border-burgundy sm:h-10 sm:text-sm"
+        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-2.5 text-base outline-none focus:border-burgundy sm:h-10"
         {...props}
       >
         {children}

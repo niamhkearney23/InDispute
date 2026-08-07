@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 
 /* =============================================================================
-   Lawgistics — visual identity
+   Lawgistics visual identity
    Financial Times × premium chambers × modern software.
    Ivory paper, ink type, one burgundy accent. No cartoons, no neon.
    ========================================================================== */
@@ -92,7 +92,7 @@
   border-top: 1px solid var(--color-rule);
 }
 
-/* A restrained entrance for question cards — one gesture, not a fireworks show. */
+/* A restrained entrance for question cards, one gesture, not a fireworks show. */
 @keyframes rise-in {
   from {
     opacity: 0;

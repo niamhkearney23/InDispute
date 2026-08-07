@@ -7,8 +7,14 @@
 
 function required(name: string, value: string | undefined): string {
   if (!value) {
+    // This message is read by people who have never opened a terminal, on a
+    // hosted deployment, at the moment a button fails. Name both places the
+    // setting could live rather than assuming a local checkout.
     throw new Error(
-      `Missing environment variable ${name}. Copy .env.example to .env.local and fill it in.`,
+      `The site is missing its ${name} setting. ` +
+        'On a hosted deployment, add it under Settings, Environment Variables, ' +
+        'then redeploy. Running locally, put it in .env.local. ' +
+        'All three Supabase values are on the Supabase API settings page.',
     );
   }
   return value;
