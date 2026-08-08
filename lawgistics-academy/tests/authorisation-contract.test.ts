@@ -80,6 +80,7 @@ test('the server actions were actually found', () => {
   // If this list stops matching, the walker has broken and every check below
   // would pass on an empty set.
   assert.deepEqual(names, [
+    'acknowledge',
     'answerQuestion',
     'beginModule',
     'beginSession',
@@ -89,6 +90,7 @@ test('the server actions were actually found', () => {
     'finishSession',
     'publishAllVerified',
     'recordReviewDecision',
+    'saveFirmModule',
     'saveOnboarding',
     'transitionFact',
     'transitionQuestion',

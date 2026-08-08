@@ -228,7 +228,48 @@ const deliveryQuestions = [
   },
 ];
 
+const FIRM_MODULE_ID = '77777777-7777-7777-7777-777777777777';
+const FIRM_VERSION_ID = '88888888-8888-8888-8888-888888888888';
+
 const TABLES = {
+  firm_modules: [
+    {
+      id: FIRM_MODULE_ID,
+      slug: 'ai-policy',
+      name: 'Our AI policy',
+      summary: 'What you may and may not put into a tool, and who to ask.',
+      kind: 'policy',
+      // Null on purpose: this is the case that matters, and rendering it proves
+      // the page does not depend on a country being set.
+      country: null,
+      required: true,
+      position: 0,
+      published: true,
+    },
+  ],
+  firm_module_versions: [
+    {
+      id: FIRM_VERSION_ID,
+      firm_module_id: FIRM_MODULE_ID,
+      version: 1,
+      body: [
+        '## Before you use any tool',
+        '',
+        'No client material goes into a tool the firm has not approved. That covers a name, a document, a draft, and a summary of any of them.',
+        '',
+        '- Ask the partner on the file if you are unsure',
+        '- Record the time you spent, not the time it would have taken',
+        '',
+        'The obligation to check the work is yours and it does not move.',
+      ].join('\n'),
+      is_current: true,
+      created_at: '2026-02-01T00:00:00Z',
+      created_by: USER_ID,
+    },
+  ],
+  // Deliberately empty, so the sweep renders the state that actually needs
+  // looking at: the acknowledgement in front of somebody who has not given it.
+  firm_module_acknowledgements: [],
   profiles: [
     {
       id: USER_ID,

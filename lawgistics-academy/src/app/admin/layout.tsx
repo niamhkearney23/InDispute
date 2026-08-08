@@ -38,6 +38,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               Daily brief
             </Link>
             <Link
+              href="/admin/firm"
+              className="rounded-[5px] px-2.5 py-2 whitespace-nowrap text-slate hover:bg-paper hover:text-ink"
+            >
+              Firm
+            </Link>
+            <Link
               href="/dashboard"
               className="rounded-[5px] px-2.5 py-2 whitespace-nowrap text-slate hover:bg-paper hover:text-ink"
             >

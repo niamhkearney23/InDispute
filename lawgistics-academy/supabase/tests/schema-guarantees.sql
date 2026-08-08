@@ -386,6 +386,89 @@ select pg_temp.expect(
      and country = 'AU') = 3,
   'anything that is not exactly MY is narrowed to Australian rather than trusted');
 
+-- -----------------------------------------------------------------------------
+-- Firm modules: the compliance record
+-- -----------------------------------------------------------------------------
+-- This is the part a firm pays for, so these are the promises that have to
+-- hold in the database rather than in a page that could be changed later.
+
+insert into public.firm_modules (id, slug, name, kind, published)
+values ('bbbb2222-0000-0000-0000-000000000001', 'ai-policy', 'Our AI policy', 'policy', true);
+
+select pg_temp.expect(
+  (select country is null from public.firm_modules
+   where id = 'bbbb2222-0000-0000-0000-000000000001'),
+  'a firm module reaches every learner by default, whatever country their account says');
+
+insert into public.firm_module_versions (id, firm_module_id, version, body)
+values ('bbbb2222-0000-0000-0000-000000000011',
+        'bbbb2222-0000-0000-0000-000000000001', 1, 'Do not put client material into a public tool.');
+
+select pg_temp.expect_failure(
+  $$insert into public.firm_module_versions (firm_module_id, version, body)
+    values ('bbbb2222-0000-0000-0000-000000000001', 2, 'A second current version.')$$,
+  'a module cannot have two current versions at once');
+
+-- The acknowledgement names a date, so the date must not be the client's to
+-- choose. This one is worth more than the rest put together: it is the whole
+-- evidentiary value of the record.
+insert into public.firm_module_acknowledgements (user_id, firm_module_version_id, acknowledged_at)
+values ('aaaa1111-0000-0000-0000-000000000001',
+        'bbbb2222-0000-0000-0000-000000000011', timestamptz '2019-01-01 00:00:00+00');
+
+select pg_temp.expect(
+  (select acknowledged_at > now() - interval '1 minute'
+   from public.firm_module_acknowledgements
+   where user_id = 'aaaa1111-0000-0000-0000-000000000001'),
+  'an acknowledgement is stamped by the database, not by whoever sent the request');
+
+select pg_temp.expect_failure(
+  $$insert into public.firm_module_acknowledgements (user_id, firm_module_version_id)
+    values ('aaaa1111-0000-0000-0000-000000000001',
+            'bbbb2222-0000-0000-0000-000000000011')$$,
+  'the same person cannot acknowledge the same version twice');
+
+select pg_temp.expect_failure(
+  $$delete from public.firm_module_versions
+    where id = 'bbbb2222-0000-0000-0000-000000000011'$$,
+  'a policy version somebody has acknowledged cannot be deleted');
+
+select pg_temp.expect_failure(
+  $$delete from public.firm_modules where id = 'bbbb2222-0000-0000-0000-000000000001'$$,
+  'and neither can the module it belongs to, so unpublishing is the only way out');
+
+select pg_temp.expect(
+  not exists (
+    select 1 from pg_policies
+    where schemaname = 'public'
+      and tablename = 'firm_module_acknowledgements'
+      and cmd in ('UPDATE', 'DELETE', 'ALL')),
+  'no policy grants update or delete on an acknowledgement, to anyone including an administrator');
+
+-- The catalog check above says no policy exists. This one says what that means
+-- in practice, and it has to be written as a survival check rather than an
+-- expected error: with no policy to permit it, a delete matches no rows and
+-- reports success. Silently doing nothing is the correct outcome here and the
+-- easiest kind of protection to believe you have when you do not.
+set local role authenticated;
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000001';
+
+delete from public.firm_module_acknowledgements
+where user_id = 'aaaa1111-0000-0000-0000-000000000001';
+
+update public.firm_module_acknowledgements
+set acknowledged_at = timestamptz '2019-01-01 00:00:00+00'
+where user_id = 'aaaa1111-0000-0000-0000-000000000001';
+
+reset role;
+
+select pg_temp.expect(
+  (select count(*) from public.firm_module_acknowledgements
+   where user_id = 'aaaa1111-0000-0000-0000-000000000001'
+     and acknowledged_at > now() - interval '1 minute') = 1,
+  'a learner cannot withdraw or backdate their own acknowledgement');
+
+
 \echo ''
 \echo 'All schema guarantees hold.'
 
