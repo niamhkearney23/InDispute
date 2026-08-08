@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Fraunces, Inter } from 'next/font/google';
 import './globals.css';
+import { brand } from '@/lib/brand';
 
 const display = Fraunces({
   subsets: ['latin'],
@@ -17,8 +18,8 @@ const body = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Lawgistics Academy',
-    template: '%s · Lawgistics Academy',
+    default: brand.fullName,
+    template: `%s · ${brand.fullName}`,
   },
   description:
     'Adaptive litigation training for Australian law students, PLT students, graduates and junior lawyers. Train like a lawyer.',
@@ -34,7 +35,18 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en-AU" className={`${display.variable} ${body.variable}`}>
-      <body>{children}</body>
+      <body
+        // A firm's accent replaces the burgundy everywhere it is used, rather
+        // than in the one button somebody remembered. The value is hex-checked
+        // in lib/brand before it reaches a style attribute.
+        style={
+          brand.accent
+            ? ({ '--color-burgundy': brand.accent } as React.CSSProperties)
+            : undefined
+        }
+      >
+        {children}
+      </body>
     </html>
   );
 }
