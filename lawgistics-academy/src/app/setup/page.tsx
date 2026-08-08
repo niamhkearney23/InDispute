@@ -4,6 +4,8 @@ import { getCurrentUser } from '@/lib/supabase/server';
 import { getSetupStatus } from '@/lib/setup/status';
 import { ButtonLink, Card, Notice, Wordmark } from '@/components/ui';
 import { SetupForm } from './setup-form';
+import { QUESTIONS } from '@/content/seed';
+import { FACTS } from '@/content/seed/facts';
 
 export const metadata: Metadata = { title: 'Set up' };
 export const dynamic = 'force-dynamic';
@@ -113,7 +115,11 @@ export default async function SetupPage() {
       ) : null}
 
       {!finished && ready && user ? (
-        <SetupForm tokenRequired={Boolean(process.env.SETUP_TOKEN)} />
+        <SetupForm
+          tokenRequired={Boolean(process.env.SETUP_TOKEN)}
+          questionCount={QUESTIONS.length}
+          factCount={FACTS.length}
+        />
       ) : null}
 
       {!finished && ready && !user ? (
