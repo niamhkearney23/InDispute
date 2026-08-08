@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerOverview } from '@/lib/learner-overview';
-import Link from 'next/link';
 import { masteryBand } from '@/lib/learning/mastery';
 import { outstandingRequired } from '@/lib/modules/service';
+import { outstandingFirmModules } from '@/lib/firm/service';
 import { greeting } from '@/lib/greeting';
 import { QUESTIONS_PER_MINUTE_GOAL } from '@/lib/learning/config';
 import {
@@ -14,6 +14,7 @@ import {
   Pill,
   ScoreBar,
   SectionHeading,
+  InlineLink,
   Stat,
 } from '@/components/ui';
 import { BeginSessionButton } from '../begin-session-button';
@@ -33,9 +34,10 @@ export default async function DashboardPage() {
   if (!overview.profile.diagnosticCompletedAt) redirect('/diagnostic');
 
   const { profile, level, skillMap } = overview;
-  const [fact, outstanding] = await Promise.all([
+  const [fact, outstanding, firmOutstanding] = await Promise.all([
     getFactOfTheDay(profile.timezone, profile.country),
     outstandingRequired(user.id, profile.country),
+    outstandingFirmModules(user.id, profile.country),
   ]);
   const questionCount =
     QUESTIONS_PER_MINUTE_GOAL[profile.dailyGoalMinutes] ?? QUESTIONS_PER_MINUTE_GOAL[10];
@@ -47,6 +49,29 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
+      {/* Above the training prompt, and its own notice rather than folded into
+          the count below it. An unread firm policy is not one more module
+          outstanding, it is the firm's own rules not yet in front of the person
+          they apply to. */}
+      {firmOutstanding.length > 0 ? (
+        <Notice tone="warn">
+          <strong>
+            {firmOutstanding.length === 1
+              ? `The firm asks you to read "${firmOutstanding[0].name}" before you start.`
+              : `The firm asks you to read ${firmOutstanding.length} things before you start.`}
+          </strong>{' '}
+          <InlineLink
+            href={
+              firmOutstanding.length === 1
+                ? `/modules/firm/${firmOutstanding[0].slug}`
+                : '/modules'
+            }
+          >
+            {firmOutstanding.length === 1 ? 'Read it' : 'Open modules'}
+          </InlineLink>
+        </Notice>
+      ) : null}
+
       {outstanding.length > 0 ? (
         <Notice tone="warn">
           <strong>
@@ -54,9 +79,7 @@ export default async function DashboardPage() {
               ? `"${outstanding[0].module.name}" is required and you have not finished it.`
               : `${outstanding.length} required modules are outstanding.`}
           </strong>{' '}
-          <Link href="/modules" className="font-medium underline underline-offset-2">
-            Open modules
-          </Link>
+          <InlineLink href="/modules">Open modules</InlineLink>
         </Notice>
       ) : null}
 
