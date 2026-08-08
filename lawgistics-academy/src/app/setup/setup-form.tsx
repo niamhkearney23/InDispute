@@ -5,7 +5,21 @@ import { useRouter } from 'next/navigation';
 import { Button, Card, Notice } from '@/components/ui';
 import { completeSetup } from './actions';
 
-export function SetupForm({ tokenRequired }: { tokenRequired: boolean }) {
+/**
+ * The counts are passed in rather than written into the copy. The old numbers
+ * were stale within a week of being typed, and a page that misdescribes what it
+ * is about to do to somebody's database is the last place to be approximately
+ * right.
+ */
+export function SetupForm({
+  tokenRequired,
+  questionCount,
+  factCount,
+}: {
+  tokenRequired: boolean;
+  questionCount: number;
+  factCount: number;
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -37,8 +51,9 @@ export function SetupForm({ tokenRequired }: { tokenRequired: boolean }) {
         <div>
           <h2 className="text-lg">Load the content and make me an administrator</h2>
           <p className="mt-1 text-sm text-slate">
-            Loads 78 questions, 50 daily facts and the concept and skill map, then grants
-            this account administrator rights. Safe to run more than once.
+            Loads {questionCount} questions, {factCount} daily facts, the modules and
+            lessons, and the concept and skill map, then grants this account administrator
+            rights. Safe to run more than once.
           </p>
         </div>
 
