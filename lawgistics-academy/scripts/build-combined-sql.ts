@@ -14,12 +14,70 @@ import path from 'node:path';
 
 const MIGRATIONS = path.join(process.cwd(), 'supabase/migrations');
 const OUTPUT = path.join(process.cwd(), 'supabase/SETUP.sql');
+const UPDATE_OUTPUT = path.join(process.cwd(), 'supabase/UPDATE.sql');
 
-export function buildCombinedSql(): string {
-  const files = fs
+/**
+ * The first migration that is safe to run on a database that already has some
+ * of it. 0001 to 0003 create tables outright and fail on a second run; 0004
+ * onward guard everything, so UPDATE.sql can be pasted again without anybody
+ * needing to know what state their database is in.
+ */
+const FIRST_RERUNNABLE = '0004';
+
+function migrationFiles(): string[] {
+  return fs
     .readdirSync(MIGRATIONS)
     .filter((f) => f.endsWith('.sql'))
     .sort();
+}
+
+function concatenate(files: string[]): string {
+  return files
+    .map((file) => {
+      const sql = fs.readFileSync(path.join(MIGRATIONS, file), 'utf8').trimEnd();
+      return `\n-- >>> ${file} ${'-'.repeat(Math.max(0, 60 - file.length))}\n\n${sql}\n`;
+    })
+    .join('\n');
+}
+
+/**
+ * Everything after the initial three migrations, for a database that already
+ * exists.
+ *
+ * This is the file somebody who set the app up months ago actually needs, and
+ * without it the honest instruction is "work out which migrations you have
+ * already run", which is not a thing to ask of somebody who is not a developer.
+ * Every statement in these migrations is guarded, so running it twice is not a
+ * mistake anybody has to avoid making.
+ */
+export function buildUpdateSql(): string {
+  const files = migrationFiles().filter((f) => f >= FIRST_RERUNNABLE);
+
+  const header = `-- =============================================================================
+-- Lawgistics Academy: update an existing database
+-- =============================================================================
+-- Paste this whole file into the Supabase SQL editor and run it.
+--
+-- Use this one if you have set the app up before and the database already has
+-- tables in it. Use SETUP.sql instead only on a brand new, empty project.
+--
+-- Running this more than once is safe. Every statement in it checks first, so
+-- if you have already applied some of these it will apply the rest and leave
+-- what is there alone. Nothing in it deletes anything.
+--
+-- Generated from supabase/migrations/. Do not edit by hand.
+--
+-- Contains, in order:
+${files.map((f) => `--   ${f}`).join('\n')}
+-- =============================================================================
+
+`;
+
+  return `${header}${concatenate(files)}\n`;
+}
+
+export function buildCombinedSql(): string {
+  const files = migrationFiles();
 
   const header = `-- =============================================================================
 -- Lawgistics Academy: complete database setup
@@ -36,17 +94,12 @@ ${files.map((f) => `--   ${f}`).join('\n')}
 
 `;
 
-  const body = files
-    .map((file) => {
-      const sql = fs.readFileSync(path.join(MIGRATIONS, file), 'utf8').trimEnd();
-      return `\n-- >>> ${file} ${'-'.repeat(Math.max(0, 60 - file.length))}\n\n${sql}\n`;
-    })
-    .join('\n');
-
-  return `${header}${body}\n`;
+  return `${header}${concatenate(files)}\n`;
 }
 
 if (process.argv[1] && process.argv[1].endsWith('build-combined-sql.ts')) {
   fs.writeFileSync(OUTPUT, buildCombinedSql());
+  fs.writeFileSync(UPDATE_OUTPUT, buildUpdateSql());
   console.log(`Wrote ${OUTPUT}`);
+  console.log(`Wrote ${UPDATE_OUTPUT}`);
 }

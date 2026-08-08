@@ -962,7 +962,11 @@ create table if not exists public.firm_modules (
   updated_at  timestamptz not null default now()
 );
 
-create trigger firm_modules_touch
+-- `or replace` throughout the rest of this file, so the whole thing can be run
+-- again on a database that already has some of it. The people setting this up
+-- are not developers and will not know which half they already applied; a
+-- second paste that errors halfway is worse than no guard at all.
+create or replace trigger firm_modules_touch
   before update on public.firm_modules
   for each row execute function public.touch_updated_at();
 
@@ -1011,7 +1015,7 @@ begin
 end;
 $$;
 
-create trigger firm_module_ack_stamp
+create or replace trigger firm_module_ack_stamp
   before insert on public.firm_module_acknowledgements
   for each row execute function public.stamp_acknowledgement();
 
@@ -1022,14 +1026,17 @@ alter table public.firm_modules                enable row level security;
 alter table public.firm_module_versions        enable row level security;
 alter table public.firm_module_acknowledgements enable row level security;
 
+drop policy if exists firm_modules_read on public.firm_modules;
 create policy firm_modules_read on public.firm_modules
   for select to authenticated using (published or public.is_admin());
+drop policy if exists firm_modules_admin on public.firm_modules;
 create policy firm_modules_admin on public.firm_modules
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
 -- A learner reads the current version of a published module and nothing else.
 -- Drafts and superseded versions are not theirs to see: a superseded policy is
 -- the thing they must not be following.
+drop policy if exists firm_module_versions_read on public.firm_module_versions;
 create policy firm_module_versions_read on public.firm_module_versions
   for select to authenticated using (
     public.is_admin()
@@ -1041,6 +1048,7 @@ create policy firm_module_versions_read on public.firm_module_versions
       )
     )
   );
+drop policy if exists firm_module_versions_admin on public.firm_module_versions;
 create policy firm_module_versions_admin on public.firm_module_versions
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
@@ -1049,8 +1057,10 @@ create policy firm_module_versions_admin on public.firm_module_versions
 -- acknowledgement or for an administrator to add one on someone's behalf. The
 -- record says a named person pressed the button on a date, and it is worth
 -- having only for as long as that stays true.
+drop policy if exists firm_ack_insert_own on public.firm_module_acknowledgements;
 create policy firm_ack_insert_own on public.firm_module_acknowledgements
   for insert to authenticated with check (user_id = auth.uid());
+drop policy if exists firm_ack_select_own on public.firm_module_acknowledgements;
 create policy firm_ack_select_own on public.firm_module_acknowledgements
   for select to authenticated using (user_id = auth.uid() or public.is_admin());
 
