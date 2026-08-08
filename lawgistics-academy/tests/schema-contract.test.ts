@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import ts from 'typescript';
 
-import { buildCombinedSql } from '../scripts/build-combined-sql';
+import { buildCombinedSql, buildUpdateSql } from '../scripts/build-combined-sql';
 
 /**
  * The database contract.
@@ -491,6 +491,61 @@ test('the one-paste SETUP.sql matches the migrations', () => {
     committed,
     buildCombinedSql(),
     'supabase/SETUP.sql is out of date; run `npm run build:sql` and commit the result',
+  );
+});
+
+test('the update file matches the migrations, and only contains re-runnable ones', () => {
+  const committed = fs.readFileSync(path.join(ROOT, 'supabase/UPDATE.sql'), 'utf8');
+
+  assert.equal(
+    committed,
+    buildUpdateSql(),
+    'supabase/UPDATE.sql is out of date; run `npm run build:sql` and commit the result',
+  );
+
+  // The promise this file makes is that running it twice is safe, which is the
+  // whole reason somebody can paste it without knowing what state their
+  // database is in. Proven for real against a live Postgres in supabase/tests;
+  // this catches a new unguarded statement in a second rather than a session.
+  //
+  // Three guard shapes count, because all three are used: `if not exists` on
+  // the statement, `create or replace`, and for policies, which support
+  // neither, a `drop policy if exists` immediately above.
+  const sql = committed.replace(/--.*$/gm, '');
+
+  const dropped = new Set(
+    [...sql.matchAll(/drop policy if exists (\w+) on (public\.\w+)/gi)].map(
+      (m) => `${m[1]} ${m[2]}`,
+    ),
+  );
+
+  // A `create type` inside a `do $$ ... end $$` block is guarded by the block's
+  // own pg_type lookup, so those blocks are checked as a unit and set aside.
+  const guardedTypes = new Set(
+    [...sql.matchAll(/do \$\$([\s\S]*?)\$\$/g)]
+      .filter((block) => /pg_type/.test(block[1]))
+      .flatMap((block) => [...block[1].matchAll(/create type (\w+)/gi)].map((m) => m[1])),
+  );
+
+  const unguarded = sql
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => /^create (table|trigger|policy|index|type)\b/i.test(line))
+    .filter((line) => !/if not exists/i.test(line) && !/^create or replace/i.test(line))
+    .filter((line) => {
+      const policy = /^create policy (\w+) on (public\.\w+)/i.exec(line);
+      if (policy) return !dropped.has(`${policy[1]} ${policy[2]}`);
+
+      const type = /^create type (\w+)/i.exec(line);
+      if (type) return !guardedTypes.has(type[1]);
+
+      return true;
+    });
+
+  assert.deepEqual(
+    unguarded,
+    [],
+    'each of these fails on a second paste; guard it or move it out of the update file',
   );
 });
 
