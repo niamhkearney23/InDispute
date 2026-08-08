@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { ComponentProps, ReactNode } from 'react';
+import { brand } from '@/lib/brand';
 
 export function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(' ');
@@ -250,11 +251,11 @@ export function Wordmark({ compact = false }: { compact?: boolean }) {
   return (
     <span className="inline-flex items-baseline gap-2">
       <span className="font-serif text-lg leading-none font-semibold tracking-tight">
-        Lawgistics
+        {brand.name}
       </span>
-      {!compact ? (
+      {!compact && brand.suffix ? (
         <span className="text-[0.6875rem] font-medium tracking-[0.16em] text-muted uppercase">
-          Academy
+          {brand.suffix}
         </span>
       ) : null}
     </span>

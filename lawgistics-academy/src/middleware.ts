@@ -62,6 +62,12 @@ export async function middleware(request: NextRequest) {
   return response;
 }
 
+// `icon$` is the tab icon. It used to be a checked-in file at /icon.svg and was
+// covered by the extension rule below; it is now generated from the brand and
+// served at /icon with no extension, so without this line a signed-out visitor
+// gets a redirect to /login where the browser expected an image.
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|icon$|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 };

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ButtonLink, Notice, Wordmark } from '@/components/ui';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { publicEnv } from '@/lib/env';
+import { brand } from '@/lib/brand';
 import { redirect } from 'next/navigation';
 
 const LOOP = [
@@ -64,14 +65,14 @@ export default async function LandingPage() {
         ) : null}
 
         <section className="border-t border-rule py-14 sm:py-20">
-          <p className="eyebrow mb-5">Australian litigation training</p>
+          <p className="eyebrow mb-5">{brand.tagline}</p>
           <h1 className="max-w-3xl text-[2.5rem] leading-[1.05] sm:text-6xl">
             Train like a lawyer.
           </h1>
           <p className="mt-6 max-w-xl text-lg text-slate">
-            Lawgistics Academy works out what you don’t know, teaches it
-            properly, and remembers to test you again. Built for Australian law students,
-            PLT students, graduates and junior lawyers.
+            {brand.fullName} works out what you don’t know, teaches it properly, and
+            remembers to test you again. Built for law students, PLT students, graduates
+            and junior lawyers.
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <ButtonLink href="/signup" size="lg" variant="accent">
@@ -124,7 +125,7 @@ export default async function LandingPage() {
 
       <footer className="mx-auto max-w-5xl border-t border-rule px-5 py-8 sm:px-8">
         <p className="text-xs text-muted">
-          Lawgistics Academy is a training tool. It is not legal advice, and
+          {brand.fullName} is a training tool. It is not legal advice, and
           progression levels within it are game levels, not professional qualifications
           or titles.
         </p>
