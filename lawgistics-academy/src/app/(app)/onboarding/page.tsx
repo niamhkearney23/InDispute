@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
+import { brand } from '@/lib/brand';
 import { OnboardingForm } from './onboarding-form';
 
 export const metadata: Metadata = { title: 'Getting started' };
@@ -26,7 +27,7 @@ export default async function OnboardingPage({
   return (
     <div className="mx-auto max-w-2xl">
       <p className="eyebrow mb-3">
-        {editing ? 'Your settings' : 'Welcome to Lawgistics Academy'}
+        {editing ? 'Your settings' : `Welcome to ${brand.fullName}`}
       </p>
       <h1 className="mb-3 text-3xl sm:text-4xl">
         {editing ? 'Change what you are training on' : 'Train like a lawyer.'}
