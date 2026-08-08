@@ -51,7 +51,10 @@ function parseMigrations(): Schema {
   const relations = new Map<string, Map<string, string>>();
   const foreignKeys: Array<{ from: string; column: string; to: string }> = [];
 
-  const tableRe = /create table public\.(\w+)\s*\(([\s\S]*?)\n\);/g;
+  // `if not exists` is optional: later migrations guard their creates so the
+  // whole set can be re-run, and a parser that missed those tables would go
+  // quiet on exactly the queries it exists to check.
+  const tableRe = /create table (?:if not exists )?public\.(\w+)\s*\(([\s\S]*?)\n\);/g;
   for (const match of clean.matchAll(tableRe)) {
     const table = match[1];
     const columns = new Set<string>();

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { getModuleProgress } from '@/lib/modules/service';
+import { listFirmModulesForLearner } from '@/lib/firm/service';
 import { Card, Pill, SectionHeading } from '@/components/ui';
 
 export const metadata: Metadata = { title: 'Modules' };
@@ -15,7 +16,10 @@ export default async function ModulesPage() {
   const profile = await getLearnerProfile(user.id);
   if (!profile) redirect('/login');
 
-  const progress = await getModuleProgress(user.id, profile.country);
+  const [progress, firmModules] = await Promise.all([
+    getModuleProgress(user.id, profile.country),
+    listFirmModulesForLearner(user.id, profile.country),
+  ]);
 
   return (
     <div className="space-y-8">
@@ -28,6 +32,38 @@ export default async function ModulesPage() {
           has covered something. A module has a finishing line.
         </p>
       </section>
+
+      {/* The firm's own content sits above ours on purpose. On somebody's first
+          day, "what this firm allows you to put into a tool" outranks anything
+          we can teach them about the law. */}
+      {firmModules.length > 0 ? (
+        <section>
+          <SectionHeading eyebrow="From the firm" title="Read these first" />
+          <div className="space-y-3">
+            {firmModules.map((module) => (
+              <Link key={module.id} href={`/modules/firm/${module.slug}`} className="block">
+                <Card className="transition-colors hover:bg-paper-sunk">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="text-lg">{module.name}</h3>
+                        {module.required ? <Pill tone="accent">Required</Pill> : null}
+                        {module.acknowledgedAt ? <Pill tone="correct">Read</Pill> : null}
+                      </div>
+                      {module.summary ? (
+                        <p className="mt-1 text-sm text-slate">{module.summary}</p>
+                      ) : null}
+                    </div>
+                    {!module.acknowledgedAt ? (
+                      <p className="shrink-0 text-sm text-muted">Not read yet</p>
+                    ) : null}
+                  </div>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section>
         <SectionHeading title="Your modules" />
