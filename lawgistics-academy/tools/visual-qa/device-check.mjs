@@ -54,6 +54,10 @@ const DEVICES = [
 const PAGES = [
   { name: 'landing', path: '/', auth: false },
   { name: 'login', path: '/login', auth: false },
+  // Signed out on purpose: this is the one page in the app a person reaches
+  // before they have an account, so rendering it as a signed-in user would
+  // check the wrong thing entirely.
+  { name: 'join', path: '/join/qa-invitation-token-for-visual-checks-only', auth: false },
   // Signed in as the learner who has not been through onboarding; the default
   // fixture has, so this page would redirect and the check would quietly
   // report on the dashboard instead.
@@ -63,6 +67,7 @@ const PAGES = [
   { name: 'modules', path: '/modules', auth: true },
   { name: 'module', path: '/modules/ai-ethics-au', auth: true },
   { name: 'firm-module', path: '/modules/firm/ai-policy', auth: true },
+  { name: 'start', path: '/start', auth: true },
   { name: 'diagnostic', path: '/diagnostic', auth: true },
   { name: 'diagnostic-results', path: '/diagnostic/results', auth: true },
   { name: 'train', path: `/train/${SESSION_ID}`, auth: true },
@@ -70,6 +75,7 @@ const PAGES = [
   { name: 'summary', path: `/train/${SESSION_ID}/summary`, auth: true },
   { name: 'admin', path: '/admin', auth: true },
   { name: 'admin-facts', path: '/admin/facts', auth: true },
+  { name: 'admin-review', path: '/admin/review', auth: true },
   { name: 'admin-question-new', path: '/admin/questions/new', auth: true },
   { name: 'admin-firm', path: '/admin/firm', auth: true },
   {
@@ -82,6 +88,15 @@ const PAGES = [
     path: '/admin/firm/77777777-7777-7777-7777-777777777777/record',
     auth: true,
   },
+  { name: 'admin-joiners', path: '/admin/onboarding', auth: true },
+  {
+    name: 'admin-joiner',
+    path: '/admin/onboarding/11111111-1111-1111-1111-111111111111',
+    auth: true,
+  },
+  { name: 'admin-steps', path: '/admin/onboarding/steps', auth: true },
+  { name: 'admin-invite', path: '/admin/onboarding/invite', auth: true },
+  { name: 'admin-step-new', path: '/admin/onboarding/steps/new', auth: true },
 ];
 
 /** Anything wider than the viewport means the page scrolls sideways on a phone. */

@@ -5,6 +5,7 @@ import { Button, Card, Notice, Pill, cn } from '@/components/ui';
 import { JURISDICTION_LABELS, JURISDICTION_SHORT } from '@/lib/types';
 import { RISK_LABEL, type RiskLevel } from '@/lib/review/triage';
 import { recordReviewDecision } from './actions';
+import { HOLD_CHOICES, defaultHold, type HoldMonths } from '@/lib/review/expiry';
 import type { ReviewItem } from '@/lib/review/service';
 
 type Filter = 'outstanding' | 'live' | 'flagged' | 'done' | 'all';
@@ -14,6 +15,20 @@ const RISK_TONE: Record<RiskLevel, 'wrong' | 'warn' | 'neutral'> = {
   medium: 'warn',
   low: 'neutral',
 };
+
+/**
+ * Whether an item counts as signed off right now.
+ *
+ * One definition, used by the filter and the counter alike, because two
+ * definitions is how a queue comes to say "233 of 233 done" while showing you
+ * things to do. A sign-off that has run out is not a sign-off: an item whose
+ * verification expired is back in the pile, which is the entire point of giving
+ * verifications an expiry.
+ */
+function isSignedOff(item: ReviewItem, outcome?: 'verify' | 'flag' | 'retire'): boolean {
+  if (outcome) return outcome === 'verify';
+  return item.verificationStatus === 'human_verified' && !item.lapsed;
+}
 
 export function ReviewQueue({ items }: { items: ReviewItem[] }) {
   const [filter, setFilter] = useState<Filter>('outstanding');
@@ -25,7 +40,7 @@ export function ReviewQueue({ items }: { items: ReviewItem[] }) {
   const visible = useMemo(() => {
     return items.filter((item) => {
       const outcome = decided[key(item)];
-      const verified = outcome === 'verify' || (!outcome && item.verificationStatus === 'human_verified');
+      const verified = isSignedOff(item, outcome);
       const flagged = outcome === 'flag' || (!outcome && item.reviewFlagged);
 
       switch (filter) {
@@ -48,7 +63,7 @@ export function ReviewQueue({ items }: { items: ReviewItem[] }) {
     let done = 0;
     for (const item of items) {
       const outcome = decided[key(item)];
-      if (outcome === 'verify' || (!outcome && item.verificationStatus === 'human_verified')) done += 1;
+      if (isSignedOff(item, outcome)) done += 1;
       else if (outcome !== 'retire') outstanding += 1;
     }
     return { outstanding, done };
@@ -146,6 +161,8 @@ function ReviewCard({
   const [pending, startTransition] = useTransition();
   const [note, setNote] = useState(item.reviewNote ?? '');
   const [noteOpen, setNoteOpen] = useState(false);
+  // Defaulted from the risk score, changed by the person who just read it.
+  const [holds, setHolds] = useState<HoldMonths>(defaultHold(item.risk.level));
 
   function decide(decision: 'verify' | 'flag' | 'retire') {
     onError(null);
@@ -161,6 +178,7 @@ function ReviewCard({
         id: item.id,
         decision,
         note: note.trim() || undefined,
+        holdsForMonths: decision === 'verify' ? holds : undefined,
       });
       if (!result.ok) {
         onError(result.error);
@@ -187,6 +205,8 @@ function ReviewCard({
           </span>
         </Pill>
         {item.liveToLearners && !outcome ? <Pill tone="wrong">Live now</Pill> : null}
+        {item.lapsed && !outcome ? <Pill tone="wrong">Sign-off expired</Pill> : null}
+        {item.dueSoon && !outcome ? <Pill tone="warn">Due again soon</Pill> : null}
         {outcome ? (
           <Pill tone={outcome === 'verify' ? 'correct' : 'wrong'}>
             {outcome === 'verify' ? 'Signed off' : outcome === 'flag' ? 'Flagged' : 'Retired'}
@@ -275,6 +295,29 @@ function ReviewCard({
               className="mt-4 w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2 text-base outline-none focus:border-burgundy"
             />
           ) : null}
+
+          {/* How long the sign-off holds. Sits with the button rather than in a
+              settings screen, because it is a judgement about the item just
+              read: a filing fee and the onus of proof do not age alike. */}
+          <fieldset className="mt-4">
+            <legend className="eyebrow mb-1.5">Check it again in</legend>
+            <div className="inline-flex rounded-[5px] border border-rule-strong p-0.5">
+              {HOLD_CHOICES.map((months) => (
+                <button
+                  key={months}
+                  type="button"
+                  onClick={() => setHolds(months)}
+                  aria-pressed={holds === months}
+                  className={cn(
+                    'rounded-[4px] px-3 py-1.5 text-sm font-medium',
+                    holds === months ? 'bg-ink text-paper' : 'text-slate hover:bg-paper-sunk',
+                  )}
+                >
+                  {months === 24 ? '2 years' : `${months} months`}
+                </button>
+              ))}
+            </div>
+          </fieldset>
 
           <div className="mt-4 flex flex-wrap gap-2">
             <Button size="sm" variant="primary" disabled={pending} onClick={() => decide('verify')}>

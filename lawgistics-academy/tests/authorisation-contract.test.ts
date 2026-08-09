@@ -26,6 +26,27 @@ const SRC = path.join(ROOT, 'src');
 
 const AUTH_CALLS = ['checkAdmin', 'requireAdmin', 'getCurrentUser'];
 
+/**
+ * Actions whose caller is identified by a capability rather than a session.
+ *
+ * There is exactly one, and it has to exist: somebody taking up an invitation
+ * does not have an account yet, so there is no session to check. What stands in
+ * its place is the invitation token, which is 32 bytes of CSPRNG output stored
+ * only as a SHA-256 hash, single use, and expiring. The entry below names the
+ * function that must verify it, and the test asserts the action actually calls
+ * that function rather than merely being on the list.
+ *
+ * This is a list, not a flag, so adding to it is a visible act in a diff.
+ */
+const CAPABILITY_AUTHENTICATED: Record<string, string> = {
+  join: 'acceptInvitation(',
+};
+
+/** Source with block and line comments removed. */
+function stripComments(source: string): string {
+  return source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+}
+
 function findFiles(dir: string): string[] {
   const files: string[] = [];
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -85,13 +106,22 @@ test('the server actions were actually found', () => {
     'beginModule',
     'beginSession',
     'completeSetup',
+    'confirm',
     'createFact',
     'createQuestion',
+    'decide',
+    'declare',
     'finishSession',
+    'invite',
+    'join',
     'publishAllVerified',
     'recordReviewDecision',
+    'restoreAllWithdrawn',
+    'revoke',
     'saveFirmModule',
     'saveOnboarding',
+    'saveStep',
+    'setStartDate',
     'transitionFact',
     'transitionQuestion',
     'updateFact',
@@ -101,15 +131,89 @@ test('the server actions were actually found', () => {
 });
 
 test('every server action establishes who the caller is', () => {
-  const unguarded = ACTIONS.filter(
-    (action) => !AUTH_CALLS.some((call) => action.body.includes(`${call}(`)),
-  ).map((a) => `${a.file}:${a.line} ${a.name}`);
+  const unguarded = ACTIONS.filter((action) => {
+    if (AUTH_CALLS.some((call) => action.body.includes(`${call}(`))) return false;
+    // A capability-authenticated action counts as guarded only if it actually
+    // calls the verifier named for it. Being on the list is not enough.
+    const verifier = CAPABILITY_AUTHENTICATED[action.name];
+    return !(verifier && action.body.includes(verifier));
+  }).map((a) => `${a.file}:${a.line} ${a.name}`);
 
   assert.deepEqual(
     unguarded,
     [],
     'each of these is a public endpoint reachable without the UI',
   );
+});
+
+test('the invitation action cannot hand out anything but an ordinary account', () => {
+  // The joining path is the only way into this app without an existing session,
+  // so it is the one place where a stray write would be reachable by anybody
+  // holding a link. It must not touch privileges, and it must not take the
+  // identity of the new account from the form: both come from the invitation.
+  const joining = ACTIONS.find((a) => a.name === 'join');
+  assert.ok(joining, 'the join action should exist');
+
+  const source = fs.readFileSync(
+    path.join(ROOT, 'src/lib/onboarding/invitations.ts'),
+    'utf8',
+  );
+
+  // Comments stripped, for the same reason as in the firm tests: this file's
+  // prose explains that it never grants rights, so a scan of the raw text finds
+  // the word in the sentence promising it is absent and fails for the wrong
+  // reason. Asserting about the code means reading the code.
+  const code = stripComments(source);
+  const actionCode = stripComments(joining.body);
+
+  for (const forbidden of ['is_admin', 'isAdmin']) {
+    assert.ok(
+      !actionCode.includes(forbidden),
+      `the join action mentions ${forbidden}`,
+    );
+    assert.ok(
+      !code.includes(forbidden),
+      `the invitation service mentions ${forbidden}: joining must not be able to grant rights`,
+    );
+  }
+
+  // The email is the firm's, not the form's. If this ever read an address from
+  // the request, whoever held a link could join as somebody else.
+  assert.ok(
+    !/formData\.get\(['"]email['"]\)/.test(joining.body),
+    'the join action must take the email from the invitation, never from the form',
+  );
+  assert.match(
+    source,
+    /email: invitation\.email/,
+    'the account is created for the address the firm invited',
+  );
+});
+
+test('an invitation token is stored hashed and never in the clear', () => {
+  const source = fs.readFileSync(
+    path.join(ROOT, 'src/lib/onboarding/invitations.ts'),
+    'utf8',
+  );
+
+  assert.match(source, /createHash\('sha256'\)/, 'tokens are hashed with SHA-256');
+  assert.match(
+    source,
+    /token_hash: hashToken\(token\)/,
+    'the row stores the hash, not the token',
+  );
+  assert.ok(
+    !/token: token[,\s}]/.test(source.replace(/return \{ token, error: null \};/, '')),
+    'the token is not written to any row',
+  );
+  assert.match(
+    source,
+    /randomBytes\(TOKEN_BYTES\)/,
+    'the token comes from the system CSPRNG rather than from Math.random or a uuid',
+  );
+  // The lookup must be by hash. Selecting on a plain token column would mean
+  // the token had been stored somewhere in the first place.
+  assert.match(source, /\.eq\('token_hash', hashToken\(token\)\)/);
 });
 
 test('every admin server action requires admin specifically, not merely a session', () => {
