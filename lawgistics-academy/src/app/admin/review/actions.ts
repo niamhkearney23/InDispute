@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { checkAdmin } from '@/lib/admin/guard';
 import { createServiceClient } from '@/lib/supabase/service';
+import { HOLD_CHOICES, dueDateFrom, type HoldMonths } from '@/lib/review/expiry';
 
 /**
  * The three outcomes of reviewing an item.
@@ -18,6 +19,17 @@ const decisionSchema = z.object({
   id: z.string().uuid(),
   decision: z.enum(['verify', 'flag', 'retire']),
   note: z.string().trim().max(2000).optional(),
+  /**
+   * How long this sign-off holds, in months. Only meaningful when verifying.
+   *
+   * Constrained to the three offered values rather than taken as any number:
+   * this comes from a form, and a request that could name its own interval
+   * could sign something off until 2099, which is the same as never checking it
+   * again while looking as though somebody had decided otherwise.
+   */
+  holdsForMonths: z
+    .union([z.literal(HOLD_CHOICES[0]), z.literal(HOLD_CHOICES[1]), z.literal(HOLD_CHOICES[2])])
+    .optional(),
 });
 
 export type ReviewResult = { ok: true } | { ok: false; error: string };
@@ -31,7 +43,7 @@ export async function recordReviewDecision(
   const parsed = decisionSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: 'That decision could not be read.' };
 
-  const { kind, id, decision, note } = parsed.data;
+  const { kind, id, decision, note, holdsForMonths } = parsed.data;
 
   if (decision === 'flag' && !note) {
     return { ok: false, error: 'Say what is wrong with it, a flag without a note is a dead end.' };
@@ -39,6 +51,11 @@ export async function recordReviewDecision(
 
   const db = createServiceClient();
   const now = new Date().toISOString();
+
+  // Twelve months when the form did not say. The database has the same backstop
+  // in a trigger, so a verified row cannot exist without an expiry either way.
+  const reviewDueOn =
+    decision === 'verify' ? dueDateFrom((holdsForMonths ?? 12) as HoldMonths) : null;
 
   const reviewFields = {
     review_note: note ?? null,
@@ -55,6 +72,7 @@ export async function recordReviewDecision(
             verification_status: 'human_verified' as const,
             verified_by: adminId,
             verified_at: now,
+            review_due_on: reviewDueOn,
           }
         : { ...reviewFields, verification_status: 'requires_review' as const };
 
@@ -89,6 +107,7 @@ export async function recordReviewDecision(
             verification_status: 'human_verified' as const,
             verified_by: adminId,
             verified_at: now,
+            review_due_on: reviewDueOn,
             status: 'verified' as const,
           }
         : decision === 'retire'

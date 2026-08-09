@@ -714,6 +714,63 @@ select pg_temp.expect_failure(
 reset role;
 
 
+-- -----------------------------------------------------------------------------
+-- Verification expires
+-- -----------------------------------------------------------------------------
+-- The stamp has to stop being true on a date, or the longer the app runs the
+-- more of its content is confidently wrong.
+
+update public.question_versions
+set verification_status = 'human_verified', review_due_on = null
+where is_current
+  and question_id = (select id from public.questions order by slug limit 1);
+
+select pg_temp.expect(
+  (select review_due_on is not null and review_due_on > current_date
+   from public.question_versions
+   where is_current
+     and question_id = (select id from public.questions order by slug limit 1)),
+  'a sign-off with no end date is given one rather than left open-ended');
+
+-- Losing verification must clear the date. Otherwise a flagged item reads as
+-- "verified until March", which is the opposite of what happened to it.
+update public.question_versions
+set verification_status = 'requires_review', review_flagged = true
+where is_current
+  and question_id = (select id from public.questions order by slug limit 1);
+
+select pg_temp.expect(
+  (select review_due_on is null
+   from public.question_versions
+   where is_current
+     and question_id = (select id from public.questions order by slug limit 1)),
+  'an item that loses its verification does not keep the expiry date it had');
+
+-- And a caller cannot sign something off until the next century by naming its
+-- own date... it can name one, but only within the application's choices; the
+-- database's job here is only to refuse the open-ended case, which it does by
+-- filling it in. Confirm a supplied date is honoured, so the reviewer's choice
+-- is not quietly overwritten either.
+update public.question_versions
+set verification_status = 'human_verified', review_due_on = current_date + 180
+where is_current
+  and question_id = (select id from public.questions order by slug limit 1);
+
+select pg_temp.expect(
+  (select review_due_on = current_date + 180
+   from public.question_versions
+   where is_current
+     and question_id = (select id from public.questions order by slug limit 1)),
+  'a date the reviewer chose is kept, not replaced by the default');
+
+select pg_temp.expect(
+  (select count(*) from information_schema.columns
+   where table_schema = 'public'
+     and table_name in ('question_versions', 'daily_facts')
+     and column_name = 'review_due_on') = 2,
+  'both the question versions and the daily facts carry an expiry');
+
+
 \echo ''
 \echo 'All schema guarantees hold.'
 

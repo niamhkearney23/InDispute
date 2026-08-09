@@ -491,12 +491,17 @@ const TABLES = {
       source_url: null,
       source_checked_on: null,
       verification_status: 'requires_review',
+      review_due_on: null,
     },
     {
       id: 'bbbbbbbb-0000-4000-8000-000000000009',
       question_id: 'aaaaaaaa-0000-4000-8000-000000000009',
       version: 1,
       is_current: true,
+      // Signed off once, and the sign-off has run out. This is the state the
+      // expiry mechanism exists for, so it is the one worth having on screen.
+      verification_status: 'human_verified',
+      review_due_on: '2026-01-15',
       ...bySlug('ch-au-appeal-from-intermediate'),
       correct_option_ids: ['supreme-court'],
       explanation:
