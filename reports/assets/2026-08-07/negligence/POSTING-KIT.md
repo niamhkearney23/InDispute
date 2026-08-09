@@ -1,6 +1,6 @@
 # Posting Kit, The snail and the underpants
 
-**Post:** 9 slides, `negligence-slide-1.png` to `-9.png`, upload in order. Cream dominant, navy closer.
+**Post:** 9 slides, `negligence-slide-01.png` to `-09.png`, upload in order. Cream dominant, navy closer. Each slide is numbered `01 / 09` top right, so if the upload order ever scrambles you can see it immediately.
 **Why this one:** pure law-student content, which the grid says outperforms case analysis. Both cases are on every first-year torts reading list, so the audience either knows them or is about to, and the "nobody proved there was a snail" beat is the kind of thing people screenshot.
 
 ---
