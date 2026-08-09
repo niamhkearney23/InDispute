@@ -116,14 +116,14 @@ slide(1, "Kuala Lumpur",
   swipe=True)
 
 slide(2, "The Program",
-  '<div class="statement md">Placed with practising lawyers, in a city that <em>runs on ambition.</em></div>'
-  '<div class="body"><p>Not a study tour. Not a conference. You are in the room where the work happens, for the length of the placement.</p></div>',
+  '<div class="statement md">This is a placement, not a <em>study tour.</em></div>'
+  '<div class="body"><p>You are with practising lawyers, in a working legal city, for the length of the placement.</p></div>',
   light=True)
 
 slide(3, "The City",
   '<div class="statement md">Court in the morning. <em>Kuala Lumpur</em> the rest of the time.</div>'
-  '<div class="body"><p>One of Asia&rsquo;s legal and financial hubs. Thirty degrees in February.</p>'
-  '<p>And a cohort of people who also decided <b>not to wait.</b></p></div>')
+  '<div class="body"><p>One of Asia&rsquo;s legal and financial hubs, eight hours from Sydney.</p>'
+  '<p>Thirty degrees in February. Street food at midnight.</p></div>')
 
 # PLACEHOLDER. Replace with a real quote from a real intern before posting.
 slide(4, "In Their Words",

@@ -38,7 +38,7 @@ Send me the quotes and I will typeset and re-render both slides.
 |---|---|---|
 | 01 | Kuala Lumpur | Hook. Your cohort is mooting, you are in a real courtroom. |
 | 02 | The Program | What it is, stated once, no over-explaining. |
-| 03 | The City | KL itself. Court in the morning, the city the rest of the time. |
+| 03 | The City | KL itself, in concrete detail. Flight time, temperature, food. |
 | 04 | In Their Words | **Testimonial, placeholder.** |
 | 05 | The Return | What it does for you afterwards. |
 | 06 | In Their Words | **Testimonial, placeholder.** |
@@ -56,9 +56,9 @@ Post as a normal carousel, then three dots at the top right of the post, **Pin t
 
 Your cohort is doing a moot. You are in a real courtroom.
 
-Lawgistics places Australian law students in legal internships in Kuala Lumpur. You are placed with practising lawyers, in one of Asia's legal and financial hubs, in the room where the work actually happens.
+Lawgistics places Australian law students in legal internships in Kuala Lumpur. A placement, not a study tour. You are with practising lawyers, in a working legal city, for the length of it.
 
-Court in the morning. The city the rest of the time. Thirty degrees in February, and a cohort of people who also decided not to wait.
+Court in the morning. Kuala Lumpur the rest of the time. One of Asia's legal and financial hubs, eight hours from Sydney. Thirty degrees in February, street food at midnight.
 
 What you take home is international legal exposure years ahead of everyone else in your year. It shows up in interviews. It shows up in applications. It shows up in what you get trusted with once you are hired.
 
@@ -92,6 +92,8 @@ Details and applications via the link on our profile.
 
 **No dates, prices or intake numbers anywhere in this deck**, deliberately, so it can stay pinned indefinitely. Everything time-sensitive lives behind the link in bio.
 
-**One claim to confirm before posting.** Slide 2 says you are "in the room where the work happens", and the caption says "placed with practising lawyers". If placements are more observational than that, tell me and I will adjust the wording. It is the one line a prospective applicant could hold you to.
+**No corporate register.** Cut on 9 Aug 2026: "a city that runs on ambition" and "a cohort of people who also decided not to wait". Both read as a company values statement, which is the fastest way to lose a student audience. Cool comes from concrete specifics, not from abstractions about drive and ambition. Eight hours from Sydney, thirty degrees in February, street food at midnight. Those are things a person can picture.
 
-Everything else in the deck is either from the account brief or is general public knowledge about Kuala Lumpur.
+**One claim to confirm before posting.** Slide 2 says "you are with practising lawyers" and the caption repeats it. If placements are more observational than that, tell me and I will adjust the wording. It is the one line a prospective applicant could hold you to.
+
+**Checked:** Sydney to Kuala Lumpur is roughly eight hours direct, and KL sits around thirty degrees year round, February included. Both safe as written.

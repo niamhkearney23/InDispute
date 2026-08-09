@@ -69,6 +69,8 @@ Every line answers "what is in it for me", stated as an advantage: international
 
 **Never desperate.** A confident offer is stated once and left alone. No pleading CTAs, no "we answer every DM", no repetition of the ask. The close on the pinned deck is three words.
 
+**No corporate register.** Banned: anything that sounds like a company values statement or a LinkedIn culture post. "A city that runs on ambition", "people who decided not to wait", "we support each other", "driven individuals", "like-minded people". Cool reads as concrete and specific, never as abstract nouns about ambition and drive. Write the flight time, the temperature, the food, the thing you actually saw.
+
 **NEVER invent testimonials.** Do not write a quote, review or endorsement attributed to a student, intern, firm or staff member unless Niamh has supplied the real words. Fabricated testimonials are misleading and deceptive conduct under the Australian Consumer Law and the audience is lawyers. Build the slide with bracketed placeholders and a "PLACEHOLDER, DO NOT POST" footer, then ask her for the real quote.
 
 ## Editorial rules
