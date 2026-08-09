@@ -66,6 +66,14 @@ body.light{background:#EDE7DC;color:#171D2B;}
   font-size:34px;line-height:1.5;color:#A3ACC0;max-width:800px;}
 .light .sub{color:#6E6858;}
 
+/* cover: editorial destination treatment */
+.dest{font-family:'Playfair',serif;font-weight:600;font-size:132px;line-height:.98;
+  letter-spacing:-.018em;}
+.dest em{font-style:italic;font-weight:400;}
+.rule{width:112px;height:1px;background:rgba(237,231,220,.32);margin:60px 0 46px;}
+.destsub{font-family:'TikTok Sans',sans-serif;font-size:29px;line-height:1.6;
+  font-weight:400;color:#A9B0C2;max-width:700px;}
+
 .body{margin-top:52px;font-family:'TikTok Sans',sans-serif;font-size:31px;
   line-height:1.7;color:#A9B0C2;max-width:830px;}
 .light .body{color:#4E4A3F;}
@@ -110,9 +118,10 @@ def slide(n, kicker, inner, cite="", light=False, swipe=False):
 </div></body></html>"""
     (OUT / f"pin{n:02d}.html").write_text(html)
 
-slide(1, "Kuala Lumpur",
-  '<div class="statement lg">Your cohort is doing a moot. You are in a <em>real courtroom.</em></div>'
-  '<div class="sub">Legal internships for Australian law students.</div>',
+slide(1, "Lawgistics",
+  '<div class="dest">Kuala<br><em>Lumpur.</em></div>'
+  '<div class="rule"></div>'
+  '<div class="destsub">Legal internships for Australian law students.</div>',
   swipe=True)
 
 slide(2, "The Program",

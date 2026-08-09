@@ -36,7 +36,7 @@ Send me the quotes and I will typeset and re-render both slides.
 
 | Slide | Kicker | Does |
 |---|---|---|
-| 01 | Kuala Lumpur | Hook. Your cohort is mooting, you are in a real courtroom. |
+| 01 | Lawgistics | Destination cover. Makes no argument, the place does the work. |
 | 02 | The Program | What it is, stated once, no over-explaining. |
 | 03 | The City | KL itself, in concrete detail. Flight time, temperature, food. |
 | 04 | In Their Words | **Testimonial, placeholder.** |
@@ -54,11 +54,11 @@ Post as a normal carousel, then three dots at the top right of the post, **Pin t
 
 ## Instagram caption (copy-paste)
 
-Your cohort is doing a moot. You are in a real courtroom.
+Court in the morning. Kuala Lumpur the rest of the time.
 
 Lawgistics places Australian law students in legal internships in Kuala Lumpur. A placement, not a study tour. You are with practising lawyers, in a working legal city, for the length of it.
 
-Court in the morning. Kuala Lumpur the rest of the time. One of Asia's legal and financial hubs, eight hours from Sydney. Thirty degrees in February, street food at midnight.
+One of Asia's legal and financial hubs, eight hours from Sydney. Thirty degrees in February, street food at midnight.
 
 What you take home is international legal exposure years ahead of everyone else in your year. It shows up in interviews. It shows up in applications. It shows up in what you get trusted with once you are hired.
 
