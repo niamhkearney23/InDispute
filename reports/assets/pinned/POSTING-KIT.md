@@ -1,43 +1,74 @@
-# Posting Kit, Start Here (pinned post)
+# Posting Kit, pinned post
 
 **Post:** 7 slides, `pinned-slide-01.png` to `-07.png`, upload in order. Navy dominant.
-**Purpose:** the post you pin to the top of the grid. Someone lands on the profile from a case post, reads this, and understands within one swipe that Lawgistics places Australian law students in legal internships in Kuala Lumpur.
+**Purpose:** the post you pin to the top of the grid. Someone lands from a case post, and within one swipe understands what Lawgistics is and wants in.
 
-**Why this rather than the intern program carousel:** the intern program one carries dates and a deadline, so it goes stale the moment applications close and a stale post at the top of a grid is worse than none. This one deliberately carries **no dates, no deadline, no price and no intake numbers**. It points at the link in bio for all of that, so you never have to re-cut it. Keep the intern program carousel as a normal timed post when a round opens.
+## ⚠️ NOT POSTABLE YET
 
-## How to pin on Instagram
+**Slides 4 and 6 are placeholders.** They are designed and ready, but the text in them is bracketed instructions, and the footer of each reads PLACEHOLDER, DO NOT POST. Replace both with real quotes from real interns before this goes anywhere.
 
-Post it as a normal carousel first. Then go to the post, tap the three dots at the top right, tap **Pin to your profile**. You can pin up to three. If you pin this plus the 644-view "5 things that actually get you a legal role", the top row does both jobs: proof you are useful, and the offer.
+**I will not write the quotes.** Inventing testimonials from students who do not exist is misleading and deceptive conduct under the Australian Consumer Law, it is the easiest thing in the world for a competitor or an unhappy applicant to screenshot, and the audience is lawyers. Two real sentences beat six invented ones anyway, because real ones contain specifics nobody would think to make up.
+
+### How to get the quotes, fast
+
+Message past interns with this:
+
+> Hi [name], I am putting together a pinned post for the Lawgistics page and would love to include something from you. Two questions, one line each is plenty.
+> 1. What is one specific thing you saw or did that you would not have got at home?
+> 2. What surprised you about KL?
+> Happy to use first name, year level and uni, or keep it to first name only. Let me know what you are comfortable with.
+
+Three replies gives you two good quotes. Ask permission explicitly, and keep the message, that is your consent record.
+
+### What makes a quote work
+
+- **Specific beats glowing.** "I watched a bail application at 9am on my second day" is worth ten times "it was an amazing experience".
+- Keep it to roughly 25 words so it sits at full size on the slide.
+- Slide 4 should be about the work. Slide 6 about the city or the people, so they do different jobs.
+- Attribution: first name, year level, university, intake. Never a full name without asking.
+- Do not clean up their voice. The unpolished ones read as real, which is the entire point.
+
+Send me the quotes and I will typeset and re-render both slides.
+
+---
+
+## The deck
+
+| Slide | Kicker | Does |
+|---|---|---|
+| 01 | Kuala Lumpur | Hook. Your cohort is mooting, you are in a real courtroom. |
+| 02 | The Program | What it is, stated once, no over-explaining. |
+| 03 | The City | KL itself. Court in the morning, the city the rest of the time. |
+| 04 | In Their Words | **Testimonial, placeholder.** |
+| 05 | The Return | What it does for you afterwards. |
+| 06 | In Their Words | **Testimonial, placeholder.** |
+| 07 | Applications | Link in bio. Nothing else. |
+
+**Why it is built this way.** The old version explained and taught: courtroom access, practical experience, career insight, why Malaysia inherited the common law. Nobody applies to an internship to learn things. They apply to be somewhere other people are not. Every slide now states a gain or shows status, and the close is three words because a confident offer does not repeat itself.
+
+## How to pin
+
+Post as a normal carousel, then three dots at the top right of the post, **Pin to your profile**. Three slots available. Pin this plus "5 things that actually get you a legal role" (644 views, your best performer) so the top row does both jobs, proof you are useful next to the offer.
 
 ---
 
 ## Instagram caption (copy-paste)
 
-Law school teaches you the law. It does not teach you the room.
+Your cohort is doing a moot. You are in a real courtroom.
 
-If you have just landed here, this is what we do.
+Lawgistics places Australian law students in legal internships in Kuala Lumpur. You are placed with practising lawyers, in one of Asia's legal and financial hubs, in the room where the work actually happens.
 
-Lawgistics places Australian law students in legal internships in Kuala Lumpur. Not a study tour, not a conference. You are placed in a working legal environment with practising lawyers.
+Court in the morning. The city the rest of the time. Thirty degrees in February, and a cohort of people who also decided not to wait.
 
-Three things you get that a textbook cannot give you.
+What you take home is international legal exposure years ahead of everyone else in your year. It shows up in interviews. It shows up in applications. It shows up in what you get trusted with once you are hired.
 
-Courtroom access. You sit in on real proceedings.
+Open from first year through to final year, and to recent graduates.
 
-Practical experience. You work alongside lawyers on live matters.
-
-Career insight. You get to ask the questions your lecturers cannot answer, because they have not been in practice for fifteen years.
-
-What you get out of it. International legal exposure, years ahead of your cohort. The profession gets more cross border every year, and having that on your record early is the kind of thing that compounds. In interviews, in applications, and in what you get trusted with once you are hired.
-
-Why it matters for you. Every single person applying for a clerkship has a transcript. Almost none of them have watched a matter run in a foreign jurisdiction and can say something intelligent about it. That is an interview answer nobody else in the room has.
-
-Who it is for. Students who want to be ahead of where they are. Open from first year through to final year, and to recent graduates. No prior legal experience needed and no connection in the profession required.
-
-Applications, dates and eligibility are in the link in bio. Questions, send us a DM, we answer all of them.
+Applications are in the link in bio.
 
 #lawstudent #auslaw #lawschool #legalinternship #lawcareers #clerkship #kualalumpur #lawstudentlife #studyabroad #lawgistics
 
-**Alt text:** Navy and cream carousel introducing Lawgistics, which places Australian law students in legal internships in Kuala Lumpur, covering what interns do, why Malaysia, and who the program is for.
+**Alt text:** Navy and cream carousel introducing Lawgistics, which places Australian law students in legal internships in Kuala Lumpur, including intern testimonials.
 
 ---
 
@@ -45,29 +76,22 @@ Applications, dates and eligibility are in the link in bio. Questions, send us a
 
 Most law students will graduate having never been inside a courtroom that was not a moot.
 
-That is the gap Lawgistics exists to close. We place Australian law students in legal internships in Kuala Lumpur, working alongside practising lawyers and sitting in on real proceedings.
+Lawgistics places Australian law students in legal internships in Kuala Lumpur, working alongside practising lawyers in one of Asia's legal and financial hubs.
 
-What students get out of it is international legal exposure, years ahead of their cohort. The profession gets more cross border every year, and having that on the record early compounds.
+What students take home is international legal exposure years ahead of their cohort. The profession gets more cross border every year, and getting that on the record early compounds: in interviews, in applications, and in what a junior gets trusted with once they are hired.
 
-The practical case is simple. Every applicant for a clerkship has a transcript. Very few can speak, in an interview, about a matter they watched run in another jurisdiction and what it taught them about advocacy. That is a differentiator that does not require a distinction average to earn.
-
-Open to students in any year of an Australian law degree, and to recent graduates. No prior legal experience required.
+Open to students in any year of an Australian law degree, and to recent graduates.
 
 Details and applications via the link on our profile.
 
 ---
 
-## What to double check before you post
+## Before you post
 
-I wrote this from what is in the account brief, so every claim is one you have already made publicly. Two things to confirm in your own words, because I do not have the program documents:
+**Framing rule, set 9 Aug 2026.** Never position the program against a shortage at home. Do not write that clerkships are hard to get, that firms will not look at students until penultimate year, or that applicants do not need good marks. It reads as a consolation prize and invites the assumption that only students who could not get something else apply. Every slide states a gain. This applies to all future intern and program content.
 
-| Line | Where it appears | Check |
-|---|---|---|
-| "for the length of the program" (slide 2) | slide only | Fine as written, it avoids naming a duration. Swap in the real duration if you would rather be specific. |
-| "Work alongside practising lawyers on live matters" (slide 3) | slide + caption | Confirm this matches what placements actually involve. If interns observe rather than work on matters, tell me and I will change it to observation language. This is the one claim a prospective applicant could hold you to. |
+**No dates, prices or intake numbers anywhere in this deck**, deliberately, so it can stay pinned indefinitely. Everything time-sensitive lives behind the link in bio.
 
-**Framing rule, added at Niamh's direction 9 Aug 2026.** Never position the program against a shortage at home. Do not write that clerkships are hard to get, that firms will not look at you, or that you do not need good marks. It reads as a consolation prize and invites the assumption that only students who could not get something else apply. Every slide states a gain, not a shortfall. This applies to all future intern and program content, not just this post.
+**One claim to confirm before posting.** Slide 2 says you are "in the room where the work happens", and the caption says "placed with practising lawyers". If placements are more observational than that, tell me and I will adjust the wording. It is the one line a prospective applicant could hold you to.
 
-Everything else, courtroom access, career insight, open to all year levels, is from the brief.
-
-**Deliberately left out:** dates, deadlines, cost, number of places, named firms or courts. All of it points to the link in bio instead, which is what keeps the post pinnable indefinitely.
+Everything else in the deck is either from the account brief or is general public knowledge about Kuala Lumpur.

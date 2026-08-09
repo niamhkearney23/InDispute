@@ -65,6 +65,12 @@ Niamh's rule, 9 Aug 2026. Intern and program copy is **always** framed as what t
 
 Every line answers "what is in it for me", stated as an advantage: international exposure ahead of your cohort, courtroom access, something on the record that compounds. Aspirational, not remedial.
 
+**Status, not pedagogy.** Nobody applies to an internship in order to learn. They apply to be somewhere other people are not. Cut "you will learn", "you will develop skills", "three things a textbook cannot teach you". Write the experience and the standing it gives them instead.
+
+**Never desperate.** A confident offer is stated once and left alone. No pleading CTAs, no "we answer every DM", no repetition of the ask. The close on the pinned deck is three words.
+
+**NEVER invent testimonials.** Do not write a quote, review or endorsement attributed to a student, intern, firm or staff member unless Niamh has supplied the real words. Fabricated testimonials are misleading and deceptive conduct under the Australian Consumer Law and the audience is lawyers. Build the slide with bracketed placeholders and a "PLACEHOLDER, DO NOT POST" footer, then ask her for the real quote.
+
 ## Editorial rules
 
 - Verify every case against primary/secondary sources; never invent citations, parties, judges or outcomes. Flag unverified details honestly in the brief.

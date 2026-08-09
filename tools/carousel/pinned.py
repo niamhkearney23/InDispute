@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
-"""Pinned post: Start Here. Evergreen explainer for @lawgisticsaustralia.
+"""Pinned post: evergreen. Status led, not education led.
 
-Deliberately carries no dates, no deadlines, no prices, so it never goes stale
-sitting at the top of the grid. Navy dominant, so it sits against the cream
-case posts in the checkerboard.
+Framing rules applied here:
+  - what is in it for them, stated as a gain, never as a shortage at home
+  - no pedagogy. Nobody applies to an internship to "learn". They apply to be
+    somewhere other people are not.
+  - not desperate. Fewer words, no over-explaining, no pleading CTA.
+  - carries no dates, prices or intake numbers, so it can stay pinned forever.
+
+SLIDES 4 AND 6 ARE PLACEHOLDER TESTIMONIALS. The bracketed text is deliberate
+so the deck cannot be posted before real quotes replace it.
 """
 import pathlib
 
@@ -53,30 +59,31 @@ body.light{background:#EDE7DC;color:#171D2B;}
 
 .statement{font-family:'Playfair',serif;font-weight:600;}
 .lg{font-size:72px;line-height:1.2;letter-spacing:-.006em;max-width:880px;}
-.md{font-size:56px;line-height:1.26;letter-spacing:-.004em;max-width:880px;}
+.md{font-size:58px;line-height:1.24;letter-spacing:-.004em;max-width:880px;}
 .statement em{font-style:italic;font-weight:500;}
 
 .sub{margin-top:54px;font-family:'Playfair',serif;font-style:italic;font-weight:400;
   font-size:34px;line-height:1.5;color:#A3ACC0;max-width:800px;}
 .light .sub{color:#6E6858;}
 
-.body{margin-top:56px;font-family:'TikTok Sans',sans-serif;font-size:30px;
-  line-height:1.72;color:#A9B0C2;max-width:840px;}
+.body{margin-top:52px;font-family:'TikTok Sans',sans-serif;font-size:31px;
+  line-height:1.7;color:#A9B0C2;max-width:830px;}
 .light .body{color:#4E4A3F;}
-.body p+p{margin-top:32px;}
+.body p+p{margin-top:30px;}
 .body b{font-weight:600;color:#EDE7DC;}
 .light .body b{color:#171D2B;}
 
-/* the three-line list on the what-you-do slide */
-.list{margin-top:56px;font-family:'TikTok Sans',sans-serif;font-size:31px;
-  line-height:1.5;color:#A9B0C2;max-width:840px;}
-.light .list{color:#4E4A3F;}
-.list div{padding:24px 0;border-bottom:1px solid rgba(237,231,220,.13);}
-.light .list div{border-bottom-color:rgba(23,29,43,.12);}
-.list div:first-child{padding-top:0;}
-.list div:last-child{border-bottom:none;padding-bottom:0;}
-.list b{font-weight:600;color:#EDE7DC;}
-.light .list b{color:#171D2B;}
+/* testimonial slides */
+.quote{position:relative;margin-left:8px;font-family:'Playfair',serif;
+  font-style:italic;font-weight:400;font-size:52px;line-height:1.36;
+  color:#EDE7DC;max-width:850px;}
+.light .quote{color:#171D2B;}
+.quote::before{content:'\\201C';position:absolute;left:-52px;top:-22px;
+  font-size:104px;line-height:1;color:#6E86C9;opacity:.55;}
+.light .quote::before{color:#3A5697;opacity:.45;}
+.attrib{margin-top:52px;margin-left:8px;font-family:'TikTok Sans',sans-serif;
+  font-size:24px;font-weight:500;letter-spacing:.02em;line-height:1.5;color:#8892A6;}
+.light .attrib{color:#8C8577;}
 
 .foot{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;gap:50px;
   padding-top:26px;border-top:1px solid rgba(237,231,220,.16);}
@@ -103,43 +110,39 @@ def slide(n, kicker, inner, cite="", light=False, swipe=False):
 </div></body></html>"""
     (OUT / f"pin{n:02d}.html").write_text(html)
 
-slide(1, "Start Here",
-  '<div class="statement lg">Law school teaches you the law. It does not teach you <em>the room.</em></div>'
-  '<div class="sub">Legal internships for Australian law students. Kuala Lumpur.</div>',
+slide(1, "Kuala Lumpur",
+  '<div class="statement lg">Your cohort is doing a moot. You are in a <em>real courtroom.</em></div>'
+  '<div class="sub">Legal internships for Australian law students.</div>',
   swipe=True)
 
-slide(2, "Who We Are",
-  '<div class="statement md">Lawgistics places Australian law students in legal internships in <em>Malaysia.</em></div>'
-  '<div class="body"><p>Not a study tour. Not a conference. You are placed with lawyers, in a working legal environment, for the length of the program.</p></div>',
+slide(2, "The Program",
+  '<div class="statement md">Placed with practising lawyers, in a city that <em>runs on ambition.</em></div>'
+  '<div class="body"><p>Not a study tour. Not a conference. You are in the room where the work happens, for the length of the placement.</p></div>',
   light=True)
 
-slide(3, "What You Do",
-  '<div class="statement md">Three things you cannot get from a textbook.</div>'
-  '<div class="list">'
-  '<div><b>Courtroom access.</b> You sit in on real proceedings, not moots.</div>'
-  '<div><b>Practical experience.</b> Work alongside practising lawyers on live matters.</div>'
-  '<div><b>Career insight.</b> Ask the questions your lecturers cannot answer.</div>'
-  '</div>')
+slide(3, "The City",
+  '<div class="statement md">Court in the morning. <em>Kuala Lumpur</em> the rest of the time.</div>'
+  '<div class="body"><p>One of Asia&rsquo;s legal and financial hubs. Thirty degrees in February.</p>'
+  '<p>And a cohort of people who also decided <b>not to wait.</b></p></div>')
 
-slide(4, "What You Get",
-  '<div class="statement md">International legal exposure, years ahead of <em>your cohort.</em></div>'
-  '<div class="body"><p>The profession gets more cross border every year. Getting that on your record early is the kind of thing that compounds.</p>'
-  '<p>In interviews, in applications, and in what you are trusted with once you are hired.</p></div>',
-  light=True)
+# PLACEHOLDER. Replace with a real quote from a real intern before posting.
+slide(4, "In Their Words",
+  '<div class="quote">[Intern quote goes here. One or two sentences, in their own words, about something specific they saw or did.]</div>'
+  '<div class="attrib">[First name], [year] Law, [University]<br>[Intake]</div>',
+  light=True, cite="PLACEHOLDER, DO NOT POST")
 
-slide(5, "Why It Matters",
-  '<div class="statement md">Grad applications ask what you have <em>done.</em></div>'
-  '<div class="body"><p>Everyone applying has a transcript. Very few have watched a matter run in a foreign jurisdiction and can say something intelligent about it.</p>'
-  '<p>That is an interview answer nobody else in the room has.</p></div>')
+slide(5, "The Return",
+  '<div class="statement md">International exposure, years ahead of <em>your cohort.</em></div>'
+  '<div class="body"><p>It shows up in interviews, in applications, and in what you get trusted with once you are hired.</p></div>')
 
-slide(6, "Who It Is For",
-  '<div class="statement md">Students who want to be <em>ahead</em> of where they are.</div>'
-  '<div class="body"><p>Open from first year through to final year, and to recent graduates. No prior legal experience needed, and no connection in the profession required.</p></div>',
-  light=True)
+# PLACEHOLDER. Replace with a real quote from a real intern before posting.
+slide(6, "In Their Words",
+  '<div class="quote">[Second intern quote. Ideally about the city or the people, so it does a different job from the first.]</div>'
+  '<div class="attrib">[First name], [year] Law, [University]<br>[Intake]</div>',
+  light=True, cite="PLACEHOLDER, DO NOT POST")
 
-slide(7, "Apply",
-  '<div class="statement md">Applications and dates are in the <em>link in bio.</em></div>'
-  '<div class="body"><p>Questions about placements, eligibility or timing, send us a DM. We answer all of them.</p></div>',
+slide(7, "Applications",
+  '<div class="statement md">Link in <em>bio.</em></div>',
   cite="@lawgisticsaustralia")
 
 print("ok")
