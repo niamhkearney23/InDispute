@@ -134,21 +134,19 @@ slide(3, "The City",
   '<div class="body"><p>One of Asia&rsquo;s legal and financial hubs, eight hours from Sydney.</p>'
   '<p>Thirty degrees in February. Street food at midnight.</p></div>')
 
-# PLACEHOLDER. Replace with a real quote from a real intern before posting.
-slide(4, "In Their Words",
-  '<div class="quote">[Intern quote goes here. One or two sentences, in their own words, about something specific they saw or did.]</div>'
-  '<div class="attrib">[First name], [year] Law, [University]<br>[Intake]</div>',
-  light=True, cite="PLACEHOLDER, DO NOT POST")
+slide(4, "Field Notes",
+  '<div class="quote">I worked on cases involving shareholder disputes, land matters and clients asserting their rights in complex high stake situations.</div>'
+  '<div class="attrib">Niamh Kearney<br>Internship at Thomas Philip, Kuala Lumpur</div>',
+  light=True)
 
 slide(5, "The Return",
   '<div class="statement md">International exposure, years ahead of <em>your cohort.</em></div>'
   '<div class="body"><p>It shows up in interviews, in applications, and in what you get trusted with once you are hired.</p></div>')
 
-# PLACEHOLDER. Replace with a real quote from a real intern before posting.
-slide(6, "In Their Words",
-  '<div class="quote">[Second intern quote. Ideally about the city or the people, so it does a different job from the first.]</div>'
-  '<div class="attrib">[First name], [year] Law, [University]<br>[Intake]</div>',
-  light=True, cite="PLACEHOLDER, DO NOT POST")
+slide(6, "Field Notes",
+  '<div class="quote">The law might technically be available to everyone, but in reality, it is often limited to those who can afford to understand and use it.</div>'
+  '<div class="attrib">Niamh Kearney<br>The Law and the People It Leaves Behind, on the blog</div>',
+  light=True)
 
 slide(7, "Applications",
   '<div class="statement md">Link in <em>bio.</em></div>',

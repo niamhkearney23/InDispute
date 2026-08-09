@@ -3,32 +3,18 @@
 **Post:** 7 slides, `pinned-slide-01.png` to `-07.png`, upload in order. Navy dominant.
 **Purpose:** the post you pin to the top of the grid. Someone lands from a case post, and within one swipe understands what Lawgistics is and wants in.
 
-## ⚠️ NOT POSTABLE YET
+## The quote slides
 
-**Slides 4 and 6 are placeholders.** They are designed and ready, but the text in them is bracketed instructions, and the footer of each reads PLACEHOLDER, DO NOT POST. Replace both with real quotes from real interns before this goes anywhere.
+Slides 4 and 6 are **verbatim from "The Law and the People It Leaves Behind"**, Niamh Kearney, 6 March, on the Lawgistics blog. Not testimonials, excerpts, which is why the kicker reads FIELD NOTES and the attribution names the post. Nothing is invented and nothing is paraphrased.
 
-**I will not write the quotes.** Inventing testimonials from students who do not exist is misleading and deceptive conduct under the Australian Consumer Law, it is the easiest thing in the world for a competitor or an unhappy applicant to screenshot, and the audience is lawyers. Two real sentences beat six invented ones anyway, because real ones contain specifics nobody would think to make up.
+| Slide | Quote | Source |
+|---|---|---|
+| 04 | "I worked on cases involving shareholder disputes, land matters and clients asserting their rights in complex high stake situations." | verbatim, para 2 |
+| 06 | "The law might technically be available to everyone, but in reality, it is often limited to those who can afford to understand and use it." | verbatim, one word changed: "it's" set as "it is" for the serif setting |
 
-### How to get the quotes, fast
+**Why excerpts rather than testimonials.** A quote from the person who runs Lawgistics is not an independent endorsement, and presenting it as one would be a problem under the Australian Consumer Law. Framed as an excerpt from a named, published, dated blog post, it is simply a citation, and it happens to read as more premium than a testimonial would. If you later get quotes from other interns, they can sit alongside these with a different kicker.
 
-Message past interns with this:
-
-> Hi [name], I am putting together a pinned post for the Lawgistics page and would love to include something from you. Two questions, one line each is plenty.
-> 1. What is one specific thing you saw or did that you would not have got at home?
-> 2. What surprised you about KL?
-> Happy to use first name, year level and uni, or keep it to first name only. Let me know what you are comfortable with.
-
-Three replies gives you two good quotes. Ask permission explicitly, and keep the message, that is your consent record.
-
-### What makes a quote work
-
-- **Specific beats glowing.** "I watched a bail application at 9am on my second day" is worth ten times "it was an amazing experience".
-- Keep it to roughly 25 words so it sits at full size on the slide.
-- Slide 4 should be about the work. Slide 6 about the city or the people, so they do different jobs.
-- Attribution: first name, year level, university, intake. Never a full name without asking.
-- Do not clean up their voice. The unpolished ones read as real, which is the entire point.
-
-Send me the quotes and I will typeset and re-render both slides.
+**Slide 4 names Thomas Philip.** Already public on your own blog, so it is safe, but it is a specific claim about one host organisation. If interns are placed across several firms, consider whether the pinned post should name just one.
 
 ---
 
@@ -39,9 +25,9 @@ Send me the quotes and I will typeset and re-render both slides.
 | 01 | Lawgistics | Destination cover. Makes no argument, the place does the work. |
 | 02 | The Program | What it is, stated once, no over-explaining. |
 | 03 | The City | KL itself, in concrete detail. Flight time, temperature, food. |
-| 04 | In Their Words | **Testimonial, placeholder.** |
+| 04 | Field Notes | Blog excerpt: the actual work, named matters. |
 | 05 | The Return | What it does for you afterwards. |
-| 06 | In Their Words | **Testimonial, placeholder.** |
+| 06 | Field Notes | Blog excerpt: the access to justice line. Shows the program produces a view, not just a line on a CV. |
 | 07 | Applications | Link in bio. Nothing else. |
 
 **Why it is built this way.** The old version explained and taught: courtroom access, practical experience, career insight, why Malaysia inherited the common law. Nobody applies to an internship to learn things. They apply to be somewhere other people are not. Every slide now states a gain or shows status, and the close is three words because a confident offer does not repeat itself.
@@ -65,6 +51,8 @@ What you take home is international legal exposure years ahead of everyone else 
 Open from first year through to final year, and to recent graduates.
 
 Applications are in the link in bio.
+
+Slides 4 and 6 are from "The Law and the People It Leaves Behind", on our blog.
 
 #lawstudent #auslaw #lawschool #legalinternship #lawcareers #clerkship #kualalumpur #lawstudentlife #studyabroad #lawgistics
 
