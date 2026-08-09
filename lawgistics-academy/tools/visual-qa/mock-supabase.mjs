@@ -330,6 +330,26 @@ const TABLES = {
     },
   ],
   firm_step_confirmations: [],
+  // A live invitation, so the joining page renders the real thing rather than
+  // its "this link will not work" branch. The hash is the SHA-256 of the token
+  // in the URL the sweep visits; the token itself is not stored, here or in
+  // the real database.
+  joiner_invitations: [
+    {
+      id: 'cccccccc-0000-0000-0000-000000000001',
+      token_hash: '0300f83eb7c674af4b4697140f53ad335f30b20934857e2745c915e0751d0e16',
+      email: 'aisyah@example.test',
+      display_name: 'Aisyah Rahman',
+      starts_on: '2099-03-02',
+      country: 'AU',
+      invited_by: USER_ID,
+      invited_at: '2026-02-01T00:00:00Z',
+      expires_at: '2099-02-15T00:00:00Z',
+      accepted_at: null,
+      accepted_by: null,
+      revoked_at: null,
+    },
+  ],
   // Empty, so the decision form renders rather than the record of one already
   // made. The form is the page somebody actually has to use.
   onboarding_decisions: [],

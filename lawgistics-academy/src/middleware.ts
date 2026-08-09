@@ -7,7 +7,11 @@ type CookiesToSet = Array<{ name: string; value: string; options: CookieOptions 
 // /setup is public so the first-run checklist is visible before you have an
 // account. The action behind it still requires a signed-in user, and closes
 // permanently once an administrator exists.
-const PUBLIC_PATHS = ['/', '/login', '/signup', '/auth', '/setup'];
+//
+// /join is public because the entire point of it is somebody who does not have
+// an account yet. It is not unprotected: the invitation token in the link is
+// the credential, and the page shows nothing at all without a valid one.
+const PUBLIC_PATHS = ['/', '/login', '/signup', '/auth', '/setup', '/join'];
 
 function isPublic(pathname: string) {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));

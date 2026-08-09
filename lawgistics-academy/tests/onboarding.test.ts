@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { awaitingFirm, countdown, daysUntil, settles } from '../src/lib/onboarding/rules';
+import { hashToken, newToken } from '../src/lib/onboarding/invitations';
 
 /**
  * Before you begin.
@@ -302,4 +303,43 @@ test('a reading step points at a firm document and cannot be ticked without open
     /if \(step\.kind === 'read'\) \{\s*return \{ error: 'Open the document/,
     'declareStep must refuse a reading step rather than tick it',
   );
+});
+
+// -----------------------------------------------------------------------------
+// The invitation token
+// -----------------------------------------------------------------------------
+// The link is the only credential that gets somebody into this system without
+// an account already existing, so the token itself is worth testing directly
+// rather than only through the source-scanning checks in the authorisation
+// contract. Creating the account needs a real Supabase project and is not
+// exercised here; these are the parts that can be.
+
+test('a token is long, random, and url-safe', () => {
+  const a = newToken();
+  const b = newToken();
+
+  assert.notEqual(a, b, 'two tokens must not collide');
+  // 32 bytes as base64url. Shorter than this and guessing starts to be a
+  // strategy rather than a fantasy.
+  assert.ok(a.length >= 43, `token was only ${a.length} characters`);
+  assert.match(a, /^[A-Za-z0-9_-]+$/, 'a token goes in a URL and must survive it intact');
+
+  // A hundred tokens, all different. Not a randomness test, but it would catch
+  // the failure that actually happens: a constant or a counter.
+  const many = new Set(Array.from({ length: 100 }, () => newToken()));
+  assert.equal(many.size, 100);
+});
+
+test('hashing a token is stable, one-way in practice, and sensitive to every character', () => {
+  const token = newToken();
+
+  assert.equal(hashToken(token), hashToken(token), 'the same token must always hash the same');
+  assert.match(hashToken(token), /^[0-9a-f]{64}$/, 'SHA-256 as hex');
+  assert.notEqual(hashToken(token), token, 'the stored value is not the token');
+  assert.ok(!hashToken(token).includes(token.slice(0, 8)), 'the hash does not contain the token');
+
+  // One character different is a completely different hash, so a near-miss
+  // link cannot be walked towards a real one.
+  const almost = `${token.slice(0, -1)}${token.endsWith('A') ? 'B' : 'A'}`;
+  assert.notEqual(hashToken(almost), hashToken(token));
 });

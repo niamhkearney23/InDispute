@@ -614,6 +614,106 @@ select pg_temp.expect_failure(
 reset role;
 
 
+-- -----------------------------------------------------------------------------
+-- Joining: the invitation is a credential
+-- -----------------------------------------------------------------------------
+-- The link is the only way into this system without an existing account, so
+-- these are the promises that matter most.
+
+insert into public.joiner_invitations (token_hash, email, display_name, invited_by, starts_on)
+values ('hash-of-a-token-aaaa', 'joiner@example.test', 'A Joiner',
+        '33333333-3333-3333-3333-333333333333', current_date + 30);
+
+select pg_temp.expect(
+  (select expires_at > now() and expires_at < now() + interval '15 days'
+   from public.joiner_invitations where email = 'joiner@example.test'),
+  'an invitation expires by default rather than working forever');
+
+-- A caller naming its own expiry is not an expiry.
+insert into public.joiner_invitations (token_hash, email, invited_by, expires_at)
+values ('hash-of-a-token-bbbb', 'forever@example.test',
+        '33333333-3333-3333-3333-333333333333', now() + interval '40 years');
+
+select pg_temp.expect(
+  (select expires_at < now() + interval '15 days'
+   from public.joiner_invitations where email = 'forever@example.test'),
+  'an invitation cannot be created with an expiry of its own choosing');
+
+select pg_temp.expect_failure(
+  $$insert into public.joiner_invitations (token_hash, email, invited_by)
+    values ('hash-of-a-token-cccc', 'joiner@example.test',
+            '33333333-3333-3333-3333-333333333333')$$,
+  'a second live invitation to the same person is refused, so calling one back closes the door');
+
+select pg_temp.expect(
+  (select count(*) from public.joiner_invitations
+   where lower(email) = 'joiner@example.test') = 1,
+  'and the address is matched case-insensitively, because nobody types their own twice the same way');
+
+-- Two separate mechanisms, and it is worth being precise about which does what.
+-- On insert the trigger forces a new invitation to be pending, so a request
+-- cannot create one that is already taken up or already called back.
+insert into public.joiner_invitations (token_hash, email, invited_by, accepted_at, accepted_by, revoked_at)
+values ('hash-of-a-token-dddd', 'both@example.test',
+        '33333333-3333-3333-3333-333333333333', now(),
+        '33333333-3333-3333-3333-333333333333', now());
+
+select pg_temp.expect(
+  (select accepted_at is null and accepted_by is null and revoked_at is null
+   from public.joiner_invitations where email = 'both@example.test'),
+  'an invitation cannot be created already taken up or already called back');
+
+-- On update the check constraint is what bites, which is where it matters:
+-- this is the state an invitation could otherwise be talked into afterwards.
+select pg_temp.expect_failure(
+  $$update public.joiner_invitations
+    set accepted_at = now(),
+        accepted_by = '33333333-3333-3333-3333-333333333333',
+        revoked_at = now()
+    where email = 'both@example.test'$$,
+  'an invitation cannot be both taken up and called back');
+
+select pg_temp.expect_failure(
+  $$update public.joiner_invitations set accepted_at = now()
+    where email = 'both@example.test'$$,
+  'an invitation marked accepted must say by whom');
+
+select pg_temp.expect(
+  not exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'joiner_invitations'
+      and column_name in ('is_admin', 'admin', 'role', 'password')),
+  'there is no column on an invitation that could grant rights or carry a password');
+
+-- Revoking is what closes a live invitation, and it frees the address again.
+update public.joiner_invitations set revoked_at = now()
+where email = 'joiner@example.test';
+
+insert into public.joiner_invitations (token_hash, email, invited_by)
+values ('hash-of-a-token-eeee', 'joiner@example.test',
+        '33333333-3333-3333-3333-333333333333');
+
+select pg_temp.expect(
+  (select count(*) from public.joiner_invitations
+   where lower(email) = 'joiner@example.test') = 2,
+  'once called back, a fresh invitation to the same person is allowed');
+
+-- A learner must not be able to read the list of who is joining and when.
+set local role authenticated;
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000001';
+
+select pg_temp.expect(
+  (select count(*) from public.joiner_invitations) = 0,
+  'a signed-in learner cannot see any invitation, not even their own');
+
+select pg_temp.expect_failure(
+  $$insert into public.joiner_invitations (token_hash, email, invited_by)
+    values ('forged', 'me@example.test', 'aaaa1111-0000-0000-0000-000000000001')$$,
+  'nor invite anybody');
+
+reset role;
+
+
 \echo ''
 \echo 'All schema guarantees hold.'
 

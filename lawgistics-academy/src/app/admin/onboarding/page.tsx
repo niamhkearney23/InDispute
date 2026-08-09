@@ -3,6 +3,8 @@ import { requireAdmin } from '@/lib/admin/guard';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { onboardingRoster, listStepsForAdmin } from '@/lib/onboarding/service';
 import { daysUntil, shortDate } from '@/lib/onboarding/rules';
+import { pendingInvitations } from '@/lib/onboarding/invitations';
+import { PendingInvitations } from './pending-invitations';
 import { ButtonLink, Card, EmptyState, InlineLink, Pill, SectionHeading } from '@/components/ui';
 
 export const metadata: Metadata = { title: 'Before they begin' };
@@ -13,7 +15,11 @@ export default async function OnboardingRosterPage() {
   // The supervisor's own clock, so "starts soon" means soon where they are.
   const timezone = me?.timezone ?? 'Australia/Melbourne';
 
-  const [roster, steps] = await Promise.all([onboardingRoster(), listStepsForAdmin()]);
+  const [roster, steps, invitations] = await Promise.all([
+    onboardingRoster(),
+    listStepsForAdmin(),
+    pendingInvitations(),
+  ]);
   const published = steps.filter((s) => s.published);
 
   // The only genuinely urgent thing on this page: somebody starts within the
@@ -31,9 +37,14 @@ export default async function OnboardingRosterPage() {
             <p className="eyebrow mb-2">Oversight</p>
             <h1 className="text-3xl">Before they begin</h1>
           </div>
-          <ButtonLink href="/admin/onboarding/steps" variant="outline">
-            The checklist
-          </ButtonLink>
+          <div className="flex flex-wrap gap-2">
+            <ButtonLink href="/admin/onboarding/steps" variant="outline">
+              The checklist
+            </ButtonLink>
+            <ButtonLink href="/admin/onboarding/invite" variant="accent">
+              Invite somebody
+            </ButtonLink>
+          </div>
         </div>
         <p className="mt-3 max-w-2xl text-slate">
           Who has read what, who has signed what, and who is about to start work without
@@ -54,6 +65,19 @@ export default async function OnboardingRosterPage() {
         />
       ) : (
         <>
+          <PendingInvitations
+            rows={invitations.map((i) => ({
+              id: i.id,
+              email: i.email,
+              displayName: i.displayName,
+              startsOn: i.startsOn ? shortDate(i.startsOn) : null,
+              invitedByName: i.invitedByName,
+              invitedOn: shortDate(i.invitedAt),
+              expiresOn: shortDate(i.expiresAt),
+              daysLeft: i.daysLeft,
+            }))}
+          />
+
           {urgent.length > 0 ? (
             <Card className="border-burgundy/30 bg-burgundy-wash">
               <h2 className="text-lg">
