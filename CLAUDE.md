@@ -15,9 +15,32 @@ This repo powers the **Lawgistics Daily Court Intelligence** workflow. Any sessi
 - Designed assets + posting kit: `reports/assets/YYYY-MM-DD/`
 - Carousel render pipeline: `tools/carousel/` (build.py generates slide HTML, shoot.mjs screenshots via playwright-core + system Chromium at /opt/pw-browsers/chromium; install fonts + playwright-core from npm first — see tools/carousel/README.md)
 
+## AUDIENCE, read this first
+
+The Instagram account is **@lawgisticsaustralia, "Lawgistics | Law Internships"**: internships for Australian law students in Kuala Lumpur. Courtroom access, practical experience, career insight. About 495 followers as at Aug 2026.
+
+The audience is **law students and early-career lawyers**, not practitioners. Engagement data from the grid confirms it:
+
+| Post | Views |
+|---|---|
+| 5 things that actually get you a legal role | 644 |
+| The Day in Court (roundup) | 136 |
+| Lies every law student tells themselves | 42 |
+| Hanson v Faruqi (case post) | 43 |
+| The five stages of every law assignment | 33 |
+| 10 types of law student | 31 |
+
+Student-life and career content outperforms pure case analysis by roughly 15x. Case posts still belong on the feed, they build authority and credibility for the internship offer, but every case post should answer "why does a law student care" and not only "why does a practitioner care". Where possible tie the case back to study, KL, or getting hired.
+
 ## Design system (keep consistent)
 
-- **MINIMAL style** (approved by Niamh 30 Jul 2026 from her reference images, replacing earlier navy/gold and Press directions — do not revert). Quiet-luxury editorial: ONE statement per slide, huge whitespace, no boxes/bars/tags.
+- **HOUSE style**, matching Niamh's existing grid (adopted 9 Aug 2026 after reviewing the live account). Key elements her own posts already use and which the earlier all-sans slides were missing:
+  - **Playfair Display serif** for the statement, with **italics on the emphasis words** ("every law *assignment*", "lies law students tell *themselves*"). This is the signature of the grid.
+  - **Small letterspaced uppercase kicker** top-left, sans, muted: "THE FACTS", "A CASE STUDY", "WHY IT MATTERS".
+  - **LAWGISTICS wordmark bottom right**, small, letterspaced. Slide 1 uses an italic "swipe →" instead.
+  - Alternating cream and navy **at post level** (each post is predominantly one or the other) so the grid keeps its checkerboard rhythm. Invert the closing slide.
+  - Body copy stays TikTok Sans, so the serif carries the statements and the sans carries the detail.
+- Template: `tools/carousel/house-style.py`. The older all-sans template is `tools/carousel/build.py`, superseded.
 - Palette matches Niamh's existing Lawgistics Instagram grid: warm cream `#EDE7DC` background, deep navy `#171D2B` text, steel-blue underline accent `#3A5697` (4px underline on 1 key phrase per slide). Final slide of each carousel inverts: navy background, cream text, accent `#6E86C9`.
 - Canvas 1080×1350 (4:5). Font: **TikTok Sans** (@fontsource/tiktok-sans) for everything — statements ~56-64px weight 500, bold via 600.
 - Every slide: "n / 6" top-right, small grey citation block bottom-left, "SWIPE →" bottom-right on slide 1 only, disclaimer microtext on final slide. NO wordmark, NO kicker, NO "comment" CTA, and NO comment-bait sentences ("drop your take below", "tell us in the comments") — Niamh removed all of these; the closing question stands on its own. Nothing else — resist decorating.
