@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Find your fit — Hush</title>
+<meta name="description" content="Four questions about how you sleep, and three suggestions with the reasoning shown.">
+<meta name="theme-color" content="#12112a">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🌙</text></svg>">
+<link rel="stylesheet" href="assets/css/styles.css">
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem('hush.theme');
+      var dark = saved ? saved === 'dark'
+        : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body data-page="quiz">
+<a class="skip-link" href="#main">Skip to content</a>
+<div data-site-header></div>
+<noscript><p class="noscript">The quiz needs JavaScript. You can <a href="shop.html">browse the shop</a> instead.</p></noscript>
+
+<main id="main">
+  <section class="page-head">
+    <div class="wrap">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="index.html">Home</a> <span aria-hidden="true">/</span> <span>Find your fit</span>
+      </nav>
+      <h1>Find your fit</h1>
+      <p class="lead">Four questions, about a minute. We will show you three things and say plainly
+        why each one — including when the honest answer is the cheap one.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="quiz" data-quiz></div>
+    </div>
+  </section>
+</main>
+
+<div data-site-footer></div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/art.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/quiz.js"></script>
+</body>
+</html>

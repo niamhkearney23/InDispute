@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact — Hush</title>
+<meta name="description" content="Email, phone and shop hours, plus answers to the questions we get most often about trials, delivery and firmness.">
+<meta name="theme-color" content="#12112a">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🌙</text></svg>">
+<link rel="stylesheet" href="assets/css/styles.css">
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem('hush.theme');
+      var dark = saved ? saved === 'dark'
+        : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body data-page="contact">
+<a class="skip-link" href="#main">Skip to content</a>
+<div data-site-header></div>
+
+<main id="main">
+
+  <section class="page-head">
+    <div class="wrap">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="index.html">Home</a> <span aria-hidden="true">/</span> <span>Contact</span>
+      </nav>
+      <h1>Talk to a person</h1>
+      <p class="lead">There is no chatbot. Emails are answered by one of six people, usually the
+        same day, and always by someone who has slept on the thing you are asking about.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap grid grid--2">
+
+      <form class="card" data-contact novalidate>
+        <h2 style="font-size:1.4rem" class="mt-0">Send us a note</h2>
+        <p class="muted small">Tell us how you sleep and what is going wrong — the more specific,
+          the more useful the answer.</p>
+        <div class="form-grid" style="margin-top:1.2rem">
+          <div class="form-field">
+            <label for="c-name">Your name</label>
+            <input id="c-name" name="name" type="text" autocomplete="name" required>
+            <p class="form-error" data-error-for="name"></p>
+          </div>
+          <div class="form-field">
+            <label for="c-email">Email</label>
+            <input id="c-email" name="email" type="email" autocomplete="email" required>
+            <p class="form-error" data-error-for="email"></p>
+          </div>
+          <div class="form-field">
+            <label for="c-topic">What is it about?</label>
+            <select id="c-topic" name="topic">
+              <option>Choosing a product</option>
+              <option>An order I have placed</option>
+              <option>A trial return</option>
+              <option>Something is faulty</option>
+              <option>Something else</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="c-message">Message</label>
+            <textarea id="c-message" name="message" required
+              placeholder="I sleep on my side, wake up hot around 3am, and my pillow is about four years old…"></textarea>
+            <p class="form-error" data-error-for="message"></p>
+          </div>
+        </div>
+        <button class="btn btn--lg" type="submit" style="margin-top:1.2rem">Send message</button>
+        <p class="small" data-contact-status role="status" style="margin-top:.9rem"></p>
+        <p class="tiny muted">Demonstration form — nothing is transmitted anywhere.</p>
+      </form>
+
+      <div class="stack" style="--gap:1.5rem">
+        <div class="card">
+          <h2 style="font-size:1.2rem" class="mt-0">The shop</h2>
+          <p class="muted small">218 Brunswick Street<br>Fitzroy VIC 3065</p>
+          <p class="muted small"><strong>Thursday – Sunday</strong>, 10am – 5pm<br>
+            Closed Monday to Wednesday, which is when we do deliveries.</p>
+        </div>
+        <div class="card">
+          <h2 style="font-size:1.2rem" class="mt-0">Direct</h2>
+          <p class="muted small">
+            <a href="mailto:hello@hush.example">hello@hush.example</a><br>
+            <a href="tel:+61390000000">(03) 9000 0000</a>
+          </p>
+          <p class="muted small">Email is answered 8am – 6pm AEST on weekdays. Phones are on when
+            the shop is open.</p>
+        </div>
+        <div class="card">
+          <h2 style="font-size:1.2rem" class="mt-0">Already ordered?</h2>
+          <p class="muted small">Include your order reference (it starts with HSH-) and we can skip
+            three emails. For a trial return you do not need a reason — just say the word and we
+            will book the collection.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="section section--alt" id="faq">
+    <div class="wrap" style="max-width:820px">
+      <div class="section__head">
+        <div>
+          <p class="eyebrow">FAQ</p>
+          <h2>Questions we get every week</h2>
+        </div>
+      </div>
+
+      <details class="accordion" open>
+        <summary>Can I try a mattress before buying?</summary>
+        <div class="accordion__body">Yes — all three are made up on real bases in the Fitzroy shop,
+          Thursday to Sunday. Bring your own pillow if you want a fair test. That said, twenty
+          minutes in a shop tells you far less than three weeks at home, which is what the trial
+          is for.</div>
+      </details>
+
+      <details class="accordion">
+        <summary>How firm is "medium", really?</summary>
+        <div class="accordion__body">Roughly a 6 out of 10, where 1 is a beanbag and 10 is a floor.
+          Firmness is also relative to your weight — the same bed reads a step softer for someone
+          heavier. There is a full explanation in the
+          <a href="guides.html#firmness">firmness guide</a>.</div>
+      </details>
+
+      <details class="accordion">
+        <summary>Do you take the old mattress away?</summary>
+        <div class="accordion__body">Yes, free, at the same delivery. It gets dismantled and
+          recycled — steel to scrap, foam to carpet underlay, timber chipped. We do not resell trial
+          returns as new, ever.</div>
+      </details>
+
+      <details class="accordion">
+        <summary>What if two of us disagree about firmness?</summary>
+        <div class="accordion__body">If the weight difference is under about 20 kg, a medium hybrid
+          usually satisfies both. Beyond that, the honest answer is a split-firmness king or two long
+          singles zipped together. Email us and we will price it up either way.</div>
+      </details>
+
+      <details class="accordion">
+        <summary>Do you price match?</summary>
+        <div class="accordion__body">Not really — most of what we sell is not stocked elsewhere. If
+          you find an identical item cheaper at an authorised Australian retailer, send us the link
+          and we will either match it or tell you plainly to buy it there.</div>
+      </details>
+
+      <details class="accordion">
+        <summary>Is there a sale coming?</summary>
+        <div class="accordion__body">We do two a year, in June and late November, at around 15% off.
+          If one is within a fortnight and you email to ask, we will tell you — waiting a week to
+          save $300 seems reasonable to us.</div>
+      </details>
+    </div>
+  </section>
+
+</main>
+
+<div data-site-footer></div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/art.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/contact.js"></script>
+</body>
+</html>

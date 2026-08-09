@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hush — the sleep shop</title>
+<meta name="description" content="Mattresses, pillows, bedding and quiet sleep tech, chosen for how you actually sleep. 100-night trial, free delivery Australia-wide over $99.">
+<meta name="theme-color" content="#12112a">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🌙</text></svg>">
+<link rel="stylesheet" href="assets/css/styles.css">
+<script>
+  /* Set the theme before first paint so there is no flash of the wrong mode. */
+  (function () {
+    try {
+      var saved = localStorage.getItem('hush.theme');
+      var dark = saved ? saved === 'dark'
+        : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body data-page="home">
+<a class="skip-link" href="#main">Skip to content</a>
+<div data-site-header></div>
+<noscript><p class="noscript">This shop needs JavaScript for the catalogue and cart. Everything else still reads fine.</p></noscript>
+
+<main id="main">
+
+  <section class="hero">
+    <div data-hero-sky></div>
+    <div class="wrap hero__inner">
+      <div>
+        <p class="eyebrow">Melbourne · since 2016</p>
+        <h1>Sleep is not a luxury.<br>It is just <em>badly shopped for</em>.</h1>
+        <p class="lead">We stock a short, tested list: mattresses, pillows, bedding and a few quiet
+          pieces of tech. Nothing here is on the shelf because it photographs well.</p>
+        <div class="hero__actions">
+          <a class="btn btn--lg" href="shop.html">Shop everything</a>
+          <a class="btn btn--ghost btn--lg" href="quiz.html">Find your fit in 60 seconds</a>
+        </div>
+        <p class="hero__note">
+          <span>100-night trial</span>
+          <span>Free delivery over $99</span>
+          <span>Old mattress taken away</span>
+        </p>
+      </div>
+      <div class="hero__card" data-hero-card></div>
+    </div>
+  </section>
+
+  <section class="assurances">
+    <div class="wrap">
+      <ul>
+        <li><strong>100 nights</strong><span>Sleep on it properly, then decide</span></li>
+        <li><strong>10-year warranty</strong><span>On every mattress we sell</span></li>
+        <li><strong>Free delivery</strong><span>Australia-wide over $99</span></li>
+        <li><strong>We take the old one</strong><span>Recycled, not landfilled</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section__head">
+        <div>
+          <p class="eyebrow">Start here</p>
+          <h2>Shop by what you need</h2>
+        </div>
+        <p class="muted small">Seven categories. Around twenty products. That is the whole shop.</p>
+      </div>
+      <div class="grid grid--4" data-category-grid></div>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="wrap">
+      <div class="section__head">
+        <div>
+          <p class="eyebrow">Most nights, these</p>
+          <h2>What people keep buying</h2>
+        </div>
+        <a class="btn btn--ghost" href="shop.html">See all products</a>
+      </div>
+      <div class="grid grid--4" data-featured-grid></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap split">
+      <div>
+        <p class="eyebrow">The 100-night trial</p>
+        <h2>You cannot tell in a showroom</h2>
+        <p class="lead">Eight minutes lying on a bed in a bright shop tells you almost nothing.
+          It takes about three weeks for your body to settle onto a new mattress — so that is
+          how long we think you should get.</p>
+        <ol class="steps">
+          <li><strong>Order and we deliver free</strong><span>Usually two to five working days, and we take the old mattress away.</span></li>
+          <li><strong>Sleep on it for at least 21 nights</strong><span>The first week can feel strange. That is normal, and it passes.</span></li>
+          <li><strong>Keep it, swap it, or send it back</strong><span>Any time inside 100 nights. Returned beds are donated or recycled, never resold as new.</span></li>
+        </ol>
+        <div class="cluster mt-2">
+          <a class="btn" href="shop.html?category=mattresses">Shop mattresses</a>
+          <a class="btn btn--quiet" href="about.html#trial">Read the fine print</a>
+        </div>
+      </div>
+      <div class="split__art" data-split-art></div>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="wrap">
+      <div class="section__head">
+        <div>
+          <p class="eyebrow">Not sure what you need?</p>
+          <h2>Four questions, three suggestions</h2>
+        </div>
+      </div>
+      <div class="grid grid--2">
+        <div class="card">
+          <h3>Take the fit quiz</h3>
+          <p class="muted">Tell us how you sleep, what wakes you and roughly what you want to spend.
+            We will point at two or three things and explain why — including when the answer is
+            "you do not need a new mattress, you need a different pillow".</p>
+          <a class="btn mt-2" href="quiz.html">Start the quiz</a>
+        </div>
+        <div class="card">
+          <h3>Or just ask a person</h3>
+          <p class="muted">Our shop in Fitzroy is open Thursday to Sunday, and there is always
+            someone on email who has actually slept on the products. No commissions, so nobody
+            is trying to move you up a price bracket.</p>
+          <a class="btn btn--ghost mt-2" href="contact.html">Get in touch</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section__head">
+        <div>
+          <p class="eyebrow">From the people sleeping on it</p>
+          <h2>Reviews we did not edit</h2>
+        </div>
+      </div>
+      <div class="grid grid--3">
+        <figure class="quote">
+          <span class="rating"><span class="stars" aria-hidden="true">★★★★★</span>5.0</span>
+          <blockquote>"I was convinced I needed a new mattress. Hush talked me into a $129 pillow
+            instead and the neck pain went away in a fortnight. Odd way to run a shop. Works."</blockquote>
+          <figcaption>Marguerite T. — Brunswick, VIC</figcaption>
+        </figure>
+        <figure class="quote">
+          <span class="rating"><span class="stars" aria-hidden="true">★★★★★</span>5.0</span>
+          <blockquote>"Third week on the Cloudform and I have stopped waking at 3am hot. My partner
+            gets up at five and I genuinely do not feel it any more."</blockquote>
+          <figcaption>Dev A. — Hobart, TAS</figcaption>
+        </figure>
+        <figure class="quote">
+          <span class="rating"><span class="stars" aria-hidden="true">★★★★☆</span>4.0</span>
+          <blockquote>"Linen sheets took two washes to soften properly and nobody warned me.
+            Once they did, I understood the price. Delivery was faster than promised."</blockquote>
+          <figcaption>Joanne R. — Perth, WA</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="wrap">
+      <div class="section__head">
+        <div>
+          <p class="eyebrow">Free reading</p>
+          <h2>Sleep guides, no supplements to sell</h2>
+        </div>
+        <a class="btn btn--ghost" href="guides.html">All guides</a>
+      </div>
+      <div class="grid grid--3">
+        <a class="card" href="guides.html#temperature" style="text-decoration:none">
+          <p class="eyebrow">Temperature</p>
+          <h3>Why you wake at 3am hot</h3>
+          <p class="muted small">Core body temperature drops overnight and rises before dawn.
+            What that means for your duvet, and what to change first.</p>
+        </a>
+        <a class="card" href="guides.html#pillow-height" style="text-decoration:none">
+          <p class="eyebrow">Pillows</p>
+          <h3>Pillow height, properly measured</h3>
+          <p class="muted small">A two-minute test with a straight edge and a mirror that will
+            tell you whether your pillow is wrong.</p>
+        </a>
+        <a class="card" href="guides.html#wind-down" style="text-decoration:none">
+          <p class="eyebrow">Routine</p>
+          <h3>A wind-down that takes 20 minutes</h3>
+          <p class="muted small">Light, temperature and one boring habit. No app, no tracking,
+            nothing to subscribe to.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="wrap">
+      <div class="card" style="display:grid;gap:1rem">
+        <div>
+          <p class="eyebrow">One email a month</p>
+          <h3 class="mt-0">Slow news about sleep</h3>
+          <p class="muted measure">A short letter: one thing we have read, one thing we have changed
+            in the shop, and any sale before it goes public. Unsubscribe in a click.</p>
+        </div>
+        <form class="newsletter" data-newsletter novalidate>
+          <label class="visually-hidden" for="news-email">Email address</label>
+          <input id="news-email" type="email" name="email" placeholder="you@example.com" autocomplete="email" required>
+          <button class="btn" type="submit">Sign up</button>
+        </form>
+        <p class="form-error" data-newsletter-msg role="status"></p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div data-site-footer></div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/art.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/home.js"></script>
+</body>
+</html>

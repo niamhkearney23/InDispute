@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shop everything — Hush</title>
+<meta name="description" content="The whole Hush catalogue: mattresses, pillows, sheets, duvets, sleepwear and sleep tech. Filter by category and price.">
+<meta name="theme-color" content="#12112a">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🌙</text></svg>">
+<link rel="stylesheet" href="assets/css/styles.css">
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem('hush.theme');
+      var dark = saved ? saved === 'dark'
+        : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body data-page="shop">
+<a class="skip-link" href="#main">Skip to content</a>
+<div data-site-header></div>
+<noscript><p class="noscript">The catalogue needs JavaScript to filter and sort.</p></noscript>
+
+<main id="main">
+
+  <section class="page-head">
+    <div class="wrap">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="index.html">Home</a> <span aria-hidden="true">/</span> <span data-crumb>Shop</span>
+      </nav>
+      <h1 data-shop-title>Everything we sell</h1>
+      <p class="lead" data-shop-intro>Around twenty products, all of which someone here sleeps on.
+        If it is not listed, we did not think it was worth stocking.</p>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="wrap shop-layout">
+
+      <aside class="filters" aria-label="Product filters">
+        <div>
+          <h2>Category</h2>
+          <ul class="filter-list" data-category-filters></ul>
+        </div>
+        <div class="filter-group">
+          <h2>Price</h2>
+          <ul class="filter-list" data-price-filters></ul>
+        </div>
+        <div class="filter-group">
+          <h2>Search</h2>
+          <label class="visually-hidden" for="shop-search">Search products</label>
+          <input id="shop-search" type="search" placeholder="linen, cooling, weighted…" data-search style="width:100%">
+        </div>
+        <div class="filter-group">
+          <button class="btn btn--quiet" type="button" data-reset-filters>Clear all filters</button>
+        </div>
+      </aside>
+
+      <div>
+        <div class="shop-toolbar">
+          <p class="small muted" data-result-count role="status"></p>
+          <label class="field" for="shop-sort">Sort
+            <select id="shop-sort" data-sort>
+              <option value="featured">Featured</option>
+              <option value="price-asc">Price, low to high</option>
+              <option value="price-desc">Price, high to low</option>
+              <option value="rating">Best rated</option>
+              <option value="name">Name, A–Z</option>
+            </select>
+          </label>
+        </div>
+        <div class="grid grid--3" data-product-grid></div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<div data-site-footer></div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/art.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/shop.js"></script>
+</body>
+</html>
