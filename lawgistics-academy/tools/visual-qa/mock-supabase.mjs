@@ -144,6 +144,30 @@ const FACT = {
   slug: 'fact-browne-v-dunn-1893',
 };
 
+/**
+ * A second brief, signed off once, with the sign-off already run out.
+ *
+ * Without this the review page renders only never-checked items and the whole
+ * expiry mechanism, the notice, the "sign-off expired" pill and the counter
+ * that has to go back up on its own, is never drawn at any viewport.
+ */
+const LAPSED_FACT = {
+  id: 'f2',
+  title: 'A verification is a statement about a date, not a permanent fact.',
+  body: 'This brief was signed off by a person, and the period they said it would hold for has now passed. It is back in the review queue and counts as outstanding again until somebody looks at it a second time.',
+  why_it_matters:
+    'Rules of court are amended and practice notes are reissued. A sign-off that never expired would make the verified content the least trustworthy thing in the app.',
+  jurisdiction: 'AU_GENERAL',
+  court: null,
+  source_reference: null,
+  source_url: null,
+  status: 'published',
+  sort_order: 1,
+  verification_status: 'human_verified',
+  review_due_on: '2026-01-15',
+  slug: 'fact-verification-expires',
+};
+
 const SESSION_ID = '99999999-9999-9999-9999-999999999999';
 
 /** By slug rather than by index: position was silently load-bearing. */
@@ -401,7 +425,7 @@ const TABLES = {
     },
   ],
   domains,
-  daily_facts: [FACT],
+  daily_facts: [FACT, LAPSED_FACT],
   diagnostic_results: [
     {
       id: 'dr1',
