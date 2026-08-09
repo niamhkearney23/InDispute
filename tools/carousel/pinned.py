@@ -8,8 +8,9 @@ Framing rules applied here:
   - not desperate. Fewer words, no over-explaining, no pleading CTA.
   - carries no dates, prices or intake numbers, so it can stay pinned forever.
 
-SLIDES 4 AND 6 ARE PLACEHOLDER TESTIMONIALS. The bracketed text is deliberate
-so the deck cannot be posted before real quotes replace it.
+Slides 4 and 6 quote "The Law and the People It Leaves Behind", Niamh Kearney,
+6 March, on the Lawgistics blog. Verbatim. Attributed to her as founder, so the
+role is disclosed rather than dressed up as an independent testimonial.
 """
 import pathlib
 
@@ -81,7 +82,7 @@ body.light{background:#EDE7DC;color:#171D2B;}
 .body b{font-weight:600;color:#EDE7DC;}
 .light .body b{color:#171D2B;}
 
-/* testimonial slides */
+/* quote slides */
 .quote{position:relative;margin-left:8px;font-family:'Playfair',serif;
   font-style:italic;font-weight:400;font-size:52px;line-height:1.36;
   color:#EDE7DC;max-width:850px;}
@@ -136,7 +137,7 @@ slide(3, "The City",
 
 slide(4, "Field Notes",
   '<div class="quote">I worked on cases involving shareholder disputes, land matters and clients asserting their rights in complex high stake situations.</div>'
-  '<div class="attrib">Niamh Kearney<br>Internship at Thomas Philip, Kuala Lumpur</div>',
+  '<div class="attrib">Niamh Kearney<br>Founder, Lawgistics Australia</div>',
   light=True)
 
 slide(5, "The Return",
@@ -145,7 +146,7 @@ slide(5, "The Return",
 
 slide(6, "Field Notes",
   '<div class="quote">The law might technically be available to everyone, but in reality, it is often limited to those who can afford to understand and use it.</div>'
-  '<div class="attrib">Niamh Kearney<br>The Law and the People It Leaves Behind, on the blog</div>',
+  '<div class="attrib">Niamh Kearney<br>Founder, Lawgistics Australia</div>',
   light=True)
 
 slide(7, "Applications",

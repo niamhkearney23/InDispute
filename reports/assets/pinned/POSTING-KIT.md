@@ -12,9 +12,9 @@ Slides 4 and 6 are **verbatim from "The Law and the People It Leaves Behind"**, 
 | 04 | "I worked on cases involving shareholder disputes, land matters and clients asserting their rights in complex high stake situations." | verbatim, para 2 |
 | 06 | "The law might technically be available to everyone, but in reality, it is often limited to those who can afford to understand and use it." | verbatim, one word changed: "it's" set as "it is" for the serif setting |
 
-**Why excerpts rather than testimonials.** A quote from the person who runs Lawgistics is not an independent endorsement, and presenting it as one would be a problem under the Australian Consumer Law. Framed as an excerpt from a named, published, dated blog post, it is simply a citation, and it happens to read as more premium than a testimonial would. If you later get quotes from other interns, they can sit alongside these with a different kicker.
+**Attribution: "Niamh Kearney, Founder, Lawgistics Australia" on both.** This is the right call and it is the safe one. A quote from the person who runs the company is not an independent endorsement, so naming the role on the slide discloses it outright rather than passing it off as a student testimonial. It also reads with more authority than an anonymous first name would. If you later get quotes from other interns, they sit alongside these under a different kicker.
 
-**Slide 4 names Thomas Philip.** Already public on your own blog, so it is safe, but it is a specific claim about one host organisation. If interns are placed across several firms, consider whether the pinned post should name just one.
+**Thomas Philip is no longer named** on slide 4, per your call. The quote stands on the matter types, which is the part that does the work anyway. Nothing in the deck now names a single host organisation.
 
 ---
 
@@ -25,9 +25,9 @@ Slides 4 and 6 are **verbatim from "The Law and the People It Leaves Behind"**, 
 | 01 | Lawgistics | Destination cover. Makes no argument, the place does the work. |
 | 02 | The Program | What it is, stated once, no over-explaining. |
 | 03 | The City | KL itself, in concrete detail. Flight time, temperature, food. |
-| 04 | Field Notes | Blog excerpt: the actual work, named matters. |
+| 04 | Field Notes | Founder quote: the actual work, named matter types. |
 | 05 | The Return | What it does for you afterwards. |
-| 06 | Field Notes | Blog excerpt: the access to justice line. Shows the program produces a view, not just a line on a CV. |
+| 06 | Field Notes | Founder quote: the access to justice line. Shows the program produces a view, not just a line on a CV. |
 | 07 | Applications | Link in bio. Nothing else. |
 
 **Why it is built this way.** The old version explained and taught: courtroom access, practical experience, career insight, why Malaysia inherited the common law. Nobody applies to an internship to learn things. They apply to be somewhere other people are not. Every slide now states a gain or shows status, and the close is three words because a confident offer does not repeat itself.
@@ -52,7 +52,7 @@ Open from first year through to final year, and to recent graduates.
 
 Applications are in the link in bio.
 
-Slides 4 and 6 are from "The Law and the People It Leaves Behind", on our blog.
+Quotes on slides 4 and 6 are from "The Law and the People It Leaves Behind", written by our founder Niamh Kearney, on the blog.
 
 #lawstudent #auslaw #lawschool #legalinternship #lawcareers #clerkship #kualalumpur #lawstudentlife #studyabroad #lawgistics
 
