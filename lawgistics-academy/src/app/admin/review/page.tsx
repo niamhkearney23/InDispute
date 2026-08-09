@@ -67,12 +67,34 @@ export default async function ReviewPage({
         />
       </section>
 
+      {stats.lapsed > 0 ? (
+        <Notice tone="warn">
+          <strong>
+            {stats.lapsed} sign-off{stats.lapsed === 1 ? ' has' : 's have'} run out and{' '}
+            {stats.lapsed === 1 ? 'is' : 'are'} back in the queue.
+          </strong>{' '}
+          Somebody checked {stats.lapsed === 1 ? 'it' : 'them'} and said how long that would
+          hold for. That time is up, so {stats.lapsed === 1 ? 'it counts' : 'they count'} as
+          outstanding again until somebody looks. Rules of court get amended and practice
+          notes get reissued; a sign-off that never expired would quietly turn into the least
+          trustworthy thing here.
+        </Notice>
+      ) : null}
+
+      {stats.dueSoon > 0 ? (
+        <p className="text-sm text-muted">
+          {stats.dueSoon} more {stats.dueSoon === 1 ? 'is' : 'are'} due to be checked again
+          within two months.
+        </p>
+      ) : null}
+
       <Card>
         <p className="eyebrow mb-3">Working through it</p>
         <ul className="space-y-2 text-sm text-slate">
           <li>
             <strong className="text-ink">Correct and sign off</strong> records your name and
-            the date against that exact wording. Rewriting it later clears the sign-off.
+            the date against that exact wording, and how long you are prepared to say it holds
+            for. Rewriting it later clears the sign-off; so does the date running out.
           </li>
           <li>
             <strong className="text-ink">Needs a change</strong> takes it out of circulation

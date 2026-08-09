@@ -75,6 +75,7 @@ const PAGES = [
   { name: 'summary', path: `/train/${SESSION_ID}/summary`, auth: true },
   { name: 'admin', path: '/admin', auth: true },
   { name: 'admin-facts', path: '/admin/facts', auth: true },
+  { name: 'admin-review', path: '/admin/review', auth: true },
   { name: 'admin-question-new', path: '/admin/questions/new', auth: true },
   { name: 'admin-firm', path: '/admin/firm', auth: true },
   {

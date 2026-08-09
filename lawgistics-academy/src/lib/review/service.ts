@@ -2,6 +2,7 @@ import 'server-only';
 
 import { createServiceClient } from '@/lib/supabase/service';
 import { reviewRisk, type ReviewRisk } from './triage';
+import { isDueSoon, isLapsed } from './expiry';
 import type { Jurisdiction, QuestionOption } from '@/lib/types';
 
 /**
@@ -52,6 +53,12 @@ export interface ReviewItem {
   verificationStatus: string;
   reviewFlagged: boolean;
   reviewNote: string | null;
+  /** When this sign-off runs out. Null when it is not signed off. */
+  reviewDueOn: string | null;
+  /** Signed off once, and now due to be looked at again. */
+  lapsed: boolean;
+  /** Signed off and running out inside the next couple of months. */
+  dueSoon: boolean;
   /** Published while still unverified, the case that matters most. */
   liveToLearners: boolean;
 
@@ -60,10 +67,30 @@ export interface ReviewItem {
 
 export interface ReviewStats {
   total: number;
+  /** Never signed off, plus everything whose sign-off has run out. */
   outstanding: number;
+  /** Signed off and still in date. The only number that means anything. */
   verified: number;
   flagged: number;
   liveUnverified: number;
+  /** Signed off once, now due again. */
+  lapsed: number;
+  dueSoon: number;
+}
+
+/**
+ * Today, as YYYY-MM-DD, for comparing against a date column.
+ *
+ * UTC, deliberately, unlike the joiner countdown which uses each person's own
+ * timezone. The difference is what turns on it: telling somebody they begin
+ * tomorrow when they begin today is wrong in a way they will notice on their
+ * first morning, whereas an item appearing in the re-check queue a few hours
+ * either side of midnight is not wrong in any way that matters. Paying for a
+ * profile lookup on every queue load to move it would be precision nobody
+ * benefits from.
+ */
+function todayIso(): string {
+  return new Date().toISOString().slice(0, 10);
 }
 
 function first<T>(value: unknown): T | null {
@@ -73,6 +100,8 @@ function first<T>(value: unknown): T | null {
 
 export async function getReviewItems(order: ReviewOrder = 'riskiest'): Promise<ReviewItem[]> {
   const db = createServiceClient();
+  // Read once, so every item in a single queue is judged against the same day.
+  const today = todayIso();
 
   const [{ data: questionRows }, { data: factRows }] = await Promise.all([
     db
@@ -118,6 +147,9 @@ export async function getReviewItems(order: ReviewOrder = 'riskiest'): Promise<R
         verificationStatus: row.verification_status as string,
         reviewFlagged: row.review_flagged as boolean,
         reviewNote: row.review_note,
+        reviewDueOn: (row.review_due_on as string | null) ?? null,
+        lapsed: isLapsed(row.verification_status as string, row.review_due_on as string | null, today),
+        dueSoon: isDueSoon(row.verification_status as string, row.review_due_on as string | null, today),
         liveToLearners:
           question.status === 'published' && row.verification_status !== 'human_verified',
         risk: reviewRisk({
@@ -154,6 +186,9 @@ export async function getReviewItems(order: ReviewOrder = 'riskiest'): Promise<R
     verificationStatus: row.verification_status as string,
     reviewFlagged: row.review_flagged as boolean,
     reviewNote: row.review_note,
+    reviewDueOn: (row.review_due_on as string | null) ?? null,
+    lapsed: isLapsed(row.verification_status as string, row.review_due_on as string | null, today),
+    dueSoon: isDueSoon(row.verification_status as string, row.review_due_on as string | null, today),
     liveToLearners:
       row.status === 'published' && row.verification_status !== 'human_verified',
     risk: reviewRisk({
@@ -180,7 +215,10 @@ export function sortReviewItems(items: ReviewItem[], order: ReviewOrder): Review
   if (order === 'simplest') {
     return sorted.sort((a, b) => {
       // Signed-off items sink either way; there is nothing left to do with them.
-      const done = (i: ReviewItem) => (i.verificationStatus === 'human_verified' ? 1 : 0);
+      // A lapsed sign-off is not done. Sinking it with the verified items is
+      // exactly how content ages into being confidently wrong.
+      const done = (i: ReviewItem) =>
+        i.verificationStatus === 'human_verified' && !i.lapsed ? 1 : 0;
       if (done(a) !== done(b)) return done(a) - done(b);
       if (a.risk.score !== b.risk.score) return a.risk.score - b.risk.score;
       return a.slug.localeCompare(b.slug);
@@ -191,17 +229,26 @@ export function sortReviewItems(items: ReviewItem[], order: ReviewOrder): Review
   // right now. Then by risk, then by how much is at stake in getting it wrong.
   return sorted.sort((a, b) => {
     if (a.liveToLearners !== b.liveToLearners) return a.liveToLearners ? -1 : 1;
+    // Then anything whose sign-off has run out: it is in front of learners
+    // carrying a verified badge that has stopped being true.
+    if (a.lapsed !== b.lapsed) return a.lapsed ? -1 : 1;
     if (a.risk.score !== b.risk.score) return b.risk.score - a.risk.score;
     return a.slug.localeCompare(b.slug);
   });
 }
 
 export function summarise(items: ReviewItem[]): ReviewStats {
+  const verified = (i: ReviewItem) => i.verificationStatus === 'human_verified';
   return {
     total: items.length,
-    outstanding: items.filter((i) => i.verificationStatus !== 'human_verified').length,
-    verified: items.filter((i) => i.verificationStatus === 'human_verified').length,
+    // A lapsed item counts as outstanding, which is the point of the whole
+    // mechanism: the number of things needing attention has to go back up on
+    // its own, or nobody ever looks again.
+    outstanding: items.filter((i) => !verified(i) || i.lapsed).length,
+    verified: items.filter((i) => verified(i) && !i.lapsed).length,
     flagged: items.filter((i) => i.reviewFlagged).length,
     liveUnverified: items.filter((i) => i.liveToLearners).length,
+    lapsed: items.filter((i) => i.lapsed).length,
+    dueSoon: items.filter((i) => i.dueSoon).length,
   };
 }

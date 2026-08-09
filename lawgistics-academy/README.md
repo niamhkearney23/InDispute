@@ -135,6 +135,29 @@ install has a working training loop, while every one of them still carries
 either seed with `--drafts-only`, or press **Withdraw everything unverified** in the
 verification queue: one click, and reversible.
 
+### Verification expires
+
+A sign-off says an item was correct when a named person read it. It does not say
+it will still be correct in three years, and the app no longer implies otherwise.
+
+Every verification carries a date it runs out on. When it does, the item goes
+back into the queue by itself and counts as outstanding again. The reviewer
+chooses how long it holds, from six months, twelve, or two years, because only
+they know whether they have just checked that the plaintiff bears the onus of
+proof or that a filing fee is a particular figure. The queue's risk score picks
+the default; a regular expression should not be making that call on its own.
+
+The database keeps the two in step: a row cannot be `human_verified` with no
+expiry, and anything that loses its verification loses the date with it, so a
+flagged item never reads as "verified until March". Both are enforced by trigger
+rather than by the application, and both are tested against a real Postgres.
+
+This matters more the longer the app runs. Rules of court are amended, practice
+notes are reissued, and the Bar Council replaced its 2023 AI circular in 2025.
+Without an expiry, the verified content would slowly become the least
+trustworthy thing here, because an item nobody has checked at least looks
+unchecked.
+
 ### Getting it verified
 
 Reviewing 128 items by clicking through a list one page at a time is not a workable
@@ -366,7 +389,7 @@ thing as multi-tenancy, and it gets separation for free precisely because it is 
 ## Testing
 
 ```bash
-npm run test        # 140 tests: engine, content, triage, and the contract tests below
+npm run test        # 152 tests: engine, content, triage, and the contract tests below
 npm run typecheck
 npm run lint
 npm run build
@@ -400,7 +423,7 @@ tap targets under 32px, inputs under 16px (below which iOS Safari zooms the page
 focus), and console errors. It signs in through the real login form, so the auth flow is
 exercised too. See `tools/visual-qa/README.md`.
 
-Current result: 130 page/device combinations, no horizontal scrolling, no overflow, no
+Current result: 135 page/device combinations, no horizontal scrolling, no overflow, no
 render errors, and no outstanding issues on any phone viewport.
 
 The schema's own guarantees are tested against a real Postgres:
@@ -409,7 +432,7 @@ The schema's own guarantees are tested against a real Postgres:
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/schema-guarantees.sql
 ```
 
-73 checks, run inside a transaction that rolls itself back. Among them: a learner cannot
+77 checks, run inside a transaction that rolls itself back. Among them: a learner cannot
 make themselves an administrator; cannot read another learner's attempts; cannot read the
 question versions table where the answers live; cannot forge XP; cannot write to the daily
 brief; cannot see unpublished facts. And: question content cannot be rewritten in place,
@@ -485,7 +508,7 @@ src/
     learning/              config, mastery, review-scheduler, progression, selection
     training/service.ts    grading, mastery writes, scheduling, XP
     facts/                 the daily brief and its rotation
-    review/                verification queue and risk triage
+    review/                verification queue, risk triage, and when a sign-off expires
     setup/                 install status, and the shared content loader
     ai/                    provider abstraction + legal coach (both optional)
     supabase/              browser, server (RLS-scoped) and service (privileged) clients
@@ -495,7 +518,7 @@ src/
     admin/guard.ts         server-side authorisation
   content/seed/            the question bank and daily facts, as reviewable TypeScript
 supabase/
-  migrations/            0001_init … 0009_joining
+  migrations/            0001_init … 0010_verification_expires
   SETUP.sql              every migration, for a new database
   UPDATE.sql             0004 onward, re-runnable, for a database that exists
   tests/schema-guarantees.sql
