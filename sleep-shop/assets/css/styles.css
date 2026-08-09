@@ -821,6 +821,10 @@ details.accordion[open] summary::after { content: "−"; }
 details.accordion .accordion__body { padding-bottom: 1.1rem; color: var(--ink-soft); }
 
 /* ------------------------------------------------------------- 10. Cart */
+/* `display` in the rules below would otherwise beat the UA's [hidden] rule,
+   leaving a closed drawer off-screen but still focusable by Tab. */
+.drawer[hidden], .scrim[hidden] { display: none; }
+
 .scrim {
   position: fixed;
   inset: 0;

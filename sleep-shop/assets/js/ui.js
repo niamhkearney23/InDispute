@@ -217,7 +217,12 @@
       drawer.hidden = true;
       scrim.hidden = true;
     }, 260);
-    if (lastFocus && lastFocus.focus) lastFocus.focus();
+    /* Send focus back where it came from — unless that element has since been
+       re-rendered away, in which case the cart button is the sensible landing. */
+    var back = lastFocus && doc.contains(lastFocus)
+      ? lastFocus
+      : doc.querySelector('[data-cart-open]');
+    if (back && back.focus) back.focus();
   }
 
   function renderCart() {
@@ -408,8 +413,41 @@
     });
 
     doc.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') closeCart();
+      if (event.key === 'Escape') return closeCart();
+      if (event.key === 'Tab') trapFocus(event);
     });
+  }
+
+  /* While the drawer is open it is a modal dialog, so Tab must not walk off
+     into the page behind it. */
+  var FOCUSABLE = 'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
+  function trapFocus(event) {
+    var drawer = doc.querySelector('[data-cart-drawer]');
+    if (!drawer || drawer.hidden) return;
+
+    var items = Array.prototype.filter.call(
+      drawer.querySelectorAll(FOCUSABLE),
+      function (el) { return el.offsetParent !== null; }
+    );
+    if (!items.length) return;
+
+    var first = items[0];
+    var last = items[items.length - 1];
+    var active = doc.activeElement;
+
+    if (!drawer.contains(active)) {
+      event.preventDefault();
+      (event.shiftKey ? last : first).focus();
+      return;
+    }
+    if (event.shiftKey && active === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && active === last) {
+      event.preventDefault();
+      first.focus();
+    }
   }
 
   function findQty(id, variant) {

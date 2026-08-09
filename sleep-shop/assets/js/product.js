@@ -15,6 +15,11 @@
     return new URLSearchParams(location.search).get('id');
   }
 
+  function setMeta(attribute, name, value) {
+    var tag = doc.querySelector('meta[' + attribute + '="' + name + '"]');
+    if (tag) tag.setAttribute('content', value);
+  }
+
   /* Thumbnails reuse the illustration with the palette rotated, so a product
      reads as a small set of shots rather than one repeated image. */
   function toneVariants(tone) {
@@ -235,9 +240,15 @@
     product = Store.byId(productId());
     if (!product) return notFound();
     variant = Store.defaultVariant(product);
-    doc.title = product.name + ' — Hush';
-    var meta = doc.querySelector('meta[name="description"]');
-    if (meta) meta.setAttribute('content', product.blurb);
+    /* The page is one file serving every product, so the metadata is filled in
+       from the catalogue rather than written into the HTML. */
+    var title = product.name + ' — Hush';
+    doc.title = title;
+    setMeta('name', 'description', product.blurb);
+    setMeta('property', 'og:title', title);
+    setMeta('property', 'og:description', product.blurb);
+    setMeta('name', 'twitter:title', title);
+    setMeta('name', 'twitter:description', product.blurb);
     render();
   }
 

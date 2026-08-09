@@ -1,0 +1,7 @@
+# Hush Sleep Shop
+User-agent: *
+Allow: /
+Disallow: /cart.html
+
+# Replace the host below with the real one before going live.
+Sitemap: https://hush.example/sitemap.xml

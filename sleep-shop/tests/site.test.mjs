@@ -252,7 +252,44 @@ test('every page loads the shared chrome and its own script', () => {
     assert.ok(html.includes('assets/js/ui.js'), `${file}: ui.js not loaded`);
     assert.ok(html.includes('assets/css/styles.css'), `${file}: stylesheet not linked`);
     assert.ok(html.includes('id="main"'), `${file}: no main landmark`);
+    assert.ok(html.includes('class="skip-link"'), `${file}: no skip link`);
   }
+});
+
+test('every page carries share metadata', () => {
+  for (const file of htmlFiles) {
+    const html = readFileSync(path.join(root, file), 'utf8');
+    for (const tag of ['og:title', 'og:description', 'og:type', 'twitter:card']) {
+      assert.ok(html.includes(`"${tag}"`), `${file}: missing ${tag}`);
+    }
+    /* The share title should track the page title, not a leftover from another page. */
+    const title = html.match(/<title>([^<]+)<\/title>/)[1];
+    const og = html.match(/property="og:title" content="([^"]+)"/)[1];
+    assert.equal(og, title, `${file}: og:title does not match <title>`);
+  }
+});
+
+test('the sitemap lists the pages worth indexing, and only those', () => {
+  const sitemap = readFileSync(path.join(root, 'sitemap.xml'), 'utf8');
+  const listed = [...sitemap.matchAll(/<loc>[^<]*\/([^/<]+)<\/loc>/g)].map((m) => m[1]);
+
+  /* product.html has no content of its own and 404/cart should not be indexed. */
+  const skip = new Set(['product.html', 'cart.html', '404.html']);
+  const expected = htmlFiles.filter((f) => !skip.has(f)).sort();
+  assert.deepEqual(listed.slice().sort(), expected, 'sitemap is out of step with the pages');
+
+  for (const page of listed) {
+    assert.ok(existsSync(path.join(root, page)), `sitemap lists a missing page: ${page}`);
+  }
+});
+
+test('the 404 page is marked noindex and disallowed pages are in robots.txt', () => {
+  const notFound = readFileSync(path.join(root, '404.html'), 'utf8');
+  assert.match(notFound, /<meta name="robots" content="noindex">/);
+
+  const robots = readFileSync(path.join(root, 'robots.txt'), 'utf8');
+  assert.match(robots, /Disallow: \/cart\.html/);
+  assert.match(robots, /Sitemap: /);
 });
 
 test('internal links point at files that exist', () => {
