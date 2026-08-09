@@ -5,6 +5,7 @@ import { getLearnerOverview } from '@/lib/learner-overview';
 import { masteryBand } from '@/lib/learning/mastery';
 import { outstandingRequired } from '@/lib/modules/service';
 import { outstandingFirmModules } from '@/lib/firm/service';
+import { beforeYouBegin } from '@/lib/onboarding/service';
 import { greeting } from '@/lib/greeting';
 import { QUESTIONS_PER_MINUTE_GOAL } from '@/lib/learning/config';
 import {
@@ -34,11 +35,18 @@ export default async function DashboardPage() {
   if (!overview.profile.diagnosticCompletedAt) redirect('/diagnostic');
 
   const { profile, level, skillMap } = overview;
-  const [fact, outstanding, firmOutstanding] = await Promise.all([
+  const [fact, outstanding, firmOutstanding, joining] = await Promise.all([
     getFactOfTheDay(profile.timezone, profile.country),
     outstandingRequired(user.id, profile.country),
     outstandingFirmModules(user.id, profile.country),
+    beforeYouBegin(user.id, profile.country),
   ]);
+
+  // The pre-start checklist supersedes the bare "you have not read the policy"
+  // notice, because a reading step is already one line on it. Showing both
+  // would put the same document in front of somebody twice and make the shorter
+  // notice look like a second, different thing they had missed.
+  const hasChecklist = joining.steps.length > 0;
   const questionCount =
     QUESTIONS_PER_MINUTE_GOAL[profile.dailyGoalMinutes] ?? QUESTIONS_PER_MINUTE_GOAL[10];
 
@@ -53,7 +61,23 @@ export default async function DashboardPage() {
           the count below it. An unread firm policy is not one more module
           outstanding, it is the firm's own rules not yet in front of the person
           they apply to. */}
-      {firmOutstanding.length > 0 ? (
+      {hasChecklist ? (
+        joining.outstanding.length > 0 ? (
+          <Notice tone="warn">
+            <strong>
+              {joining.outstanding.length === 1
+                ? 'There is 1 thing to do before you begin.'
+                : `There are ${joining.outstanding.length} things to do before you begin.`}
+            </strong>{' '}
+            <InlineLink href="/start">Open your list</InlineLink>
+          </Notice>
+        ) : !joining.cleared ? (
+          <Notice>
+            <strong>You have done everything on your list.</strong> Somebody at the firm still
+            has to look over it. <InlineLink href="/start">See your list</InlineLink>
+          </Notice>
+        ) : null
+      ) : firmOutstanding.length > 0 ? (
         <Notice tone="warn">
           <strong>
             {firmOutstanding.length === 1
