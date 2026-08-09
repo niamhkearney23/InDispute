@@ -469,6 +469,151 @@ select pg_temp.expect(
   'a learner cannot withdraw or backdate their own acknowledgement');
 
 
+-- -----------------------------------------------------------------------------
+-- Before you begin: the pre-start checklist and its oversight
+-- -----------------------------------------------------------------------------
+-- The promise being defended: when somebody is recorded as cleared to begin,
+-- the record says who decided, when, and what was still outstanding, and none
+-- of those three can be changed afterwards by anybody.
+
+insert into public.firm_steps (id, slug, title, kind, needs_firm_check, published)
+values ('cccc3333-0000-0000-0000-000000000001', 'nda', 'Sign the NDA', 'sign', true, true);
+
+select pg_temp.expect(
+  (select country is null and required from public.firm_steps
+   where id = 'cccc3333-0000-0000-0000-000000000001'),
+  'a checklist item reaches everyone and is required unless the firm says otherwise');
+
+select pg_temp.expect_failure(
+  $$insert into public.firm_steps (slug, title, kind, firm_module_id)
+    values ('bad-read', 'Read something', 'read', null)$$,
+  'a reading step must point at one of the firm''s documents');
+
+select pg_temp.expect_failure(
+  $$insert into public.firm_steps (slug, title, kind, firm_module_id, needs_firm_check)
+    values ('bad-check', 'Read something', 'read',
+            'bbbb2222-0000-0000-0000-000000000001', true)$$,
+  'nobody at the firm confirms that somebody else read something');
+
+select pg_temp.expect_failure(
+  $$insert into public.firm_steps (slug, title, kind, firm_module_id)
+    values ('bad-link', 'Sign something', 'sign',
+            'bbbb2222-0000-0000-0000-000000000001')$$,
+  'only a reading step points at a document');
+
+-- The declaration and the confirmation are two different facts about the same
+-- item, and both dates have to be the database's.
+insert into public.firm_step_declarations (user_id, firm_step_id, declared_at)
+values ('aaaa1111-0000-0000-0000-000000000001',
+        'cccc3333-0000-0000-0000-000000000001', timestamptz '2019-01-01 00:00:00+00');
+
+select pg_temp.expect(
+  (select declared_at > now() - interval '1 minute'
+   from public.firm_step_declarations
+   where user_id = 'aaaa1111-0000-0000-0000-000000000001'),
+  'a declaration is stamped by the database, not by whoever sent the request');
+
+insert into public.firm_step_confirmations (user_id, firm_step_id, confirmed_by, confirmed_at)
+values ('aaaa1111-0000-0000-0000-000000000001',
+        'cccc3333-0000-0000-0000-000000000001',
+        '33333333-3333-3333-3333-333333333333', timestamptz '2019-01-01 00:00:00+00');
+
+select pg_temp.expect(
+  (select confirmed_at > now() - interval '1 minute'
+   from public.firm_step_confirmations
+   where user_id = 'aaaa1111-0000-0000-0000-000000000001'),
+  'and so is a confirmation');
+
+select pg_temp.expect_failure(
+  $$delete from public.firm_steps where id = 'cccc3333-0000-0000-0000-000000000001'$$,
+  'an item somebody has acted on cannot be deleted out from under the record');
+
+select pg_temp.expect_failure(
+  $$insert into public.firm_step_confirmations (user_id, firm_step_id, confirmed_by)
+    values ('aaaa1111-0000-0000-0000-000000000001',
+            'cccc3333-0000-0000-0000-000000000001',
+            '33333333-3333-3333-3333-333333333333')$$,
+  'the same item cannot be confirmed twice for the same person');
+
+-- The decision itself.
+insert into public.onboarding_decisions (user_id, decision, decided_by, outstanding_count, decided_at)
+values ('aaaa1111-0000-0000-0000-000000000001', 'cleared',
+        '33333333-3333-3333-3333-333333333333', 2, timestamptz '2019-01-01 00:00:00+00');
+
+select pg_temp.expect(
+  (select decided_at > now() - interval '1 minute'
+   from public.onboarding_decisions
+   where user_id = 'aaaa1111-0000-0000-0000-000000000001'),
+  'a clearance is dated by the database');
+
+select pg_temp.expect_failure(
+  $$insert into public.onboarding_decisions (user_id, decision, decided_by, outstanding_count)
+    values ('aaaa1111-0000-0000-0000-000000000001', 'cleared',
+            '33333333-3333-3333-3333-333333333333', -1)$$,
+  'a negative number of outstanding items is not a thing that can be recorded');
+
+insert into public.onboarding_decisions (user_id, decision, decided_by, outstanding_count)
+values ('aaaa1111-0000-0000-0000-000000000001', 'withdrawn',
+        '33333333-3333-3333-3333-333333333333', 2);
+
+select pg_temp.expect(
+  (select count(*) from public.onboarding_decisions
+   where user_id = 'aaaa1111-0000-0000-0000-000000000001') = 2,
+  'withdrawing a clearance adds a decision rather than removing the one it undoes');
+
+select pg_temp.expect_failure(
+  $$delete from auth.users where id = '33333333-3333-3333-3333-333333333333'$$,
+  'the person who cleared somebody cannot be deleted out of the record');
+
+select pg_temp.expect(
+  not exists (
+    select 1 from pg_policies
+    where schemaname = 'public'
+      and tablename in ('firm_step_declarations', 'firm_step_confirmations',
+                        'onboarding_decisions')
+      and cmd in ('UPDATE', 'DELETE', 'ALL')),
+  'no policy grants update or delete on any of the three records, administrators included');
+
+-- As with acknowledgements: no policy means a write matches no rows and reports
+-- success, so this has to be written as a survival check rather than an
+-- expected error.
+set local role authenticated;
+set local request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+
+delete from public.onboarding_decisions
+where user_id = 'aaaa1111-0000-0000-0000-000000000001';
+
+update public.onboarding_decisions set outstanding_count = 0
+where user_id = 'aaaa1111-0000-0000-0000-000000000001';
+
+delete from public.firm_step_declarations
+where user_id = 'aaaa1111-0000-0000-0000-000000000001';
+
+reset role;
+
+select pg_temp.expect(
+  (select count(*) from public.onboarding_decisions
+   where user_id = 'aaaa1111-0000-0000-0000-000000000001'
+     and outstanding_count = 2) = 2,
+  'an administrator cannot delete a decision or edit how much was outstanding when it was made');
+
+select pg_temp.expect(
+  (select count(*) from public.firm_step_declarations
+   where user_id = 'aaaa1111-0000-0000-0000-000000000001') = 1,
+  'nor remove what somebody told the firm they had done');
+
+-- A start date is the firm's fact about a person, not a setting they can move.
+set local role authenticated;
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000001';
+
+select pg_temp.expect_failure(
+  $$update public.profiles set starts_on = current_date + 60
+    where id = 'aaaa1111-0000-0000-0000-000000000001'$$,
+  'a joiner cannot move their own start date, which would move their own deadline');
+
+reset role;
+
+
 \echo ''
 \echo 'All schema guarantees hold.'
 

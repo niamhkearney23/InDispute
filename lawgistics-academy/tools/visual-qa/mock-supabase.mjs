@@ -231,6 +231,10 @@ const deliveryQuestions = [
 const FIRM_MODULE_ID = '77777777-7777-7777-7777-777777777777';
 const FIRM_VERSION_ID = '88888888-8888-8888-8888-888888888888';
 
+const STEP_READ_ID = 'aaaaaaaa-0000-0000-0000-000000000001';
+const STEP_SIGN_ID = 'aaaaaaaa-0000-0000-0000-000000000002';
+const STEP_TASK_ID = 'aaaaaaaa-0000-0000-0000-000000000003';
+
 const TABLES = {
   firm_modules: [
     {
@@ -270,6 +274,65 @@ const TABLES = {
   // Deliberately empty, so the sweep renders the state that actually needs
   // looking at: the acknowledgement in front of somebody who has not given it.
   firm_module_acknowledgements: [],
+
+  // One of each kind, because the three render differently and the difference
+  // is the feature. The signing step is left declared but unconfirmed, which
+  // is the state a joiner can do nothing about and the one a supervisor is
+  // looking for, so it is the one worth having on screen.
+  firm_steps: [
+    {
+      id: STEP_READ_ID,
+      slug: 'read-ai-policy',
+      title: 'Read our AI policy',
+      detail: 'Ten minutes. You will be asked to confirm at the end of it.',
+      kind: 'read',
+      firm_module_id: FIRM_MODULE_ID,
+      needs_firm_check: false,
+      country: null,
+      required: true,
+      position: 0,
+      published: true,
+    },
+    {
+      id: STEP_SIGN_ID,
+      slug: 'nda',
+      title: 'Sign the confidentiality undertaking',
+      detail:
+        'Sent to you by email. Sign it, scan it, and send it back to the practice manager before your first day.',
+      kind: 'sign',
+      firm_module_id: null,
+      needs_firm_check: true,
+      country: null,
+      required: true,
+      position: 1,
+      published: true,
+    },
+    {
+      id: STEP_TASK_ID,
+      slug: 'firm-email',
+      title: 'Set up your firm email',
+      detail: 'IT will send your address and a temporary password. Sign in once and change it.',
+      kind: 'task',
+      firm_module_id: null,
+      needs_firm_check: false,
+      country: null,
+      required: true,
+      position: 2,
+      published: true,
+    },
+  ],
+  firm_step_declarations: [
+    {
+      id: 'bbbbbbbb-0000-0000-0000-000000000001',
+      user_id: USER_ID,
+      firm_step_id: STEP_SIGN_ID,
+      declared_at: '2026-02-02T00:00:00Z',
+    },
+  ],
+  firm_step_confirmations: [],
+  // Empty, so the decision form renders rather than the record of one already
+  // made. The form is the page somebody actually has to use.
+  onboarding_decisions: [],
   profiles: [
     {
       id: USER_ID,
@@ -281,6 +344,7 @@ const TABLES = {
       country: 'AU',
       home_jurisdiction: 'VIC',
       timezone: 'Australia/Melbourne',
+      starts_on: '2099-03-02',
       onboarded_at: '2026-02-01T00:00:00Z',
       diagnostic_completed_at: '2026-02-01T00:20:00Z',
       is_admin: true,

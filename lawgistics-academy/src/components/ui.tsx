@@ -248,11 +248,15 @@ export function Notice({
   tone = 'neutral',
   children,
 }: {
-  tone?: 'neutral' | 'warn' | 'error';
+  tone?: 'neutral' | 'good' | 'warn' | 'error';
   children: ReactNode;
 }) {
   const tones = {
     neutral: 'border-rule bg-paper-sunk text-slate',
+    // For a state that is genuinely settled rather than merely informational:
+    // cleared to begin, signed off, nothing left outstanding. Uses the same
+    // tokens as Pill's correct tone so the two agree on screen.
+    good: 'border-verdict-correct/25 bg-verdict-correct-wash text-verdict-correct',
     warn: 'border-amber-300 bg-amber-50 text-amber-900',
     error: 'border-verdict-wrong/25 bg-verdict-wrong-wash text-verdict-wrong',
   } as const;

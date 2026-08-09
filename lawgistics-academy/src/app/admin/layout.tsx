@@ -44,6 +44,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               Firm
             </Link>
             <Link
+              href="/admin/onboarding"
+              className="rounded-[5px] px-2.5 py-2 whitespace-nowrap text-slate hover:bg-paper hover:text-ink"
+            >
+              Joiners
+            </Link>
+            <Link
               href="/dashboard"
               className="rounded-[5px] px-2.5 py-2 whitespace-nowrap text-slate hover:bg-paper hover:text-ink"
             >

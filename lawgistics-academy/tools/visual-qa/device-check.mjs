@@ -63,6 +63,7 @@ const PAGES = [
   { name: 'modules', path: '/modules', auth: true },
   { name: 'module', path: '/modules/ai-ethics-au', auth: true },
   { name: 'firm-module', path: '/modules/firm/ai-policy', auth: true },
+  { name: 'start', path: '/start', auth: true },
   { name: 'diagnostic', path: '/diagnostic', auth: true },
   { name: 'diagnostic-results', path: '/diagnostic/results', auth: true },
   { name: 'train', path: `/train/${SESSION_ID}`, auth: true },
@@ -82,6 +83,14 @@ const PAGES = [
     path: '/admin/firm/77777777-7777-7777-7777-777777777777/record',
     auth: true,
   },
+  { name: 'admin-joiners', path: '/admin/onboarding', auth: true },
+  {
+    name: 'admin-joiner',
+    path: '/admin/onboarding/11111111-1111-1111-1111-111111111111',
+    auth: true,
+  },
+  { name: 'admin-steps', path: '/admin/onboarding/steps', auth: true },
+  { name: 'admin-step-new', path: '/admin/onboarding/steps/new', auth: true },
 ];
 
 /** Anything wider than the viewport means the page scrolls sideways on a phone. */
