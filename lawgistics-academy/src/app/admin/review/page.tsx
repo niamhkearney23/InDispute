@@ -81,6 +81,18 @@ export default async function ReviewPage({
         </Notice>
       ) : null}
 
+      {stats.withdrawn > 0 ? (
+        <Notice tone="warn">
+          <strong>
+            {stats.withdrawn} item{stats.withdrawn === 1 ? ' is' : 's are'} withdrawn and not
+            in front of learners.
+          </strong>{' '}
+          Training will be thin or empty until {stats.withdrawn === 1 ? 'it goes' : 'they go'}{' '}
+          back. Use “Put everything back in front of learners” below; it changes only what is
+          servable and records nothing about anybody having checked it.
+        </Notice>
+      ) : null}
+
       {stats.dueSoon > 0 ? (
         <p className="text-sm text-muted">
           {stats.dueSoon} more {stats.dueSoon === 1 ? 'is' : 'are'} due to be checked again
@@ -113,6 +125,7 @@ export default async function ReviewPage({
       <BulkActions
         verifiedCount={stats.verified}
         liveUnverifiedCount={stats.liveUnverified}
+        withdrawnCount={stats.withdrawn}
       />
 
       <ReviewQueue items={items} />

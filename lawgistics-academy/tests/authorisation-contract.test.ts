@@ -116,6 +116,7 @@ test('the server actions were actually found', () => {
     'join',
     'publishAllVerified',
     'recordReviewDecision',
+    'restoreAllWithdrawn',
     'revoke',
     'saveFirmModule',
     'saveOnboarding',

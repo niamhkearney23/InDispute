@@ -389,7 +389,7 @@ thing as multi-tenancy, and it gets separation for free precisely because it is 
 ## Testing
 
 ```bash
-npm run test        # 152 tests: engine, content, triage, and the contract tests below
+npm run test        # 155 tests: engine, content, triage, and the contract tests below
 npm run typecheck
 npm run lint
 npm run build
