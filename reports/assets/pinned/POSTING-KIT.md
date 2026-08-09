@@ -13,6 +13,8 @@ Post it as a normal carousel first. Then go to the post, tap the three dots at t
 
 ## Instagram caption (copy-paste)
 
+Law school teaches you the law. It does not teach you the room.
+
 If you have just landed here, this is what we do.
 
 Lawgistics places Australian law students in legal internships in Kuala Lumpur. Not a study tour, not a conference. You are placed in a working legal environment with practising lawyers.
@@ -25,7 +27,7 @@ Practical experience. You work alongside lawyers on live matters.
 
 Career insight. You get to ask the questions your lecturers cannot answer, because they have not been in practice for fifteen years.
 
-Why Malaysia. It inherited English common law, so the structure is familiar the second you walk in. Precedent, submissions, the lot. What differs is everything built on top of it, and that contrast is the entire point. You learn more about the Australian system by watching a different one.
+Why not just do it at home. Because in Australia most firms will not look at you until penultimate year, and then several hundred people apply for the same handful of clerkship seats. Kuala Lumpur is a working legal hub and you can be in the room now, in any year of your degree.
 
 Why it matters for you. Every single person applying for a clerkship has a transcript. Almost none of them have watched a matter run in a foreign jurisdiction and can say something intelligent about it. That is an interview answer nobody else in the room has.
 
@@ -45,9 +47,9 @@ Most law students will graduate having never been inside a courtroom that was no
 
 That is the gap Lawgistics exists to close. We place Australian law students in legal internships in Kuala Lumpur, working alongside practising lawyers and sitting in on real proceedings.
 
-Malaysia is a deliberate choice. It inherited English common law, so the architecture is immediately legible to an Australian student. Precedent, submissions, the shape of an argument. What sits on top of that shared foundation is different, and students consistently tell us they understood the Australian system better after watching another one operate.
+The structural problem this solves is timing. In Australia most firms will not consider a student until penultimate year, and the clerkship rounds that follow are heavily oversubscribed. A student can therefore reach their fourth year of a law degree without having seen a matter run.
 
-The practical case is simpler still. Every applicant for a clerkship has a transcript. Very few can speak, in an interview, about a matter they watched run in another jurisdiction and what it taught them about advocacy. That is a differentiator that does not require a distinction average to earn.
+The practical case is simple. Every applicant for a clerkship has a transcript. Very few can speak, in an interview, about a matter they watched run in another jurisdiction and what it taught them about advocacy. That is a differentiator that does not require a distinction average to earn.
 
 Open to students in any year of an Australian law degree, and to recent graduates. No prior legal experience required.
 
@@ -63,7 +65,8 @@ I wrote this from what is in the account brief, so every claim is one you have a
 |---|---|---|
 | "for the length of the program" (slide 2) | slide only | Fine as written, it avoids naming a duration. Swap in the real duration if you would rather be specific. |
 | "Work alongside practising lawyers on live matters" (slide 3) | slide + caption | Confirm this matches what placements actually involve. If interns observe rather than work on matters, tell me and I will change it to observation language. This is the one claim a prospective applicant could hold you to. |
+| "Most firms will not look at you until penultimate year" (slide 4) | slide + caption | True of the major firm clerkship rounds, which is what students mean by a clerkship. Says "most", not "all", so smaller firms and volunteer work are not contradicted. You know this market better than I do, so change it if it overstates. |
 
-Everything else, courtroom access, career insight, common law inheritance, open to all year levels, is either from the brief or general public knowledge about Malaysia's legal system.
+Everything else, courtroom access, career insight, open to all year levels, is from the brief.
 
 **Deliberately left out:** dates, deadlines, cost, number of places, named firms or courts. All of it points to the link in bio instead, which is what keeps the post pinnable indefinitely.

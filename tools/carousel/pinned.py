@@ -104,8 +104,8 @@ def slide(n, kicker, inner, cite="", light=False, swipe=False):
     (OUT / f"pin{n:02d}.html").write_text(html)
 
 slide(1, "Start Here",
-  '<div class="statement lg">Australian law student. First courtroom, <em>Kuala Lumpur.</em></div>'
-  '<div class="sub">What this account is, and what we actually do.</div>',
+  '<div class="statement lg">Law school teaches you the law. It does not teach you <em>the room.</em></div>'
+  '<div class="sub">Legal internships for Australian law students. Kuala Lumpur.</div>',
   swipe=True)
 
 slide(2, "Who We Are",
@@ -121,10 +121,10 @@ slide(3, "What You Do",
   '<div><b>Career insight.</b> Ask the questions your lecturers cannot answer.</div>'
   '</div>')
 
-slide(4, "Why Malaysia",
-  '<div class="statement md">A common law system, with a <em>different</em> answer to the same questions.</div>'
-  '<div class="body"><p>Malaysia inherited English common law, so the structure is familiar. Precedent, submissions, the lot.</p>'
-  '<p>What differs is everything built on top. That contrast is the whole point.</p></div>',
+slide(4, "Why Not Home",
+  '<div class="statement md">In Australia you wait years for a <em>clerkship</em> that may not come.</div>'
+  '<div class="body"><p>Most firms will not look at you until penultimate year, and then a few hundred people apply for the same handful of seats.</p>'
+  '<p>Kuala Lumpur is a working legal hub. You can be in the room now.</p></div>',
   light=True)
 
 slide(5, "Why It Matters",
