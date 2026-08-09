@@ -41,10 +41,10 @@ Student-life and career content outperforms pure case analysis by roughly 15x. C
   - Alternating cream and navy **at post level** (each post is predominantly one or the other) so the grid keeps its checkerboard rhythm. Invert the closing slide.
   - Body copy stays TikTok Sans, so the serif carries the statements and the sans carries the detail.
 - Template: `tools/carousel/house-style.py`. The older all-sans template is `tools/carousel/build.py`, superseded.
-- Palette matches Niamh's existing Lawgistics Instagram grid: warm cream `#EDE7DC` background, deep navy `#171D2B` text, steel-blue underline accent `#3A5697` (4px underline on 1 key phrase per slide). Final slide of each carousel inverts: navy background, cream text, accent `#6E86C9`.
-- Canvas 1080×1350 (4:5). Font: **TikTok Sans** (@fontsource/tiktok-sans) for everything — statements ~56-64px weight 500, bold via 600.
-- Every slide: "n / 6" top-right, small grey citation block bottom-left, "SWIPE →" bottom-right on slide 1 only, disclaimer microtext on final slide. NO wordmark, NO kicker, NO "comment" CTA, and NO comment-bait sentences ("drop your take below", "tell us in the comments") — Niamh removed all of these; the closing question stands on its own. Nothing else — resist decorating.
-- Copy rules for slides: max ~35 words per slide, short sentences, one underlined phrase; the carousel reads as six sequential statements (hook / facts / issue / ruling / takeaway / question).
+- Palette: warm cream `#EDE7DC`, deep navy `#171D2B` (dark slides `#141A28`). Emphasis is carried by **serif italics**, not by the underline used in the superseded template.
+- Canvas 1080×1350 (4:5). Statements ~60-78px Playfair; body ~33px TikTok Sans.
+- Every slide: kicker top-left, citation block bottom-left, wordmark bottom-right (italic "swipe →" on slide 1). NO page numbers, NO "comment" CTA, and NO comment-bait sentences ("drop your take below", "tell us in the comments") — Niamh removed these; the closing statement stands on its own. Nothing else — resist decorating.
+- Copy rules for slides: max ~35 words per slide, short sentences, one italicised phrase; the carousel reads as six sequential statements (hook / facts / issue / ruling / words / why it matters).
 - **NO em dashes (—) anywhere** — slides, captions, LinkedIn posts, articles (Niamh's rule, 30 Jul 2026). Use commas, colons or full stops instead.
 
 ## Editorial rules
