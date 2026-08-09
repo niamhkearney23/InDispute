@@ -300,9 +300,28 @@ So they live in their own tables, with their own lifecycle, and they touch nothi
 training loop reads. Firm content never enters the review queue, never enters the
 question pool, and carries no verification status, deliberately.
 
+### Joining
+
+The firm starts the process, not the joiner. An administrator invites somebody
+at `/admin/onboarding/invite` with a name, an address and a start date, and gets
+a link. The person opens it, sets a password, and lands on their own checklist
+with their start date already on it. There is one path into the firm and it runs
+through the app.
+
+The link is the credential, so it is treated like one: 32 bytes from the system
+CSPRNG, stored only as a SHA-256 hash, single use, expiring in fourteen days, and
+one live invitation per address so calling one back actually closes the door.
+Everything about the resulting account, the email, the name, the country, the
+start date, comes from the invitation rather than from the form, and there is no
+path through it that grants administrator rights.
+
+The app does not send the email. This deployment has no SMTP configured, and a
+joining process that quietly depended on one would fail on the day it mattered,
+so the administrator gets the link and sends it themselves.
+
 ### Before you begin
 
-A joiner makes an account, and `/start` shows them one list: what to read, what to sign,
+Once they are in, `/start` shows them one list: what to read, what to sign,
 what to get set up, and how long they have. Three kinds of item, separated by who can
 honestly say it is done.
 
@@ -347,7 +366,7 @@ thing as multi-tenancy, and it gets separation for free precisely because it is 
 ## Testing
 
 ```bash
-npm run test        # 136 tests: engine, content, triage, and the contract tests below
+npm run test        # 140 tests: engine, content, triage, and the contract tests below
 npm run typecheck
 npm run lint
 npm run build
@@ -381,7 +400,7 @@ tap targets under 32px, inputs under 16px (below which iOS Safari zooms the page
 focus), and console errors. It signs in through the real login form, so the auth flow is
 exercised too. See `tools/visual-qa/README.md`.
 
-Current result: 120 page/device combinations, no horizontal scrolling, no overflow, no
+Current result: 130 page/device combinations, no horizontal scrolling, no overflow, no
 render errors, and no outstanding issues on any phone viewport.
 
 The schema's own guarantees are tested against a real Postgres:
@@ -390,7 +409,7 @@ The schema's own guarantees are tested against a real Postgres:
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/schema-guarantees.sql
 ```
 
-62 checks, run inside a transaction that rolls itself back. Among them: a learner cannot
+73 checks, run inside a transaction that rolls itself back. Among them: a learner cannot
 make themselves an administrator; cannot read another learner's attempts; cannot read the
 question versions table where the answers live; cannot forge XP; cannot write to the daily
 brief; cannot see unpublished facts. And: question content cannot be rewritten in place,
@@ -398,7 +417,9 @@ recorded attempts cannot be altered or deleted, the delivery view exposes no ans
 and flagging an item in review genuinely withdraws it from learners. For the firm-facing
 tables: an acknowledgement, a declaration, a confirmation and a clearance decision can
 none of them be edited, backdated or deleted by anybody, administrators included, and a
-joiner cannot move their own start date.
+joiner cannot move their own start date. For invitations: one live invitation per
+address, an expiry the caller cannot choose, no column that could carry a password
+or grant rights, and a signed-in learner cannot see that anybody is joining at all.
 
 ---
 
@@ -446,6 +467,7 @@ cheapest to change now and steadily more expensive with every real user.
 src/
   app/
     (auth)/                sign in, sign up
+    join/[token]/          taking up an invitation, the one page reached without an account
     (app)/                 the learner-facing product
       onboarding/          four questions
       diagnostic/          intro, and the skill map that comes out of it
@@ -469,10 +491,11 @@ src/
     supabase/              browser, server (RLS-scoped) and service (privileged) clients
     firm/                  the firm's own induction, kept apart from training
     onboarding/            the pre-start checklist, its rules and its oversight
+      invitations.ts       tokens, hashed; the only unauthenticated way in
     admin/guard.ts         server-side authorisation
   content/seed/            the question bank and daily facts, as reviewable TypeScript
 supabase/
-  migrations/            0001_init … 0008_before_you_begin
+  migrations/            0001_init … 0009_joining
   SETUP.sql              every migration, for a new database
   UPDATE.sql             0004 onward, re-runnable, for a database that exists
   tests/schema-guarantees.sql

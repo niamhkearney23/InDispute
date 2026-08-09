@@ -54,6 +54,10 @@ const DEVICES = [
 const PAGES = [
   { name: 'landing', path: '/', auth: false },
   { name: 'login', path: '/login', auth: false },
+  // Signed out on purpose: this is the one page in the app a person reaches
+  // before they have an account, so rendering it as a signed-in user would
+  // check the wrong thing entirely.
+  { name: 'join', path: '/join/qa-invitation-token-for-visual-checks-only', auth: false },
   // Signed in as the learner who has not been through onboarding; the default
   // fixture has, so this page would redirect and the check would quietly
   // report on the dashboard instead.
@@ -90,6 +94,7 @@ const PAGES = [
     auth: true,
   },
   { name: 'admin-steps', path: '/admin/onboarding/steps', auth: true },
+  { name: 'admin-invite', path: '/admin/onboarding/invite', auth: true },
   { name: 'admin-step-new', path: '/admin/onboarding/steps/new', auth: true },
 ];
 

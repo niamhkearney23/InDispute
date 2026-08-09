@@ -6,6 +6,8 @@ import { z } from 'zod';
 import { checkAdmin } from '@/lib/admin/guard';
 import { createServiceClient } from '@/lib/supabase/service';
 import { confirmStep, recordDecision } from '@/lib/onboarding/service';
+import { createInvitation, revokeInvitation } from '@/lib/onboarding/invitations';
+import { publicEnv } from '@/lib/env';
 import type { AdminState } from '../actions';
 
 /**
@@ -191,4 +193,79 @@ export async function setStartDate(_state: AdminState, formData: FormData): Prom
   revalidatePath(`/admin/onboarding/${parsed.data.userId}`);
   revalidatePath('/admin/onboarding');
   return { error: null, ok: 'Start date saved.' };
+}
+
+// -----------------------------------------------------------------------------
+// Inviting somebody to join
+// -----------------------------------------------------------------------------
+
+export type InviteState = { error: string | null; link?: string; email?: string };
+
+const inviteSchema = z.object({
+  email: z.string().trim().email('That does not look like an email address.').max(200),
+  displayName: z.string().trim().max(120).optional().or(z.literal('')),
+  startsOn: z
+    .string()
+    .trim()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Use the date picker')
+    .optional()
+    .or(z.literal('')),
+  country: z.enum(['AU', 'MY']),
+});
+
+/**
+ * Create an invitation and hand back the link.
+ *
+ * The link is returned to the administrator to send, rather than emailed from
+ * here, because this deployment has no SMTP configured and a joining flow that
+ * silently depended on it would fail on the one day it mattered. It is shown
+ * once and is not recoverable afterwards: only its hash is stored.
+ */
+export async function invite(_state: InviteState, formData: FormData): Promise<InviteState> {
+  const adminId = await checkAdmin();
+  if (!adminId) return { error: 'You are not signed in as an administrator.' };
+
+  const parsed = inviteSchema.safeParse({
+    email: formData.get('email'),
+    displayName: formData.get('displayName') ?? '',
+    startsOn: formData.get('startsOn') ?? '',
+    country: formData.get('country'),
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? 'Something in the form is not valid.' };
+  }
+
+  const result = await createInvitation({
+    invitedBy: adminId,
+    email: parsed.data.email,
+    displayName: parsed.data.displayName ?? '',
+    startsOn: parsed.data.startsOn || null,
+    country: parsed.data.country,
+  });
+
+  if (result.error) return { error: result.error };
+
+  revalidatePath('/admin/onboarding');
+  return {
+    error: null,
+    email: parsed.data.email,
+    // Trailing slashes in the configured origin would produce a double
+    // slash in a link somebody is about to paste into an email.
+    link: `${publicEnv.siteUrl.replace(/\/+$/, '')}/join/${result.token}`,
+  };
+}
+
+export async function revoke(_state: AdminState, formData: FormData): Promise<AdminState> {
+  const adminId = await checkAdmin();
+  if (!adminId) return { error: 'You are not signed in as an administrator.' };
+
+  const id = String(formData.get('invitationId') ?? '');
+  if (!id) return { error: 'That invitation could not be found.' };
+
+  const result = await revokeInvitation(id);
+  if (result.error) return { error: result.error };
+
+  revalidatePath('/admin/onboarding');
+  return { error: null, ok: 'Invitation called back.' };
 }
