@@ -11,7 +11,12 @@ type CookiesToSet = Array<{ name: string; value: string; options: CookieOptions 
 // /join is public because the entire point of it is somebody who does not have
 // an account yet. It is not unprotected: the invitation token in the link is
 // the credential, and the page shows nothing at all without a valid one.
-const PUBLIC_PATHS = ['/', '/login', '/signup', '/auth', '/setup', '/join'];
+//
+// /api/digest is listed rather than /api, so this stays a decision made one
+// route at a time. It carries its own bearer token and returns 404 unless one
+// is configured; putting the whole of /api here would make every future route
+// public by default, which is the wrong way round.
+const PUBLIC_PATHS = ['/', '/login', '/signup', '/auth', '/setup', '/join', '/api/digest'];
 
 function isPublic(pathname: string) {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
