@@ -27,11 +27,11 @@ Practical experience. You work alongside lawyers on live matters.
 
 Career insight. You get to ask the questions your lecturers cannot answer, because they have not been in practice for fifteen years.
 
-Why not just do it at home. Because in Australia most firms will not look at you until penultimate year, and then several hundred people apply for the same handful of clerkship seats. Kuala Lumpur is a working legal hub and you can be in the room now, in any year of your degree.
+What you get out of it. International legal exposure, years ahead of your cohort. The profession gets more cross border every year, and having that on your record early is the kind of thing that compounds. In interviews, in applications, and in what you get trusted with once you are hired.
 
 Why it matters for you. Every single person applying for a clerkship has a transcript. Almost none of them have watched a matter run in a foreign jurisdiction and can say something intelligent about it. That is an interview answer nobody else in the room has.
 
-Who it is for. First year through to final year, and recent graduates. No prior legal work, no distinction average, no connection in the profession required.
+Who it is for. Students who want to be ahead of where they are. Open from first year through to final year, and to recent graduates. No prior legal experience needed and no connection in the profession required.
 
 Applications, dates and eligibility are in the link in bio. Questions, send us a DM, we answer all of them.
 
@@ -47,7 +47,7 @@ Most law students will graduate having never been inside a courtroom that was no
 
 That is the gap Lawgistics exists to close. We place Australian law students in legal internships in Kuala Lumpur, working alongside practising lawyers and sitting in on real proceedings.
 
-The structural problem this solves is timing. In Australia most firms will not consider a student until penultimate year, and the clerkship rounds that follow are heavily oversubscribed. A student can therefore reach their fourth year of a law degree without having seen a matter run.
+What students get out of it is international legal exposure, years ahead of their cohort. The profession gets more cross border every year, and having that on the record early compounds.
 
 The practical case is simple. Every applicant for a clerkship has a transcript. Very few can speak, in an interview, about a matter they watched run in another jurisdiction and what it taught them about advocacy. That is a differentiator that does not require a distinction average to earn.
 
@@ -65,7 +65,8 @@ I wrote this from what is in the account brief, so every claim is one you have a
 |---|---|---|
 | "for the length of the program" (slide 2) | slide only | Fine as written, it avoids naming a duration. Swap in the real duration if you would rather be specific. |
 | "Work alongside practising lawyers on live matters" (slide 3) | slide + caption | Confirm this matches what placements actually involve. If interns observe rather than work on matters, tell me and I will change it to observation language. This is the one claim a prospective applicant could hold you to. |
-| "Most firms will not look at you until penultimate year" (slide 4) | slide + caption | True of the major firm clerkship rounds, which is what students mean by a clerkship. Says "most", not "all", so smaller firms and volunteer work are not contradicted. You know this market better than I do, so change it if it overstates. |
+
+**Framing rule, added at Niamh's direction 9 Aug 2026.** Never position the program against a shortage at home. Do not write that clerkships are hard to get, that firms will not look at you, or that you do not need good marks. It reads as a consolation prize and invites the assumption that only students who could not get something else apply. Every slide states a gain, not a shortfall. This applies to all future intern and program content, not just this post.
 
 Everything else, courtroom access, career insight, open to all year levels, is from the brief.
 

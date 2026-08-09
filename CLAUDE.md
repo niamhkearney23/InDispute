@@ -59,6 +59,12 @@ Goes after the citations, before the disclaimer and hashtags. No exclamation mar
 
 Case captions are written as **thought leadership**, not case notes: state a view, draw the broader lesson, and let the restraint carry the premium tone. Short declarative sentences, no hype, no hedging.
 
+## Program content: gain, never shortfall
+
+Niamh's rule, 9 Aug 2026. Intern and program copy is **always** framed as what the student gains, never as a shortage or difficulty at home. Do NOT write that clerkships are competitive or hard to get, that firms will not look at students until penultimate year, or that applicants do not need a distinction average. That framing reads as a consolation prize and signals that only students who failed to get something else would apply. Tall poppy syndrome does the rest.
+
+Every line answers "what is in it for me", stated as an advantage: international exposure ahead of your cohort, courtroom access, something on the record that compounds. Aspirational, not remedial.
+
 ## Editorial rules
 
 - Verify every case against primary/secondary sources; never invent citations, parties, judges or outcomes. Flag unverified details honestly in the brief.

@@ -121,10 +121,10 @@ slide(3, "What You Do",
   '<div><b>Career insight.</b> Ask the questions your lecturers cannot answer.</div>'
   '</div>')
 
-slide(4, "Why Not Home",
-  '<div class="statement md">In Australia you wait years for a <em>clerkship</em> that may not come.</div>'
-  '<div class="body"><p>Most firms will not look at you until penultimate year, and then a few hundred people apply for the same handful of seats.</p>'
-  '<p>Kuala Lumpur is a working legal hub. You can be in the room now.</p></div>',
+slide(4, "What You Get",
+  '<div class="statement md">International legal exposure, years ahead of <em>your cohort.</em></div>'
+  '<div class="body"><p>The profession gets more cross border every year. Getting that on your record early is the kind of thing that compounds.</p>'
+  '<p>In interviews, in applications, and in what you are trusted with once you are hired.</p></div>',
   light=True)
 
 slide(5, "Why It Matters",
@@ -133,9 +133,8 @@ slide(5, "Why It Matters",
   '<p>That is an interview answer nobody else in the room has.</p></div>')
 
 slide(6, "Who It Is For",
-  '<div class="statement md">Any year. No experience required.</div>'
-  '<div class="body"><p>First year to final year, and recent graduates. You do not need prior legal work, a distinction average, or a connection in the profession.</p>'
-  '<p>You need to want to be in the room.</p></div>',
+  '<div class="statement md">Students who want to be <em>ahead</em> of where they are.</div>'
+  '<div class="body"><p>Open from first year through to final year, and to recent graduates. No prior legal experience needed, and no connection in the profession required.</p></div>',
   light=True)
 
 slide(7, "Apply",
