@@ -7,26 +7,36 @@
 
 ## Instagram caption (copy-paste)
 
-Modern negligence law rests on a snail nobody ever saw.
+The most important case in the common law of negligence has no findings of fact.
 
-Paisley, August 1928. May Donoghue's friend buys her a ginger beer at the Wellmeadow Cafe. Dark opaque bottle. She drinks about half, the rest is poured out, and the decomposed remains of a snail come with it.
+Everyone can recite the story. Paisley, August 1928. A ginger beer, a dark opaque bottle, the decomposed remains of a snail. Mrs Donoghue had no contract with the cafe, because her friend bought the drink. On the law as it stood, a manufacturer owed nothing to a stranger. She had no claim against anybody.
 
-Here is the problem. Her friend bought it, so she had no contract with the cafe. And the rule at the time was that a manufacturer owed nothing to someone it had never dealt with. On the law as it stood, she had no claim against anybody.
+The House of Lords held otherwise, and Lord Atkin gave the common law its most quoted sentence. You must take reasonable care to avoid acts or omissions you can reasonably foresee would be likely to injure your neighbour.
 
-The House of Lords, by a bare majority, said otherwise. Lord Atkin: you must take reasonable care to avoid acts or omissions you can reasonably foresee would be likely to injure your neighbour. Your neighbour being anyone so closely and directly affected that you ought to have them in mind.
+Here is the part that gets left out of the lecture.
 
-The twist they do not always tell you in first year: the snail was never proven. The Lords were deciding a preliminary question of law, whether there was a claim if the facts were true. The trial never happened. Stevenson died, his executors settled for a reported two hundred pounds, and the most important case in the common law of negligence has no findings of fact at all.
+The Lords were answering a preliminary question of law. If these facts were true, was there a cause of action? The trial that would have established them never took place. Stevenson died. His executors settled for a reported two hundred pounds. Whether there was ever a snail in that bottle is unknown, and now unknowable.
 
-Then the question became how far it went. Food and drink only? Sealed containers only?
+Four years later a doctor in Adelaide put on a new pair of woollen underwear. The manufacturer had left excess sulphite in the fabric and never washed it out. Dermatitis across his whole body. Seventeen weeks in bed. And the question Donoghue had left open finally got an answer.
 
-Adelaide, June 1931. Dr Richard Grant buys woollen underwear. The manufacturer left excess sulphite in the fabric and never washed it out. Itching by the evening, then dermatitis across his whole body, then seventeen weeks in bed.
+In Grant v Australian Knitting Mills the Privy Council held the principle was not confined to food, or drink, or sealed containers. It reaches any product that arrives in the form it left the factory, with no reasonable chance of inspection along the way. Grant never proved how the sulphite got there. He did not have to. The defect itself was enough.
 
-The Privy Council applied Donoghue and settled the question. The principle covers goods that reach the consumer in the form they left the manufacturer, with no reasonable chance of inspection in between. Grant never proved how the sulphite got there. He did not have to. The defect itself was enough.
+Two things worth taking from that.
 
-That is why every product you own comes with a duty attached, owed by someone you have never met.
+Principle gets declared in the famous case and settled in the unglamorous one. Donoghue is on the poster. Grant did the structural work. That pattern repeats across the whole common law, and you will spend a career reading the second kind of case.
+
+And both claimants were people contract could not help. Privity gets treated as a technicality right up until it is the reason someone walks away with nothing.
+
+An enormous amount of modern consumer protection descends from a snail nobody ever saw.
 
 *Donoghue v Stevenson* [1932] AC 562
 *Grant v Australian Knitting Mills* [1936] AC 85
+
+Want international legal experience? You have come to the right place.
+
+Lawgistics places Australian law students in legal internships in Kuala Lumpur. Courtroom access, practising lawyers, live matters.
+
+Applications via the link in bio.
 
 General information only, not legal advice.
 

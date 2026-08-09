@@ -47,6 +47,18 @@ Student-life and career content outperforms pure case analysis by roughly 15x. C
 - Copy rules for slides: max ~35 words per slide, short sentences, one italicised phrase; the carousel reads as six sequential statements (hook / facts / issue / ruling / words / why it matters).
 - **NO em dashes (—) anywhere** — slides, captions, LinkedIn posts, articles (Niamh's rule, 30 Jul 2026). Use commas, colons or full stops instead.
 
+## The sign-off (every case caption)
+
+Every case post caption ends with a short brand block so new viewers learn what the account is. Full text and alternates: `reports/assets/SIGN-OFF.md`. Default:
+
+> Want international legal experience? You have come to the right place.
+> Lawgistics places Australian law students in legal internships in Kuala Lumpur. Courtroom access, practising lawyers, live matters.
+> Applications via the link in bio.
+
+Goes after the citations, before the disclaimer and hashtags. No exclamation marks, no emoji, no question after it. The offer is the close.
+
+Case captions are written as **thought leadership**, not case notes: state a view, draw the broader lesson, and let the restraint carry the premium tone. Short declarative sentences, no hype, no hedging.
+
 ## Editorial rules
 
 - Verify every case against primary/secondary sources; never invent citations, parties, judges or outcomes. Flag unverified details honestly in the brief.
