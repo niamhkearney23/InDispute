@@ -386,10 +386,36 @@ thing as multi-tenancy, and it gets separation for free precisely because it is 
 
 ---
 
+## Automation
+
+`GET /api/digest` returns a read-only summary of who is joining, who is not
+ready, and who the firm is holding up. Intended for n8n or anything similar.
+
+**Off unless switched on.** With `DIGEST_TOKEN` unset, or shorter than 24
+characters, the route returns 404, so a deployment that has never heard of n8n
+does not quietly serve a list of everybody joining the firm. Set it to something
+from `openssl rand -base64 32`.
+
+```bash
+curl -H "Authorization: Bearer $DIGEST_TOKEN" https://your-app/api/digest
+```
+
+This is an HTTP endpoint rather than a database login on purpose. Handing a
+workflow tool a Postgres role would mean writing "what counts as done" a second
+time in SQL, and two implementations of that rule drift; the day they disagree,
+the digest tells the firm somebody is ready when the app says they are not. It
+also means no database credential leaves the server, and the service-role key in
+particular never goes near a third-party system.
+
+The token can read one summary. It cannot write anything, and it cannot reach
+the question bank, the answers, anybody's results, the acknowledgement record or
+the invitation tokens. It does carry names, addresses and start dates, so treat
+it as a secret.
+
 ## Testing
 
 ```bash
-npm run test        # 155 tests: engine, content, triage, and the contract tests below
+npm run test        # 164 tests: engine, content, triage, and the contract tests below
 npm run typecheck
 npm run lint
 npm run build
