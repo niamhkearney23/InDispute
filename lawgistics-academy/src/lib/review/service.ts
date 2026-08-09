@@ -76,6 +76,11 @@ export interface ReviewStats {
   /** Signed off once, now due again. */
   lapsed: number;
   dueSoon: number;
+  /**
+   * Withdrawn and not flagged: taken off learners in bulk rather than because
+   * somebody said it was wrong. These are the ones that can be put back.
+   */
+  withdrawn: number;
 }
 
 /**
@@ -250,5 +255,6 @@ export function summarise(items: ReviewItem[]): ReviewStats {
     liveUnverified: items.filter((i) => i.liveToLearners).length,
     lapsed: items.filter((i) => i.lapsed).length,
     dueSoon: items.filter((i) => i.dueSoon).length,
+    withdrawn: items.filter((i) => i.status === 'requires_review' && !i.reviewFlagged).length,
   };
 }

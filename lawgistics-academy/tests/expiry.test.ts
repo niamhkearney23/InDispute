@@ -224,3 +224,71 @@ test('the queue never claims something is signed off when it has lapsed', () => 
     'and it must account for the sign-off having run out',
   );
 });
+
+// -----------------------------------------------------------------------------
+// Withdrawing is not a one-way door
+// -----------------------------------------------------------------------------
+
+test('a withdrawn item counts as withdrawn, and a flagged one does not', () => {
+  // The distinction the restore button turns on. Withdrawn in bulk is an
+  // accident to undo; flagged is a person saying the item is wrong.
+  const stats = summarise([
+    item({ slug: 'live', status: 'published' }),
+    item({ slug: 'pulled', status: 'requires_review' }),
+    item({ slug: 'wrong', status: 'requires_review', reviewFlagged: true }),
+  ]);
+
+  assert.equal(stats.withdrawn, 1, 'only the one taken off in bulk can be put back');
+  assert.equal(stats.flagged, 1);
+});
+
+test('restoring puts content back without claiming anybody checked it', () => {
+  const source = fs.readFileSync(
+    path.join(ROOT, 'src/app/admin/review/actions.ts'),
+    'utf8',
+  );
+  const start = source.indexOf('export async function restoreAllWithdrawn');
+  assert.ok(start > -1, 'the restore action should exist');
+  const body = source.slice(start);
+
+  // The whole point: it moves what is servable and touches nothing else. If it
+  // ever wrote a verification it would be a bulk "verify" wearing a different
+  // label, which is the one thing this workflow exists to prevent.
+  for (const forbidden of ['verification_status', 'human_verified', 'verified_by', 'verified_at']) {
+    assert.ok(
+      !body.includes(forbidden),
+      `restoreAllWithdrawn writes ${forbidden}: restoring must not verify anything`,
+    );
+  }
+
+  assert.ok(body.includes('checkAdmin('), 'and it is still an administrator-only action');
+});
+
+test('restoring never resurrects something a person flagged as wrong', () => {
+  const source = fs.readFileSync(
+    path.join(ROOT, 'src/app/admin/review/actions.ts'),
+    'utf8',
+  );
+  const body = source.slice(source.indexOf('export async function restoreAllWithdrawn'));
+
+  // Facts carry the flag on the row, so a filter is enough.
+  assert.match(
+    body,
+    /from\('daily_facts'\)[\s\S]*?\.eq\('review_flagged', false\)/,
+    'flagged facts must be excluded by filter',
+  );
+
+  // Questions carry it on the current version, so the ids have to be looked up
+  // and excluded. A filter on `questions` would silently match nothing and
+  // restore every flagged question, which is the failure worth a test.
+  assert.match(
+    body,
+    /from\('question_versions'\)[\s\S]*?\.eq\('review_flagged', true\)/,
+    'flagged question ids must be looked up from the versions table',
+  );
+  assert.match(
+    body,
+    /\.not\('id', 'in', `\(\$\{flaggedIds\.join\(','\)\}\)`\)/,
+    'and excluded from the update',
+  );
+});
