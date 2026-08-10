@@ -4,6 +4,8 @@ import type { XpKind } from '@/lib/types';
 export interface LevelInfo {
   level: number;
   name: string;
+  /** One dry line about what this level means. Shown under the level itself. */
+  blurb: string;
   xpIntoLevel: number;
   xpForNextLevel: number | null;
   nextLevelName: string | null;
@@ -11,6 +13,9 @@ export interface LevelInfo {
 }
 
 type Level = (typeof LEVELS)[number];
+
+/** The last level, for pages that need to name the summit. */
+export const TOP_LEVEL_NAME = LEVELS[LEVELS.length - 1].name;
 
 export function levelForXp(totalXp: number): LevelInfo {
   let current: Level = LEVELS[0];
@@ -29,6 +34,7 @@ export function levelForXp(totalXp: number): LevelInfo {
   return {
     level: current.level,
     name: current.name,
+    blurb: current.blurb,
     xpIntoLevel,
     xpForNextLevel: next ? next.xpRequired - totalXp : null,
     nextLevelName: next ? next.name : null,

@@ -14,7 +14,7 @@ import {
   xpForAnswer,
   xpForSessionCompletion,
 } from '../src/lib/learning/progression';
-import { MASTERY, REVIEW, TRAINING_MIX, XP } from '../src/lib/learning/config';
+import { LEVELS, MASTERY, REVIEW, TRAINING_MIX, XP } from '../src/lib/learning/config';
 import { validateSeed, QUESTIONS, DOMAINS } from '../src/content/seed';
 
 const NOW = new Date('2026-03-10T09:00:00Z');
@@ -246,18 +246,77 @@ test('the streak bonus lands only on the seventh day', () => {
 });
 
 test('levels follow total XP and report progress to the next one', () => {
-  assert.equal(levelForXp(0).level, 1);
-  assert.equal(levelForXp(0).name, 'Court Observer');
+  // Asserted against LEVELS rather than against the names themselves. The names
+  // are copy and are meant to be changed; the engine is not, and an engine test
+  // that fails because somebody reworded a level is a test people learn to edit
+  // without reading.
+  const first = LEVELS[0];
+  const middle = LEVELS[2];
+  const last = LEVELS[LEVELS.length - 1];
 
-  const clerk = levelForXp(800);
-  assert.equal(clerk.name, 'Law Clerk');
-  assert.ok(clerk.xpForNextLevel! > 0);
-  assert.ok(clerk.progressPercent > 0 && clerk.progressPercent < 100);
+  assert.equal(levelForXp(0).level, 1);
+  assert.equal(levelForXp(0).name, first.name);
+
+  const partway = levelForXp(middle.xpRequired + 100);
+  assert.equal(partway.name, middle.name);
+  assert.ok(partway.xpForNextLevel! > 0);
+  assert.ok(partway.progressPercent > 0 && partway.progressPercent < 100);
 
   const top = levelForXp(999_999);
-  assert.equal(top.name, 'Master Litigator');
+  assert.equal(top.name, last.name);
   assert.equal(top.xpForNextLevel, null);
   assert.equal(top.progressPercent, 100);
+  assert.equal(top.nextLevelName, null);
+});
+
+test('the levels are thresholds in order, each with a line of its own', () => {
+  for (let i = 1; i < LEVELS.length; i += 1) {
+    assert.equal(LEVELS[i].level, i + 1, 'level numbers run 1..n');
+    assert.ok(
+      LEVELS[i].xpRequired > LEVELS[i - 1].xpRequired,
+      `level ${i + 1} must cost more than level ${i}`,
+    );
+  }
+  assert.equal(LEVELS[0].xpRequired, 0, 'everybody starts somewhere');
+  for (const level of LEVELS) {
+    assert.ok(level.blurb.trim().length > 0, `level ${level.level} has no blurb`);
+    assert.ok(level.name.trim().length > 0);
+  }
+});
+
+test('no level is a job title, because every page says they are not', () => {
+  // The footer on every page reads "levels are game levels, not professional
+  // titles or qualifications". These used to be called Law Clerk, Junior
+  // Solicitor, Associate, Senior Associate, Advocate and Counsel, which
+  // contradicted it flatly. Some of those are close to restricted terms in both
+  // jurisdictions, and a paralegal showing a partner that an app had made them
+  // Counsel is a conversation nobody wants to have.
+  const TITLES = [
+    'solicitor',
+    'barrister',
+    'advocate',
+    'counsel',
+    'associate',
+    'partner',
+    'attorney',
+    'lawyer',
+    'clerk',
+    'paralegal',
+    'graduate',
+    'trainee',
+    'qc',
+    'sc',
+  ];
+
+  for (const level of LEVELS) {
+    const words = level.name.toLowerCase().split(/[^a-z]+/).filter(Boolean);
+    for (const title of TITLES) {
+      assert.ok(
+        !words.includes(title),
+        `level ${level.level} is called "${level.name}", which reads as a professional title`,
+      );
+    }
+  }
 });
 
 test('a streak continues across consecutive days and resets after a gap', () => {
