@@ -130,15 +130,81 @@ export const XP = {
  * Game levels. Named after the shape of a litigation career because that is
  * motivating, but they are game levels, not qualifications, and the UI says so.
  */
+/**
+ * Game levels.
+ *
+ * Deliberately not job titles. They used to be: Law Clerk, Junior Solicitor,
+ * Associate, Senior Associate, Advocate, Counsel. Every page carries a footer
+ * saying "levels are game levels, not professional titles or qualifications",
+ * which was flatly contradicted by a level literally called Senior Associate,
+ * and a paralegal showing a partner that an app had made them Counsel is a
+ * conversation nobody wants to have. Some of those words are also close to
+ * restricted in both jurisdictions.
+ *
+ * So they are jokes about litigation instead, which nobody can mistake for a
+ * qualification and which are more fun to earn. The arc still means something:
+ * you start watching from the back and end up as the reason the other side
+ * checks who is on the file.
+ */
 export const LEVELS = [
-  { level: 1, name: 'Court Observer', xpRequired: 0 },
-  { level: 2, name: 'Legal Trainee', xpRequired: 250 },
-  { level: 3, name: 'Law Clerk', xpRequired: 700 },
-  { level: 4, name: 'Graduate', xpRequired: 1500 },
-  { level: 5, name: 'Junior Solicitor', xpRequired: 2800 },
-  { level: 6, name: 'Associate', xpRequired: 4600 },
-  { level: 7, name: 'Senior Associate', xpRequired: 7200 },
-  { level: 8, name: 'Advocate', xpRequired: 10800 },
-  { level: 9, name: 'Counsel', xpRequired: 15500 },
-  { level: 10, name: 'Master Litigator', xpRequired: 22000 },
+  {
+    level: 1,
+    name: 'Public Gallery',
+    xpRequired: 0,
+    blurb: 'Watching from the back. Everybody starts here.',
+  },
+  {
+    level: 2,
+    name: 'Bundle Carrier',
+    xpRequired: 250,
+    blurb: 'Four lever arch files and a lift that is not working.',
+  },
+  {
+    level: 3,
+    name: 'Affidavit Wrangler',
+    xpRequired: 700,
+    blurb: 'You can find the one paragraph that actually matters.',
+  },
+  {
+    level: 4,
+    name: 'Adjournment Survivor',
+    xpRequired: 1500,
+    blurb: 'You have sat through a mention that achieved nothing. This is character.',
+  },
+  {
+    level: 5,
+    name: 'Objection Haver',
+    xpRequired: 2800,
+    blurb: 'You have views about relevance now, and they are mostly right.',
+  },
+  {
+    level: 6,
+    name: 'Subpoena Enthusiast',
+    xpRequired: 4600,
+    blurb: 'You know what one can and cannot ask for. Rarer than it should be.',
+  },
+  {
+    level: 7,
+    name: 'Deadline Whisperer',
+    xpRequired: 7200,
+    blurb: 'Nothing gets filed late on your watch.',
+  },
+  {
+    level: 8,
+    name: 'Costs Order Dodger',
+    xpRequired: 10800,
+    blurb: 'You read the costs consequences before, not afterwards.',
+  },
+  {
+    level: 9,
+    name: 'Known to the Registry',
+    xpRequired: 15500,
+    blurb: 'They know your name. In this line of work that is a compliment.',
+  },
+  {
+    level: 10,
+    name: 'Menace to the Other Side',
+    xpRequired: 22000,
+    blurb: 'They check who is on the file. That is the whole game.',
+  },
 ] as const;
