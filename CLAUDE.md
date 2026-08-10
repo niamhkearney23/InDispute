@@ -73,6 +73,14 @@ Every line answers "what is in it for me", stated as an advantage: international
 
 **NEVER invent testimonials.** Do not write a quote, review or endorsement attributed to a student, intern, firm or staff member unless Niamh has supplied the real words. Fabricated testimonials are misleading and deceptive conduct under the Australian Consumer Law and the audience is lawyers. Build the slide with bracketed placeholders and a "PLACEHOLDER, DO NOT POST" footer, then ask her for the real quote.
 
+## Confirmed only
+
+Niamh's rule, 10 Aug 2026. **Nothing goes on a slide, in a caption, in a LinkedIn post or in a reel script unless it is confirmed.** Not "reported", not "on one account", not hedged with "apparently". If it cannot be confirmed, it does not go in. Write around it or leave it out.
+
+This includes **attributed superlatives from interested parties**. A land council, a regulator, a plaintiff's solicitor or a company saying something is the biggest, the first or the worst is not a confirmed fact, and attribution does not rescue it. Leave it out.
+
+Hedged wording is not a substitute for verification. If a fact needs a hedge to be safe, it is not ready to publish. Keep unconfirmed material in the brief's verification table only, clearly marked, so it is on the record without being broadcast.
+
 ## Editorial rules
 
 - Verify every case against primary/secondary sources; never invent citations, parties, judges or outcomes. Flag unverified details honestly in the brief.

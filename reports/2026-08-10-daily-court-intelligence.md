@@ -10,7 +10,9 @@ Covering the High Court sitting of **Wednesday 5 August 2026**, the most recent 
 ### Mpwerempwer Aboriginal Corporation RNTBC v Minister for Territory Families and Urban Housing (as delegate of the Minister for the Environment) [2026] HCA 23
 **High Court of Australia, 5 August 2026**
 
-**What happened.** The Northern Territory granted Fortune Agribusiness a licence to extract up to **40 gigalitres of groundwater a year for thirty years** at Singleton Station, in the desert north of Alice Springs, to develop what was reported as one of Australia's largest fruit and vegetable operations. The Central Land Council describes it as the largest groundwater licence ever granted in the Territory.
+**What happened.** The Northern Territory granted Fortune Agribusiness a licence to extract up to **40 gigalitres of groundwater a year for thirty years** at Singleton Station, in the desert north of Alice Springs, to develop a horticultural operation.
+
+*Not used in any published asset:* the Central Land Council has characterised the licence as the largest ever granted in the Territory. That is an interested party's superlative, not a finding, so under the confirmed only rule it stays in this brief and goes no further.
 
 **The statutory frame.** The licence was granted under s 60 of the *Water Act 1992* (NT). A licence for a period beyond ten years required the Minister to be satisfied that special circumstances justified it, and the Minister was required to take into account the protection of Aboriginal cultural values associated with water.
 

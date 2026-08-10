@@ -89,8 +89,8 @@ def slide(n, kicker, inner, cite="", light=False, swipe=False):
     (OUT / f"w{n:02d}.html").write_text(html)
 
 slide(1, "A Case Study",
-  '<div class="statement lg">40 gigalitres a year. Thirty years. <em>Quashed.</em></div>'
-  '<div class="sub">The High Court has undone the largest groundwater licence the Northern Territory ever granted.</div>',
+  '<div class="statement lg">40 gigalitres a year. Thirty years. <em>Set aside.</em></div>'
+  '<div class="sub">Not on the science. On what happened before the decision was made.</div>',
   swipe=True)
 
 slide(2, "The Facts",
@@ -119,7 +119,7 @@ slide(5, "The Principle",
 
 slide(6, "Why It Matters",
   '<div class="statement md">This is your admin law exam, in <em>real life.</em></div>'
-  '<div class="body"><p>Natural justice, mandatory considerations, jurisdictional error. The doctrine you get drilled on in second year just unwound the biggest water licence in the Territory.</p></div>',
+  '<div class="body"><p>Natural justice, mandatory considerations, jurisdictional error. The doctrine you get drilled on in second year just unwound a thirty year water licence.</p></div>',
   light=True, cite="General information only, not legal advice.")
 
 print("ok")

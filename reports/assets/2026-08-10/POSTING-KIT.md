@@ -12,7 +12,7 @@
 
 Thirty years of water. Undone by the step that came before the decision.
 
-The Northern Territory granted Fortune Agribusiness a licence to take up to 40 gigalitres of groundwater a year, for thirty years, at Singleton Station in the desert north of Alice Springs. On the Central Land Council's account it was the largest groundwater licence the Territory has ever issued.
+The Northern Territory granted Fortune Agribusiness a licence to take up to 40 gigalitres of groundwater a year, for thirty years, at Singleton Station in the desert north of Alice Springs. Under the Water Act, anything beyond ten years required the Minister to be satisfied of special circumstances.
 
 Mpwerempwer Aboriginal Corporation holds native title over that country. It challenged the grant.
 
@@ -50,7 +50,7 @@ General information only, not legal advice.
 
 A thirty year water entitlement has been set aside, and not on its merits.
 
-On 5 August the High Court quashed the licence granted to Fortune Agribusiness to extract up to 40 gigalitres of groundwater a year for thirty years at Singleton Station in the Northern Territory, and remitted the application to Territory decision makers. The Central Land Council describes it as the largest groundwater licence ever granted in the Territory.
+On 5 August the High Court set aside the licence granted to Fortune Agribusiness to extract up to 40 gigalitres of groundwater a year for thirty years at Singleton Station in the Northern Territory, and remitted the application to the Minister to be decided again according to law.
 
 The challenge was brought by Mpwerempwer Aboriginal Corporation, the registered native title body corporate for the land. A new condition was imposed requiring an assessment of the impact on Aboriginal cultural values. Fortune was notified of it and given two days to respond. The Corporation was not notified until after the licence had issued. The Court held it should have been heard first.
 
@@ -74,10 +74,10 @@ Details should be checked against the full judgment before relying on them.
 Forty gigalitres of groundwater. A year. For thirty years.
 
 **[0:05]**
-The Northern Territory granted it to a horticulture company in the desert north of Alice Springs. Reportedly the largest groundwater licence the Territory has ever issued.
+The Northern Territory granted it to a horticulture company in the desert north of Alice Springs. A term that long required the Minister to be satisfied of special circumstances.
 
 **[0:13]**
-Last Wednesday the High Court quashed it.
+Last Wednesday the High Court set it aside.
 
 **[0:16]**
 Not because of the water science. A new condition went to the company, which got two days to respond. The native title holders were told after the licence issued.
@@ -104,7 +104,7 @@ Full table in `reports/2026-08-10-daily-court-intelligence.md` section 3. Short 
 
 **Confirmed:** citation and date, licence set aside and remitted to the Minister, 40 GL per year for thirty years, Fortune Agribusiness Funds Management Pty Ltd at Singleton Station, s 60 *Water Act 1992* (NT), the special circumstances requirement for a term beyond ten years, the two day window given to Fortune, the Corporation being notified only after the licence issued, and the holding that it should have been heard first. Bench: Gageler CJ, Gordon, Edelman, Steward, Gleeson, Jagot and Beech-Jones JJ.
 
-**Attributed, not judicial:** "largest groundwater licence ever granted in the NT" is the Central Land Council's characterisation. The caption attributes it. Keep that attribution.
+**Removed entirely, 10 Aug:** the "largest groundwater licence ever granted in the NT" line. It was the Central Land Council's characterisation, not a finding, and under the confirmed only rule an advocacy group's superlative does not go on a slide even with attribution. It is gone from slide 1, slide 6, the caption, the LinkedIn post and the reel script. The case is strong enough on its verified numbers.
 
 **Still not verified:** whether the decision was unanimous. Nothing on the slides or in the caption asserts it either way.
 
