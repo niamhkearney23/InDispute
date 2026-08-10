@@ -12,9 +12,15 @@ Covering the High Court sitting of **Wednesday 5 August 2026**, the most recent 
 
 **What happened.** The Northern Territory granted Fortune Agribusiness a licence to extract up to **40 gigalitres of groundwater a year for thirty years** at Singleton Station, in the desert north of Alice Springs, to develop what was reported as one of Australia's largest fruit and vegetable operations. The Central Land Council describes it as the largest groundwater licence ever granted in the Territory.
 
-**The challenge.** Mpwerempwer Aboriginal Corporation, the registered native title body corporate for the land, challenged the grant. Reported arguments included that the Minister failed to justify a thirty year term rather than the standard ten, and failed to take into account a mandatory relevant consideration, being the protection of Aboriginal cultural values under s 90(1) of the *Water Act* (NT).
+**The statutory frame.** The licence was granted under s 60 of the *Water Act 1992* (NT). A licence for a period beyond ten years required the Minister to be satisfied that special circumstances justified it, and the Minister was required to take into account the protection of Aboriginal cultural values associated with water.
 
-**The outcome.** The High Court **quashed the licence** and remitted the application to Northern Territory decision makers. Reporting of the reasoning is that the Corporation was given no notice of the proposed conditions and no opportunity to be heard on them, that is, a denial of procedural fairness.
+**The challenge.** Mpwerempwer Aboriginal Corporation, the registered native title body corporate for the land, challenged the grant.
+
+**The procedural fairness finding.** A new condition was imposed requiring Fortune to prepare an assessment of the impact on Aboriginal cultural values. **Fortune was told of that condition and given two days to respond. The Corporation was not notified until after the licence had issued.** The Court held the Corporation should have been heard first.
+
+**The outcome.** The licence was **set aside** and the matter remitted to the responsible Minister to be decided again according to law.
+
+**Bench.** Gageler CJ, Gordon, Edelman, Steward, Gleeson, Jagot and Beech-Jones JJ. A full court of seven. Whether the decision was unanimous is not confirmed.
 
 **Why it matters.** A thirty year extraction entitlement, worth an enormous amount and years in the making, was undone not on the merits of the water science but on the step that came before the decision. It is a live illustration of the point every administrative law course makes: fairness in the process is a condition of the power, not a nicety layered on top of it.
 
@@ -42,16 +48,19 @@ The High Court delivered five judgments that day:
 
 | Fact | Status |
 |---|---|
-| Citation [2026] HCA 23, delivered 5 August 2026 | Confirmed, two independent searches |
-| Licence quashed and remitted to NT decision makers | Confirmed, two independent searches |
-| Up to 40 gigalitres per year, thirty year term | Confirmed, two independent searches |
-| Fortune Agribusiness, Singleton Station, NT | Confirmed |
+| Citation [2026] HCA 23, delivered 5 August 2026 | Confirmed, multiple searches |
+| Licence set aside and remitted to the Minister to be decided again according to law | Confirmed, multiple sources |
+| Up to 40 gigalitres (40 billion litres) per year, thirty year term | Confirmed, multiple sources |
+| Fortune Agribusiness Funds Management Pty Ltd, Singleton Station, NT | Confirmed |
+| Granted under s 60 *Water Act 1992* (NT); term beyond ten years required the Minister to be satisfied of special circumstances; protection of Aboriginal cultural values a required consideration | Confirmed via legal trade reporting (Australasian Lawyer) |
+| New condition requiring an Aboriginal cultural values impact assessment; Fortune notified and given **two days** to respond; the Corporation not notified until after the licence issued; Court held it should have been heard first | Confirmed via legal trade reporting, corroborated on a second independently worded search |
+| Bench: Gageler CJ, Gordon, Edelman, Steward, Gleeson, Jagot and Beech-Jones JJ | Confirmed |
+| Whether the decision was **unanimous** | **Still not verified.** Nothing on the slides or in the caption asserts it. |
 | "Largest groundwater licence ever granted in the NT" | Attributed to the Central Land Council, not to the Court. Keep the attribution if you use it. |
-| Denial of procedural fairness, no notice of conditions, no opportunity to be heard | Reported as the outcome by one source. **The slides say "on the reported outcome" for this reason.** |
-| s 90(1) *Water Act* (NT), thirty versus ten year term | Reported as arguments run, not confirmed as the ground decided |
-| Bench composition and whether unanimous | **Not verified** |
 
-**Before publishing**, check the judgment or the official summary for: the composition of the bench, whether the decision was unanimous, and the precise ground on which the licence was set aside. If procedural fairness was not the operative ground, slides 3 and 5 need rewording, and I would rather change them than have you post something imprecise.
+**Upgrade note, second verification pass.** The first pass relied on general news wire copy and could only say that procedural fairness was "the reported outcome". A second pass found legal trade reporting with the specific finding: the two day window given to Fortune, and the Corporation being told only after the licence issued. Slides 2, 3 and 4 were rewritten on that basis and the hedge was removed, because the fact is now sourced rather than inferred.
+
+**Still worth doing before you post:** open the judgment or the official High Court summary and confirm whether the Court was unanimous. Nothing currently published by us depends on it, so this is a completeness check rather than a correction risk.
 
 The "Sydney Harbour" comparison used in some coverage is not on the slides. Forty gigalitres is not two Sydney Harbours a year, and the comparison only works across the full thirty year term. Left it out rather than repeat it loosely.
 

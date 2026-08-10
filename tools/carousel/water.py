@@ -95,19 +95,20 @@ slide(1, "A Case Study",
 
 slide(2, "The Facts",
   '<div class="statement md">Singleton Station, in the desert north of Alice Springs.</div>'
-  '<div class="body"><p>The Territory granted Fortune Agribusiness a licence to take up to <b>40 gigalitres of groundwater a year</b>, for thirty years, to grow fruit and vegetables.</p></div>',
+  '<div class="body"><p>Fortune Agribusiness was licensed to take up to <b>40 gigalitres of groundwater a year</b>, for thirty years.</p>'
+  '<p>Anything beyond ten years required the Minister to be satisfied of <b>special circumstances.</b></p></div>',
   cite=C)
 
 slide(3, "The Problem",
-  '<div class="statement md">The native title holders were never asked.</div>'
-  '<div class="body"><p>Mpwerempwer Aboriginal Corporation holds native title over the land.</p>'
-  '<p>On the reported outcome, it was given <b>no notice</b> of the proposed conditions and <b>no opportunity</b> to be heard on them.</p></div>',
+  '<div class="statement md">The company got two days. The native title holders were told <em>afterwards.</em></div>'
+  '<div class="body"><p>A new condition required an assessment of the impact on Aboriginal cultural values. Fortune was notified and given two days to respond.</p>'
+  '<p>Mpwerempwer Aboriginal Corporation heard nothing until the licence had already issued.</p></div>',
   cite=C)
 
 slide(4, "The Ruling",
-  '<div class="statement md">Licence quashed. Back to the Minister.</div>'
-  '<div class="body"><p>The application returns to Northern Territory decision makers to be made again, properly this time.</p>'
-  '<p>Thirty years of extraction, undone by the step that came before it.</p></div>',
+  '<div class="statement md">Licence set aside. Back to the Minister.</div>'
+  '<div class="body"><p>The Court held the Corporation should have been <b>heard first.</b></p>'
+  '<p>The application returns to the Minister to be decided again according to law. Thirty years of extraction, undone by the step before the decision.</p></div>',
   cite=C)
 
 slide(5, "The Principle",

@@ -4,7 +4,7 @@
 **Case:** Mpwerempwer Aboriginal Corporation RNTBC v Minister [2026] HCA 23, High Court, 5 August 2026.
 **Why this one:** it is the biggest administrative law story of the sitting, and it lands squarely on a subject the audience is actually enrolled in. Slide 6 makes that explicit rather than leaving it to a practitioner to appreciate.
 
-⚠️ **Read section 3 of `reports/2026-08-10-daily-court-intelligence.md` before posting.** Court sites are blocked from this environment, so the precise ground of decision and the bench are unconfirmed. The slides are worded conservatively for that reason.
+**Verification:** a second pass found legal trade reporting with the specific procedural fairness finding, so slides 2 to 4 were rewritten around it and the earlier hedging removed. Full table in section 3 of `reports/2026-08-10-daily-court-intelligence.md`. One item remains unverified: whether the Court was unanimous. Nothing published asserts it.
 
 ---
 
@@ -16,11 +16,15 @@ The Northern Territory granted Fortune Agribusiness a licence to take up to 40 g
 
 Mpwerempwer Aboriginal Corporation holds native title over that country. It challenged the grant.
 
-On 5 August the High Court quashed the licence and sent the application back to Northern Territory decision makers to be made again.
+On 5 August the High Court set the licence aside and sent the application back to the Minister to be decided again according to law.
 
-What is worth sitting with is how it fell. Not on the hydrology. Not on whether the water was there. On the reported outcome, the Corporation was given no notice of the conditions being proposed and no opportunity to be heard on them.
+What is worth sitting with is how it fell. Not on the hydrology. Not on whether the water was there.
 
-That is the whole of it. A decision can be defensible on its merits and still not survive, because fairness in the process is a condition of the power, not a courtesy extended afterwards by a decision maker who is feeling generous.
+A new condition was imposed requiring an assessment of the impact on Aboriginal cultural values. Fortune was told about it and given two days to respond. The Corporation was not told until after the licence had already issued. The Court held it should have been heard first.
+
+Two days for one party. A notification after the fact for the other.
+
+A decision can be perfectly defensible on its merits and still not survive, because fairness in the process is a condition of the power, not a courtesy extended afterwards by a decision maker who is feeling generous.
 
 If you are doing administrative law this semester, this is your exam paper walking around outside. Natural justice. Mandatory relevant considerations. Jurisdictional error. Certiorari and remitter. The doctrine you are being drilled on just unwound a thirty year entitlement.
 
@@ -48,7 +52,7 @@ A thirty year water entitlement has been set aside, and not on its merits.
 
 On 5 August the High Court quashed the licence granted to Fortune Agribusiness to extract up to 40 gigalitres of groundwater a year for thirty years at Singleton Station in the Northern Territory, and remitted the application to Territory decision makers. The Central Land Council describes it as the largest groundwater licence ever granted in the Territory.
 
-The challenge was brought by Mpwerempwer Aboriginal Corporation, the registered native title body corporate for the land. On the reported outcome, the Corporation received no notice of the conditions proposed and no opportunity to be heard on them.
+The challenge was brought by Mpwerempwer Aboriginal Corporation, the registered native title body corporate for the land. A new condition was imposed requiring an assessment of the impact on Aboriginal cultural values. Fortune was notified of it and given two days to respond. The Corporation was not notified until after the licence had issued. The Court held it should have been heard first.
 
 Two observations.
 
@@ -76,7 +80,7 @@ The Northern Territory granted it to a horticulture company in the desert north 
 Last Wednesday the High Court quashed it.
 
 **[0:16]**
-Not because of the water science. Because the native title holders were given no notice of the proposed conditions, and no chance to respond.
+Not because of the water science. A new condition went to the company, which got two days to respond. The native title holders were told after the licence issued.
 
 **[0:24]**
 Procedural fairness is not a courtesy. It is a condition of the power. Get it wrong and the whole decision goes.
@@ -89,7 +93,7 @@ Mpwerempwer, 2026, High Court 23.
 ## Story frames
 
 - "Forty gigalitres a year. Thirty years. Gone." → slide 1
-- "It did not fall on the science." → slide 3
+- "One party got two days. The other got told afterwards." → slide 3
 - "Your admin law exam, outside." → slide 6
 
 ---
@@ -98,12 +102,10 @@ Mpwerempwer, 2026, High Court 23.
 
 Full table in `reports/2026-08-10-daily-court-intelligence.md` section 3. Short version:
 
-**Confirmed across two independent searches:** citation and date, licence quashed and remitted, 40 GL per year for thirty years, Fortune Agribusiness at Singleton Station.
+**Confirmed:** citation and date, licence set aside and remitted to the Minister, 40 GL per year for thirty years, Fortune Agribusiness Funds Management Pty Ltd at Singleton Station, s 60 *Water Act 1992* (NT), the special circumstances requirement for a term beyond ten years, the two day window given to Fortune, the Corporation being notified only after the licence issued, and the holding that it should have been heard first. Bench: Gageler CJ, Gordon, Edelman, Steward, Gleeson, Jagot and Beech-Jones JJ.
 
 **Attributed, not judicial:** "largest groundwater licence ever granted in the NT" is the Central Land Council's characterisation. The caption attributes it. Keep that attribution.
 
-**Reported but not confirmed from the judgment:** that procedural fairness was the operative ground. Slide 3 says "on the reported outcome" deliberately.
-
-**Not verified at all:** bench composition, whether unanimous. Nothing on the slides or in the caption asserts either.
+**Still not verified:** whether the decision was unanimous. Nothing on the slides or in the caption asserts it either way.
 
 **Deliberately omitted:** the "two Sydney Harbours" comparison in some coverage. It does not hold for annual volume and only works across the full term. Better left out than repeated loosely.
