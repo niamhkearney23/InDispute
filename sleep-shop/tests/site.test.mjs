@@ -87,6 +87,39 @@ test('artwork renders an svg for the box and every piece', () => {
   }
 });
 
+test('a photo replaces the drawing wherever one is set', () => {
+  const { sandbox } = loadSandbox();
+  const html = sandbox.SleepArt.render(
+    { art: 'mask', ground: 'cocoa', name: 'Silk eye mask', photo: 'photos/eye-mask.jpg' }
+  );
+  assert.match(html, /^<img class="art art--photo"/, 'photo did not replace the svg');
+  assert.match(html, /src="photos\/eye-mask\.jpg"/);
+  assert.match(html, /alt="Silk eye mask"/, 'a photo still needs alt text');
+  assert.match(html, /loading="lazy"/);
+
+  /* An empty photo must fall through to the drawing, not render a broken img. */
+  const drawn = sandbox.SleepArt.render({ art: 'mask', ground: 'cocoa', name: 'x', photo: '' });
+  assert.ok(drawn.startsWith('<svg'));
+});
+
+test('every photo path that is set points at a file that exists', () => {
+  const { sandbox } = loadSandbox();
+  const declared = [
+    { where: 'box', photo: sandbox.SLEEP_BOX.photo },
+    ...sandbox.SLEEP_BOX.shots.map((s, i) => ({ where: `box.shots[${i}]`, photo: s.photo })),
+    ...sandbox.SLEEP_CONTENTS.map((p) => ({ where: p.id, photo: p.photo }))
+  ];
+  /* Every image slot must be declared, even when it is still empty — that is
+     what makes the shot list and the site impossible to get out of step. */
+  for (const entry of declared) {
+    assert.equal(typeof entry.photo, 'string', `${entry.where}: missing a photo slot`);
+    if (!entry.photo) continue;
+    assert.ok(existsSync(path.join(root, entry.photo)),
+      `${entry.where}: photo not found — ${entry.photo}`);
+  }
+  assert.equal(declared.length, 12, 'expected 12 image slots: the box, 3 shots, 8 pieces');
+});
+
 test('artwork escapes labels rather than injecting markup', () => {
   const { sandbox } = loadSandbox();
   const svg = sandbox.SleepArt.render(sandbox.SLEEP_BOX, { label: '"><script>x</script>' });

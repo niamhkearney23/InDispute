@@ -72,6 +72,33 @@
   --shadow-lg: 0 30px 70px rgba(0, 0, 0, .6);
 }
 
+/* Three states, not two: an explicit choice stamps data-theme, and the default
+   "system" setting stamps nothing — so the same tokens are declared again
+   behind the media query, guarded so an explicit light choice still wins. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --bg: #2a1810;
+    --bg-alt: #352015;
+    --surface: #3b2318;
+    --ink: #f2e9dc;
+    --ink-soft: #d3c1b0;
+    --mute: #a08e80;
+    --line: #4d3122;
+    --line-strong: #6a4632;
+
+    --accent: var(--cream);
+    --accent-hover: #ffffff;
+    --accent-ink: #2a1810;
+    --mark: #e2a9a2;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, .35);
+    --shadow: 0 14px 40px rgba(0, 0, 0, .45);
+    --shadow-lg: 0 30px 70px rgba(0, 0, 0, .6);
+  }
+}
+
 /* -------------------------------------------------------------- 2. Reset */
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -89,6 +116,9 @@ body {
 }
 
 img, svg { display: block; max-width: 100%; }
+
+/* A photograph drops into exactly the same box the illustration occupied. */
+img.art { width: 100%; height: 100%; object-fit: cover; }
 button, input, select, textarea { font: inherit; color: inherit; }
 a { color: inherit; }
 

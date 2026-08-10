@@ -46,6 +46,14 @@
       { label: 'Oxblood', swatch: '#5C1F28' },
       { label: 'Powder blue', swatch: '#AFC9DF' }
     ],
+    /* Set `photo` on any of these and the drawing is replaced site-wide.
+       Paths are relative to the site root, e.g. 'photos/box-closed.jpg'. */
+    photo: '',
+    shots: [
+      { art: 'box-closed', ground: 'powder', photo: '', label: 'The box, tied' },
+      { art: 'box-open', ground: 'cream', photo: '', label: 'The box, open' },
+      { art: 'card', ground: 'cocoa', photo: '', label: 'The card, written by hand' }
+    ],
     specs: {
       Contains: 'Eight pieces',
       Box: '320 × 240 × 90 mm, rigid, reusable',
@@ -63,6 +71,7 @@
       material: '22-momme mulberry silk',
       art: 'mask',
       ground: 'cocoa',
+      photo: '',
       blurb: 'Weighted along the nose so it sits without pressing, on a soft elastic that does not catch in hair.',
       detail: 'Cut from the same 22-momme silk as the pillowcase and finished with a covered elastic. The seam is on the outside, so nothing rests against your eyelid.'
     },
@@ -72,6 +81,7 @@
       material: '22-momme mulberry silk, standard',
       art: 'pillowcase',
       ground: 'powder',
+      photo: '',
       blurb: 'Grade 6A silk with a hidden zip, heavy enough to drape properly and hold its colour.',
       detail: 'Standard 48 × 74 cm with a hidden zip closure. Silk holds far less moisture than cotton, which is why anything you put on your face at night stays on your face.'
     },
@@ -81,6 +91,7 @@
       material: 'Offcut silk, same run',
       art: 'scrunchie',
       ground: 'cream',
+      photo: '',
       blurb: 'Cut from the offcuts of the pillowcase run, so the colour is an exact match.',
       detail: 'Made from what would otherwise be waste. Gentle enough to sleep in, and the reason the box looks considered rather than assembled.'
     },
@@ -90,6 +101,7 @@
       material: '19.5-micron Australian merino',
       art: 'socks',
       ground: 'oxblood',
+      photo: '',
       blurb: 'Fine-knit merino with a loose cuff that does not leave a mark on the ankle.',
       detail: 'Knitted in Melbourne from 19.5-micron merino. Warm without the bulk of a boot sock, and the cuff is ribbed loosely on purpose.'
     },
@@ -99,6 +111,7 @@
       material: 'Tasmanian lavender, 100 ml',
       art: 'bottle',
       ground: 'cocoa',
+      photo: '',
       blurb: 'Steam-distilled Tasmanian lavender with vetiver and cedarwood. Alcohol-free, so it will not mark linen.',
       detail: 'Two sprays on the pillow before the light goes off. Alcohol-free and unbleached, in a recycled glass bottle with a fine atomiser.'
     },
@@ -108,6 +121,7 @@
       material: 'Chamomile, lemon balm, rose — 30 g',
       art: 'tea',
       ground: 'stripe',
+      photo: '',
       blurb: 'A loose leaf blend of chamomile, lemon balm and rose petal. Caffeine free.',
       detail: 'Blended for us in Collingwood. Thirty grams is roughly fifteen cups, in a tin that fits the box and outlives it.'
     },
@@ -117,6 +131,7 @@
       material: 'Pure beeswax, 40 hours',
       art: 'candle',
       ground: 'powder',
+      photo: '',
       blurb: 'Poured beeswax with a cotton wick. Unscented, so it does not argue with the mist.',
       detail: 'Forty hours of burn time. Unscented deliberately — there is already lavender in the box, and two scents in one room is one too many.'
     },
@@ -126,6 +141,7 @@
       material: 'Letterpress cover, 96 pages',
       art: 'journal',
       ground: 'cream',
+      photo: '',
       blurb: 'Ninety-six unlined pages, sewn flat so it stays open on a bedside table.',
       detail: 'Section-sewn so it lies flat, with a letterpress cover on cotton board. Unlined, because a ruled page asks you to be tidy at midnight.'
     }

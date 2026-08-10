@@ -211,10 +211,21 @@
       '<circle cx="0" cy="4" r="13" fill="' + c.obj + '"/></g>';
   }
 
-  /* item: { art, ground, name }  — everything in data.js already has these. */
+  /* item: { art, ground, name, photo }  — everything in data.js has these.
+
+     Set `photo` on anything in data.js and a real photograph replaces the
+     drawing in every place that image appears. Nothing else has to change:
+     the illustrations are placeholders holding the exact crop the shoot
+     needs to fill (square, subject centred, generous margin). */
   function render(item, options) {
     var opts = options || {};
     var thing = item || {};
+    var photo = opts.photo || thing.photo;
+    if (photo) {
+      return '<img class="art art--photo" src="' + escapeAttr(photo) + '" alt="' +
+        escapeAttr(opts.label != null ? opts.label : (thing.name || '')) +
+        '" loading="lazy" decoding="async" width="1200" height="1200">';
+    }
     var c = palette(opts.ground || thing.ground || 'powder');
     var scene = SCENES[opts.art || thing.art] || SCENES['box-closed'];
     var id = nextId();

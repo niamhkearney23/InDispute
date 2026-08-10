@@ -56,7 +56,14 @@
     try {
       var saved = global.localStorage.getItem(THEME_KEY);
       if (saved === 'light' || saved === 'dark') return saved;
-    } catch (err) { /* storage unavailable — fall through to the media query */ }
+    } catch (err) { /* storage unavailable — fall through */ }
+
+    /* Respect a theme already stamped on the document. That is normally our own
+       pre-paint bootstrap, but when the page is embedded somewhere that picks
+       the theme for the reader, their choice should not be overwritten. */
+    var stamped = doc.documentElement.getAttribute('data-theme');
+    if (stamped === 'light' || stamped === 'dark') return stamped;
+
     return global.matchMedia && global.matchMedia('(prefers-color-scheme: dark)').matches
       ? 'dark'
       : 'light';

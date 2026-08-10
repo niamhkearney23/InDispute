@@ -7,14 +7,14 @@
   var Art = global.SleepArt;
 
   function init() {
-    var steps = doc.querySelector('[data-steps]');
+    var steps = doc.querySelector('[data-gift-steps]');
     if (steps) {
       steps.innerHTML = global.SLEEP_STEPS.map(function (step) {
         return '<li><strong>' + UI.escapeHtml(step.title) + '</strong>' +
           '<span>' + UI.escapeHtml(step.body) + '</span></li>';
       }).join('');
     }
-    var art = doc.querySelector('[data-card-art]');
+    var art = doc.querySelector('[data-gift-card-art]');
     if (art) art.innerHTML = Art.render({ art: 'card', ground: 'powder', name: 'A card being written' });
   }
 

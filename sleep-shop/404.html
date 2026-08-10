@@ -52,7 +52,7 @@
 
   <section class="section">
     <div class="wrap">
-      <div class="tilegrid" data-tile-grid aria-hidden="true"></div>
+      <div class="tilegrid" data-notfound-tiles aria-hidden="true"></div>
     </div>
   </section>
 
@@ -71,7 +71,7 @@
       { art: 'mask', ground: 'cocoa' },
       { art: 'pillowcase', ground: 'cream' }
     ];
-    document.querySelector('[data-tile-grid]').innerHTML =
+    document.querySelector('[data-notfound-tiles]').innerHTML =
       tiles.map(function (t) { return SleepArt.render(t, { label: '' }); }).join('');
   });
 </script>

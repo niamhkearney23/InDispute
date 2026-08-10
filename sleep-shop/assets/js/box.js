@@ -10,12 +10,9 @@
   var CONTENTS = global.SLEEP_CONTENTS;
   var LIMIT = global.SLEEP_CONFIG.giftMessageLimit;
 
-  /* Three views of the same box: tied, open, and the card that goes in it. */
-  var SHOTS = [
-    { art: 'box-closed', ground: 'powder', label: BOX.name + ', tied' },
-    { art: 'box-open', ground: 'cream', label: BOX.name + ', open' },
-    { art: 'card', ground: 'cocoa', label: 'The card, written by hand' }
-  ];
+  /* Three views of the same box: tied, open, and the card that goes in it.
+     Declared in data.js so photo paths all live in one place. */
+  var SHOTS = BOX.shots;
 
   var ribbon = Store.defaultRibbon();
   var qty = 1;
@@ -31,13 +28,14 @@
        responds to the only decision there is to make. */
     var main = SHOTS[shot];
     var ground = shot === 0 ? UI.groundForRibbon(ribbon) : main.ground;
-    fill('[data-main-art]', Art.render({ art: main.art, ground: ground, name: main.label }));
+    fill('[data-main-art]', Art.render(
+      { art: main.art, ground: ground, name: main.label, photo: main.photo }));
 
     fill('[data-thumbs]', SHOTS.map(function (s, i) {
       var g = i === 0 ? UI.groundForRibbon(ribbon) : s.ground;
       return '<button type="button" data-shot="' + i + '" aria-pressed="' + (i === shot) + '" ' +
         'aria-label="View ' + UI.escapeHtml(s.label) + '">' +
-        Art.render({ art: s.art, ground: g, name: s.label }, { label: '' }) +
+        Art.render({ art: s.art, ground: g, name: s.label, photo: s.photo }, { label: '' }) +
       '</button>';
     }).join(''));
   }
@@ -109,7 +107,7 @@
         UI.escapeHtml(BOX.specs[key]) + '</td></tr>';
     }).join(''));
 
-    fill('[data-pieces-grid]', CONTENTS.map(UI.pieceCard).join(''));
+    fill('[data-box-pieces]', CONTENTS.map(UI.pieceCard).join(''));
   }
 
   function bind() {
