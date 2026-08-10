@@ -64,7 +64,14 @@ export default async function AdminFactsPage() {
       {today ? (
         <Card className="bg-paper-sunk">
           <p className="eyebrow mb-2">Showing today · {previewTimezone}</p>
-          <Link href={`/admin/facts/${today.id}`} className="text-lg hover:underline">
+          {/* inline-block and vertical padding, so a title short enough to sit
+              on one line is still a 32px target. A long title wrapped to two
+              lines and cleared it by accident, which is why this went unnoticed
+              until a short one appeared. */}
+          <Link
+            href={`/admin/facts/${today.id}`}
+            className="inline-block py-1.5 text-lg hover:underline"
+          >
             {today.title}
           </Link>
           <p className="mt-2 text-xs text-muted">
