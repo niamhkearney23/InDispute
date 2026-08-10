@@ -27,222 +27,300 @@ function loadSandbox(seed = new Map()) {
 }
 
 const htmlFiles = readdirSync(root).filter((f) => f.endsWith('.html'));
+const jsFiles = readdirSync(path.join(root, 'assets/js')).map((f) => `assets/js/${f}`);
+const readAll = (files) => files.map((f) => [f, readFileSync(path.join(root, f), 'utf8')]);
 
 /* ------------------------------------------------------------- catalogue */
 
-test('every product is complete and internally consistent', () => {
+test('the box and its eight pieces are complete', () => {
   const { sandbox } = loadSandbox();
-  const { HUSH_PRODUCTS: products, HUSH_CATEGORIES: categories } = sandbox;
-  const slugs = new Set(categories.map((c) => c.slug));
-  const seen = new Set();
+  const { SLEEP_BOX: box, SLEEP_CONTENTS: contents, SLEEP_GROUNDS: grounds } = sandbox;
 
-  assert.ok(products.length >= 15, 'expected a real catalogue');
+  assert.ok(box.price > 0, 'the box needs a price');
+  assert.ok(box.ribbons.length >= 2, 'there should be a ribbon choice');
+  box.ribbons.forEach((r) => {
+    assert.ok(r.label, 'ribbon needs a label');
+    assert.match(r.swatch, /^#[0-9a-f]{6}$/i, `${r.label}: bad swatch`);
+  });
+  assert.ok(Object.keys(box.specs).length >= 4, 'the box needs specs');
+  assert.ok(box.description.length >= 2, 'the box needs a description');
 
-  for (const p of products) {
-    assert.match(p.id, /^[a-z0-9-]+$/, `${p.id}: id should be a slug`);
-    assert.ok(!seen.has(p.id), `${p.id}: duplicate id`);
-    seen.add(p.id);
+  /* "Eight pieces, one ritual" is the brand line — the data has to back it up. */
+  assert.equal(contents.length, 8, 'the box promises eight pieces');
 
-    assert.ok(p.name && p.blurb, `${p.id}: needs a name and blurb`);
-    assert.ok(slugs.has(p.category), `${p.id}: unknown category ${p.category}`);
-    assert.ok(p.price > 0, `${p.id}: price must be positive`);
-    assert.ok(p.rating > 0 && p.rating <= 5, `${p.id}: rating out of range`);
-    assert.ok(p.reviews > 0, `${p.id}: needs a review count`);
-    assert.ok(Array.isArray(p.description) && p.description.length >= 1, `${p.id}: needs a description`);
-    assert.ok(Array.isArray(p.features) && p.features.length >= 3, `${p.id}: needs features`);
-    assert.ok(Object.keys(p.specs || {}).length >= 3, `${p.id}: needs specs`);
-    assert.equal(p.tone.length, 3, `${p.id}: tone needs three colours`);
-    p.tone.forEach((c) => assert.match(c, /^#[0-9a-f]{6}$/i, `${p.id}: bad colour ${c}`));
-
-    if (p.sizes) {
-      assert.ok(p.sizes.some((s) => s.delta === 0), `${p.id}: one size should be the base price`);
-      p.sizes.forEach((s) => {
-        assert.ok(p.price + s.delta > 0, `${p.id}: ${s.label} priced at or below zero`);
-      });
-    }
+  const ids = new Set();
+  for (const piece of contents) {
+    assert.match(piece.id, /^[a-z0-9-]+$/, `${piece.id}: id should be a slug`);
+    assert.ok(!ids.has(piece.id), `${piece.id}: duplicate id`);
+    ids.add(piece.id);
+    assert.ok(piece.name && piece.blurb && piece.detail, `${piece.id}: missing copy`);
+    assert.ok(piece.material, `${piece.id}: needs a material`);
+    assert.ok(grounds[piece.ground], `${piece.id}: unknown ground ${piece.ground}`);
   }
 });
 
-test('every category has stock', () => {
+test('every ground in the data is one of the five brand grounds', () => {
   const { sandbox } = loadSandbox();
-  for (const category of sandbox.HUSH_CATEGORIES) {
-    const count = sandbox.HUSH_PRODUCTS.filter((p) => p.category === category.slug).length;
-    assert.ok(count > 0, `${category.slug} has no products`);
+  const allowed = ['cocoa', 'oxblood', 'powder', 'cream', 'stripe'];
+  assert.deepEqual(Object.keys(sandbox.SLEEP_GROUNDS).sort(), allowed.slice().sort());
+  for (const g of Object.values(sandbox.SLEEP_GROUNDS)) {
+    assert.match(g.bg, /^#[0-9a-f]{6}$/i);
+    assert.match(g.ink, /^#[0-9a-f]{6}$/i);
   }
 });
 
-test('artwork renders an svg for every product', () => {
+test('artwork renders an svg for the box and every piece', () => {
   const { sandbox } = loadSandbox();
-  for (const p of sandbox.HUSH_PRODUCTS) {
-    const svg = sandbox.HushArt.render(p);
-    assert.ok(svg.startsWith('<svg'), `${p.id}: no svg produced`);
-    assert.ok(svg.includes('aria-label'), `${p.id}: svg needs a label`);
-    assert.ok(!svg.includes('undefined'), `${p.id}: svg contains "undefined"`);
-    assert.ok(!svg.includes('NaN'), `${p.id}: svg contains "NaN"`);
+  const items = [sandbox.SLEEP_BOX, ...sandbox.SLEEP_CONTENTS];
+  for (const item of items) {
+    const svg = sandbox.SleepArt.render(item);
+    assert.ok(svg.startsWith('<svg'), `${item.name}: no svg produced`);
+    assert.ok(svg.includes('aria-label'), `${item.name}: svg needs a label`);
+    assert.ok(!svg.includes('undefined'), `${item.name}: svg contains "undefined"`);
+    assert.ok(!svg.includes('NaN'), `${item.name}: svg contains "NaN"`);
+  }
+  /* Every named scene should draw something, including the ones only the
+     pages reference by name. */
+  for (const scene of sandbox.SleepArt.scenes) {
+    const svg = sandbox.SleepArt.render({ art: scene, ground: 'cocoa', name: scene });
+    assert.ok(svg.length > 400, `${scene}: scene looks empty`);
   }
 });
 
 test('artwork escapes labels rather than injecting markup', () => {
   const { sandbox } = loadSandbox();
-  const svg = sandbox.HushArt.render(sandbox.HUSH_PRODUCTS[0], { label: '"><script>x</script>' });
+  const svg = sandbox.SleepArt.render(sandbox.SLEEP_BOX, { label: '"><script>x</script>' });
   assert.ok(!svg.includes('<script>'), 'label was not escaped');
 });
 
 /* ------------------------------------------------------------------ cart */
 
-test('adding, merging and removing lines', () => {
+test('boxes with the same ribbon and message merge, different ones do not', () => {
   const { sandbox } = loadSandbox();
-  const Store = sandbox.HushStore;
+  const Store = sandbox.SleepStore;
 
-  Store.add('silk-sleep-mask');
-  Store.add('silk-sleep-mask');
-  let summary = Store.summary();
-  assert.equal(summary.lines.length, 1, 'same item should merge into one line');
-  assert.equal(summary.count, 2);
-  assert.equal(summary.subtotal, 98);
+  Store.add('Oxblood', 'Happy birthday', 1);
+  Store.add('Oxblood', 'Happy birthday', 1);
+  let s = Store.summary();
+  assert.equal(s.lines.length, 1, 'identical boxes should merge');
+  assert.equal(s.count, 2);
 
-  Store.add('cloudform-hybrid', 'King');
-  Store.add('cloudform-hybrid', 'Queen');
-  summary = Store.summary();
-  assert.equal(summary.lines.length, 3, 'different sizes are separate lines');
+  /* Same ribbon, different message — two different people, two lines. */
+  Store.add('Oxblood', 'Thank you for everything', 1);
+  assert.equal(Store.summary().lines.length, 2);
 
-  Store.remove('cloudform-hybrid', 'King');
-  summary = Store.summary();
-  assert.equal(summary.lines.length, 2);
+  /* Same message, different ribbon — also distinct. */
+  Store.add('Powder blue', 'Happy birthday', 1);
+  assert.equal(Store.summary().lines.length, 3);
 
-  Store.setQty('silk-sleep-mask', null, 0);
-  assert.equal(Store.summary().lines.length, 1, 'zero quantity removes the line');
+  Store.remove('Oxblood', 'Happy birthday');
+  assert.equal(Store.summary().lines.length, 2);
 
   Store.clear();
   assert.equal(Store.summary().count, 0);
 });
 
-test('variant pricing follows the size delta', () => {
+test('an unknown ribbon falls back rather than creating a junk line', () => {
   const { sandbox } = loadSandbox();
-  const Store = sandbox.HushStore;
-  const mattress = Store.byId('cloudform-hybrid');
-
-  assert.equal(Store.priceFor(mattress, 'Queen'), 1899);
-  assert.equal(Store.priceFor(mattress, 'Single'), 1299);
-  assert.equal(Store.priceFor(mattress, 'King'), 2199);
-  assert.equal(Store.priceFor(mattress, 'Nonexistent'), 1899, 'unknown size falls back to base');
-  assert.equal(Store.defaultVariant(mattress), 'Queen');
-
-  const range = Store.priceRange(mattress);
-  assert.equal(range.min, 1299);
-  assert.equal(range.max, 2199);
-
-  const mask = Store.byId('silk-sleep-mask');
-  assert.equal(Store.priceRange(mask).min, 49);
-  assert.equal(Store.priceRange(mask).max, 49);
-  assert.equal(Store.defaultVariant(mask), null);
+  const Store = sandbox.SleepStore;
+  Store.add('Chartreuse', '', 1);
+  const lines = Store.summary().lines;
+  assert.equal(lines.length, 1);
+  assert.equal(lines[0].ribbon, Store.defaultRibbon());
 });
 
-test('delivery is free above the threshold and charged below it', () => {
+test('gift messages are tidied and capped at the card length', () => {
   const { sandbox } = loadSandbox();
-  const Store = sandbox.HushStore;
-  const { freeShippingFrom, shippingFlat } = sandbox.HUSH_CONFIG;
+  const Store = sandbox.SleepStore;
+  const limit = sandbox.SLEEP_CONFIG.giftMessageLimit;
 
-  Store.add('lavender-pillow-mist'); /* $34 */
-  let summary = Store.summary();
-  assert.equal(summary.shipping, shippingFlat);
-  assert.equal(summary.freeShippingRemaining, freeShippingFrom - 34);
-  assert.equal(summary.total, 34 + shippingFlat);
+  assert.equal(Store.tidyMessage('  spaced   out \n line  '), 'spaced out line');
+  assert.equal(Store.tidyMessage('x'.repeat(limit + 80)).length, limit);
+  assert.equal(Store.tidyMessage(null), '');
 
-  Store.add('silk-sleep-mask'); /* +$49 = $83 */
-  Store.add('bamboo-sleep-tee'); /* +$69 = $152 */
-  summary = Store.summary();
-  assert.equal(summary.shipping, 0);
-  assert.equal(summary.freeShippingRemaining, 0);
-  assert.equal(summary.total, 152);
+  Store.add('Oxblood', '  Sleep   well  ', 1);
+  assert.equal(Store.summary().lines[0].message, 'Sleep well');
 });
 
-test('an empty cart is never charged for delivery', () => {
+test('editing a message moves the line, and merges it if it collides', () => {
   const { sandbox } = loadSandbox();
-  const summary = sandbox.HushStore.summary();
+  const Store = sandbox.SleepStore;
+
+  Store.add('Oxblood', 'First message', 1);
+  Store.add('Oxblood', 'Second message', 2);
+  assert.equal(Store.summary().lines.length, 2);
+
+  Store.setMessage('Oxblood', 'First message', 'Edited message');
+  let lines = Store.summary().lines;
+  assert.equal(lines.length, 2);
+  /* Edited in place — a box must not jump down the cart because you fixed a typo. */
+  assert.equal(lines[0].message, 'Edited message', 'the edited box moved');
+  assert.equal(lines[1].message, 'Second message');
+
+  /* Editing one line to match another must merge rather than duplicate. */
+  Store.setMessage('Oxblood', 'Edited message', 'Second message');
+  lines = Store.summary().lines;
+  assert.equal(lines.length, 1, 'colliding messages should merge');
+  assert.equal(lines[0].qty, 3, 'quantities should add up');
+});
+
+test('editing a message on a line that is gone changes nothing', () => {
+  const { sandbox } = loadSandbox();
+  const Store = sandbox.SleepStore;
+  Store.add('Oxblood', 'Only line', 1);
+  Store.setMessage('Oxblood', 'Not a real line', 'Something else');
+  const lines = Store.summary().lines;
+  assert.equal(lines.length, 1);
+  assert.equal(lines[0].message, 'Only line');
+});
+
+test('delivery is free unless express is chosen', () => {
+  const { sandbox } = loadSandbox();
+  const Store = sandbox.SleepStore;
+  const fee = sandbox.SLEEP_CONFIG.expressFee;
+  const price = sandbox.SLEEP_BOX.price;
+
+  Store.add('Powder blue', '', 1);
+  assert.equal(Store.summary().shipping, 0);
+  assert.equal(Store.summary().total, price);
+
+  const express = Store.summary({ express: true });
+  assert.equal(express.shipping, fee);
+  assert.equal(express.total, price + fee);
+});
+
+test('an empty cart is never charged for express', () => {
+  const { sandbox } = loadSandbox();
+  const summary = sandbox.SleepStore.summary({ express: true });
   assert.equal(summary.count, 0);
   assert.equal(summary.shipping, 0);
   assert.equal(summary.total, 0);
 });
 
-test('promo codes discount the subtotal and can push delivery back on', () => {
+test('promo codes discount the subtotal and stack with express', () => {
   const { sandbox } = loadSandbox();
-  const Store = sandbox.HushStore;
+  const Store = sandbox.SleepStore;
 
-  Store.add('white-noise-machine'); /* $129, over the $99 threshold */
-  assert.equal(Store.summary().shipping, 0);
-
-  const discounted = Store.summary('SLEEPWELL');
+  Store.add('Oxblood', '', 2); /* $298 */
+  const discounted = Store.summary({ promo: 'FIRSTRUN' });
   assert.equal(discounted.discountRate, 0.1);
-  assert.equal(discounted.discount, 12.9);
-  /* $129 - $12.90 = $116.10, still over $99, so delivery stays free. */
-  assert.equal(discounted.shipping, 0);
-  assert.equal(discounted.total, 116.1);
+  assert.equal(discounted.discount, 29.8);
+  assert.equal(discounted.total, 268.2);
 
-  const deeper = Store.summary('FIRSTNIGHT'); /* 15% -> $109.65, still free */
-  assert.equal(deeper.shipping, 0);
+  const both = Store.summary({ promo: 'firstrun', express: true });
+  assert.equal(both.total, 268.2 + sandbox.SLEEP_CONFIG.expressFee);
 
-  assert.equal(Store.promoRate('sleepwell'), 0.1, 'codes are case-insensitive');
-  assert.equal(Store.promoRate('  SLEEPWELL '), 0.1, 'codes tolerate whitespace');
+  assert.equal(Store.promoRate('  FIRSTRUN '), 0.1, 'codes tolerate whitespace');
   assert.equal(Store.promoRate('NOPE'), 0);
-  assert.equal(Store.promoRate(''), 0);
   assert.equal(Store.promoRate(null), 0);
 });
 
-test('a discount that drops the order under the threshold restores delivery', () => {
+test('written counts the boxes that carry a card message', () => {
   const { sandbox } = loadSandbox();
-  const Store = sandbox.HushStore;
-  Store.add('bedside-diffuser'); /* $99 exactly — free delivery */
-  assert.equal(Store.summary().shipping, 0);
-  const discounted = Store.summary('SLEEPWELL'); /* $89.10 */
-  assert.equal(discounted.shipping, sandbox.HUSH_CONFIG.shippingFlat);
+  const Store = sandbox.SleepStore;
+  Store.add('Oxblood', 'For Sam', 1);
+  Store.add('Powder blue', '', 1);
+  const summary = Store.summary();
+  assert.equal(summary.lines.length, 2);
+  assert.equal(summary.written, 1);
 });
 
 test('the cart survives a page load and ignores junk', () => {
   const seed = new Map();
   const first = loadSandbox(seed).sandbox;
-  first.HushStore.add('contour-cool-pillow', null, 2);
+  first.SleepStore.add('Oxblood', 'Sleep well', 2);
 
   const second = loadSandbox(seed).sandbox;
-  assert.equal(second.HushStore.summary().count, 2, 'cart did not persist');
+  assert.equal(second.SleepStore.summary().count, 2, 'cart did not persist');
+  assert.equal(second.SleepStore.summary().lines[0].message, 'Sleep well');
 
-  seed.set('hush.cart.v1', '{ not json');
-  const third = loadSandbox(seed).sandbox;
-  assert.equal(third.HushStore.summary().count, 0, 'corrupt storage should read as empty');
+  seed.set('sleepshop.cart.v1', '{ not json');
+  assert.equal(loadSandbox(seed).sandbox.SleepStore.summary().count, 0,
+    'corrupt storage should read as empty');
 
-  seed.set('hush.cart.v1', JSON.stringify([
-    { id: 'discontinued-thing', variant: null, qty: 3 },
-    { id: 'silk-sleep-mask', variant: null, qty: 1 }
+  seed.set('sleepshop.cart.v1', JSON.stringify([
+    { ribbon: 'Chartreuse', message: '', qty: 3 },
+    { ribbon: 'Oxblood', message: 'Kept', qty: 1 }
   ]));
-  const fourth = loadSandbox(seed).sandbox;
-  const lines = fourth.HushStore.summary().lines;
-  assert.equal(lines.length, 1, 'lines for unknown products should be dropped');
-  assert.equal(lines[0].id, 'silk-sleep-mask');
+  const lines = loadSandbox(seed).sandbox.SleepStore.summary().lines;
+  assert.equal(lines.length, 1, 'lines with an unknown ribbon should be dropped');
+  assert.equal(lines[0].message, 'Kept');
 });
 
 test('subscribers are notified when the cart changes', () => {
   const { sandbox } = loadSandbox();
   const seen = [];
-  const off = sandbox.HushStore.subscribe((s) => seen.push(s.count));
-  sandbox.HushStore.add('merino-throw');
-  sandbox.HushStore.add('merino-throw');
+  const off = sandbox.SleepStore.subscribe((s) => seen.push(s.count));
+  sandbox.SleepStore.add('Oxblood', '', 1);
+  sandbox.SleepStore.add('Oxblood', '', 1);
   off();
-  sandbox.HushStore.add('merino-throw');
+  sandbox.SleepStore.add('Oxblood', '', 1);
   assert.deepEqual(seen, [1, 2], 'unsubscribe should stop the callbacks');
 });
 
 test('prices format as Australian dollars', () => {
   const { sandbox } = loadSandbox();
-  const money = sandbox.HushStore.money;
-  assert.equal(money(1899), '$1,899');
-  assert.equal(money(116.1), '$116.10');
+  const money = sandbox.SleepStore.money;
+  assert.equal(money(149), '$149');
+  assert.equal(money(268.2), '$268.20');
+});
+
+/* --------------------------------------------------- brand and compliance */
+
+/* The brand plan is explicit: captions and copy stay inside rest, ritual,
+   comfort and care. Outcome claims are what turn a gift box into a
+   therapeutic good in the eyes of the TGA, so they fail the build. */
+const CLAIM_PATTERNS = [
+  /sleep quality/i,
+  /improves? (your )?sleep/i,
+  /better sleep/i,
+  /helps? you (fall )?asleep/i,
+  /stress relief/i,
+  /reduces? (stress|anxiety)/i,
+  /anxiety/i,
+  /wellbeing/i,
+  /wellness/i,
+  /therapeutic/i,
+  /clinically/i,
+  /insomnia/i,
+  /cures?\b/i,
+  /treats? (a )?(condition|symptom)/i
+];
+
+test('no therapeutic or outcome claims anywhere in the copy', () => {
+  for (const [file, source] of readAll([...htmlFiles, ...jsFiles])) {
+    for (const pattern of CLAIM_PATTERNS) {
+      const hit = source.match(pattern);
+      assert.equal(hit, null,
+        `${file}: outcome claim "${hit && hit[0]}" — the plan rules this language out`);
+    }
+  }
+});
+
+/* No testimonials until there are real ones with written permission: a mocked
+   up review is a straightforward Australian Consumer Law problem. */
+test('no invented testimonials, star ratings or review counts', () => {
+  for (const [file, source] of readAll([...htmlFiles, ...jsFiles])) {
+    assert.ok(!/<blockquote/i.test(source), `${file}: contains a testimonial blockquote`);
+    assert.ok(!/★|✩|<figcaption/i.test(source), `${file}: contains star ratings or a quote caption`);
+    assert.ok(!/\b\d[\d,]*\s+reviews?\b/i.test(source), `${file}: quotes a review count`);
+  }
+});
+
+test('the script accent is used sparingly, never for a whole paragraph', () => {
+  for (const [file, source] of readAll(htmlFiles)) {
+    for (const match of source.matchAll(/class="script"[^>]*>([\s\S]*?)</g)) {
+      const words = match[1].trim().split(/\s+/).filter(Boolean).length;
+      assert.ok(words > 0 && words <= 8,
+        `${file}: script accent runs to ${words} words — it is for one phrase`);
+    }
+  }
 });
 
 /* ------------------------------------------------------------------ html */
 
-test('every page loads the shared chrome and its own script', () => {
-  for (const file of htmlFiles) {
-    const html = readFileSync(path.join(root, file), 'utf8');
+test('every page loads the shared chrome and the brand fonts', () => {
+  for (const [file, html] of readAll(htmlFiles)) {
     assert.match(html, /^<!doctype html>/i, `${file}: missing doctype`);
     assert.match(html, /<html lang="en-AU">/, `${file}: missing lang`);
     assert.match(html, /<title>[^<]+<\/title>/, `${file}: missing title`);
@@ -253,19 +331,38 @@ test('every page loads the shared chrome and its own script', () => {
     assert.ok(html.includes('assets/css/styles.css'), `${file}: stylesheet not linked`);
     assert.ok(html.includes('id="main"'), `${file}: no main landmark`);
     assert.ok(html.includes('class="skip-link"'), `${file}: no skip link`);
+    assert.ok(html.includes('Playfair+Display'), `${file}: display font not loaded`);
   }
 });
 
-test('every page carries share metadata', () => {
-  for (const file of htmlFiles) {
-    const html = readFileSync(path.join(root, file), 'utf8');
+test('every page carries share metadata that matches its title', () => {
+  for (const [file, html] of readAll(htmlFiles)) {
     for (const tag of ['og:title', 'og:description', 'og:type', 'twitter:card']) {
       assert.ok(html.includes(`"${tag}"`), `${file}: missing ${tag}`);
     }
-    /* The share title should track the page title, not a leftover from another page. */
     const title = html.match(/<title>([^<]+)<\/title>/)[1];
     const og = html.match(/property="og:title" content="([^"]+)"/)[1];
     assert.equal(og, title, `${file}: og:title does not match <title>`);
+  }
+});
+
+test('internal links point at files that exist', () => {
+  for (const [file, html] of readAll(htmlFiles)) {
+    const hrefs = [...html.matchAll(/(?:href|src)="([^"]+)"/g)].map((m) => m[1]);
+    for (const href of hrefs) {
+      if (!href || href.startsWith('#') || href.startsWith('//') || /^[a-z][a-z0-9+.-]*:/i.test(href)) continue;
+      const target = href.split(/[?#]/)[0];
+      assert.ok(existsSync(path.join(root, target)), `${file}: broken link to ${target}`);
+    }
+  }
+});
+
+test('nothing still links to the pages that were removed', () => {
+  const gone = ['shop.html', 'product.html', 'quiz.html', 'guides.html'];
+  for (const [file, source] of readAll([...htmlFiles, ...jsFiles])) {
+    for (const page of gone) {
+      assert.ok(!source.includes(page), `${file}: still references ${page}`);
+    }
   }
 });
 
@@ -273,8 +370,7 @@ test('the sitemap lists the pages worth indexing, and only those', () => {
   const sitemap = readFileSync(path.join(root, 'sitemap.xml'), 'utf8');
   const listed = [...sitemap.matchAll(/<loc>[^<]*\/([^/<]+)<\/loc>/g)].map((m) => m[1]);
 
-  /* product.html has no content of its own and 404/cart should not be indexed. */
-  const skip = new Set(['product.html', 'cart.html', '404.html']);
+  const skip = new Set(['cart.html', '404.html']);
   const expected = htmlFiles.filter((f) => !skip.has(f)).sort();
   assert.deepEqual(listed.slice().sort(), expected, 'sitemap is out of step with the pages');
 
@@ -283,51 +379,23 @@ test('the sitemap lists the pages worth indexing, and only those', () => {
   }
 });
 
-test('the 404 page is marked noindex and disallowed pages are in robots.txt', () => {
-  const notFound = readFileSync(path.join(root, '404.html'), 'utf8');
-  assert.match(notFound, /<meta name="robots" content="noindex">/);
-
+test('the 404 page is noindex and the cart is disallowed in robots.txt', () => {
+  assert.match(readFileSync(path.join(root, '404.html'), 'utf8'),
+    /<meta name="robots" content="noindex">/);
   const robots = readFileSync(path.join(root, 'robots.txt'), 'utf8');
   assert.match(robots, /Disallow: \/cart\.html/);
   assert.match(robots, /Sitemap: /);
 });
 
-test('internal links point at files that exist', () => {
-  for (const file of htmlFiles) {
-    const html = readFileSync(path.join(root, file), 'utf8');
-    const hrefs = [...html.matchAll(/(?:href|src)="([^"]+)"/g)].map((m) => m[1]);
-    for (const href of hrefs) {
-      /* Only local paths are checkable: skip schemes, protocol-relative and in-page anchors. */
-      if (!href || href.startsWith('#') || href.startsWith('//') || /^[a-z][a-z0-9+.-]*:/i.test(href)) continue;
-      const target = href.split(/[?#]/)[0];
-      assert.ok(existsSync(path.join(root, target)), `${file}: broken link to ${target}`);
-    }
-  }
-});
-
-test('product links in the pages resolve to real products', () => {
+test('the price is stated once, in data.js, and echoed consistently', () => {
   const { sandbox } = loadSandbox();
-  const ids = new Set(sandbox.HUSH_PRODUCTS.map((p) => p.id));
-  for (const file of [...htmlFiles, ...readdirSync(path.join(root, 'assets/js')).map((f) => `assets/js/${f}`)]) {
-    const source = readFileSync(path.join(root, file), 'utf8');
-    for (const match of source.matchAll(/product\.html\?id=([a-z0-9-]+)/g)) {
-      assert.ok(ids.has(match[1]), `${file}: links to unknown product ${match[1]}`);
-    }
-    for (const match of source.matchAll(/data-picks="([^"]+)"/g)) {
-      for (const id of match[1].split(',')) {
-        assert.ok(ids.has(id.trim()), `${file}: data-picks names unknown product ${id.trim()}`);
-      }
-    }
-  }
-});
-
-test('category links in the pages resolve to real categories', () => {
-  const { sandbox } = loadSandbox();
-  const slugs = new Set(sandbox.HUSH_CATEGORIES.map((c) => c.slug));
-  for (const file of htmlFiles) {
-    const html = readFileSync(path.join(root, file), 'utf8');
-    for (const match of html.matchAll(/shop\.html\?category=([a-z0-9-]+)/g)) {
-      assert.ok(slugs.has(match[1]), `${file}: links to unknown category ${match[1]}`);
+  const price = sandbox.SLEEP_BOX.price;
+  /* Pages may hard-code the headline price in copy; if they do it must agree. */
+  for (const [file, html] of readAll(htmlFiles)) {
+    for (const match of html.matchAll(/\$(\d[\d,]*)\b/g)) {
+      const value = Number(match[1].replace(/,/g, ''));
+      const known = [price, sandbox.SLEEP_CONFIG.expressFee];
+      assert.ok(known.includes(value), `${file}: mentions $${match[1]}, which is not a real price`);
     }
   }
 });

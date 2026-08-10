@@ -1,34 +1,29 @@
-/* Hush Sleep Shop — shared chrome: header, footer, cart drawer, theme, toasts.
+/* Sleep Shop — shared chrome: header, footer, cart drawer, theme, toasts.
    Runs on every page. Page-specific scripts load after this one. */
 (function (global) {
   'use strict';
 
   var doc = global.document;
-  var Store = global.HushStore;
-  var Art = global.HushArt;
-  var CONFIG = global.HUSH_CONFIG;
-  var CATEGORIES = global.HUSH_CATEGORIES;
+  var Store = global.SleepStore;
+  var Art = global.SleepArt;
+  var CONFIG = global.SLEEP_CONFIG;
+  var BOX = global.SLEEP_BOX;
 
   var NAV = [
-    { href: 'shop.html', label: 'Shop', page: 'shop' },
-    { href: 'quiz.html', label: 'Find your fit', page: 'quiz' },
-    { href: 'guides.html', label: 'Sleep guides', page: 'guides' },
+    { href: 'box.html', label: 'The box', page: 'box' },
+    { href: 'inside.html', label: 'What is inside', page: 'inside' },
+    { href: 'gifting.html', label: 'Gifting', page: 'gifting' },
     { href: 'about.html', label: 'About', page: 'about' },
     { href: 'contact.html', label: 'Contact', page: 'contact' }
   ];
 
   var ICONS = {
     moon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" stroke-linejoin="round"/></svg>',
-    sun: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4" stroke-linecap="round"/></svg>',
-    bag: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l1 12H5z" stroke-linejoin="round"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8" stroke-linecap="round"/></svg>',
-    menu: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/></svg>',
+    sun: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4" stroke-linecap="round"/></svg>',
+    bag: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6z" stroke-linejoin="round"/><path d="M9.5 8V6.6a2.5 2.5 0 0 1 5 0V8" stroke-linecap="round"/></svg>',
+    menu: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16M4 16h16" stroke-linecap="round"/></svg>',
     close: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"/></svg>'
   };
-
-  var LOGO = '<svg viewBox="0 0 32 32" aria-hidden="true" fill="currentColor">' +
-    '<path d="M25.6 19.4a9.4 9.4 0 0 1-12.9-12 10.6 10.6 0 1 0 12.9 12z"/>' +
-    '<circle cx="24.5" cy="7.5" r="1.6" opacity=".8"/>' +
-    '<circle cx="28.6" cy="12.4" r="1" opacity=".6"/></svg>';
 
   /* ------------------------------------------------------------- helpers */
 
@@ -41,27 +36,21 @@
       .replace(/'/g, '&#39;');
   }
 
-  function stars(rating) {
-    var filled = Math.round(rating);
-    var out = '';
-    for (var i = 1; i <= 5; i++) out += i <= filled ? '★' : '☆';
-    return out;
-  }
-
   function currentPage() {
     return (doc.body && doc.body.dataset.page) || '';
   }
 
-  function categoryName(slug) {
-    for (var i = 0; i < CATEGORIES.length; i++) {
-      if (CATEGORIES[i].slug === slug) return CATEGORIES[i].name;
+  function ribbonSwatch(label) {
+    var ribbons = BOX.ribbons || [];
+    for (var i = 0; i < ribbons.length; i++) {
+      if (ribbons[i].label === label) return ribbons[i].swatch;
     }
-    return slug;
+    return 'transparent';
   }
 
   /* --------------------------------------------------------------- theme */
 
-  var THEME_KEY = 'hush.theme';
+  var THEME_KEY = 'sleepshop.theme';
 
   function preferredTheme() {
     try {
@@ -103,17 +92,16 @@
     }).join('');
 
     host.innerHTML =
-      '<div class="announce">Free delivery Australia-wide over ' +
-        Store.money(CONFIG.freeShippingFrom) +
-        ' &middot; <strong>100-night trial</strong> on mattresses and pillows</div>' +
+      '<div class="announce">Free delivery Australia-wide &middot; packed by hand in ' + CONFIG.place + '</div>' +
       '<div class="site-header">' +
         '<div class="wrap header__inner">' +
-          '<a class="brand" href="index.html"><span class="brand__mark">' + LOGO + '</span>Hush</a>' +
+          '<a class="brand" href="index.html"><strong>' + CONFIG.brand + '</strong>' +
+            '<span>' + CONFIG.place + '</span></a>' +
           '<nav class="nav" aria-label="Primary">' + links + '</nav>' +
           '<div class="header__actions">' +
             '<button class="icon-btn" type="button" data-theme-toggle></button>' +
             '<button class="icon-btn" type="button" data-cart-open aria-label="Open cart">' +
-              ICONS.bag + '<span class="badge" data-cart-count>0</span>' +
+              ICONS.bag + '<span class="count" data-cart-count>0</span>' +
             '</button>' +
             '<button class="icon-btn menu-toggle" type="button" data-menu-toggle ' +
               'aria-expanded="false" aria-controls="mobile-nav" aria-label="Open menu">' +
@@ -133,35 +121,35 @@
     var host = doc.querySelector('[data-site-footer]');
     if (!host) return;
 
-    var shopLinks = CATEGORIES.map(function (cat) {
-      return '<a href="shop.html?category=' + cat.slug + '">' + cat.name + '</a>';
-    }).join('');
-
     host.innerHTML =
       '<footer class="site-footer">' +
         '<div class="wrap">' +
           '<div class="footer__grid">' +
             '<div class="footer__brand">' +
-              '<a class="brand" href="index.html"><span class="brand__mark">' + LOGO + '</span>Hush</a>' +
-              '<p>A small sleep shop in Melbourne. We sell the things that actually change a night, ' +
-              'and nothing that does not.</p>' +
+              '<a class="brand" href="index.html"><strong style="color:var(--cream)">' + CONFIG.brand +
+                '</strong><span>' + CONFIG.place + '</span></a>' +
+              '<p>One very good sleep box, packed by hand in ' + CONFIG.place +
+                ' and sent anywhere in Australia.</p>' +
             '</div>' +
-            '<div><h3>Shop</h3><div class="footer__links">' + shopLinks + '</div></div>' +
+            '<div><h3>Shop</h3><div class="footer__links">' +
+              '<a href="box.html">The Signature Sleep Box</a>' +
+              '<a href="inside.html">What is inside</a>' +
+              '<a href="gifting.html">Gifting</a>' +
+            '</div></div>' +
             '<div><h3>Help</h3><div class="footer__links">' +
               '<a href="contact.html">Contact us</a>' +
-              '<a href="about.html#trial">100-night trial</a>' +
-              '<a href="about.html#delivery">Delivery &amp; returns</a>' +
-              '<a href="guides.html">Sleep guides</a>' +
+              '<a href="gifting.html#delivery">Delivery</a>' +
+              '<a href="gifting.html#returns">Returns</a>' +
+              '<a href="contact.html#faq">FAQ</a>' +
             '</div></div>' +
-            '<div><h3>Company</h3><div class="footer__links">' +
+            '<div><h3>Studio</h3><div class="footer__links">' +
               '<a href="about.html">Our story</a>' +
               '<a href="about.html#materials">Materials</a>' +
-              '<a href="quiz.html">Find your fit</a>' +
-              '<a href="contact.html#faq">FAQ</a>' +
+              '<a href="mailto:' + CONFIG.email + '">' + CONFIG.email + '</a>' +
             '</div></div>' +
           '</div>' +
           '<div class="footer__bottom">' +
-            '<span>&copy; ' + new Date().getFullYear() + ' Hush Sleep Shop. Prices in ' + CONFIG.currency + '.</span>' +
+            '<span>&copy; ' + new Date().getFullYear() + ' ' + CONFIG.brand + '. Prices in ' + CONFIG.currency + '.</span>' +
             '<span>Demonstration storefront — no payment is taken at checkout.</span>' +
           '</div>' +
         '</div>' +
@@ -174,7 +162,7 @@
     holder.innerHTML =
       '<div class="scrim" data-cart-scrim hidden></div>' +
       '<aside class="drawer" data-cart-drawer role="dialog" aria-modal="true" ' +
-        'aria-label="Shopping cart" tabindex="-1" hidden>' +
+        'aria-label="Your cart" tabindex="-1" hidden>' +
         '<div class="drawer__head">' +
           '<h2>Your cart</h2>' +
           '<button class="icon-btn" type="button" data-cart-close aria-label="Close cart">' + ICONS.close + '</button>' +
@@ -197,7 +185,6 @@
     lastFocus = doc.activeElement;
     drawer.hidden = false;
     scrim.hidden = false;
-    /* Next frame, so the transition runs from the off-screen position. */
     global.requestAnimationFrame(function () {
       drawer.classList.add('is-open');
       scrim.classList.add('is-open');
@@ -217,8 +204,7 @@
       drawer.hidden = true;
       scrim.hidden = true;
     }, 260);
-    /* Send focus back where it came from — unless that element has since been
-       re-rendered away, in which case the cart button is the sensible landing. */
+
     var back = lastFocus && doc.contains(lastFocus)
       ? lastFocus
       : doc.querySelector('[data-cart-open]');
@@ -240,66 +226,55 @@
     if (!summary.count) {
       lines.innerHTML =
         '<div class="empty">' +
-          '<p><strong>Nothing here yet.</strong></p>' +
-          '<p class="small">Not sure where to start? Take the 60-second fit quiz.</p>' +
-          '<a class="btn btn--ghost" href="quiz.html">Find your fit</a>' +
+          '<p class="script">Nothing in the box yet</p>' +
+          '<p class="small">One box, eight pieces, ' + Store.money(BOX.price) + '.</p>' +
+          '<a class="btn btn--ghost" href="box.html">See the box</a>' +
         '</div>';
-      foot.innerHTML = '<a class="btn btn--block btn--ghost" href="shop.html">Browse the shop</a>';
+      foot.innerHTML = '<a class="btn btn--block btn--ghost" href="inside.html">What is inside</a>';
       return;
     }
 
     lines.innerHTML = summary.lines.map(lineItem).join('');
     foot.innerHTML =
-      shipMeter(summary) +
       '<div class="totals">' +
         '<div><span>Subtotal</span><span>' + Store.money(summary.subtotal) + '</span></div>' +
-        '<div><span>Delivery</span><span>' +
-          (summary.shipping ? Store.money(summary.shipping) : 'Free') +
-        '</span></div>' +
+        '<div><span>Delivery</span><span>Free</span></div>' +
         '<div class="totals__grand"><span>Total</span><span>' + Store.money(summary.total) + '</span></div>' +
       '</div>' +
-      '<a class="btn btn--block btn--lg" href="cart.html" style="margin-top:1rem">Go to checkout</a>';
-  }
-
-  function shipMeter(summary) {
-    if (!summary.freeShippingRemaining) {
-      return '<p class="ship-meter"><strong>Delivery is on us.</strong></p>';
-    }
-    var threshold = CONFIG.freeShippingFrom;
-    var pct = Math.min(100, Math.round(((threshold - summary.freeShippingRemaining) / threshold) * 100));
-    return '<div class="ship-meter">' +
-      Store.money(summary.freeShippingRemaining) + ' away from free delivery' +
-      '<div class="ship-meter__track"><div class="ship-meter__fill" style="width:' + pct + '%"></div></div>' +
-      '</div>';
+      (summary.written < summary.lines.length
+        ? '<p class="tiny muted mt-1">You can add a handwritten message at checkout.</p>'
+        : '') +
+      '<a class="btn btn--block btn--lg mt-1" href="cart.html">Go to checkout</a>';
   }
 
   function lineItem(line) {
-    var p = line.product;
+    var attrs = 'data-ribbon="' + escapeHtml(line.ribbon) + '" data-message="' + escapeHtml(line.message) + '"';
     return '<div class="line-item">' +
-      '<div class="line-item__media">' + Art.render(p, { label: '' }) + '</div>' +
+      '<div class="line-item__media">' +
+        Art.render(BOX, { ground: groundForRibbon(line.ribbon), label: '' }) +
+      '</div>' +
       '<div>' +
-        '<div class="line-item__title"><a href="product.html?id=' + p.id + '">' + escapeHtml(p.name) + '</a></div>' +
-        (line.variant ? '<div class="line-item__meta">' + escapeHtml(line.variant) + '</div>' : '') +
-        '<div class="line-item__meta">' + Store.money(line.unitPrice) + ' each</div>' +
+        '<div class="line-item__title">' + escapeHtml(BOX.name) + '</div>' +
+        '<div class="line-item__meta">' + escapeHtml(line.ribbon) + ' ribbon</div>' +
+        (line.message ? '<p class="written">' + escapeHtml(line.message) + '</p>' : '') +
         '<div class="line-item__row">' +
-          qtyControl(line) +
+          '<div class="qty">' +
+            '<button type="button" data-cart-dec ' + attrs + ' aria-label="Decrease quantity">&minus;</button>' +
+            '<span>' + line.qty + '</span>' +
+            '<button type="button" data-cart-inc ' + attrs + ' aria-label="Increase quantity">+</button>' +
+          '</div>' +
           '<strong>' + Store.money(line.lineTotal) + '</strong>' +
         '</div>' +
         '<div class="line-item__row">' +
-          '<button class="link-danger" type="button" data-cart-remove data-id="' + p.id +
-            '" data-variant="' + escapeHtml(line.variant || '') + '">Remove</button>' +
+          '<button class="link-quiet" type="button" data-cart-remove ' + attrs + '>Remove</button>' +
         '</div>' +
       '</div>' +
     '</div>';
   }
 
-  function qtyControl(line) {
-    var attrs = 'data-id="' + line.id + '" data-variant="' + escapeHtml(line.variant || '') + '"';
-    return '<div class="qty">' +
-      '<button type="button" data-cart-dec ' + attrs + ' aria-label="Decrease quantity">−</button>' +
-      '<span>' + line.qty + '</span>' +
-      '<button type="button" data-cart-inc ' + attrs + ' aria-label="Increase quantity">+</button>' +
-    '</div>';
+  /* The ribbon choice picks the ground, so the cart thumbnail matches it. */
+  function groundForRibbon(ribbon) {
+    return ribbon === 'Oxblood' ? 'oxblood' : 'powder';
   }
 
   /* --------------------------------------------------------------- toast */
@@ -317,83 +292,27 @@
     }, 2600);
   }
 
-  /* ------------------------------------------------------- card rendering */
+  /* ------------------------------------------------------------- pieces */
 
-  function priceLabel(product) {
-    var range = Store.priceRange(product);
-    var base = Store.money(range.min);
-    var html = '<span class="price">' + (range.min === range.max ? base : 'From ' + base);
-    /* The was-price only belongs next to a single price — beside a "from" it
-       would compare two different sizes. The saving is on the badge instead. */
-    if (product.compareAt && range.min === range.max) {
-      html += '<del>' + Store.money(product.compareAt) + '</del>';
-    }
-    html += '</span>';
-    return html;
-  }
-
-  function productCard(product, options) {
-    var opts = options || {};
-    var flags = (product.badges || []).map(function (b) {
-      return '<span class="pill pill--accent">' + escapeHtml(b) + '</span>';
-    });
-    if (product.compareAt) flags.push('<span class="pill pill--sale">Save ' +
-      Store.money(product.compareAt - product.price) + '</span>');
-
-    return '<article class="product-card">' +
-      '<a class="product-card__media" href="product.html?id=' + product.id + '" tabindex="-1" aria-hidden="true">' +
-        Art.render(product) +
-      '</a>' +
-      (flags.length ? '<div class="product-card__flags">' + flags.join('') + '</div>' : '') +
-      '<div class="product-card__body">' +
-        '<span class="tiny muted">' + escapeHtml(categoryName(product.category)) + '</span>' +
-        '<h3 class="product-card__name"><a href="product.html?id=' + product.id + '">' +
-          escapeHtml(product.name) + '</a></h3>' +
-        '<span class="rating"><span class="stars" aria-hidden="true">' + stars(product.rating) + '</span>' +
-          product.rating.toFixed(1) + ' (' + product.reviews.toLocaleString(CONFIG.locale) + ')</span>' +
-        '<p class="product-card__blurb">' + escapeHtml(product.blurb) + '</p>' +
-        '<div class="product-card__foot">' +
-          priceLabel(product) +
-          (opts.noAdd ? '' : '<button class="btn" type="button" data-add="' + product.id + '">Add</button>') +
-        '</div>' +
+  function pieceCard(piece) {
+    return '<article class="piece">' +
+      '<div class="piece__media">' + Art.render(piece) + '</div>' +
+      '<div class="piece__body">' +
+        '<span class="label">' + escapeHtml(piece.material) + '</span>' +
+        '<h3>' + escapeHtml(piece.name) + '</h3>' +
+        '<p>' + escapeHtml(piece.blurb) + '</p>' +
       '</div>' +
     '</article>';
-  }
-
-  function categoryTile(category) {
-    var sample = { art: category.art, tone: toneFor(category.slug), name: category.name };
-    return '<a class="tile" href="shop.html?category=' + category.slug + '">' +
-      Art.render(sample, { label: category.name }) +
-      '<span class="tile__label"><strong>' + escapeHtml(category.name) + '</strong>' +
-      '<span>' + escapeHtml(category.tagline) + '</span></span>' +
-    '</a>';
-  }
-
-  function toneFor(slug) {
-    var products = global.HUSH_PRODUCTS;
-    for (var i = 0; i < products.length; i++) {
-      if (products[i].category === slug) return products[i].tone;
-    }
-    return ['#2b2a57', '#8fa5d6', '#f2ece1'];
   }
 
   /* ---------------------------------------------------------------- init */
 
   function bindGlobalEvents() {
     doc.addEventListener('click', function (event) {
-      var el = event.target.closest('[data-add], [data-cart-open], [data-cart-close], ' +
-        '[data-cart-scrim], [data-cart-inc], [data-cart-dec], [data-cart-remove], ' +
-        '[data-theme-toggle], [data-menu-toggle]');
+      var el = event.target.closest('[data-cart-open], [data-cart-close], [data-cart-scrim], ' +
+        '[data-cart-inc], [data-cart-dec], [data-cart-remove], [data-theme-toggle], [data-menu-toggle]');
       if (!el) return;
 
-      if (el.hasAttribute('data-add')) {
-        var id = el.getAttribute('data-add');
-        var product = Store.byId(id);
-        Store.add(id, el.getAttribute('data-variant') || null, Number(el.getAttribute('data-qty')) || 1);
-        toast((product ? product.name : 'Item') + ' added to cart');
-        openCart();
-        return;
-      }
       if (el.hasAttribute('data-cart-open')) return openCart();
       if (el.hasAttribute('data-cart-close') || el.hasAttribute('data-cart-scrim')) return closeCart();
       if (el.hasAttribute('data-theme-toggle')) return toggleTheme();
@@ -404,18 +323,26 @@
         return;
       }
 
-      var lineId = el.getAttribute('data-id');
-      var variant = el.getAttribute('data-variant') || null;
-      var current = findQty(lineId, variant);
-      if (el.hasAttribute('data-cart-inc')) Store.setQty(lineId, variant, current + 1);
-      if (el.hasAttribute('data-cart-dec')) Store.setQty(lineId, variant, current - 1);
-      if (el.hasAttribute('data-cart-remove')) Store.remove(lineId, variant);
+      var ribbon = el.getAttribute('data-ribbon');
+      var message = el.getAttribute('data-message') || '';
+      var current = findQty(ribbon, message);
+      if (el.hasAttribute('data-cart-inc')) Store.setQty(ribbon, message, current + 1);
+      if (el.hasAttribute('data-cart-dec')) Store.setQty(ribbon, message, current - 1);
+      if (el.hasAttribute('data-cart-remove')) Store.remove(ribbon, message);
     });
 
     doc.addEventListener('keydown', function (event) {
       if (event.key === 'Escape') return closeCart();
       if (event.key === 'Tab') trapFocus(event);
     });
+  }
+
+  function findQty(ribbon, message) {
+    var lines = Store.summary().lines;
+    for (var i = 0; i < lines.length; i++) {
+      if (lines[i].ribbon === ribbon && lines[i].message === message) return lines[i].qty;
+    }
+    return 0;
   }
 
   /* While the drawer is open it is a modal dialog, so Tab must not walk off
@@ -450,14 +377,6 @@
     }
   }
 
-  function findQty(id, variant) {
-    var lines = Store.summary().lines;
-    for (var i = 0; i < lines.length; i++) {
-      if (lines[i].id === id && (lines[i].variant || null) === (variant || null)) return lines[i].qty;
-    }
-    return 0;
-  }
-
   function init() {
     applyTheme(preferredTheme());
     renderHeader();
@@ -469,14 +388,12 @@
     renderCart();
   }
 
-  global.HushUI = {
+  global.SleepUI = {
     init: init,
-    productCard: productCard,
-    categoryTile: categoryTile,
-    priceLabel: priceLabel,
-    stars: stars,
+    pieceCard: pieceCard,
+    groundForRibbon: groundForRibbon,
+    ribbonSwatch: ribbonSwatch,
     escapeHtml: escapeHtml,
-    categoryName: categoryName,
     toast: toast,
     openCart: openCart,
     closeCart: closeCart,

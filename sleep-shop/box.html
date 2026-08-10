@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Signature Sleep Box — Sleep Shop</title>
+<meta name="description" content="Eight pieces in one box, AU$149. Choose a ribbon, write your message, and we pack it by hand in Melbourne. Free delivery Australia-wide.">
+<meta name="theme-color" content="#3B2318">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Sleep Shop">
+<meta property="og:locale" content="en_AU">
+<meta property="og:title" content="The Signature Sleep Box — Sleep Shop">
+<meta property="og:description" content="Eight pieces in one box, AU$149. Choose a ribbon, write your message, and we pack it by hand in Melbourne. Free delivery Australia-wide.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="The Signature Sleep Box — Sleep Shop">
+<meta name="twitter:description" content="Eight pieces in one box, AU$149. Choose a ribbon, write your message, and we pack it by hand in Melbourne. Free delivery Australia-wide.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%233B2318'/><text x='16' y='23' font-family='Georgia,serif' font-size='19' fill='%23F2E9DC' text-anchor='middle'>S</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem('sleepshop.theme');
+      var dark = saved ? saved === 'dark'
+        : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body data-page="box">
+<a class="skip-link" href="#main">Skip to content</a>
+<div data-site-header></div>
+<noscript><p class="noscript">Ordering needs JavaScript. You can also email hello@sleepshop.example and we will take the order by hand.</p></noscript>
+
+<main id="main">
+
+  <div class="wrap">
+    <nav class="breadcrumbs" style="padding-top:1.6rem" aria-label="Breadcrumb">
+      <a href="index.html">Home</a> <span aria-hidden="true">/</span> <span>The box</span>
+    </nav>
+
+    <div class="pdp">
+      <div class="pdp__media">
+        <div data-main-art></div>
+        <div class="pdp__thumbs" data-thumbs></div>
+      </div>
+
+      <div>
+        <p class="eyebrow">One box, eight pieces</p>
+        <h1>The Signature Sleep Box</h1>
+        <p class="script" style="color:var(--mark)">Eight pieces, one ritual</p>
+        <p class="pdp__price">$149 <small>AUD, free delivery</small></p>
+
+        <p class="lede mt-1">One box, packed by hand in Melbourne. Silk for the eye mask and
+          pillowcase, a scrunchie cut from the same run, socks knitted from merino, and four
+          smaller things that make the last half hour of a day feel deliberate.</p>
+
+        <div data-buy></div>
+
+        <div class="mt-2">
+          <details class="accordion" open>
+            <summary>What is inside</summary>
+            <div class="accordion__body" data-contents-list></div>
+          </details>
+          <details class="accordion">
+            <summary>The box itself</summary>
+            <div class="accordion__body">
+              <table class="spec-table"><tbody data-specs></tbody></table>
+            </div>
+          </details>
+          <details class="accordion">
+            <summary>Delivery and returns</summary>
+            <div class="accordion__body">
+              <p>Free delivery Australia-wide. Orders placed before 2pm on a weekday leave Melbourne
+                the same afternoon; metro usually arrives in two to four working days and regional in
+                up to eight. Express is $12 at checkout.</p>
+              <p>There is no invoice in the box and no pricing anywhere on the outside, so it can go
+                straight to the person receiving it. Unopened boxes can be returned within 30 days.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="section section--alt">
+    <div class="wrap">
+      <div class="section__head">
+        <div>
+          <p class="eyebrow">Inside</p>
+          <h2>The eight pieces</h2>
+        </div>
+        <a class="btn btn--ghost" href="inside.html">Read about each one</a>
+      </div>
+      <div class="grid grid--4" data-pieces-grid></div>
+    </div>
+  </section>
+
+</main>
+
+<div data-site-footer></div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/art.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/box.js"></script>
+</body>
+</html>

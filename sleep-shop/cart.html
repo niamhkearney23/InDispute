@@ -3,23 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Your cart — Hush</title>
-<meta name="description" content="Review your cart and check out. Demonstration storefront — no payment is taken.">
-<meta name="theme-color" content="#12112a">
+<title>Your cart — Sleep Shop</title>
+<meta name="description" content="Review your boxes, write the message for each one, and check out. Demonstration storefront — no payment is taken.">
+<meta name="theme-color" content="#3B2318">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Hush Sleep Shop">
+<meta property="og:site_name" content="Sleep Shop">
 <meta property="og:locale" content="en_AU">
-<meta property="og:title" content="Your cart — Hush">
-<meta property="og:description" content="Review your cart and check out. Demonstration storefront — no payment is taken.">
+<meta property="og:title" content="Your cart — Sleep Shop">
+<meta property="og:description" content="Review your boxes, write the message for each one, and check out. Demonstration storefront — no payment is taken.">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Your cart — Hush">
-<meta name="twitter:description" content="Review your cart and check out. Demonstration storefront — no payment is taken.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🌙</text></svg>">
+<meta name="twitter:title" content="Your cart — Sleep Shop">
+<meta name="twitter:description" content="Review your boxes, write the message for each one, and check out. Demonstration storefront — no payment is taken.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%233B2318'/><text x='16' y='23' font-family='Georgia,serif' font-size='19' fill='%23F2E9DC' text-anchor='middle'>S</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/styles.css">
 <script>
   (function () {
     try {
-      var saved = localStorage.getItem('hush.theme');
+      var saved = localStorage.getItem('sleepshop.theme');
       var dark = saved ? saved === 'dark'
         : window.matchMedia('(prefers-color-scheme: dark)').matches;
       document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
@@ -30,21 +33,24 @@
 <body data-page="cart">
 <a class="skip-link" href="#main">Skip to content</a>
 <div data-site-header></div>
-<noscript><p class="noscript">The cart needs JavaScript. <a href="shop.html">Back to the shop</a>.</p></noscript>
+<noscript><p class="noscript">The cart needs JavaScript. <a href="box.html">Back to the box</a>.</p></noscript>
 
 <main id="main">
+
   <section class="page-head">
     <div class="wrap">
       <nav class="breadcrumbs" aria-label="Breadcrumb">
         <a href="index.html">Home</a> <span aria-hidden="true">/</span> <span>Cart</span>
       </nav>
       <h1>Your cart</h1>
-      <p class="lead">This is a demonstration storefront. You can fill in the checkout to see how it
-        behaves, but no payment details are collected and nothing will be shipped.</p>
+      <p class="lede">Each box keeps its own ribbon and its own message. This is a demonstration
+        storefront — you can fill in the checkout to see how it behaves, but no payment details are
+        collected and nothing will be shipped.</p>
     </div>
   </section>
 
   <div class="wrap" data-cart-page></div>
+
 </main>
 
 <div data-site-footer></div>

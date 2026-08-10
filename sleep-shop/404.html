@@ -3,21 +3,27 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Page not found — Hush</title>
-<meta name="description" content="That page does not exist. Here is the way back to the shop.">
+<title>Page not found — Sleep Shop</title>
+<meta name="description" content="That page does not exist. Here is the way back.">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#12112a">
+<meta name="theme-color" content="#3B2318">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Hush Sleep Shop">
-<meta property="og:title" content="Page not found — Hush">
-<meta property="og:description" content="That page does not exist. Here is the way back to the shop.">
+<meta property="og:site_name" content="Sleep Shop">
+<meta property="og:locale" content="en_AU">
+<meta property="og:title" content="Page not found — Sleep Shop">
+<meta property="og:description" content="That page does not exist. Here is the way back.">
 <meta name="twitter:card" content="summary">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🌙</text></svg>">
+<meta name="twitter:title" content="Page not found — Sleep Shop">
+<meta name="twitter:description" content="That page does not exist. Here is the way back.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%233B2318'/><text x='16' y='23' font-family='Georgia,serif' font-size='19' fill='%23F2E9DC' text-anchor='middle'>S</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/styles.css">
 <script>
   (function () {
     try {
-      var saved = localStorage.getItem('hush.theme');
+      var saved = localStorage.getItem('sleepshop.theme');
       var dark = saved ? saved === 'dark'
         : window.matchMedia('(prefers-color-scheme: dark)').matches;
       document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
@@ -30,14 +36,15 @@
 <div data-site-header></div>
 
 <main id="main">
+
   <section class="page-head">
     <div class="wrap">
       <p class="eyebrow">404</p>
-      <h1>That page has gone to bed</h1>
-      <p class="lead">The address you followed does not exist here. It may have been renamed, or the
-        link may have been cut short somewhere along the way.</p>
+      <h1>That page is not here</h1>
+      <p class="lede">The address you followed does not exist. There is only one product, so you are
+        probably looking for the box.</p>
       <div class="cluster mt-2">
-        <a class="btn" href="shop.html">Browse the shop</a>
+        <a class="btn" href="box.html">The Signature Sleep Box</a>
         <a class="btn btn--ghost" href="index.html">Back to the home page</a>
       </div>
     </div>
@@ -45,15 +52,10 @@
 
   <section class="section">
     <div class="wrap">
-      <div class="section__head">
-        <div>
-          <p class="eyebrow">Most likely</p>
-          <h2>One of these</h2>
-        </div>
-      </div>
-      <div class="grid grid--4" data-popular-grid></div>
+      <div class="tilegrid" data-tile-grid aria-hidden="true"></div>
     </div>
   </section>
+
 </main>
 
 <div data-site-footer></div>
@@ -64,12 +66,13 @@
 <script src="assets/js/ui.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    var popular = ['cloudform-hybrid', 'contour-cool-pillow', 'stonewashed-linen-set', 'silk-sleep-mask'];
-    document.querySelector('[data-popular-grid]').innerHTML = popular
-      .map(HushStore.byId)
-      .filter(Boolean)
-      .map(function (p) { return HushUI.productCard(p); })
-      .join('');
+    var tiles = [
+      { art: 'box-closed', ground: 'powder' },
+      { art: 'mask', ground: 'cocoa' },
+      { art: 'pillowcase', ground: 'cream' }
+    ];
+    document.querySelector('[data-tile-grid]').innerHTML =
+      tiles.map(function (t) { return SleepArt.render(t, { label: '' }); }).join('');
   });
 </script>
 </body>

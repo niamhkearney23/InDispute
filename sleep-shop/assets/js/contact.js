@@ -10,7 +10,7 @@
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || 'That email does not look right.';
     },
     message: function (v) {
-      return v.length >= 12 || 'A sentence or two helps — what is going wrong?';
+      return v.length >= 12 || 'A sentence or two helps — what do you need?';
     }
   };
 
@@ -46,9 +46,8 @@
       }
 
       var name = form.elements.name.value.trim().split(' ')[0];
-      status.style.color = 'var(--sage)';
-      status.textContent = 'Thanks ' + name + ' — in a live shop this would be with us now, and ' +
-        'answered the same day. Nothing was actually sent.';
+      status.textContent = 'Thank you ' + name + ' — in a live shop this would be with us now, ' +
+        'and answered the same day. Nothing was actually sent.';
       form.reset();
     });
   }
