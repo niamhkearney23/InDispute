@@ -1,0 +1,269 @@
+/* ==========================================================================
+   Sleep Shop popups.
+
+   Two presentations from one markup: a bottom sheet on phones, a centred
+   card with imagery from 750px. Most traffic is mobile and a sheet is what a
+   phone expects, so that is the one written first.
+   ========================================================================== */
+
+.ss-pop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: none;
+}
+.ss-pop[data-open] { display: block; }
+
+.ss-pop__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(42, 24, 16, 0.55);
+  opacity: 0;
+  transition: opacity 0.24s ease;
+}
+.ss-pop[data-open="shown"] .ss-pop__scrim { opacity: 1; }
+
+.ss-pop__panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  background: var(--ss-linen, #fbf7f1);
+  border-radius: 14px 14px 0 0;
+  box-shadow: 0 -18px 50px rgba(42, 24, 16, 0.28);
+  transform: translateY(102%);
+  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.3, 1);
+  max-height: 92vh;
+  overflow-y: auto;
+}
+.ss-pop[data-open="shown"] .ss-pop__panel { transform: translateY(0); }
+
+/* The grab bar is decoration on a sheet you cannot actually drag, so it is
+   hidden from assistive tech rather than described. */
+.ss-pop__grip {
+  width: 34px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--ss-line-strong, #cdbba7);
+  margin: 0.7rem auto 0;
+}
+
+.ss-pop__media {
+  display: none;
+  background: var(--ss-cream, #f2e9dc);
+}
+.ss-pop__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ss-pop__body {
+  padding: 1.4rem 1.3rem 1.8rem;
+}
+
+.ss-pop__close {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ss-ink, #2a1810);
+  cursor: pointer;
+  z-index: 2;
+}
+.ss-pop__close svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+.ss-pop__close:hover { background: rgba(42, 24, 16, 0.07); }
+
+.ss-pop__eyebrow {
+  font-family: var(--ss-util, sans-serif);
+  font-size: 0.6rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--ss-mute, #8b7a6e);
+  margin: 0 0 0.7rem;
+}
+
+.ss-pop__title {
+  font-family: var(--ss-display, serif);
+  font-weight: 400;
+  font-size: 1.5rem;
+  line-height: 1.15;
+  text-wrap: balance;
+  margin: 0 0 0.5rem;
+}
+
+.ss-pop__script {
+  font-family: var(--ss-script, serif);
+  font-style: italic;
+  font-size: 1.35rem;
+  line-height: 1.25;
+  color: var(--ss-oxblood, #5c1f28);
+  margin: 0 0 0.6rem;
+}
+
+.ss-pop__text {
+  font-family: var(--ss-util, sans-serif);
+  font-weight: 300;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--ss-ink-soft, #5a463a);
+  margin: 0 0 1.2rem;
+  max-width: 44ch;
+}
+
+.ss-pop__form { display: grid; gap: 0.6rem; }
+
+.ss-pop__row { display: grid; gap: 0.6rem; }
+
+.ss-pop__field { display: grid; gap: 0.25rem; }
+.ss-pop__field label {
+  font-family: var(--ss-util, sans-serif);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ss-mute, #8b7a6e);
+}
+.ss-pop__field input {
+  width: 100%;
+  padding: 0.85rem 0.9rem;
+  border: 1px solid var(--ss-line-strong, #cdbba7);
+  border-radius: 3px;
+  background: #fff;
+  color: var(--ss-ink, #2a1810);
+  font-family: var(--ss-util, sans-serif);
+  font-size: 1rem; /* 16px so iOS does not zoom the page on focus */
+  line-height: 1.4;
+}
+.ss-pop__field input:focus-visible {
+  outline: 2px solid var(--ss-oxblood, #5c1f28);
+  outline-offset: 2px;
+}
+.ss-pop__field input[aria-invalid="true"] { border-color: var(--ss-oxblood, #5c1f28); }
+
+.ss-pop__submit {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  border: 1px solid var(--ss-cocoa, #3b2318);
+  border-radius: 999px;
+  background: var(--ss-cocoa, #3b2318);
+  color: var(--ss-cream, #f2e9dc);
+  font-family: var(--ss-util, sans-serif);
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.18s ease;
+}
+.ss-pop__submit:hover { background: #4d3122; }
+.ss-pop__submit[aria-busy="true"] { opacity: 0.6; cursor: progress; }
+
+.ss-pop__error {
+  font-family: var(--ss-util, sans-serif);
+  font-size: 0.78rem;
+  color: var(--ss-oxblood, #5c1f28);
+  min-height: 1em;
+  margin: 0;
+}
+
+/* A plain, unemotional decline. No shame close, no "no thanks, I hate gifts". */
+.ss-pop__decline {
+  border: 0;
+  background: none;
+  padding: 0.4rem 0;
+  font-family: var(--ss-util, sans-serif);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--ss-mute, #8b7a6e);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+  justify-self: center;
+}
+.ss-pop__decline:hover { color: var(--ss-ink-soft, #5a463a); }
+
+.ss-pop__fine {
+  font-family: var(--ss-util, sans-serif);
+  font-size: 0.68rem;
+  line-height: 1.5;
+  color: var(--ss-mute, #8b7a6e);
+  margin: 0.2rem 0 0;
+  text-align: center;
+}
+.ss-pop__fine a { color: inherit; }
+
+/* Step two and the success state swap in place, so the panel does not jump. */
+.ss-pop__step[hidden] { display: none; }
+
+.ss-pop__done {
+  display: grid;
+  gap: 0.5rem;
+  place-items: start;
+}
+.ss-pop__tick {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--ss-oxblood, #5c1f28);
+  display: grid;
+  place-items: center;
+  margin-bottom: 0.4rem;
+}
+.ss-pop__tick svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: var(--ss-oxblood, #5c1f28);
+  stroke-width: 1.6;
+}
+
+@media screen and (min-width: 750px) {
+  .ss-pop__panel {
+    left: 50%;
+    top: 50%;
+    right: auto;
+    bottom: auto;
+    width: min(720px, calc(100vw - 3rem));
+    grid-template-columns: 0.85fr 1fr;
+    border-radius: 4px;
+    transform: translate(-50%, -46%);
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.3, 1), opacity 0.24s ease;
+    max-height: min(560px, 88vh);
+  }
+  .ss-pop[data-open="shown"] .ss-pop__panel {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
+  .ss-pop__grip { display: none; }
+  .ss-pop__media { display: block; }
+  .ss-pop__body {
+    padding: 2.6rem 2.4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .ss-pop__title { font-size: 1.75rem; }
+  .ss-pop--narrow .ss-pop__panel { grid-template-columns: 1fr; width: min(460px, calc(100vw - 3rem)); }
+  .ss-pop--narrow .ss-pop__media { display: none; }
+  .ss-pop__row--two { grid-template-columns: 1fr 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ss-pop__panel,
+  .ss-pop__scrim {
+    transition: none;
+  }
+}

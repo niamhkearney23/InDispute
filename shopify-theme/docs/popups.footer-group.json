@@ -1,0 +1,86 @@
+{
+  "_readme": [
+    "Paste the sleep-popups object into sections/footer-group.json inside Dawn's",
+    "\"sections\" object, and add \"sleep-popups\" to that file's \"order\" array.",
+    "Then fill in the three Klaviyo list IDs. Until a list ID is set, that popup",
+    "does not render at all."
+  ],
+  "sleep-popups": {
+    "type": "sleep-popups",
+    "blocks": {
+      "welcome": {
+        "type": "welcome",
+        "settings": {
+          "list_id": "",
+          "source": "Welcome popup",
+          "eyebrow": "From the studio",
+          "heading": "Your first box, sent express",
+          "script_line": "Rest is the greatest gift",
+          "text": "Join the list and we will upgrade your first box to express delivery, on us. We write once a month at most, usually when something has changed on the bench.",
+          "button": "Send mine express",
+          "decline": "Not now",
+          "fine_print": "One email a month at most. Leave any time, in one click.",
+          "done_heading": "That is sorted",
+          "done_text": "There is a note on its way to you with the upgrade on it. If it has not landed in ten minutes, have a look in your promotions tab.",
+          "done_button": "Back to the box",
+          "image_alt": "The Signature Sleep Box tied with a ribbon, seen from above",
+          "layout": "wide",
+          "delay": 8,
+          "scroll": 35,
+          "exit_intent": true,
+          "dismiss_days": 30
+        }
+      },
+      "giftdate": {
+        "type": "giftdate",
+        "settings": {
+          "list_id": "",
+          "source": "Gift date reminder",
+          "eyebrow": "The one you always forget",
+          "heading": "We will remind you a week before",
+          "script_line": "",
+          "text": "Tell us the date and we will send one note seven days out, which is enough time to have a box arrive on the morning rather than the week after.",
+          "button": "Set a reminder",
+          "decline": "Not now",
+          "fine_print": "One reminder a year. Nothing else uses the date.",
+          "step_two_text": "Saved against your profile so we can send a single note, once a year. You can change it by replying to any email from us.",
+          "done_heading": "We will be in touch",
+          "done_text": "Seven days before, one email, and nothing else between now and then.",
+          "done_button": "Back to the shop",
+          "layout": "narrow",
+          "delay": 0,
+          "scroll": 70,
+          "exit_intent": false,
+          "dismiss_days": 60
+        }
+      },
+      "cart": {
+        "type": "cart",
+        "settings": {
+          "list_id": "",
+          "source": "Cart exit",
+          "eyebrow": "Still deciding",
+          "heading": "The cut-off is later than you think",
+          "script_line": "",
+          "text": "Order before the cut-off on a business day and your box is packed and sent that afternoon. If you would rather sit on it, we can send your cart to your inbox instead.",
+          "button": "Email me my cart",
+          "decline": "I will keep looking",
+          "fine_print": "Your cart, once. No chasing.",
+          "done_heading": "Sent",
+          "done_text": "It is in your inbox and it will keep. Come back to it whenever suits.",
+          "done_button": "Back to my cart",
+          "layout": "narrow",
+          "delay": 0,
+          "scroll": 0,
+          "exit_intent": true,
+          "dismiss_days": 14
+        }
+      }
+    },
+    "block_order": [
+      "welcome",
+      "giftdate",
+      "cart"
+    ]
+  }
+}

@@ -1,0 +1,276 @@
+{%- comment -%}
+  All popups, one section, one block per popup.
+
+  Add this to Dawn's footer group so it is present on every page. The script
+  decides where each one is allowed to appear, rather than the merchant having
+  to add and remove sections per template.
+
+  Nothing renders unless the Klaviyo public key and the relevant list ID are
+  both set. An unconfigured popup would collect emails that go nowhere, which
+  is worse than no popup.
+{%- endcomment -%}
+
+{{ 'sleep-popup.css' | asset_url | stylesheet_tag }}
+{% render 'ss-tokens' %}
+
+{%- if settings.ss_klaviyo_key != blank -%}
+  <script src="{{ 'sleep-popup.js' | asset_url }}" defer="defer"></script>
+
+  <div
+    data-popups
+    data-klaviyo-key="{{ settings.ss_klaviyo_key }}"
+    data-cart-count="{{ cart.item_count }}"
+  >
+    {%- for block in section.blocks -%}
+      {%- liquid
+        assign list_id = block.settings.list_id
+        assign show = false
+        if list_id != blank
+          assign show = true
+        endif
+      -%}
+
+      {%- if show -%}
+        <div
+          class="ss-pop {% if block.settings.layout == 'narrow' %}ss-pop--narrow{% endif %}"
+          data-popup="{{ block.type }}-{{ block.id }}"
+          data-list="{{ list_id }}"
+          data-source="{{ block.settings.source | default: 'Website popup' }}"
+          data-delay="{{ block.settings.delay }}"
+          data-scroll="{{ block.settings.scroll }}"
+          data-exit="{{ block.settings.exit_intent }}"
+          data-dismiss-days="{{ block.settings.dismiss_days }}"
+          data-needs-cart="{% if block.type == 'cart' %}true{% else %}false{% endif %}"
+          data-allow-cart="{% if block.type == 'cart' %}true{% else %}false{% endif %}"
+          {{ block.shopify_attributes }}
+        >
+          <div class="ss-pop__scrim"></div>
+
+          <div
+            class="ss-pop__panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="pop-title-{{ block.id }}"
+            tabindex="-1"
+          >
+            <span class="ss-pop__grip" aria-hidden="true"></span>
+
+            <button class="ss-pop__close" type="button" data-pop-close aria-label="Close">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"/>
+              </svg>
+            </button>
+
+            {%- if block.settings.image != blank -%}
+              <div class="ss-pop__media">
+                {{
+                  block.settings.image
+                  | image_url: width: 900
+                  | image_tag:
+                    loading: 'lazy',
+                    widths: '300, 500, 700, 900',
+                    sizes: '(min-width: 750px) 300px, 100vw',
+                    alt: block.settings.image_alt | default: block.settings.heading
+                }}
+              </div>
+            {%- endif -%}
+
+            <div class="ss-pop__body">
+
+              {%- comment -%} ---------------------------------- step one {%- endcomment -%}
+              <div class="ss-pop__step" data-step="one">
+                {%- if block.settings.eyebrow != blank -%}
+                  <p class="ss-pop__eyebrow">{{ block.settings.eyebrow }}</p>
+                {%- endif -%}
+
+                <h2 class="ss-pop__title" id="pop-title-{{ block.id }}">{{ block.settings.heading }}</h2>
+
+                {%- if block.settings.script_line != blank -%}
+                  <p class="ss-pop__script">{{ block.settings.script_line }}</p>
+                {%- endif -%}
+
+                {%- if block.settings.text != blank -%}
+                  <p class="ss-pop__text">{{ block.settings.text }}</p>
+                {%- endif -%}
+
+                <form class="ss-pop__form" novalidate>
+                  <div class="ss-pop__field">
+                    <label for="pop-email-{{ block.id }}">Email</label>
+                    <input
+                      id="pop-email-{{ block.id }}"
+                      name="email"
+                      type="email"
+                      autocomplete="email"
+                      inputmode="email"
+                      placeholder="you@example.com"
+                      required
+                    >
+                  </div>
+
+                  <p class="ss-pop__error" role="alert"></p>
+
+                  <button class="ss-pop__submit" type="submit">
+                    {{ block.settings.button | default: 'Join' }}
+                  </button>
+
+                  <button class="ss-pop__decline" type="button" data-pop-decline>
+                    {{ block.settings.decline | default: 'Not now' }}
+                  </button>
+
+                  <p class="ss-pop__fine">
+                    {{ block.settings.fine_print | default: 'One email a month at most. Leave any time.' }}
+                  </p>
+                </form>
+              </div>
+
+              {%- comment -%}
+                Step two only exists on the gift date block. It is asked after
+                the email is already saved, so an abandonment here still leaves
+                us with a subscriber.
+              {%- endcomment -%}
+              {%- if block.type == 'giftdate' -%}
+                <div class="ss-pop__step" data-step="two" hidden>
+                  <p class="ss-pop__eyebrow">One more thing</p>
+                  <h2 class="ss-pop__title">Who is it for, and when?</h2>
+                  <p class="ss-pop__text">{{ block.settings.step_two_text }}</p>
+
+                  <form class="ss-pop__form" novalidate>
+                    <input type="hidden" name="email" value="">
+                    <div class="ss-pop__row ss-pop__row--two">
+                      <div class="ss-pop__field">
+                        <label for="pop-name-{{ block.id }}">Their name</label>
+                        <input id="pop-name-{{ block.id }}" name="gift_name" type="text" autocomplete="off">
+                      </div>
+                      <div class="ss-pop__field">
+                        <label for="pop-date-{{ block.id }}">The date</label>
+                        <input id="pop-date-{{ block.id }}" name="gift_date" type="date">
+                      </div>
+                    </div>
+
+                    <p class="ss-pop__error" role="alert"></p>
+                    <button class="ss-pop__submit" type="submit">Remind me</button>
+                    <button class="ss-pop__decline" type="button" data-pop-skip>Skip this</button>
+                  </form>
+                </div>
+              {%- endif -%}
+
+              {%- comment -%} ---------------------------------- success {%- endcomment -%}
+              <div class="ss-pop__step" data-step="done" hidden>
+                <div class="ss-pop__done">
+                  <span class="ss-pop__tick" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <h2 class="ss-pop__title">{{ block.settings.done_heading | default: 'You are on the list' }}</h2>
+                  <p class="ss-pop__text">{{ block.settings.done_text }}</p>
+                  <button class="ss-pop__submit" type="button" data-pop-close>
+                    {{ block.settings.done_button | default: 'Back to the shop' }}
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Popups",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Add this section to the footer group so it is available on every page. Each popup decides for itself where it may appear. Nothing renders until the Klaviyo public key in Theme settings and the list ID on the block are both filled in."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "welcome",
+      "name": "Welcome capture",
+      "limit": 1,
+      "settings": [
+        { "type": "text", "id": "list_id", "label": "Klaviyo list ID", "info": "Required. Without it this popup does not render." },
+        { "type": "text", "id": "source", "label": "Klaviyo source name", "default": "Welcome popup" },
+        { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+        { "type": "text", "id": "heading", "label": "Heading" },
+        { "type": "text", "id": "script_line", "label": "Script line", "info": "One phrase, set in the script face." },
+        { "type": "textarea", "id": "text", "label": "Body" },
+        { "type": "text", "id": "button", "label": "Button" },
+        { "type": "text", "id": "decline", "label": "Decline link" },
+        { "type": "textarea", "id": "fine_print", "label": "Fine print" },
+        { "type": "text", "id": "done_heading", "label": "Success heading" },
+        { "type": "textarea", "id": "done_text", "label": "Success body", "info": "Say exactly what happens next and when." },
+        { "type": "text", "id": "done_button", "label": "Success button" },
+        { "type": "image_picker", "id": "image", "label": "Image", "info": "Shown from 750px. Portrait crop." },
+        { "type": "text", "id": "image_alt", "label": "Image alt text" },
+        { "type": "select", "id": "layout", "label": "Layout", "options": [{ "value": "wide", "label": "With image" }, { "value": "narrow", "label": "Text only" }], "default": "wide" },
+        { "type": "header", "content": "When it appears" },
+        { "type": "range", "id": "delay", "label": "After this many seconds", "min": 0, "max": 30, "step": 1, "unit": "s", "default": 8 },
+        { "type": "range", "id": "scroll", "label": "Or after this much of the page", "min": 0, "max": 90, "step": 5, "unit": "%", "default": 35 },
+        { "type": "checkbox", "id": "exit_intent", "label": "Also on exit intent, desktop only", "default": true },
+        { "type": "range", "id": "dismiss_days", "label": "Do not ask again for", "min": 1, "max": 90, "step": 1, "unit": "d", "default": 30 }
+      ]
+    },
+    {
+      "type": "giftdate",
+      "name": "Gift date reminder",
+      "limit": 1,
+      "settings": [
+        { "type": "text", "id": "list_id", "label": "Klaviyo list ID" },
+        { "type": "text", "id": "source", "label": "Klaviyo source name", "default": "Gift date reminder" },
+        { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+        { "type": "text", "id": "heading", "label": "Heading" },
+        { "type": "text", "id": "script_line", "label": "Script line" },
+        { "type": "textarea", "id": "text", "label": "Body" },
+        { "type": "text", "id": "button", "label": "Button" },
+        { "type": "text", "id": "decline", "label": "Decline link" },
+        { "type": "textarea", "id": "fine_print", "label": "Fine print" },
+        { "type": "textarea", "id": "step_two_text", "label": "Step two body" },
+        { "type": "text", "id": "done_heading", "label": "Success heading" },
+        { "type": "textarea", "id": "done_text", "label": "Success body" },
+        { "type": "text", "id": "done_button", "label": "Success button" },
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        { "type": "text", "id": "image_alt", "label": "Image alt text" },
+        { "type": "select", "id": "layout", "label": "Layout", "options": [{ "value": "wide", "label": "With image" }, { "value": "narrow", "label": "Text only" }], "default": "narrow" },
+        { "type": "header", "content": "When it appears" },
+        { "type": "range", "id": "delay", "label": "After this many seconds", "min": 0, "max": 60, "step": 1, "unit": "s", "default": 0 },
+        { "type": "range", "id": "scroll", "label": "Or after this much of the page", "min": 0, "max": 90, "step": 5, "unit": "%", "default": 70 },
+        { "type": "checkbox", "id": "exit_intent", "label": "Also on exit intent, desktop only", "default": false },
+        { "type": "range", "id": "dismiss_days", "label": "Do not ask again for", "min": 1, "max": 180, "step": 1, "unit": "d", "default": 60 }
+      ]
+    },
+    {
+      "type": "cart",
+      "name": "Cart exit",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Only fires when there is something in the cart and the pointer leaves the window. It answers the delivery question rather than offering money off."
+        },
+        { "type": "text", "id": "list_id", "label": "Klaviyo list ID" },
+        { "type": "text", "id": "source", "label": "Klaviyo source name", "default": "Cart exit" },
+        { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+        { "type": "text", "id": "heading", "label": "Heading" },
+        { "type": "text", "id": "script_line", "label": "Script line" },
+        { "type": "textarea", "id": "text", "label": "Body" },
+        { "type": "text", "id": "button", "label": "Button" },
+        { "type": "text", "id": "decline", "label": "Decline link" },
+        { "type": "textarea", "id": "fine_print", "label": "Fine print" },
+        { "type": "text", "id": "done_heading", "label": "Success heading" },
+        { "type": "textarea", "id": "done_text", "label": "Success body" },
+        { "type": "text", "id": "done_button", "label": "Success button" },
+        { "type": "select", "id": "layout", "label": "Layout", "options": [{ "value": "wide", "label": "With image" }, { "value": "narrow", "label": "Text only" }], "default": "narrow" },
+        { "type": "header", "content": "When it appears" },
+        { "type": "range", "id": "delay", "label": "After this many seconds", "min": 0, "max": 60, "step": 1, "unit": "s", "default": 0 },
+        { "type": "range", "id": "scroll", "label": "Or after this much of the page", "min": 0, "max": 90, "step": 5, "unit": "%", "default": 0 },
+        { "type": "checkbox", "id": "exit_intent", "label": "Also on exit intent, desktop only", "default": true },
+        { "type": "range", "id": "dismiss_days", "label": "Do not ask again for", "min": 1, "max": 90, "step": 1, "unit": "d", "default": 14 }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Popups" }]
+}
+{% endschema %}

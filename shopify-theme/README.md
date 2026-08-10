@@ -68,6 +68,52 @@ Top to bottom, matching the brief:
 The gift message is submitted as a line item property named `Gift message`, so it appears
 on the order, the packing slip and in Klaviyo without any extra app.
 
+## Popups
+
+Three, all in `sections/sleep-popups.liquid`, one block each. Add the section to
+Dawn's footer group so it is present on every page, then paste the settings from
+`docs/popups.footer-group.json` and fill in the three Klaviyo list IDs.
+
+| Popup | Fires | Asks for | Offer |
+| --- | --- | --- | --- |
+| Welcome | 8 seconds, 35% scroll, or desktop exit intent | Email | First box upgraded to express, on us |
+| Gift date reminder | 70% scroll | Email, then name and date | One reminder, seven days before |
+| Cart exit | Desktop exit intent, only with something in the cart | Email | Their cart, sent to their inbox |
+
+**No discount anywhere.** A code would contradict the FAQ line that says there
+are no sales, and it trains people to wait for the next one. The express
+upgrade costs about the same and reads as generous rather than cheap.
+
+The rules that keep them from feeling desperate are tests, not intentions:
+
+- No discounting, urgency or pressure language, including "hurry", "expires",
+  "last chance", "unlock" and "limited time".
+- No confirmshaming. The decline is "Not now", never "No thanks, I would rather
+  pay full price".
+- Fires on intent, never on arrival. A welcome popup inside five seconds fails
+  the build.
+- Asks once. Dismissal remembered for 30 days, a signup for a year, across
+  every popup rather than per popup.
+- Never on cart or checkout, except the cart popup, and that one only when
+  there is something in the cart.
+- Real dialog semantics: focus trap, Escape, focus returned, errors announced.
+- 16px inputs so iOS does not zoom, 44px close target, no autofocus on touch
+  because it throws the keyboard over the offer before it has been read.
+
+**Nothing renders unless Klaviyo is configured.** No public key or no list ID
+means the popup does not appear at all, so an email can never be captured into
+somewhere it will not arrive.
+
+### What Klaviyo needs
+
+- A list for each popup, IDs pasted into the blocks.
+- A welcome flow that sends the express upgrade code. The code lives in the
+  email, not in the page, so it is not sitting in the DOM for anyone to lift.
+- A yearly reminder flow triggered on the `gift_date` profile property, sending
+  seven days before.
+- An abandoned cart flow for the cart popup, since that popup promises the cart
+  by email.
+
 ## Judge.me
 
 `sections/product-reviews.liquid` renders the Judge.me widget div and nothing else. With
