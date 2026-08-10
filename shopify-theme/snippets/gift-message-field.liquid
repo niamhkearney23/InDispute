@@ -1,0 +1,29 @@
+{%- comment -%}
+  The printed gift card message.
+
+  Submitted as a line item property called "Gift message", so it lands on the
+  order, the packing slip and in Klaviyo with no extra app. The limit is a
+  theme setting because it is a property of the card, not of the form.
+{%- endcomment -%}
+
+{%- assign limit = settings.ss_gift_message_limit | default: 250 -%}
+
+<div class="ss-field">
+  <label class="ss-field__label" for="ss-gift-message">
+    Your message, printed on the card <em>optional</em>
+  </label>
+
+  <textarea
+    id="ss-gift-message"
+    name="properties[Gift message]"
+    maxlength="{{ limit }}"
+    rows="3"
+    data-gift-message
+    aria-describedby="ss-gift-counter"
+    placeholder="Happy birthday, Nina. Have a proper rest for once. Love R"
+  ></textarea>
+
+  <span class="ss-counter" id="ss-gift-counter" data-state="roomy" role="status">
+    {{ limit }} characters left
+  </span>
+</div>

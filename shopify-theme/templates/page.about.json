@@ -1,0 +1,62 @@
+{
+  "sections": {
+    "announcement": {
+      "type": "announcement-shipping"
+    },
+    "body": {
+      "type": "page-prose",
+      "blocks": {
+        "b1": {
+          "type": "text",
+          "settings": {
+            "heading": "Why only one box",
+            "body": "<p>Gift shops solve the wrong problem. They give you forty things and leave you to assemble a gift out of them, which is the part that actually takes the effort. Whether the candle goes with the tea. Whether three items looks mean. Whether the whole thing reads as considered or as something grabbed at six in the evening.</p><p>So we did that part. Eight pieces, chosen against each other rather than picked from a catalogue. The silk mask, pillowcase and scrunchie are cut from one run so the colour matches exactly. The candle is small because there is already a scent in the box.</p>"
+          }
+        },
+        "b2": {
+          "type": "text",
+          "settings": {
+            "heading": "What things are made of",
+            "body": "<p>We publish the fibre, the weight and the maker for everything in the box. If a supplier will not tell us, we do not use them.</p><ul><li><strong>Silk.</strong> Grade 6A mulberry silk at 22 momme for the mask, pillowcase and scrunchie, all from the same run.</li><li><strong>The box.</strong> Rigid board wrapped in uncoated paper, made in Victoria, sturdy enough to be reused.</li><li><strong>The card.</strong> Printed on cotton stock, with your message on it, and it is the only paper in the box.</li></ul>"
+          }
+        },
+        "b3": {
+          "type": "text",
+          "settings": {
+            "heading": "How a box gets packed",
+            "body": "<p>Everything is packed on one bench, in the same order every time: tissue, pillowcase, mask, scrunchie, socks, then the four smaller pieces along the front so nothing moves in transit. The card goes in last, on top, so it is the first thing they see.</p><p>We do not have a shopfront. There is a studio you are welcome to collect from by appointment, which saves you the delivery wait if you are local and have left it late.</p>"
+          }
+        },
+        "b4": {
+          "type": "text",
+          "settings": {
+            "heading": "What we are careful not to say",
+            "body": "<p>This is a box of well made things for the end of a day. Silk, wool, wax, tea, a blank journal. We describe how they feel, what they are made of and how long they last, and we do not make claims about what they will do for anyone, because that is not something a box can promise.</p>"
+          }
+        },
+        "b5": {
+          "type": "contact",
+          "settings": {
+            "heading": "Get in touch"
+          }
+        }
+      },
+      "block_order": [
+        "b1",
+        "b2",
+        "b3",
+        "b4",
+        "b5"
+      ],
+      "settings": {
+        "eyebrow": "Our story",
+        "heading": "One box, made properly",
+        "intro": "<p>Sleep Shop is a small studio in Melbourne. We make one thing, which means we get to be unreasonable about all eight pieces in it.</p>"
+      }
+    }
+  },
+  "order": [
+    "announcement",
+    "body"
+  ]
+}

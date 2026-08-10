@@ -1,0 +1,10 @@
+{%- comment -%}
+  Klaviyo onsite script only. The popup itself is built and targeted in
+  Klaviyo so marketing can change it without a theme deploy.
+{%- endcomment -%}
+{%- if settings.ss_klaviyo_key != blank -%}
+  <script
+    async
+    src="https://static.klaviyo.com/onsite/js/{{ settings.ss_klaviyo_key }}/klaviyo.js"
+  ></script>
+{%- endif -%}

@@ -1,0 +1,23 @@
+{%- comment -%}
+  Arrives by, and the dispatch cut-off, beside the add to cart button.
+
+  Both come from theme settings and both are omitted when unset. A delivery
+  promise on a product page is a promise, so an empty setting shows nothing
+  rather than a guess.
+{%- endcomment -%}
+
+{%- if settings.ss_window_metro != blank or settings.ss_cutoff_time != blank -%}
+  <p class="ss-dispatch">
+    {%- if settings.ss_window_metro != blank -%}
+      <span class="ss-dispatch__arrives">
+        Arrives in <b>{{ settings.ss_window_metro }}</b> to metro addresses
+      </span>
+    {%- endif -%}
+
+    {%- if settings.ss_cutoff_time != blank -%}
+      <span class="ss-dispatch__cutoff">
+        Order before {{ settings.ss_cutoff_time }} on a business day and it is packed today
+      </span>
+    {%- endif -%}
+  </p>
+{%- endif -%}

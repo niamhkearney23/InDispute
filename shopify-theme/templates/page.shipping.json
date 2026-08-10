@@ -1,0 +1,63 @@
+{
+  "sections": {
+    "announcement": {
+      "type": "announcement-shipping"
+    },
+    "body": {
+      "type": "page-prose",
+      "blocks": {
+        "b1": {
+          "type": "delivery",
+          "settings": {
+            "heading": "Estimates",
+            "fallback": "Delivery estimates are being confirmed with Australia Post and will appear here before launch."
+          }
+        },
+        "b2": {
+          "type": "text",
+          "settings": {
+            "heading": "Sending it to someone else",
+            "body": "<p>Put their address as the delivery address at checkout and your message in the gift message field. The card is printed with your words and nothing else in the parcel mentions price.</p><p>Sending it to a workplace is fine. Put the company name in the address and we will keep it on the label rather than on the card.</p>"
+          }
+        },
+        "b3": {
+          "type": "text",
+          "settings": {
+            "heading": "If nobody is home",
+            "body": "<p>We do not require a signature, because chasing a depot is not much of a gift. Australia Post will leave the parcel if it is safe to do so, or leave a card if it is not. You can add delivery instructions at checkout and we pass them on.</p>"
+          }
+        },
+        "b4": {
+          "type": "text",
+          "settings": {
+            "heading": "Tracking",
+            "body": "<p>You will get a tracking link by email when the box is dispatched. If you are sending it as a gift, the tracking goes to you rather than to them.</p>"
+          }
+        },
+        "b5": {
+          "type": "text",
+          "settings": {
+            "heading": "Outside Australia",
+            "body": "<p>We do not ship internationally yet. If you ask we will tell you honestly when that changes rather than take the order.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "b1",
+        "b2",
+        "b3",
+        "b4",
+        "b5"
+      ],
+      "settings": {
+        "eyebrow": "Shipping and delivery",
+        "heading": "Getting it there",
+        "intro": "<p>Free shipping Australia wide on every box, sent tracked with Australia Post. Most of our boxes go straight to the person receiving them, so there is no invoice inside and no pricing on the outside of the parcel.</p>"
+      }
+    }
+  },
+  "order": [
+    "announcement",
+    "body"
+  ]
+}

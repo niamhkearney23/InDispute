@@ -1,0 +1,35 @@
+{%- comment -%}
+  Announcement bar: shipping message, then the dispatch cut-off when it is set.
+  The separator only renders when there are two things to separate.
+{%- endcomment -%}
+
+{{ 'sleep-shop.css' | asset_url | stylesheet_tag }}
+{% render 'ss-tokens' %}
+
+{%- if settings.ss_shipping_message != blank or settings.ss_cutoff_time != blank -%}
+  <div class="ss-announce">
+    {%- if settings.ss_shipping_message != blank -%}
+      {{ settings.ss_shipping_message }}
+    {%- endif -%}
+
+    {%- if settings.ss_shipping_message != blank and settings.ss_cutoff_time != blank -%}
+      <span class="ss-announce__sep" aria-hidden="true"></span>
+    {%- endif -%}
+
+    {%- if settings.ss_cutoff_time != blank -%}
+      Order by {{ settings.ss_cutoff_time }} for same day dispatch
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Announcement, shipping",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Both lines come from Theme settings, Sleep Shop, so they stay in step with the product page. The cut-off is hidden until you set it."
+    }
+  ]
+}
+{% endschema %}

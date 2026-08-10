@@ -1,0 +1,103 @@
+{
+  "sections": {
+    "announcement": {
+      "type": "announcement-shipping"
+    },
+    "faq": {
+      "type": "page-faq",
+      "blocks": {
+        "q1": {
+          "type": "qa",
+          "settings": {
+            "question": "What is in the box?",
+            "answer": "<p>Eight pieces: a mulberry silk eye mask, a silk pillowcase, a matching silk scrunchie, bed socks, a pillow mist, a herbal wind down tea, a small candle and a sleep journal. A printed gift card with your message goes in on top.</p>"
+          }
+        },
+        "q2": {
+          "type": "qa",
+          "settings": {
+            "question": "Can I send it straight to the person receiving it?",
+            "answer": "<p>Yes, and most people do. Put their address at checkout and your message in the gift message field. There is no invoice in the box and no pricing on the outside of the parcel.</p>"
+          }
+        },
+        "q3": {
+          "type": "qa",
+          "settings": {
+            "question": "How long is the gift message?",
+            "answer": "<p>Up to 250 characters, which is roughly three lines on the card. We print it exactly as you type it, including the line breaks. We will quietly fix an obvious typo in a name and leave everything else alone.</p>"
+          }
+        },
+        "q4": {
+          "type": "qa",
+          "settings": {
+            "question": "Can I swap an item out?",
+            "answer": "<p>Not at the moment. The eight were chosen to sit together, and the moment we allow swaps we are back to being a shop that makes you assemble a gift. If something in it genuinely will not suit, this is probably not the right box.</p>"
+          }
+        },
+        "q5": {
+          "type": "qa",
+          "settings": {
+            "question": "Do you offer Afterpay?",
+            "answer": "<p>Yes, and Shop Pay, Apple Pay, Google Pay, PayPal and the usual cards. Afterpay splits the total into four instalments and the amount is shown on the product page.</p>"
+          }
+        },
+        "q6": {
+          "type": "qa",
+          "settings": {
+            "question": "Is the price GST inclusive?",
+            "answer": "<p>Yes. Every price on the site includes GST, and your tax invoice is emailed with your order confirmation.</p>"
+          }
+        },
+        "q7": {
+          "type": "qa",
+          "settings": {
+            "question": "Do you ship outside Australia?",
+            "answer": "<p>Not yet. When that changes we will say so here.</p>"
+          }
+        },
+        "q8": {
+          "type": "qa",
+          "settings": {
+            "question": "Can I collect in person?",
+            "answer": "<p>By appointment, from the studio. Email first and we will give you a time. It is worth doing if you are local and have left it late.</p>"
+          }
+        },
+        "q9": {
+          "type": "qa",
+          "settings": {
+            "question": "Do you do corporate or bulk orders?",
+            "answer": "<p>Ten or more, yes. Email before ordering so we can confirm the timeframe.</p>"
+          }
+        },
+        "q10": {
+          "type": "qa",
+          "settings": {
+            "question": "What if something arrives damaged?",
+            "answer": "<p>We replace the whole box, not the single piece, and you do not need to send the original back. Send a photo and your order number. See the returns page for the detail, including your rights under the Australian Consumer Law.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5",
+        "q6",
+        "q7",
+        "q8",
+        "q9",
+        "q10"
+      ],
+      "settings": {
+        "eyebrow": "FAQ",
+        "heading": "Asked most often",
+        "intro": "<p>If your question is not here, email us. A person answers, usually the same day.</p>"
+      }
+    }
+  },
+  "order": [
+    "announcement",
+    "faq"
+  ]
+}

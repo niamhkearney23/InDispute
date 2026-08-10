@@ -1,0 +1,221 @@
+{%- comment -%}
+  The Signature Sleep Box product page: gallery, buy box, accordions.
+
+  Two deliberate departures from Dawn's product section:
+
+  1. No dynamic checkout button. The brief calls for a single prominent add to
+     cart, and payment_button renders a second, louder button beside it.
+     Shop Pay and Afterpay still appear at checkout.
+  2. The gallery is a scroll snap strip on mobile rather than a carousel with
+     controls. Most traffic is mobile and a swipe is cheaper than a widget.
+{%- endcomment -%}
+
+{{ 'sleep-shop.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'gift-message.js' | asset_url }}" defer="defer"></script>
+{% render 'ss-tokens' %}
+
+{%- assign variant = product.selected_or_first_available_variant -%}
+
+<div class="ss-wrap">
+  <div class="ss-product">
+
+    {%- comment -%} ------------------------------------------- gallery {%- endcomment -%}
+    <div class="ss-gallery" role="group" aria-label="{{ product.title | escape }}, product images">
+      {%- for media in product.media -%}
+        <figure class="ss-gallery__item">
+          {%- case media.media_type -%}
+
+            {%- when 'image' -%}
+              {{
+                media
+                | image_url: width: 1400
+                | image_tag:
+                  loading: forloop.first ? 'eager' : 'lazy',
+                  fetchpriority: forloop.first ? 'high' : 'auto',
+                  widths: '400, 600, 800, 1000, 1400',
+                  sizes: '(min-width: 990px) 46vw, 86vw',
+                  alt: media.alt | default: product.title
+              }}
+
+            {%- when 'video' -%}
+              {{
+                media
+                | video_tag:
+                  image_size: '800x',
+                  controls: true,
+                  muted: true,
+                  playsinline: true,
+                  preload: 'metadata'
+              }}
+
+            {%- else -%}
+              {{ media | media_tag }}
+
+          {%- endcase -%}
+
+          <span class="ss-gallery__count" aria-hidden="true">
+            {{ forloop.index }}/{{ forloop.length }}
+          </span>
+        </figure>
+      {%- else -%}
+        {{ 'product-1' | placeholder_svg_tag: 'ss-gallery__item' }}
+      {%- endfor -%}
+    </div>
+
+    {%- comment -%} ------------------------------------------- buy box {%- endcomment -%}
+    <div class="ss-product__buy">
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+
+          {%- when 'eyebrow' -%}
+            <p class="ss-eyebrow" {{ block.shopify_attributes }}>{{ block.settings.text }}</p>
+
+          {%- when 'title' -%}
+            <h1 class="ss-buy__title" {{ block.shopify_attributes }}>{{ product.title }}</h1>
+            {%- if block.settings.subtitle != blank -%}
+              <p class="ss-buy__subtitle">{{ block.settings.subtitle }}</p>
+            {%- endif -%}
+
+          {%- when 'price' -%}
+            <div {{ block.shopify_attributes }}>
+              {% render 'price-afterpay', product: product %}
+            </div>
+
+          {%- when 'description' -%}
+            <div class="ss-body" style="margin-top:1rem" {{ block.shopify_attributes }}>
+              {{ block.settings.text }}
+            </div>
+
+          {%- when 'buy' -%}
+            <div {{ block.shopify_attributes }}>
+              {%- form 'product', product, id: 'ss-product-form', novalidate: 'novalidate' -%}
+                <input type="hidden" name="id" value="{{ variant.id }}">
+
+                {% render 'gift-message-field' %}
+                {% render 'dispatch-estimate' %}
+
+                <button
+                  type="submit"
+                  name="add"
+                  class="ss-atc"
+                  {% unless variant.available %}disabled{% endunless %}
+                >
+                  {%- if variant.available -%}
+                    Add to cart, {{ product.price | money }}
+                  {%- else -%}
+                    Currently unavailable
+                  {%- endif -%}
+                </button>
+              {%- endform -%}
+
+              {% render 'reassurance-row' %}
+            </div>
+
+          {%- when 'accordions' -%}
+            <div class="ss-accordions" {{ block.shopify_attributes }}>
+              {%- if block.settings.a1_heading != blank -%}
+                <details class="ss-accordion">
+                  <summary>{{ block.settings.a1_heading }}</summary>
+                  <div class="ss-accordion__body">{{ block.settings.a1_body }}</div>
+                </details>
+              {%- endif -%}
+              {%- if block.settings.a2_heading != blank -%}
+                <details class="ss-accordion">
+                  <summary>{{ block.settings.a2_heading }}</summary>
+                  <div class="ss-accordion__body">{{ block.settings.a2_body }}</div>
+                </details>
+              {%- endif -%}
+              {%- if block.settings.a3_heading != blank -%}
+                <details class="ss-accordion">
+                  <summary>{{ block.settings.a3_heading }}</summary>
+                  <div class="ss-accordion__body">{{ block.settings.a3_body }}</div>
+                </details>
+              {%- endif -%}
+              {%- if block.settings.a4_heading != blank -%}
+                <details class="ss-accordion">
+                  <summary>{{ block.settings.a4_heading }}</summary>
+                  <div class="ss-accordion__body">{{ block.settings.a4_body }}</div>
+                </details>
+              {%- endif -%}
+              {%- if block.settings.a5_heading != blank -%}
+                <details class="ss-accordion">
+                  <summary>{{ block.settings.a5_heading }}</summary>
+                  <div class="ss-accordion__body">{{ block.settings.a5_body }}</div>
+                </details>
+              {%- endif -%}
+            </div>
+
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
+
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Sleep Box buy box",
+  "tag": "section",
+  "class": "ss-main-product",
+  "blocks": [
+    {
+      "type": "eyebrow",
+      "name": "Eyebrow",
+      "limit": 1,
+      "settings": [
+        { "type": "text", "id": "text", "label": "Eyebrow", "default": "One box, eight pieces" }
+      ]
+    },
+    {
+      "type": "title",
+      "name": "Title and subtitle",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "subtitle",
+          "label": "Subtitle",
+          "info": "Set in the script face. Keep it to one short phrase."
+        }
+      ]
+    },
+    { "type": "price", "name": "Price and Afterpay", "limit": 1, "settings": [] },
+    {
+      "type": "description",
+      "name": "Short description",
+      "limit": 1,
+      "settings": [
+        { "type": "richtext", "id": "text", "label": "Description" }
+      ]
+    },
+    {
+      "type": "buy",
+      "name": "Gift message, dispatch and add to cart",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "The dispatch line reads from Theme settings, Sleep Shop. It stays hidden until those are filled in."
+        }
+      ]
+    },
+    {
+      "type": "accordions",
+      "name": "Accordions",
+      "limit": 1,
+      "settings": [
+        { "type": "text", "id": "a1_heading", "label": "1. Heading" },
+        { "type": "richtext", "id": "a1_body", "label": "1. Body" },
+        { "type": "text", "id": "a2_heading", "label": "2. Heading" },
+        { "type": "richtext", "id": "a2_body", "label": "2. Body" },
+        { "type": "text", "id": "a3_heading", "label": "3. Heading" },
+        { "type": "richtext", "id": "a3_body", "label": "3. Body" },
+        { "type": "text", "id": "a4_heading", "label": "4. Heading" },
+        { "type": "richtext", "id": "a4_body", "label": "4. Body" },
+        { "type": "text", "id": "a5_heading", "label": "5. Heading" },
+        { "type": "richtext", "id": "a5_body", "label": "5. Body" }
+      ]
+    }
+  ]
+}
+{% endschema %}

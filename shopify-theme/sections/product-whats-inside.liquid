@@ -1,0 +1,70 @@
+{%- comment -%}
+  All eight items. Each block carries a name and a specification, never a
+  claim about what the item does.
+{%- endcomment -%}
+
+{{ 'sleep-shop.css' | asset_url | stylesheet_tag }}
+{% render 'ss-tokens' %}
+
+<div class="ss-section ss-section--cream">
+  <div class="ss-wrap">
+    {%- if section.settings.eyebrow != blank -%}
+      <p class="ss-eyebrow">{{ section.settings.eyebrow }}</p>
+    {%- endif -%}
+    {%- if section.settings.heading != blank -%}
+      <h2 class="ss-h2">{{ section.settings.heading }}</h2>
+    {%- endif -%}
+    {%- if section.settings.body != blank -%}
+      <div class="ss-body" style="margin-bottom:2rem">{{ section.settings.body }}</div>
+    {%- endif -%}
+
+    <ul class="ss-inside">
+      {%- for block in section.blocks -%}
+        <li {{ block.shopify_attributes }}>
+          {%- if block.settings.image != blank -%}
+            <div class="ss-inside__media">
+              {{
+                block.settings.image
+                | image_url: width: 600
+                | image_tag:
+                  loading: 'lazy',
+                  widths: '200, 300, 400, 600',
+                  sizes: '(min-width: 750px) 22vw, 44vw',
+                  alt: block.settings.image_alt | default: block.settings.name
+              }}
+            </div>
+          {%- endif -%}
+          <p class="ss-inside__name">{{ block.settings.name }}</p>
+          {%- if block.settings.spec != blank -%}
+            <p class="ss-inside__spec">{{ block.settings.spec }}</p>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "What is inside",
+  "tag": "section",
+  "max_blocks": 12,
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "text", "id": "heading", "label": "Heading" },
+    { "type": "richtext", "id": "body", "label": "Intro" }
+  ],
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Item",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Image", "info": "Square, 1200px or larger." },
+        { "type": "text", "id": "image_alt", "label": "Image alt text", "info": "Describe the object. Required for accessibility and for image search." },
+        { "type": "text", "id": "name", "label": "Item name" },
+        { "type": "text", "id": "spec", "label": "Specification", "info": "Material, size or weight. Describe what it is, never what it does." }
+      ]
+    }
+  ]
+}
+{% endschema %}

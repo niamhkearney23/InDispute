@@ -1,0 +1,193 @@
+{
+  "sections": {
+    "announcement": {
+      "type": "announcement-shipping"
+    },
+    "hero": {
+      "type": "occasion-hero",
+      "settings": {
+        "eyebrow": "Birthdays",
+        "heading": "For the birthday you remembered late",
+        "script": "Rest is the greatest gift",
+        "body": "<p>One box, eight pieces, packed by hand in Melbourne and sent with your message printed on the card. Order before the cut-off on a business day and it leaves the studio that afternoon.</p>",
+        "image_alt": "The Signature Sleep Box tied with an oxblood ribbon, seen from above on a powder blue ground",
+        "link": "/products/the-signature-sleep-box",
+        "link_label": "Send the box, $149"
+      }
+    },
+    "why": {
+      "type": "page-prose",
+      "blocks": {
+        "b1": {
+          "type": "text",
+          "settings": {
+            "heading": "Why it works as a birthday gift",
+            "body": "<p>It does not need a size, it does not need to match anything they own, and it does not look like it was bought in a hurry even when it was. The card is written in your words, so the thought lands before the box is open.</p>"
+          }
+        },
+        "b2": {
+          "type": "text",
+          "settings": {
+            "heading": "Leaving it late",
+            "body": "<p>This is the common case and we have built for it. Order before the cut-off on a business day and the box is packed and dispatched the same afternoon. If you are in Melbourne you can collect from the studio by appointment.</p>"
+          }
+        },
+        "b3": {
+          "type": "delivery",
+          "settings": {
+            "heading": "How long it takes",
+            "fallback": "Delivery estimates are being confirmed with Australia Post and will appear here before launch."
+          }
+        },
+        "b4": {
+          "type": "text",
+          "settings": {
+            "heading": "What to write on the card",
+            "body": "<p>Short beats clever. A name, one specific thing, and your own name at the end. If you are stuck: <em>Happy birthday. Take the morning off for once. Love R</em>.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "b1",
+        "b2",
+        "b3",
+        "b4"
+      ],
+      "settings": {
+        "eyebrow": "Birthdays",
+        "heading": "Sending one for a birthday",
+        "intro": ""
+      }
+    },
+    "whats-inside": {
+      "type": "product-whats-inside",
+      "blocks": {
+        "i1": {
+          "type": "item",
+          "settings": {
+            "name": "Mulberry silk eye mask",
+            "spec": "22 momme, grade 6A silk",
+            "image_alt": "Silk eye mask lying flat on a cocoa ground"
+          }
+        },
+        "i2": {
+          "type": "item",
+          "settings": {
+            "name": "Silk pillowcase",
+            "spec": "Standard 48 by 74 cm, hidden zip",
+            "image_alt": "Silk pillowcase folded in thirds on a powder blue ground"
+          }
+        },
+        "i3": {
+          "type": "item",
+          "settings": {
+            "name": "Matching silk scrunchie",
+            "spec": "Cut from the same silk run",
+            "image_alt": "Silk scrunchie beside the matching pillowcase on a cream ground"
+          }
+        },
+        "i4": {
+          "type": "item",
+          "settings": {
+            "name": "Bed socks",
+            "spec": "Fine knit, ribbed cuff, AU 5 to 10",
+            "image_alt": "A pair of bed socks loosely folded on an oxblood ground"
+          }
+        },
+        "i5": {
+          "type": "item",
+          "settings": {
+            "name": "Pillow mist",
+            "spec": "100 ml, alcohol free",
+            "image_alt": "Pillow mist bottle upright on a cocoa ground"
+          }
+        },
+        "i6": {
+          "type": "item",
+          "settings": {
+            "name": "Herbal wind down tea",
+            "spec": "Loose leaf, 30 g, caffeine free",
+            "image_alt": "Open tea tin with loose leaf beside it on a striped cream ground"
+          }
+        },
+        "i7": {
+          "type": "item",
+          "settings": {
+            "name": "Small candle",
+            "spec": "Poured wax, around 20 hours",
+            "image_alt": "Unlit candle seen from above the rim on a powder blue ground"
+          }
+        },
+        "i8": {
+          "type": "item",
+          "settings": {
+            "name": "Sleep journal",
+            "spec": "96 unlined pages, sewn flat",
+            "image_alt": "Closed journal with light across the letterpress cover on a cream ground"
+          }
+        }
+      },
+      "block_order": [
+        "i1",
+        "i2",
+        "i3",
+        "i4",
+        "i5",
+        "i6",
+        "i7",
+        "i8"
+      ],
+      "settings": {
+        "eyebrow": "What is inside",
+        "heading": "Eight pieces, one ritual",
+        "body": ""
+      }
+    },
+    "trust": {
+      "type": "trust-strip",
+      "blocks": {
+        "t1": {
+          "type": "item",
+          "settings": {
+            "heading": "Packed by hand",
+            "text": "In our Melbourne studio, every box"
+          }
+        },
+        "t2": {
+          "type": "item",
+          "settings": {
+            "heading": "Printed gift card",
+            "text": "Your message, included"
+          }
+        },
+        "t3": {
+          "type": "item",
+          "settings": {
+            "heading": "Sent Australia wide",
+            "text": "Tracked, with Australia Post"
+          }
+        },
+        "t4": {
+          "type": "item",
+          "settings": {
+            "heading": "Straightforward returns",
+            "text": "Plus your Australian Consumer Law rights"
+          }
+        }
+      },
+      "block_order": [
+        "t1",
+        "t2",
+        "t3",
+        "t4"
+      ]
+    }
+  },
+  "order": [
+    "announcement",
+    "hero",
+    "why",
+    "whats-inside",
+    "trust"
+  ]
+}

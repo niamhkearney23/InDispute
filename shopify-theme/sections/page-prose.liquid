@@ -1,0 +1,174 @@
+{%- comment -%}
+  Long form page body: About, Shipping and Delivery, Returns, Contact.
+  Blocks so the merchant can reorder or add sections without touching code.
+{%- endcomment -%}
+
+{{ 'sleep-shop.css' | asset_url | stylesheet_tag }}
+{% render 'ss-tokens' %}
+
+<div class="ss-section">
+  <div class="ss-wrap">
+    {%- if section.settings.eyebrow != blank -%}
+      <p class="ss-eyebrow">{{ section.settings.eyebrow }}</p>
+    {%- endif -%}
+    <h1 class="ss-h2" style="font-size:2.1rem">{{ section.settings.heading | default: page.title }}</h1>
+    {%- if section.settings.intro != blank -%}
+      <div class="ss-body" style="margin-bottom:2rem">{{ section.settings.intro }}</div>
+    {%- endif -%}
+
+    <div class="ss-prose">
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+
+          {%- when 'text' -%}
+            <div {{ block.shopify_attributes }}>
+              {%- if block.settings.heading != blank -%}
+                <h2 id="{{ block.settings.heading | handle }}">{{ block.settings.heading }}</h2>
+              {%- endif -%}
+              {{ block.settings.body }}
+            </div>
+
+          {%- when 'table' -%}
+            <div {{ block.shopify_attributes }} style="overflow-x:auto">
+              {%- if block.settings.heading != blank -%}
+                <h2 id="{{ block.settings.heading | handle }}">{{ block.settings.heading }}</h2>
+              {%- endif -%}
+              <table>
+                <thead>
+                  <tr>
+                    <th>{{ block.settings.col1 }}</th>
+                    <th>{{ block.settings.col2 }}</th>
+                    <th>{{ block.settings.col3 }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {%- assign rows = block.settings.rows | newline_to_br | split: '<br />' -%}
+                  {%- for row in rows -%}
+                    {%- assign cells = row | strip | split: '|' -%}
+                    {%- if cells.size > 1 -%}
+                      <tr>
+                        <td>{{ cells[0] | strip }}</td>
+                        <td>{{ cells[1] | strip }}</td>
+                        <td>{{ cells[2] | strip }}</td>
+                      </tr>
+                    {%- endif -%}
+                  {%- endfor -%}
+                </tbody>
+              </table>
+            </div>
+
+          {%- when 'delivery' -%}
+            {%- comment -%}
+              Delivery windows come from theme settings so the shipping page,
+              the announcement bar and the product page can never disagree.
+              A blank setting hides its row rather than showing a guess.
+            {%- endcomment -%}
+            <div {{ block.shopify_attributes }} style="overflow-x:auto">
+              {%- if block.settings.heading != blank -%}
+                <h2 id="{{ block.settings.heading | handle }}">{{ block.settings.heading }}</h2>
+              {%- endif -%}
+              {%- if settings.ss_window_metro != blank or settings.ss_window_regional != blank or settings.ss_window_express != blank -%}
+                <table>
+                  <thead>
+                    <tr><th>Service</th><th>Where</th><th>Estimate</th></tr>
+                  </thead>
+                  <tbody>
+                    {%- if settings.ss_window_metro != blank -%}
+                      <tr><td>Standard</td><td>Metro</td><td>{{ settings.ss_window_metro }}</td></tr>
+                    {%- endif -%}
+                    {%- if settings.ss_window_regional != blank -%}
+                      <tr><td>Standard</td><td>Regional</td><td>{{ settings.ss_window_regional }}</td></tr>
+                    {%- endif -%}
+                    {%- if settings.ss_window_express != blank -%}
+                      <tr><td>Express</td><td>Most metro addresses</td><td>{{ settings.ss_window_express }}</td></tr>
+                    {%- endif -%}
+                  </tbody>
+                </table>
+                {%- if settings.ss_cutoff_time != blank -%}
+                  <p>Orders placed before {{ settings.ss_cutoff_time }} on a business day are packed and dispatched that day. Estimates are from dispatch, not from when you order, and they are Australia Post estimates rather than guarantees.</p>
+                {%- endif -%}
+              {%- else -%}
+                <p>{{ block.settings.fallback }}</p>
+              {%- endif -%}
+            </div>
+
+          {%- when 'acl' -%}
+            <p class="ss-acl" {{ block.shopify_attributes }}>{{ block.settings.text }}</p>
+
+          {%- when 'contact' -%}
+            <div {{ block.shopify_attributes }}>
+              {%- if block.settings.heading != blank -%}
+                <h2 id="{{ block.settings.heading | handle }}">{{ block.settings.heading }}</h2>
+              {%- endif -%}
+              <p>
+                {%- if settings.ss_email != blank -%}
+                  <a href="mailto:{{ settings.ss_email }}">{{ settings.ss_email }}</a><br>
+                {%- endif -%}
+                {%- if settings.ss_phone != blank -%}
+                  <a href="tel:{{ settings.ss_phone | remove: ' ' | remove: '(' | remove: ')' }}">{{ settings.ss_phone }}</a><br>
+                {%- endif -%}
+                {%- if settings.ss_address != blank -%}{{ settings.ss_address }}<br>{%- endif -%}
+                {%- if settings.ss_hours != blank -%}{{ settings.ss_hours }}{%- endif -%}
+              </p>
+            </div>
+
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Page body",
+  "tag": "section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "text", "id": "heading", "label": "Heading", "info": "Defaults to the page title." },
+    { "type": "richtext", "id": "intro", "label": "Intro" }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        { "type": "text", "id": "heading", "label": "Heading" },
+        { "type": "richtext", "id": "body", "label": "Body" }
+      ]
+    },
+    {
+      "type": "table",
+      "name": "Table",
+      "settings": [
+        { "type": "text", "id": "heading", "label": "Heading" },
+        { "type": "text", "id": "col1", "label": "Column 1" },
+        { "type": "text", "id": "col2", "label": "Column 2" },
+        { "type": "text", "id": "col3", "label": "Column 3" },
+        { "type": "textarea", "id": "rows", "label": "Rows", "info": "One row per line, cells separated by a vertical bar." }
+      ]
+    },
+    {
+      "type": "delivery",
+      "name": "Delivery windows",
+      "settings": [
+        { "type": "text", "id": "heading", "label": "Heading" },
+        { "type": "textarea", "id": "fallback", "label": "Text shown while the windows are unset", "info": "Fill in the delivery windows in Theme settings, Sleep Shop, and this is replaced by the table." }
+      ]
+    },
+    {
+      "type": "acl",
+      "name": "Consumer law notice",
+      "settings": [
+        { "type": "textarea", "id": "text", "label": "Text", "info": "Required on the returns page. Do not remove." }
+      ]
+    },
+    {
+      "type": "contact",
+      "name": "Contact details",
+      "settings": [
+        { "type": "text", "id": "heading", "label": "Heading", "info": "Details come from Theme settings, Sleep Shop." }
+      ]
+    }
+  ]
+}
+{% endschema %}

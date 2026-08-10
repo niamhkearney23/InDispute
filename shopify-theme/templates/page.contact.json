@@ -1,0 +1,54 @@
+{
+  "sections": {
+    "announcement": {
+      "type": "announcement-shipping"
+    },
+    "body": {
+      "type": "page-prose",
+      "blocks": {
+        "b1": {
+          "type": "contact",
+          "settings": {
+            "heading": "How to reach us"
+          }
+        },
+        "b2": {
+          "type": "text",
+          "settings": {
+            "heading": "Already ordered",
+            "body": "<p>Include your order number and we can skip three emails. If you need to change a gift message or a delivery address, tell us within the hour and we can usually catch it before the box is packed.</p>"
+          }
+        },
+        "b3": {
+          "type": "text",
+          "settings": {
+            "heading": "Ten boxes or more",
+            "body": "<p>Email before you order so we can confirm we can pack them in the time you need. For a run that size we can use a plain band instead of a ribbon, and print the cards rather than write them out if the message is the same on all of them.</p>"
+          }
+        },
+        "b4": {
+          "type": "text",
+          "settings": {
+            "heading": "Press and stockists",
+            "body": "<p>Same address. Tell us what you need and when you need it by.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "b1",
+        "b2",
+        "b3",
+        "b4"
+      ],
+      "settings": {
+        "eyebrow": "Contact",
+        "heading": "Talk to a person",
+        "intro": "<p>We are a small studio, so an email reaches somebody who has actually packed the box you are asking about. No chatbot.</p>"
+      }
+    }
+  },
+  "order": [
+    "announcement",
+    "body"
+  ]
+}

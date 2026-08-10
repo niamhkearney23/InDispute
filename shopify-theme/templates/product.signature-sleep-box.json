@@ -1,0 +1,215 @@
+{
+  "sections": {
+    "announcement": {
+      "type": "announcement-shipping"
+    },
+    "main": {
+      "type": "main-product-sleep-box",
+      "blocks": {
+        "eyebrow": {
+          "type": "eyebrow",
+          "settings": {
+            "text": "One box, eight pieces"
+          }
+        },
+        "title": {
+          "type": "title",
+          "settings": {
+            "subtitle": "Rest is the greatest gift"
+          }
+        },
+        "price": {
+          "type": "price",
+          "settings": {}
+        },
+        "description": {
+          "type": "description",
+          "settings": {
+            "text": "<p>Eight pieces chosen to sit together, packed by hand in our Melbourne studio and finished with a printed card in your own words. Mulberry silk for the eye mask, pillowcase and scrunchie, cut from the same run so the colour matches. Then bed socks, a pillow mist, a herbal tea, a small candle and a journal for the bedside table.</p><p>It arrives tied, in a rigid box worth keeping, with no invoice inside and no pricing on the outside. Send it straight to them.</p>"
+          }
+        },
+        "buy": {
+          "type": "buy",
+          "settings": {}
+        },
+        "accordions": {
+          "type": "accordions",
+          "settings": {
+            "a1_heading": "The eight items",
+            "a1_body": "<ul><li><strong>Mulberry silk eye mask.</strong> 22 momme, grade 6A silk, covered elastic strap.</li><li><strong>Silk pillowcase.</strong> Standard 48 by 74 cm, same 22 momme silk, hidden zip.</li><li><strong>Matching silk scrunchie.</strong> Cut from the offcuts of the pillowcase run, so the colour is an exact match.</li><li><strong>Bed socks.</strong> Fine knit, ribbed cuff, sized to fit AU 5 to 10.</li><li><strong>Pillow mist.</strong> 100 ml, alcohol free, in recycled glass with a fine atomiser.</li><li><strong>Herbal wind down tea.</strong> Loose leaf, 30 g, caffeine free, in a tin that outlives the box.</li><li><strong>Small candle.</strong> Poured wax, cotton wick, around 20 hours of burn time.</li><li><strong>Sleep journal.</strong> 96 unlined pages, sewn flat so it stays open on a bedside table.</li></ul>"
+          }
+        }
+      },
+      "block_order": ["eyebrow", "title", "price", "description", "buy", "accordions"]
+    },
+    "whats-inside": {
+      "type": "product-whats-inside",
+      "blocks": {
+        "i1": {
+          "type": "item",
+          "settings": {
+            "name": "Mulberry silk eye mask",
+            "spec": "22 momme, grade 6A silk",
+            "image_alt": "Silk eye mask lying flat on a cocoa ground, side light across the weave"
+          }
+        },
+        "i2": {
+          "type": "item",
+          "settings": {
+            "name": "Silk pillowcase",
+            "spec": "Standard 48 by 74 cm, hidden zip",
+            "image_alt": "Silk pillowcase folded in thirds on a powder blue ground"
+          }
+        },
+        "i3": {
+          "type": "item",
+          "settings": {
+            "name": "Matching silk scrunchie",
+            "spec": "Cut from the same silk run",
+            "image_alt": "Silk scrunchie beside the corner of the matching pillowcase on a cream ground"
+          }
+        },
+        "i4": {
+          "type": "item",
+          "settings": {
+            "name": "Bed socks",
+            "spec": "Fine knit, ribbed cuff, AU 5 to 10",
+            "image_alt": "A pair of bed socks loosely folded on an oxblood ground"
+          }
+        },
+        "i5": {
+          "type": "item",
+          "settings": {
+            "name": "Pillow mist",
+            "spec": "100 ml, alcohol free, recycled glass",
+            "image_alt": "Pillow mist bottle standing upright on a cocoa ground"
+          }
+        },
+        "i6": {
+          "type": "item",
+          "settings": {
+            "name": "Herbal wind down tea",
+            "spec": "Loose leaf, 30 g, caffeine free",
+            "image_alt": "Open tea tin with a small spill of loose leaf beside it on a striped cream ground"
+          }
+        },
+        "i7": {
+          "type": "item",
+          "settings": {
+            "name": "Small candle",
+            "spec": "Poured wax, cotton wick, around 20 hours",
+            "image_alt": "Unlit candle seen from slightly above the rim on a powder blue ground"
+          }
+        },
+        "i8": {
+          "type": "item",
+          "settings": {
+            "name": "Sleep journal",
+            "spec": "96 unlined pages, sewn flat",
+            "image_alt": "Closed journal with light raking across the letterpress cover on a cream ground"
+          }
+        }
+      },
+      "block_order": ["i1", "i2", "i3", "i4", "i5", "i6", "i7", "i8"],
+      "settings": {
+        "eyebrow": "What is inside",
+        "heading": "Eight pieces, one ritual",
+        "body": "<p>Every item had to earn its place next to the other seven. The silk is cut from one run so the mask, pillowcase and scrunchie match exactly. The candle is small on purpose, because there is already a scent in the box.</p>"
+      }
+    },
+    "keepsake": {
+      "type": "product-keepsake",
+      "blocks": {
+        "n1": {
+          "type": "note",
+          "settings": {
+            "text": "Rigid box, wrapped in uncoated paper, sturdy enough to be used for something else afterwards."
+          }
+        },
+        "n2": {
+          "type": "note",
+          "settings": {
+            "text": "Printed sleeve, tissue and a ribbon tied by hand. Choose the ribbon at checkout."
+          }
+        },
+        "n3": {
+          "type": "note",
+          "settings": {
+            "text": "No invoice inside and no pricing anywhere on the outside, so it can go straight to them."
+          }
+        }
+      },
+      "block_order": ["n1", "n2", "n3"],
+      "settings": {
+        "eyebrow": "Presentation",
+        "heading": "A box worth keeping",
+        "body": "<p>The packaging is part of the gift rather than something to get through. A rigid keepsake box under a printed sleeve, tissue folded back over the contents, and a ribbon tied on the bench before the lid goes on.</p><p>Your message is written on a printed card and sits on top, so it is the first thing they read.</p>",
+        "image_alt": "The open box with the lid propped behind it, tissue folded back over the contents",
+        "flip": false
+      }
+    },
+    "founder": {
+      "type": "founder-teaser",
+      "settings": {
+        "eyebrow": "The studio",
+        "quote": "We wanted to send something better than a candle with a bow on it",
+        "body": "<p>Sleep Shop is a small studio in Melbourne making one thing properly. Making one box means we get to be particular about all eight pieces in it, and to know exactly where each one comes from.</p>",
+        "image_alt": "Hands tying the ribbon on a finished box at the packing bench",
+        "link": "/pages/about",
+        "link_label": "Read our story",
+        "flip": true
+      }
+    },
+    "trust": {
+      "type": "trust-strip",
+      "blocks": {
+        "t1": {
+          "type": "item",
+          "settings": {
+            "heading": "Packed by hand",
+            "text": "In our Melbourne studio, every box"
+          }
+        },
+        "t2": {
+          "type": "item",
+          "settings": {
+            "heading": "Printed gift card",
+            "text": "Your message, included with every box"
+          }
+        },
+        "t3": {
+          "type": "item",
+          "settings": {
+            "heading": "Sent Australia wide",
+            "text": "Tracked, with Australia Post"
+          }
+        },
+        "t4": {
+          "type": "item",
+          "settings": {
+            "heading": "Straightforward returns",
+            "text": "Plus your Australian Consumer Law rights"
+          }
+        }
+      },
+      "block_order": ["t1", "t2", "t3", "t4"]
+    },
+    "reviews": {
+      "type": "product-reviews",
+      "settings": {
+        "eyebrow": "Reviews",
+        "heading": "What people say",
+        "empty_text": "We have only just opened, so there are no reviews here yet. When the first boxes arrive with the people they were sent to, their words will go here and not before."
+      }
+    }
+  },
+  "order": [
+    "announcement",
+    "main",
+    "whats-inside",
+    "keepsake",
+    "founder",
+    "trust",
+    "reviews"
+  ]
+}

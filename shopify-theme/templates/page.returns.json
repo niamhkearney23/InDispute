@@ -1,0 +1,77 @@
+{
+  "sections": {
+    "announcement": {
+      "type": "announcement-shipping"
+    },
+    "body": {
+      "type": "page-prose",
+      "blocks": {
+        "b1": {
+          "type": "acl",
+          "settings": {
+            "text": "Nothing in this policy limits your rights under the Australian Consumer Law."
+          }
+        },
+        "b2": {
+          "type": "text",
+          "settings": {
+            "heading": "Change of mind",
+            "body": "<p>Unopened boxes can be returned within 30 days of delivery for a full refund, and we cover the return postage. The box needs to be unopened because we cannot resell a box that has been unpacked.</p><p>If the box has been opened, get in touch anyway. We would rather hear from you and work something out than have you keep something you are unhappy with.</p>"
+          }
+        },
+        "b3": {
+          "type": "text",
+          "settings": {
+            "heading": "Damaged, faulty or missing pieces",
+            "body": "<p>If a box arrives damaged, or a piece is missing or faulty, we replace the whole box rather than the single item, and you do not need to return the original. Send us a photo and your order number and we will have a replacement on the bench that day.</p>"
+          }
+        },
+        "b4": {
+          "type": "text",
+          "settings": {
+            "heading": "Wrong address, or a change of heart before dispatch",
+            "body": "<p>Email within an hour of ordering and we can almost always catch it before the lid goes on. After dispatch we can redirect through Australia Post, though that adds a few days.</p>"
+          }
+        },
+        "b5": {
+          "type": "text",
+          "settings": {
+            "heading": "Your rights under the Australian Consumer Law",
+            "body": "<p>Our goods come with guarantees that cannot be excluded under the Australian Consumer Law. You are entitled to a replacement or refund for a major failure and to compensation for any other reasonably foreseeable loss or damage. You are also entitled to have the goods repaired or replaced if they are not of acceptable quality and the failure does not amount to a major failure.</p><p>These rights apply whatever the timeframe in this policy, and they sit above everything written above.</p>"
+          }
+        },
+        "b6": {
+          "type": "text",
+          "settings": {
+            "heading": "How to start a return",
+            "body": "<p>Email us with your order number, which starts with the letters your confirmation shows, and a sentence about what is wrong. There is no form to fill in.</p>"
+          }
+        },
+        "b7": {
+          "type": "contact",
+          "settings": {
+            "heading": "Contact us about a return"
+          }
+        }
+      },
+      "block_order": [
+        "b1",
+        "b2",
+        "b3",
+        "b4",
+        "b5",
+        "b6",
+        "b7"
+      ],
+      "settings": {
+        "eyebrow": "Returns",
+        "heading": "If it is not right",
+        "intro": "<p>Tell us and we will sort it out. Below is how it works in practice, and what you are entitled to regardless of what any policy says.</p>"
+      }
+    }
+  },
+  "order": [
+    "announcement",
+    "body"
+  ]
+}

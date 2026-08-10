@@ -1,0 +1,15 @@
+{%- comment -%}
+  Brand tokens from theme settings, so a colour change in the customiser
+  reaches every section without a code deploy. The stylesheet carries the same
+  values as fallbacks, so clearing a setting degrades rather than breaks.
+{%- endcomment -%}
+<style>
+  :root {
+    --ss-cocoa: {{ settings.ss_cocoa | default: '#3B2318' }};
+    --ss-oxblood: {{ settings.ss_oxblood | default: '#5C1F28' }};
+    --ss-powder: {{ settings.ss_powder | default: '#AFC9DF' }};
+    --ss-cream: {{ settings.ss_cream | default: '#F2E9DC' }};
+    --ss-linen: {{ settings.ss_linen | default: '#FBF7F1' }};
+  }
+  body { background: var(--ss-linen); }
+</style>

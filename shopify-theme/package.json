@@ -1,0 +1,10 @@
+{
+  "name": "sleep-shop-theme",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sleep Shop, Shopify theme customisation over Dawn",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs"
+  },
+  "engines": { "node": ">=20" }
+}

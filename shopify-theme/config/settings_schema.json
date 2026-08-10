@@ -1,0 +1,143 @@
+[
+  {
+    "name": "Sleep Shop",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Brand"
+      },
+      {
+        "type": "paragraph",
+        "content": "The five brand grounds. Every section colour comes from these, so changing one here changes it everywhere."
+      },
+      {
+        "type": "color",
+        "id": "ss_cocoa",
+        "label": "Cocoa",
+        "default": "#3B2318"
+      },
+      {
+        "type": "color",
+        "id": "ss_oxblood",
+        "label": "Oxblood",
+        "default": "#5C1F28"
+      },
+      {
+        "type": "color",
+        "id": "ss_powder",
+        "label": "Powder blue",
+        "default": "#AFC9DF"
+      },
+      {
+        "type": "color",
+        "id": "ss_cream",
+        "label": "Cream",
+        "default": "#F2E9DC"
+      },
+      {
+        "type": "color",
+        "id": "ss_linen",
+        "label": "Linen, page background",
+        "default": "#FBF7F1"
+      },
+
+      {
+        "type": "header",
+        "content": "Dispatch and delivery"
+      },
+      {
+        "type": "paragraph",
+        "content": "Leave any of these blank and the line is hidden rather than guessed. Nothing here should be a rounded up estimate: it appears next to the add to cart button and customers will hold you to it."
+      },
+      {
+        "type": "text",
+        "id": "ss_cutoff_time",
+        "label": "Dispatch cut-off time",
+        "info": "For example 2pm AEST. Orders before this on a business day are dispatched the same day."
+      },
+      {
+        "type": "text",
+        "id": "ss_window_metro",
+        "label": "Metro delivery window",
+        "info": "For example 2 to 4 business days. Melbourne, Sydney, Brisbane, Adelaide, Perth, Canberra, Hobart."
+      },
+      {
+        "type": "text",
+        "id": "ss_window_regional",
+        "label": "Regional delivery window",
+        "info": "For example 4 to 8 business days."
+      },
+      {
+        "type": "text",
+        "id": "ss_window_express",
+        "label": "Express delivery window",
+        "info": "For example next business day to most metro addresses."
+      },
+      {
+        "type": "text",
+        "id": "ss_shipping_message",
+        "label": "Announcement bar shipping message",
+        "default": "Free shipping Australia wide"
+      },
+
+      {
+        "type": "header",
+        "content": "Studio details"
+      },
+      {
+        "type": "text",
+        "id": "ss_email",
+        "label": "Contact email"
+      },
+      {
+        "type": "text",
+        "id": "ss_phone",
+        "label": "Contact phone"
+      },
+      {
+        "type": "text",
+        "id": "ss_hours",
+        "label": "When email is answered",
+        "info": "For example 8am to 6pm AEST, Monday to Friday."
+      },
+      {
+        "type": "text",
+        "id": "ss_address",
+        "label": "Studio address"
+      },
+
+      {
+        "type": "header",
+        "content": "Gift message"
+      },
+      {
+        "type": "range",
+        "id": "ss_gift_message_limit",
+        "label": "Character limit",
+        "min": 100,
+        "max": 400,
+        "step": 10,
+        "default": 250,
+        "info": "The card is printed, so this is a physical limit rather than a preference."
+      },
+
+      {
+        "type": "header",
+        "content": "Integrations"
+      },
+      {
+        "type": "text",
+        "id": "ss_klaviyo_key",
+        "label": "Klaviyo public API key",
+        "info": "The popup itself is built in Klaviyo, not here, so it can be changed without a theme deploy."
+      },
+      {
+        "type": "checkbox",
+        "id": "ss_judgeme_enabled",
+        "label": "Judge.me installed",
+        "default": true,
+        "info": "When ticked the reviews section renders the Judge.me widget. Until real reviews exist it shows an honest empty state and no star rating."
+      }
+    ]
+  }
+]

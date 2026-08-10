@@ -1,0 +1,56 @@
+{%- comment -%}
+  Judge.me review widget.
+
+  Empty at launch and that is deliberate. There are no seeded reviews, no
+  sample cards and no star rating standing in for one. Judge.me renders its own
+  "be the first" state once installed; if the metafield has not populated yet
+  we show a short honest line instead of nothing, so the section does not look
+  broken while it waits.
+{%- endcomment -%}
+
+{{ 'sleep-shop.css' | asset_url | stylesheet_tag }}
+{% render 'ss-tokens' %}
+
+<div class="ss-section" id="reviews">
+  <div class="ss-wrap">
+    {%- if section.settings.eyebrow != blank -%}
+      <p class="ss-eyebrow">{{ section.settings.eyebrow }}</p>
+    {%- endif -%}
+    {%- if section.settings.heading != blank -%}
+      <h2 class="ss-h2">{{ section.settings.heading }}</h2>
+    {%- endif -%}
+
+    {%- if settings.ss_judgeme_enabled and product.metafields.judgeme.widget != blank -%}
+      <div style="clear:both"></div>
+      <div
+        id="judgeme_product_reviews"
+        class="jdgm-widget jdgm-review-widget"
+        data-product-title="{{ product.title | escape }}"
+        data-id="{{ product.id }}"
+      >
+        {{ product.metafields.judgeme.widget }}
+      </div>
+    {%- else -%}
+      <div class="ss-reviews__empty">
+        <p>{{ section.settings.empty_text }}</p>
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Reviews",
+  "tag": "section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "text", "id": "heading", "label": "Heading" },
+    {
+      "type": "textarea",
+      "id": "empty_text",
+      "label": "Text shown before the first review",
+      "info": "Do not put an example review here. The build fails if review markup appears without Judge.me behind it."
+    }
+  ]
+}
+{% endschema %}

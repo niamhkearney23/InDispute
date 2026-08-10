@@ -1,0 +1,20 @@
+{%- comment -%}
+  Price, GST note and the Afterpay instalment line.
+
+  The instalment is divided from the real product price rather than typed in,
+  so it cannot fall out of step if the price changes. Shopify prices are in
+  cents, so the division happens before the money filter.
+
+  Accepts: product
+{%- endcomment -%}
+
+{%- assign instalment = product.price | divided_by: 4 -%}
+
+<div class="ss-price">
+  <span>{{ product.price | money }}</span>
+  <span class="ss-price__gst">AUD, GST included</span>
+</div>
+
+<p class="ss-instalment">
+  or 4 instalments of <b>{{ instalment | money }}</b> with Afterpay
+</p>
