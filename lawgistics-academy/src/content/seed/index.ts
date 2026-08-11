@@ -14,6 +14,8 @@ import { RESEARCH_MY_QUESTIONS } from './questions/research-my';
 import { AI_COMPLIANCE_QUESTIONS } from './questions/ai-compliance';
 import { BASICS_QUESTIONS } from './questions/basics';
 import { BASICS_MY_QUESTIONS } from './questions/basics-my';
+import { ADVANCED_QUESTIONS } from './questions/advanced';
+import { ADVANCED_MY_QUESTIONS } from './questions/advanced-my';
 import { FACTS } from './facts';
 import { COUNTRIES, JURISDICTION_COUNTRY } from '@/lib/types';
 import type { SeedQuestion } from './types';
@@ -34,6 +36,8 @@ export const QUESTIONS: SeedQuestion[] = [
   ...AI_COMPLIANCE_QUESTIONS,
   ...BASICS_QUESTIONS,
   ...BASICS_MY_QUESTIONS,
+  ...ADVANCED_QUESTIONS,
+  ...ADVANCED_MY_QUESTIONS,
 ];
 
 export { CONCEPTS, DOMAINS, SKILLS, FACTS };
