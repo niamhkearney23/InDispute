@@ -70,6 +70,12 @@ body.dark{background:#141A28;color:#EDE7DC;}
 .holding b{font-weight:600;color:#171D2B;}
 .dark .holding b{color:#EDE7DC;}
 
+/* the learning line: what you actually take from the case */
+.learn{margin-top:44px;padding-left:30px;border-left:2px solid #3A5697;
+  font-family:'Playfair',serif;font-style:italic;font-weight:400;
+  font-size:33px;line-height:1.46;color:#171D2B;max-width:800px;}
+.dark .learn{border-left-color:#6E86C9;color:#EDE7DC;}
+
 /* list slide */
 .also{margin-top:8px;font-family:'TikTok Sans',sans-serif;font-size:29px;
   line-height:1.5;color:#4E4A3F;max-width:850px;}
@@ -112,12 +118,14 @@ slide(1, "Roundup",
 
 slide(2, "No. 01",
   '<div class="case">Mpwerempwer Aboriginal Corporation <i>v</i> Minister</div>'
-  '<div class="holding">A thirty year licence to take up to 40 gigalitres of groundwater a year was <b>set aside.</b> The native title holders were not heard before it issued.</div>',
+  '<div class="holding">A thirty year licence to take up to 40 gigalitres of groundwater a year was <b>set aside.</b> The native title holders were not given notice of the proposed conditions, or a chance to answer them.</div>'
+  '<div class="learn">Learn this: procedural fairness is a condition of the power, not a courtesy added at the end.</div>',
   cite="[2026] HCA 23 &middot; 5 August 2026")
 
 slide(3, "No. 02",
   '<div class="case">Potter (a pseudonym) <i>v</i> The King</div>'
-  '<div class="holding">A complainant&rsquo;s covert recording of the accused was <b>lawfully admitted.</b> The High Court was unanimous.</div>',
+  '<div class="holding">A complainant&rsquo;s covert recording of the accused was <b>lawful.</b> It was reasonably necessary to protect her bodily autonomy. Appeal dismissed, unanimous.</div>'
+  '<div class="learn">Learn this: a secret recording is not automatically unlawful. Ask what lawful interest it protected.</div>',
   cite="[2026] HCA 25 &middot; 5 August 2026")
 
 slide(4, "Also That Day",

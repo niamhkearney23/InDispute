@@ -9,6 +9,7 @@ This repo powers the **Lawgistics Daily Court Intelligence** workflow. Any sessi
 - Post queue lives at `reports/POST-QUEUE.md` — check it each run; add banked carousels, mark posted ones.
 - **"Recently in Court." (roundup post, renamed from "The Day in Court." on 10 Aug 2026 because the window covered is usually several days back and the old name overstated currency; the earlier name "The Docket" stays retired, don't reuse either):** a carousel covering the significant decisions from the latest verified window: cover slide ("Recently in Court." on two lines + hairline + honest subline naming the court, the number of judgments and the date) then ONE SLIDE PER CASE (case name with v in accent blue, one-line holding, citation bottom-left). Final slide inverts to navy and carries the closing line + disclaimer. Template: `tools/carousel/recentlyincourt.py` (older `dayincourt.py` superseded).
 - **Confirmed only applies to roundups too.** Only give a case its own slide and a stated holding if the outcome is confirmed. Cases whose outcomes cannot be verified go on a single "Three more, in brief" slide with name, citation and subject matter only, never an outcome.
+- **Every case slide carries a learning line.** A pull-out in serif italic against an accent rule, opening "Learn this:", stating the *principle* rather than repeating the outcome. One sentence, no sub-clauses, no hedging. The point is that the slide is useful in an exam, not just informative. Applies to case slides on roundups and on single-case carousels.
 
 ## Output locations
 

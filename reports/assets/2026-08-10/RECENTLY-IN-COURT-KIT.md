@@ -32,7 +32,9 @@ Five judgments in one sitting day. Here is what came out of the High Court on We
 
 **Mpwerempwer Aboriginal Corporation v Minister** [2026] HCA 23. A licence to take up to 40 gigalitres of groundwater a year for thirty years in the Northern Territory has been set aside. A new condition was imposed requiring an assessment of the impact on Aboriginal cultural values. The company was told and given two days to respond. The native title holders were not told until after the licence had issued. The Court held they should have been heard first.
 
-**Potter (a pseudonym) v The King** [2026] HCA 25. A complainant's covert recording of the accused was lawfully admitted. The Court was unanimous.
+**Potter (a pseudonym) v The King** [2026] HCA 25. A complainant's covert recording of the accused was lawful. It was reasonably necessary to protect her bodily autonomy and integrity, which the Court treated as a lawful interest deserving the very strongest protection. The appeal was dismissed and the convictions stood. The Court was unanimous.
+
+The lesson in that one is worth holding onto. A recording made without consent is not automatically unlawful. The question is what lawful interest it was protecting.
 
 Also handed down that day, and worth a look if they touch your subjects:
 
@@ -55,6 +57,29 @@ Summaries only. Check the judgments before relying on them. General information 
 #auslaw #lawstudent #lawschool #highcourt #adminlaw #proceduralfairness #migrationlaw #youthjustice #lawyersofinstagram #lawgistics
 
 **Alt text:** Cream and navy carousel summarising the five High Court of Australia judgments delivered on 5 August 2026.
+
+---
+
+## The learning line
+
+Each case slide carries a pull-out line in serif italic against an accent rule, opening "Learn this:". It states the principle rather than repeating the outcome, so the slide is useful in an exam and not just informative.
+
+| Slide | Learning line | Basis |
+|---|---|---|
+| 02 | Procedural fairness is a condition of the power, not a courtesy added at the end. | General principle, supported by the outcome in HCA 23 |
+| 03 | A secret recording is not automatically unlawful. Ask what lawful interest it protected. | Directly reflects the reasoning: the recording was reasonably necessary to protect a lawful interest |
+
+Both are statements of principle, not paraphrases of orders, so they are safe. Keep them short. One sentence, no sub-clauses, no hedging.
+
+---
+
+## Verification, third pass
+
+This kit has been checked three times. The third pass changed two things.
+
+**Potter, upgraded.** The holding now reflects the actual reasoning rather than just the result. The recording was lawful because it was reasonably necessary to protect the complainant's bodily autonomy and integrity, which the Court described as a lawful interest deserving the very strongest protection. Also now confirmed: the appeal was dismissed and the convictions stood, the Court was unanimous, and the matter came from South Australia where the accused was convicted on two counts of raping his sleeping wife with the jury unable to reach a verdict on two further counts. The slide states only the parts that fit.
+
+**Mpwerempwer, unanimity found but not used.** A third source describes the Court as ruling unanimously that the licence was unlawfully granted. That closes the item flagged as open in the 10 August brief. It is recorded here, but it is **not stated on any slide**, because nothing in the post depends on it and one line of news reporting is a thinner basis than the rest of the material. If you can confirm it from the judgment, tell me and I will add it.
 
 ---
 
