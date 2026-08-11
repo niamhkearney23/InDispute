@@ -214,7 +214,9 @@ export function ReviewQueue({ items }: { items: ReviewItem[] }) {
         <button
           type="button"
           onClick={() => setShowKeys((s) => !s)}
-          className="rounded-[5px] px-2 py-1.5 text-xs font-medium text-burgundy underline underline-offset-2"
+          // py-2 rather than py-1.5: at text-xs the line box is 16px, so 6px of
+          // padding either side lands on 28 and misses a thumb. 8px makes 32.
+          className="rounded-[5px] px-2 py-2 text-xs font-medium text-burgundy underline underline-offset-2"
         >
           {showKeys ? 'Hide shortcuts' : 'Shortcuts'}
         </button>
