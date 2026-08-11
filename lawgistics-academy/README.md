@@ -135,6 +135,25 @@ install has a working training loop, while every one of them still carries
 either seed with `--drafts-only`, or press **Withdraw everything unverified** in the
 verification queue: one click, and reversible.
 
+### Reviewing without the mouse
+
+The queue is driven by the keyboard, because 233 items reviewed a click at a
+time is a different job from 233 items reviewed at a key press.
+
+| Key | Does |
+| --- | --- |
+| `j` `↓` | next item |
+| `k` `↑` | previous item |
+| `v` | correct, sign it off, move to the next |
+| `f` | needs a change, and put the cursor in the note |
+| `1` `2` `3` | check again in 6, 12 or 24 months |
+| `?` | show or hide the list |
+
+Nothing fires while the cursor is in a text box, so writing "the rule number is
+19.7, not 19.6" does not sign off five items on the way past. Removing an item
+entirely has no shortcut on purpose: it is permanent, and one unmodified key
+that destroys content is a bad trade for the two seconds it saves.
+
 ### Verification expires
 
 A sign-off says an item was correct when a named person read it. It does not say
