@@ -9,7 +9,8 @@ One post per weekday. Fridays: The Big Case File (pop-culture legal breakdown).
 | Sat 1 Aug 2026 | Hanson v Faruqi, Full Court, s 18C appeal dismissed | reports/assets/2026-08-01/hanson-slide-*.png + dayincourt catch-up | POSTED ✅ |
 | Sat 1 Aug 2026 (post 2) | ACCC v JustAnswer [2026] FCA 871, "$2 that cost $10 million" + subscription trap ban | reports/assets/2026-08-01/justanswer-slide-*.png | READY |
 | Fri 7 Aug 2026 | Potter (a pseudonym) v The King [2026] HCA 25, covert recording lawful, High Court unanimous | reports/assets/2026-08-07/potter-slide-*.png | READY, lead post |
-| Mon 10 Aug 2026 | Mpwerempwer v Minister [2026] HCA 23, "40 gigalitres a year. Thirty years. Quashed." | reports/assets/2026-08-10/water-slide-*.png | READY, today's lead |
+| Mon 10 Aug 2026 | Mpwerempwer v Minister [2026] HCA 23, "40 gigalitres a year. Thirty years. Set aside." | reports/assets/2026-08-10/water-slide-*.png | READY, lead post |
+| Mon 10 Aug 2026 (post 2) | Recently in Court, roundup of the 5 Aug High Court sitting, 5 slides | reports/assets/2026-08-10/recently-slide-*.png | READY, second post |
 | PIN | Pinned post, evergreen, 7 slides, status led, no dates so it never goes stale | reports/assets/pinned/ | READY to post and pin |
 | Soon | "The Law and the People It Leaves Behind", carousel of the blog post, strongest writing on the site | not built yet | PROPOSED, say the word |
 | Blog | "The People in the Cars", follow-up revising the Ferraris line | reports/blog/the-people-in-the-cars.md | DRAFTED, ready to publish, carousel available on request |
