@@ -553,9 +553,64 @@
     return true;
   }
 
+  /* Demo mode. Add ?demo=1 to any page and the tab is signed in as one of the
+     seeded customers, so the pages that would otherwise bounce to the login
+     screen can be walked through without anyone creating an account.
+
+     This is the same local demo path the admin login already offers, and it
+     gates nothing: the session is marked mode 'local', the data comes from the
+     seed file, writes stay in this browser, and the role is whatever the seed
+     row says, never admin. It is kept in sessionStorage, so it lasts for the
+     tab and dies with it.
+
+     The banner is not optional. Somebody being walked through this needs to
+     know the names and figures in front of them are invented. */
+  function demoMode() {
+    var KEY = 'lawgistics.demo';
+    var asked = /[?&]demo=1\b/.test(location.search);
+    var on = false;
+
+    try {
+      if (asked) sessionStorage.setItem(KEY, '1');
+      on = sessionStorage.getItem(KEY) === '1';
+    } catch (e) {
+      return false;
+    }
+    if (!on) return false;
+
+    try {
+      if (!sessionStorage.getItem('lawgistics.session')) {
+        // Taken from the seed rather than hard coded, so it stays right if the
+        // demo rows are renumbered. A customer, deliberately, not the admin.
+        var seed = (window.LG_SEED && window.LG_SEED.users) || [];
+        var who = seed.filter(function (u) { return u.role === 'customer'; })[0];
+        if (who) {
+          sessionStorage.setItem('lawgistics.session', JSON.stringify({
+            mode: 'local', id: who.id, email: who.email, name: who.name, role: who.role
+          }));
+        }
+      }
+    } catch (e) {}
+
+    return true;
+  }
+
+  function demoBanner() {
+    if (document.querySelector('.demo-bar')) return;
+    var bar = document.createElement('div');
+    bar.className = 'beta-bar demo-bar';
+    bar.innerHTML = '<div class="wrap"><span><b>Demo.</b> ' +
+      'You are signed in as a sample customer and every name, figure and ' +
+      'document here is invented. Nothing you do is saved beyond this tab.' +
+      '</span></div>';
+    document.body.insertBefore(bar, document.body.firstChild);
+  }
+
   function init() {
-    if (authGate()) return;
+    var demo = demoMode();
+    if (!demo && authGate()) return;
     buildHeader();
+    if (demo) demoBanner();
     buildFooter();
     orgSchema();
 

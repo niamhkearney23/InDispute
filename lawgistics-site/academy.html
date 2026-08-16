@@ -31,7 +31,10 @@
   </section>
 
   <!-- ======================================================== progress -->
-  <section class="section section--tight" data-signed-in style="display:none">
+  <!-- Shown to everyone, signed in or not. There is nothing here that needs an
+       account: the ticks are kept in this browser either way, and hiding the
+       whole curriculum behind a sign in was stopping people looking at it. -->
+  <section class="section section--tight" data-progress>
     <div class="wrap">
       <div class="card" style="display:flex;gap:26px;align-items:center;flex-wrap:wrap">
         <span class="level-badge" data-current-badge>1</span>
@@ -48,14 +51,26 @@
     </div>
   </section>
 
-  <section class="section section--tight" data-signed-out>
+  <!-- Says what the ticks actually are. They are a reading list you mark off
+       yourself, not an assessment, and they are kept in this browser. Anyone
+       reading this page deserves to know that before they rely on the number,
+       and so does anyone being shown it. -->
+  <section class="section section--tight">
     <div class="wrap">
       <div class="card intake-card" style="display:flex;gap:20px;align-items:center;flex-wrap:wrap">
         <div style="flex:1;min-width:240px">
-          <h3 style="font-size:1.2rem">Sign in to track your levels</h3>
-          <p style="font-size:.92rem;margin:0">Your progress, XP, and completed lessons are saved to your account. You can browse the curriculum without an account.</p>
+          <h3 style="font-size:1.2rem">This is a checklist, not an exam</h3>
+          <p style="font-size:.92rem;margin:0">
+            You tick these off yourself as you work through them, so the level is
+            a record of what you have covered rather than a mark anyone has given
+            you. Ticks are kept in this browser, so they will not follow you to
+            another device. No account needed to use any of it.
+            <span data-signed-out>
+              <a href="login.html">Sign in</a> if you would like us to keep track properly.
+            </span>
+          </p>
         </div>
-        <a class="btn btn--primary" href="login.html">Sign in or join</a>
+        <a class="btn btn--primary" href="#levels">Start Level 1</a>
       </div>
     </div>
   </section>
@@ -129,7 +144,12 @@
       <div class="grid grid-3">
         <div class="card" data-reveal="0">
           <h3>Get booked</h3>
-          <p>Finish Level 3 and you can apply to join the paralegal cohort that Malaysian firms book through Lawgistics.</p>
+          <!-- This used to read "Finish Level 3 and you can apply". The levels
+               here are ticked by the learner, in their own browser, so that
+               made a real application to paid work turn on a number the
+               applicant sets themselves. Applying is open to anyone, and a
+               person decides. -->
+          <p>Apply whenever you are ready to join the paralegal cohort that Malaysian firms book through Lawgistics. Working through the levels is good preparation, but the cohort is decided by a person who assesses you, not by your progress bar.</p>
           <a class="btn btn--light btn--sm" style="margin-top:14px" href="paralegals.html">See the cohort</a>
         </div>
         <div class="card" data-reveal="80">
@@ -213,10 +233,11 @@ window.pageInit = function () {
   }
 
   function paintProgress() {
-    var signedIn = !!session;
-    document.querySelector('[data-signed-in]').style.display = signedIn ? 'block' : 'none';
-    document.querySelector('[data-signed-out]').style.display = signedIn ? 'none' : 'block';
-    if (!signedIn) return;
+    // The only thing signing in changes on this page is whether we offer to
+    // keep track properly. The curriculum, the ticks and the progress bar all
+    // work without an account.
+    var out = document.querySelector('[data-signed-out]');
+    if (out) out.style.display = session ? 'none' : 'inline';
 
     var cur = currentLevel();
     var next = levels.filter(function (l) { return Number(l.xpRequired) > xp(); })[0];
@@ -270,13 +291,17 @@ window.pageInit = function () {
         save();
         paintProgress();
         paintLevels();
-        // Just crossed the finish line on a level? Tell the automation.
+        // Just crossed the finish line on a level? Tell the automation, but
+        // label it for what it is. The browser is reporting what the learner
+        // ticked, so nothing downstream should read this as an assessment or
+        // treat it as a qualification.
         if (!wasComplete && cb.checked && levelComplete(levelId)) {
           var lvl = levels.filter(function (l) { return l.id === levelId; })[0];
           if (lvl && session) {
             Store.notify('academy', {
               name: session.name || session.email, email: session.email,
-              level: lvl.level, levelName: lvl.name, xp: xp()
+              level: lvl.level, levelName: lvl.name, xp: xp(),
+              selfReported: true
             });
           }
         }
