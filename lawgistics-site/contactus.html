@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact Lawgistics</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f4f1ea'/%3E%3Ctext x='27' y='44' font-family='Georgia,serif' font-weight='700' font-size='38' fill='%231a1f28' text-anchor='middle'%3EL%3C/text%3E%3Ccircle cx='47' cy='41' r='5' fill='%232d4a75'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#f4f1ea">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Lawgistics">
+<meta property="og:title" content="Contact Lawgistics">
+<meta property="og:image" content="https://lawgistics.my/assets/img/og.png">
+<meta property="og:description" content="Get in touch with Lawgistics. We reply to every enquiry within one business day.">
+<meta property="og:url" content="https://lawgistics.my/contactus.html">
+<meta name="twitter:card" content="summary">
+<meta name="description" content="Get in touch with Lawgistics. We reply to every enquiry within one business day.">
+<link rel="canonical" href="https://lawgistics.my/contactus.html">
+<link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body>
+
+<header data-header></header>
+
+<main>
+
+  <section class="page-head">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal="0">Contact</p>
+      <h1 data-reveal="0">We're here to help</h1>
+      <p class="lede" data-reveal="60">Whether it's a question about a template, an invoice, or something more complicated, send it over and a person will read it.</p>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="wrap">
+      <div class="grid" style="grid-template-columns:1fr 1.15fr;gap:clamp(28px,5vw,64px);align-items:start">
+
+        <div data-reveal="0">
+          <h2 style="font-size:1.6rem">Other ways to reach us</h2>
+          <ul class="checklist" style="margin-top:20px">
+            <li data-icon-slot-li="check"><span><strong style="color:var(--ink)">General enquiries</strong><br>hello@lawgistics.my</span></li>
+            <li data-icon-slot-li="check"><span><strong style="color:var(--ink)">Billing &amp; refunds</strong><br>billing@lawgistics.my</span></li>
+            <li data-icon-slot-li="check"><span><strong style="color:var(--ink)">Press &amp; partnerships</strong><br>partners@lawgistics.my</span></li>
+          </ul>
+
+          <div class="card" style="margin-top:30px">
+            <h3 style="font-size:1.1rem">Looking for a lawyer, not a template?</h3>
+            <p>Our matching service puts your requirement in front of a qualified Malaysian lawyer, with a response inside 24 hours.</p>
+            <a class="btn btn--ghost btn--sm" style="margin-top:14px" href="legalhelp.html">Get matched</a>
+          </div>
+
+          <p style="margin-top:26px;font-size:.86rem">Lawgistics provides legal documents and matching services. Nothing on this site is legal advice, and using it does not create a solicitor, client relationship.</p>
+        </div>
+
+        <div class="form-card" data-reveal="80">
+          <form data-form="contact" novalidate>
+            <div class="field-row">
+              <div class="field">
+                <label for="c-name">Your name <span class="hint">(required)</span></label>
+                <input class="input" id="c-name" name="name" type="text" required autocomplete="name">
+              </div>
+              <div class="field">
+                <label for="c-email">Email <span class="hint">(required)</span></label>
+                <input class="input" id="c-email" name="email" type="email" required autocomplete="email">
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="c-phone">Phone</label>
+                <input class="input" id="c-phone" name="phone" type="tel" autocomplete="tel" placeholder="+60">
+              </div>
+              <div class="field">
+                <label for="c-subject">Subject</label>
+                <select class="select" id="c-subject" name="subject">
+                  <option>General enquiry</option>
+                  <option>Question about a template</option>
+                  <option>Billing or refund</option>
+                  <option>Bulk or volume pricing</option>
+                  <option>Partnership enquiry</option>
+                  <option>Something else</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label for="c-message">Message <span class="hint">(required)</span></label>
+              <textarea class="textarea" id="c-message" name="message" required placeholder="How can we help?"></textarea>
+            </div>
+            <button class="btn btn--primary btn--block" type="submit">Send message</button>
+            <p class="form-note">We reply to every enquiry within one business day.</p>
+          </form>
+          <div class="form-status" data-status role="status" aria-live="polite"></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--white">
+    <div class="wrap" style="max-width:840px">
+      <div class="section-head" data-reveal="0">
+        <p class="eyebrow">Before you write</p>
+        <h2>Common questions from Malaysian business owners</h2>
+      </div>
+      <div class="faq" data-faqs data-reveal="60"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer data-footer></footer>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/site.js"></script>
+<script>
+window.pageInit = function () {
+  document.querySelectorAll('[data-icon-slot-li]').forEach(function (el) {
+    el.insertAdjacentHTML('afterbegin', window.LG_ICON[el.getAttribute('data-icon-slot-li')]);
+  });
+};
+</script>
+</body>
+</html>

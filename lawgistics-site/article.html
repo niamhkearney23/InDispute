@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Insight, Lawgistics</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f4f1ea'/%3E%3Ctext x='27' y='44' font-family='Georgia,serif' font-weight='700' font-size='38' fill='%231a1f28' text-anchor='middle'%3EL%3C/text%3E%3Ccircle cx='47' cy='41' r='5' fill='%232d4a75'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#f4f1ea">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Lawgistics">
+<meta property="og:title" content="Insight, Lawgistics">
+<meta property="og:image" content="https://lawgistics.my/assets/img/og.png">
+<meta property="og:description" content="Practical legal guidance for Malaysian businesses from the Lawgistics legal team.">
+<meta property="og:url" content="https://lawgistics.my/article.html">
+<meta name="twitter:card" content="summary">
+<meta name="description" content="Practical legal guidance for Malaysian businesses from the Lawgistics legal team.">
+<link rel="canonical" href="https://lawgistics.my/article.html">
+<link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body>
+
+<header data-header></header>
+
+<main>
+  <article>
+    <section class="page-head">
+      <div class="wrap" style="max-width:780px">
+        <p style="margin-bottom:18px"><a class="link-arrow" href="insights.html" data-back>All insights</a></p>
+        <div data-article-head></div>
+      </div>
+    </section>
+
+    <section class="section section--tight">
+      <div class="wrap" style="max-width:780px">
+        <div class="prose" data-article-body></div>
+
+        <div class="cta-band" style="margin-top:60px">
+          <h2 style="font-size:1.75rem">Need this as an actual document?</h2>
+          <p>Our templates turn this guidance into something you can sign, drafted by Malaysian lawyers, ready in minutes.</p>
+          <div class="btn-row">
+            <a class="btn btn--light" href="documents.html">Browse templates</a>
+            <a class="btn btn--outline-light" href="legalhelp.html">Talk to a lawyer</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </article>
+
+  <section class="section section--white">
+    <div class="wrap">
+      <div class="section-head"><h2 style="font-size:1.9rem">More insights</h2></div>
+      <div class="grid grid-3" data-related></div>
+    </div>
+  </section>
+</main>
+
+<footer data-footer></footer>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/site.js"></script>
+<script>
+window.pageInit = function () {
+  var I = window.LG_ICON, esc = window.lgEsc;
+  var slug = new URLSearchParams(location.search).get('slug');
+  var post = Store.list('insights').filter(function (a) { return a.slug === slug; })[0];
+
+  var head = document.querySelector('[data-article-head]');
+  var body = document.querySelector('[data-article-body]');
+
+  if (!post) {
+    head.innerHTML = '<h1>Article not found</h1><p class="lede">That insight may have been moved or unpublished.</p>';
+    body.innerHTML = '<p><a class="btn btn--primary" href="insights.html">Back to insights</a></p>';
+    document.querySelector('[data-related]').closest('section').style.display = 'none';
+    return;
+  }
+
+  document.title = post.title + ', Lawgistics';
+  var meta = document.querySelector('meta[name="description"]');
+  if (meta) meta.setAttribute('content', post.excerpt);
+
+  head.innerHTML =
+    '<div class="post-card__meta"><span class="tag">' + esc(Store.label('insightCategories', post.category)) + '</span>' +
+    '<span>' + window.lgDate(post.date) + '</span><span>·</span><span>' + post.readTime + ' min read</span>' +
+    '<span>·</span><span>' + esc(post.author) + '</span></div>' +
+    '<h1 style="font-size:clamp(2rem,4vw,3rem)">' + esc(post.title) + '</h1>' +
+    '<p class="lede">' + esc(post.excerpt) + '</p>';
+
+  // Body is stored as light markdown: "## " headings, blank-line paragraphs.
+  body.innerHTML = String(post.body).split('\n').filter(function (l) { return l.trim(); })
+    .map(function (line) {
+      var t = line.trim();
+      if (t.indexOf('## ') === 0) return '<h2>' + esc(t.slice(3)) + '</h2>';
+      if (t.indexOf('### ') === 0) return '<h3>' + esc(t.slice(4)) + '</h3>';
+      return '<p>' + esc(t) + '</p>';
+    }).join('');
+
+  var related = Store.list('insights', { where: { status: 'published' }, sort: 'date', order: 'desc' })
+    .filter(function (a) { return a.id !== post.id; });
+  var sameCat = related.filter(function (a) { return a.category === post.category; });
+  related = sameCat.concat(related.filter(function (a) { return a.category !== post.category; })).slice(0, 3);
+
+  document.querySelector('[data-related]').innerHTML = related.map(function (a) {
+    return '<a class="card card--hover post-card" href="article.html?slug=' + esc(a.slug) + '">' +
+      '<div class="post-card__meta"><span class="tag">' + esc(Store.label('insightCategories', a.category)) + '</span>' +
+      '<span>' + window.lgDate(a.date) + '</span></div>' +
+      '<h3>' + esc(a.title) + '</h3><p>' + esc(a.excerpt) + '</p>' +
+      '<p class="link-arrow post-card__foot">Read article' + I.arrow + '</p></a>';
+  }).join('');
+
+  var back = document.querySelector('[data-back]');
+  if (back) back.insertAdjacentHTML('afterbegin', '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 7h-9M6 3.5 2.5 7 6 10.5"/></svg>');
+};
+</script>
+</body>
+</html>

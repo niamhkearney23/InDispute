@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your account, Lawgistics</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f4f1ea'/%3E%3Ctext x='27' y='44' font-family='Georgia,serif' font-weight='700' font-size='38' fill='%231a1f28' text-anchor='middle'%3EL%3C/text%3E%3Ccircle cx='47' cy='41' r='5' fill='%232d4a75'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#f4f1ea">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Lawgistics">
+<meta property="og:title" content="Your account, Lawgistics">
+<meta property="og:image" content="https://lawgistics.my/assets/img/og.png">
+<meta property="og:description" content="Sign in or create your Lawgistics account to draft, save, and download Malaysian legal documents.">
+<meta property="og:url" content="https://lawgistics.my/login.html">
+<meta name="twitter:card" content="summary">
+<meta name="description" content="Sign in or create your Lawgistics account to draft, save, and download Malaysian legal documents.">
+<link rel="canonical" href="https://lawgistics.my/login.html">
+<link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body>
+
+<header data-header></header>
+
+<main>
+  <div class="wrap acct-split">
+
+    <!-- ============================================================ left -->
+    <div>
+      <p class="eyebrow">Your account</p>
+      <h1 style="font-size:clamp(2rem,3.8vw,3rem)">Paperwork like a business twice your size</h1>
+      <p class="lede">One account for every document you create, drafted, signed, stored, and ready the next time the deal changes.</p>
+
+      <div class="trust-mini" data-trust></div>
+
+      <div class="proof-band">
+        <div class="proof-band__avatars"><span>AR</span><span>WT</span><span>RK</span><span>JL</span></div>
+        <div style="font-size:.88rem"><strong>Drafted by Malaysian lawyers</strong><br>Written against Malaysian statute, reviewed before release</div>
+      </div>
+    </div>
+
+    <!-- =========================================================== right -->
+    <div class="auth-card">
+      <p data-context style="display:none;font-size:.9rem;background:var(--navy-soft);border:1px solid #d4dcea;border-radius:var(--r);padding:12px 14px;margin-bottom:20px"></p>
+
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" data-tab="login" class="is-active">Login</button>
+        <button type="button" role="tab" data-tab="signup">Sign up</button>
+      </div>
+
+      <button class="oauth-btn" type="button" data-google>
+        <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+          <path fill="#4285F4" d="M17.6 9.2c0-.6-.1-1.3-.2-1.9H9v3.5h4.8a4.1 4.1 0 0 1-1.8 2.7v2.2h2.9c1.7-1.5 2.7-3.8 2.7-6.5z"/>
+          <path fill="#34A853" d="M9 18c2.4 0 4.5-.8 6-2.2l-2.9-2.3c-.8.6-1.9.9-3.1.9-2.4 0-4.4-1.6-5.1-3.8H.9v2.3A9 9 0 0 0 9 18z"/>
+          <path fill="#FBBC05" d="M3.9 10.7a5.4 5.4 0 0 1 0-3.4V5H.9a9 9 0 0 0 0 8z"/>
+          <path fill="#EA4335" d="M9 3.6c1.3 0 2.5.5 3.4 1.3l2.6-2.6A9 9 0 0 0 .9 5l3 2.3C4.6 5.2 6.6 3.6 9 3.6z"/>
+        </svg>
+        Continue with Google
+      </button>
+
+      <div class="divider">Or continue with email</div>
+
+      <form data-form="auth" data-mode="login" novalidate>
+        <div class="field" data-name-field style="display:none">
+          <label for="a-name">Full name</label>
+          <div class="input-wrap">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="6.5" r="3.5"/><path d="M3.5 17.5a6.5 6.5 0 0 1 13 0"/></svg>
+            <input class="input" id="a-name" name="name" type="text" autocomplete="name" placeholder="Aina Zulkifli">
+          </div>
+        </div>
+        <div class="field">
+          <label for="a-email">Email address</label>
+          <div class="input-wrap">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="15" height="11" rx="2"/><path d="m3.5 6 6.5 5 6.5-5"/></svg>
+            <input class="input" id="a-email" name="email" type="email" required autocomplete="email" placeholder="you@company.com">
+          </div>
+        </div>
+        <div class="field">
+          <label for="a-password">Password</label>
+          <div class="input-wrap">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8.5" width="12" height="8.5" rx="2"/><path d="M6.8 8.5V6a3.2 3.2 0 1 1 6.4 0v2.5"/></svg>
+            <input class="input" id="a-password" name="password" type="password" required autocomplete="current-password" minlength="6" placeholder="At least 6 characters" style="padding-right:44px">
+            <button class="pw-toggle" type="button" data-pw-toggle aria-label="Show password">
+              <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10s3-5.5 8-5.5S18 10 18 10s-3 5.5-8 5.5S2 10 2 10z"/><circle cx="10" cy="10" r="2.4"/></svg>
+            </button>
+          </div>
+          <p style="margin:8px 0 0;text-align:right"><a href="#" style="font-size:.83rem" data-forgot>Forgot your password?</a></p>
+        </div>
+
+        <label class="terms-row" data-terms-row style="display:none">
+          <input type="checkbox" name="terms">
+          <span>I agree to the <a href="terms.html">Terms of Service</a> and <a href="privacy-policy.html">Privacy Policy</a></span>
+        </label>
+
+        <button class="btn btn--primary btn--block" type="submit" data-submit>Login</button>
+        <p class="form-note" style="text-align:center" data-lock>Your information is secure and encrypted</p>
+      </form>
+      <div class="form-status" data-status role="status" aria-live="polite"></div>
+
+      <p style="margin-top:18px;font-size:.8rem;text-align:center;color:var(--ink-soft)">
+        Demo sign-in, <b>admin@lawgistics.my</b> / <b>lawgistics</b>
+      </p>
+    </div>
+
+  </div>
+</main>
+
+<footer data-footer></footer>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/site.js"></script>
+<script>
+window.pageInit = function () {
+  var I = window.LG_ICON, esc = window.lgEsc;
+
+  document.querySelector('[data-trust]').innerHTML = [
+    ['shield', 'Secure & private', 'Your data is encrypted and never shared with third parties.'],
+    ['lock', 'Bank-level security', '256-bit SSL encryption protects everything you store.'],
+    ['star', 'Documents that hold up', 'Drafted by lawyers against current Malaysian statute.']
+  ].map(function (t) {
+    return '<div class="card"><div class="card-icon">' + I[t[0]] + '</div>' +
+      '<div><strong>' + esc(t[1]) + '</strong><p>' + esc(t[2]) + '</p></div></div>';
+  }).join('');
+
+  document.querySelector('[data-lock]').insertAdjacentHTML('afterbegin',
+    '<span style="display:inline-flex;vertical-align:-3px;margin-right:6px">' + I.lock + '</span>');
+
+  var form = document.querySelector('form[data-form="auth"]');
+  var nameField = document.querySelector('[data-name-field]');
+  var termsRow = document.querySelector('[data-terms-row]');
+  var submit = document.querySelector('[data-submit]');
+  var pw = document.getElementById('a-password');
+
+  function setMode(mode) {
+    document.querySelectorAll('[data-tab]').forEach(function (b) {
+      b.classList.toggle('is-active', b.getAttribute('data-tab') === mode);
+    });
+    form.setAttribute('data-mode', mode);
+    nameField.style.display = mode === 'signup' ? 'block' : 'none';
+    termsRow.style.display = mode === 'signup' ? 'flex' : 'none';
+    submit.textContent = mode === 'signup' ? 'Create account' : 'Login';
+    pw.setAttribute('autocomplete', mode === 'signup' ? 'new-password' : 'current-password');
+    var status = document.querySelector('[data-status]');
+    status.className = 'form-status';
+    status.textContent = '';
+  }
+
+  document.querySelectorAll('[data-tab]').forEach(function (btn) {
+    btn.addEventListener('click', function () { setMode(btn.getAttribute('data-tab')); });
+  });
+
+  document.querySelector('[data-pw-toggle]').addEventListener('click', function () {
+    var showing = pw.type === 'text';
+    pw.type = showing ? 'password' : 'text';
+    this.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+  });
+
+  // Arriving from the homepage concierge: open on sign-up and say what is waiting.
+  var params = new URLSearchParams(location.search);
+  if (params.get('mode') === 'signup') setMode('signup');
+  var next = params.get('next');
+  if (next && /^[a-z0-9._~\-]+\.html(\?[^#]*)?(#.*)?$/i.test(next)) {
+    var LABEL = {
+      'documents.html': 'the template library',
+      'recover-debt.html': 'the debt recovery form',
+      'legalhelp.html': 'a qualified Malaysian lawyer',
+      'court-updates.html': 'Court Updates',
+      'library.html': 'the research library',
+      'academy.html': 'the Litigation Academy'
+    };
+    var page = next.split('?')[0];
+    var where = LABEL[page] || 'where you were heading';
+    // Arriving from the document builder: name the actual document, since
+    // "where you were heading" is a weaker reason to hand over an email.
+    if (page === 'create.html') {
+      var slugIn = new URLSearchParams(next.split('?')[1] || '').get('template');
+      var t = slugIn && Store.list('templates').filter(function (x) { return x.slug === slugIn; })[0];
+      where = t ? 'your ' + t.title : 'the document you picked';
+    }
+    var ctx = document.querySelector('[data-context]');
+    if (ctx) {
+      ctx.style.display = 'block';
+      ctx.innerHTML = '<b>Create your free account.</b> Free while we are in beta, ' +
+        'and we will take you straight to ' + where + '.';
+    }
+  }
+
+  // Arriving from a template card: default to sign-up and say which document waits.
+  var slug = new URLSearchParams(location.search).get('template');
+  if (slug) {
+    var tpl = Store.list('templates').filter(function (t) { return t.slug === slug; })[0];
+    if (tpl) {
+      var box = document.querySelector('[data-context]');
+      box.style.display = 'block';
+      box.innerHTML = '<b>Almost there!</b> Create an account to save your <b>' + esc(tpl.title) + '</b>.';
+      setMode('signup');
+    }
+  }
+
+  document.querySelector('[data-google]').addEventListener('click', function () {
+    var status = document.querySelector('[data-status]');
+    status.className = 'form-status is-err';
+    status.textContent = 'Google sign-in is not wired up in this build, use email for now.';
+  });
+
+  document.querySelector('[data-forgot]').addEventListener('click', function (e) {
+    e.preventDefault();
+    var status = document.querySelector('[data-status]');
+    status.className = 'form-status is-ok';
+    status.textContent = 'If that email has an account, a reset link is on its way.';
+  });
+};
+</script>
+</body>
+</html>

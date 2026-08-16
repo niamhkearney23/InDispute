@@ -1,0 +1,281 @@
+/* ==========================================================================
+   Lawgistics, court pack builder (chat interview + tabbed document preview)
+   Builds on create.css, which supplies .paper and the base .doc styles.
+   ========================================================================== */
+
+.lit {
+  display: grid;
+  grid-template-columns: minmax(370px, 460px) 1fr;
+  gap: clamp(24px, 3vw, 44px);
+  align-items: start;
+  /* .lit sits on the same element as .wrap, so keep side padding here. */
+  padding: clamp(24px, 4vw, 48px) 24px 80px;
+}
+
+.lit-panel { position: sticky; top: 96px; }
+
+/* ---------------------------------------------------------------- chat -- */
+
+.chat-card {
+  background: var(--white); border: 1px solid var(--line);
+  border-radius: 18px; box-shadow: 0 10px 30px rgba(26, 31, 40, .07);
+  display: flex; flex-direction: column;
+  height: min(640px, calc(100vh - 250px));
+  min-height: 420px;
+  overflow: hidden;
+}
+
+.chat-log {
+  flex: 1; overflow-y: auto; padding: 26px 22px;
+  display: flex; flex-direction: column; gap: 16px;
+  scroll-behavior: smooth;
+}
+
+.msg { max-width: 86%; font-size: .92rem; line-height: 1.62; }
+.msg--bot {
+  align-self: flex-start;
+  background: var(--cream); border: 1px solid transparent;
+  border-radius: 18px 18px 18px 6px; padding: 14px 18px;
+  box-shadow: 0 1px 2px rgba(26, 31, 40, .05);
+}
+.msg--bot.msg--warn { background: #faf3e3; border-color: #ecd9ae; }
+.msg--user {
+  align-self: flex-end;
+  background: var(--navy); color: var(--cream);
+  border-radius: 18px 18px 6px 18px; padding: 13px 17px;
+  white-space: pre-line;
+}
+.msg--editable { cursor: pointer; position: relative; transition: background .2s var(--ease); }
+.msg--editable:hover { background: var(--ink); }
+.msg--editable:hover::after {
+  content: '✎';
+  position: absolute; left: -22px; top: 50%; transform: translateY(-50%);
+  color: var(--haze); font-size: .85rem;
+}
+.msg--typing { display: flex; gap: 4px; padding: 14px; }
+.msg--typing span {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--haze);
+  animation: lit-bounce 1s infinite;
+}
+.msg--typing span:nth-child(2) { animation-delay: .15s; }
+.msg--typing span:nth-child(3) { animation-delay: .3s; }
+@keyframes lit-bounce { 0%, 60%, 100% { transform: none; } 30% { transform: translateY(-4px); } }
+
+/* input dock */
+.chat-dock {
+  border-top: 1px solid var(--line); padding: 18px 20px; background: var(--white);
+  max-height: 52%; overflow-y: auto;
+}
+.group-field { display: grid; gap: 5px; }
+.group-field label { font-size: .76rem; font-weight: 600; color: var(--ink-soft); }
+.group-field .input, .group-field .select { padding: 9px 12px; font-size: .88rem; }
+.group-field .textarea { font-size: .88rem; }
+.group-field .is-missing { border-color: #b4483c; }
+.chat-row { display: flex; gap: 8px; position: relative; }
+.chat-row .input, .chat-row .textarea { flex: 1; padding-right: 44px; }
+.chat-row .textarea { min-height: 74px; }
+.chat-send {
+  align-self: flex-end;
+  width: 42px; height: 42px; flex: none; border-radius: 50%;
+  border: 0; background: var(--navy); color: var(--cream);
+  display: grid; place-items: center; cursor: pointer;
+  transition: background .2s var(--ease);
+}
+.chat-send:hover { background: var(--ink); }
+.chat-dock .mic-btn { top: 50%; transform: translateY(-50%); right: 58px; }
+.chat-dock .mic-btn.for-textarea { top: 16px; transform: none; }
+
+.chat-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.chat-chip {
+  font-size: .87rem; font-weight: 600; padding: 11px 18px;
+  border-radius: 999px; border: 1px solid var(--navy);
+  background: transparent; color: var(--navy); cursor: pointer;
+  transition: all .2s var(--ease);
+}
+.chat-chip:hover { background: var(--navy); color: var(--cream); }
+.chat-chip--ghost { border-color: var(--line); color: var(--ink-soft); }
+.chat-chip.is-prev { background: var(--cream-deep); box-shadow: inset 0 0 0 1px var(--navy); }
+.chat-chip.is-prev::before { content: '✓ '; }
+.chat-chip.is-prev:hover { background: var(--navy); }
+
+.chat-skip {
+  margin-top: 8px; font-size: .78rem; color: var(--ink-soft);
+  background: none; border: 0; cursor: pointer; text-decoration: underline;
+}
+.chat-skip:hover { color: var(--navy); }
+
+.chat-typed-hint {
+  margin: 10px 0 0; font-size: .76rem; font-weight: 600; color: var(--ink-soft);
+  border-top: 1px solid var(--line); padding-top: 8px;
+}
+
+/* repeat-entry mini forms (invoices, payments) + file cards */
+.mini-form { display: grid; gap: 11px; }
+.mini-form .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.mini-list { display: grid; gap: 6px; margin-bottom: 10px; max-height: 130px; overflow-y: auto; }
+.mini-item {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  font-size: .82rem; background: var(--cream); border: 1px solid var(--line);
+  border-radius: var(--r); padding: 7px 10px;
+}
+.mini-item button { border: 0; background: none; color: var(--ink-soft); cursor: pointer; font-size: 1rem; line-height: 1; }
+.mini-item button:hover { color: #b4483c; }
+.mini-actions { display: flex; gap: 8px; margin-top: 6px; }
+
+.file-drop {
+  border: 1.5px dashed var(--haze); border-radius: var(--r);
+  padding: 16px; text-align: center; font-size: .86rem; color: var(--ink-soft);
+  cursor: pointer; transition: all .2s var(--ease); background: var(--cream);
+}
+.file-drop:hover, .file-drop.is-over { border-color: var(--navy); color: var(--navy); }
+.file-card {
+  border: 1px solid var(--line); border-radius: var(--r);
+  padding: 10px; display: grid; gap: 6px; background: var(--cream);
+}
+.file-card__name { font-size: .8rem; font-weight: 600; word-break: break-all; display: flex; justify-content: space-between; gap: 8px; }
+.file-card .select, .file-card .input { font-size: .84rem; padding: 8px 10px; }
+.file-card .row2 { display: grid; grid-template-columns: 1fr 82px; gap: 6px; }
+
+.chat-progress { height: 3px; background: var(--cream-deep); overflow: hidden; flex: none; }
+.chat-progress span { display: block; height: 100%; background: var(--navy); transition: width .35s var(--ease); }
+
+/* summary / review card in chat */
+.review-card { font-size: .85rem; display: grid; gap: 4px; }
+.review-card dt { font-weight: 700; margin-top: 8px; }
+.review-card dd { margin: 0; color: var(--ink-soft); }
+
+/* --------------------------------------------------------- preview tabs -- */
+
+/* Document switcher: a labelled segmented control, visually distinct from
+   the action buttons so "changes the view" and "does something" read apart. */
+.lit-tabs-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.lit-tabs-label {
+  flex: none; font-size: .68rem; font-weight: 700; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--ink-soft);
+}
+.lit-tabs {
+  display: inline-flex; gap: 2px; padding: 4px;
+  background: var(--cream-deep); border-radius: 12px;
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+}
+.lit-tab {
+  flex: none; font-size: .8rem; font-weight: 600; padding: 7px 14px;
+  border-radius: 9px; border: 0;
+  background: transparent; color: var(--ink-soft); cursor: pointer;
+  transition: all .2s var(--ease); white-space: nowrap;
+}
+.lit-tab:hover { color: var(--ink); }
+.lit-tab.is-active {
+  background: var(--white); color: var(--ink); font-weight: 700;
+  box-shadow: 0 1px 3px rgba(26, 31, 40, .16);
+}
+.lit-tab .badge {
+  display: inline-block; min-width: 17px; padding: 1px 5px; margin-left: 6px;
+  border-radius: 999px; background: rgba(26, 31, 40, .08); color: var(--ink-soft);
+  font-size: .7rem;
+}
+.lit-tab.is-active .badge { background: var(--navy); color: var(--cream); }
+
+/* Action toolbar, attached to the top of the document so the buttons clearly
+   act on the paper below them. */
+.paper-bar {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  background: var(--white); border: 1px solid var(--line); border-bottom: 1px dashed var(--line);
+  border-radius: 8px 8px 0 0; padding: 12px 14px;
+  box-shadow: var(--shadow);
+}
+.paper-bar .spacer { flex: 1; }
+.paper-bar__btn { display: inline-flex; align-items: center; gap: 6px; }
+.paper--attached { border-top-left-radius: 0; border-top-right-radius: 0; border-top: 0; }
+
+/* ------------------------------------------------- court document extras -- */
+
+.doc--court { font-size: 14.5px; }
+.doc__court-head { margin-bottom: 10px; }
+.doc__court-line { text-align: center; font-weight: 700; letter-spacing: .02em; margin-bottom: 1.4em; }
+.doc__court-between { text-align: center; font-weight: 700; margin: .9em 0; }
+.doc__court-party { width: 100%; border-collapse: collapse; }
+.doc__court-party td { vertical-align: bottom; text-align: left; padding: 0; }
+.doc__court-role { font-weight: 700; white-space: nowrap; text-align: right !important; width: 130px; }
+.doc__title--court { margin-top: 1.2em; font-size: 1.35rem; }
+.doc__title-en { font-size: .78em; font-weight: 600; }
+
+.doc__para { margin: 0 0 1em; padding-left: 2.2em; text-indent: -2.2em; }
+.doc__para .doc__num { display: inline-block; width: 2.2em; text-indent: 0; }
+
+.doc__particulars { margin: 0 0 1.2em 2.2em; }
+.doc__particulars-h { text-align: center; font-weight: 700; text-decoration: underline; margin-bottom: .6em; }
+
+.doc__table { width: 100%; border-collapse: collapse; margin: .6em 0 1em; font-size: .95em; }
+.doc__table th, .doc__table td { border: 1px solid #1c2129; padding: 6px 10px; text-align: left; vertical-align: top; }
+.doc__table th { font-weight: 700; background: #f2efe8; }
+.doc__table-total td { font-weight: 700; }
+.doc__table--intro td:first-child { width: 160px; font-weight: 600; }
+
+.doc__prayer { padding-left: 2.6em; margin: 0 0 1em; }
+.doc__prayer li { margin-bottom: .5em; padding-left: .4em; }
+
+.doc__qa { margin-bottom: 1.2em; }
+.doc__q { margin-bottom: .3em; }
+.doc__a { margin: 0; padding-left: 1.6em; }
+
+.doc__missing {
+  margin: 1.4em 0; padding: 12px 16px; font-size: .92em;
+  background: #faf3e3; border: 1px solid #ecd9ae; border-radius: 6px;
+}
+.doc__missing ul { margin: .4em 0 0 1.2em; }
+
+.doc__exhibit { margin-top: 1.4em; border-top: 1px solid #1c2129; padding-top: .6em; }
+.doc__wordbreak { display: none; }   /* page-break marker for Word export only */
+@media print {
+  .doc__exhibit--page { page-break-before: always; }
+}
+.doc__exhibit-head {
+  display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  font-size: .92em; margin-bottom: .8em;
+}
+.doc__exhibit-img { max-width: 100%; border: 1px solid var(--line); display: block; margin: 0 auto; }
+.doc__exhibit-ph {
+  border: 1.5px dashed var(--haze); border-radius: 6px; padding: 44px 20px;
+  text-align: center; font-weight: 600;
+}
+.doc__exhibit-ph span { font-weight: 400; font-size: .85em; color: var(--ink-soft); }
+
+/* ---------------------------------------------------------- responsive -- */
+
+@media (max-width: 980px) {
+  .lit { grid-template-columns: 1fr; }
+  .lit-panel { position: static; }
+  .chat-card { height: 480px; }
+}
+
+/* Phone: strip the chrome so the chat and documents lead. */
+@media (max-width: 640px) {
+  .lit { padding: 22px 20px 70px; }   /* .lit zeroes .wrap's side padding; restore it on phones */
+  .lit-panel > h1 { font-size: 1.35rem; margin-bottom: 22px; }
+  .lit-panel > p:not(.form-note) { display: none; }   /* intro duplicates the chat */
+  .form-note {
+    font-size: .72rem; text-align: center;
+    margin: 20px auto 34px; max-width: 300px; opacity: .75;
+  }
+  .site-header .header-actions > span { display: none; }
+  .msg { font-size: .9rem; }
+
+  .lit-tabs-row { gap: 8px; margin-bottom: 10px; }
+  .lit-tabs { max-width: 100%; }
+  .lit-tab { font-size: .74rem; padding: 6px 11px; }
+
+  .paper-bar { gap: 6px; padding: 10px 10px; }
+  .paper-bar .spacer { display: none; }
+  .paper-bar .btn { font-size: .7rem; padding: 6px 9px; }
+
+  .paper { padding: 30px 18px; }
+  .doc--court { font-size: 12.5px; }
+  .doc__title--court { font-size: 1.05rem; }
+  .doc__court-line { font-size: .95em; }
+  .chat-card { height: 470px; }
+}
+
+@media print {
+  .doc__exhibit-img { border: 0; }
+}
