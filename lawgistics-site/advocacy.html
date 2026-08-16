@@ -339,7 +339,11 @@ window.pageInit = function () {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-opus-4-8',
+        // Opus 5. This is marking a person's advocacy, so it runs on the
+        // model that reasons best rather than the cheap one the rest of the
+        // site uses. Adaptive thinking and high effort are what make the
+        // feedback specific rather than generic.
+        model: 'claude-opus-5',
         max_tokens: 16000,
         thinking: { type: 'adaptive' },
         output_config: { effort: 'high', format: { type: 'json_schema', schema: SCHEMA } },

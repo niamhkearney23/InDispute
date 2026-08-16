@@ -15,8 +15,20 @@ const ALLOWED_HOSTS = [
   /^127\.0\.0\.1(:\d+)?$/i,
 ];
 
-const ALLOWED_MODELS = ["claude-haiku-4-5"];
-const MAX_TOKENS_CAP = 4000;
+// Opus 5 is the default for anything that assesses a person's work. Fable 5 is
+// the more capable and more expensive tier, allowed so a page can ask for it
+// deliberately. Haiku stays for the two pages that use it for cheap, high
+// volume work, and removing it would break them.
+//
+// The advocacy coach asked for a model that was not on this list, so the proxy
+// rejected every submission with "model not allowed". That feature had never
+// worked in this build.
+const ALLOWED_MODELS = ["claude-opus-5", "claude-fable-5", "claude-haiku-4-5"];
+
+// Raised from 4000. Advocacy feedback asks for 16000 and was being silently
+// clamped to a quarter of that, so a full assessment with thinking and a
+// scored breakdown had nowhere near enough room and would truncate.
+const MAX_TOKENS_CAP = 16000;
 const MAX_BODY_BYTES = 16 * 1024 * 1024;   // invoice photos travel as base64
 const RATE_LIMIT = { windowMs: 60 * 1000, max: 12 };
 
