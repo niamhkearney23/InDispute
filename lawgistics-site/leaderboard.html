@@ -14,7 +14,10 @@
 <meta name="description" content="Which courts, judges and subjects appear most in the latest Malaysian judgments. Analytics from the Lawgistics Court Updates library.">
 <link rel="stylesheet" href="assets/css/site.css">
 <style>
-  .lb{ padding:38px 0 40px; }
+  /* padding-block, not the shorthand. This element also carries .wrap, which
+     sets the 24px side gutter, and the shorthand was resetting it to zero so
+     the heading sat against the edge of the screen on a phone. */
+  .lb{ padding-block:38px 40px; }
   .lb-title h1{ font-family:var(--serif); font-weight:700; color:var(--ink); font-size:clamp(1.8rem,3vw,2.4rem); line-height:1.1; margin:0; letter-spacing:-.01em; }
   .lb-sub{ margin:.55rem 0 0; color:var(--ink-soft); font-size:1rem; max-width:64ch; }
   .lb-stats{ display:flex; flex-wrap:wrap; gap:10px; margin-top:1.2rem; }

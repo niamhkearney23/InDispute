@@ -18,7 +18,10 @@
 <style>
   /* Court Updates, scoped to .cu so it inherits the site palette + fonts and
      never collides with site.css. Uses the house variables throughout. */
-  .cu{ padding:38px 0 20px; }
+  /* padding-block, not the shorthand. This element also carries .wrap, which
+     sets the 24px side gutter, and the shorthand was resetting it to zero so
+     the heading sat against the edge of the screen on a phone. */
+  .cu{ padding-block:38px 20px; }
   .cu-title h1{ font-family:var(--serif); font-weight:700; color:var(--ink); font-size:clamp(1.8rem,3vw,2.4rem); line-height:1.1; margin:0; letter-spacing:-.01em; }
   .cu-sub{ margin:.55rem 0 0; color:var(--ink-soft); font-size:1rem; max-width:64ch; }
   .cu-fresh{ display:inline-flex; align-items:center; gap:.45rem; margin-top:.9rem; font-size:.85rem; font-weight:600; color:var(--green); background:#e8f3ec; border:1px solid #bfddcc; padding:.32rem .8rem; border-radius:999px; }
