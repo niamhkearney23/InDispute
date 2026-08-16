@@ -1,0 +1,40 @@
+{%- comment -%}
+  Card for the range grid. Price only, no crossed out figures and no badges
+  shouting at the customer.
+
+  Accepts: card_product
+{%- endcomment -%}
+<article class="ss-card">
+  <a class="ss-card__media" href="{{ card_product.url }}" tabindex="-1" aria-hidden="true">
+    {%- if card_product.featured_media -%}
+      {{
+        card_product.featured_media
+        | image_url: width: 800
+        | image_tag:
+          loading: 'lazy',
+          widths: '300, 400, 600, 800',
+          sizes: '(min-width: 750px) 30vw, 46vw',
+          alt: card_product.featured_media.alt | default: card_product.title
+      }}
+    {%- else -%}
+      {{ 'product-1' | placeholder_svg_tag: 'ss-card__placeholder' }}
+    {%- endif -%}
+  </a>
+
+  <div class="ss-card__body">
+    <h3 class="ss-card__title">
+      <a href="{{ card_product.url }}">{{ card_product.title }}</a>
+    </h3>
+
+    {%- if card_product.metafields.descriptors.subtitle != blank -%}
+      <p class="ss-card__spec">{{ card_product.metafields.descriptors.subtitle }}</p>
+    {%- endif -%}
+
+    <p class="ss-card__price">
+      {{ card_product.price | money }}
+      {%- unless card_product.available -%}
+        <span class="ss-card__sold">Currently unavailable</span>
+      {%- endunless -%}
+    </p>
+  </div>
+</article>

@@ -1,0 +1,53 @@
+{%- comment -%}
+  A row of related products, used to put the masks in front of people on the
+  box page and the box in front of people on a mask page.
+
+  Reads a collection rather than hand picked products, so adding a mask in
+  admin puts it here without a theme edit.
+{%- endcomment -%}
+
+{{ 'sleep-shop.css' | asset_url | stylesheet_tag }}
+{% render 'ss-tokens' %}
+
+{%- assign source = collections[section.settings.collection] -%}
+
+{%- if source.products.size > 0 -%}
+  <div class="ss-section ss-section--cream">
+    <div class="ss-wrap">
+      <div class="ss-section__head" style="display:flex;justify-content:space-between;align-items:flex-end;gap:2rem;flex-wrap:wrap;margin-bottom:2rem">
+        <div>
+          {%- if section.settings.eyebrow != blank -%}
+            <p class="ss-eyebrow">{{ section.settings.eyebrow }}</p>
+          {%- endif -%}
+          <h2 class="ss-h2" style="margin:0">{{ section.settings.heading }}</h2>
+        </div>
+        {%- if section.settings.link_label != blank -%}
+          <a class="ss-btn ss-btn--ghost" href="{{ section.settings.link }}">{{ section.settings.link_label }}</a>
+        {%- endif -%}
+      </div>
+
+      <div class="ss-cards">
+        {%- for product in source.products limit: section.settings.limit -%}
+          {%- unless product.id == product.id and product.handle == page_handle -%}
+            {% render 'product-card', card_product: product %}
+          {%- endunless -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Cross sell row",
+  "tag": "section",
+  "settings": [
+    { "type": "collection", "id": "collection", "label": "Collection" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "text", "id": "heading", "label": "Heading" },
+    { "type": "url", "id": "link", "label": "Link" },
+    { "type": "text", "id": "link_label", "label": "Link label" },
+    { "type": "range", "id": "limit", "label": "How many", "min": 2, "max": 8, "step": 1, "default": 4 }
+  ]
+}
+{% endschema %}

@@ -621,6 +621,117 @@
   color: var(--ss-ink-soft);
 }
 
+
+/* ---------------------------------------------------------- 15. The range */
+.ss-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.6rem 1rem;
+}
+
+@media screen and (min-width: 750px) {
+  .ss-cards { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2rem 1.4rem; }
+}
+
+.ss-card { display: flex; flex-direction: column; }
+.ss-card__media {
+  display: block;
+  aspect-ratio: 1 / 1;
+  background: var(--ss-cream);
+  overflow: hidden;
+}
+.ss-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+.ss-card:hover .ss-card__media img { transform: scale(1.03); }
+
+.ss-card__body { padding-top: 0.8rem; display: grid; gap: 0.15rem; }
+.ss-card__title {
+  font-family: var(--ss-display);
+  font-weight: 400;
+  font-size: 1.02rem;
+  line-height: 1.25;
+  margin: 0;
+}
+.ss-card__title a { text-decoration: none; }
+.ss-card__title a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.ss-card__spec {
+  font-family: var(--ss-util);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: var(--ss-mute);
+  margin: 0;
+}
+.ss-card__price {
+  font-family: var(--ss-util);
+  font-size: 0.88rem;
+  color: var(--ss-ink);
+  margin: 0.2rem 0 0;
+  font-variant-numeric: tabular-nums;
+}
+.ss-card__sold {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--ss-mute);
+  letter-spacing: 0.06em;
+}
+
+/* Colour options on the mask pages */
+.ss-swatches { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.ss-swatch { position: relative; cursor: pointer; }
+.ss-swatch input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+.ss-swatch span {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.55rem 1.1rem;
+  border: 1px solid var(--ss-line-strong);
+  border-radius: 999px;
+  font-family: var(--ss-util);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.ss-swatch input:checked + span { border-color: var(--ss-ink); }
+.ss-swatch input:focus-visible + span { outline: 2px solid var(--ss-oxblood); outline-offset: 2px; }
+.ss-swatch--out span { color: var(--ss-mute); text-decoration: line-through; }
+
+/* Opt in to the gift message rather than being handed an empty field */
+.ss-optin {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--ss-util);
+  font-size: 0.88rem;
+  color: var(--ss-ink-soft);
+  cursor: pointer;
+}
+.ss-optin input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--ss-cocoa);
+  cursor: pointer;
+}
+
+.ss-crossnote {
+  font-family: var(--ss-util);
+  font-size: 0.85rem;
+  color: var(--ss-ink-soft);
+  border-top: 1px solid var(--ss-line);
+  padding-top: 1.2rem;
+  margin-top: 1.8rem;
+}
+.ss-crossnote a { color: var(--ss-ink); text-underline-offset: 4px; }
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

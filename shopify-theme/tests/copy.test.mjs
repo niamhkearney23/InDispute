@@ -218,3 +218,35 @@ test('every image render passes alt text', () => {
     }
   }
 });
+
+/* ------------------------------------------------------------ the range */
+
+test('the mask pages carry the range without hardcoding a price', () => {
+  const mask = read('sections/main-product-mask.liquid');
+  const card = read('snippets/product-card.liquid');
+
+  /* Every figure on a product page must come from the product, so the range
+     can be repriced in admin without a theme deploy. */
+  for (const [name, source] of [['mask section', mask], ['product card', card]]) {
+    const hit = source.match(/\$\d/);
+    assert.equal(hit, null, `${name}: hardcoded price`);
+  }
+
+  assert.match(mask, /data-variant-price/, 'the price must update with the colour');
+  assert.match(mask, /product\.options\.size == 1/, 'the picker must bail out on multi option products');
+  assert.equal((mask.match(/type="submit"/g) || []).length, 1, 'still exactly one add to cart');
+  assert.ok(!/\|\s*payment_button/.test(mask), 'no competing checkout button on masks either');
+});
+
+test('the gift message on a mask is opt in', () => {
+  const mask = read('sections/main-product-mask.liquid');
+  assert.match(mask, /data-gift-toggle/, 'a mask is often bought for the buyer');
+  assert.match(mask, /hidden>\s*\{% render 'gift-message-field' %\}/, 'the field starts closed');
+  assert.match(mask, /field\.value = ''/, 'closing it must clear it, so an unseen field cannot submit');
+});
+
+test('the range reads a collection rather than a hand picked list', () => {
+  const cross = read('sections/cross-sell.liquid');
+  assert.match(cross, /collections\[section\.settings\.collection\]/,
+    'adding a mask in admin should put it everywhere without a theme edit');
+});

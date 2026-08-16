@@ -1,0 +1,61 @@
+{
+  "sections": {
+    "announcement": {
+      "type": "announcement-shipping"
+    },
+    "range": {
+      "type": "collection-range",
+      "settings": {
+        "eyebrow": "The range",
+        "heading": "Four masks, four reasons",
+        "intro": "<p>We started with one mask, the silk one that goes in the box. People kept asking for it on its own, then asked for a heavier one, then for something that would survive a flight. So there are four. They are all cut in the same studio and they all use the same covered strap, because that is the part everyone gets wrong.</p>",
+        "note": "<p>Not sure which one? The silk is the safe answer and the one most people come back for. If you want it as a present, the Signature Sleep Box has the silk mask in it along with seven other pieces.</p>",
+        "empty_text": "The masks are being photographed. They will be here shortly."
+      }
+    },
+    "trust": {
+      "type": "trust-strip",
+      "blocks": {
+        "t1": {
+          "type": "item",
+          "settings": {
+            "heading": "Cut in Melbourne",
+            "text": "Same studio as the box"
+          }
+        },
+        "t2": {
+          "type": "item",
+          "settings": {
+            "heading": "Free shipping",
+            "text": "Australia wide, tracked"
+          }
+        },
+        "t3": {
+          "type": "item",
+          "settings": {
+            "heading": "Covered strap",
+            "text": "On all four, no snagging"
+          }
+        },
+        "t4": {
+          "type": "item",
+          "settings": {
+            "heading": "Straightforward returns",
+            "text": "Plus your Australian Consumer Law rights"
+          }
+        }
+      },
+      "block_order": [
+        "t1",
+        "t2",
+        "t3",
+        "t4"
+      ]
+    }
+  },
+  "order": [
+    "announcement",
+    "range",
+    "trust"
+  ]
+}

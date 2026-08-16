@@ -68,6 +68,39 @@ Top to bottom, matching the brief:
 The gift message is submitted as a line item property named `Gift message`, so it appears
 on the order, the packing slip and in Klaviyo without any extra app.
 
+## The sleep mask range
+
+Four masks sold on their own, sitting under the box as the cheaper way in.
+
+| Template | For |
+| --- | --- |
+| `templates/collection.sleep-masks.json` | The range page |
+| `templates/product.sleep-mask.json` | Every mask, all four share it |
+
+`docs/products.md` has the products to create in admin: handles, options,
+suggested prices and the descriptions. **Nothing in the theme hardcodes a
+price.** Every figure is read from the product and the Afterpay instalment
+divides from the live one, so the range can be repriced in admin without a
+deploy. A test fails the build if a dollar figure appears in the mask section
+or the product card.
+
+Three decisions worth knowing:
+
+- **Colour swaps client side.** One option with four values does not justify a
+  server round trip per click. If a mask ever needs a second option the picker
+  stands down and Dawn's own one takes over rather than half working.
+- **The gift message is opt in on masks.** A mask is often bought for the
+  buyer, and an always open message field is one people feel obliged to fill.
+  It sits behind a checkbox, and closing it clears it so an unseen field can
+  never submit.
+- **Cross sell reads the collection.** Add a fifth mask in admin and it appears
+  on the range page, on every other mask page and on the box page, with no
+  theme edit.
+
+The masks and the box point at each other: each mask page notes that the silk
+one is also in the box, and the box page can show the range with a section
+setting.
+
 ## Popups
 
 Three, all in `sections/sleep-popups.liquid`, one block each. Add the section to

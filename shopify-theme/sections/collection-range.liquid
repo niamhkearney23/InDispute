@@ -1,0 +1,51 @@
+{%- comment -%}
+  The range page. A short intro, then the grid, then a line about the box.
+  No filters and no sorting: with four products they are furniture.
+{%- endcomment -%}
+
+{{ 'sleep-shop.css' | asset_url | stylesheet_tag }}
+{% render 'ss-tokens' %}
+
+<div class="ss-section">
+  <div class="ss-wrap">
+    {%- if section.settings.eyebrow != blank -%}
+      <p class="ss-eyebrow">{{ section.settings.eyebrow }}</p>
+    {%- endif -%}
+    <h1 class="ss-h2" style="font-size:2.1rem">
+      {{ section.settings.heading | default: collection.title }}
+    </h1>
+    {%- if section.settings.intro != blank -%}
+      <div class="ss-body" style="margin-bottom:2.4rem">{{ section.settings.intro }}</div>
+    {%- endif -%}
+
+    {%- if collection.products.size > 0 -%}
+      <div class="ss-cards">
+        {%- for product in collection.products -%}
+          {% render 'product-card', card_product: product %}
+        {%- endfor -%}
+      </div>
+    {%- else -%}
+      <div class="ss-reviews__empty">
+        <p>{{ section.settings.empty_text }}</p>
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.note != blank -%}
+      <p class="ss-crossnote" style="margin-top:2.4rem">{{ section.settings.note }}</p>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Range",
+  "tag": "section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "text", "id": "heading", "label": "Heading", "info": "Defaults to the collection title." },
+    { "type": "richtext", "id": "intro", "label": "Intro" },
+    { "type": "richtext", "id": "note", "label": "Closing note" },
+    { "type": "textarea", "id": "empty_text", "label": "Text shown when the collection is empty" }
+  ]
+}
+{% endschema %}
