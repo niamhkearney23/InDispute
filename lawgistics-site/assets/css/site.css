@@ -692,7 +692,23 @@ a:hover { color: var(--navy-deep); }
   .footer-grid { grid-template-columns: 1fr; }
   .doc-float { right: 0; }
   body { font-size: 16px; }
+
+  /* A two panel split whose column ratio is written on the element itself.
+     Each page picks its own ratio (1fr 1.15fr, 1.35fr 1fr and so on) and
+     those ratios are right on a desktop, so they stay where they are. A
+     style attribute beats a stylesheet, which is the whole reason these
+     never collapsed, so this is the one place !important is the correct
+     tool. It is fenced inside the phone breakpoint, so no desktop layout
+     moves by a pixel. */
+  .grid--split { grid-template-columns: 1fr !important; }
 }
+
+/* A grid track is min-width:auto by default, so a child that cannot shrink
+   past its own content, a text input at its default intrinsic width being the
+   usual culprit, widens the track instead of scrolling inside it. That is what
+   pushed the contact form past the edge of the screen: two tracks of 190px and
+   208px inside a container of 345px. */
+.grid--split > * { min-width: 0; }
 
 /* ==========================================================================
    Account, dashboard, guide chat, v2 client experience
@@ -732,7 +748,24 @@ a:hover { color: var(--navy-deep); }
 .acct-split {
   display: grid; grid-template-columns: 1fr 1fr;
   gap: clamp(32px, 5vw, 72px); align-items: start;
-  padding: clamp(40px, 6vw, 72px) 0;
+  /* padding-block, not the padding shorthand. These elements also carry .wrap,
+     which sets a 24px side gutter, and the shorthand was resetting it to zero.
+     On a wide screen .wrap is centred with room to spare so nothing looked
+     wrong, but on a phone the headings sat hard against the edge of the
+     glass. */
+  padding-block: clamp(40px, 6vw, 72px);
+}
+/* Login, sign-up and the dashboard stayed two columns on a phone and ran off
+   the side of the screen. The sister rule .auth-split has collapsed since the
+   start, so the omission here was an oversight rather than a decision.
+
+   This has to sit after the rule above, not up with the other responsive
+   blocks. A media query adds nothing to specificity, so the two rules are
+   evenly matched and whichever comes last in the file wins. Put this earlier
+   and it is silently overridden, which is exactly what happened on the first
+   attempt at this fix. */
+@media (max-width: 980px) {
+  .acct-split { grid-template-columns: 1fr; }
 }
 .auth-card {
   background: var(--white); border: 1px solid var(--line);
