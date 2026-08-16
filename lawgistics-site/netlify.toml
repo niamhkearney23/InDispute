@@ -1,0 +1,32 @@
+# Lawgistics on Netlify.
+# - Static site publishes from the project root (no build step).
+# - /api/* proxies to the live Payload backend, same as serve.py does locally,
+#   so the public forms keep posting into the real inbox.
+# - /claude is handled by the Netlify Function in netlify/functions/claude.mjs;
+#   set ANTHROPIC_API_KEY in Site settings -> Environment variables.
+
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+# Never serve the local dev key file, even if it gets uploaded by accident.
+[[redirects]]
+  from = "/.anthropic-key"
+  to = "/404.html"
+  status = 404
+  force = true
+
+# Paralegal booking + directory live on the Legal Champions backend (Railway).
+# This block MUST come before the general /api/* proxy so it matches first.
+[[redirects]]
+  from = "/api/public/*"
+  to = "https://legal-champions-production.up.railway.app/api/public/:splat"
+  status = 200
+  force = true
+
+# Same-origin proxy to the live Payload API (mirrors serve.py).
+[[redirects]]
+  from = "/api/*"
+  to = "https://lawgistics.my/api/:splat"
+  status = 200
+  force = true

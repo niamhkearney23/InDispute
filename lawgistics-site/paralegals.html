@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Book a Malaysian paralegal, Lawgistics</title>
+<meta property="og:title" content="Book a Malaysian paralegal, Lawgistics">
+<meta property="og:image" content="https://lawgistics.my/assets/img/og.png">
+<meta property="og:description" content="Browse Malaysian paralegals. Court bundles, chronologies, legal research, drafting. From RM 200/hour. Supervised by Messrs Thomas Philip, Advocates & Solicitors.">
+<meta name="description" content="Browse Malaysian paralegals. Court bundles, chronologies, legal research, drafting. From RM 200/hour. Supervised by Messrs Thomas Philip, Advocates & Solicitors.">
+<meta name="theme-color" content="#f4f1ea">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f4f1ea'/%3E%3Ctext x='27' y='44' font-family='Georgia,serif' font-weight='700' font-size='38' fill='%231a1f28' text-anchor='middle'%3EL%3C/text%3E%3Ccircle cx='47' cy='41' r='5' fill='%232d4a75'/%3E%3C/svg%3E">
+<link rel="canonical" href="https://lawgistics.my/paralegals.html">
+<link rel="stylesheet" href="assets/css/site.css">
+
+<style>
+/* Hero, editorial two-column. Left: main title. Right: page contents. */
+main > .page-head{
+  position:relative;
+  background:var(--cream);
+  border-bottom:1px solid var(--line);
+}
+main > .page-head > .wrap{
+  display:grid;grid-template-columns:1.7fr 1fr;
+  gap:clamp(40px,7vw,96px);align-items:start;
+  padding-block:clamp(72px,10vw,128px);
+}
+/* Numbered chapter mark above the H1 */
+.chapter-mark{
+  font-family:var(--serif);font-style:italic;font-weight:400;
+  font-size:.95rem;color:var(--ink-soft);
+  margin-bottom:32px;
+  display:flex;align-items:center;gap:16px;
+}
+.chapter-mark::before{
+  content:"";width:56px;height:1px;background:var(--navy);flex-shrink:0;
+}
+.chapter-mark .num{
+  font-family:var(--serif);font-size:1.4rem;font-style:normal;font-weight:600;
+  color:var(--navy);letter-spacing:.02em;
+}
+/* Italic subhead under the H1 */
+.hero-subhead{
+  font-family:var(--serif);font-style:italic;font-weight:400;
+  font-size:clamp(1.2rem,2vw,1.55rem);line-height:1.35;color:var(--ink-soft);
+  margin:20px 0 24px;max-width:26ch;
+}
+/* Right column, "In this page" contents */
+.hero-contents{
+  position:sticky;top:120px;
+  padding:28px 32px;background:var(--white);
+  border:1px solid var(--line);border-radius:var(--r);
+}
+.hero-contents .label{
+  font-family:var(--sans);font-size:.7rem;font-weight:700;
+  letter-spacing:.24em;text-transform:uppercase;color:var(--ink-soft);
+  padding-bottom:16px;border-bottom:1px solid var(--line);margin-bottom:0;
+}
+.hero-contents ol{list-style:none;padding:0;margin:0;counter-reset:hc}
+.hero-contents ol li{
+  counter-increment:hc;position:relative;
+  padding:14px 0 14px 42px;border-bottom:1px solid var(--line);
+}
+.hero-contents ol li:last-child{border-bottom:0}
+.hero-contents ol li::before{
+  content:counter(hc, decimal-leading-zero);
+  position:absolute;left:0;top:14px;
+  font-family:var(--serif);font-style:italic;font-weight:500;
+  font-size:.95rem;color:var(--navy);
+}
+.hero-contents ol a{
+  font-family:var(--sans);font-size:.94rem;font-weight:500;color:var(--ink);
+  display:block;line-height:1.4;transition:color .15s var(--ease);
+}
+.hero-contents ol a:hover{color:var(--navy)}
+.hero-contents ol .detail{
+  font-family:var(--serif);font-style:italic;font-weight:400;
+  font-size:.82rem;color:var(--ink-soft);margin-top:6px;display:block;
+}
+.hero-contents .foot{
+  padding-top:16px;margin-top:16px;border-top:1px solid var(--line);
+  font-family:var(--serif);font-style:italic;font-size:.82rem;color:var(--ink-soft);
+}
+
+@media (max-width:900px){
+  main > .page-head > .wrap{grid-template-columns:1fr;gap:40px}
+  .hero-contents{position:static}
+}
+
+/* Trust section, dark, editorial */
+.trust-section{background:var(--ink);color:#c6cdd9}
+.trust-section h2,.trust-section h3{color:var(--cream)}
+.trust-quote{
+  font-family:var(--serif);font-size:clamp(1.35rem,2.6vw,1.85rem);line-height:1.35;
+  color:var(--cream);letter-spacing:-.01em;font-style:italic;font-weight:500;
+  margin:0 0 24px;padding-left:20px;border-left:2px solid var(--navy);
+}
+.trust-cite{font-size:.82rem;color:var(--haze);text-transform:uppercase;letter-spacing:.16em;font-weight:600}
+.trust-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin-top:56px;
+  padding-top:40px;border-top:1px solid rgba(255,255,255,.1);
+}
+.trust-stat .n{font-family:var(--serif);font-size:2.6rem;color:var(--cream);font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.trust-stat .l{font-size:.78rem;color:var(--haze);text-transform:uppercase;letter-spacing:.14em;font-weight:600;margin-top:12px}
+
+/* Example matter walkthrough */
+.example-card{
+  background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);
+  padding:36px;box-shadow:var(--shadow-sm);
+}
+.example-steps{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:20px}
+.example-steps li{
+  display:grid;grid-template-columns:40px 1fr auto;gap:20px;align-items:baseline;
+  padding-bottom:20px;border-bottom:1px dashed var(--line);
+}
+.example-steps li:last-child{border-bottom:0;padding-bottom:0}
+.example-steps .step-n{font-family:var(--serif);font-style:italic;font-size:1.2rem;color:var(--navy);font-weight:600}
+.example-steps .step-t{font-family:var(--serif);font-size:1.05rem;color:var(--ink);font-weight:600;line-height:1.35}
+.example-steps .step-t small{display:block;font-family:var(--sans);font-size:.85rem;color:var(--ink-soft);font-weight:400;margin-top:6px;letter-spacing:0}
+.example-steps .step-w{font-size:.75rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.14em;font-weight:600;white-space:nowrap}
+
+/* Closing CTA */
+.cta-final{background:var(--navy);color:#cdd8e8;text-align:center}
+.cta-final h2{color:var(--white);max-width:640px;margin:0 auto .5em}
+.cta-final p{max-width:520px;margin:0 auto 32px;color:#cdd8e8}
+.cta-final .btn--light{background:var(--navy);color:var(--white);border-color:var(--navy)}
+.cta-final .btn--light{background:var(--white);color:var(--ink);border-color:var(--white)}
+.cta-final .btn--light:hover{background:var(--cream);border-color:var(--cream);color:var(--ink)}
+
+@media (max-width:800px){
+  main > .page-head::after{width:340px;height:340px;right:-140px;top:-20px;opacity:.6}
+  .trust-stats{grid-template-columns:1fr;gap:24px;margin-top:36px;padding-top:24px}
+  .example-steps li{grid-template-columns:32px 1fr;gap:14px}
+  .example-steps .step-w{grid-column:2;grid-row:2;justify-self:start}
+  .example-card{padding:24px}
+}
+
+/* Paralegal directory + booking, sits inside Lawgistics's design system */
+.p-directory{border-top:1px solid var(--line);margin-top:0}
+.p-card{
+  display:grid;grid-template-columns:56px 1fr auto auto;gap:28px;
+  align-items:center;padding:28px 0;border-bottom:1px solid var(--line);
+  cursor:pointer;transition:background .2s var(--ease);
+}
+.p-card:hover{background:rgba(45,74,117,.03)}
+.p-card.selected{background:rgba(45,74,117,.06);position:relative}
+.p-card.selected::before{
+  content:"";position:absolute;left:-16px;top:0;bottom:0;width:3px;background:var(--navy);
+}
+.p-init{font-family:var(--serif);font-weight:600;font-size:1.3rem;color:var(--navy);letter-spacing:.02em}
+.p-info{min-width:0}
+.p-info .name{font-family:var(--serif);font-weight:600;font-size:1.25rem;color:var(--ink);letter-spacing:-.015em;line-height:1.2}
+.p-info .bio{font-size:.94rem;color:var(--ink-soft);margin-top:6px;max-width:520px;line-height:1.6}
+.p-info .areas{margin-top:10px;font-size:.72rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.14em;font-weight:600}
+.p-rate{font-family:var(--serif);font-weight:600;font-size:1.2rem;color:var(--ink);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.p-rate small{font-family:var(--sans);font-weight:400;font-size:.75rem;color:var(--ink-soft);display:block;margin-top:2px}
+.p-avail{font-size:.72rem;text-transform:uppercase;letter-spacing:.14em;font-weight:600;display:inline-flex;align-items:center;gap:8px;text-align:right}
+.p-avail::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.p-avail.available{color:var(--green)}
+.p-avail.limited{color:var(--navy)}
+.p-avail.capacity{color:var(--haze)}
+
+.book-form-selected{
+  padding:14px 16px;background:var(--navy-soft);border-radius:var(--r);
+  margin-bottom:22px;font-size:.9rem;color:var(--ink-soft);
+}
+.book-form-selected b{color:var(--navy);font-weight:600}
+
+.flash{margin-top:16px;padding:12px 14px;border-radius:var(--r);font-size:.9rem;display:none}
+.flash.show{display:block}
+.flash.err{background:rgba(166,61,61,.08);border-left:3px solid var(--navy);color:var(--navy)}
+.flash.ok{background:rgba(47,107,79,.08);border-left:3px solid var(--green);color:var(--green)}
+
+@media (max-width:800px){
+  .p-card{grid-template-columns:auto 1fr;gap:14px}
+  .p-card .p-rate,.p-card .p-avail{grid-column:2;justify-self:start;text-align:left}
+}
+</style>
+</head>
+<body>
+
+<header data-header></header>
+
+<main>
+
+  <section class="page-head">
+    <div class="wrap">
+      <div>
+        <div class="chapter-mark"><span class="num">01</span> <span>Paralegals, Kuala Lumpur</span></div>
+        <h1 data-reveal="0">Book a Malaysian paralegal.</h1>
+        <p class="hero-subhead" data-reveal="60">By the hour, for the work that shouldn't need a partner.</p>
+        <p class="lede" data-reveal="60" style="margin-top:8px">Court bundles, chronologies, research, drafting. Reviewed by advocates &amp; solicitors before it reaches your firm.</p>
+        <div class="btn-row" style="margin-top:32px" data-reveal="80">
+          <a class="btn btn--primary" href="#pDir" onclick="document.querySelector('.p-directory').scrollIntoView({behavior:'smooth',block:'start'});return false;">See the cohort</a>
+          <a class="btn btn--ghost" href="paralegal-signin.html">Sign in</a>
+        </div>
+      </div>
+
+      <aside class="hero-contents" data-reveal="80">
+        <div class="label">In this page</div>
+        <ol>
+          <li><a href="#work">How the work runs<span class="detail">Three steps · brief to filed</span></a></li>
+          <li><a href="#supervision">A paralegal's price, an advocate's sign-off<span class="detail">Who checks the work</span></a></li>
+          <li><a href="#cohort">The founding cohort<span class="detail">Six specialists, live availability</span></a></li>
+          <li><a href="#matter">A recent matter, day by day<span class="detail">IP Holdings v Mahkota, KL High Court</span></a></li>
+        </ol>
+        <div class="foot">Response on new briefs within 24 hours. Nothing charged until you sign.</div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section section--tight" id="work">
+    <div class="wrap">
+      <div class="grid grid-3">
+        <div class="step" data-reveal="0"><span class="step__num">01</span><h3>Pick a paralegal</h3><p>Six specialists in the cohort. Browse by discipline or by who has capacity this week.</p></div>
+        <div class="step" data-reveal="80"><span class="step__num">02</span><h3>Brief the work</h3><p>Scope, deadline, any preferences on approach. We come back within 24 hours with an estimate and a name.</p></div>
+        <div class="step" data-reveal="160"><span class="step__num">03</span><h3>Deliver</h3><p>Hours logged as they run. Senior review by an advocate &amp; solicitor before anything reaches your firm.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================== trust & credibility -->
+  <section class="section trust-section" id="supervision">
+    <div class="wrap" style="max-width:920px">
+      <p class="eyebrow" data-reveal="0" style="color:var(--navy)">Supervision</p>
+      <h2 data-reveal="0" style="margin-bottom:36px">A paralegal's price. A solicitor's sign-off.</h2>
+      <blockquote class="trust-quote" data-reveal="80">
+        Every deliverable is reviewed by an advocate and solicitor at Messrs Thomas Philip before it goes back to the instructing firm.
+      </blockquote>
+      <div class="trust-cite" data-reveal="120">, Messrs Thomas Philip · Kuala Lumpur</div>
+
+      <div class="trust-stats" data-reveal="80">
+        <div class="trust-stat"><div class="n">24h</div><div class="l">Response on new briefs</div></div>
+        <div class="trust-stat"><div class="n">RM 200<span style="font-size:1rem;color:var(--haze);margin-left:6px">/hr</span></div><div class="l">Fixed hourly rate</div></div>
+        <div class="trust-stat"><div class="n">6</div><div class="l">Specialists in the cohort</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--white">
+    <div class="wrap">
+      <div class="grid" style="grid-template-columns:1.35fr 1fr;gap:clamp(28px,5vw,72px);align-items:start">
+
+        <!-- LEFT: paralegal directory -->
+        <div data-reveal="0" id="cohort">
+          <p class="eyebrow" style="margin-bottom:8px">The cohort</p>
+          <h2>Pick a paralegal</h2>
+          <p style="margin-top:10px">Click a card to select. Leave nothing selected and we'll match you.</p>
+          <div class="p-directory" id="pDir" style="margin-top:28px">
+            <div style="padding:32px 0;color:var(--ink-soft);font-style:italic">Loading paralegals…</div>
+          </div>
+        </div>
+
+        <!-- RIGHT: booking form -->
+        <aside data-reveal="80">
+          <div class="form-card" style="position:sticky;top:24px">
+            <p class="eyebrow" style="margin-bottom:6px">Booking request</p>
+            <h3 style="margin-bottom:14px">Tell us the requirement</h3>
+            <div class="book-form-selected" id="bookSelected">No paralegal selected, we'll match you with the best fit.</div>
+
+            <form id="bookForm" autocomplete="on" novalidate>
+              <div class="field-row">
+                <div class="field">
+                  <label for="fName">Your name <span class="hint">(required)</span></label>
+                  <input class="input" id="fName" type="text" required autocomplete="name">
+                </div>
+                <div class="field">
+                  <label for="fFirm">Firm / organisation <span class="hint">(required)</span></label>
+                  <input class="input" id="fFirm" type="text" required autocomplete="organization">
+                </div>
+              </div>
+
+              <div class="field-row">
+                <div class="field">
+                  <label for="fEmail">Email <span class="hint">(required)</span></label>
+                  <input class="input" id="fEmail" type="email" required autocomplete="email">
+                </div>
+                <div class="field">
+                  <label for="fPhone">Phone <span class="hint">(optional)</span></label>
+                  <input class="input" id="fPhone" type="tel" autocomplete="tel" placeholder="+60">
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="fArea">Practice area <span class="hint">(optional)</span></label>
+                <input class="input" id="fArea" type="text" placeholder="Litigation / Corporate / Real estate…">
+              </div>
+
+              <div class="field">
+                <label for="fOutline">Outline the work <span class="hint">(required)</span></label>
+                <textarea class="textarea" id="fOutline" required placeholder="What do you need? Rough scope, key deadlines, anything the paralegal should know."></textarea>
+              </div>
+
+              <div class="field">
+                <label for="fTimeline">Desired timeline <span class="hint">(optional)</span></label>
+                <input class="input" id="fTimeline" type="text" placeholder="Start next week; delivery within 2 weeks">
+              </div>
+
+              <button class="btn btn--primary btn--block" type="submit" id="bookBtn">Send booking</button>
+              <p class="form-note" style="margin-top:14px">Nothing charged until you accept. We come back within 24 hours.</p>
+              <div class="flash" id="flash"></div>
+            </form>
+          </div>
+        </aside>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================== example walkthrough -->
+  <section class="section section--tight" id="matter">
+    <div class="wrap">
+      <div class="grid" style="grid-template-columns:1fr 1.4fr;gap:clamp(28px,5vw,72px);align-items:start">
+        <div data-reveal="0">
+          <p class="eyebrow">A recent matter</p>
+          <h2 style="margin-top:8px">Day by day</h2>
+          <p style="margin-top:14px">A representative example. Court bundle for a litigation matter in the KL High Court. Instructed on a Tuesday, filed the following Monday.</p>
+        </div>
+
+        <div class="example-card" data-reveal="80">
+          <p class="eyebrow" style="margin-bottom:14px">Court bundle · KL High Court</p>
+          <h3 style="font-size:1.25rem;margin-bottom:24px">Tan &amp; Partners · Priya Shah</h3>
+          <ol class="example-steps">
+            <li><span class="step-n">1</span><div class="step-t">Brief received<small>800-page bundle, four volumes, filing deadline in nine days</small></div><span class="step-w">Tue</span></li>
+            <li><span class="step-n">2</span><div class="step-t">Scope and estimate back<small>12 hours · RM 2,400 fixed · draft by end of Friday</small></div><span class="step-w">Wed</span></li>
+            <li><span class="step-n">3</span><div class="step-t">Bundle assembled<small>Indexed, chronology built, pagination locked, exhibits cross-referenced</small></div><span class="step-w">Wed, Fri</span></li>
+            <li><span class="step-n">4</span><div class="step-t">Senior review<small>Reviewed by an advocate &amp; solicitor at Messrs Thomas Philip</small></div><span class="step-w">Fri</span></li>
+            <li><span class="step-n">5</span><div class="step-t">Filed and invoiced<small>16 hours logged, invoiced at the estimate</small></div><span class="step-w">Mon</span></li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================== closing CTA -->
+  <section class="section cta-final">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal="0" style="color:var(--navy)">Ready?</p>
+      <h2 data-reveal="0">Send us a brief.</h2>
+      <p data-reveal="60">Response within 24 hours. Nothing charged until you sign.</p>
+      <div data-reveal="80">
+        <a class="btn btn--light" href="#pDir" onclick="document.querySelector('.p-directory').scrollIntoView({behavior:'smooth',block:'start'});return false;">Pick a paralegal →</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer data-footer></footer>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/site.js"></script>
+<script>
+// In production, /api/public/* is proxied by Netlify to the Legal Champions
+// backend on Railway (see netlify.toml). Locally, hit the backend directly.
+const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? 'http://localhost:4040' : '';
+
+const params = new URLSearchParams(window.location.search);
+let SELECTED = params.get('paralegal_id') ? parseInt(params.get('paralegal_id'), 10) : null;
+const SOURCE = params.get('source') || 'lawgistics.my';
+
+const dir  = document.getElementById('pDir');
+const sel  = document.getElementById('bookSelected');
+const form = document.getElementById('bookForm');
+const btn  = document.getElementById('bookBtn');
+const flash = document.getElementById('flash');
+
+function initialsFrom(name){ return name.split(/\s+/).slice(0,2).map(w => w[0]).join('').toUpperCase(); }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function setSelected(name){
+  if (!name) sel.innerHTML = 'No paralegal selected, we\'ll match you with the best fit.';
+  else       sel.innerHTML = 'Requesting <b>' + escapeHtml(name) + '</b>, we\'ll route your enquiry to them first.';
+}
+function showFlash(msg, ok = false){
+  flash.textContent = msg;
+  flash.classList.add('show');
+  flash.classList.toggle('ok', ok);
+  flash.classList.toggle('err', !ok);
+}
+
+async function loadCohort(){
+  try {
+    const r = await fetch(API_BASE + '/api/public/paralegals');
+    if (!r.ok) throw new Error('Failed to load paralegals.');
+    const { paralegals } = await r.json();
+    if (!paralegals.length) {
+      dir.innerHTML = '<div style="padding:32px 0;color:var(--ink-soft);font-style:italic">No paralegals available yet.</div>';
+      return;
+    }
+    dir.innerHTML = paralegals.map(p => `
+      <div class="p-card" data-id="${p.id}" data-name="${escapeHtml(p.name)}">
+        <span class="p-init">${initialsFrom(p.name)}</span>
+        <div class="p-info">
+          <div class="name">${escapeHtml(p.name)}</div>
+          <div class="bio">${escapeHtml(p.bio || '')}</div>
+          <div class="areas">${escapeHtml(p.specialisms || '')}</div>
+        </div>
+        <div class="p-rate">RM ${p.hourly_rate}<small>per hour</small></div>
+        <div class="p-avail ${p.availability}">${
+          p.availability === 'available' ? 'Available'
+          : p.availability === 'limited' ? 'Limited'
+          : 'At capacity'
+        }</div>
+      </div>
+    `).join('');
+
+    dir.querySelectorAll('.p-card').forEach(el => {
+      el.addEventListener('click', () => {
+        SELECTED = parseInt(el.dataset.id, 10);
+        dir.querySelectorAll('.p-card').forEach(e => e.classList.toggle('selected', e === el));
+        setSelected(el.dataset.name);
+        if (window.innerWidth < 900) form.scrollIntoView({ behavior:'smooth', block:'start' });
+      });
+    });
+
+    if (SELECTED) {
+      const el = dir.querySelector(`.p-card[data-id="${SELECTED}"]`);
+      if (el) { el.classList.add('selected'); setSelected(el.dataset.name); el.scrollIntoView({ behavior:'instant', block:'center' }); }
+    }
+  } catch (e) {
+    dir.innerHTML = `<div style="padding:32px 0;color:var(--ink-soft);font-style:italic">${e.message}</div>`;
+  }
+}
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  flash.classList.remove('show');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  try {
+    const body = {
+      name:  document.getElementById('fName').value,
+      firm:  document.getElementById('fFirm').value,
+      email: document.getElementById('fEmail').value,
+      phone: document.getElementById('fPhone').value || null,
+      practice_area: document.getElementById('fArea').value || null,
+      outline: document.getElementById('fOutline').value,
+      timeline: document.getElementById('fTimeline').value || null,
+      paralegal_id: SELECTED || null,
+      source: SOURCE
+    };
+    const r = await fetch(API_BASE + '/api/public/book', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Failed to send.');
+    form.reset();
+    showFlash("Booking received. We'll be in touch within 24 hours.", true);
+    btn.textContent = 'Sent ✓';
+  } catch (err) {
+    showFlash(err.message);
+    btn.disabled = false; btn.textContent = 'Send booking';
+  }
+});
+
+loadCohort();
+</script>
+
+</body>
+</html>

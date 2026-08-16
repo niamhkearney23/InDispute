@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Dashboard, Lawgistics</title>
+<meta name="description" content="Your Lawgistics account: documents, drafts, reviews and settings.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f4f1ea'/%3E%3Ctext x='27' y='44' font-family='Georgia,serif' font-weight='700' font-size='38' fill='%231a1f28' text-anchor='middle'%3EL%3C/text%3E%3Ccircle cx='47' cy='41' r='5' fill='%232d4a75'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#f4f1ea">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Lawgistics">
+<meta property="og:title" content="Dashboard, Lawgistics">
+<meta property="og:image" content="https://lawgistics.my/assets/img/og.png">
+<meta property="og:description" content="Lawyer-drafted legal documents for Malaysian businesses.">
+<meta property="og:url" content="https://lawgistics.my/dashboard.html">
+<meta name="twitter:card" content="summary">
+<link rel="canonical" href="https://lawgistics.my/dashboard.html">
+<link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body>
+
+<header data-header></header>
+
+<main>
+  <div class="wrap">
+
+    <div class="dash-head">
+      <div>
+        <p class="eyebrow" style="margin-bottom:8px">Your account</p>
+        <h1 data-greeting>Welcome back</h1>
+        <p style="margin:0">Your documents, drafts, and details, all in one place.</p>
+      </div>
+      <a class="btn btn--primary" href="documents.html" data-plus>Create document</a>
+    </div>
+
+    <div class="dash-tabs" role="tablist">
+      <button class="dash-tab is-active" type="button" data-pane="overview">Overview</button>
+      <button class="dash-tab" type="button" data-pane="documents">Documents</button>
+      <button class="dash-tab" type="button" data-pane="reviews">Lawyer reviews</button>
+      <button class="dash-tab" type="button" data-pane="account">Account</button>
+    </div>
+
+    <!-- ======================================================== overview -->
+    <section class="dash-pane is-active" data-pane-body="overview">
+      <div class="grid grid-4" data-stats style="margin-bottom:34px"></div>
+
+      <h3 style="margin-bottom:16px">Recent documents</h3>
+      <div data-recent></div>
+
+      <div class="grid grid-2" style="margin-top:34px">
+        <a class="card card--hover" href="documents.html">
+          <h3 style="font-size:1.15rem">Browse templates</h3>
+          <p>Lawyer-drafted documents, ready in minutes from RM 149.</p>
+          <p class="link-arrow" style="margin-top:14px" data-arrow>Open the library</p>
+        </a>
+        <a class="card card--hover intake-card" href="legalhelp.html#intake">
+          <h3 style="font-size:1.15rem">Free 10-minute intake call</h3>
+          <p>Not sure which document fits? A quick call with our client team scopes it, no charge, no obligation.</p>
+          <p class="link-arrow" style="margin-top:14px" data-arrow>Book a slot</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- ======================================================= documents -->
+    <section class="dash-pane" data-pane-body="documents">
+      <div data-docs></div>
+    </section>
+
+    <!-- ========================================================= reviews -->
+    <section class="dash-pane" data-pane-body="reviews">
+      <div class="grid" style="grid-template-columns:1fr 1.2fr;gap:28px;align-items:start">
+        <div class="form-card">
+          <h3 style="font-size:1.2rem">Leave a review</h3>
+          <p style="font-size:.9rem">How has Lawgistics worked for your business?</p>
+          <form data-review-form novalidate>
+            <div class="field">
+              <label for="rv-rating">Rating</label>
+              <select class="select" id="rv-rating" name="rating">
+                <option value="5">★★★★★, Excellent</option>
+                <option value="4">★★★★, Good</option>
+                <option value="3">★★★, Okay</option>
+                <option value="2">★★, Poor</option>
+                <option value="1">★, Bad</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="rv-body">Your review</label>
+              <textarea class="textarea" id="rv-body" name="body" required placeholder="What did you create, and how did it go?"></textarea>
+            </div>
+            <button class="btn btn--primary" type="submit">Submit review</button>
+          </form>
+          <div class="form-status" data-review-status role="status" aria-live="polite"></div>
+        </div>
+        <div>
+          <h3 style="margin-bottom:16px">What other businesses say</h3>
+          <div class="grid" data-review-list></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= account -->
+    <section class="dash-pane" data-pane-body="account">
+      <div class="grid grid-2" style="align-items:start">
+        <div class="form-card">
+          <h3 style="font-size:1.2rem">Profile</h3>
+          <div style="display:flex;align-items:center;gap:16px;margin:18px 0 22px">
+            <span class="avatar" data-avatar style="width:56px;height:56px;font-size:1.15rem"></span>
+            <div><strong style="color:var(--ink)" data-acc-name></strong><br><span style="font-size:.86rem" data-acc-email></span></div>
+          </div>
+          <form data-profile-form novalidate>
+            <div class="field">
+              <label for="pf-name">Full name</label>
+              <input class="input" id="pf-name" name="name" type="text" required>
+            </div>
+            <div class="field">
+              <label for="pf-email">Email <span class="hint">(sign-in identity, fixed in this build)</span></label>
+              <input class="input" id="pf-email" type="email" disabled>
+            </div>
+            <button class="btn btn--primary" type="submit">Save changes</button>
+          </form>
+          <div class="form-status" data-profile-status role="status" aria-live="polite"></div>
+        </div>
+
+        <div>
+          <div class="form-card">
+            <h3 style="font-size:1.2rem">Notifications</h3>
+            <div class="pref-row">
+              <div><strong>Document updates</strong><p>Emails about your documents and reviews</p></div>
+              <span class="switch"><input type="checkbox" data-pref="docUpdates"><i></i></span>
+            </div>
+            <div class="pref-row">
+              <div><strong>Legal insights</strong><p>Practical guides for Malaysian businesses, monthly</p></div>
+              <span class="switch"><input type="checkbox" data-pref="insights"><i></i></span>
+            </div>
+          </div>
+
+          <div class="form-card" style="margin-top:20px">
+            <h3 style="font-size:1.2rem">Billing</h3>
+            <div class="pref-row">
+              <div><strong>Total spent</strong><p data-bill-count>, </p></div>
+              <span class="price" data-bill-total>RM 0</span>
+            </div>
+            <p class="form-note">Demo build, payments are simulated, so this reflects unlocked documents.</p>
+          </div>
+
+          <div class="form-card" style="margin-top:20px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap">
+            <div><strong style="color:var(--ink)">Sign out</strong><p style="font-size:.84rem;margin:0">Your drafts stay saved on this device.</p></div>
+            <button class="btn btn--ghost" type="button" data-signout>Sign out</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer data-footer></footer>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/site.js"></script>
+<script src="assets/js/doclib.js"></script>
+<script>
+window.pageInit = function () {
+  var esc = window.lgEsc, I = window.LG_ICON;
+
+  var session = Store.session();
+  if (!session) { location.replace('login.html'); return; }
+
+  /* ------------------------------------------------------------ head -- */
+
+  var first = String(session.name || 'there').split(' ')[0];
+  var h = new Date().getHours();
+  var greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  document.querySelector('[data-greeting]').textContent = greet + ', ' + first;
+  document.querySelector('[data-plus]').insertAdjacentHTML('afterbegin',
+    '<svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M7 2.5v9M2.5 7h9"/></svg>');
+  document.querySelectorAll('[data-arrow]').forEach(function (el) {
+    el.insertAdjacentHTML('beforeend', I.arrow);
+  });
+
+  /* ------------------------------------------------------------ tabs -- */
+
+  function showPane(name) {
+    document.querySelectorAll('.dash-tab').forEach(function (t) {
+      t.classList.toggle('is-active', t.getAttribute('data-pane') === name);
+    });
+    document.querySelectorAll('.dash-pane').forEach(function (p) {
+      p.classList.toggle('is-active', p.getAttribute('data-pane-body') === name);
+    });
+    history.replaceState(null, '', '#' + name);
+  }
+  document.querySelectorAll('.dash-tab').forEach(function (t) {
+    t.addEventListener('click', function () { showPane(t.getAttribute('data-pane')); });
+  });
+  var initial = (location.hash || '').replace('#', '');
+  if (['overview', 'documents', 'reviews', 'account'].indexOf(initial) !== -1) showPane(initial);
+
+  /* ---------------------------------------------------------- drafts -- */
+
+  var PREFIX = 'lawgistics.draft.';
+
+  function loadDrafts() {
+    var out = [];
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k.indexOf(PREFIX) !== 0) continue;
+      var slug = k.slice(PREFIX.length);
+      var d;
+      try { d = JSON.parse(localStorage.getItem(k)); } catch (e) { continue; }
+      if (!d) continue;
+      var def = window.LG_DOCS && window.LG_DOCS[slug];
+      var total = 0, answered = 0;
+      if (def) {
+        def.steps.forEach(function (s) {
+          s.fields.forEach(function (f) {
+            total++;
+            if (String((d.answers || {})[f.key] || '').trim()) answered++;
+          });
+        });
+      } else if (typeof d.total === 'number') {
+        // Code-shipped tools (e.g. the court pack) store their own progress.
+        total = d.total;
+        answered = d.answered || 0;
+      } else {
+        answered = Object.keys(d.answers || {}).length;
+      }
+      var tpl = Store.list('templates').filter(function (t) { return t.slug === slug; })[0];
+      var review = null;
+      if (d.reviewRef) {
+        var rec = Store.list('documentsToReview').filter(function (r) {
+          return r.reference === d.reviewRef;
+        })[0];
+        review = rec ? rec.status : 'awaiting review';
+      }
+      out.push({
+        slug: slug,
+        href: tpl && tpl.href,
+        title: (tpl && tpl.title) || (def && def.title) || slug,
+        category: tpl ? Store.label('categories', tpl.category) : '',
+        answered: answered, total: total,
+        pct: total ? Math.round((answered / total) * 100) : 0,
+        unlocked: !!d.unlocked,
+        edited: !!d.editedHtml,
+        review: review, reviewRef: d.reviewRef || null
+      });
+    }
+    return out;
+  }
+
+  function docIcon() {
+    return '<span class="doc-row__icon"><svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 2.5H5.8A1.3 1.3 0 0 0 4.5 3.8v12.4a1.3 1.3 0 0 0 1.3 1.3h8.4a1.3 1.3 0 0 0 1.3-1.3V6.5z"/><path d="M11.5 2.5v4h4M7.5 11h5M7.5 14h5"/></svg></span>';
+  }
+
+  function rowHtml(d) {
+    return '<div class="doc-row">' + docIcon() +
+      '<div class="doc-row__main"><strong>' + esc(d.title) + '</strong>' +
+        '<span class="doc-row__meta">' +
+          (d.category ? '<span>' + esc(d.category) + '</span>' : '') +
+          '<span>' + (d.total ? d.answered + '/' + d.total + ' questions' : 'In progress') + '</span>' +
+          (d.edited ? '<span>manually edited</span>' : '') +
+        '</span></div>' +
+      '<div class="progress-mini"><span style="width:' + d.pct + '%"></span></div>' +
+      '<span class="badge-pill ' + (d.unlocked ? 'badge-pill--done">Unlocked' : 'badge-pill--draft">Draft') + '</span>' +
+      (d.review
+        ? '<span class="badge-pill ' + (d.review === 'approved' ? 'badge-pill--done' : 'badge-pill--draft') + '" title="' + esc(d.reviewRef || '') + '">' +
+          esc(d.review === 'awaiting review' ? 'Sent for review' : d.review) + '</span>'
+        : '') +
+      '<div class="doc-row__actions">' +
+        '<a class="btn btn--sm btn--primary" href="' + esc(d.href || ('create.html?template=' + d.slug)) + '">' + (d.unlocked ? 'Open' : 'Continue') + '</a>' +
+        '<button class="btn btn--sm btn--ghost" type="button" data-del="' + esc(d.slug) + '">Delete</button>' +
+      '</div></div>';
+  }
+
+  function emptyHtml(msg) {
+    return '<div class="dash-empty"><div class="card-icon">' + I.check + '</div>' +
+      '<h3 style="font-size:1.15rem">' + esc(msg) + '</h3>' +
+      '<p style="font-size:.9rem">Pick a template and your draft will appear here, saved automatically.</p>' +
+      '<a class="btn btn--primary btn--sm" style="margin-top:14px" href="documents.html">Browse templates</a></div>';
+  }
+
+  function paintDocs() {
+    var drafts = loadDrafts();
+    var unlocked = drafts.filter(function (d) { return d.unlocked; });
+
+    // stats
+    var user = Store.list('users').filter(function (u) {
+      return u.email.toLowerCase() === String(session.email || '').toLowerCase();
+    })[0];
+    var pricing = Store.get('pricing');
+    var stats = [
+      ['Drafts in progress', drafts.length - unlocked.length],
+      ['Unlocked documents', unlocked.length],
+      ['Templates available', Store.list('templates', { where: { status: 'published' } }).length],
+      ['Member since', user && user.createdAt ? window.lgDate(user.createdAt) : ', ']
+    ];
+    document.querySelector('[data-stats]').innerHTML = stats.map(function (s) {
+      return '<div class="card stat-tile"><div class="card-icon">' + I.check + '</div>' +
+        '<div><div class="stat-tile__num">' + esc(String(s[1])) + '</div>' +
+        '<div class="stat-tile__label">' + esc(s[0]) + '</div></div></div>';
+    }).join('');
+
+    // recent + all
+    var sorted = drafts.slice().sort(function (a, b) { return b.pct - a.pct; });
+    document.querySelector('[data-recent]').innerHTML =
+      sorted.length ? sorted.slice(0, 3).map(rowHtml).join('') : emptyHtml('No documents yet');
+    document.querySelector('[data-docs]').innerHTML =
+      sorted.length ? sorted.map(rowHtml).join('') : emptyHtml('No documents yet');
+
+    // billing
+    var spent = unlocked.length * (Number(pricing.standardPrice) || 0);
+    document.querySelector('[data-bill-total]').textContent =
+      (pricing.standardCurrency || 'RM') + ' ' + spent.toLocaleString('en-MY');
+    document.querySelector('[data-bill-count]').textContent =
+      unlocked.length + ' document' + (unlocked.length === 1 ? '' : 's') + ' purchased';
+
+    document.querySelectorAll('[data-del]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (!confirm('Delete this draft? This cannot be undone.')) return;
+        var delSlug = b.getAttribute('data-del');
+        localStorage.removeItem(PREFIX + delSlug);
+        // The court pack keeps its real state under its own key.
+        if (delSlug === 'court-pack-debt-recovery') localStorage.removeItem('lawgistics.courtpack.v1');
+        paintDocs();
+      });
+    });
+  }
+  paintDocs();
+
+  /* --------------------------------------------------------- reviews -- */
+
+  function paintReviews() {
+    document.querySelector('[data-review-list]').innerHTML =
+      Store.list('reviews', { where: { status: 'published' } }).slice(0, 4).map(function (r) {
+        return '<div class="card quote-card" style="padding:22px">' +
+          '<div class="stars">' + '★'.repeat(r.rating) + '</div>' +
+          '<blockquote style="font-size:.95rem;margin-bottom:12px">&ldquo;' + esc(r.body) + '&rdquo;</blockquote>' +
+          '<div style="font-size:.82rem"><strong style="color:var(--ink)">' + esc(r.author) + '</strong> · ' + esc(r.company || '') + '</div></div>';
+      }).join('');
+  }
+  paintReviews();
+
+  document.querySelector('[data-review-form]').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var f = e.target;
+    if (!f.body.value.trim()) { f.reportValidity(); return; }
+    Store.create('reviews', {
+      author: session.name || session.email, company: '',
+      rating: Number(f.rating.value) || 5, body: f.body.value.trim(),
+      status: 'pending', date: new Date().toISOString().slice(0, 10)
+    });
+    var st = document.querySelector('[data-review-status]');
+    st.className = 'form-status is-ok';
+    st.textContent = 'Thank you, your review is with our team for moderation.';
+    f.reset();
+  });
+
+  /* --------------------------------------------------------- account -- */
+
+  var initials = String(session.name || session.email).split(/[\s@.]+/).filter(Boolean)
+    .map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
+  document.querySelector('[data-avatar]').textContent = initials;
+  document.querySelector('[data-acc-name]').textContent = session.name || '';
+  document.querySelector('[data-acc-email]').textContent = session.email || '';
+  document.getElementById('pf-name').value = session.name || '';
+  document.getElementById('pf-email').value = session.email || '';
+
+  document.querySelector('[data-profile-form]').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = document.getElementById('pf-name').value.trim();
+    if (!name) return;
+    var user = Store.list('users').filter(function (u) {
+      return u.email.toLowerCase() === String(session.email || '').toLowerCase();
+    })[0];
+    if (user) Store.update('users', user.id, { name: name });
+    try {
+      var raw = sessionStorage.getItem('lawgistics.session');
+      if (raw) {
+        var s = JSON.parse(raw);
+        s.name = name;
+        sessionStorage.setItem('lawgistics.session', JSON.stringify(s));
+      }
+    } catch (err) {}
+    var st = document.querySelector('[data-profile-status]');
+    st.className = 'form-status is-ok';
+    st.textContent = 'Saved.';
+    setTimeout(function () { location.reload(); }, 600);
+  });
+
+  // notification preferences, kept on this device
+  var prefs = {};
+  try { prefs = JSON.parse(localStorage.getItem('lawgistics.prefs') || '{}'); } catch (e) {}
+  document.querySelectorAll('[data-pref]').forEach(function (cb) {
+    var key = cb.getAttribute('data-pref');
+    cb.checked = prefs[key] !== false; // default on
+    cb.addEventListener('change', function () {
+      prefs[key] = cb.checked;
+      try { localStorage.setItem('lawgistics.prefs', JSON.stringify(prefs)); } catch (e) {}
+    });
+  });
+
+  document.querySelector('[data-signout]').addEventListener('click', function () {
+    Store.signOut();
+    location.href = 'login.html';
+  });
+};
+</script>
+</body>
+</html>

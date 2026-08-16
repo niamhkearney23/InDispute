@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recover an unpaid debt, Lawgistics</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f4f1ea'/%3E%3Ctext x='27' y='44' font-family='Georgia,serif' font-weight='700' font-size='38' fill='%231a1f28' text-anchor='middle'%3EL%3C/text%3E%3Ccircle cx='47' cy='41' r='5' fill='%232d4a75'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#f4f1ea">
+<meta name="description" content="Send us the invoice and what happened. A qualified Malaysian lawyer reads the file and replies within 24 hours with your options and a price.">
+<meta property="og:title" content="Recover an unpaid debt, Lawgistics">
+<meta property="og:image" content="https://lawgistics.my/assets/img/og.png">
+<meta property="og:description" content="Send us the invoice and what happened. A lawyer replies within 24 hours.">
+<link rel="canonical" href="https://lawgistics.my/recover-debt.html">
+<link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body>
+
+<header data-header></header>
+
+<main>
+  <section class="page-head">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal="0">Recover an unpaid debt</p>
+      <h1 data-reveal="0">Send us the invoice. A lawyer replies within 24 hours.</h1>
+      <p class="lede" data-reveal="60">Tell us who owes what and what has happened so far. A qualified Malaysian lawyer reads the file and comes back with your options and a price, before anything is charged.</p>
+      <div class="btn-row" style="margin-top:24px" data-reveal="80">
+        <span class="pill-stat"><b>Reply within 24 hours</b></span>
+        <span class="pill-stat"><b>No fee to enquire</b></span>
+        <span class="pill-stat"><b>Priced before work starts</b></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="wrap">
+      <div class="grid" style="grid-template-columns:1fr 1.15fr;gap:clamp(28px,5vw,64px);align-items:start">
+
+        <div data-reveal="0">
+          <h2 style="font-size:1.6rem">What happens next</h2>
+          <div class="grid" style="gap:18px;margin-top:20px">
+            <div class="step"><span class="step__num">01</span><h3>You send the details</h3><p>The amount, the invoices, and what has happened. Five minutes.</p></div>
+            <div class="step"><span class="step__num">02</span><h3>A lawyer reads it</h3><p>Not a form response. A qualified Malaysian lawyer reviews the file within 24 hours.</p></div>
+            <div class="step"><span class="step__num">03</span><h3>You get options and a price</h3><p>Usually a letter of demand first, since it is the cheapest step that works. A court claim if it does not.</p></div>
+          </div>
+          <p style="margin-top:26px;font-size:.86rem">Sending this form does not create a solicitor and client relationship. If you decide to proceed, the lawyer engages you directly on their own terms.</p>
+        </div>
+
+        <div class="form-card intake-card" data-reveal="80">
+          <form data-form="debt" novalidate>
+            <div class="field-row">
+              <div class="field">
+                <label for="d-businessName">Your business <span class="hint">(required)</span></label>
+                <input class="input" id="d-businessName" name="businessName" type="text" required autocomplete="organization">
+              </div>
+              <div class="field">
+                <label for="d-debtor">Who owes you <span class="hint">(required)</span></label>
+                <input class="input" id="d-debtor" name="debtor" type="text" required placeholder="Business or person">
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="d-amount">Amount owed, RM <span class="hint">(required)</span></label>
+                <input class="input" id="d-amount" name="amount" type="number" min="1" step="0.01" required placeholder="12500">
+              </div>
+              <div class="field">
+                <label for="d-overdue">How overdue</label>
+                <select class="select" id="d-overdue" name="overdue">
+                  <option>Under 30 days</option>
+                  <option selected>1 to 3 months</option>
+                  <option>3 to 6 months</option>
+                  <option>6 to 12 months</option>
+                  <option>Over a year</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="d-invoices">Invoice numbers</label>
+                <input class="input" id="d-invoices" name="invoices" type="text" placeholder="INV-1041, INV-1052">
+              </div>
+              <div class="field">
+                <label for="d-written">Is it in writing?</label>
+                <select class="select" id="d-written" name="written">
+                  <option value="invoice-only">Invoices only</option>
+                  <option value="po" selected>Invoices and a purchase order</option>
+                  <option value="contract">Invoices and a signed contract</option>
+                  <option value="nothing">Nothing in writing</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="d-disputed">Have they disputed it?</label>
+              <select class="select" id="d-disputed" name="disputed">
+                <option value="no" selected>No, they have just not paid</option>
+                <option value="promised">They keep promising to pay</option>
+                <option value="quality">They dispute the work or the goods</option>
+                <option value="silent">They have gone silent</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="d-story">What happened <span class="hint">(required)</span></label>
+              <textarea class="textarea" id="d-story" name="story" required style="min-height:96px" placeholder="What you supplied, when, and what has been said since."></textarea>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="d-email">Email <span class="hint">(required)</span></label>
+                <input class="input" id="d-email" name="email" type="email" required autocomplete="email">
+              </div>
+              <div class="field">
+                <label for="d-phone">Phone or WhatsApp</label>
+                <input class="input" id="d-phone" name="phone" type="tel" autocomplete="tel" placeholder="+60">
+              </div>
+            </div>
+
+            <button class="btn btn--primary btn--block" type="submit">Send to a lawyer</button>
+            <p class="form-note">No charge for the review, and no obligation to proceed. We reply within 24 hours.</p>
+          </form>
+          <div class="form-status" data-status role="status" aria-live="polite"></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--ink">
+    <div class="wrap" style="max-width:820px">
+      <p class="eyebrow">Worth knowing</p>
+      <h2 style="font-size:1.9rem">A letter of demand resolves more debts than people expect</h2>
+      <p>It is the cheapest formal step available, and a large share of debts are paid once one arrives. If you would rather send one yourself today, the template is ready now and a lawyer can still review it afterwards.</p>
+      <div class="btn-row" style="margin-top:22px">
+        <a class="btn btn--light" href="create.html?template=letter-of-demand">Draft a letter of demand</a>
+        <a class="btn btn--outline-light" href="legalhelp.html">Talk to a lawyer instead</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer data-footer></footer>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/site.js"></script>
+</body>
+</html>

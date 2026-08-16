@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Litigation Academy, Lawgistics</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f4f1ea'/%3E%3Ctext x='27' y='44' font-family='Georgia,serif' font-weight='700' font-size='38' fill='%231a1f28' text-anchor='middle'%3EL%3C/text%3E%3Ccircle cx='47' cy='41' r='5' fill='%232d4a75'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#f4f1ea">
+<meta name="description" content="The Litigation Academy, practical training for interns, pupils, and paralegals in Malaysia. Work through levels, earn your way up.">
+<meta property="og:title" content="Litigation Academy, Lawgistics">
+<meta property="og:image" content="https://lawgistics.my/assets/img/og.png">
+<meta property="og:description" content="Practical legal training for interns, pupils, and paralegals in Malaysia.">
+<link rel="canonical" href="https://lawgistics.my/academy.html">
+<link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body>
+
+<header data-header></header>
+
+<main>
+  <section class="page-head">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal="0">Litigation Academy</p>
+      <h1 data-reveal="0">The training pupillage assumes you already have</h1>
+      <p class="lede" data-reveal="60">Practical skills for interns, pupils, and paralegals, bundles, chronologies, drafting, research. Work through the levels at your own pace and come out able to do the work.</p>
+      <div class="btn-row" style="margin-top:24px" data-reveal="80">
+        <a class="btn btn--primary" href="#levels">Start Level 1</a>
+        <a class="btn btn--ghost" href="paralegals.html">Get booked as a paralegal</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================== progress -->
+  <section class="section section--tight" data-signed-in style="display:none">
+    <div class="wrap">
+      <div class="card" style="display:flex;gap:26px;align-items:center;flex-wrap:wrap">
+        <span class="level-badge" data-current-badge>1</span>
+        <div style="flex:1;min-width:220px">
+          <h3 style="font-size:1.2rem;margin-bottom:2px" data-current-level>Foundation</h3>
+          <p style="font-size:.88rem;margin-bottom:10px"><b data-xp>0</b> XP · <span data-next-msg></span></p>
+          <div class="xp-bar"><span data-xp-bar style="width:0%"></span></div>
+        </div>
+        <div style="text-align:right">
+          <div class="stat-tile__num" data-done-count>0</div>
+          <div class="stat-tile__label">completed</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight" data-signed-out>
+    <div class="wrap">
+      <div class="card intake-card" style="display:flex;gap:20px;align-items:center;flex-wrap:wrap">
+        <div style="flex:1;min-width:240px">
+          <h3 style="font-size:1.2rem">Sign in to track your levels</h3>
+          <p style="font-size:.92rem;margin:0">Your progress, XP, and completed lessons are saved to your account. You can browse the curriculum without an account.</p>
+        </div>
+        <a class="btn btn--primary" href="login.html">Sign in or join</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================== daily quiz -->
+  <section class="section section--tight section--white" id="quiz">
+    <div class="wrap">
+      <div class="section-head" style="max-width:660px;margin-bottom:30px">
+        <p class="eyebrow">Question of the day</p>
+        <h2 style="margin-bottom:0">One question, every morning.</h2>
+        <p class="lede" style="margin-top:14px">A single point of Malaysian law, with the authority behind it. Everyone gets the same question each day, so you can argue about it with your cohort.</p>
+      </div>
+
+      <div class="quiz" data-quiz>
+        <div class="quiz__meta">
+          <span data-quiz-date></span>
+          <span><b data-quiz-area></b></span>
+          <span class="quiz__streak" data-quiz-streak-wrap style="margin-left:auto"></span>
+        </div>
+        <p class="quiz__q" data-quiz-q>Loading today's question…</p>
+        <div class="quiz__opts" data-quiz-opts></div>
+        <div class="quiz__because" data-quiz-because></div>
+      </div>
+
+      <!-- ------------------------------------------------- subscribe ---- -->
+      <div class="quiz-sub">
+        <h3 style="font-size:1.15rem;margin-bottom:6px">Get it every morning</h3>
+        <p style="font-size:.92rem;max-width:60ch">One question at 7am, Malaysian time. No commentary, no marketing, and you can stop any time by replying STOP.</p>
+        <form data-form="quiz-subscribe" novalidate style="margin-top:18px">
+          <div class="quiz-sub__row">
+            <div class="field" style="margin:0">
+              <label for="qs-name">Your name</label>
+              <input class="input" id="qs-name" name="name" type="text" required autocomplete="name">
+            </div>
+            <div class="field" style="margin:0">
+              <label for="qs-contact" data-qs-contact-label>Email address</label>
+              <input class="input" id="qs-contact" name="contact" type="email" required autocomplete="email" placeholder="you@example.com">
+            </div>
+            <button class="btn btn--primary" type="submit" style="height:46px">Subscribe</button>
+          </div>
+
+          <div class="field" style="margin:16px 0 0;max-width:320px">
+            <label for="qs-channel">Send it by</label>
+            <select class="select" id="qs-channel" name="channel">
+              <option value="email" selected>Email</option>
+              <option value="whatsapp">WhatsApp</option>
+            </select>
+          </div>
+
+          <label class="consent">
+            <input type="checkbox" name="consent" required>
+            <span>I agree to receive one daily message from Lawgistics and understand I can unsubscribe at any time. My details are handled under the <a href="privacy-policy.html">Privacy Notice</a>.</span>
+          </label>
+        </form>
+        <div class="form-status" data-status role="status" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================== levels -->
+  <section class="section section--tight" id="levels">
+    <div class="wrap">
+      <div class="section-head"><h2>The levels</h2><p class="lede">Each level unlocks when you finish the one before it. Ten XP per lesson, and ten more for each daily question you get right.</p></div>
+      <div class="level-track" data-levels></div>
+    </div>
+  </section>
+
+  <section class="section section--navy">
+    <div class="wrap">
+      <div class="section-head section-head--center"><h2>Where this leads</h2></div>
+      <div class="grid grid-3">
+        <div class="card" data-reveal="0">
+          <h3>Get booked</h3>
+          <p>Finish Level 3 and you can apply to join the paralegal cohort that Malaysian firms book through Lawgistics.</p>
+          <a class="btn btn--light btn--sm" style="margin-top:14px" href="paralegals.html">See the cohort</a>
+        </div>
+        <div class="card" data-reveal="80">
+          <h3>Work on real matters</h3>
+          <p>Supervised work on live files, court bundles, chronologies, research memos, with feedback from practising lawyers.</p>
+        </div>
+        <div class="card" data-reveal="160">
+          <h3>Set up on your own</h3>
+          <p>When you're ready to practise independently, we help with the marketing, the operations, and the setup.</p>
+          <a class="btn btn--light btn--sm" style="margin-top:14px" href="independent.html">Independent lawyering</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div data-guide></div>
+<footer data-footer></footer>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/site.js"></script>
+<script src="assets/js/doclib.js"></script>
+<script src="assets/js/guide.js"></script>
+<script src="assets/js/quiz.js"></script>
+<script>
+window.pageInit = function () {
+  var esc = window.lgEsc;
+
+  // Daily-quiz subscribe: swap the contact field when the channel changes.
+  (function () {
+    var ch = document.getElementById('qs-channel');
+    var input = document.getElementById('qs-contact');
+    var label = document.querySelector('[data-qs-contact-label]');
+    if (!ch || !input) return;
+    ch.addEventListener('change', function () {
+      var wa = ch.value === 'whatsapp';
+      input.type = wa ? 'tel' : 'email';
+      input.placeholder = wa ? '+60 12 345 6789' : 'you@example.com';
+      input.autocomplete = wa ? 'tel' : 'email';
+      label.textContent = wa ? 'WhatsApp number' : 'Email address';
+    });
+  })();
+  var session = Store.session();
+  var KEY = 'lawgistics.academy.' + (session ? session.email : 'guest');
+
+  var progress = {};
+  try { progress = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(progress)); } catch (e) {}
+  }
+
+  var levels = Store.list('academyLevels', { sort: 'level' });
+  var tracks = Store.list('learnTracks');
+
+  function lessonsFor(level) {
+    var t = tracks.filter(function (x) { return x.id === level.tracks; })[0];
+    if (!t) return { track: null, lessons: [] };
+    return { track: t, lessons: String(t.lessons || '').split('\n').filter(function (l) { return l.trim(); }) };
+  }
+
+  function levelComplete(levelId) {
+    var lvl = levels.filter(function (l) { return l.id === levelId; })[0];
+    if (!lvl) return false;
+    var info = lessonsFor(lvl);
+    if (!info.lessons.length) return false;
+    return info.lessons.every(function (_, i) { return progress[levelId + ':' + i]; });
+  }
+
+  function doneCount() {
+    return Object.keys(progress).filter(function (k) { return progress[k]; }).length;
+  }
+  function xp() { return doneCount() * 10; }
+
+  function currentLevel() {
+    var cur = levels[0];
+    levels.forEach(function (l) { if (xp() >= Number(l.xpRequired)) cur = l; });
+    return cur;
+  }
+
+  function paintProgress() {
+    var signedIn = !!session;
+    document.querySelector('[data-signed-in]').style.display = signedIn ? 'block' : 'none';
+    document.querySelector('[data-signed-out]').style.display = signedIn ? 'none' : 'block';
+    if (!signedIn) return;
+
+    var cur = currentLevel();
+    var next = levels.filter(function (l) { return Number(l.xpRequired) > xp(); })[0];
+    document.querySelector('[data-current-badge]').textContent = cur.level;
+    document.querySelector('[data-current-level]').textContent = 'Level ' + cur.level + ', ' + cur.name;
+    document.querySelector('[data-xp]').textContent = xp();
+    document.querySelector('[data-done-count]').textContent = doneCount();
+    document.querySelector('[data-next-msg]').textContent = next
+      ? (Number(next.xpRequired) - xp()) + ' XP to Level ' + next.level + ' (' + next.name + ')'
+      : 'Top level reached, nicely done';
+    var span = next ? Math.min(100, Math.round((xp() / Number(next.xpRequired)) * 100)) : 100;
+    document.querySelector('[data-xp-bar]').style.width = span + '%';
+  }
+
+  function paintLevels() {
+    var cur = currentLevel();
+    document.querySelector('[data-levels]').innerHTML = levels.map(function (l) {
+      var info = lessonsFor(l);
+      // Oral advocacy is open practice, reachable at any level, not gated on XP.
+      var openPractice = info.track && info.track.id === 'lt6';
+      var unlocked = openPractice || xp() >= Number(l.xpRequired);
+      var allDone = info.lessons.length > 0 && info.lessons.every(function (_, i) { return progress[l.id + ':' + i]; });
+      var cls = !unlocked ? ' is-locked' : (allDone ? ' is-done' : (l.id === cur.id ? ' is-current' : ''));
+      var body = info.lessons.map(function (les, i) {
+        var key = l.id + ':' + i;
+        var on = !!progress[key];
+        return '<li class="' + (on ? 'is-done' : '') + '">' +
+          '<input class="lesson-check" type="checkbox" data-lesson="' + esc(key) + '"' +
+            (on ? ' checked' : '') + (unlocked ? '' : ' disabled') + '>' +
+          '<span>' + esc(les.trim()) + '</span></li>';
+      }).join('');
+      return '<div class="level-card' + cls + '">' +
+        '<span class="level-badge">' + (allDone ? '✓' : l.level) + '</span>' +
+        '<div><h3>' + esc(l.name) + (info.track && info.track.status === 'draft' ? ' <span class="tag">Coming soon</span>' : '') + '</h3>' +
+          '<p>' + esc(l.blurb) + '</p>' +
+          (info.track ? '<p style="font-size:.8rem;margin-top:6px">' + esc(info.track.audience) + ' · ' + esc(info.track.duration) + '</p>' : '') +
+          (unlocked ? '<ul class="lesson-list">' + body + '</ul>'
+                    : '<p style="font-size:.83rem;margin-top:8px"><b>Locked</b>, reach ' + esc(String(l.xpRequired)) + ' XP to unlock.</p>') +
+          (openPractice
+            ? '<p style="font-size:.8rem;margin:8px 0 0">Open practice, have a go at any level.</p>' +
+              '<a class="btn btn--primary btn--sm" style="margin-top:10px" href="advocacy.html">Practise oral advocacy →</a>' : '') +
+        '</div></div>';
+    }).join('');
+
+    document.querySelectorAll('[data-lesson]').forEach(function (cb) {
+      cb.addEventListener('change', function () {
+        var key = cb.getAttribute('data-lesson');
+        var levelId = key.split(':')[0];
+        var wasComplete = levelComplete(levelId);
+        progress[key] = cb.checked;
+        save();
+        paintProgress();
+        paintLevels();
+        // Just crossed the finish line on a level? Tell the automation.
+        if (!wasComplete && cb.checked && levelComplete(levelId)) {
+          var lvl = levels.filter(function (l) { return l.id === levelId; })[0];
+          if (lvl && session) {
+            Store.notify('academy', {
+              name: session.name || session.email, email: session.email,
+              level: lvl.level, levelName: lvl.name, xp: xp()
+            });
+          }
+        }
+      });
+    });
+  }
+
+  paintProgress();
+  paintLevels();
+};
+</script>
+</body>
+</html>

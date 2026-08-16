@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create your document, Lawgistics</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f4f1ea'/%3E%3Ctext x='27' y='44' font-family='Georgia,serif' font-weight='700' font-size='38' fill='%231a1f28' text-anchor='middle'%3EL%3C/text%3E%3Ccircle cx='47' cy='41' r='5' fill='%232d4a75'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#f4f1ea">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Lawgistics">
+<meta property="og:title" content="Create your document, Lawgistics">
+<meta property="og:image" content="https://lawgistics.my/assets/img/og.png">
+<meta property="og:description" content="Answer guided questions, by typing or by voice, sign, and download a lawyer-drafted Malaysian legal document.">
+<meta property="og:url" content="https://lawgistics.my/create.html">
+<meta name="twitter:card" content="summary">
+<meta name="description" content="Answer guided questions, by typing or by voice, sign, and download a lawyer-drafted Malaysian legal document.">
+<link rel="canonical" href="https://lawgistics.my/create.html">
+<link rel="stylesheet" href="assets/css/site.css">
+<link rel="stylesheet" href="assets/css/create.css">
+</head>
+<body data-requires-auth>
+
+<header data-header></header>
+
+<main>
+  <div class="wrap wizard">
+
+    <!-- ======================================================= questions -->
+    <div class="wiz-panel">
+      <p style="margin-bottom:14px"><a class="link-arrow" href="documents.html" data-back>All templates</a></p>
+      <h1 style="font-size:clamp(1.5rem,2.6vw,2rem)" data-doc-title>Create your document</h1>
+      <p style="font-size:.92rem;margin-bottom:18px" data-doc-desc></p>
+
+      <div class="wiz-progress"><span data-progress style="width:0%"></span></div>
+      <div class="wiz-steps" data-steps></div>
+
+      <div class="wiz-card">
+        <h2 data-step-title></h2>
+        <form id="wiz-form" novalidate data-fields></form>
+        <div class="wiz-nav">
+          <button class="btn btn--ghost" type="button" data-prev>Back</button>
+          <button class="btn btn--primary" type="button" data-next>Continue</button>
+        </div>
+      </div>
+
+      <p class="form-note" style="margin-top:14px">Answers save automatically on this device. Nothing is sent anywhere until you submit.</p>
+    </div>
+
+    <!-- ========================================================= preview -->
+    <div class="preview-pane">
+      <div class="stale-banner" data-stale>
+        <span>You changed answers after editing the text. Regenerating rebuilds the document from your answers and discards manual edits.</span>
+        <button class="btn btn--sm btn--ghost" type="button" data-regen>Regenerate</button>
+      </div>
+
+      <div class="preview-bar">
+        <strong style="font-size:.9rem;color:var(--ink)">Live preview</strong>
+        <span class="edit-badge" data-edit-badge>Manually edited</span>
+        <span class="spacer"></span>
+        <button class="btn btn--sm btn--ghost" type="button" data-edit-toggle>Edit text</button>
+        <button class="btn btn--sm btn--ghost" type="button" data-review-req>Request lawyer review</button>
+        <button class="btn btn--sm btn--ghost" type="button" data-print>Print / PDF</button>
+        <button class="btn btn--sm btn--primary" type="button" data-word>Download Word</button>
+      </div>
+
+      <div class="paper-wrap is-locked">
+        <div class="paper" data-paper aria-label="Document preview"></div>
+        <div class="lock-overlay">
+          <div class="lock-card">
+            <div class="lock-card__icon">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8.5" width="12" height="8.5" rx="2"/><path d="M6.8 8.5V6a3.2 3.2 0 1 1 6.4 0v2.5"/></svg>
+            </div>
+            <h3>Your document is drafting live</h3>
+            <p>The preview updates as you answer. Complete the steps, sign, and submit to unlock the full document, <strong data-price>RM 149</strong> one-time.</p>
+            <button class="btn btn--primary" type="button" data-unlock-shortcut>Unlock now</button>
+            <p class="form-note">Includes unlimited editing, Word + PDF export, and encrypted storage.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ============================================================ modals -->
+<div class="modal-scrim" data-modal="confirm">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Submit this document">
+    <h3>Submit this document?</h3>
+    <p>Please confirm you want to submit. You can still go back and review your answers before paying.</p>
+    <div class="btn-row" style="justify-content:flex-end">
+      <button class="btn btn--ghost" type="button" data-modal-close>Cancel</button>
+      <button class="btn btn--primary" type="button" data-confirm-yes>Yes, submit</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-scrim" data-modal="checkout">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Unlock your document">
+    <h3>Unlock your document</h3>
+    <p><strong data-price>RM 149</strong> one-time, no subscription. Includes lawyer-verified drafting, unlimited editing, Word and PDF export, and encrypted storage.</p>
+    <p style="font-size:.85rem"><strong>14-day money-back guarantee</strong>, if the document doesn't fit, we refund it.</p>
+    <p class="form-note">Demo build, payment isn't wired up yet, so this simulates a successful payment.</p>
+    <div class="btn-row" style="justify-content:flex-end">
+      <button class="btn btn--ghost" type="button" data-modal-close>Cancel</button>
+      <button class="btn btn--primary" type="button" data-pay>Simulate payment</button>
+    </div>
+  </div>
+</div>
+
+<footer data-footer></footer>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/site.js"></script>
+<script src="assets/js/doclib.js"></script>
+<script src="assets/js/create.js"></script>
+</body>
+</html>

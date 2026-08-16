@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Civil court pack, debt recovery, Lawgistics</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f4f1ea'/%3E%3Ctext x='27' y='44' font-family='Georgia,serif' font-weight='700' font-size='38' fill='%231a1f28' text-anchor='middle'%3EL%3C/text%3E%3Ccircle cx='47' cy='41' r='5' fill='%232d4a75'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#f4f1ea">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Lawgistics">
+<meta property="og:title" content="Civil court pack, debt recovery, Lawgistics">
+<meta property="og:image" content="https://lawgistics.my/assets/img/og.png">
+<meta property="og:description" content="Answer a guided interview about an unpaid debt and generate a Malaysian Magistrates Court writ of summons, statement of claim, witness statement, chronology and indexed bundle of documents.">
+<meta property="og:url" content="https://lawgistics.my/courtpack.html">
+<meta name="twitter:card" content="summary">
+<meta name="description" content="Answer a guided interview about an unpaid debt and generate a Malaysian Magistrates Court writ of summons, statement of claim, witness statement, chronology and indexed bundle of documents.">
+<link rel="canonical" href="https://lawgistics.my/courtpack.html">
+<link rel="stylesheet" href="assets/css/site.css">
+<link rel="stylesheet" href="assets/css/create.css">
+<link rel="stylesheet" href="assets/css/litigation.css">
+</head>
+<body>
+
+<header data-header></header>
+
+<main>
+  <div class="wrap lit">
+
+    <!-- ===================================================== interview -->
+    <div class="lit-panel">
+      <p style="margin-bottom:14px"><a class="link-arrow" href="documents.html" data-back>All templates</a></p>
+      <h1 style="font-size:clamp(1.5rem,2.6vw,2rem)">Court pack, debt recovery</h1>
+      <p style="font-size:.92rem;margin-bottom:18px">For legal practitioners: a complete debt-recovery filing set for the Magistrates, Sessions and High Courts, drafted as you answer. Upload the client\'s documents and the pleadings, witness statement and bundle assemble themselves.</p>
+
+      <div class="chat-card">
+        <div class="chat-progress"><span data-progress style="width:0%"></span></div>
+        <div class="chat-log" data-log aria-live="polite"></div>
+        <div class="chat-dock" data-dock></div>
+      </div>
+
+      <p class="form-note" style="margin-top:14px">Answers save automatically on this device. If you use the AI reader, the text and any file you attach are sent to our AI provider to extract the details, and are not used to train their models. Skip to the guided questions if you would rather nothing left this device.</p>
+    </div>
+
+    <!-- ======================================================= preview -->
+    <div class="preview-pane">
+      <div class="stale-banner" data-stale>
+        <span>You changed answers after editing the text. Regenerating rebuilds this document from your answers and discards manual edits.</span>
+        <button class="btn btn--sm btn--ghost" type="button" data-regen>Regenerate</button>
+      </div>
+
+      <div class="lit-tabs-row">
+        <span class="lit-tabs-label">Viewing</span>
+        <div class="lit-tabs" data-tabs role="tablist" aria-label="Switch document"></div>
+      </div>
+
+      <div class="paper-bar">
+        <span class="edit-badge" data-edit-badge>Manually edited</span>
+        <span class="spacer"></span>
+        <button class="btn btn--sm btn--ghost paper-bar__btn" type="button" data-edit-toggle title="Edit the text of this document directly">
+          <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 3.5 16.5 6.5 7 16H4v-3z"/></svg>
+          <span data-edit-label>Edit text</span></button>
+        <button class="btn btn--sm btn--ghost paper-bar__btn" type="button" data-print title="Print this document or save it as PDF">
+          <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7V3h10v4M5 13H3V7h14v6h-2M5 11h10v6H5z"/></svg>
+          Print / PDF</button>
+        <button class="btn btn--sm btn--ghost paper-bar__btn" type="button" data-word title="Download this document as a Word file">
+          <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v9m0 0 3.5-3.5M10 12 6.5 8.5M4 16h12"/></svg>
+          This document</button>
+        <button class="btn btn--sm btn--primary paper-bar__btn" type="button" data-pack title="Every document in one Word file, each starting on a fresh page">
+          <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v9m0 0 3.5-3.5M10 11 6.5 7.5M3 14h14M3 17h14"/></svg>
+          Full pack</button>
+      </div>
+
+      <div class="paper paper--attached" data-paper aria-label="Document preview"></div>
+    </div>
+
+  </div>
+</main>
+
+<footer data-footer></footer>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/site.js"></script>
+<script src="assets/js/litlib.js"></script>
+<script>
+window.pageInit = function () {
+  'use strict';
+  var esc = window.lgEsc;
+  var LIT = window.LG_LIT;
+  var rm = LIT.rm;
+
+  document.querySelector('[data-back]').insertAdjacentHTML('afterbegin',
+    '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 7h-9M6 3.5 2.5 7 6 10.5"/></svg>');
+
+  /* ------------------------------------------------------------ state -- */
+
+  var SAVE_KEY = 'lawgistics.courtpack.v1';
+  var state = {
+    i: 0,
+    answers: { invoices: [], payments: [], docs: [] },
+    edited: {},          // per-tab manual edits: {claim: html, ...}
+    staleTabs: {},       // tabs whose edits predate an answer change
+    done: false,
+    tab: 'claim',
+    editing: null,       // FLOW index being jump-edited via its chat bubble
+    pending: null        // FLOW index currently awaiting an answer
+  };
+  try {
+    var saved = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
+    if (saved) {
+      state.answers = saved.answers || state.answers;
+      state.answers.invoices = state.answers.invoices || [];
+      state.answers.payments = state.answers.payments || [];
+      state.answers.docs = state.answers.docs || [];
+      state.edited = saved.edited || {};
+      state.staleTabs = saved.staleTabs || {};
+      state.done = !!saved.done;
+    }
+  } catch (e) {}
+
+  /* Client-intake handoff: #import=<base64 answers> pre-loads a matter
+     submitted through the client intake, ready for the lawyer's review. */
+  try {
+    var mImp = location.hash.match(/#import=([A-Za-z0-9\-_=]+)/);
+    if (mImp) {
+      var imported = JSON.parse(decodeURIComponent(escape(atob(
+        mImp[1].replace(/-/g, '+').replace(/_/g, '/')))));
+      if (imported && typeof imported === 'object' && (imported.pName || imported.dName)) {
+        state.answers = Object.assign({ invoices: [], payments: [], docs: [] }, imported);
+        state.answers.stage = imported.stage || 'claim';
+        state.edited = {};
+        state.staleTabs = {};
+        state.done = false;
+        state.imported = true;
+        history.replaceState(null, '', location.pathname);
+      }
+    }
+  } catch (e) {}
+
+  function save() {
+    try {
+      var a = JSON.parse(JSON.stringify(state.answers));
+      // File payloads are kept in memory only, quota, and they re-attach fast.
+      (a.docs || []).forEach(function (d) { delete d.dataUrl; });
+      localStorage.setItem(SAVE_KEY, JSON.stringify({ answers: a, edited: state.edited, staleTabs: state.staleTabs, done: state.done }));
+    } catch (e) {}
+    try {
+      // Mirror a lightweight draft record so the customer dashboard lists it.
+      var total = 0, answered = 0;
+      FLOW.forEach(function (s) {
+        if (!s.input || s.review) return;
+        if (s.when && !s.when()) return;
+        total++;
+        if (stepAnswered(s)) answered++;
+      });
+      localStorage.setItem('lawgistics.draft.court-pack-debt-recovery', JSON.stringify({
+        courtpack: true, answers: { courtpack: true },
+        total: total, answered: answered, unlocked: state.done
+      }));
+    } catch (e) {}
+  }
+
+  /* ------------------------------------------------------------- flow -- */
+
+  var A = function () { return state.answers; };
+  var isCo = function (t) { return t !== 'individual'; };
+
+  var FLOW = [
+    { bot: function () {
+        return (A().dName || A().debtAmount)
+          ? 'First, the plaintiff, your client.'
+          : 'First, the plaintiff, your client.';
+      }, key: 'plaintiff',
+      input: { type: 'group', fields: [
+        { key: 'pName', label: 'Plaintiff (your client)', type: 'text', placeholder: 'e.g. Harbour Trading Sdn Bhd' },
+        { key: 'pType', label: 'The plaintiff is', type: 'select', options: [['company', 'A company'], ['individual', 'An individual']] },
+        { key: 'pRegNo', label: 'Plaintiff\'s SSM no. / NRIC', type: 'text', placeholder: 'optional, can add later', optional: true },
+        { key: 'pAddress', label: 'Plaintiff\'s address', type: 'textarea' },
+        { key: 'pBusiness', label: 'Nature of the plaintiff\'s business', type: 'text', placeholder: 'e.g. supply of building materials', optional: true }
+      ] },
+      fmt: function () { return A().pName; } },
+
+    { bot: 'The defendant. Use the name exactly as it appears on the invoices or contract; an SSM search confirms the registered number and address for service before filing.', key: 'defendant',
+      input: { type: 'group', fields: [
+        { key: 'dName', label: 'Defendant', type: 'text' },
+        { key: 'dType', label: 'The defendant is', type: 'select', options: [['company', 'A company'], ['individual', 'An individual']] },
+        { key: 'dRegNo', label: 'Defendant\'s SSM no. / NRIC', type: 'text', placeholder: 'optional, can add later', optional: true },
+        { key: 'dAddress', label: 'Defendant\'s address for service', type: 'textarea', placeholder: 'for a company, the SSM registered address' }
+      ] },
+      fmt: function () { return A().dName; } },
+
+    { bot: 'The quantum: total outstanding as at today, in RM?', key: 'debtAmount', input: { type: 'number', placeholder: 'e.g. 48500' },
+      fmt: function (v) { return rm(v); } },
+    { bot: function () {
+        var v = Number(A().debtAmount);
+        return v > 1000000
+          ? 'That exceeds RM 1 million, beyond the Sessions Court limit. The action lies in the <strong>High Court</strong>. The pack is the same in form; every caption and the indorsement on the Writ will be drawn for the High Court.'
+          : 'That is above RM 100,000, beyond the Magistrates Court limit. The action lies in the <strong>Sessions Court</strong> (up to RM 1 million). The pack is the same in form; every caption and the indorsement on the Writ will be drawn for the Sessions Court.';
+      },
+      when: function () { return Number(A().debtAmount) > 100000; }, warn: true },
+    { bot: function () { return 'Noted, ' + rm(A().debtAmount) + '. As this is RM 5,000 or less, you could also use the <strong>small claims procedure</strong> (Order 93, Form 198) and represent yourself without a lawyer. I\'ll draft the full pack anyway; it works for both.'; },
+      when: function () { var v = Number(A().debtAmount); return v > 0 && v <= 5000; } },
+    { bot: function () { return 'Noted, ' + rm(A().debtAmount) + '. That is within the Magistrates Court civil jurisdiction (up to RM 100,000).'; },
+      when: function () { var v = Number(A().debtAmount); return v > 5000 && v <= 100000; } },
+
+    { bot: 'Is the debt supported by invoices?', key: 'hasInvoices', input: { type: 'yesno' } },
+    { bot: 'Please list the unpaid invoices: number, date and amount. The particulars table will be prepared as they are entered.', key: 'invoices', input: { type: 'invoices' },
+      when: function () { return A().hasInvoices === 'yes'; },
+      fmt: function (v) { var t = v.reduce(function (s, i) { return s + (Number(i.amount) || 0); }, 0); return v.length + ' invoice' + (v.length === 1 ? '' : 's') + ' totalling ' + rm(t); } },
+    { bot: 'What were the payment terms on those invoices? The claim pleads when the money actually fell due.', key: 'creditDays',
+      input: { type: 'select', options: [['0', 'Due on presentation'], ['7', '7 days'], ['14', '14 days'], ['30', '30 days'], ['60', '60 days']] },
+      when: function () { return A().hasInvoices === 'yes'; },
+      fmt: function (v) { return v === '0' ? 'Due on presentation' : v + ' days'; } },
+    { bot: 'Without invoices the claim needs another footing. How is the amount recorded or agreed, a signed contract sum, a statement of account, an acknowledgment of debt?', key: 'basisNoInvoice', input: { type: 'textarea' },
+      when: function () { return A().hasInvoices !== 'yes'; } },
+
+    { bot: function () { return (A().hasInvoices === 'yes' ? 'Are the invoices connected to a purchase order or contract?' : 'Is the debt connected to a purchase order or contract?') + ' This ties the debt to a bargain the defendant made.'; },
+      key: 'linkType', input: { type: 'select', options: [['contract', 'Written contract'], ['po', 'Purchase order'], ['quotation', 'Accepted quotation'], ['oral', 'Oral agreement only'], ['none', 'None of these']] } },
+    { bot: 'The details of that agreement:', key: 'linkDetails',
+      when: function () { return A().linkType && A().linkType !== 'none'; },
+      input: { type: 'group', fields: function () {
+        var t = A().linkType;
+        var f = [];
+        if (t !== 'oral') f.push({ key: 'linkRef', label: 'Reference number', type: 'text', placeholder: 'e.g. PO-2026-0142', optional: true });
+        f.push({ key: 'linkDate', label: { contract: 'Date signed', po: 'Date issued', quotation: 'Date accepted', oral: 'Rough date agreed' }[t] || 'Date', type: 'date' });
+        f.push({ key: 'linkDesc', label: 'What did you agree to supply or do?', type: 'textarea', placeholder: 'e.g. supply and deliver ready-mixed concrete to the defendant\'s project site at…' });
+        return f;
+      } },
+      fmt: function () { return (A().linkRef ? A().linkRef + ' · ' : '') + LIT.fmtDate(A().linkDate); } },
+    { bot: 'What did you supply, in one or two lines?', key: 'linkDesc', input: { type: 'textarea', placeholder: 'e.g. supply and deliver ready-mixed concrete to the defendant\'s project site at…' },
+      when: function () { return A().linkType === 'none'; } },
+    { bot: 'Was this goods, services, or both?', key: 'subject', input: { type: 'select', options: [['goods', 'Goods'], ['services', 'Services'], ['both', 'Both']] } },
+
+    { bot: 'Was performance completed without complaint from the defendant? If any complaint was raised, state it now: it determines what is pleaded and what is reserved for a Reply.', key: 'performed',
+      input: { type: 'select', options: [['yes', 'Yes, no complaints'], ['complaints', 'They raised complaints']] } },
+    { bot: 'Tell me about the complaint, dealing with it upfront is far stronger than hoping it never comes up.', key: 'complaints',
+      when: function () { return A().performed === 'complaints'; },
+      input: { type: 'group', fields: [
+        { key: 'complaintsDesc', label: 'What did they complain about?', type: 'textarea' },
+        { key: 'complaintsResponse', label: 'How did you deal with it?', type: 'textarea', optional: true }
+      ] },
+      fmt: function () { return 'Complaint explained'; } },
+    { bot: 'Noted. The complaint will not be pleaded in the Statement of Claim: a plaintiff does not anticipate the defence. A draft <strong>Reply</strong> will instead be prepared and held in reserve. If the Defence raises the complaint, the Reply is filed together with the proof of resolution. Please upload that proof (sign-off, replacement delivery order, correspondence) at the documents step.',
+      when: function () { return A().performed === 'complaints'; } },
+
+    { bot: 'Did you give them any discount or credit/debit note, for example because part of the work wasn\'t fully done? Claiming the honest net amount makes the claim watertight.', key: 'hasCreditNote', input: { type: 'yesno' } },
+    { bot: 'The credit note:', key: 'creditNote',
+      when: function () { return A().hasCreditNote === 'yes'; },
+      input: { type: 'group', fields: [
+        { key: 'creditNoteAmount', label: 'Reduction amount (RM)', type: 'number' },
+        { key: 'creditNoteDate', label: 'Dated', type: 'date' },
+        { key: 'creditNoteRef', label: 'Credit note no.', type: 'text', optional: true },
+        { key: 'creditNoteReason', label: 'What was it for?', type: 'text', placeholder: 'e.g. shortfall in the April delivery', optional: true }
+      ] },
+      fmt: function () { return 'Credit note: ' + rm(A().creditNoteAmount); } },
+
+    { bot: 'Has the defendant made any payments, whether of earlier invoices or part of the present sum? Payment history is relevant evidence of the course of dealing.', key: 'priorPayments', input: { type: 'yesno' } },
+    { bot: 'List the payments they made, date, amount, and what it was for.', key: 'payments', input: { type: 'payments' },
+      when: function () { return A().priorPayments === 'yes'; },
+      fmt: function (v) { var t = v.reduce(function (s, p) { return s + (Number(p.amount) || 0); }, 0); return v.length + ' payment' + (v.length === 1 ? '' : 's') + ' totalling ' + rm(t); } },
+
+    { bot: 'Have you sent a letter of demand?', key: 'lodSent', input: { type: 'yesno' } },
+    { bot: 'The demand:', key: 'lodDetails',
+      when: function () { return A().lodSent === 'yes'; },
+      input: { type: 'group', fields: [
+        { key: 'lodDate', label: 'Dated', type: 'date' },
+        { key: 'lodMode', label: 'Sent by', type: 'select', options: [['registered post', 'Registered post'], ['hand delivery', 'Hand delivery'], ['email', 'Email'], ['courier', 'Courier']] }
+      ] },
+      fmt: function () { return LIT.fmtDate(A().lodDate) + ' · ' + A().lodMode; } },
+    { bot: 'Filing without a letter of demand is permissible, but a demand frequently produces payment without proceedings. If the client has not issued one, the <a href="create.html?template=letter-of-demand" target="_blank">Letter of Demand template</a> is available.',
+      when: function () { return A().lodSent === 'no'; }, warn: true },
+
+    { bot: 'Interest: do your terms give you a contractual late-payment rate, or should the claim use the statutory 5% per annum (Civil Law Act 1956)?', key: 'interest',
+      input: { type: 'select', options: [['statutory', 'Statutory 5%'], ['contractual', 'Contractual rate']] } },
+    { bot: 'What rate, in % per annum?', key: 'contractualRate', input: { type: 'number', placeholder: 'e.g. 8' },
+      when: function () { return A().interest === 'contractual'; },
+      fmt: function (v) { return v + '% p.a.'; } },
+
+    { bot: function () {
+        var lvl = LIT.courtLevelFor(A().debtAmount);
+        var why = lvl === 'magistrates'
+          ? 'On the quantum pleaded the claim falls within the <strong>Magistrates Court</strong> (up to RM 100,000).'
+          : lvl === 'sessions'
+            ? 'On the quantum pleaded the claim falls within the <strong>Sessions Court</strong> (above RM 100,000 and up to RM 1 million).'
+            : 'On the quantum pleaded the claim exceeds RM 1 million and falls within the <strong>High Court</strong>.';
+        return why + ' Every caption and the indorsement on the Writ will be drawn accordingly. Confirm the forum and the location, ordinarily where the defendant resides or where the cause of action arose.';
+      }, key: 'court',
+      input: { type: 'group', fields: [
+        { key: 'courtLevel', label: 'Court', type: 'select', options: [
+          ['magistrates', 'Magistrates Court'], ['sessions', 'Sessions Court'], ['high', 'High Court']
+        ], preset: function () { return LIT.courtLevelFor(A().debtAmount); } },
+        { key: 'courtTown', label: 'Town', type: 'text', placeholder: 'e.g. Shah Alam' },
+        { key: 'courtState', label: 'State', type: 'select', options: LIT.STATES.map(function (s) { return [s, s]; }) }
+      ] },
+      fmt: function () { return LIT.court(A()).en + ' at ' + A().courtTown + ', ' + A().courtState; } },
+
+    { bot: 'The client\'s witness, ordinarily a director or the officer who handled the account. They will be SP-1, and the witness statement drafts in their voice.', key: 'witness',
+      input: { type: 'group', fields: [
+        { key: 'witnessName', label: 'Full name', type: 'text' },
+        { key: 'witnessNric', label: 'NRIC number', type: 'text', optional: true },
+        { key: 'witnessRole', label: 'Position', type: 'text', placeholder: 'e.g. Director' }
+      ] },
+      fmt: function () { return A().witnessName + ' (' + A().witnessRole + ')'; } },
+
+    { bot: 'Finally, the supporting documents. Upload the contract or purchase order, the unpaid invoices, delivery orders or proof of work done, payment records, and the letter of demand. Photographs and PDFs are accepted. The documents will be sorted by date, paginated, and cited across the pleadings.', key: 'docs', input: { type: 'files' },
+      fmt: function (v) { return v.length + ' document' + (v.length === 1 ? '' : 's') + ' attached'; } },
+
+    { review: true }
+  ];
+
+  /* ---------------------------------------------------- JID mini-flow -- */
+  /* Stage 2: the writ was served and the defendant never responded. Short
+     interview → Judgment in Default + Affidavit of Service. */
+
+  var JID_FLOW = [
+    { bot: 'Judgment in default. Please provide the parties exactly as they appear on the sealed Writ.', key: 'plaintiff',
+      input: { type: 'group', fields: [
+        { key: 'pName', label: 'Plaintiff (your client)', type: 'text' },
+        { key: 'pType', label: 'The plaintiff is', type: 'select', options: [['company', 'A company'], ['individual', 'An individual']] },
+        { key: 'pRegNo', label: 'Your SSM / NRIC no.', type: 'text', optional: true },
+        { key: 'pAddress', label: 'Your address', type: 'textarea' }
+      ] },
+      fmt: function () { return A().pName; } },
+    { bot: 'And the defendant:', key: 'defendant',
+      input: { type: 'group', fields: [
+        { key: 'dName', label: 'Defendant', type: 'text' },
+        { key: 'dType', label: 'The defendant is', type: 'select', options: [['company', 'A company'], ['individual', 'An individual']] },
+        { key: 'dRegNo', label: 'Their SSM / NRIC no.', type: 'text', optional: true },
+        { key: 'dAddress', label: 'Address where the Writ was served', type: 'textarea' }
+      ] },
+      fmt: function () { return A().dName; } },
+    { bot: 'The suit details, these are on the sealed Writ the court issued.', key: 'suit',
+      input: { type: 'group', fields: [
+        { key: 'suitNo', label: 'Suit / Guaman No.', type: 'text', placeholder: 'e.g. BA-A72NCvC-1234-06/2026' },
+        { key: 'courtLevel', label: 'Court', type: 'select', options: [
+          ['magistrates', 'Magistrates Court'], ['sessions', 'Sessions Court'], ['high', 'High Court']
+        ], preset: function () { return LIT.courtLevelFor(A().debtAmount); } },
+        { key: 'courtTown', label: 'Court at', type: 'text', placeholder: 'e.g. Shah Alam' },
+        { key: 'courtState', label: 'State', type: 'select', options: LIT.STATES.map(function (s) { return [s, s]; }) },
+        { key: 'writDate', label: 'Date the Writ was issued', type: 'date' }
+      ] },
+      fmt: function () { return A().suitNo; } },
+    { bot: 'How much is the judgment sum, the amount claimed in the Statement of Claim?', key: 'debtAmount',
+      input: { type: 'number', placeholder: 'e.g. 48500' },
+      fmt: function (v) { return rm(v); } },
+    { bot: 'Service of the Writ:', key: 'service',
+      input: { type: 'group', fields: [
+        { key: 'serviceDate', label: 'Date served on the defendant', type: 'date' },
+        { key: 'serviceMode', label: 'How it was served', type: 'select',
+          options: [['personal service', 'Personal / hand delivery'], ['registered post', 'Registered post (A.R.)'], ['court bailiff', 'Court bailiff'], ['substituted service', 'Substituted service (by court order)']] }
+      ] },
+      fmt: function () { return LIT.fmtDate(A().serviceDate) + ' · ' + A().serviceMode; } },
+    { bot: 'Did the defendant enter an appearance (respond to the court) at all? If they appeared but never filed a Defence, the judgment is in default of <em>defence</em> instead of <em>appearance</em>.', key: 'appearanceEntered',
+      input: { type: 'select', options: [['no', 'No, total silence'], ['yes', 'They appeared, but filed no Defence']] } },
+    { bot: 'Who actually served the Writ (they\'ll affirm the Affidavit of Service before a Commissioner for Oaths)?', key: 'server',
+      input: { type: 'group', fields: [
+        { key: 'serverName', label: 'Full name', type: 'text' },
+        { key: 'serverNric', label: 'NRIC no.', type: 'text', optional: true },
+        { key: 'serverRole', label: 'Position (e.g. Director, despatch clerk)', type: 'text', optional: true }
+      ] },
+      fmt: function () { return A().serverName; } },
+    { bot: 'Fixed costs to include, if you know the scale amount (skippable, the court fills the blank otherwise).', key: 'costsAmount',
+      input: { type: 'number', placeholder: 'e.g. 300' }, skippable: true,
+      fmt: function (v) { return rm(v); } },
+    { review: true }
+  ];
+
+
+  /* ------------------------------------- Order 14 mini-flow -- */
+  /* Stage 3: the Defendant entered appearance but has no real defence.
+     Order 14 is the standard fast route on a liquidated demand. */
+
+  var SJ_FLOW = [
+    { bot: 'Summary judgment under Order 14. This is available once the Defendant has entered appearance and the claim is a liquidated demand. Please provide the parties exactly as they appear on the sealed Writ.', key: 'plaintiff',
+      input: { type: 'group', fields: [
+        { key: 'pName', label: 'Plaintiff (your client)', type: 'text' },
+        { key: 'pType', label: 'The plaintiff is', type: 'select', options: [['company', 'A company'], ['individual', 'An individual']] },
+        { key: 'pRegNo', label: 'SSM / NRIC no.', type: 'text', optional: true },
+        { key: 'pAddress', label: 'Address', type: 'textarea' }
+      ] },
+      fmt: function () { return A().pName; } },
+    { bot: 'And the defendant:', key: 'defendant',
+      input: { type: 'group', fields: [
+        { key: 'dName', label: 'Defendant', type: 'text' },
+        { key: 'dType', label: 'The defendant is', type: 'select', options: [['company', 'A company'], ['individual', 'An individual']] },
+        { key: 'dRegNo', label: 'SSM / NRIC no.', type: 'text', optional: true },
+        { key: 'dAddress', label: 'Address', type: 'textarea' }
+      ] },
+      fmt: function () { return A().dName; } },
+    { bot: 'The suit details, from the sealed Writ.', key: 'suit',
+      input: { type: 'group', fields: [
+        { key: 'suitNo', label: 'Suit / Guaman No.', type: 'text', placeholder: 'e.g. BA-A72NCvC-1234-06/2026' },
+        { key: 'courtLevel', label: 'Court', type: 'select', options: [
+          ['magistrates', 'Magistrates Court'], ['sessions', 'Sessions Court'], ['high', 'High Court']
+        ], preset: function () { return LIT.courtLevelFor(A().debtAmount); } },
+        { key: 'courtTown', label: 'Court at', type: 'text', placeholder: 'e.g. Shah Alam' },
+        { key: 'courtState', label: 'State', type: 'select', options: LIT.STATES.map(function (s) { return [s, s]; }) },
+        { key: 'writDate', label: 'Date the Writ was filed', type: 'date' },
+        { key: 'serviceDate', label: 'Date served on the Defendant', type: 'date' },
+        { key: 'appearanceDate', label: 'Date the Defendant entered appearance', type: 'date' }
+      ] },
+      fmt: function () { return A().suitNo; } },
+    { bot: 'The sum claimed, as pleaded in the Statement of Claim.', key: 'debtAmount',
+      input: { type: 'number', placeholder: 'e.g. 48500' },
+      fmt: function (v) { return rm(v); } },
+    { bot: 'What was supplied?', key: 'subject',
+      input: { type: 'select', options: [['goods', 'Goods'], ['services', 'Services'], ['both', 'Goods and services']] } },
+    { bot: 'The invoices relied upon. These are exhibited to the Affidavit in Support.', key: 'invoices',
+      input: { type: 'invoices' },
+      fmt: function (v) { return v.length + ' invoice' + (v.length === 1 ? '' : 's'); } },
+    { bot: 'Was a letter of demand issued before the Writ?', key: 'lodSent',
+      input: { type: 'yesno' } },
+    { bot: 'Date of the letter of demand.', key: 'lodDate', input: { type: 'date' },
+      when: function () { return A().lodSent === 'yes'; },
+      fmt: function (v) { return LIT.fmtDate(v); } },
+    { bot: 'Has the Defendant made any part payment? Part payment is ordinarily an acknowledgement of the debt and assists the application.', key: 'priorPayments',
+      input: { type: 'yesno' } },
+    { bot: 'Interest claimed:', key: 'interest',
+      input: { type: 'select', options: [['statutory', 'Statutory 5% under s.11 Civil Law Act 1956'], ['contractual', 'Contractual rate']] } },
+    { bot: 'What rate, in % per annum?', key: 'contractualRate', input: { type: 'number', placeholder: 'e.g. 8' },
+      when: function () { return A().interest === 'contractual'; },
+      fmt: function (v) { return v + '% p.a.'; } },
+    { bot: 'Who affirms the Affidavit in Support? Ordinarily a director or the officer who handled the account.', key: 'witness',
+      input: { type: 'group', fields: [
+        { key: 'witnessName', label: 'Full name', type: 'text' },
+        { key: 'witnessNric', label: 'NRIC no.', type: 'text', optional: true },
+        { key: 'witnessRole', label: 'Position', type: 'text', placeholder: 'e.g. Director' }
+      ] },
+      fmt: function () { return A().witnessName + ' (' + A().witnessRole + ')'; } },
+    { review: true }
+  ];
+
+  var CLAIM_FLOW = FLOW;
+  var CLAIM_TABS = null;   // assigned after TABS is defined
+  var JID_TABS = [
+    ['jid', 'Judgment in Default', true],
+    ['affidavit', 'Affidavit of Service', true]
+  ];
+  var SJ_TABS = [
+    ['sjsummons', 'Summons in Chambers', true],
+    ['sjaffidavit', 'Affidavit in Support', true]
+  ];
+  var OFF_CLAIM = ['jid', 'affidavit', 'sjsummons', 'sjaffidavit'];
+
+  function setStage(stage) {
+    state.answers.stage = stage;
+    if (stage === 'jid') {
+      FLOW = JID_FLOW;
+      TABS = JID_TABS;
+      if (['jid', 'affidavit'].indexOf(state.tab) === -1) state.tab = 'jid';
+    } else if (stage === 'sj') {
+      FLOW = SJ_FLOW;
+      TABS = SJ_TABS;
+      if (['sjsummons', 'sjaffidavit'].indexOf(state.tab) === -1) state.tab = 'sjsummons';
+    } else {
+      FLOW = CLAIM_FLOW;
+      TABS = CLAIM_TABS;
+      if (OFF_CLAIM.indexOf(state.tab) !== -1) state.tab = 'claim';
+    }
+  }
+
+  /* ------------------------------------------------------------- chat -- */
+
+  var log = document.querySelector('[data-log]');
+  var dock = document.querySelector('[data-dock]');
+  var progress = document.querySelector('[data-progress]');
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var activeRec = null;
+
+  function scrollLog() { log.scrollTop = log.scrollHeight; }
+
+  function addBot(html, warn, instant) {
+    var b = document.createElement('div');
+    b.className = 'msg msg--bot' + (warn ? ' msg--warn' : '');
+    if (instant) { b.innerHTML = html; log.appendChild(b); scrollLog(); return; }
+    var t = document.createElement('div');
+    t.className = 'msg msg--bot msg--typing';
+    t.innerHTML = '<span></span><span></span><span></span>';
+    log.appendChild(t); scrollLog();
+    setTimeout(function () { t.remove(); b.innerHTML = html; log.appendChild(b); scrollLog(); }, 220);
+  }
+
+  function addUser(text, stepIdx) {
+    var u = document.createElement('div');
+    u.className = 'msg msg--user';
+    if (stepIdx !== undefined && stepIdx !== null) {
+      u.className += ' msg--editable';
+      u.setAttribute('data-step', stepIdx);
+      u.title = 'Click to change this answer';
+    }
+    u.textContent = text;
+    log.appendChild(u); scrollLog();
+    return u;
+  }
+
+  /* Click any of your own answers to change just that one. */
+  log.addEventListener('click', function (e) {
+    var b = e.target.closest('.msg--user[data-step]');
+    if (!b) return;
+    editStep(Number(b.getAttribute('data-step')));
+  });
+
+  function editStep(idx) {
+    var step = FLOW[idx];
+    if (!step || !step.input) return;
+    state.editing = idx;
+    buildDock(step);
+  }
+
+  /* First applicable question that still has no answer (branch changes can
+     open up questions that were never asked). */
+  function firstUnanswered() {
+    for (var i = 0; i < FLOW.length; i++) {
+      var s = FLOW[i];
+      if (!s.input || s.review) continue;
+      if (s.when && !s.when()) continue;
+      if (s.skippable) continue;
+      if (s.input.type === 'group') {
+        var fields = typeof s.input.fields === 'function' ? s.input.fields() : s.input.fields;
+        var missing = fields.some(function (f) {
+          return !f.optional && !String(state.answers[f.key] == null ? '' : state.answers[f.key]).trim();
+        });
+        if (missing) return i;
+      } else if (s.input.type === 'invoices' || s.input.type === 'payments') {
+        if (!(state.answers[s.key] || []).length) return i;
+      } else if (s.input.type === 'files') {
+        continue; // an empty bundle is a valid answer
+      } else if (s.key) {
+        var v = state.answers[s.key];
+        if (v === undefined || v === null || String(v).trim() === '') return i;
+      }
+    }
+    return -1;
+  }
+
+  function applicable() {
+    return FLOW.filter(function (s) { return !s.when || s.when(); });
+  }
+  function setProgress() {
+    var steps = applicable();
+    var idx = steps.indexOf(FLOW[state.i]);
+    if (idx < 0) idx = 0;
+    progress.style.width = Math.round((idx / Math.max(steps.length - 1, 1)) * 100) + '%';
+  }
+
+  function botText(step) {
+    return typeof step.bot === 'function' ? step.bot() : step.bot;
+  }
+
+  function attachMic(input) {
+    if (!SR) return '';
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'mic-btn' + (input.tagName === 'TEXTAREA' ? ' for-textarea' : '');
+    btn.setAttribute('aria-label', 'Answer by voice');
+    btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2.5" width="6" height="10" rx="3"/><path d="M4.5 9.5a5.5 5.5 0 0 0 11 0M10 15v2.5"/></svg>';
+    btn.addEventListener('click', function () {
+      if (activeRec) { activeRec.stop(); return; }
+      var rec = new SR();
+      rec.lang = 'en-US';
+      rec.interimResults = true;
+      rec.continuous = input.tagName === 'TEXTAREA';
+      var base = input.value ? input.value.replace(/\s+$/, '') + ' ' : '';
+      activeRec = rec;
+      btn.classList.add('is-listening');
+      rec.onresult = function (e) {
+        var text = '';
+        for (var i = 0; i < e.results.length; i++) text += e.results[i][0].transcript;
+        input.value = base + text.trim();
+      };
+      var done = function () { activeRec = null; btn.classList.remove('is-listening'); };
+      rec.onend = done;
+      rec.onerror = done;
+      rec.start();
+    });
+    return btn;
+  }
+
+  var SEND_SVG = '<svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h13M11.5 5.5 16 10l-4.5 4.5"/></svg>';
+
+  function applyValue(step, value) {
+    if (step.input && step.input.type === 'group') {
+      Object.keys(value).forEach(function (k) { state.answers[k] = value[k]; });
+    } else if (step.key) {
+      state.answers[step.key] = value;
+    }
+    if (step.input && step.input.type === 'files') state.answers.docsDone = true;
+    Object.keys(state.edited).forEach(function (k) {
+      if (state.edited[k]) state.staleTabs[k] = true;
+    });
+  }
+
+  function answer(step, value, bubble) {
+    if (state.editing !== null && state.editing !== undefined) {
+      var idx = state.editing;
+      state.editing = null;
+      applyValue(step, value);
+      var old = log.querySelector('.msg--user[data-step="' + idx + '"]');
+      if (old) old.textContent = bubble;
+      save();
+      renderPreview();
+      var miss = state.done ? firstUnanswered() : -1;
+      if (miss !== -1) {
+        // The change opened questions that were never asked, resume there.
+        state.done = false;
+        state.i = miss;
+        addBot('That changes things a little, a couple of quick follow-ups:');
+        advance();
+      } else if (state.done) {
+        addBot('Updated, the documents on the right are redrafted.', false, true);
+        reviewDock();
+      } else if (state.pending !== null && state.pending !== undefined) {
+        buildDock(FLOW[state.pending]);   // back to the question you were on
+      } else {
+        dock.innerHTML = '';
+      }
+      return;
+    }
+    applyValue(step, value);
+    if (bubble) addUser(bubble, FLOW.indexOf(step));
+    save();
+    renderPreview();
+    advance();
+  }
+
+  function skipLink(step) {
+    if (!step.skippable) return '';
+    var b = document.createElement('button');
+    b.className = 'chat-skip';
+    b.type = 'button';
+    b.textContent = 'Skip, I\'ll fill this in later';
+    b.addEventListener('click', function () { answer(step, state.answers[step.key] || '', 'Skipped for now'); });
+    return b;
+  }
+
+  function buildDock(step) {
+    dockInner(step);
+    if (state.editing !== null && state.editing !== undefined) {
+      var cancel = document.createElement('button');
+      cancel.type = 'button';
+      cancel.className = 'chat-skip';
+      cancel.textContent = 'Cancel, keep my old answer';
+      cancel.addEventListener('click', function () {
+        state.editing = null;
+        if (state.done) reviewDock();
+        else if (state.pending !== null && state.pending !== undefined) buildDock(FLOW[state.pending]);
+        else dock.innerHTML = '';
+      });
+      dock.appendChild(cancel);
+    }
+    appendTypedRow(step);
+  }
+
+  /* "…or just type it", on any button/form question, the user can answer in
+     free text instead; Claude maps it onto whichever fields it answers. */
+  function appendTypedRow(step) {
+    if (!AI.enabled || !step || !step.input) return;
+    if (state.answers.stage !== 'claim') return;   // extraction schema covers the claim flow only
+    if (['select', 'yesno', 'group', 'invoices', 'payments', 'files'].indexOf(step.input.type) === -1) return;
+    var hint = document.createElement('p');
+    hint.className = 'chat-typed-hint';
+    hint.textContent = '…or just type your answer:';
+    var row = document.createElement('div');
+    row.className = 'chat-row';
+    row.style.marginTop = '4px';
+    var f = document.createElement('input');
+    f.className = 'input';
+    f.placeholder = 'In your own words';
+    var send = document.createElement('button');
+    send.type = 'button';
+    send.className = 'chat-send';
+    send.setAttribute('aria-label', 'Send typed answer');
+    send.innerHTML = SEND_SVG;
+    var submit = function () {
+      var v = f.value.trim();
+      if (!v) { f.focus({ preventScroll: true }); return; }
+      handleTyped(step, v);
+    };
+    send.addEventListener('click', submit);
+    f.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); submit(); } });
+    row.appendChild(f);
+    var mic = attachMic(f);
+    if (mic) row.appendChild(mic);
+    row.appendChild(send);
+    dock.appendChild(hint);
+    dock.appendChild(row);
+  }
+
+  function handleTyped(step, text) {
+    var wasEditing = state.editing;
+    var pendingIdx = wasEditing !== null && wasEditing !== undefined ? wasEditing : state.pending;
+    addUser(text, pendingIdx);
+    dock.innerHTML = '';
+    addBot('One moment…');
+    var q = step ? String(typeof step.bot === 'function' ? step.bot() : step.bot).replace(/<[^>]+>/g, '') : '';
+    var ctx = (q ? 'The intake question currently being asked is: "' + q + '". ' : '') +
+      'The user answered in free text below, extract the fields this answers, plus any other facts mentioned.\n\n' + text;
+    AI.extract(ctx).then(function (raw) {
+      var n = AI.apply(raw);
+      save();
+      renderPreview();
+      if (!n) {
+        addBot('I couldn\'t match that to the question, mind using the buttons above, or rephrasing?', true);
+        if (step) buildDock(step); else reviewDock();
+        return;
+      }
+      state.editing = null;
+      if (state.done) {
+        var miss = firstUnanswered();
+        if (miss !== -1) { state.done = false; state.i = miss; advance(true); }
+        else { addBot('Updated, the documents are redrafted.', false, true); reviewDock(); }
+        return;
+      }
+      state.i = state.pending !== null && state.pending !== undefined ? state.pending : state.i;
+      advance(true);
+    }).catch(function () {
+      addBot('I couldn\'t reach the assistant just now, use the buttons above instead.', true);
+      if (step) buildDock(step); else reviewDock();
+    });
+  }
+
+  function dockInner(step) {
+    dock.innerHTML = '';
+    var inp = step.input;
+    if (!inp) return;
+    var prev = step.key ? state.answers[step.key] : undefined;
+
+    if (inp.type === 'group') {
+      var fields = typeof inp.fields === 'function' ? inp.fields() : inp.fields;
+      var form = document.createElement('div');
+      form.className = 'mini-form';
+      var inputsMap = {};
+      fields.forEach(function (f) {
+        var wrap = document.createElement('div');
+        wrap.className = 'group-field';
+        var lab = document.createElement('label');
+        lab.textContent = f.label + (f.optional ? ' (optional)' : '');
+        wrap.appendChild(lab);
+        var el;
+        if (f.type === 'select') {
+          el = document.createElement('select');
+          el.className = 'select';
+          f.options.forEach(function (o) {
+            var op = document.createElement('option');
+            op.value = o[0]; op.textContent = o[1];
+            el.appendChild(op);
+          });
+          var pv0 = state.answers[f.key];
+          if (pv0 == null || pv0 === '') pv0 = f.preset ? f.preset() : null;
+          if (pv0 != null && pv0 !== '') el.value = pv0;
+        } else {
+          if (f.type === 'textarea') {
+            el = document.createElement('textarea');
+            el.className = 'textarea';
+            el.style.minHeight = '56px';
+          } else {
+            el = document.createElement('input');
+            el.className = 'input';
+            el.type = f.type === 'number' ? 'number' : f.type === 'date' ? 'date' : 'text';
+          }
+          el.placeholder = f.placeholder || '';
+          var pv = state.answers[f.key];
+          if (pv != null) el.value = pv;
+        }
+        inputsMap[f.key] = el;
+        wrap.appendChild(el);
+        form.appendChild(wrap);
+      });
+      var go = document.createElement('button');
+      go.type = 'button';
+      go.className = 'btn btn--primary btn--sm';
+      go.style.marginTop = '4px';
+      go.textContent = 'Continue';
+      go.addEventListener('click', function () {
+        var vals = {}, firstBad = null;
+        fields.forEach(function (f) {
+          var v = String(inputsMap[f.key].value == null ? '' : inputsMap[f.key].value).trim();
+          vals[f.key] = v;
+          inputsMap[f.key].classList.remove('is-missing');
+          if (!f.optional && !v && !firstBad) firstBad = inputsMap[f.key];
+        });
+        if (firstBad) { firstBad.classList.add('is-missing'); firstBad.focus({ preventScroll: true }); return; }
+        // Apply before computing the bubble, group fmt() reads state.answers.
+        Object.keys(vals).forEach(function (k) { state.answers[k] = vals[k]; });
+        var bubble = step.fmt ? step.fmt(vals) : 'Done';
+        answer(step, vals, bubble);
+      });
+      form.appendChild(go);
+      dock.appendChild(form);
+      var ff = fields[0] && inputsMap[fields[0].key];
+      if (ff) ff.focus({ preventScroll: true });
+      return;
+    }
+
+    if (inp.type === 'yesno' || inp.type === 'select') {
+      var chips = document.createElement('div');
+      chips.className = 'chat-chips';
+      var options = inp.type === 'yesno' ? [['yes', 'Yes'], ['no', 'No']] : inp.options;
+      options.forEach(function (o) {
+        var c = document.createElement('button');
+        c.type = 'button';
+        c.className = 'chat-chip' + (prev !== undefined && String(prev) === o[0] ? ' is-prev' : '');
+        c.textContent = o[1];
+        c.addEventListener('click', function () { answer(step, o[0], o[1]); });
+        chips.appendChild(c);
+      });
+      dock.appendChild(chips);
+      return;
+    }
+
+    if (inp.type === 'text' || inp.type === 'number' || inp.type === 'date' || inp.type === 'textarea') {
+      var row = document.createElement('div');
+      row.className = 'chat-row';
+      var field;
+      if (inp.type === 'textarea') {
+        field = document.createElement('textarea');
+        field.className = 'textarea';
+      } else {
+        field = document.createElement('input');
+        field.className = 'input';
+        field.type = inp.type === 'number' ? 'number' : inp.type === 'date' ? 'date' : 'text';
+      }
+      field.placeholder = inp.placeholder || '';
+      if (prev !== undefined && prev !== null) field.value = prev;
+      var send = document.createElement('button');
+      send.type = 'button';
+      send.className = 'chat-send';
+      send.setAttribute('aria-label', 'Send answer');
+      send.innerHTML = SEND_SVG;
+      var submit = function () {
+        var v = field.value.trim();
+        if (!v) { field.focus(); return; }
+        if (inp.type === 'number') v = v.replace(/[^\d.]/g, '');
+        var bubble = step.fmt ? step.fmt(v) : v;
+        answer(step, v, bubble);
+      };
+      send.addEventListener('click', submit);
+      field.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && (inp.type !== 'textarea' || e.metaKey || e.ctrlKey)) { e.preventDefault(); submit(); }
+      });
+      row.appendChild(field);
+      if (inp.type === 'text' || inp.type === 'textarea') {
+        var mic = attachMic(field);
+        if (mic) row.appendChild(mic);
+      }
+      row.appendChild(send);
+      dock.appendChild(row);
+      var sk = skipLink(step);
+      if (sk) dock.appendChild(sk);
+      field.focus({ preventScroll: true });
+      return;
+    }
+
+    if (inp.type === 'invoices' || inp.type === 'payments') {
+      buildRepeatDock(step, inp.type);
+      return;
+    }
+    if (inp.type === 'files') { buildFilesDock(step); return; }
+  }
+
+  /* Repeatable rows: invoices and payments. */
+  function buildRepeatDock(step, kind) {
+    var rows = (state.answers[kind] || []).slice();
+    var isInv = kind === 'invoices';
+    dock.innerHTML = '';
+
+    var list = document.createElement('div');
+    list.className = 'mini-list';
+    var form = document.createElement('div');
+    form.className = 'mini-form';
+
+    function redrawList() {
+      list.innerHTML = rows.map(function (r, i) {
+        var label = isInv
+          ? (r.no || 'Invoice') + ' · ' + (r.date || 'no date') + ' · ' + rm(r.amount)
+          : rm(r.amount) + ' · ' + (r.date || 'no date') + (r.ref ? ' · ' + esc(r.ref) : '');
+        return '<div class="mini-item"><span>' + label + '</span><button type="button" data-del="' + i + '" aria-label="Remove">&times;</button></div>';
+      }).join('');
+    }
+    list.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-del]');
+      if (!b) return;
+      rows.splice(Number(b.getAttribute('data-del')), 1);
+      redrawList();
+    });
+
+    var f1 = document.createElement('input');
+    f1.className = 'input';
+    f1.placeholder = isInv ? 'Invoice no. (e.g. INV-1041)' : 'What was it for? (e.g. part payment of INV-1041)';
+    var f2 = document.createElement('input'); f2.className = 'input'; f2.type = 'date';
+    var f3 = document.createElement('input'); f3.className = 'input'; f3.type = 'number'; f3.placeholder = 'Amount (RM)';
+    if (isInv) {
+      var f4 = document.createElement('input'); f4.className = 'input'; f4.placeholder = 'What was it for? (optional)';
+    }
+    var row2 = document.createElement('div');
+    row2.className = 'row2';
+    row2.appendChild(f2); row2.appendChild(f3);
+    form.appendChild(f1); form.appendChild(row2);
+    if (isInv) form.appendChild(f4);
+
+    var actions = document.createElement('div');
+    actions.className = 'mini-actions';
+    var addBtn = document.createElement('button');
+    addBtn.type = 'button'; addBtn.className = 'btn btn--ghost btn--sm'; addBtn.textContent = isInv ? 'Add invoice' : 'Add payment';
+    var doneBtn = document.createElement('button');
+    doneBtn.type = 'button'; doneBtn.className = 'btn btn--primary btn--sm';
+    var syncDone = function () {
+      doneBtn.textContent = rows.length ? 'Done, ' + rows.length + ' added' : 'Done';
+      doneBtn.disabled = !rows.length;
+    };
+    addBtn.addEventListener('click', function () {
+      if (!f3.value && !f1.value) { f1.focus(); return; }
+      rows.push(isInv
+        ? { no: f1.value.trim(), date: f2.value, amount: f3.value, desc: f4.value.trim() }
+        : { ref: f1.value.trim(), date: f2.value, amount: f3.value });
+      f1.value = f2.value = f3.value = '';
+      if (isInv) f4.value = '';
+      redrawList(); syncDone(); f1.focus({ preventScroll: true });
+    });
+    doneBtn.addEventListener('click', function () {
+      var bubble = step.fmt ? step.fmt(rows) : rows.length + ' added';
+      answer(step, rows, bubble);
+    });
+    actions.appendChild(addBtn); actions.appendChild(doneBtn);
+
+    redrawList(); syncDone();
+    dock.appendChild(list); dock.appendChild(form); dock.appendChild(actions);
+    f1.focus({ preventScroll: true });
+  }
+
+  /* Document upload + labelling. */
+  function buildFilesDock(step) {
+    var docs = state.answers.docs || [];
+    dock.innerHTML = '';
+
+    var list = document.createElement('div');
+    list.className = 'mini-list';
+    list.style.maxHeight = '210px';
+
+    var drop = document.createElement('div');
+    drop.className = 'file-drop';
+    drop.innerHTML = 'Drop files here or <strong>click to browse</strong><br><span style="font-size:.78rem">images and PDFs · sent to our AI provider to read, never used for training</span>';
+    var picker = document.createElement('input');
+    picker.type = 'file';
+    picker.multiple = true;
+    picker.accept = 'image/*,.pdf';
+    picker.style.display = 'none';
+
+    function redraw() {
+      list.innerHTML = '';
+      docs.forEach(function (d, i) {
+        var card = document.createElement('div');
+        card.className = 'file-card';
+        card.innerHTML =
+          '<div class="file-card__name"><span>' + esc(d.name) +
+            (d.oversize ? ' <em style="color:var(--haze)">(over 8&nbsp;MB, listed in the index, insert a printed copy)</em>'
+                        : d.dataUrl ? '' : ' <em style="color:var(--haze)">(re-attach to embed)</em>') +
+          '</span><button type="button" data-del aria-label="Remove">&times;</button></div>' +
+          '<select class="select" data-f="category" aria-label="Document category">' + LIT.DOC_CATS.map(function (c) {
+            return '<option value="' + c[0] + '"' + (d.category === c[0] ? ' selected' : '') + '>' + c[1] + '</option>';
+          }).join('') + '</select>' +
+          '<div class="row2"><input class="input" type="date" data-f="date" aria-label="Document date" value="' + esc(d.date || '') + '">' +
+          '<input class="input" type="number" min="1" data-f="pages" aria-label="Number of pages" value="' + esc(d.pages || 1) + '" title="Number of pages"></div>' +
+          '<input class="input" data-f="desc" aria-label="Document description" placeholder="Describe it, e.g. Invoice INV-1041" value="' + esc(d.desc || '') + '">';
+        card.querySelector('[data-del]').addEventListener('click', function () { docs.splice(i, 1); redraw(); });
+        card.querySelectorAll('[data-f]').forEach(function (el) {
+          el.addEventListener('change', function () { d[el.getAttribute('data-f')] = el.value; });
+          el.addEventListener('input', function () { d[el.getAttribute('data-f')] = el.value; });
+        });
+        list.appendChild(card);
+      });
+      doneBtn.textContent = docs.length ? 'Done, build my bundle (' + docs.length + ')' : 'No documents yet, continue anyway';
+    }
+
+    function guessCat(name) {
+      var n = name.toLowerCase();
+      if (/inv/.test(n)) return 'invoice';
+      if (/po|purchase|contract|agreement|quot/.test(n)) return 'contract';
+      if (/do\b|delivery|grn/.test(n)) return 'delivery';
+      if (/demand|lod/.test(n)) return 'lod';
+      if (/receipt|payment|slip|bank/.test(n)) return 'payment';
+      if (/statement|soa/.test(n)) return 'soa';
+      return 'other';
+    }
+
+    function addFiles(fileList) {
+      Array.prototype.forEach.call(fileList, function (f) {
+        var d = { id: 'd' + Date.now() + Math.floor(Math.random() * 1e4), name: f.name, mime: f.type, category: guessCat(f.name), date: '', desc: '', pages: 1, dataUrl: null };
+        docs.push(d);
+        var reader = new FileReader();
+        reader.onload = function () { d.dataUrl = reader.result; renderPreview(); };
+        if (f.size <= 8 * 1024 * 1024) reader.readAsDataURL(f);
+        else d.oversize = true;
+      });
+      redraw();
+    }
+
+    drop.addEventListener('click', function () { picker.click(); });
+    picker.addEventListener('change', function () { addFiles(picker.files); picker.value = ''; });
+    drop.addEventListener('dragover', function (e) { e.preventDefault(); drop.classList.add('is-over'); });
+    drop.addEventListener('dragleave', function () { drop.classList.remove('is-over'); });
+    drop.addEventListener('drop', function (e) { e.preventDefault(); drop.classList.remove('is-over'); addFiles(e.dataTransfer.files); });
+
+    var doneBtn = document.createElement('button');
+    doneBtn.type = 'button';
+    doneBtn.className = 'btn btn--primary btn--sm';
+    doneBtn.style.marginTop = '8px';
+    doneBtn.addEventListener('click', function () {
+      var bubble = docs.length ? (step.fmt ? step.fmt(docs) : docs.length + ' attached') : 'No documents for now';
+      answer(step, docs, bubble);
+    });
+
+    dock.appendChild(list);
+    dock.appendChild(drop);
+    dock.appendChild(picker);
+    dock.appendChild(doneBtn);
+    redraw();
+  }
+
+  /* Review step: summary, warnings, and the exits. */
+  function showReview() {
+    state.done = true;
+    save();
+    var a = state.answers;
+    var C = LIT.compute(a);
+
+    if (a.stage === 'jid') {
+      addBot('Done. Two documents on the right, the <strong>Judgment in Default of ' +
+        (a.appearanceEntered === 'yes' ? 'Defence' : 'Appearance') + '</strong> and the <strong>Affidavit of Service</strong>.');
+      addBot('Filing order matters: <strong>1)</strong> ' + (a.serverName || 'your process server') +
+        ' affirms the Affidavit of Service before a Commissioner for Oaths (a few ringgit, any commissioner), <strong>2)</strong> file the affirmed affidavit, <strong>3)</strong> request entry of the judgment at the registry with the draft Judgment. Once sealed, judgment is entered. Enforcement is the next stage; those documents are in preparation on our roadmap.', true);
+      reviewDock();
+      return;
+    }
+
+    if (a.stage === 'sj') {
+      addBot('Done. Two documents on the right, the <strong>Summons in Chambers</strong> and the <strong>Affidavit in Support</strong>, drawn under Order 14 rule 1 of the Rules of Court 2012.');
+      addBot('Filing order: <strong>1)</strong> ' + (a.witnessName || 'the deponent') +
+        ' affirms the Affidavit in Support before a Commissioner for Oaths, exhibiting the Statement of Claim, the invoices and the letter of demand, <strong>2)</strong> file the Summons in Chambers together with the affirmed affidavit, <strong>3)</strong> serve on the Defendant and attend the hearing. ' +
+        'The burden then shifts: the Defendant must show a triable issue or a bona fide defence, failing which final judgment is entered without trial.', true);
+      addBot('<strong>Before you file:</strong> Order 14 is available only where appearance has been entered and the claim is a liquidated demand. It does not apply to claims founded on libel, slander, malicious prosecution, false imprisonment or fraud. Where the Defendant has raised a genuine dispute on the merits, the application will ordinarily be dismissed with costs, and the claim should proceed to trial in the usual way.', true);
+      reviewDock();
+      return;
+    }
+
+    var complaints = a.performed === 'complaints';
+    var html = 'The interview is complete. Your ' + (complaints ? 'six' : 'five') + ' documents are drafted on the right: <strong>Writ of Summons</strong>, <strong>Statement of Claim</strong>, ' +
+      (complaints ? '<strong>Draft Reply</strong>, ' : '') +
+      '<strong>Chronology</strong>, <strong>Witness Statement</strong>, and the <strong>Bundle of Documents</strong> with the index and page numbers cross-referenced. <strong>Download full pack</strong> gives you the lot in one Word file.';
+    addBot(html);
+    if (complaints) {
+      addBot('<strong>On the complaint:</strong> it is deliberately not pleaded in the Statement of Claim; a plaintiff does not argue the defendant\'s case. The <strong>Draft Reply</strong> is held in reserve: if the Defence raises the complaint, file the Reply with the proof of resolution within 14 days of service of the Defence. If the Defence does not raise it, the Reply is not filed.', true);
+    }
+
+    if (C.mismatch) {
+      addBot('<strong>Check your numbers:</strong> your invoices total ' + rm(C.invTotal) + ' and payments total ' + rm(C.payTotal) + ', which leaves ' + rm(C.invTotal - C.payTotal) + ', but you told me the debt is ' + rm(a.debtAmount) + '. Courts notice arithmetic. Edit your answers if one of these is off.', true);
+    }
+    if (C.missing.length) {
+      addBot('<strong>Before filing, your bundle still needs:</strong><br>· ' + C.missing.map(esc).join('<br>· '), true);
+    }
+    addBot('Next steps: <strong>1)</strong> review every page, <strong>click any of your answers above to change it</strong> and the documents redraft instantly, <strong>2)</strong> review the pack with your usual care before filing, <strong>3)</strong> file through <a href="https://efs.kehakiman.gov.my" target="_blank" rel="noopener">e-Filing</a> or at the court registry, and pay the filing fee. The court will issue the Writ and a first case-management date.');
+
+    reviewDock();
+  }
+
+  function reviewDock() {
+    dock.innerHTML = '';
+    var chips = document.createElement('div');
+    chips.className = 'chat-chips';
+    var reset = document.createElement('button');
+    reset.type = 'button'; reset.className = 'chat-chip chat-chip--ghost'; reset.textContent = 'Start over';
+    reset.addEventListener('click', function () {
+      if (!confirm('Clear all answers and documents for this claim?')) return;
+      localStorage.removeItem(SAVE_KEY);
+      location.reload();
+    });
+    chips.appendChild(reset);
+    dock.appendChild(chips);
+    var hint = document.createElement('p');
+    hint.className = 'chat-skip';
+    hint.style.cursor = 'default';
+    hint.style.textDecoration = 'none';
+    hint.textContent = 'To change an answer, click it in the chat above' + (AI.enabled ? ', or type the change below.' : '.');
+    dock.appendChild(hint);
+    if (AI.enabled) {
+      var row = document.createElement('div');
+      row.className = 'chat-row';
+      row.style.marginTop = '6px';
+      var f = document.createElement('input');
+      f.className = 'input';
+      f.placeholder = 'e.g. actually they paid another RM 2,000 last week';
+      var send = document.createElement('button');
+      send.type = 'button';
+      send.className = 'chat-send';
+      send.setAttribute('aria-label', 'Send change');
+      send.innerHTML = SEND_SVG;
+      var submit = function () {
+        var v = f.value.trim();
+        if (!v) return;
+        handleTyped(null, v);
+      };
+      send.addEventListener('click', submit);
+      f.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); submit(); } });
+      row.appendChild(f);
+      var mic = attachMic(f);
+      if (mic) row.appendChild(mic);
+      row.appendChild(send);
+      dock.appendChild(row);
+    }
+    progress.style.width = '100%';
+  }
+
+  function advance(resuming) {
+    // Find the next applicable step from state.i.
+    while (state.i < FLOW.length) {
+      var step = FLOW[state.i];
+      if (step.when && !step.when()) { state.i++; continue; }
+      if (step.review) { state.pending = null; showReview(); return; }
+      if (!step.input) {
+        // Informational bot message, show and continue.
+        addBot(botText(step), step.warn);
+        state.i++;
+        continue;
+      }
+      // Never re-ask what's already answered (jump-edits and reloads resume
+      // past answered questions; the one being asked is always unanswered).
+      if (stepAnswered(step)) { state.i++; continue; }
+      setProgress();
+      state.pending = state.i;
+      addBot(botText(step), step.warn);
+      buildDock(step);
+      state.i++;              // next advance() continues after this step
+      return;
+    }
+    state.pending = null;
+    showReview();
+  }
+
+  /* ---------------------------------------------------------- preview -- */
+
+  var TABS = [
+    ['writ', 'Writ of Summons', true],
+    ['claim', 'Statement of Claim', true],
+    ['reply', 'Draft Reply', true],
+    ['chronology', 'Chronology', true],
+    ['witness', 'Witness Statement', true],
+    ['bundle', 'Bundle of Documents', false]
+  ];
+
+  CLAIM_TABS = TABS;
+
+  /* The draft Reply exists only when the defendant raised complaints. */
+  function tabApplies(key) {
+    return key !== 'reply' || state.answers.performed === 'complaints';
+  }
+  var tabsHost = document.querySelector('[data-tabs]');
+  var paper = document.querySelector('[data-paper]');
+  var staleBanner = document.querySelector('[data-stale]');
+  var editBadge = document.querySelector('[data-edit-badge]');
+  var editToggle = document.querySelector('[data-edit-toggle]');
+
+  function editable() {
+    return (TABS.filter(function (t) { return t[0] === state.tab; })[0] || [])[2];
+  }
+
+  function renderTabs() {
+    var C = LIT.compute(state.answers);
+    if (!tabApplies(state.tab)) state.tab = 'claim';
+    tabsHost.innerHTML = TABS.filter(function (t) { return tabApplies(t[0]); }).map(function (t) {
+      var badge = t[0] === 'bundle' && C.docs.length ? '<span class="badge">' + C.docs.length + '</span>' : '';
+      return '<button class="lit-tab' + (state.tab === t[0] ? ' is-active' : '') + '" type="button" data-tab="' + t[0] + '">' + t[1] + badge + '</button>';
+    }).join('');
+  }
+
+  function renderPreview() {
+    renderTabs();
+    var edited = state.edited[state.tab];
+    if (edited && editable()) {
+      if (paper.innerHTML !== edited) paper.innerHTML = edited;
+      staleBanner.classList.toggle('is-on', !!state.staleTabs[state.tab]);
+      editBadge.classList.add('is-on');
+    } else {
+      var C = LIT.compute(state.answers);
+      paper.innerHTML = LIT.render[state.tab](state.answers, C);
+      staleBanner.classList.remove('is-on');
+      editBadge.classList.remove('is-on');
+    }
+    editToggle.style.display = editable() ? '' : 'none';
+  }
+
+  tabsHost.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-tab]');
+    if (!b) return;
+    if (paper.getAttribute('contenteditable') === 'true') {
+      paper.setAttribute('contenteditable', 'false');
+      editToggle.querySelector('[data-edit-label]').textContent = 'Edit text';
+      state.edited[state.tab] = paper.innerHTML;
+      save();
+    }
+    state.tab = b.getAttribute('data-tab');
+    renderPreview();
+  });
+
+  editToggle.addEventListener('click', function () {
+    if (!editable()) return;
+    var editing = paper.getAttribute('contenteditable') === 'true';
+    if (editing) {
+      paper.setAttribute('contenteditable', 'false');
+      editToggle.querySelector('[data-edit-label]').textContent = 'Edit text';
+      state.edited[state.tab] = paper.innerHTML;
+      save();
+      renderPreview();
+    } else {
+      if (!state.edited[state.tab]) state.edited[state.tab] = paper.innerHTML;
+      paper.setAttribute('contenteditable', 'true');
+      paper.focus();
+      editToggle.querySelector('[data-edit-label]').textContent = 'Done editing';
+      editBadge.classList.add('is-on');
+    }
+  });
+  paper.addEventListener('input', function () {
+    if (paper.getAttribute('contenteditable') === 'true') {
+      state.edited[state.tab] = paper.innerHTML;
+      save();
+    }
+  });
+
+  document.querySelector('[data-regen]').addEventListener('click', function () {
+    if (!confirm('Discard your manual edits to this document and rebuild it from your answers?')) return;
+    state.edited[state.tab] = null;
+    state.staleTabs[state.tab] = false;
+    paper.setAttribute('contenteditable', 'false');
+    editToggle.querySelector('[data-edit-label]').textContent = 'Edit text';
+    save();
+    renderPreview();
+  });
+
+  /* -------------------------------------------------------- downloads -- */
+
+  document.querySelector('[data-print]').addEventListener('click', function () { window.print(); });
+
+  var WORD_CSS =
+    'body{font-family:Georgia,"Times New Roman",serif;font-size:12pt;line-height:1.6;color:#1c2129;max-width:680px;margin:0 auto}' +
+    'h1{font-size:15pt;text-align:center;text-transform:uppercase;letter-spacing:1px}' +
+    'h2{font-size:12pt}' +
+    '.doc__title-en{font-size:11pt;font-weight:600}' +
+    '.doc__court-line{text-align:center;font-weight:bold}' +
+    '.doc__court-between{text-align:center;font-weight:bold}' +
+    '.doc__court-party{width:100%;border-collapse:collapse}' +
+    '.doc__court-party td{vertical-align:bottom;padding:0;border:0}' +
+    '.doc__court-role{font-weight:bold;text-align:right;width:120pt}' +
+    '.doc__para{margin:0 0 10pt}' +
+    '.doc__particulars{margin-left:28pt}' +
+    '.doc__particulars-h{text-align:center;font-weight:bold;text-decoration:underline}' +
+    '.doc__table{width:100%;border-collapse:collapse;font-size:11pt}' +
+    '.doc__table th,.doc__table td{border:1pt solid #1c2129;padding:4pt 8pt;text-align:left;vertical-align:top}' +
+    '.doc__table th{background:#f2efe8}' +
+    '.doc__prayer li{margin-bottom:5pt}' +
+    '.doc__qa{margin-bottom:10pt}.doc__a{margin-left:18pt}' +
+    '.doc__operative{font-weight:bold}' +
+    '.doc__sig-grid{width:100%}.doc__sig{display:inline-block;width:45%;vertical-align:top;margin-right:4%}' +
+    '.doc__sig-line{border-bottom:1pt solid #1c2129;height:40pt;margin-bottom:8pt}' +
+    '.doc__missing{border:1pt solid #ecd9ae;background:#faf3e3;padding:8pt;font-size:10pt}' +
+    '.doc__exhibit{border-top:1pt solid #1c2129;padding-top:6pt;margin-top:10pt}' +
+    '.doc__exhibit-img{max-width:100%}' +
+    '.doc__exhibit-ph{border:1pt dashed #8fa3bf;padding:14pt;text-align:center;font-weight:bold}' +
+    '.doc__wordbreak{page-break-before:always}' +
+    '.doc__notice{font-family:Arial,sans-serif;font-size:8pt;color:#666;border-top:1pt solid #ccc;padding-top:8pt;margin-top:30pt}';
+
+  function downloadDoc(title, bodyHtml) {
+    var docHtml =
+      '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">' +
+      '<head><meta charset="utf-8"><title>' + esc(title) + '</title><style>' + WORD_CSS + '</style></head>' +
+      '<body>' + bodyHtml + '</body></html>';
+    var blob = new Blob(['﻿' + docHtml], { type: 'application/msword' });
+    var link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = title.replace(/[^\w]+/g, '-') + '.doc';
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(function () { URL.revokeObjectURL(link.href); link.remove(); }, 500);
+  }
+
+  /* Current document, using the manual edit if one exists. */
+  function tabHtml(key) {
+    var t = TABS.filter(function (x) { return x[0] === key; })[0];
+    if (t && t[2] && state.edited[key]) return state.edited[key];
+    return LIT.render[key](state.answers, LIT.compute(state.answers));
+  }
+
+  document.querySelector('[data-word]').addEventListener('click', function () {
+    var title = (TABS.filter(function (t) { return t[0] === state.tab; })[0] || [])[1] || 'Document';
+    downloadDoc(title, paper.innerHTML);
+  });
+
+  document.querySelector('[data-pack]').addEventListener('click', function () {
+    // One explicit break between documents, divs carrying page-break CSS
+    // classes confuse Word, which scatters breaks onto inner headings.
+    var body = TABS.filter(function (t) { return tabApplies(t[0]); }).map(function (t) {
+      return '<div>' + tabHtml(t[0]) + '</div>';
+    }).join('<br clear="all" class="doc__wordbreak">');
+    downloadDoc('Court Pack, Debt Recovery', body);
+  });
+
+  /* ------------------------------------------------------------- boot -- */
+
+  /* Rebuild the transcript from saved answers so every answer bubble is
+     clickable again after a reload. */
+  function bubbleFor(step) {
+    var inp = step.input;
+    if (inp.type === 'group') return step.fmt ? step.fmt() : 'Done';
+    var v = state.answers[step.key];
+    if (inp.type === 'yesno') return v === 'yes' ? 'Yes' : 'No';
+    if (inp.type === 'select') {
+      var o = (inp.options || []).filter(function (x) { return x[0] === String(v); })[0];
+      return o ? o[1] : String(v);
+    }
+    if (inp.type === 'invoices' || inp.type === 'payments' || inp.type === 'files') {
+      return step.fmt ? step.fmt(v || []) : (v || []).length + ' added';
+    }
+    return step.fmt ? step.fmt(v) : String(v);
+  }
+
+  function stepAnswered(step) {
+    var inp = step.input;
+    if (!inp) return false;
+    if (inp.type === 'group') {
+      var fields = typeof inp.fields === 'function' ? inp.fields() : inp.fields;
+      return fields.some(function (f) {
+        return String(state.answers[f.key] == null ? '' : state.answers[f.key]).trim();
+      });
+    }
+    var v = state.answers[step.key];
+    // Files count as answered only when the step was completed, an invoice
+    // auto-attached by the AI intake shouldn't skip the "add your documents"
+    // step, it should appear pre-loaded inside it.
+    if (inp.type === 'files') return !!state.answers.docsDone;
+    if (inp.type === 'invoices' || inp.type === 'payments') return (v || []).length > 0;
+    return v !== undefined && v !== null && String(v).trim() !== '';
+  }
+
+  function replayTranscript() {
+    FLOW.forEach(function (step, idx) {
+      if (!step.input || step.review) return;
+      if (step.when && !step.when()) return;
+      if (!stepAnswered(step)) return;
+      addBot(botText(step), step.warn, true);
+      addUser(bubbleFor(step), idx);
+    });
+  }
+
+  /* --------------------------------------------------------- AI intake -- */
+  /* "Tell me the story" step: Claude reads a free-text account of the
+     dispute and pre-fills the structured answers; the interview then asks
+     only what's missing. Served via the dev server's /claude proxy (the API
+     key lives server-side); when no key is configured the step hides itself
+     and the scripted interview runs unchanged. */
+
+  var AI = { enabled: false };
+
+  AI.schema = (function () {
+    // Structured outputs cap union-typed fields at 16, so nothing here is
+    // nullable: every field is a plain string and "" means "not stated".
+    var S = { type: 'string' };
+    var props = {
+      pName: S, pType: S, pRegNo: S, pAddress: S, pBusiness: S,
+      dName: S, dType: S, dRegNo: S, dAddress: S,
+      debtAmount: S, hasInvoices: S, creditDays: S, basisNoInvoice: S,
+      linkType: S, linkRef: S, linkDate: S, linkDesc: S,
+      subject: S, performed: S, complaintsDesc: S, complaintsResponse: S,
+      hasCreditNote: S, creditNoteAmount: S, creditNoteDate: S, creditNoteRef: S, creditNoteReason: S,
+      priorPayments: S, lodSent: S, lodDate: S, lodMode: S,
+      interest: S, contractualRate: S,
+      courtTown: S, courtState: S,
+      witnessName: S, witnessNric: S, witnessRole: S,
+      invoices: { type: 'array', items: { type: 'object', additionalProperties: false,
+        required: ['no', 'date', 'amount', 'desc'],
+        properties: { no: S, date: S, amount: S, desc: S } } },
+      payments: { type: 'array', items: { type: 'object', additionalProperties: false,
+        required: ['ref', 'date', 'amount'],
+        properties: { ref: S, date: S, amount: S } } }
+    };
+    return { type: 'object', additionalProperties: false, required: Object.keys(props), properties: props };
+  })();
+
+  AI.system =
+    'You are an intake assistant for a Malaysian civil debt-recovery claim generator (Magistrates, Sessions and High Courts). ' +
+    'The user describes an unpaid-debt dispute in their own words. Extract ONLY facts they actually state into the JSON schema, never invent, guess, or embellish; use an empty string "" (or [] for the arrays) for anything not stated. ' +
+    'Field rules: dates as YYYY-MM-DD ("" if only a vague date is given, unless a specific month and year allow a defensible first-of-month value, prefer "" when unsure); amounts as plain digits like "48500.00" with no currency symbols or commas; ' +
+    'pType/dType: "company" or "individual" (Sdn Bhd / Bhd / Enterprise names are companies); ' +
+    'hasInvoices, priorPayments, lodSent: "yes" or "no", null if unstated; ' +
+    'creditDays: "0" (due on presentation), "7", "14", "30" or "60"; ' +
+    'linkType: "contract", "po", "quotation", "oral" or "none"; subject: "goods", "services" or "both"; ' +
+    'performed: "yes" (no complaints) or "complaints"; lodMode: "registered post", "hand delivery", "email" or "courier"; ' +
+    'hasCreditNote "yes" plus the creditNote* fields when the user mentions giving a discount, credit note or debit note for incomplete or defective work; ' +
+    'interest: "statutory" or "contractual"; ' +
+    'courtState: one of ' + JSON.stringify(LIT.STATES) + '; ' +
+    'debtAmount: copy the outstanding figure EXACTLY as the user states it, never calculate, derive, or adjust it yourself, even if other numbers in the story suggest a different total. If no outstanding figure is stated but a single unpaid invoice is provided, use that invoice\'s total. ' +
+    'The narrator is typically the solicitor describing the client\'s matter; the plaintiff (p-fields) is the client, the party owed the money. ' +
+    'The input may be an INVOICE DOCUMENT (image or PDF) instead of, or as well as, a narrative. When reading an invoice: the issuing company (letterhead/seller) is the plaintiff and the bill-to/customer is the defendant; extract the invoice number, date, total, payment terms (into creditDays), both parties\' names and addresses, and set hasInvoices to "yes"; describe what was sold in linkDesc and set subject accordingly. Extract only what is legible, never guess at unclear text.';
+
+  AI.ENUMS = {
+    pType: ['company', 'individual'], dType: ['company', 'individual'],
+    hasInvoices: ['yes', 'no'], priorPayments: ['yes', 'no'], lodSent: ['yes', 'no'], hasCreditNote: ['yes', 'no'],
+    creditDays: ['0', '7', '14', '30', '60'],
+    linkType: ['contract', 'po', 'quotation', 'oral', 'none'],
+    subject: ['goods', 'services', 'both'], performed: ['yes', 'complaints'],
+    lodMode: ['registered post', 'hand delivery', 'email', 'courier'],
+    interest: ['statutory', 'contractual'], courtState: LIT.STATES
+  };
+
+  AI.apply = function (raw) {
+    var applied = 0;
+    var money = function (v) {
+      var n = String(v == null ? '' : v).replace(/[^\d.]/g, '');
+      return n && isFinite(Number(n)) && Number(n) > 0 ? n : '';
+    };
+    var setStr = function (k, v) {
+      if (v === null || v === undefined) return;
+      v = String(v).trim();
+      if (k === 'debtAmount' || k === 'contractualRate' || k === 'creditNoteAmount') v = money(v);
+      if (!v) return;
+      if (AI.ENUMS[k] && AI.ENUMS[k].indexOf(v) === -1) return;
+      if (/Date$/.test(k) && !/^\d{4}-\d{2}-\d{2}$/.test(v)) return;
+      state.answers[k] = v;
+      applied++;
+    };
+    Object.keys(AI.schema.properties).forEach(function (k) {
+      if (k === 'invoices' || k === 'payments') return;
+      setStr(k, raw[k]);
+    });
+    var rows = function (arr, map) {
+      return (arr || []).map(map).filter(function (r) { return r.amount || r.no || r.ref; });
+    };
+    var inv = rows(raw.invoices, function (i) {
+      return { no: String(i.no || '').trim(), date: /^\d{4}-\d{2}-\d{2}$/.test(i.date || '') ? i.date : '',
+               amount: money(i.amount), desc: String(i.desc || '').trim() };
+    });
+    if (inv.length) { state.answers.invoices = inv; state.answers.hasInvoices = state.answers.hasInvoices || 'yes'; applied++; }
+    var pay = rows(raw.payments, function (p) {
+      return { ref: String(p.ref || '').trim(), date: /^\d{4}-\d{2}-\d{2}$/.test(p.date || '') ? p.date : '',
+               amount: money(p.amount) };
+    });
+    if (pay.length) { state.answers.payments = pay; state.answers.priorPayments = state.answers.priorPayments || 'yes'; applied++; }
+    return applied;
+  };
+
+  AI.extract = function (content) {   // string, or an array of content blocks
+    return fetch('/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        // Haiku: extraction is simple structured work, and fast matters here,
+        // both for the user staring at the chat and for Netlify's 10s function cap.
+        model: 'claude-haiku-4-5',
+        max_tokens: 4000,
+        output_config: { format: { type: 'json_schema', schema: AI.schema } },
+        system: AI.system,
+        messages: [{ role: 'user', content: content }]
+      })
+    }).then(function (r) {
+      if (!r.ok) throw new Error('proxy ' + r.status);
+      return r.json();
+    }).then(function (resp) {
+      if (resp.stop_reason === 'refusal') throw new Error('refusal');
+      var text = (resp.content || []).filter(function (b) { return b.type === 'text'; })
+        .map(function (b) { return b.text; }).join('');
+      return JSON.parse(text);
+    });
+  };
+
+  function storyDock() {
+    addBot('To begin, <strong>upload the client\'s unpaid invoice</strong> (photograph or PDF) or <strong>set out the facts from your attendance notes</strong>: the parties, the quantum, the consideration, payments received, and steps taken to date. The documents will be drafted from what you provide; only missing matters will be asked. Alternatively, proceed by structured questions below.', false, true);
+    dock.innerHTML = '';
+    var row = document.createElement('div');
+    row.className = 'chat-row';
+    var field = document.createElement('textarea');
+    field.className = 'textarea';
+    field.style.minHeight = '96px';
+    field.placeholder = 'e.g. Client supplied materials to Menara Bina under PO-118. RM 48,500 outstanding, RM 5,000 part payment received, LOD issued by registered post.';
+    row.appendChild(field);
+    var mic = attachMic(field);
+    if (mic) row.appendChild(mic);
+    dock.appendChild(row);
+
+    var attached = null;
+    var picker = document.createElement('input');
+    picker.type = 'file';
+    picker.accept = 'image/*,.pdf';
+    picker.style.display = 'none';
+    var attach = document.createElement('button');
+    attach.type = 'button';
+    attach.className = 'btn btn--ghost btn--sm';
+    attach.textContent = '📎 Upload the invoice';
+    attach.addEventListener('click', function () { picker.click(); });
+    picker.addEventListener('change', function () {
+      var f = picker.files[0];
+      if (!f) return;
+      var reader = new FileReader();
+      reader.onload = function () {
+        attached = { name: f.name, mime: f.type, dataUrl: reader.result };
+        attach.textContent = '📎 ' + f.name + ' ✓';
+      };
+      reader.readAsDataURL(f);
+    });
+
+    var actions = document.createElement('div');
+    actions.className = 'mini-actions';
+    var go = document.createElement('button');
+    go.type = 'button';
+    go.className = 'btn btn--primary btn--sm';
+    go.textContent = 'Draft my claim';
+    var skip = document.createElement('button');
+    skip.type = 'button';
+    skip.className = 'chat-skip';
+    skip.textContent = 'Skip to guided questions';
+    actions.appendChild(attach);
+    actions.appendChild(go);
+    dock.appendChild(actions);
+    dock.appendChild(picker);
+    dock.appendChild(skip);
+
+    skip.addEventListener('click', function () { dock.innerHTML = ''; advance(); });
+    go.addEventListener('click', function () {
+      var story = field.value.trim();
+      if (!story && !attached) { field.focus({ preventScroll: true }); return; }
+      var content;
+      if (attached) {
+        var b64 = String(attached.dataUrl).split(',')[1] || '';
+        var isPdf = attached.mime === 'application/pdf';
+        content = [
+          isPdf ? { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: b64 } }
+                : { type: 'image', source: { type: 'base64', media_type: attached.mime, data: b64 } },
+          { type: 'text', text: story || 'Extract the claim details from this invoice.' }
+        ];
+        addUser(story ? '(uploaded ' + attached.name + ' + note: ' + story.slice(0, 60) + (story.length > 60 ? '…' : '') + ')'
+                      : '(uploaded ' + attached.name + ')');
+      } else {
+        content = story;
+        addUser('(told my story, ' + story.split(/\s+/).length + ' words)');
+      }
+      dock.innerHTML = '';
+      addBot('One moment. Reviewing ' + (attached ? 'the invoice' : 'the account provided') + ' and drafting.');
+      AI.extract(content).then(function (raw) {
+        if (attached) {
+          // The invoice itself becomes Exhibit 1 of the bundle.
+          state.answers.docs = state.answers.docs || [];
+          state.answers.docs.push({
+            id: 'd' + Math.floor(Math.random() * 1e9),
+            name: attached.name, mime: attached.mime, dataUrl: attached.dataUrl,
+            category: 'invoice',
+            date: /^\d{4}-\d{2}-\d{2}$/.test((raw.invoices && raw.invoices[0] || {}).date || '') ? raw.invoices[0].date : '',
+            desc: (raw.invoices && raw.invoices[0] && raw.invoices[0].no) ? 'Invoice No. ' + raw.invoices[0].no : 'Invoice',
+            pages: 1
+          });
+        }
+        return raw;
+      }).then(function (raw) {
+        var n = AI.apply(raw);
+        save();
+        renderPreview();
+        if (!n) {
+          addBot('I read it, but I couldn\'t pin down concrete details yet, let\'s go through the questions together.');
+          advance();
+          return;
+        }
+        addBot('<strong>' + n + ' answer' + (n === 1 ? '' : 's') + '</strong> ' + (n === 1 ? 'has' : 'have') + ' been completed from the account provided, shown below; select any answer to correct it. The remaining questions follow:', false);
+        replayTranscript();
+        var miss = firstUnanswered();
+        state.i = miss === -1 ? FLOW.length : miss;
+        advance(true);
+      }).catch(function () {
+        addBot('I couldn\'t reach the drafting assistant just now, no problem, the guided questions get you the same place.', true);
+        advance();
+      });
+    });
+    field.focus({ preventScroll: true });
+  }
+
+  /* ------------------------------------------------------------- boot -- */
+
+  function stageDock() {
+    addBot('Welcome, counsel. This assistant prepares debt-recovery documents for Malaysian civil claims and settles the forum on the quantum pleaded. Please indicate where the matter stands.', false, true);
+    dock.innerHTML = '';
+    var chips = document.createElement('div');
+    chips.className = 'chat-chips';
+    var opts = [
+      ['claim', 'Commence a claim: Writ and Statement of Claim'],
+      ['jid', 'Defendant in default: enter judgment'],
+      ['sj', 'Appearance entered, no real defence: summary judgment (O.14)'],
+      ['enforce', 'Enforcement of judgment (soon)'],
+      ['defend', 'Defence and counterclaim (soon)']
+    ];
+    opts.forEach(function (o) {
+      var c = document.createElement('button');
+      c.type = 'button';
+      c.className = 'chat-chip' + (o[0] === 'enforce' || o[0] === 'defend' ? ' chat-chip--ghost' : '');
+      c.textContent = o[1];
+      c.addEventListener('click', function () {
+        if (o[0] === 'enforce' || o[0] === 'defend') {
+          addBot('That pack is coming soon, enforcement (statutory demand, winding-up, seizure) and defence are next on the roadmap. For now, pick one of the first two, or <a href="https://lawgistics.my" target="_blank">talk to us</a>.', true);
+          return;
+        }
+        addUser(o[1]);
+        setStage(o[0]);
+        save();
+        renderPreview();
+        var hasAny = Object.keys(state.answers).some(function (k) {
+          return ['invoices', 'payments', 'docs', 'stage'].indexOf(k) === -1 && state.answers[k];
+        });
+        if (hasAny) {
+          replayTranscript();
+          var miss = firstUnanswered();
+          state.i = miss === -1 ? FLOW.length : miss;
+          advance(true);
+        } else if (o[0] === 'claim' && AI.enabled) {
+          storyDock();
+        } else {
+          advance();
+        }
+      });
+      chips.appendChild(c);
+    });
+    dock.appendChild(chips);
+  }
+
+  function boot() {
+    if (state.answers.stage) setStage(state.answers.stage);
+    renderPreview();
+    var hasAnswers = Object.keys(state.answers).some(function (k) {
+      return ['invoices', 'payments', 'docs', 'stage'].indexOf(k) === -1 && state.answers[k];
+    });
+    if (state.done) {
+      addBot('Welcome back, your draft pack is on the right, exactly as you left it. Here\'s what you told me; click any answer to change it.', false, true);
+      replayTranscript();
+      showReview();
+    } else if (state.imported) {
+      addBot('Client intake loaded for review. The client\'s answers appear below; select any answer to amend it, and complete any remaining matters. The draft documents are on the right.', false, true);
+      replayTranscript();
+      var gap = firstUnanswered();
+      state.i = gap === -1 ? FLOW.length : gap;
+      advance(true);
+    } else if (hasAnswers && state.answers.stage) {
+      addBot('Welcome back, picking up where you left off. Click any earlier answer to change it.', false, true);
+      replayTranscript();
+      var miss = firstUnanswered();
+      state.i = miss === -1 ? FLOW.length : miss;
+      advance(true);
+    } else {
+      stageDock();
+    }
+  }
+
+  var booted = false;
+  function startOnce() { if (booted) return; booted = true; boot(); }
+  fetch('/claude/health').then(function (r) { return r.json(); })
+    .then(function (h) { AI.enabled = !!(h && h.enabled); startOnce(); })
+    .catch(startOnce);
+  setTimeout(startOnce, 1500);   // never hang the chat on a slow health check
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/claude/health", "destination": "/api/claude?health=1" },
+    { "source": "/claude", "destination": "/api/claude" },
+    { "source": "/api/public/:path*", "destination": "https://legal-champions-production.up.railway.app/api/public/:path*" },
+    { "source": "/api/:path((?!claude$|public/).*)", "destination": "https://lawgistics.my/api/:path" }
+  ]
+}

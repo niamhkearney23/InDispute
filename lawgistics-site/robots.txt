@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /dashboard.html
+Disallow: /paralegal-workspace.html
+Disallow: /firm-workspace.html
+Disallow: /paralegal-signin.html
+
+Sitemap: https://lawgistics.my/sitemap.xml

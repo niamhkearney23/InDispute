@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Insights, Practical legal guidance for Malaysian businesses | Lawgistics</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f4f1ea'/%3E%3Ctext x='27' y='44' font-family='Georgia,serif' font-weight='700' font-size='38' fill='%231a1f28' text-anchor='middle'%3EL%3C/text%3E%3Ccircle cx='47' cy='41' r='5' fill='%232d4a75'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#f4f1ea">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Lawgistics">
+<meta property="og:title" content="Insights, Practical legal guidance for Malaysian businesses | Lawgistics">
+<meta property="og:image" content="https://lawgistics.my/assets/img/og.png">
+<meta property="og:description" content="Practical legal guidance for Malaysian businesses: contracts, employment compliance, EPF and SOCSO, intellectual property, debt recovery and PDPA.">
+<meta property="og:url" content="https://lawgistics.my/insights.html">
+<meta name="twitter:card" content="summary">
+<meta name="description" content="Practical legal guidance for Malaysian businesses: contracts, employment compliance, EPF and SOCSO, intellectual property, debt recovery and PDPA.">
+<link rel="canonical" href="https://lawgistics.my/insights.html">
+<link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body>
+
+<header data-header></header>
+
+<main>
+
+  <section class="page-head">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal="0">Insights</p>
+      <h1 data-reveal="0">Practical legal guidance for Malaysian businesses</h1>
+      <p class="lede" data-reveal="60">Written by our legal team, for the people who have to make the decision on Monday morning.</p>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="wrap">
+      <div class="tpl-toolbar">
+        <div class="chip-row" data-filters></div>
+        <label style="flex:0 1 300px">
+          <span style="position:absolute;left:-9999px">Search insights</span>
+          <input class="input" type="search" data-search placeholder="Search insights…">
+        </label>
+      </div>
+      <div class="grid grid-3" data-posts></div>
+      <p data-empty style="display:none;padding:48px 0;text-align:center">No articles match that search.</p>
+    </div>
+  </section>
+
+  <section class="section section--ink">
+    <div class="wrap" style="max-width:680px;text-align:center">
+      <h2 data-reveal="0">Subscribe to our newsletter</h2>
+      <p data-reveal="0">Legal updates and practical guides, delivered to your inbox.</p>
+      <form class="subscribe" data-form="newsletter" data-source="Insights page" style="justify-content:center;margin-top:24px" data-reveal="60" novalidate>
+        <label style="position:absolute;left:-9999px" for="ins-email">Email address</label>
+        <input class="input" id="ins-email" type="email" name="email" placeholder="you@company.com" required>
+        <button class="btn btn--light" type="submit">Subscribe</button>
+      </form>
+      <div class="form-status" data-status style="text-align:left;max-width:420px;margin-inline:auto" role="status" aria-live="polite"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer data-footer></footer>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/site.js"></script>
+<script>
+window.pageInit = function () {
+  var I = window.LG_ICON, esc = window.lgEsc;
+  var cats = Store.list('insightCategories', { sort: 'order' });
+  var all = Store.list('insights', { where: { status: 'published' }, sort: 'date', order: 'desc' });
+
+  var state = { cat: 'all', q: '' };
+
+  var filterHost = document.querySelector('[data-filters]');
+  filterHost.innerHTML = '<button class="chip" data-cat="all">All</button>' +
+    cats.map(function (c) { return '<button class="chip" data-cat="' + esc(c.id) + '">' + esc(c.name) + '</button>'; }).join('');
+
+  var grid = document.querySelector('[data-posts]');
+  var empty = document.querySelector('[data-empty]');
+
+  function render() {
+    filterHost.querySelectorAll('.chip').forEach(function (b) {
+      b.classList.toggle('is-active', b.getAttribute('data-cat') === state.cat);
+    });
+
+    var rows = all.filter(function (a) {
+      var okCat = state.cat === 'all' || a.category === state.cat;
+      var hay = (a.title + ' ' + a.excerpt).toLowerCase();
+      return okCat && (!state.q || hay.indexOf(state.q) !== -1);
+    });
+
+    empty.style.display = rows.length ? 'none' : 'block';
+
+    grid.innerHTML = rows.map(function (a, i) {
+      return '<a class="card card--hover post-card" data-reveal="' + Math.min(i * 40, 200) + '" href="article.html?slug=' + esc(a.slug) + '">' +
+        '<div class="post-card__meta"><span class="tag">' + esc(Store.label('insightCategories', a.category)) + '</span>' +
+        '<span>' + window.lgDate(a.date) + '</span><span>·</span><span>' + a.readTime + ' min read</span></div>' +
+        '<h3>' + esc(a.title) + '</h3><p>' + esc(a.excerpt) + '</p>' +
+        '<p class="link-arrow post-card__foot">Read article' + I.arrow + '</p></a>';
+    }).join('');
+
+    if (window.lgReveal) window.lgReveal();
+  }
+
+  filterHost.addEventListener('click', function (e) {
+    var btn = e.target.closest('.chip');
+    if (!btn) return;
+    state.cat = btn.getAttribute('data-cat');
+    render();
+  });
+
+  document.querySelector('[data-search]').addEventListener('input', function (e) {
+    state.q = e.target.value.trim().toLowerCase();
+    render();
+  });
+
+  render();
+};
+</script>
+</body>
+</html>
