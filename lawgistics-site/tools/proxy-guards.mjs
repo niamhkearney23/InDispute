@@ -43,6 +43,22 @@ const cases = [
   ['still allows haiku (courtpack, home page)', post({ ...ok, model: 'claude-haiku-4-5' }), 200],
   ['rejects a foreign origin', post(ok, { origin: 'https://evil.example' }), 403],
   ['rejects a request with no origin', post(ok, {}), 403],
+  // A deployment cannot know its own hostname in advance. Before this, a
+  // Vercel project not named "lawgistics-something" 403'd on every request.
+  ['allows a page served by this same deployment',
+    new Request('https://in-dispute-site-abc123.vercel.app/claude', {
+      method: 'POST',
+      headers: { origin: 'https://in-dispute-site-abc123.vercel.app' },
+      body: JSON.stringify(ok),
+    }), 200],
+  // Same-origin must not become "any origin": a different host is still out,
+  // even when it looks like a neighbouring deployment.
+  ['still rejects a different vercel project',
+    new Request('https://in-dispute-site-abc123.vercel.app/claude', {
+      method: 'POST',
+      headers: { origin: 'https://somebody-elses-app.vercel.app' },
+      body: JSON.stringify(ok),
+    }), 403],
   ['rejects GET', new Request('https://lawgistics.my/claude', { method: 'GET', headers: { origin: 'https://lawgistics.my' } }), 405],
   ['rejects malformed json', new Request('https://lawgistics.my/claude', { method: 'POST', headers: { origin: 'https://lawgistics.my' }, body: '{oops' }), 400],
   ['rejects a body with no messages', post({ model: 'claude-opus-5' }), 400],

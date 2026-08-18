@@ -31,6 +31,9 @@ function hostOf(value) {
 function allowedOrigin(req) {
   const host = hostOf(req.headers.get("origin")) || hostOf(req.headers.get("referer"));
   if (!host) return false;
+  // Same origin, for the reason given in the Vercel twin: a deployment cannot
+  // know its own name in advance, and guessing wrong is a silent 403.
+  if (host.toLowerCase() === new URL(req.url).host.toLowerCase()) return true;
   return ALLOWED_HOSTS.some((re) => re.test(host));
 }
 

@@ -48,6 +48,13 @@ function hostOf(value) {
 function allowedOrigin(req) {
   const host = hostOf(req.headers.origin) || hostOf(req.headers.referer);
   if (!host) return false;
+  // Same origin is the thing we actually mean by "our own pages": the page
+  // calling this function was served by this deployment. The list below is
+  // for the hosts we know by name, but it cannot know what a new deployment
+  // will be called, and a wrong guess is a 403 on every request with nothing
+  // to explain it. This makes the site work wherever it is deployed while
+  // still refusing somebody else's page spending our key.
+  if (host.toLowerCase() === String(req.headers.host || '').toLowerCase()) return true;
   return ALLOWED_HOSTS.some((re) => re.test(host));
 }
 
