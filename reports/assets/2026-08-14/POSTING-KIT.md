@@ -70,7 +70,7 @@ For students: this is one decision attacked from four statutory and common law d
 His business is legal. His bank shut the accounts anyway.
 
 **[0:05]**
-A brothel operator in South Melbourne, banking with Bendigo since 2001. Business accounts and personal accounts, all closed.
+A brothel operator in South Melbourne, running a lawful business since 2001. Company accounts and personal accounts, all closed by Bendigo.
 
 **[0:12]**
 He sued on four grounds. Discrimination, breach of contract, unfair contract terms, and the financial services obligation to act efficiently, honestly and fairly.
