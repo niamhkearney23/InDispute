@@ -93,39 +93,38 @@ def slide(n, kicker, inner, cite="", dark=False, swipe=False):
     (OUT / f"d{n:02d}.html").write_text(html)
 
 slide(1, "A Case Study",
-  '<div class="statement lg">His business is lawful. The bank closed the accounts <em>anyway.</em></div>'
-  '<div class="sub">Supreme Court of Victoria, judgment delivered 14 August 2026.</div>',
+  '<div class="statement lg">His business is legal. The bank closed his accounts <em>anyway.</em></div>'
+  '<div class="sub">Supreme Court of Victoria, 14 August 2026.</div>',
   swipe=True)
 
-slide(2, "The Facts",
-  '<div class="statement md">Gotham City, South Melbourne.</div>'
-  '<div class="body"><p>Franco Puleo and his two companies have operated a lawful brothel there <b>since 2001.</b></p>'
-  '<p>Bendigo and Adelaide Bank closed the business accounts and his personal accounts. The judgment calls it the <b>Exit Decision.</b></p></div>',
+slide(2, "What Happened",
+  '<div class="statement md">A brothel in South Melbourne, running since 2001.</div>'
+  '<div class="body"><p>It is a lawful business. Bendigo and Adelaide Bank closed the company accounts <b>and the owner&rsquo;s personal accounts.</b></p>'
+  '<p>The judgment calls that the Exit Decision.</p></div>',
   cite=C)
 
 slide(3, "The Claim",
-  '<div class="statement md">Four causes of action, in one proceeding.</div>'
-  '<div class="body"><p>Discrimination under the <b>Equal Opportunity Act.</b> Breach of the account terms. An unfair contract term under the <b>ASIC Act.</b> And a failure to act efficiently, honestly and fairly under <b>s 912A</b> of the Corporations Act.</p></div>',
+  '<div class="statement md">He sued the bank <em>four</em> different ways.</div>'
+  '<div class="body"><p>That closing the accounts was discrimination. That it broke the account terms. That the clause letting the bank close them was unfair. And that the bank failed to act <b>efficiently, honestly and fairly.</b></p></div>',
   cite=C)
 
 slide(4, "The Distinction",
-  '<div class="statement md">The trade got him <em>screened.</em> It did not get him <em>closed.</em></div>'
-  '<div class="body"><p>The Court accepted his attributes were a reason of substance for the enhanced due diligence being run on the accounts.</p>'
-  '<p>It found they were <b>not</b> a reason of substance for the decision to close them.</p></div>'
-  '<div class="learn">Learn this: causation is tested at the decision you are challenging, not at the step that led to it.</div>',
+  '<div class="statement md">His industry is why the bank <em>checked</em> him. It is not why the bank <em>closed</em> him.</div>'
+  '<div class="body"><p>The Court agreed his industry was a real reason the bank ran extra checks on the accounts.</p>'
+  '<p>It found it was <b>not</b> a real reason for the decision to close them.</p></div>'
+  '<div class="learn">Learn this: causation is tested at the decision you are challenging, not at the step before it.</div>',
   cite=C)
 
-slide(5, "The Ruling",
-  '<div class="statement md">All four claims dismissed.</div>'
-  '<div class="body"><p>The closure was made on money laundering risk: unusual transactions, a cash intensive business, and large cash withdrawals feeding private ATMs.</p>'
-  '<p>Managing that risk was a <b>legitimate interest</b> the bank was entitled to protect.</p></div>'
-  '<div class="learn">Learn this: a contractual power to act on a risk does not require proof the risk crystallised.</div>',
+slide(5, "The Reason",
+  '<div class="statement md">The accounts were closed over <em>cash.</em></div>'
+  '<div class="body"><p>The Court found the bank acted on money laundering risk: unusual transactions, a cash heavy business, and big cash withdrawals used to fill private ATMs.</p></div>'
+  '<div class="learn">Learn this: the bank did not have to prove money laundering happened. The risk of it was enough.</div>',
   cite=C)
 
-slide(6, "Why It Matters",
-  '<div class="statement md">Debanking is now a <em>litigated</em> subject.</div>'
-  '<div class="body"><p>Equal opportunity, contract, unfair terms and financial services obligations, argued together over one bank decision.</p>'
-  '<p>If you are studying any of the four, this is the case that shows you how they interact.</p></div>',
+slide(6, "The Result",
+  '<div class="statement md">All four claims <em>failed.</em></div>'
+  '<div class="body"><p>One decision, attacked four ways, and none of them landed.</p>'
+  '<p>If you are studying discrimination, contract, unfair terms or financial services law, this is how they fit together.</p></div>',
   dark=True, cite="Summary only. Read the judgment before relying on it. General information only, not legal advice.")
 
 print("ok")

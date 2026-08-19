@@ -24,7 +24,7 @@ Being in the brothel trade was accepted as a reason of substance for the bank ru
 
 That gap between the screening and the exit is where the case was won and lost.
 
-The Court also held that managing money laundering risk was a legitimate interest the bank was entitled to protect under the termination clause, and that the clause did not require the bank to prove that money laundering had actually occurred. It was enough that the bank formed the view, on reasonable grounds, that closing the accounts was reasonably necessary to manage the risk.
+The Court also rejected the argument that the bank had to identify actual money laundering before it could close the accounts. A suspicion that there might be such activity was enough. Her Honour held that the words "we consider it necessary to protect our legitimate interests" in the termination clause set a subjective test: the bank had to form the view that closure was necessary, and it was no part of that clause that closure be objectively necessary as a matter of fact.
 
 Liability was heard separately, so relief never arose. The Court's preliminary view on costs is that they follow the event.
 
@@ -54,7 +54,7 @@ Three points are worth drawing out.
 
 First, causation. Her Honour accepted that the plaintiffs' attributes were a reason of substance for the bank conducting enhanced customer due diligence, because the industry designation as prescribed high risk is what triggered that process. She held they were not a reason of substance for the exit decision itself, which was made on transaction analysis: unusual activity, the cash intensive nature of the business, and large cash withdrawals used to stock private ATMs. Where a protected attribute sits upstream of the decision under challenge, the analysis has to be run at the decision, not at the trigger.
 
-Second, legitimate interests. The termination clause permitted closure where the bank considered it necessary to protect its legitimate interests. Managing money laundering and terrorism financing risk plainly qualified. The clause did not require the bank to identify transactions that actually involved such activity; it was enough that the bank formed the view on reasonable grounds that closure was reasonably necessary to manage the risk, having regard to its obligations under the AML/CTF Act.
+Second, the construction of the termination clause. Her Honour held at [360] that the words "we consider it necessary to protect our legitimate interests" impose a subjective test: the bank must have formed the view that closure was necessary to protect its legitimate interests, and it is no part of that term that closure be reasonably necessary as a matter of fact, objectively ascertained. Separately, at [373], she rejected the contention that actual ML/TF transactions had to be identified before the accounts could be closed; a suspicion that there may be such activity sufficed, having regard to the bank's obligations under ss 36 and 85 of the AML/CTF Act.
 
 Third, the industry designation survived scrutiny. The evidence was that classifying brothels and sex work agencies as prescribed high risk reflected a limited rather than absent risk appetite, consistent with AUSTRAC guidance and the cash intensive character of the sector, and that the bank continued to bank such customers who sat within its risk appetite.
 
@@ -79,7 +79,7 @@ He sued on four grounds. Discrimination, breach of contract, unfair contract ter
 All four failed. And here is why.
 
 **[0:22]**
-His trade was a reason the bank screened him. It was not a reason the bank closed him. That was money laundering risk, cash, and the ATM withdrawals.
+His industry was a reason the bank checked him. It was not a reason the bank closed him. That was money laundering risk, cash, and the ATM withdrawals.
 
 **[0:29]**
 Puleo, 2026, VSC 513.
@@ -99,10 +99,19 @@ Built directly from the judgment text, so the confidence level here is higher th
 | Attributes were a reason of substance for ECDD being conducted | [258] |
 | Attributes were **not** a reason of substance for the Exit Decision | [264], [466(b)] |
 | Exit Decision made on money laundering risk: unusual transactions, cash intensive business, large cash withdrawals for private ATMs | [263], [325] |
-| Managing ML/TF risk is a legitimate interest; no need to prove actual ML/TF, only reasonable grounds that closure was reasonably necessary | [352], [373] |
+| Termination clause imposes a **subjective** test: the bank must have formed the view that closure was necessary; not an objective necessity requirement | [360] |
+| Actual ML/TF transactions did not have to be identified; a suspicion that there may be such activity was enough | [373] |
+| Unfair terms claim rejected | [424] to [425] |
 | All four causes failed, claims dismissed | [467] to [468] |
 | Relief did not arise, liability heard separately | [469] |
 | Costs: preliminary view that costs follow the event, subject to hearing the parties | [470] |
+
+### Corrections made on the third check
+
+Two errors were caught before this went out, both in the first draft of the slides.
+
+1. **A submission was being reported as a finding.** The first version of slide 5 said managing money laundering risk "was a legitimate interest the bank was entitled to protect". That language comes from paragraphs [351] to [354], which record the **Bank's submissions**, not the Court's conclusions. Removed. The slide now states only what the Court itself found.
+2. **A date error in the facts.** A draft line had the plaintiffs banking with Bendigo since 2001. The judgment says the **brothel** has operated since 2001 [1]; the accounts in question have been held since around 24 May 2024 [2]. The slide now says only that the business has run since 2001.
 
 **Not stated anywhere, deliberately:** anything about whether the outcome is right, any characterisation of the plaintiffs beyond what the judgment says, and any suggestion the bank's industry designation was or was not discriminatory in the abstract. The post reports the decision.
 
