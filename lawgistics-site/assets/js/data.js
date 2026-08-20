@@ -293,25 +293,37 @@ window.LG_SEED = {
   learnTracks: [
     { id: 'lt1', title: 'Chambering starter pack', audience: 'Pupils in chambers', order: 1, duration: '6 hours', status: 'published',
       summary: 'The practical things pupillage assumes you already know: court etiquette, file management, taking attendance notes, and how a matter actually moves.',
-      lessons: 'Reading a cause paper without panicking\nAttendance notes that a partner can use\nCourt etiquette and modes of address\nOpening and maintaining a matter file\nTime recording and why it matters' },
+      lessons: 'Reading a cause paper without panicking\nAttendance notes that a partner can use\nCourt etiquette and modes of address\nOpening and maintaining a matter file\nTime recording and why it matters',
+      outcomes: 'Read a cause paper and say what the matter is and what stage it is at\nTake an attendance note a partner can act on without asking you questions\nAddress the court correctly and know what to do when you are unsure\nOpen a file, keep it in order, and record your time honestly' },
     { id: 'lt2', title: 'Drafting fundamentals', audience: 'Interns & pupils', order: 2, duration: '8 hours', status: 'published',
       summary: 'How commercial documents are built, the clauses that matter, why they are worded as they are, and how to spot what is missing.',
-      lessons: 'Anatomy of a commercial agreement\nScope, payment, and the five clauses disputes start over\nIntellectual property and the Copyright Act 1987 default\nLimitation and exclusion clauses\nMarking up a draft: house style and tracked changes' },
+      lessons: 'Anatomy of a commercial agreement\nScope, payment, and the five clauses disputes start over\nIntellectual property and the Copyright Act 1987 default\nLimitation and exclusion clauses\nMarking up a draft: house style and tracked changes',
+      outcomes: 'Read a commercial agreement and say what it actually obliges each side to do\nSpot the clause that is missing, not just review the ones that are there\nExplain why a limitation or exclusion clause is worded the way it is\nMark up a draft in house style so a senior can review it quickly' },
     { id: 'lt3', title: 'Litigation support skills', audience: 'Paralegals & interns', order: 3, duration: '10 hours', status: 'published',
       summary: 'The work that wins cases before anyone stands up: bundles, chronologies, and witness statements that hold together.',
-      lessons: 'Building an indexed bundle of documents\nChronologies that expose the real story\nWitness statements in question-and-answer form\nCause papers and the Rules of Court 2012\nCommon filing errors and how to avoid them' },
+      lessons: 'Building an indexed bundle of documents\nChronologies that expose the real story\nWitness statements in question-and-answer form\nCause papers and the Rules of Court 2012\nCommon filing errors and how to avoid them',
+      outcomes: 'Build an indexed bundle a judge can navigate without asking for help\nTurn a messy file into a chronology that shows what the case is really about\nTake a witness statement in proper question and answer form\nFile under the Rules of Court 2012 without the errors that get papers rejected' },
     { id: 'lt4', title: 'Legal research that stands up', audience: 'Law students', order: 4, duration: '5 hours', status: 'published',
       summary: 'Finding, verifying, and citing Malaysian authority properly, including how to check a case is still good law.',
-      lessons: 'Where Malaysian judgments actually live\nReading a citation and finding the report\nChecking whether a case has been departed from\nStatutes, amendments, and finding the in-force version\nCiting authority in submissions' },
+      lessons: 'Where Malaysian judgments actually live\nReading a citation and finding the report\nChecking whether a case has been departed from\nStatutes, amendments, and finding the in-force version\nCiting authority in submissions',
+      outcomes: 'Find Malaysian authority on a point and know you have found the right report\nCheck whether a case is still good law before you rely on it\nFind the version of a statute that was in force on the date that matters\nCite authority in submissions the way a court expects to see it' },
     { id: 'lt5', title: 'Advising SME clients', audience: 'Junior lawyers', order: 5, duration: '6 hours', status: 'draft',
       summary: 'Translating legal answers into commercial ones, scoping, pricing, and writing advice a business owner can act on.',
-      lessons: 'The intake conversation\nScoping and quoting a small matter\nWriting advice without legalese\nWhen to say no, and how' },
+      lessons: 'The intake conversation\nScoping and quoting a small matter\nWriting advice without legalese\nWhen to say no, and how',
+      outcomes: 'Run an intake conversation that gets to what the client actually needs\nScope and price a small matter without underquoting yourself\nWrite advice a business owner can act on without a translator\nRecognise the matter you should decline, and decline it well' },
     { id: 'lt6', title: 'Oral advocacy', audience: 'Interns, pupils & paralegals', order: 6, duration: 'Practice-based', status: 'published',
       summary: 'The part pupillage never really teaches: standing up and arguing a case out loud. Read a problem, record yourself arguing it, and get structured feedback on how you reason and how you present.',
-      lessons: 'Argue an appeal after a full trial\nArgue an appeal from an interlocutory decision\nAnalyse a judgment and give your own view\nFree practice on a problem your supervisor set you' }
+      lessons: 'Argue an appeal after a full trial\nArgue an appeal from an interlocutory decision\nAnalyse a judgment and give your own view\nFree practice on a problem your supervisor set you',
+      outcomes: 'Argue a case out loud and reach a conclusion instead of describing the facts\nAnswer the best argument against you rather than avoiding it\nStructure an argument so a judge can follow where you are going\nTake structured feedback on your reasoning and act on it' }
   ],
 
   /* ------------------------------------------------- academy levels ----
+     STALE, kept only so the shape of the records does not change: nothing
+     reads xpRequired any more. The academy page describes each strand and
+     says what a learner should be able to do at the end of it; it no longer
+     tracks, scores or unlocks anything, because a lesson has no content
+     behind it and the tick recorded nothing. The old rule read:
+
      INVARIANT: xpRequired for level N must be <= the cumulative XP of all
      tracks for levels 1..N-1 (10 XP per lesson), otherwise the level can
      never be unlocked. Current ladder: 0 / 50 / 100 / 150 / 200 / 240,

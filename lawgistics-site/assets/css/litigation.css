@@ -158,8 +158,11 @@
   background: var(--cream-deep); border-radius: 12px;
   overflow-x: auto; -webkit-overflow-scrolling: touch;
 }
+/* 7px of padding put these at 26px, and they are the control that switches
+   which drafted document you are reading, so they get pressed constantly on a
+   phone. 10px clears 32px without changing the row's look much. */
 .lit-tab {
-  flex: none; font-size: .8rem; font-weight: 600; padding: 7px 14px;
+  flex: none; font-size: .8rem; font-weight: 600; padding: 10px 14px;
   border-radius: 9px; border: 0;
   background: transparent; color: var(--ink-soft); cursor: pointer;
   transition: all .2s var(--ease); white-space: nowrap;
