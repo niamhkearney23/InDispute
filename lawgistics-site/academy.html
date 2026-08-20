@@ -6,7 +6,7 @@
 <title>Litigation Academy, Lawgistics</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f4f1ea'/%3E%3Ctext x='27' y='44' font-family='Georgia,serif' font-weight='700' font-size='38' fill='%231a1f28' text-anchor='middle'%3EL%3C/text%3E%3Ccircle cx='47' cy='41' r='5' fill='%232d4a75'/%3E%3C/svg%3E">
 <meta name="theme-color" content="#f4f1ea">
-<meta name="description" content="The Litigation Academy, practical training for interns, pupils, and paralegals in Malaysia. Work through levels, earn your way up.">
+<meta name="description" content="The Litigation Academy. Practise analysing cases, making submissions and explaining legal problems out loud, and get structured feedback on your reasoning, advocacy and presentation.">
 <meta property="og:title" content="Litigation Academy, Lawgistics">
 <meta property="og:image" content="https://lawgistics.my/assets/img/og.png">
 <meta property="og:description" content="Practical legal training for interns, pupils, and paralegals in Malaysia.">
@@ -21,59 +21,21 @@
   <section class="page-head">
     <div class="wrap">
       <p class="eyebrow" data-reveal="0">Litigation Academy</p>
-      <h1 data-reveal="0">The training pupillage assumes you already have</h1>
-      <p class="lede" data-reveal="60">Practical skills for interns, pupils, and paralegals, bundles, chronologies, drafting, research. Work through the levels at your own pace and come out able to do the work.</p>
+      <h1 data-reveal="0">You can’t learn advocacy by reading about it.</h1>
+      <p class="lede" data-reveal="60">Practise analysing cases, making submissions and explaining legal problems out loud. Record your response and receive structured feedback on your reasoning, advocacy and presentation.</p>
       <div class="btn-row" style="margin-top:24px" data-reveal="80">
-        <a class="btn btn--primary" href="#levels">Start Level 1</a>
-        <a class="btn btn--ghost" href="paralegals.html">Get booked as a paralegal</a>
+        <a class="btn btn--primary" href="advocacy.html">Start an exercise →</a>
       </div>
+      <p style="font-size:.85rem;color:var(--ink-soft);margin-top:14px" data-reveal="80">Free while Lawgistics is in beta.</p>
+      <p class="lede" style="margin-top:26px" data-reveal="100">Built for the skills law school doesn’t give you enough chances to practise.</p>
     </div>
   </section>
 
-  <!-- ======================================================== progress -->
-  <!-- Shown to everyone, signed in or not. There is nothing here that needs an
-       account: the ticks are kept in this browser either way, and hiding the
-       whole curriculum behind a sign in was stopping people looking at it. -->
-  <section class="section section--tight" data-progress>
-    <div class="wrap">
-      <div class="card" style="display:flex;gap:26px;align-items:center;flex-wrap:wrap">
-        <span class="level-badge" data-current-badge>1</span>
-        <div style="flex:1;min-width:220px">
-          <h3 style="font-size:1.2rem;margin-bottom:2px" data-current-level>Foundation</h3>
-          <p style="font-size:.88rem;margin-bottom:10px"><b data-xp>0</b> XP · <span data-next-msg></span></p>
-          <div class="xp-bar"><span data-xp-bar style="width:0%"></span></div>
-        </div>
-        <div style="text-align:right">
-          <div class="stat-tile__num" data-done-count>0</div>
-          <div class="stat-tile__label">completed</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Says what the ticks actually are. They are a reading list you mark off
-       yourself, not an assessment, and they are kept in this browser. Anyone
-       reading this page deserves to know that before they rely on the number,
-       and so does anyone being shown it. -->
-  <section class="section section--tight">
-    <div class="wrap">
-      <div class="card intake-card" style="display:flex;gap:20px;align-items:center;flex-wrap:wrap">
-        <div style="flex:1;min-width:240px">
-          <h3 style="font-size:1.2rem">This is a checklist, not an exam</h3>
-          <p style="font-size:.92rem;margin:0">
-            You tick these off yourself as you work through them, so the level is
-            a record of what you have covered rather than a mark anyone has given
-            you. Ticks are kept in this browser, so they will not follow you to
-            another device. No account needed to use any of it.
-            <span data-signed-out>
-              <a href="login.html">Sign in</a> if you would like us to keep track properly.
-            </span>
-          </p>
-        </div>
-        <a class="btn btn--primary" href="#levels">Start Level 1</a>
-      </div>
-    </div>
-  </section>
+  <!-- The XP panel and the "tick them off yourself" card used to sit here.
+       Both were removed rather than rewritten: a lesson was a line of text in
+       a data file with a checkbox beside it, so the XP counted ticks against
+       material that did not exist, and the level it produced measured nothing.
+       Nothing on this page now claims to be a record. -->
 
   <!-- ====================================================== daily quiz -->
   <section class="section section--tight section--white" id="quiz">
@@ -133,7 +95,7 @@
   <!-- ========================================================== levels -->
   <section class="section section--tight" id="levels">
     <div class="wrap">
-      <div class="section-head"><h2>The levels</h2><p class="lede">Each level unlocks when you finish the one before it. Ten XP per lesson, and ten more for each daily question you get right.</p></div>
+      <div class="section-head"><h2>What you will be able to do</h2><p class="lede">Six strands, roughly in the order they become useful. Each one lists what you should be able to do at the end of it, so you can judge for yourself whether you are there.</p></div>
       <div class="level-track" data-levels></div>
     </div>
   </section>
@@ -194,123 +156,62 @@ window.pageInit = function () {
       label.textContent = wa ? 'WhatsApp number' : 'Email address';
     });
   })();
-  var session = Store.session();
-  var KEY = 'lawgistics.academy.' + (session ? session.email : 'guest');
-
-  var progress = {};
-  try { progress = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
-
-  function save() {
-    try { localStorage.setItem(KEY, JSON.stringify(progress)); } catch (e) {}
-  }
-
   var levels = Store.list('academyLevels', { sort: 'level' });
   var tracks = Store.list('learnTracks');
 
-  function lessonsFor(level) {
-    var t = tracks.filter(function (x) { return x.id === level.tracks; })[0];
-    if (!t) return { track: null, lessons: [] };
-    return { track: t, lessons: String(t.lessons || '').split('\n').filter(function (l) { return l.trim(); }) };
+  function trackFor(level) {
+    return tracks.filter(function (x) { return x.id === level.tracks; })[0] || null;
+  }
+  function linesOf(value) {
+    return String(value || '').split('\n').filter(function (l) { return l.trim(); });
   }
 
-  function levelComplete(levelId) {
-    var lvl = levels.filter(function (l) { return l.id === levelId; })[0];
-    if (!lvl) return false;
-    var info = lessonsFor(lvl);
-    if (!info.lessons.length) return false;
-    return info.lessons.every(function (_, i) { return progress[levelId + ':' + i]; });
-  }
+  /* Levels are described, not scored.
 
-  function doneCount() {
-    return Object.keys(progress).filter(function (k) { return progress[k]; }).length;
-  }
-  function xp() { return doneCount() * 10; }
+     They used to carry a checkbox per lesson, an XP total and an unlock gate.
+     A lesson was one line of text inside a data file, with no page, content or
+     question behind it, so ticking it recorded that the learner had read a
+     title. The XP counted those ticks, the level came from the XP, and the
+     page then told a learner they could apply for paid work on the strength of
+     it. All of that is gone rather than rewritten.
 
-  function currentLevel() {
-    var cur = levels[0];
-    levels.forEach(function (l) { if (xp() >= Number(l.xpRequired)) cur = l; });
-    return cur;
-  }
-
-  function paintProgress() {
-    // The only thing signing in changes on this page is whether we offer to
-    // keep track properly. The curriculum, the ticks and the progress bar all
-    // work without an account.
-    var out = document.querySelector('[data-signed-out]');
-    if (out) out.style.display = session ? 'none' : 'inline';
-
-    var cur = currentLevel();
-    var next = levels.filter(function (l) { return Number(l.xpRequired) > xp(); })[0];
-    document.querySelector('[data-current-badge]').textContent = cur.level;
-    document.querySelector('[data-current-level]').textContent = 'Level ' + cur.level + ', ' + cur.name;
-    document.querySelector('[data-xp]').textContent = xp();
-    document.querySelector('[data-done-count]').textContent = doneCount();
-    document.querySelector('[data-next-msg]').textContent = next
-      ? (Number(next.xpRequired) - xp()) + ' XP to Level ' + next.level + ' (' + next.name + ')'
-      : 'Top level reached, nicely done';
-    var span = next ? Math.min(100, Math.round((xp() / Number(next.xpRequired)) * 100)) : 100;
-    document.querySelector('[data-xp-bar]').style.width = span + '%';
-  }
-
+     What is left says what somebody should be able to DO at the end of each
+     strand, which a learner can measure themselves against and a supervisor
+     can check. Assessment happens where it can actually be trusted: the
+     advocacy coach, which marks a real recording. */
   function paintLevels() {
-    var cur = currentLevel();
     document.querySelector('[data-levels]').innerHTML = levels.map(function (l) {
-      var info = lessonsFor(l);
-      // Oral advocacy is open practice, reachable at any level, not gated on XP.
-      var openPractice = info.track && info.track.id === 'lt6';
-      var unlocked = openPractice || xp() >= Number(l.xpRequired);
-      var allDone = info.lessons.length > 0 && info.lessons.every(function (_, i) { return progress[l.id + ':' + i]; });
-      var cls = !unlocked ? ' is-locked' : (allDone ? ' is-done' : (l.id === cur.id ? ' is-current' : ''));
-      var body = info.lessons.map(function (les, i) {
-        var key = l.id + ':' + i;
-        var on = !!progress[key];
-        return '<li class="' + (on ? 'is-done' : '') + '">' +
-          '<input class="lesson-check" type="checkbox" data-lesson="' + esc(key) + '"' +
-            (on ? ' checked' : '') + (unlocked ? '' : ' disabled') + '>' +
-          '<span>' + esc(les.trim()) + '</span></li>';
-      }).join('');
-      return '<div class="level-card' + cls + '">' +
-        '<span class="level-badge">' + (allDone ? '✓' : l.level) + '</span>' +
-        '<div><h3>' + esc(l.name) + (info.track && info.track.status === 'draft' ? ' <span class="tag">Coming soon</span>' : '') + '</h3>' +
+      var t = trackFor(l);
+      var outcomes = t ? linesOf(t.outcomes) : [];
+      var covers = t ? linesOf(t.lessons) : [];
+      var soon = t && t.status === 'draft';
+      var isAdvocacy = t && t.id === 'lt6';
+
+      return '<div class="level-card' + (isAdvocacy ? ' is-current' : '') + '">' +
+        '<span class="level-badge">' + l.level + '</span>' +
+        '<div>' +
+          '<h3>' + esc(l.name) + (soon ? ' <span class="tag">Coming soon</span>' : '') + '</h3>' +
           '<p>' + esc(l.blurb) + '</p>' +
-          (info.track ? '<p style="font-size:.8rem;margin-top:6px">' + esc(info.track.audience) + ' · ' + esc(info.track.duration) + '</p>' : '') +
-          (unlocked ? '<ul class="lesson-list">' + body + '</ul>'
-                    : '<p style="font-size:.83rem;margin-top:8px"><b>Locked</b>, reach ' + esc(String(l.xpRequired)) + ' XP to unlock.</p>') +
-          (openPractice
-            ? '<p style="font-size:.8rem;margin:8px 0 0">Open practice, have a go at any level.</p>' +
-              '<a class="btn btn--primary btn--sm" style="margin-top:10px" href="advocacy.html">Practise oral advocacy →</a>' : '') +
+          (t ? '<p style="font-size:.8rem;margin-top:6px;color:var(--ink-soft)">' +
+                 esc(t.audience) + ' · ' + esc(t.duration) + '</p>' : '') +
+          (outcomes.length
+            ? '<p class="lvl-h">By the end you can</p><ul class="lvl-list">' +
+              outcomes.map(function (o) { return '<li>' + esc(o) + '</li>'; }).join('') + '</ul>'
+            : '') +
+          (covers.length
+            ? '<p class="lvl-h">It covers</p><p class="lvl-covers">' +
+              covers.map(esc).join(' · ') + '</p>'
+            : '') +
+          (isAdvocacy
+            ? '<a class="btn btn--primary btn--sm" style="margin-top:12px" href="advocacy.html">Start an exercise →</a>' +
+              '<p style="font-size:.8rem;margin:8px 0 0;color:var(--ink-soft)">The one part that marks you. Everything else here you judge yourself.</p>'
+            : '') +
         '</div></div>';
     }).join('');
-
-    document.querySelectorAll('[data-lesson]').forEach(function (cb) {
-      cb.addEventListener('change', function () {
-        var key = cb.getAttribute('data-lesson');
-        var levelId = key.split(':')[0];
-        var wasComplete = levelComplete(levelId);
-        progress[key] = cb.checked;
-        save();
-        paintProgress();
-        paintLevels();
-        // Just crossed the finish line on a level? Tell the automation, but
-        // label it for what it is. The browser is reporting what the learner
-        // ticked, so nothing downstream should read this as an assessment or
-        // treat it as a qualification.
-        if (!wasComplete && cb.checked && levelComplete(levelId)) {
-          var lvl = levels.filter(function (l) { return l.id === levelId; })[0];
-          if (lvl && session) {
-            Store.notify('academy', {
-              name: session.name || session.email, email: session.email,
-              level: lvl.level, levelName: lvl.name, xp: xp(),
-              selfReported: true
-            });
-          }
-        }
-      });
-    });
   }
 
-  paintProgress();
   paintLevels();
+
 };
 </script>
 </body>
