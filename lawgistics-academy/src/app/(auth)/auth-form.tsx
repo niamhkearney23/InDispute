@@ -11,7 +11,7 @@ export function AuthForm({
   mode,
   next,
   problem,
-  defaultCountry = 'AU',
+  defaultCountry = 'MY',
 }: {
   mode: 'login' | 'signup';
   next: string;
@@ -23,6 +23,10 @@ export function AuthForm({
    * making somebody choose twice and land on the wrong body of law if they do
    * not notice. It is a starting point, not a decision: the buttons are still
    * there and still change it.
+   *
+   * Malaysia when nobody says otherwise, because that is where most of the
+   * people using this are. A default is a guess, and it should be the guess
+   * that is right most often.
    */
   defaultCountry?: Country;
 }) {

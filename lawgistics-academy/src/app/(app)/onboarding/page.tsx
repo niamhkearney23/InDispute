@@ -40,8 +40,11 @@ export default async function OnboardingPage({
 
       <OnboardingForm
         defaultName={profile?.displayName ?? ''}
-        defaultCountry={profile?.country ?? 'AU'}
-        defaultJurisdiction={profile?.homeJurisdiction ?? 'AU_GENERAL'}
+        // Malaysia when there is no profile to read, because that is where
+        // most of the people using this are. It is only which button starts
+        // pressed: the question is asked, and the answer is theirs.
+        defaultCountry={profile?.country ?? 'MY'}
+        defaultJurisdiction={profile?.homeJurisdiction ?? 'MY_GENERAL'}
       />
     </div>
   );
