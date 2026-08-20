@@ -33,9 +33,13 @@ export default async function SetupPage() {
     {
       done: status.schemaReady,
       title: 'Create the tables',
+      // This used to name the first three migration files. There are ten of
+      // them now, so following it left seven un-run and the app broken in ways
+      // that are hard to trace back to here. SETUP.sql is generated from all of
+      // them in order, and is the only thing anybody should have to paste.
       body: status.schemaReady
         ? 'All tables present.'
-        : `Open the Supabase SQL editor and run the three files in supabase/migrations in order: 0001_init.sql, 0002_daily_facts.sql, 0003_review_workflow.sql.${
+        : `Open the Supabase SQL editor and paste in the whole of supabase/SETUP.sql, then run it. It is one file, it contains every migration in order, and it is safe to run again. On a database that already has an earlier version of the app, use supabase/UPDATE.sql instead.${
             status.schemaError ? ` (${status.schemaError})` : ''
           }`,
     },
