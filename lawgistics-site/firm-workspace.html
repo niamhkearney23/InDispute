@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Firm workspace, Lawgistics</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f4f1ea'/%3E%3Ctext x='27' y='44' font-family='Georgia,serif' font-weight='700' font-size='38' fill='%231a1f28' text-anchor='middle'%3EL%3C/text%3E%3Ccircle cx='47' cy='41' r='5' fill='%232d4a75'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#f4f1ea">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Lawgistics">
+<meta property="og:title" content="Firm workspace, Lawgistics">
+<meta property="og:image" content="https://lawgistics.my/assets/img/og.png">
+<meta property="og:description" content="Brief a paralegal, track engagements, upload documents.">
+<meta property="og:url" content="https://lawgistics.my/firm-workspace.html">
+<meta name="twitter:card" content="summary">
+<meta name="description" content="Brief a paralegal, track engagements, upload documents.">
+<link rel="canonical" href="https://lawgistics.my/firm-workspace.html">
+<link rel="stylesheet" href="assets/css/site.css">
+
+<style>
+.ws-signout{font-size:.78rem;color:var(--ink-soft);cursor:pointer;text-transform:uppercase;letter-spacing:.14em;font-weight:600}
+.ws-signout:hover{color:var(--navy)}
+
+.ws-stats{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:32px;
+  padding:36px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  margin-bottom:48px;
+}
+.ws-stat-label{font-size:.72rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.16em;font-weight:600;margin-bottom:14px}
+.ws-stat-value{font-family:var(--serif);font-weight:600;font-size:3rem;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.ws-stat-value small{font-family:var(--sans);font-weight:400;font-size:.95rem;color:var(--ink-soft);margin-left:6px}
+.ws-stat-trend{font-size:.85rem;color:var(--ink-soft);margin-top:10px}
+
+.ws-grid{display:grid;grid-template-columns:1fr 1.05fr;gap:48px;align-items:start}
+
+.ws-matters{border-top:1px solid var(--line)}
+.ws-matter{
+  padding:22px 0;border-bottom:1px solid var(--line);cursor:pointer;
+  transition:background .15s var(--ease);position:relative;
+}
+.ws-matter:hover{background:rgba(45,74,117,.03)}
+.ws-matter.selected{background:rgba(45,74,117,.05)}
+.ws-matter.selected::before{content:"";position:absolute;left:-16px;top:0;bottom:0;width:3px;background:var(--navy)}
+.ws-matter .title{font-family:var(--serif);font-weight:600;font-size:1.1rem;color:var(--ink);letter-spacing:-.012em;line-height:1.3}
+.ws-matter .meta{margin-top:8px;font-size:.78rem;color:var(--ink-soft);display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.ws-matter .status{text-transform:uppercase;letter-spacing:.14em;font-weight:700;font-size:.68rem;color:var(--navy);display:inline-flex;align-items:center;gap:6px}
+.ws-matter .status::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
+.ws-matter .status.in-progress{color:var(--navy)}
+.ws-matter .status.in-review{color:var(--navy)}
+.ws-matter .status.delivered{color:var(--green)}
+.ws-matter .status.on-hold,.ws-matter .status.closed{color:var(--haze)}
+
+.ws-progress{margin-top:12px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+.ws-progress-track{height:3px;background:var(--line);border-radius:3px;overflow:hidden}
+.ws-progress-fill{height:3px;background:var(--navy);border-radius:3px;transition:width .5s var(--ease)}
+.ws-progress-fill.over{background:var(--navy)}
+.ws-progress-num{font-family:var(--serif);font-weight:600;font-size:.9rem;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+
+.ws-panel{background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);padding:32px;box-shadow:var(--shadow-sm)}
+.ws-panel .picked{font-family:var(--serif);font-weight:600;font-size:1.25rem;color:var(--ink);letter-spacing:-.015em;margin-bottom:14px}
+.ws-label{font-size:.72rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.14em;font-weight:600;margin-bottom:12px;display:block}
+
+.ws-divider{margin:28px 0 20px;padding-top:24px;border-top:1px solid var(--line);font-size:.72rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.14em;font-weight:600}
+
+.ws-file-input{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--navy-soft);border-radius:var(--r);margin-bottom:14px}
+.ws-file-input input[type=file]{display:none}
+.ws-file-input label{font-size:.72rem;text-transform:uppercase;letter-spacing:.14em;font-weight:700;color:var(--navy);cursor:pointer;padding:6px 12px;border:1px solid var(--navy);border-radius:var(--r-sm);transition:all .15s var(--ease)}
+.ws-file-input label:hover{background:var(--navy);color:var(--white)}
+.ws-file-input .fname{font-size:.85rem;color:var(--ink-soft);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.ws-file{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.ws-file-badge{min-width:44px;padding:5px 8px;text-align:center;font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line);border-radius:var(--r-sm);color:var(--ink-soft)}
+.ws-file-badge.pdf{color:var(--navy);border-color:rgba(166,61,61,.35)}
+.ws-file-badge.doc{color:var(--navy);border-color:rgba(45,74,117,.35)}
+.ws-file-badge.img{color:var(--green);border-color:rgba(47,107,79,.3)}
+.ws-file a{font-family:var(--serif);font-weight:600;font-size:.95rem;color:var(--navy)}
+.ws-file a:hover{color:var(--navy-deep)}
+.ws-file .fmeta{font-size:.72rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.12em}
+
+.ws-flash{margin-top:14px;padding:10px 14px;border-radius:var(--r);font-size:.85rem;display:none}
+.ws-flash.show{display:block}
+.ws-flash.err{background:rgba(166,61,61,.08);border-left:3px solid var(--navy);color:var(--navy)}
+.ws-flash.ok{background:rgba(47,107,79,.08);border-left:3px solid var(--green);color:var(--green)}
+.ws-empty{color:var(--ink-soft);font-style:italic;padding:16px 0}
+
+@media (max-width:1000px){
+  .ws-stats{grid-template-columns:repeat(2,1fr);gap:24px}
+  .ws-grid{grid-template-columns:1fr;gap:32px}
+  .ws-stat-value{font-size:2.2rem}
+}
+</style>
+</head>
+<body>
+
+<header data-header></header>
+
+<main>
+
+  <section class="page-head">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal="0">Firm workspace</p>
+      <h1 data-reveal="0" id="wsGreet">Live matters</h1>
+      <p class="lede" data-reveal="60">Brief a paralegal, assign them, upload supporting documents. Everything below talks to the live backend, your edits persist.</p>
+      <p class="lede" style="margin-top:8px;font-size:.85rem" data-reveal="60">Signed in as <span id="wsUserName" style="font-weight:600;color:var(--ink)">…</span> · <span class="ws-signout" id="signOut">Sign out</span></p>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="wrap">
+
+      <div class="ws-stats">
+        <div>
+          <div class="ws-stat-label">Active matters</div>
+          <div class="ws-stat-value" id="statActive">, </div>
+          <div class="ws-stat-trend" id="statActiveTrend">, </div>
+        </div>
+        <div>
+          <div class="ws-stat-label">Hours this week</div>
+          <div class="ws-stat-value" id="statHours">, <small>h</small></div>
+          <div class="ws-stat-trend" id="statHoursTrend">, </div>
+        </div>
+        <div>
+          <div class="ws-stat-label">Due this week</div>
+          <div class="ws-stat-value" id="statDue">, </div>
+          <div class="ws-stat-trend" id="statDueTrend">, </div>
+        </div>
+        <div>
+          <div class="ws-stat-label">In senior review</div>
+          <div class="ws-stat-value" id="statReview">, </div>
+          <div class="ws-stat-trend" id="statReviewTrend">, </div>
+        </div>
+      </div>
+
+      <div class="ws-grid">
+
+        <div>
+          <h3>Your matters</h3>
+          <div class="ws-matters" id="wsMatters" style="margin-top:20px">
+            <div class="ws-empty">Loading…</div>
+          </div>
+        </div>
+
+        <aside class="ws-panel">
+          <span class="ws-label">New matter</span>
+          <p style="font-size:.9rem;color:var(--ink-soft);margin-bottom:20px">Brief a paralegal directly. The matter appears on their workspace immediately.</p>
+
+          <form id="wsCreateForm" autocomplete="off">
+            <div class="field">
+              <label for="wsTitle">Title</label>
+              <input class="input" id="wsTitle" type="text" required placeholder="Court bundle, IP Holdings v Mahkota Mall">
+            </div>
+            <div class="field">
+              <label for="wsArea">Practice area</label>
+              <input class="input" id="wsArea" type="text" placeholder="Litigation / Corporate / Real estate…">
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="wsEst">Estimated hours</label>
+                <input class="input" id="wsEst" type="number" step="0.5" min="0.5" max="1000" placeholder="12">
+              </div>
+              <div class="field">
+                <label for="wsDeadline">Deadline</label>
+                <input class="input" id="wsDeadline" type="date">
+              </div>
+            </div>
+            <div class="field">
+              <label for="wsParalegal">Assign paralegal</label>
+              <select class="select" id="wsParalegal">
+                <option value="">, unassigned, </option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="wsDescription">Brief</label>
+              <textarea class="textarea" id="wsDescription" placeholder="Scope, context, deliverables…" style="min-height:80px"></textarea>
+            </div>
+            <button class="btn btn--primary btn--block" type="submit" id="wsCreateBtn">Create matter</button>
+            <div class="ws-flash err" id="wsCreateFlash"></div>
+          </form>
+
+          <div class="ws-divider">Upload to selected matter · max 25 MB</div>
+          <div class="picked" id="wsSelectedTitle">, pick a matter on the left, </div>
+          <form id="wsFileForm" autocomplete="off" style="margin-top:14px">
+            <div class="ws-file-input">
+              <input type="file" id="wsFile" required>
+              <label for="wsFile">Choose file</label>
+              <span class="fname" id="wsFileName">No file selected.</span>
+            </div>
+            <button class="btn btn--primary btn--block" type="submit" id="wsFileBtn">Upload</button>
+            <div class="ws-flash err" id="wsFileFlash"></div>
+          </form>
+
+          <div class="ws-divider">Documents on this matter</div>
+          <div id="wsFilesList">
+            <div class="ws-empty">Pick a matter to see its files.</div>
+          </div>
+        </aside>
+
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer data-footer></footer>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/site.js"></script>
+<script>
+const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? 'http://localhost:4040' : 'https://legal-champions-production.up.railway.app';
+function apiFetch(path, opts = {}){ return fetch(API_BASE + path, { ...opts, credentials: 'include' }); }
+
+let CURRENT_USER = null, SELECTED = null;
+
+(async () => {
+  try {
+    const r = await apiFetch('/api/auth/me');
+    if (!r.ok) { window.location.href = '/paralegal-signin.html?next=/firm-workspace.html'; return; }
+    const { user } = await r.json();
+    if (user.role !== 'firm') { window.location.href = '/paralegal-workspace.html'; return; }
+    CURRENT_USER = user;
+    document.getElementById('wsUserName').textContent = user.name;
+    document.getElementById('wsGreet').textContent = 'Good day, ' + user.name.split(' ')[0] + '.';
+    boot();
+  } catch {
+    window.location.href = '/paralegal-signin.html';
+  }
+})();
+
+document.getElementById('signOut').addEventListener('click', async () => {
+  await apiFetch('/api/auth/logout', { method: 'POST' });
+  window.location.href = '/paralegal-signin.html';
+});
+
+function fmtBytes(n){ if (n<1024) return n+' B'; if (n<1048576) return (n/1024).toFixed(1)+' KB'; return (n/1048576).toFixed(1)+' MB'; }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function flash(el, msg, ok = false){
+  el.textContent = msg; el.classList.add('show');
+  el.classList.toggle('ok', ok); el.classList.toggle('err', !ok);
+  setTimeout(() => el.classList.remove('show'), 5000);
+}
+function fileBadge(name, mime){
+  const m = (mime || '').toLowerCase();
+  const ext = (name.split('.').pop() || '').toLowerCase();
+  if (m.startsWith('image/') || ['png','jpg','jpeg','gif','webp','svg'].includes(ext)) return { txt: 'IMG', cls: 'img' };
+  if (m === 'application/pdf' || ext === 'pdf') return { txt: 'PDF', cls: 'pdf' };
+  if (['doc','docx'].includes(ext) || m.includes('word')) return { txt: 'DOC', cls: 'doc' };
+  if (['xls','xlsx','csv'].includes(ext) || m.includes('excel') || m === 'text/csv') return { txt: 'XLS', cls: 'doc' };
+  if (['ppt','pptx'].includes(ext) || m.includes('presentation')) return { txt: 'PPT', cls: 'doc' };
+  return { txt: (ext || 'FILE').toUpperCase().slice(0, 4), cls: '' };
+}
+
+function boot(){ wsLoadMatters(); wsLoadParalegals(); wsLoadStats(); }
+
+async function wsLoadStats(){
+  try {
+    const r = await apiFetch('/api/me/stats');
+    if (!r.ok) return;
+    const s = await r.json();
+    if (s.role !== 'firm') return;
+    document.getElementById('statActive').textContent = s.totals.active_matters;
+    document.getElementById('statHours').innerHTML = s.totals.hours_week + '<small>h</small>';
+    document.getElementById('statDue').textContent = s.totals.due_this_week;
+    document.getElementById('statReview').textContent = s.totals.in_review;
+    document.getElementById('statActiveTrend').textContent = s.totals.active_matters === 0 ? 'None yet' : 'In progress';
+    document.getElementById('statHoursTrend').textContent = 'Logged by your paralegals';
+    document.getElementById('statDueTrend').textContent = s.totals.due_this_week === 0 ? 'Nothing due' : 'Deadlines ahead';
+    document.getElementById('statReviewTrend').textContent = s.totals.in_review === 0 ? 'None pending' : 'With supervising counsel';
+  } catch {}
+}
+
+async function wsLoadMatters(){
+  const box = document.getElementById('wsMatters');
+  try {
+    const r = await apiFetch('/api/matters');
+    if (!r.ok) throw new Error('Failed to load matters.');
+    const { matters } = await r.json();
+    if (!matters.length) { box.innerHTML = '<div class="ws-empty">No matters yet. Create one on the right.</div>'; return; }
+    box.innerHTML = matters.map(m => {
+      const logged = m.hours_logged || 0;
+      const est = m.estimated_hours || 0;
+      const pct = est > 0 ? Math.min(100, (logged / est) * 100) : 0;
+      const over = est > 0 && logged > est;
+      const statusCls = (m.status || '').replace(/_/g, '-');
+      return `
+        <div class="ws-matter" data-id="${m.id}" data-title="${escapeHtml(m.title)}">
+          <div class="title">${escapeHtml(m.title)}</div>
+          <div class="meta">
+            <span class="status ${statusCls}">${(m.status || '').toUpperCase()}</span>
+            <span>${escapeHtml(m.paralegal_name || 'Unassigned')}</span>
+          </div>
+          <div class="ws-progress">
+            <div class="ws-progress-track"><div class="ws-progress-fill ${over ? 'over' : ''}" style="width:${pct}%"></div></div>
+            <div class="ws-progress-num">${logged.toFixed(1)}h ${est ? '/ ' + est + 'h' : ''}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+    box.querySelectorAll('.ws-matter').forEach(el => el.addEventListener('click', () => wsSelect(el)));
+    const preferId = SELECTED?.id;
+    const preserve = preferId ? box.querySelector(`.ws-matter[data-id="${preferId}"]`) : null;
+    if (preserve) wsSelect(preserve);
+    else { const first = box.querySelector('.ws-matter'); if (first) wsSelect(first); }
+  } catch (e) {
+    box.innerHTML = `<div class="ws-empty">${e.message}</div>`;
+  }
+}
+
+async function wsLoadParalegals(){
+  const sel = document.getElementById('wsParalegal');
+  if (sel.options.length > 1) return;
+  try {
+    const r = await apiFetch('/api/paralegals');
+    const { paralegals } = await r.json();
+    for (const p of paralegals) {
+      const o = document.createElement('option');
+      o.value = p.id; o.textContent = `${p.name} · RM${p.hourly_rate}/h · ${p.availability}`;
+      sel.appendChild(o);
+    }
+  } catch {}
+}
+
+async function wsSelect(el){
+  document.querySelectorAll('.ws-matter').forEach(e => e.classList.toggle('selected', e === el));
+  SELECTED = { id: parseInt(el.dataset.id, 10), title: el.dataset.title };
+  document.getElementById('wsSelectedTitle').textContent = SELECTED.title;
+
+  const r = await apiFetch('/api/matters/' + SELECTED.id + '/files');
+  if (!r.ok) return;
+  const { files } = await r.json();
+  const box = document.getElementById('wsFilesList');
+  if (!files.length) box.innerHTML = '<div class="ws-empty">No documents on this matter yet.</div>';
+  else box.innerHTML = files.map(f => {
+    const b = fileBadge(f.original_name, f.mime_type);
+    return `
+      <div class="ws-file">
+        <span class="ws-file-badge ${b.cls}">${b.txt}</span>
+        <a href="${API_BASE}/api/files/${f.id}" target="_blank">${escapeHtml(f.original_name)}</a>
+        <span class="fmeta">${fmtBytes(f.size_bytes)} · ${(f.created_at || '').slice(0,10)}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+document.getElementById('wsCreateForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('wsCreateBtn');
+  btn.disabled = true; btn.textContent = 'Creating…';
+  try {
+    const r = await apiFetch('/api/matters', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: document.getElementById('wsTitle').value,
+        description: document.getElementById('wsDescription').value || null,
+        practice_area: document.getElementById('wsArea').value || null,
+        estimated_hours: parseFloat(document.getElementById('wsEst').value) || null,
+        deadline: document.getElementById('wsDeadline').value || null,
+        paralegal_id: parseInt(document.getElementById('wsParalegal').value, 10) || null
+      })
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Failed.');
+    flash(document.getElementById('wsCreateFlash'), 'Created: ' + data.matter.title, true);
+    document.getElementById('wsCreateForm').reset();
+    wsLoadMatters(); wsLoadStats();
+  } catch (err) {
+    flash(document.getElementById('wsCreateFlash'), err.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Create matter';
+  }
+});
+
+document.getElementById('wsFile').addEventListener('change', (e) => {
+  const f = e.target.files[0];
+  document.getElementById('wsFileName').textContent = f ? f.name + ' (' + fmtBytes(f.size) + ')' : 'No file selected.';
+});
+
+document.getElementById('wsFileForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!SELECTED) { flash(document.getElementById('wsFileFlash'), 'Pick a matter first.'); return; }
+  const file = document.getElementById('wsFile').files[0];
+  if (!file) { flash(document.getElementById('wsFileFlash'), 'Choose a file.'); return; }
+  const btn = document.getElementById('wsFileBtn');
+  btn.disabled = true; btn.textContent = 'Uploading…';
+  try {
+    const fd = new FormData(); fd.append('file', file);
+    const r = await apiFetch('/api/matters/' + SELECTED.id + '/files', { method: 'POST', body: fd });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Upload failed.');
+    flash(document.getElementById('wsFileFlash'), 'Uploaded: ' + data.file.original_name, true);
+    document.getElementById('wsFile').value = '';
+    document.getElementById('wsFileName').textContent = 'No file selected.';
+    wsSelect(document.querySelector('.ws-matter.selected'));
+  } catch (err) {
+    flash(document.getElementById('wsFileFlash'), err.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Upload';
+  }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,27 @@
+# Netlify redirects
+#
+# serve.py proxies /api/* to the live Payload instance during local development.
+# Netlify needs the same proxy or every form submission 404s in production.
+# This keeps the browser making same-origin requests, so no CORS setup is needed.
+
+/api/*   https://lawgistics.my/api/:splat   200
+
+# Pretty URLs for the audience pages, so /for-lawyers works as well as
+# /for-lawyers.html and existing links keep resolving.
+/for-businesses /for-businesses.html 200
+/for-lawyers    /for-lawyers.html    200
+/for-students   /for-students.html   200
+/recover-debt   /recover-debt.html   200
+/terms          /terms.html          200
+/privacy        /privacy-policy.html 200
+
+# Hard block: never serve dotfiles or env files, whatever ends up in the folder.
+# Never serve dotfiles. A drag-and-drop deploy ships every file in the
+# folder, so this is the last line of defence for anything that slips in.
+/.env*            /404.html   404
+/.anthropic-key   /404.html   404
+/.git/*           /404.html   404
+/.*               /404.html   404
+
+# Anything genuinely missing gets the branded 404 rather than Netlify's.
+/*   /404.html   404

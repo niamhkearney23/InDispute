@@ -469,6 +469,308 @@ select pg_temp.expect(
   'a learner cannot withdraw or backdate their own acknowledgement');
 
 
+-- -----------------------------------------------------------------------------
+-- Before you begin: the pre-start checklist and its oversight
+-- -----------------------------------------------------------------------------
+-- The promise being defended: when somebody is recorded as cleared to begin,
+-- the record says who decided, when, and what was still outstanding, and none
+-- of those three can be changed afterwards by anybody.
+
+insert into public.firm_steps (id, slug, title, kind, needs_firm_check, published)
+values ('cccc3333-0000-0000-0000-000000000001', 'nda', 'Sign the NDA', 'sign', true, true);
+
+select pg_temp.expect(
+  (select country is null and required from public.firm_steps
+   where id = 'cccc3333-0000-0000-0000-000000000001'),
+  'a checklist item reaches everyone and is required unless the firm says otherwise');
+
+select pg_temp.expect_failure(
+  $$insert into public.firm_steps (slug, title, kind, firm_module_id)
+    values ('bad-read', 'Read something', 'read', null)$$,
+  'a reading step must point at one of the firm''s documents');
+
+select pg_temp.expect_failure(
+  $$insert into public.firm_steps (slug, title, kind, firm_module_id, needs_firm_check)
+    values ('bad-check', 'Read something', 'read',
+            'bbbb2222-0000-0000-0000-000000000001', true)$$,
+  'nobody at the firm confirms that somebody else read something');
+
+select pg_temp.expect_failure(
+  $$insert into public.firm_steps (slug, title, kind, firm_module_id)
+    values ('bad-link', 'Sign something', 'sign',
+            'bbbb2222-0000-0000-0000-000000000001')$$,
+  'only a reading step points at a document');
+
+-- The declaration and the confirmation are two different facts about the same
+-- item, and both dates have to be the database's.
+insert into public.firm_step_declarations (user_id, firm_step_id, declared_at)
+values ('aaaa1111-0000-0000-0000-000000000001',
+        'cccc3333-0000-0000-0000-000000000001', timestamptz '2019-01-01 00:00:00+00');
+
+select pg_temp.expect(
+  (select declared_at > now() - interval '1 minute'
+   from public.firm_step_declarations
+   where user_id = 'aaaa1111-0000-0000-0000-000000000001'),
+  'a declaration is stamped by the database, not by whoever sent the request');
+
+insert into public.firm_step_confirmations (user_id, firm_step_id, confirmed_by, confirmed_at)
+values ('aaaa1111-0000-0000-0000-000000000001',
+        'cccc3333-0000-0000-0000-000000000001',
+        '33333333-3333-3333-3333-333333333333', timestamptz '2019-01-01 00:00:00+00');
+
+select pg_temp.expect(
+  (select confirmed_at > now() - interval '1 minute'
+   from public.firm_step_confirmations
+   where user_id = 'aaaa1111-0000-0000-0000-000000000001'),
+  'and so is a confirmation');
+
+select pg_temp.expect_failure(
+  $$delete from public.firm_steps where id = 'cccc3333-0000-0000-0000-000000000001'$$,
+  'an item somebody has acted on cannot be deleted out from under the record');
+
+select pg_temp.expect_failure(
+  $$insert into public.firm_step_confirmations (user_id, firm_step_id, confirmed_by)
+    values ('aaaa1111-0000-0000-0000-000000000001',
+            'cccc3333-0000-0000-0000-000000000001',
+            '33333333-3333-3333-3333-333333333333')$$,
+  'the same item cannot be confirmed twice for the same person');
+
+-- The decision itself.
+insert into public.onboarding_decisions (user_id, decision, decided_by, outstanding_count, decided_at)
+values ('aaaa1111-0000-0000-0000-000000000001', 'cleared',
+        '33333333-3333-3333-3333-333333333333', 2, timestamptz '2019-01-01 00:00:00+00');
+
+select pg_temp.expect(
+  (select decided_at > now() - interval '1 minute'
+   from public.onboarding_decisions
+   where user_id = 'aaaa1111-0000-0000-0000-000000000001'),
+  'a clearance is dated by the database');
+
+select pg_temp.expect_failure(
+  $$insert into public.onboarding_decisions (user_id, decision, decided_by, outstanding_count)
+    values ('aaaa1111-0000-0000-0000-000000000001', 'cleared',
+            '33333333-3333-3333-3333-333333333333', -1)$$,
+  'a negative number of outstanding items is not a thing that can be recorded');
+
+insert into public.onboarding_decisions (user_id, decision, decided_by, outstanding_count)
+values ('aaaa1111-0000-0000-0000-000000000001', 'withdrawn',
+        '33333333-3333-3333-3333-333333333333', 2);
+
+select pg_temp.expect(
+  (select count(*) from public.onboarding_decisions
+   where user_id = 'aaaa1111-0000-0000-0000-000000000001') = 2,
+  'withdrawing a clearance adds a decision rather than removing the one it undoes');
+
+select pg_temp.expect_failure(
+  $$delete from auth.users where id = '33333333-3333-3333-3333-333333333333'$$,
+  'the person who cleared somebody cannot be deleted out of the record');
+
+select pg_temp.expect(
+  not exists (
+    select 1 from pg_policies
+    where schemaname = 'public'
+      and tablename in ('firm_step_declarations', 'firm_step_confirmations',
+                        'onboarding_decisions')
+      and cmd in ('UPDATE', 'DELETE', 'ALL')),
+  'no policy grants update or delete on any of the three records, administrators included');
+
+-- As with acknowledgements: no policy means a write matches no rows and reports
+-- success, so this has to be written as a survival check rather than an
+-- expected error.
+set local role authenticated;
+set local request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+
+delete from public.onboarding_decisions
+where user_id = 'aaaa1111-0000-0000-0000-000000000001';
+
+update public.onboarding_decisions set outstanding_count = 0
+where user_id = 'aaaa1111-0000-0000-0000-000000000001';
+
+delete from public.firm_step_declarations
+where user_id = 'aaaa1111-0000-0000-0000-000000000001';
+
+reset role;
+
+select pg_temp.expect(
+  (select count(*) from public.onboarding_decisions
+   where user_id = 'aaaa1111-0000-0000-0000-000000000001'
+     and outstanding_count = 2) = 2,
+  'an administrator cannot delete a decision or edit how much was outstanding when it was made');
+
+select pg_temp.expect(
+  (select count(*) from public.firm_step_declarations
+   where user_id = 'aaaa1111-0000-0000-0000-000000000001') = 1,
+  'nor remove what somebody told the firm they had done');
+
+-- A start date is the firm's fact about a person, not a setting they can move.
+set local role authenticated;
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000001';
+
+select pg_temp.expect_failure(
+  $$update public.profiles set starts_on = current_date + 60
+    where id = 'aaaa1111-0000-0000-0000-000000000001'$$,
+  'a joiner cannot move their own start date, which would move their own deadline');
+
+reset role;
+
+
+-- -----------------------------------------------------------------------------
+-- Joining: the invitation is a credential
+-- -----------------------------------------------------------------------------
+-- The link is the only way into this system without an existing account, so
+-- these are the promises that matter most.
+
+insert into public.joiner_invitations (token_hash, email, display_name, invited_by, starts_on)
+values ('hash-of-a-token-aaaa', 'joiner@example.test', 'A Joiner',
+        '33333333-3333-3333-3333-333333333333', current_date + 30);
+
+select pg_temp.expect(
+  (select expires_at > now() and expires_at < now() + interval '15 days'
+   from public.joiner_invitations where email = 'joiner@example.test'),
+  'an invitation expires by default rather than working forever');
+
+-- A caller naming its own expiry is not an expiry.
+insert into public.joiner_invitations (token_hash, email, invited_by, expires_at)
+values ('hash-of-a-token-bbbb', 'forever@example.test',
+        '33333333-3333-3333-3333-333333333333', now() + interval '40 years');
+
+select pg_temp.expect(
+  (select expires_at < now() + interval '15 days'
+   from public.joiner_invitations where email = 'forever@example.test'),
+  'an invitation cannot be created with an expiry of its own choosing');
+
+select pg_temp.expect_failure(
+  $$insert into public.joiner_invitations (token_hash, email, invited_by)
+    values ('hash-of-a-token-cccc', 'joiner@example.test',
+            '33333333-3333-3333-3333-333333333333')$$,
+  'a second live invitation to the same person is refused, so calling one back closes the door');
+
+select pg_temp.expect(
+  (select count(*) from public.joiner_invitations
+   where lower(email) = 'joiner@example.test') = 1,
+  'and the address is matched case-insensitively, because nobody types their own twice the same way');
+
+-- Two separate mechanisms, and it is worth being precise about which does what.
+-- On insert the trigger forces a new invitation to be pending, so a request
+-- cannot create one that is already taken up or already called back.
+insert into public.joiner_invitations (token_hash, email, invited_by, accepted_at, accepted_by, revoked_at)
+values ('hash-of-a-token-dddd', 'both@example.test',
+        '33333333-3333-3333-3333-333333333333', now(),
+        '33333333-3333-3333-3333-333333333333', now());
+
+select pg_temp.expect(
+  (select accepted_at is null and accepted_by is null and revoked_at is null
+   from public.joiner_invitations where email = 'both@example.test'),
+  'an invitation cannot be created already taken up or already called back');
+
+-- On update the check constraint is what bites, which is where it matters:
+-- this is the state an invitation could otherwise be talked into afterwards.
+select pg_temp.expect_failure(
+  $$update public.joiner_invitations
+    set accepted_at = now(),
+        accepted_by = '33333333-3333-3333-3333-333333333333',
+        revoked_at = now()
+    where email = 'both@example.test'$$,
+  'an invitation cannot be both taken up and called back');
+
+select pg_temp.expect_failure(
+  $$update public.joiner_invitations set accepted_at = now()
+    where email = 'both@example.test'$$,
+  'an invitation marked accepted must say by whom');
+
+select pg_temp.expect(
+  not exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'joiner_invitations'
+      and column_name in ('is_admin', 'admin', 'role', 'password')),
+  'there is no column on an invitation that could grant rights or carry a password');
+
+-- Revoking is what closes a live invitation, and it frees the address again.
+update public.joiner_invitations set revoked_at = now()
+where email = 'joiner@example.test';
+
+insert into public.joiner_invitations (token_hash, email, invited_by)
+values ('hash-of-a-token-eeee', 'joiner@example.test',
+        '33333333-3333-3333-3333-333333333333');
+
+select pg_temp.expect(
+  (select count(*) from public.joiner_invitations
+   where lower(email) = 'joiner@example.test') = 2,
+  'once called back, a fresh invitation to the same person is allowed');
+
+-- A learner must not be able to read the list of who is joining and when.
+set local role authenticated;
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000001';
+
+select pg_temp.expect(
+  (select count(*) from public.joiner_invitations) = 0,
+  'a signed-in learner cannot see any invitation, not even their own');
+
+select pg_temp.expect_failure(
+  $$insert into public.joiner_invitations (token_hash, email, invited_by)
+    values ('forged', 'me@example.test', 'aaaa1111-0000-0000-0000-000000000001')$$,
+  'nor invite anybody');
+
+reset role;
+
+
+-- -----------------------------------------------------------------------------
+-- Verification expires
+-- -----------------------------------------------------------------------------
+-- The stamp has to stop being true on a date, or the longer the app runs the
+-- more of its content is confidently wrong.
+
+update public.question_versions
+set verification_status = 'human_verified', review_due_on = null
+where is_current
+  and question_id = (select id from public.questions order by slug limit 1);
+
+select pg_temp.expect(
+  (select review_due_on is not null and review_due_on > current_date
+   from public.question_versions
+   where is_current
+     and question_id = (select id from public.questions order by slug limit 1)),
+  'a sign-off with no end date is given one rather than left open-ended');
+
+-- Losing verification must clear the date. Otherwise a flagged item reads as
+-- "verified until March", which is the opposite of what happened to it.
+update public.question_versions
+set verification_status = 'requires_review', review_flagged = true
+where is_current
+  and question_id = (select id from public.questions order by slug limit 1);
+
+select pg_temp.expect(
+  (select review_due_on is null
+   from public.question_versions
+   where is_current
+     and question_id = (select id from public.questions order by slug limit 1)),
+  'an item that loses its verification does not keep the expiry date it had');
+
+-- And a caller cannot sign something off until the next century by naming its
+-- own date... it can name one, but only within the application's choices; the
+-- database's job here is only to refuse the open-ended case, which it does by
+-- filling it in. Confirm a supplied date is honoured, so the reviewer's choice
+-- is not quietly overwritten either.
+update public.question_versions
+set verification_status = 'human_verified', review_due_on = current_date + 180
+where is_current
+  and question_id = (select id from public.questions order by slug limit 1);
+
+select pg_temp.expect(
+  (select review_due_on = current_date + 180
+   from public.question_versions
+   where is_current
+     and question_id = (select id from public.questions order by slug limit 1)),
+  'a date the reviewer chose is kept, not replaced by the default');
+
+select pg_temp.expect(
+  (select count(*) from information_schema.columns
+   where table_schema = 'public'
+     and table_name in ('question_versions', 'daily_facts')
+     and column_name = 'review_due_on') = 2,
+  'both the question versions and the daily facts carry an expiry');
+
+
 \echo ''
 \echo 'All schema guarantees hold.'
 

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Research library, cases and texts | Lawgistics</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f4f1ea'/%3E%3Ctext x='27' y='44' font-family='Georgia,serif' font-weight='700' font-size='38' fill='%231a1f28' text-anchor='middle'%3EL%3C/text%3E%3Ccircle cx='47' cy='41' r='5' fill='%232d4a75'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#f4f1ea">
+<meta name="description" content="Search Malaysian case law and legal texts. A research starting point for lawyers, pupils, and law students.">
+<meta property="og:title" content="Research library, Lawgistics">
+<meta property="og:image" content="https://lawgistics.my/assets/img/og.png">
+<meta property="og:description" content="Search Malaysian case law and legal texts.">
+<link rel="canonical" href="https://lawgistics.my/library.html">
+<link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body>
+
+<header data-header></header>
+
+<main>
+  <section class="page-head">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal="0">Research library</p>
+      <h1 data-reveal="0">Cases and texts, in one search</h1>
+      <p class="lede" data-reveal="60">A research starting point for lawyers, pupils, and law students, Malaysian authority summarised in plain English, with the citation you need to pull the report.</p>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="wrap">
+      <div class="tpl-toolbar">
+        <div class="chip-row" data-lib-tabs>
+          <button class="chip is-active" type="button" data-tab="cases">Cases</button>
+          <button class="chip" type="button" data-tab="books">Texts &amp; reading</button>
+        </div>
+        <label style="flex:0 1 340px">
+          <span style="position:absolute;left:-9999px">Search the library</span>
+          <input class="input" type="search" data-lib-search placeholder="Search by name, citation, area, keyword…">
+        </label>
+      </div>
+
+      <div class="chip-row" data-lib-areas style="margin-bottom:24px"></div>
+
+      <p style="font-size:.86rem;margin-bottom:18px" data-lib-count></p>
+      <div data-lib-results></div>
+      <p data-lib-empty style="display:none;padding:48px 0;text-align:center">Nothing matches that search yet. <a href="legalhelp.html#intake">Ask us to add it</a>.</p>
+    </div>
+  </section>
+
+  <section class="section section--ink">
+    <div class="wrap" style="max-width:820px">
+      <p class="eyebrow">How to use this</p>
+      <h2 style="font-size:1.9rem">A starting point, not a substitute for the report</h2>
+      <p>Every holding here is a plain-English summary written for this site, not an extract from the judgment. Before you cite anything, pull the official report and read it: the summary tells you whether a case is worth your time, the report tells you what it actually says.</p>
+      <ul class="checklist" style="margin-top:18px">
+        <li data-icon-li><span>Entries marked <strong style="color:var(--cream)">no longer good law</strong> are kept on purpose. They remain in the library so a case that has been overruled is not picked up by mistake, and each one names the decision that displaced it.</span></li>
+        <li data-icon-li><span>Always confirm a case has not been departed from or overruled, Adorna Properties and Tan Ying Hong in this library are exactly why.</span></li>
+        <li data-icon-li><span>Malaysian judgments are published by the Judiciary and through the subscription reporters; the citation here is what you need to find them.</span></li>
+      </ul>
+      <div class="btn-row" style="margin-top:26px">
+        <a class="btn btn--light" href="assistant.html">Ask the research assistant</a>
+        <a class="btn btn--outline-light" href="academy.html">Learn to research properly</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div data-guide></div>
+<footer data-footer></footer>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/site.js"></script>
+<script src="assets/js/doclib.js"></script>
+<script src="assets/js/guide.js"></script>
+<script>
+window.pageInit = function () {
+  // Flags may arrive as real booleans (seed) or as 'true'/'false' strings
+  // (older admin saves). The string 'false' is truthy, so normalise both.
+  function truthy(v) { return v === true || v === 'true'; }
+
+  var esc = window.lgEsc, I = window.LG_ICON;
+  document.querySelectorAll('[data-icon-li]').forEach(function (el) {
+    el.insertAdjacentHTML('afterbegin', I.check);
+  });
+
+  var state = { tab: 'cases', q: '', area: 'all' };
+  var results = document.querySelector('[data-lib-results]');
+  var empty = document.querySelector('[data-lib-empty]');
+  var countEl = document.querySelector('[data-lib-count]');
+  var areasHost = document.querySelector('[data-lib-areas]');
+
+  function source() { return Store.list(state.tab === 'cases' ? 'cases' : 'books'); }
+
+  function paintAreas() {
+    var areas = [];
+    source().forEach(function (r) { if (areas.indexOf(r.area) === -1) areas.push(r.area); });
+    areas.sort();
+    areasHost.innerHTML = '<button class="chip" type="button" data-area="all">All areas</button>' +
+      areas.map(function (a) { return '<button class="chip" type="button" data-area="' + esc(a) + '">' + esc(a) + '</button>'; }).join('');
+    areasHost.querySelectorAll('.chip').forEach(function (b) {
+      b.classList.toggle('is-active', b.getAttribute('data-area') === state.area);
+    });
+  }
+
+  /* ------------------------------------------------------------- search --
+     Lawyers do not type the way a substring match wants them to. They type
+     "unfair dismissal", "s 28 restraint", "2010 2 MLJ 1", "FC indefeasibility".
+     So: normalise, expand known shorthand, require every term to land
+     somewhere, then rank by WHERE it landed. A hit in the case name beats a
+     hit buried in the holding. */
+
+  var STOPWORDS = { the: 1, a: 1, an: 1, of: 1, v: 1, vs: 1, and: 1, in: 1, on: 1, for: 1, to: 1 };
+
+  /* Shorthand a Malaysian practitioner actually types, mapped to the words
+     that appear in the records. Each entry expands into extra search terms,
+     any one of which satisfies the original term. */
+  var SYNONYMS = {
+    fc: ['federal court'], coa: ['court of appeal'], ca: ['court of appeal'],
+    hc: ['high court'], sc: ['supreme court'], ic: ['industrial court'],
+    s: ['section'], sec: ['section'], ss: ['section'],
+    nlc: ['national land code'], cipaa: ['cipaa', 'construction'],
+    ira: ['industrial relations'], roc: ['rules of court'],
+    noncompete: ['restraint of trade'], 'non-compete': ['restraint of trade'],
+    sacking: ['dismissal'], fired: ['dismissal'], termination: ['dismissal'],
+    overruled: ['no longer good law'], superseded: ['no longer good law'],
+    baddebt: ['debt'], probation: ['probationer']
+  };
+
+  function norm(s) {
+    return String(s == null ? '' : s).toLowerCase()
+      .replace(/[\[\]().,;:'"’]/g, ' ')   // citations, punctuation
+      .replace(/\s+/g, ' ').trim();
+  }
+
+  /* "s.28" and "s 28" and "section 28" all become "section 28" */
+  function expandShorthand(q) {
+    return norm(q).replace(/\bs\s*\.?\s*(\d)/g, 'section $1');
+  }
+
+  function terms(q) {
+    var raw = expandShorthand(q).split(' ').filter(Boolean);
+    return raw.filter(function (t) { return !STOPWORDS[t]; }).map(function (t) {
+      return { term: t, alts: [t].concat(SYNONYMS[t] || []) };
+    });
+  }
+
+  /* A term hits a field if the field contains it, or any word in the field
+     starts with it, or the term starts with a field word of 4+ characters.
+     That last rule is what makes "dismissal" find "dismiss" and vice versa
+     without dragging in a stemming library. */
+  function hits(field, t) {
+    var f = norm(field);
+    if (!f) return false;
+    for (var i = 0; i < t.alts.length; i++) {
+      var a = t.alts[i];
+      if (f.indexOf(a) !== -1) return true;
+      var words = f.split(' ');
+      for (var j = 0; j < words.length; j++) {
+        if (words[j].indexOf(a) === 0) return true;
+        /* Reverse direction ("dismissal" should find a record saying
+           "dismiss"). Threshold is 6, not 4: at 4 short common words like
+           "over" in "jurisdiction over the validity" start acting as stems
+           and quietly match unrelated queries such as "overruled". */
+        if (words[j].length >= 6 && a.indexOf(words[j]) === 0) return true;
+      }
+    }
+    return false;
+  }
+
+  /* Field weights. Order here IS the relevance model, so keep it deliberate. */
+  function fieldsFor(r) {
+    return state.tab === 'cases'
+      ? [[r.name, 10], [r.citation, 9], [r.keywords, 6], [r.area, 5],
+         [r.court, 4], [String(r.year), 4],
+         /* Make the status itself searchable, so "overruled" or "superseded"
+            returns every flagged case regardless of how each holding phrases
+            it. Adorna says "departed from", Berjaya says "no longer good law". */
+         [r.superseded ? 'overruled superseded no longer good law' : 'good law current', 5],
+         [r.holding, 2]]
+      : [[r.title, 10], [r.author, 8], [r.area, 5], [r.publisher, 3],
+         [r.level, 3], [r.note, 2]];
+  }
+
+  function score(r, ts) {
+    var fields = fieldsFor(r), total = 0;
+    for (var i = 0; i < ts.length; i++) {
+      var best = 0;
+      for (var f = 0; f < fields.length; f++) {
+        if (fields[f][1] > best && hits(fields[f][0], ts[i])) best = fields[f][1];
+      }
+      if (!best) return -1;             // every term must land: AND, not OR
+      total += best;
+    }
+    // Whole query appearing verbatim in the title or name is the strongest signal.
+    var head = norm(state.tab === 'cases' ? r.name : r.title);
+    if (head.indexOf(expandShorthand(state.q)) !== -1) total += 12;
+    return total;
+  }
+
+  function ranked() {
+    var rows = source().filter(function (r) {
+      return state.area === 'all' || r.area === state.area;
+    });
+    if (!state.q) return rows;
+    var ts = terms(state.q);
+    if (!ts.length) return rows;
+    return rows.map(function (r) { return { r: r, s: score(r, ts) }; })
+      .filter(function (x) { return x.s >= 0; })
+      .sort(function (a, b) { return b.s - a.s || (b.r.year || 0) - (a.r.year || 0); })
+      .map(function (x) { return x.r; });
+  }
+
+  /* Highlight on the ALREADY-ESCAPED string, stepping over HTML entities so
+     a search for "amp" cannot corrupt an &amp; into broken markup. */
+  function hi(escaped) {
+    if (!state.q) return escaped;
+    var ts = terms(state.q).map(function (t) { return t.term; })
+      .filter(function (t) { return t.length > 1; });
+    if (!ts.length) return escaped;
+    var re = new RegExp('(' + ts.map(function (t) {
+      return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }).join('|') + ')', 'gi');
+    return escaped.split(/(&[a-z#0-9]+;)/gi).map(function (seg, i) {
+      return i % 2 ? seg : seg.replace(re, '<mark>$1</mark>');
+    }).join('');
+  }
+
+  function caseRow(r) {
+    return '<article class="res-row">' +
+      '<div class="res-row__head"><h3>' + hi(esc(r.name)) + '</h3>' +
+      '<span class="res-cite">' + hi(esc(r.citation)) + '</span>' +
+      (truthy(r.superseded) ? '<span class="superseded">No longer good law</span>' : '') +
+      (truthy(r.verified) ? '' : '<span class="unverified">Unverified</span>') + '</div>' +
+      '<div class="res-meta"><span>' + hi(esc(r.court)) + '</span><span>·</span><span>' + hi(esc(String(r.year))) + '</span><span>·</span><span>' + hi(esc(r.area)) + '</span></div>' +
+      '<p>' + hi(esc(r.holding)) + '</p>' +
+      (r.keywords ? '<div class="res-meta" style="margin:12px 0 0">' + String(r.keywords).split(',').map(function (k) {
+        return '<span class="tag">' + hi(esc(k.trim())) + '</span>';
+      }).join('') + '</div>' : '') +
+      '</article>';
+  }
+
+  function bookRow(r) {
+    return '<article class="res-row">' +
+      '<div class="res-row__head"><h3>' + hi(esc(r.title)) + '</h3>' +
+      '<span class="res-cite">' + esc(r.level) + '</span></div>' +
+      '<div class="res-meta"><span>' + hi(esc(r.author)) + '</span><span>·</span><span>' + hi(esc(r.publisher)) + '</span><span>·</span><span>' + hi(esc(r.area)) + '</span></div>' +
+      '<p>' + hi(esc(r.note)) + '</p></article>';
+  }
+
+  /* When a search finds nothing, say what was searched and offer the terms
+     that DO return something, rather than a dead end. */
+  function noResults() {
+    var probes = ['dismissal', 'indefeasibility', 'restraint of trade', 'judicial power', 'adjudication', 'probationer'];
+    var q = state.q;
+    var live = probes.filter(function (p) {
+      state.q = p; var n = ranked().length; state.q = q; return n;
+    }).slice(0, 4);
+    return 'Nothing matches <strong>' + esc(state.q) + '</strong>' +
+      (state.area === 'all' ? '' : ' in ' + esc(state.area)) + '.' +
+      (live.length ? '<br><span style="display:inline-block;margin-top:14px">Try ' +
+        live.map(function (p) {
+          return '<button class="chip" type="button" data-suggest="' + esc(p) + '">' + esc(p) + '</button>';
+        }).join(' ') + '</span>' : '') +
+      '<br><span style="display:inline-block;margin-top:14px"><a href="legalhelp.html#intake">Ask us to add it</a>.</span>';
+  }
+
+  function paint() {
+    var rows = ranked();
+    empty.style.display = rows.length ? 'none' : 'block';
+    if (!rows.length) empty.innerHTML = noResults();
+    countEl.textContent = rows.length + ' ' + (state.tab === 'cases' ? 'case' : 'title') + (rows.length === 1 ? '' : 's') +
+      (state.area === 'all' ? '' : ' in ' + state.area) +
+      (state.q && rows.length > 1 ? ', best match first' : '');
+    results.innerHTML = rows.map(state.tab === 'cases' ? caseRow : bookRow).join('');
+  }
+
+  document.querySelector('[data-lib-tabs]').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-tab]');
+    if (!b) return;
+    state.tab = b.getAttribute('data-tab');
+    state.area = 'all';
+    document.querySelectorAll('[data-tab]').forEach(function (x) { x.classList.toggle('is-active', x === b); });
+    paintAreas(); paint();
+  });
+
+  areasHost.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-area]');
+    if (!b) return;
+    state.area = b.getAttribute('data-area');
+    paintAreas(); paint();
+  });
+
+  var searchEl = document.querySelector('[data-lib-search]');
+  searchEl.addEventListener('input', function (e) {
+    state.q = e.target.value.trim().toLowerCase();
+    paint();
+  });
+
+  empty.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-suggest]');
+    if (!b) return;
+    searchEl.value = b.getAttribute('data-suggest');
+    state.q = searchEl.value.toLowerCase();
+    paint();
+  });
+
+  paintAreas();
+  paint();
+};
+</script>
+</body>
+</html>

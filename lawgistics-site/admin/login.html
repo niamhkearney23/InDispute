@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Sign in, Lawgistics Admin</title>
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<div class="login-wrap">
+  <div class="login-box">
+    <div class="logo-mark" style="width:40px;height:40px">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M12 2.6 21 7.4v9.2L12 21.4 3 16.6V7.4z"/><path d="M12 2.6v18.8M3 7.4l9 4.8 9-4.8"/></svg>
+    </div>
+    <h1>Lawgistics Admin</h1>
+    <p class="sub">Sign in to manage collections and content.</p>
+
+    <div class="login-err" id="err"></div>
+
+    <form id="login-form" novalidate>
+      <div class="f">
+        <label for="email">Email</label>
+        <input class="inp" id="email" name="email" type="email" required autocomplete="username" autofocus>
+      </div>
+      <div class="f">
+        <label for="password">Password</label>
+        <input class="inp" id="password" name="password" type="password" required autocomplete="current-password">
+      </div>
+      <button class="btn btn--primary" type="submit" style="width:100%;justify-content:center">Log in</button>
+    </form>
+
+    <p class="login-hint" id="mode-hint">Signing in to the live Payload API at lawgistics.my</p>
+    <p class="login-hint">
+      <a href="#" id="demo-toggle" style="text-decoration:underline">Use offline demo mode instead</a>
+      &nbsp;·&nbsp;
+      <a href="../index.html" style="text-decoration:underline">Back to the website</a>
+    </p>
+  </div>
+</div>
+
+<script src="../assets/js/config.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/store.js"></script>
+<script>
+(function () {
+  var form = document.getElementById('login-form');
+  var err = document.getElementById('err');
+  var hint = document.getElementById('mode-hint');
+  var toggle = document.getElementById('demo-toggle');
+  var btn = form.querySelector('button[type="submit"]');
+
+  var next = new URLSearchParams(location.search).get('next') || '#/';
+  var demoMode = !window.LG_CONFIG || !window.LG_CONFIG.remote;
+
+  function paintMode() {
+    hint.textContent = demoMode
+      ? 'Offline demo mode, admin@lawgistics.my / lawgistics'
+      : 'Signing in to the live Payload API at lawgistics.my';
+    toggle.textContent = demoMode
+      ? 'Use the live Payload API instead'
+      : 'Use offline demo mode instead';
+  }
+  paintMode();
+
+  toggle.addEventListener('click', function (e) {
+    e.preventDefault();
+    demoMode = !demoMode;
+    err.className = 'login-err';
+    paintMode();
+  });
+
+  // Already signed in? Go straight through.
+  var s = Store.session();
+  if (s && (s.role === 'admin' || s.role === 'editor')) location.replace('index.html' + next);
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Signing in…';
+    err.className = 'login-err';
+
+    Store.signIn(form.email.value, form.password.value, { forceLocal: demoMode })
+      .then(function (session) {
+        if (session.mode === 'local' && session.role !== 'admin' && session.role !== 'editor') {
+          Store.signOut();
+          throw new Error('That account does not have admin access.');
+        }
+        location.replace('index.html' + next);
+      })
+      .catch(function (ex) {
+        btn.disabled = false;
+        btn.textContent = 'Log in';
+        err.textContent = ex.message || 'Sign-in failed.';
+        err.className = 'login-err is-on';
+      });
+  });
+})();
+</script>
+</body>
+</html>
