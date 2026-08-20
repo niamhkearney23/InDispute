@@ -28,6 +28,35 @@
   .msg.info{ background:var(--navy-soft); color:var(--navy-deep); }
   #wordcount { font-size:.78rem; color:var(--ink-soft); text-align:right; margin-top:6px; }
 
+  /* Waiting. A minute of a motionless page reads as a hang, so the scales
+     keep moving and the line keeps changing: both say the work is still
+     happening. The lines are also the only honest way to show what is being
+     assessed while it is being assessed. */
+  .thinking { display:none; gap:16px; align-items:center; margin-top:14px;
+    padding:14px 16px; border-radius:var(--r-sm); background:var(--navy-soft); }
+  .thinking.show { display:flex; }
+  .thinking svg { flex:none; width:46px; height:46px; color:var(--navy); }
+  .thinking-line { margin:0; font-size:.92rem; font-weight:600; color:var(--navy-deep);
+    animation:tk-fade .5s var(--ease, ease); }
+  .thinking-sub { margin:2px 0 0; font-size:.8rem; color:var(--haze-text); }
+
+  /* The beam tips, and the pans counter-move so they hang level, which is
+     what makes it read as scales rather than a rocking stick. */
+  .tk-beam { transform-origin:24px 13px; animation:tk-tip 3.2s ease-in-out infinite alternate; }
+  .tk-pan-l { animation:tk-dip 3.2s ease-in-out infinite alternate; }
+  .tk-pan-r { animation:tk-rise 3.2s ease-in-out infinite alternate; }
+  @keyframes tk-tip  { from { transform:rotate(-7deg); } to { transform:rotate(7deg); } }
+  @keyframes tk-dip  { from { transform:translateY(-2px); } to { transform:translateY(2px); } }
+  @keyframes tk-rise { from { transform:translateY(2px); } to { transform:translateY(-2px); } }
+  @keyframes tk-fade { from { opacity:0; transform:translateY(3px); } to { opacity:1; transform:none; } }
+
+  /* Somebody who has asked not to be moved still needs to know it is working,
+     so the text keeps changing and only the motion stops. */
+  @media (prefers-reduced-motion: reduce) {
+    .tk-beam, .tk-pan-l, .tk-pan-r, .thinking-line { animation:none; }
+    .tk-beam { transform:rotate(-4deg); }
+  }
+
   .score-head { display:flex; justify-content:space-between; align-items:flex-end; gap:14px; flex-wrap:wrap; }
   .score-big { font-family:var(--sans); font-weight:700; font-size:2.6rem; line-height:1; }
   .score-big span { font-size:1rem; font-weight:400; color:var(--ink-soft); }
@@ -115,6 +144,22 @@
       <div class="card">
         <button class="btn btn--primary btn--block" id="submitBtn">Get feedback</button>
         <div class="msg" id="subMsg"></div>
+
+        <div class="thinking" id="thinking" role="status" aria-live="polite">
+          <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" aria-hidden="true">
+            <path d="M24 9v30" />
+            <path d="M16 39h16" />
+            <circle cx="24" cy="7" r="2" fill="currentColor" stroke="none" />
+            <g class="tk-beam"><path d="M8 13h32" /></g>
+            <g class="tk-pan-l"><path d="M3 17l5-4 5 4" /><path d="M3 17a5 5 0 0 0 10 0" /></g>
+            <g class="tk-pan-r"><path d="M35 17l5-4 5 4" /><path d="M35 17a5 5 0 0 0 10 0" /></g>
+          </svg>
+          <div>
+            <p class="thinking-line" id="thinkingLine">Reading your argument.</p>
+            <p class="thinking-sub">About a minute. Leave this tab open, you can go and do something else.</p>
+          </div>
+        </div>
       </div>
 
     </div>
@@ -155,6 +200,43 @@ window.pageInit = function () {
 
   function msg(el, text, kind) { el.textContent = text; el.className = 'msg show ' + (kind || 'info'); }
   function clr(el) { el.className = 'msg'; }
+
+  /* ---- waiting ----------------------------------------------------- */
+  // Roughly what the coach is actually doing, in order, so the wait tells
+  // the learner what they are being marked on. The last line stays put
+  // rather than looping back to the start, because starting over after a
+  // minute reads as being stuck.
+  var THINKING = [
+    'Reading your argument.',
+    'Working out what the real issue was.',
+    'Checking whether you decided, or only described.',
+    'Looking for the argument against you.',
+    'Seeing what you did with the facts.',
+    'Weighing it against what a good beginner could manage.',
+    'Trying to be useful rather than kind.',
+    'Writing your feedback.'
+  ];
+  var thinkTimer = null;
+
+  function startThinking() {
+    var i = 0, line = $('thinkingLine');
+    line.textContent = THINKING[0];
+    $('thinking').classList.add('show');
+    thinkTimer = setInterval(function () {
+      if (i >= THINKING.length - 1) return;   // hold on the last one
+      i += 1;
+      line.textContent = THINKING[i];
+      // Restart the fade by letting the browser see the class removed first.
+      line.style.animation = 'none';
+      void line.offsetWidth;
+      line.style.animation = '';
+    }, 7000);
+  }
+
+  function stopThinking() {
+    if (thinkTimer) { clearInterval(thinkTimer); thinkTimer = null; }
+    $('thinking').classList.remove('show');
+  }
   function fmt(s) { var m = Math.floor(s/60), r = s%60; return ('0'+m).slice(-2)+':'+('0'+r).slice(-2); }
   function words(t) { return (t.trim().match(/\S+/g) || []).length; }
   function refresh() { $('wordcount').textContent = words($('transcript').value) + ' words'; }
@@ -333,7 +415,8 @@ window.pageInit = function () {
       '\nTRANSCRIPT\n"""\n' + transcript + '\n"""\n\nGive this learner their feedback now.';
 
     $('submitBtn').disabled = true;
-    msg($('subMsg'), 'Reading your argument and writing feedback, about a minute. Don’t close the page.', 'info');
+    clr($('subMsg'));
+    startThinking();
 
     fetch('/claude', {
       method: 'POST',
@@ -359,9 +442,11 @@ window.pageInit = function () {
       var text = (resp.content || []).filter(function (b) { return b.type === 'text'; }).map(function (b) { return b.text; }).join('');
       var a;
       try { a = JSON.parse(text); } catch (e) { throw new Error('The feedback came back garbled. Please try again.'); }
+      stopThinking();
       awardXp();
       render(a);
     }).catch(function (err) {
+      stopThinking();
       $('submitBtn').disabled = false;
       msg($('subMsg'), err.message, 'err');
     });
@@ -370,7 +455,7 @@ window.pageInit = function () {
   $('againBtn').addEventListener('click', function () {
     $('transcript').value = ''; finalText = ''; elapsed = 0;
     $('timer').textContent = '00:00'; $('recBtn').textContent = '● Start recording';
-    refresh(); clr($('subMsg')); $('submitBtn').disabled = false;
+    refresh(); clr($('subMsg')); stopThinking(); $('submitBtn').disabled = false;
     $('result').style.display = 'none'; $('exercise').style.display = 'block';
     window.scrollTo(0, 0);
   });
