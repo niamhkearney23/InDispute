@@ -37,6 +37,29 @@
        material that did not exist, and the level it produced measured nothing.
        Nothing on this page now claims to be a record. -->
 
+  <!-- =================================================== the two halves -->
+  <section class="section section--tight">
+    <div class="wrap">
+      <div class="section-head" style="max-width:720px">
+        <p class="eyebrow">How the training works</p>
+        <h2>Two halves, marked in two different places.</h2>
+        <p class="lede">This page describes the training. Only one of the two halves is marked here.</p>
+      </div>
+      <div class="grid grid-2">
+        <div class="card" data-reveal="0">
+          <h3>Advocacy, on this site</h3>
+          <p>Read a problem, argue it out loud, and get structured feedback on your reasoning, your structure and how you present. No account, nothing to install, and it is free while Lawgistics is in beta.</p>
+          <a class="btn btn--primary btn--sm" style="margin-top:14px" href="advocacy.html">Start an exercise →</a>
+        </div>
+        <div class="card" data-reveal="80">
+          <h3>Questions, in the app</h3>
+          <p>A short diagnostic works out what you already know, then you get asked about what you do not. Answers are checked on the server rather than in your browser, and anything you get wrong comes back later until it stops being wrong. That needs an account, because the point of it is the record.</p>
+          <a class="btn btn--primary btn--sm" style="margin-top:14px" data-app-link="/diagnostic" hidden>Take the diagnostic →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ====================================================== daily quiz -->
   <section class="section section--tight section--white" id="quiz">
     <div class="wrap">
@@ -159,6 +182,39 @@ window.pageInit = function () {
   var levels = Store.list('academyLevels', { sort: 'level' });
   var tracks = Store.list('learnTracks');
 
+  /* Links into the training app.
+
+     The app lives at a different address and holds the questions. Everything
+     inside it needs an account, including the diagnostic, so a link goes to
+     sign-up carrying where the person was trying to get to. They land where
+     they were headed once they have an account, instead of on a dashboard
+     wondering what they clicked.
+
+     If appUrl is blank the links are simply not shown. A dead button into an
+     app that is not deployed is worse than no button. */
+  var APP_URL = String((window.LG_CONFIG || {}).appUrl || '').replace(/\/+$/, '');
+
+  function appHref(path) {
+    if (!APP_URL) return '';
+    return APP_URL + '/signup?next=' + encodeURIComponent(path);
+  }
+
+  (function () {
+    var links = document.querySelectorAll('[data-app-link]');
+    for (var i = 0; i < links.length; i++) {
+      var href = appHref(links[i].getAttribute('data-app-link'));
+      if (!href) continue;
+      links[i].setAttribute('href', href);
+      links[i].removeAttribute('hidden');
+    }
+  })();
+
+  /* One strand has a module of its own in the app; the rest go to the
+     diagnostic, which is the app's own way in and decides what to ask. This
+     map is deliberately short rather than invented: a link is only added where
+     a module actually exists on the other end. */
+  var APP_PATHS = { lt4: '/modules/research-my' };
+
   function trackFor(level) {
     return tracks.filter(function (x) { return x.id === level.tracks; })[0] || null;
   }
@@ -186,6 +242,10 @@ window.pageInit = function () {
       var covers = t ? linesOf(t.lessons) : [];
       var soon = t && t.status === 'draft';
       var isAdvocacy = t && t.id === 'lt6';
+      // A strand still marked draft gets no link into the app, because there
+      // is nothing on the other end of it to practise yet.
+      var appPath = (t && !isAdvocacy && !soon) ? (APP_PATHS[t.id] || '/diagnostic') : '';
+      var appLink = appPath ? appHref(appPath) : '';
 
       return '<div class="level-card' + (isAdvocacy ? ' is-current' : '') + '">' +
         '<span class="level-badge">' + l.level + '</span>' +
@@ -204,8 +264,17 @@ window.pageInit = function () {
             : '') +
           (isAdvocacy
             ? '<a class="btn btn--primary btn--sm" style="margin-top:12px" href="advocacy.html">Start an exercise →</a>' +
-              '<p style="font-size:.8rem;margin:8px 0 0;color:var(--ink-soft)">The one part that marks you. Everything else here you judge yourself.</p>'
-            : '') +
+              '<p style="font-size:.8rem;margin:8px 0 0;color:var(--ink-soft)">Marked here, on this site, with no account.</p>'
+            : appLink
+              ? '<a class="btn btn--primary btn--sm" style="margin-top:12px" href="' +
+                esc(appLink) + '">' +
+                (APP_PATHS[t.id] ? 'Practise this in the app →' : 'Start with the diagnostic →') + '</a>' +
+                '<p style="font-size:.8rem;margin:8px 0 0;color:var(--ink-soft)">' +
+                (APP_PATHS[t.id]
+                  ? 'Questions on this strand, marked on the server. Needs an account.'
+                  : 'The app has no module of its own for this strand yet. The diagnostic works out what you know and asks accordingly.') +
+                '</p>'
+              : '') +
         '</div></div>';
     }).join('');
   }

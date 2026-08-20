@@ -9,6 +9,12 @@ window.LG_CONFIG = {
   apiBase: '/api',
   remote: true,
 
+  // The training app (a separate deployment). This site describes the training
+  // and marks advocacy; the questions live in the app, where they are scored on
+  // the server and the result is kept. Leave it blank and every link into the
+  // app disappears rather than pointing at nothing.
+  appUrl: 'https://in-dispute.vercel.app',
+
   // Paste your Calendly event link here (e.g. 'https://calendly.com/yourname/10min')
   // and the free intake call section embeds live scheduling automatically.
   calendlyUrl: '',
