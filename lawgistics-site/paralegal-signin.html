@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in, Lawgistics</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f4f1ea'/%3E%3Ctext x='27' y='44' font-family='Georgia,serif' font-weight='700' font-size='38' fill='%231a1f28' text-anchor='middle'%3EL%3C/text%3E%3Ccircle cx='47' cy='41' r='5' fill='%232d4a75'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#f4f1ea">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Lawgistics">
+<meta property="og:title" content="Sign in, Lawgistics">
+<meta property="og:image" content="https://lawgistics.my/assets/img/og.png">
+<meta property="og:description" content="Sign in to your Lawgistics firm portal or paralegal workspace.">
+<meta property="og:url" content="https://lawgistics.my/paralegal-signin.html">
+<meta name="twitter:card" content="summary">
+<meta name="description" content="Sign in to your Lawgistics firm portal or paralegal workspace.">
+<link rel="canonical" href="https://lawgistics.my/paralegal-signin.html">
+<link rel="stylesheet" href="assets/css/site.css">
+
+<style>
+.signin-panel{max-width:520px;margin-inline:auto}
+.demo-box{
+  margin-top:26px;padding:18px 20px;background:var(--navy-soft);border-radius:var(--r);
+  font-size:.88rem;
+}
+.demo-box .lbl{
+  font-size:.72rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.14em;
+  font-weight:600;margin-bottom:12px;
+}
+.demo-row{
+  display:flex;justify-content:space-between;gap:16px;align-items:center;
+  padding:10px 0;border-bottom:1px dashed rgba(45,74,117,.2);cursor:pointer;
+  transition:opacity .15s var(--ease);
+}
+.demo-row:last-child{border-bottom:0}
+.demo-row:hover{opacity:.7}
+.demo-row .role{
+  font-size:.72rem;color:var(--navy);font-weight:700;text-transform:uppercase;letter-spacing:.14em;
+}
+.demo-row .email{font-family:var(--serif);font-style:italic;color:var(--ink)}
+.demo-hint{margin-top:12px;font-size:.82rem;color:var(--ink-soft);font-style:italic}
+
+.flash{
+  margin-top:16px;padding:12px 14px;border-radius:var(--r);
+  font-size:.9rem;display:none;
+}
+.flash.show{display:block}
+.flash.err{background:rgba(166,61,61,.08);border-left:3px solid var(--red);color:var(--red)}
+</style>
+</head>
+<body>
+
+<header data-header></header>
+
+<main>
+
+  <section class="page-head">
+    <div class="wrap" style="max-width:720px">
+      <p class="eyebrow" data-reveal="0">Workspace sign-in</p>
+      <h1 data-reveal="0">Welcome back</h1>
+      <p class="lede" data-reveal="60">Sign in with your account email. Firm partners land in the firm workspace, paralegals land in their own dashboard.</p>
+    </div>
+  </section>
+
+  <section class="section section--white">
+    <div class="wrap">
+      <div class="form-card signin-panel" data-reveal="0">
+        <form id="signinForm" autocomplete="on" novalidate>
+          <div class="field">
+            <label for="email">Email</label>
+            <input class="input" id="email" type="email" required autocomplete="username" placeholder="you@firm.com">
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input class="input" id="password" type="password" required autocomplete="current-password" placeholder="••••••••">
+          </div>
+          <button class="btn btn--primary btn--block" type="submit" id="signinBtn">Sign in</button>
+          <div class="flash err" id="flash"></div>
+        </form>
+
+        <div class="demo-box">
+          <div class="lbl">Proof-of-concept · click to prefill</div>
+          <div class="demo-row" data-email="aishah@tanpartners.my" data-password="champion">
+            <span class="role">Firm</span>
+            <span class="email">aishah@tanpartners.my</span>
+          </div>
+          <div class="demo-row" data-email="priya@lawgistics.my" data-password="champion">
+            <span class="role">Paralegal</span>
+            <span class="email">priya@lawgistics.my</span>
+          </div>
+          <div class="demo-hint">Password for both demo accounts: <b>champion</b></div>
+        </div>
+
+        <p class="form-note" style="margin-top:22px">Lost your password? Reply to your welcome email and our team will reset it for you.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer data-footer></footer>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/site.js"></script>
+<script>
+const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? 'http://localhost:4040' : 'https://legal-champions-production.up.railway.app';
+
+const params = new URLSearchParams(window.location.search);
+const nextPath = params.get('next') || null;
+
+const form  = document.getElementById('signinForm');
+const flash = document.getElementById('flash');
+const btn   = document.getElementById('signinBtn');
+
+document.querySelectorAll('.demo-row').forEach(el => {
+  el.addEventListener('click', () => {
+    document.getElementById('email').value = el.dataset.email;
+    document.getElementById('password').value = el.dataset.password;
+    document.getElementById('email').focus();
+  });
+});
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  flash.classList.remove('show');
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  try {
+    const r = await fetch(API_BASE + '/api/auth/login', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: document.getElementById('email').value.trim(),
+        password: document.getElementById('password').value
+      })
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || 'Sign-in failed.');
+    const fallback = data.user.role === 'firm' ? '/firm-workspace' : '/paralegal-workspace';
+    window.location.href = nextPath && nextPath.startsWith('/') ? nextPath : fallback;
+  } catch (err) {
+    flash.textContent = err.message;
+    flash.classList.add('show');
+    btn.disabled = false; btn.textContent = 'Sign in';
+  }
+});
+</script>
+
+</body>
+</html>
