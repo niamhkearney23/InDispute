@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">
+  <defs>
+    
+    <style>
+      .d { font-family: "Playfair Display", Didot, Georgia, serif; font-weight: 400; }
+      .s { font-family: "Cormorant Garamond", Didot, Georgia, serif; font-style: italic; font-weight: 300; }
+      .u { font-family: Inter, Helvetica, Arial, sans-serif; font-size: 21px; letter-spacing: 4.4px; }
+    </style>
+  </defs>
+  <rect width="1080" height="1080" fill="#5C1F28"/>
+  <text class="u" x="90" y="128" fill="#D2A8A6">WEEK ONE</text>
+  <g class="d" fill="#F3DED9" font-size="118.0">
+    <text x="90" y="491.7">Thank you</text>
+  </g>
+  <text class="u" x="90" y="1002" fill="#D2A8A6">SLEEP SHOP, MELBOURNE</text>
+</svg>

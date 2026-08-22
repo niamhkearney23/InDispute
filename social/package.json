@@ -1,0 +1,11 @@
+{
+  "name": "sleep-shop-social",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sleep Shop social: calendar, captions and generated type tiles",
+  "scripts": {
+    "tiles": "node scripts/build-tiles.mjs",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "engines": { "node": ">=20" }
+}
