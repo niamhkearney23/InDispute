@@ -7,10 +7,10 @@
       .u { font-family: Inter, Helvetica, Arial, sans-serif; font-size: 21px; letter-spacing: 4.4px; }
     </style>
   </defs>
-  <rect width="1080" height="1080" fill="#5C1F28"/>
-  <text class="u" x="90" y="128" fill="#D2A8A6">WEEK ONE</text>
-  <g class="d" fill="#F3DED9" font-size="118.0">
+  <rect width="1080" height="1080" fill="#7A4A52"/>
+  <text class="u" x="90" y="128" fill="#D9BDBB">WEEK ONE</text>
+  <g class="d" fill="#F6E9E6" font-size="118.0">
     <text x="90" y="491.7">Thank you</text>
   </g>
-  <text class="u" x="90" y="1002" fill="#D2A8A6">SLEEP SHOP, MELBOURNE</text>
+  <text class="u" x="90" y="1002" fill="#D9BDBB">SLEEP SHOP, MELBOURNE</text>
 </svg>

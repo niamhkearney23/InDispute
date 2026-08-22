@@ -1,6 +1,6 @@
 /* =========================================================================
    Sleep Shop — Melbourne
-   Palette and type follow the brand plan: cocoa, oxblood, powder, cream and
+   Palette and type follow the brand plan: cocoa, rose, powder, cream and
    a cream-on-cream stripe. Playfair for display, Cormorant italic as a single
    script accent, Inter tracked wide and small for utility labels.
 
@@ -15,7 +15,7 @@
   color-scheme: light;
 
   --cocoa: #3b2318;
-  --oxblood: #5c1f28;
+  --rose: #7a4a52;
   --powder: #afc9df;
   --cream: #f2e9dc;
   --linen: #fbf7f1;
@@ -32,7 +32,7 @@
   --accent: var(--cocoa);
   --accent-hover: #4d3122;
   --accent-ink: var(--cream);
-  --mark: var(--oxblood);
+  --mark: var(--rose);
 
   --radius: 3px;
   --radius-lg: 4px;
@@ -65,7 +65,7 @@
   --accent: var(--cream);
   --accent-hover: #ffffff;
   --accent-ink: #2a1810;
-  --mark: #e2a9a2;
+  --mark: #e8c3c0;
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, .35);
   --shadow: 0 14px 40px rgba(0, 0, 0, .45);
@@ -91,7 +91,7 @@
     --accent: var(--cream);
     --accent-hover: #ffffff;
     --accent-ink: #2a1810;
-    --mark: #e2a9a2;
+    --mark: #e8c3c0;
 
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, .35);
     --shadow: 0 14px 40px rgba(0, 0, 0, .45);
@@ -123,7 +123,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 a { color: inherit; }
 
 :focus-visible {
-  outline: 2px solid var(--oxblood);
+  outline: 2px solid var(--rose);
   outline-offset: 3px;
 }
 [data-theme="dark"] :focus-visible { outline-color: var(--powder); }
@@ -450,7 +450,7 @@ p:last-child { margin-bottom: 0; }
 .tile-type .script { font-size: clamp(1.05rem, 2.6vw, 1.6rem); }
 .tile-type b { font-family: var(--display); font-weight: 400; font-size: clamp(.85rem, 2vw, 1.15rem); line-height: 1.15; }
 .t-cocoa { background: var(--cocoa); color: var(--cream); }
-.t-oxblood { background: var(--oxblood); color: #f3ded9; }
+.t-rose { background: var(--rose); color: #f3ded9; }
 .t-powder { background: var(--powder); color: #2e4257; }
 .t-cream { background: var(--cream); color: var(--cocoa); }
 .t-stripe { background: repeating-linear-gradient(90deg, var(--cream) 0 10px, #e6daca 10px 20px); color: var(--cocoa); }
@@ -511,8 +511,8 @@ p:last-child { margin-bottom: 0; }
 .prose li { margin-bottom: .5rem; }
 
 .callout {
-  border-left: 2px solid var(--oxblood);
-  background: color-mix(in srgb, var(--oxblood) 6%, transparent);
+  border-left: 2px solid var(--rose);
+  background: color-mix(in srgb, var(--rose) 6%, transparent);
   padding: 1rem 1.2rem;
   font-size: 13.5px;
   color: var(--ink-soft);
@@ -570,7 +570,7 @@ p:last-child { margin-bottom: 0; }
 .msg-field { display: grid; gap: .4rem; }
 .msg-field textarea { min-height: 96px; }
 .msg-count { font-size: 11px; color: var(--mute); text-align: right; font-variant-numeric: tabular-nums; }
-.msg-count.is-full { color: var(--oxblood); }
+.msg-count.is-full { color: var(--rose); }
 
 .buy-row { display: flex; flex-wrap: wrap; gap: .8rem; align-items: center; margin-top: 1.8rem; }
 .buy-row .btn { flex: 1; min-width: 200px; white-space: nowrap; }
@@ -681,7 +681,7 @@ details.accordion .accordion__body { padding-bottom: 1.2rem; color: var(--ink-so
   text-underline-offset: 4px;
   cursor: pointer;
 }
-.link-quiet:hover { color: var(--oxblood); }
+.link-quiet:hover { color: var(--rose); }
 
 .totals { display: grid; gap: .5rem; font-size: 13.5px; }
 .totals div { display: flex; justify-content: space-between; gap: 1rem; }
@@ -756,8 +756,8 @@ select { cursor: pointer; }
   color: var(--mute);
 }
 .form-field .hint { font-size: 12px; color: var(--mute); }
-.form-error { color: var(--oxblood); font-size: 12px; min-height: 1em; }
-[data-theme="dark"] .form-error { color: #e2a9a2; }
+.form-error { color: var(--rose); font-size: 12px; min-height: 1em; }
+[data-theme="dark"] .form-error { color: #e8c3c0; }
 
 .choice-row { display: grid; gap: .6rem; }
 .choice-row label {

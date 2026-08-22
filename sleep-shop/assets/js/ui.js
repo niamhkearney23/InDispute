@@ -281,7 +281,7 @@
 
   /* The ribbon choice picks the ground, so the cart thumbnail matches it. */
   function groundForRibbon(ribbon) {
-    return ribbon === 'Oxblood' ? 'oxblood' : 'powder';
+    return ribbon === 'Clay rose' ? 'rose' : 'powder';
   }
 
   /* --------------------------------------------------------------- toast */

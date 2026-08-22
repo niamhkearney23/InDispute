@@ -110,7 +110,7 @@
   font-style: italic;
   font-size: 1.35rem;
   line-height: 1.25;
-  color: var(--ss-oxblood, #5c1f28);
+  color: var(--ss-rose, #7a4a52);
   margin: 0 0 0.6rem;
 }
 
@@ -148,10 +148,10 @@
   line-height: 1.4;
 }
 .ss-pop__field input:focus-visible {
-  outline: 2px solid var(--ss-oxblood, #5c1f28);
+  outline: 2px solid var(--ss-rose, #7a4a52);
   outline-offset: 2px;
 }
-.ss-pop__field input[aria-invalid="true"] { border-color: var(--ss-oxblood, #5c1f28); }
+.ss-pop__field input[aria-invalid="true"] { border-color: var(--ss-rose, #7a4a52); }
 
 .ss-pop__submit {
   width: 100%;
@@ -173,7 +173,7 @@
 .ss-pop__error {
   font-family: var(--ss-util, sans-serif);
   font-size: 0.78rem;
-  color: var(--ss-oxblood, #5c1f28);
+  color: var(--ss-rose, #7a4a52);
   min-height: 1em;
   margin: 0;
 }
@@ -216,7 +216,7 @@
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  border: 1px solid var(--ss-oxblood, #5c1f28);
+  border: 1px solid var(--ss-rose, #7a4a52);
   display: grid;
   place-items: center;
   margin-bottom: 0.4rem;
@@ -225,7 +225,7 @@
   width: 15px;
   height: 15px;
   fill: none;
-  stroke: var(--ss-oxblood, #5c1f28);
+  stroke: var(--ss-rose, #7a4a52);
   stroke-width: 1.6;
 }
 

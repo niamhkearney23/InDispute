@@ -8,10 +8,9 @@
     </style>
   </defs>
   <rect width="1080" height="1080" fill="#7A4A52"/>
-  <text class="u" x="90" y="128" fill="#D9BDBB">THE BOX</text>
-  <g class="d" fill="#F6E9E6" font-size="118.0">
-    <text x="90" y="423.2">Eight pieces,</text>
-    <text x="90" y="560.1">one ritual</text>
+  <text class="u" x="90" y="128" fill="#D9BDBB">THE CARD</text>
+  <g class="s" fill="#F6E9E6" font-size="126.0">
+    <text x="90" y="492.3">Written by hand</text>
   </g>
   <text class="u" x="90" y="1002" fill="#D9BDBB">SLEEP SHOP, MELBOURNE</text>
 </svg>

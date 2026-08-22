@@ -23,7 +23,7 @@
      them — consistent grounds are what hold the look together. */
   var GROUNDS = {
     cocoa: { bg: '#3B2318', ink: '#F2E9DC', soft: '#7A5641' },
-    oxblood: { bg: '#5C1F28', ink: '#F3DED9', soft: '#96525A' },
+    rose: { bg: '#7A4A52', ink: '#F6E9E6', soft: '#A8848A' },
     powder: { bg: '#AFC9DF', ink: '#2E4257', soft: '#6F8FAC' },
     cream: { bg: '#F2E9DC', ink: '#3B2318', soft: '#C4AE97' },
     stripe: { bg: '#F2E9DC', ink: '#3B2318', soft: '#C4AE97', striped: true }
@@ -43,7 +43,7 @@
     ],
     /* Ribbon is the only choice to make, and it costs nothing either way. */
     ribbons: [
-      { label: 'Oxblood', swatch: '#5C1F28' },
+      { label: 'Clay rose', swatch: '#7A4A52' },
       { label: 'Powder blue', swatch: '#AFC9DF' }
     ],
     /* Set `photo` on any of these and the drawing is replaced site-wide.
@@ -100,7 +100,7 @@
       name: 'Merino bed socks',
       material: '19.5-micron Australian merino',
       art: 'socks',
-      ground: 'oxblood',
+      ground: 'rose',
       photo: '',
       blurb: 'Fine-knit merino with a loose cuff that does not leave a mark on the ankle.',
       detail: 'Knitted in Melbourne from 19.5-micron merino. Warm without the bulk of a boot sock, and the cuff is ribbed loosely on purpose.'
@@ -163,7 +163,7 @@
   ];
 
   var STEPS = [
-    { title: 'Choose the box and a ribbon', body: 'Oxblood or powder blue. There is one box, so this is the only decision.' },
+    { title: 'Choose the box and a ribbon', body: 'Clay rose or powder blue. There is one box, so this is the only decision.' },
     { title: 'Write your message', body: 'Up to 220 characters at checkout. We write it on the card by hand.' },
     { title: 'We pack it and tie it', body: 'By hand in Melbourne, usually the same working day.' },
     { title: 'It arrives ready to give', body: 'No invoice in the box, no pricing on the outside. Send it straight to them.' }

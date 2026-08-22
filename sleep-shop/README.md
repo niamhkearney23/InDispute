@@ -4,7 +4,7 @@ A storefront for a Melbourne studio selling one thing: the Signature Sleep Box, 
 eight pieces, packed by hand with a message written on the card. Static HTML, CSS and
 vanilla JavaScript — **no build step and no dependencies.**
 
-Built to the brand plan: cocoa, oxblood, powder blue, cream and a cream-on-cream stripe;
+Built to the brand plan: cocoa, rose, powder blue, cream and a cream-on-cream stripe;
 Playfair Display for display type, Cormorant Garamond italic as a single script accent,
 Inter tracked wide and small for utility labels. No moons, no icons.
 

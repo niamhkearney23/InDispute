@@ -18,7 +18,7 @@ const out = path.join(root, 'tiles');
 /* The five brand grounds. Ink is chosen for contrast against each. */
 const GROUNDS = {
   cocoa: { bg: '#3B2318', ink: '#F2E9DC', quiet: '#C9B6A6' },
-  oxblood: { bg: '#5C1F28', ink: '#F3DED9', quiet: '#D2A8A6' },
+  rose: { bg: '#7A4A52', ink: '#F6E9E6', quiet: '#D9BDBB' },
   powder: { bg: '#AFC9DF', ink: '#2E4257', quiet: '#5A748C' },
   cream: { bg: '#F2E9DC', ink: '#3B2318', quiet: '#8B7A6E' },
   stripe: { bg: '#F2E9DC', ink: '#3B2318', quiet: '#8B7A6E', striped: true }
@@ -105,6 +105,13 @@ async function main() {
       await writeFile(path.join(out, `${name}.svg`), svg);
       made.push({ name, headline: post.headline });
     }
+  }
+
+  for (const post of calendar.evergreen?.posts ?? []) {
+    if (!post.tile) continue;
+    const name = `evergreen-${post.id}`;
+    await writeFile(path.join(out, `${name}.svg`), tile({ ...post.tile, ground: post.ground }));
+    made.push({ name, headline: post.tile.text });
   }
 
   console.log(`${made.length} tiles written to tiles/`);

@@ -27,7 +27,7 @@ the set look expensive, more than camera quality does.
 | `eye-mask.jpg` | Silk eye mask, flat, raking side light to catch the weave | Cocoa |
 | `pillowcase.jpg` | Silk folded in thirds, close enough to see the fibre | Powder |
 | `scrunchie.jpg` | Scrunchie beside a pillowcase corner, so the colour match reads | Cream |
-| `bed-socks.jpg` | Both socks, loosely folded, cuffs showing | Oxblood |
+| `bed-socks.jpg` | Both socks, loosely folded, cuffs showing | Clay rose |
 | `pillow-mist.jpg` | Bottle upright, atomiser in focus | Cocoa |
 | `tea.jpg` | Tin open, a small spill of leaf beside it | Stripe |
 | `candle.jpg` | Candle unlit, from slightly above the rim | Powder |

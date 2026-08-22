@@ -1,6 +1,6 @@
 /* Sleep Shop — artwork.
    Every image on the site is generated SVG on one of the five brand grounds:
-   cocoa, oxblood, powder, cream, stripe. Square, because the whole visual
+   cocoa, rose, powder, cream, stripe. Square, because the whole visual
    system is built around square tiles.
 
    No moons, no icons — soft product shapes on saturated grounds, per the

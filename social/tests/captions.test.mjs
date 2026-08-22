@@ -118,7 +118,7 @@ test('the calendar is four posts a week for four weeks', () => {
 });
 
 test('every post names a ground from the brand palette', () => {
-  const allowed = ['cocoa', 'oxblood', 'powder', 'cream', 'stripe', 'alternating'];
+  const allowed = ['cocoa', 'rose', 'powder', 'cream', 'stripe', 'alternating'];
   for (const post of posts) {
     assert.ok(allowed.includes(post.ground), `${post.ref}: unknown ground "${post.ground}"`);
   }

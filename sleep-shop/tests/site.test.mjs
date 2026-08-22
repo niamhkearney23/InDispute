@@ -61,7 +61,7 @@ test('the box and its eight pieces are complete', () => {
 
 test('every ground in the data is one of the five brand grounds', () => {
   const { sandbox } = loadSandbox();
-  const allowed = ['cocoa', 'oxblood', 'powder', 'cream', 'stripe'];
+  const allowed = ['cocoa', 'rose', 'powder', 'cream', 'stripe'];
   assert.deepEqual(Object.keys(sandbox.SLEEP_GROUNDS).sort(), allowed.slice().sort());
   for (const g of Object.values(sandbox.SLEEP_GROUNDS)) {
     assert.match(g.bg, /^#[0-9a-f]{6}$/i);
@@ -132,21 +132,21 @@ test('boxes with the same ribbon and message merge, different ones do not', () =
   const { sandbox } = loadSandbox();
   const Store = sandbox.SleepStore;
 
-  Store.add('Oxblood', 'Happy birthday', 1);
-  Store.add('Oxblood', 'Happy birthday', 1);
+  Store.add('Clay rose', 'Happy birthday', 1);
+  Store.add('Clay rose', 'Happy birthday', 1);
   let s = Store.summary();
   assert.equal(s.lines.length, 1, 'identical boxes should merge');
   assert.equal(s.count, 2);
 
   /* Same ribbon, different message — two different people, two lines. */
-  Store.add('Oxblood', 'Thank you for everything', 1);
+  Store.add('Clay rose', 'Thank you for everything', 1);
   assert.equal(Store.summary().lines.length, 2);
 
   /* Same message, different ribbon — also distinct. */
   Store.add('Powder blue', 'Happy birthday', 1);
   assert.equal(Store.summary().lines.length, 3);
 
-  Store.remove('Oxblood', 'Happy birthday');
+  Store.remove('Clay rose', 'Happy birthday');
   assert.equal(Store.summary().lines.length, 2);
 
   Store.clear();
@@ -171,7 +171,7 @@ test('gift messages are tidied and capped at the card length', () => {
   assert.equal(Store.tidyMessage('x'.repeat(limit + 80)).length, limit);
   assert.equal(Store.tidyMessage(null), '');
 
-  Store.add('Oxblood', '  Sleep   well  ', 1);
+  Store.add('Clay rose', '  Sleep   well  ', 1);
   assert.equal(Store.summary().lines[0].message, 'Sleep well');
 });
 
@@ -179,11 +179,11 @@ test('editing a message moves the line, and merges it if it collides', () => {
   const { sandbox } = loadSandbox();
   const Store = sandbox.SleepStore;
 
-  Store.add('Oxblood', 'First message', 1);
-  Store.add('Oxblood', 'Second message', 2);
+  Store.add('Clay rose', 'First message', 1);
+  Store.add('Clay rose', 'Second message', 2);
   assert.equal(Store.summary().lines.length, 2);
 
-  Store.setMessage('Oxblood', 'First message', 'Edited message');
+  Store.setMessage('Clay rose', 'First message', 'Edited message');
   let lines = Store.summary().lines;
   assert.equal(lines.length, 2);
   /* Edited in place — a box must not jump down the cart because you fixed a typo. */
@@ -191,7 +191,7 @@ test('editing a message moves the line, and merges it if it collides', () => {
   assert.equal(lines[1].message, 'Second message');
 
   /* Editing one line to match another must merge rather than duplicate. */
-  Store.setMessage('Oxblood', 'Edited message', 'Second message');
+  Store.setMessage('Clay rose', 'Edited message', 'Second message');
   lines = Store.summary().lines;
   assert.equal(lines.length, 1, 'colliding messages should merge');
   assert.equal(lines[0].qty, 3, 'quantities should add up');
@@ -200,8 +200,8 @@ test('editing a message moves the line, and merges it if it collides', () => {
 test('editing a message on a line that is gone changes nothing', () => {
   const { sandbox } = loadSandbox();
   const Store = sandbox.SleepStore;
-  Store.add('Oxblood', 'Only line', 1);
-  Store.setMessage('Oxblood', 'Not a real line', 'Something else');
+  Store.add('Clay rose', 'Only line', 1);
+  Store.setMessage('Clay rose', 'Not a real line', 'Something else');
   const lines = Store.summary().lines;
   assert.equal(lines.length, 1);
   assert.equal(lines[0].message, 'Only line');
@@ -234,7 +234,7 @@ test('promo codes discount the subtotal and stack with express', () => {
   const { sandbox } = loadSandbox();
   const Store = sandbox.SleepStore;
 
-  Store.add('Oxblood', '', 2); /* $298 */
+  Store.add('Clay rose', '', 2); /* $298 */
   const discounted = Store.summary({ promo: 'FIRSTRUN' });
   assert.equal(discounted.discountRate, 0.1);
   assert.equal(discounted.discount, 29.8);
@@ -251,7 +251,7 @@ test('promo codes discount the subtotal and stack with express', () => {
 test('written counts the boxes that carry a card message', () => {
   const { sandbox } = loadSandbox();
   const Store = sandbox.SleepStore;
-  Store.add('Oxblood', 'For Sam', 1);
+  Store.add('Clay rose', 'For Sam', 1);
   Store.add('Powder blue', '', 1);
   const summary = Store.summary();
   assert.equal(summary.lines.length, 2);
@@ -261,7 +261,7 @@ test('written counts the boxes that carry a card message', () => {
 test('the cart survives a page load and ignores junk', () => {
   const seed = new Map();
   const first = loadSandbox(seed).sandbox;
-  first.SleepStore.add('Oxblood', 'Sleep well', 2);
+  first.SleepStore.add('Clay rose', 'Sleep well', 2);
 
   const second = loadSandbox(seed).sandbox;
   assert.equal(second.SleepStore.summary().count, 2, 'cart did not persist');
@@ -273,7 +273,7 @@ test('the cart survives a page load and ignores junk', () => {
 
   seed.set('sleepshop.cart.v1', JSON.stringify([
     { ribbon: 'Chartreuse', message: '', qty: 3 },
-    { ribbon: 'Oxblood', message: 'Kept', qty: 1 }
+    { ribbon: 'Clay rose', message: 'Kept', qty: 1 }
   ]));
   const lines = loadSandbox(seed).sandbox.SleepStore.summary().lines;
   assert.equal(lines.length, 1, 'lines with an unknown ribbon should be dropped');
@@ -284,10 +284,10 @@ test('subscribers are notified when the cart changes', () => {
   const { sandbox } = loadSandbox();
   const seen = [];
   const off = sandbox.SleepStore.subscribe((s) => seen.push(s.count));
-  sandbox.SleepStore.add('Oxblood', '', 1);
-  sandbox.SleepStore.add('Oxblood', '', 1);
+  sandbox.SleepStore.add('Clay rose', '', 1);
+  sandbox.SleepStore.add('Clay rose', '', 1);
   off();
-  sandbox.SleepStore.add('Oxblood', '', 1);
+  sandbox.SleepStore.add('Clay rose', '', 1);
   assert.deepEqual(seen, [1, 2], 'unsubscribe should stop the callbacks');
 });
 

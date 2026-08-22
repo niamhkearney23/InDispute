@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">
+  <defs>
+    <pattern id="s" width="96" height="96" patternUnits="userSpaceOnUse">
+         <rect width="96" height="96" fill="#F2E9DC"/>
+         <rect width="48" height="96" fill="#E6DACA"/>
+       </pattern>
+    <style>
+      .d { font-family: "Playfair Display", Didot, Georgia, serif; font-weight: 400; }
+      .s { font-family: "Cormorant Garamond", Didot, Georgia, serif; font-style: italic; font-weight: 300; }
+      .u { font-family: Inter, Helvetica, Arial, sans-serif; font-size: 21px; letter-spacing: 4.4px; }
+    </style>
+  </defs>
+  <rect width="1080" height="1080" fill="url(#s)"/>
+  <text class="u" x="90" y="128" fill="#8B7A6E">GIFTING</text>
+  <g class="d" fill="#3B2318" font-size="118.0">
+    <text x="90" y="423.2">No invoice in</text>
+    <text x="90" y="560.1">the box</text>
+  </g>
+  <text class="u" x="90" y="1002" fill="#8B7A6E">SLEEP SHOP, MELBOURNE</text>
+</svg>

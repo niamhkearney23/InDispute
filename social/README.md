@@ -49,7 +49,7 @@ Nine tile rhythm from the brand plan, read down the columns. Every third tile is
 type led on a solid ground, and no two tiles on the same ground touch. Post in
 that order and the profile composes itself.
 
-Five grounds only: cocoa, oxblood, powder, cream, cream stripe. Consistency of
+Five grounds only: cocoa, rose, powder, cream, cream stripe. Consistency of
 ground is what makes a feed look expensive, more than camera quality does.
 
 ## Type tiles, ready to post

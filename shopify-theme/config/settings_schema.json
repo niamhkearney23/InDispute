@@ -18,9 +18,9 @@
       },
       {
         "type": "color",
-        "id": "ss_oxblood",
-        "label": "Oxblood",
-        "default": "#5C1F28"
+        "id": "ss_rose",
+        "label": "Clay rose",
+        "default": "#7A4A52"
       },
       {
         "type": "color",

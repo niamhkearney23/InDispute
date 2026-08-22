@@ -7,11 +7,11 @@
       .u { font-family: Inter, Helvetica, Arial, sans-serif; font-size: 21px; letter-spacing: 4.4px; }
     </style>
   </defs>
-  <rect width="1080" height="1080" fill="#7A4A52"/>
-  <text class="u" x="90" y="128" fill="#D9BDBB">THE BOX</text>
-  <g class="d" fill="#F6E9E6" font-size="118.0">
-    <text x="90" y="423.2">Eight pieces,</text>
-    <text x="90" y="560.1">one ritual</text>
+  <rect width="1080" height="1080" fill="#F2E9DC"/>
+  <text class="u" x="90" y="128" fill="#8B7A6E">THE STUDIO</text>
+  <g class="d" fill="#3B2318" font-size="118.0">
+    <text x="90" y="423.2">Packed by hand</text>
+    <text x="90" y="560.1">in Melbourne</text>
   </g>
-  <text class="u" x="90" y="1002" fill="#D9BDBB">SLEEP SHOP, MELBOURNE</text>
+  <text class="u" x="90" y="1002" fill="#8B7A6E">SLEEP SHOP, MELBOURNE</text>
 </svg>

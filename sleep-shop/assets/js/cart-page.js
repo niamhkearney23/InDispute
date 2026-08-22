@@ -326,7 +326,7 @@
             Math.round(rate * 100) + '% off.</span>';
         } else {
           promo = '';
-          promoMessage = '<span style="color:var(--oxblood)">That code is not recognised.</span>';
+          promoMessage = '<span style="color:var(--rose)">That code is not recognised.</span>';
         }
         return render();
       }

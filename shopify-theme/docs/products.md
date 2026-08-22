@@ -21,10 +21,10 @@ alt text that describes the object rather than repeating the title.
 
 | Product | Handle | Suggested price | Option | Values |
 | --- | --- | --- | --- | --- |
-| Mulberry Silk Sleep Mask | `mulberry-silk-sleep-mask` | $49 | Colour | Oxblood, Powder, Cocoa, Cream |
+| Mulberry Silk Sleep Mask | `mulberry-silk-sleep-mask` | $49 | Colour | Clay rose, Powder, Cocoa, Cream |
 | Weighted Sleep Mask | `weighted-sleep-mask` | $69 | Colour | Cocoa, Powder |
 | Contoured Sleep Mask | `contoured-sleep-mask` | $59 | Colour | Cocoa, Cream |
-| Travel Sleep Mask | `travel-sleep-mask` | $45 | Colour | Oxblood, Cocoa |
+| Travel Sleep Mask | `travel-sleep-mask` | $45 | Colour | Clay rose, Cocoa |
 
 Template for all four: `sleep-mask`.
 

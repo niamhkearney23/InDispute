@@ -22,9 +22,9 @@
 
     { type: 'stripe', kind: 'display', text: 'Eight pieces, one ritual', tag: 'The box' },
     { art: 'mask', ground: 'cocoa', label: 'Silk eye mask' },
-    { type: 'oxblood', kind: 'script', text: 'Written by hand', tag: 'The card' },
+    { type: 'rose', kind: 'script', text: 'Written by hand', tag: 'The card' },
 
-    { art: 'socks', ground: 'oxblood', label: 'Merino bed socks' },
+    { art: 'socks', ground: 'rose', label: 'Merino bed socks' },
     { type: 'powder', kind: 'display', text: 'Packed in Melbourne', tag: 'The studio' },
     { art: 'box-open', ground: 'cream', label: 'Lid off, tissue open' }
   ];
