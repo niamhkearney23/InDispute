@@ -13,6 +13,8 @@
     "test": "tsx --conditions=react-server --test tests/*.test.ts",
     "test:db": "psql \"$DATABASE_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/schema-guarantees.sql",
     "qa:devices": "node tools/visual-qa/device-check.mjs",
+    "qa:site": "node tools/site-qa/device-check.mjs",
+    "qa:a11y": "node tools/site-qa/a11y-check.mjs",
     "qa:mock": "node tools/visual-qa/mock-supabase.mjs",
     "review:pack": "tsx --conditions=react-server scripts/review-pack.ts",
     "doctor": "tsx --conditions=react-server scripts/doctor.ts",

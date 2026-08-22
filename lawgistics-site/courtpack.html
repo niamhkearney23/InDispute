@@ -70,7 +70,7 @@
           Full pack</button>
       </div>
 
-      <div class="paper paper--attached" data-paper aria-label="Document preview"></div>
+      <div class="paper paper--attached" id="doc-preview" role="tabpanel" tabindex="0" data-paper aria-label="Document preview"></div>
     </div>
 
   </div>
@@ -1169,7 +1169,13 @@ window.pageInit = function () {
     if (!tabApplies(state.tab)) state.tab = 'claim';
     tabsHost.innerHTML = TABS.filter(function (t) { return tabApplies(t[0]); }).map(function (t) {
       var badge = t[0] === 'bundle' && C.docs.length ? '<span class="badge">' + C.docs.length + '</span>' : '';
-      return '<button class="lit-tab' + (state.tab === t[0] ? ' is-active' : '') + '" type="button" data-tab="' + t[0] + '">' + t[1] + badge + '</button>';
+      /* role and aria-selected are not decoration here: the container is a
+         tablist, and a tablist whose children are plain buttons is announced
+         as a broken widget rather than as a set of tabs. */
+      var on = state.tab === t[0];
+      return '<button class="lit-tab' + (on ? ' is-active' : '') + '" type="button"' +
+        ' role="tab" aria-selected="' + (on ? 'true' : 'false') + '"' +
+        ' aria-controls="doc-preview" data-tab="' + t[0] + '">' + t[1] + badge + '</button>';
     }).join('');
   }
 
