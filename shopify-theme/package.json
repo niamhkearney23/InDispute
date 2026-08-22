@@ -4,7 +4,8 @@
   "private": true,
   "description": "Sleep Shop, Shopify theme customisation over Dawn",
   "scripts": {
-    "test": "node --test tests/*.test.mjs"
+    "test": "node --test tests/*.test.mjs",
+    "fonts": "node scripts/fetch-fonts.mjs"
   },
   "engines": { "node": ">=20" }
 }

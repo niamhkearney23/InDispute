@@ -2,7 +2,12 @@
   Brand tokens from theme settings, so a colour change in the customiser
   reaches every section without a code deploy. The stylesheet carries the same
   values as fallbacks, so clearing a setting degrades rather than breaks.
+
+  The typefaces load from here too. Every Sleep Shop section renders this
+  snippet, so there is no section that can be added later which quietly falls
+  back to Times New Roman.
 {%- endcomment -%}
+{% render 'ss-fonts' %}
 <style>
   :root {
     --ss-cocoa: {{ settings.ss_cocoa | default: '#3B2318' }};

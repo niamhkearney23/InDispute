@@ -159,11 +159,37 @@ The popup is added in the Klaviyo app, not in theme code, so it can be changed w
 theme deploy. `snippets/klaviyo-embed.liquid` carries only the onsite script tag; paste
 your public API key into the theme setting.
 
+## Type
+
+Three faces, from the brand plan:
+
+| Role | Face | Used for |
+| --- | --- | --- |
+| Display | Playfair Display 400 | Headings, product titles, item names |
+| Script | Cormorant Garamond 300 italic | One phrase at a time, never a paragraph |
+| Utility | Inter 300, 400, 500 | Body copy, labels, prices, buttons |
+
+They are **self hosted**, latin subset, five woff2 files totalling 113 KB in `assets/`.
+A `<link>` to Google would cost a DNS lookup, a TLS handshake and a round trip before the
+first character paints, and put a third party request on every page view. A test fails the
+build if a `fonts.googleapis.com` URL appears anywhere in the theme.
+
+`snippets/ss-fonts.liquid` carries the `@font-face` rules and is rendered from
+`ss-tokens.liquid`, which every Sleep Shop section already renders. So a section added
+later cannot quietly fall back to Times New Roman.
+
+**To change the type**, edit `STACK` at the top of `scripts/fetch-fonts.mjs`, run
+`npm run fonts`, then update `--ss-display`, `--ss-script` and `--ss-util` in
+`assets/sleep-shop.css` to match. `npm test` fails if the stylesheet names a face the
+snippet does not load, or loads a file that is not in `assets/`, so the two cannot drift.
+
 ## Performance
 
 - Every image uses Shopify's CDN sizing with `srcset`, `loading="lazy"` below the fold,
   `fetchpriority="high"` on the first gallery image only.
 - `sleep-shop.css` is one file, roughly 14 KB, no framework.
+- Five woff2 files, 113 KB, self hosted and `font-display: swap`, so text paints
+  immediately in a fallback rather than waiting on the download.
 - Two small scripts, both deferred, both no dependency. Total JavaScript under 3 KB.
 - Alt text is required on gallery images. The test suite fails the build if an image in a
   section default is missing one.
@@ -182,6 +208,8 @@ your public API key into the theme setting.
 - **Savings or value claims**, for example "valued at", "save $", "RRP".
 - **Returns copy** that says "no refunds" or "all sales final", and the absence of the
   Australian Consumer Law sentence on the returns page.
+- **A typeface that is named but never loaded**, which is how the whole site would have
+  rendered in Times New Roman while the stylesheet looked correct.
 
 ## Not built
 

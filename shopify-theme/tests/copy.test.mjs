@@ -250,3 +250,70 @@ test('the range reads a collection rather than a hand picked list', () => {
   assert.match(cross, /collections\[section\.settings\.collection\]/,
     'adding a mask in admin should put it everywhere without a theme edit');
 });
+
+/* --------------------------------------------------------------- the type */
+
+/* The stylesheet named three typefaces and nothing ever loaded them, so a
+   real store would have rendered the whole site in Times New Roman while the
+   CSS looked correct. Naming a face and shipping it are now checked together. */
+test('every named typeface is actually loaded, and every loaded file exists', () => {
+  const css = read('assets/sleep-shop.css');
+  const fonts = read('snippets/ss-fonts.liquid');
+  const assets = readdirSync(path.join(root, 'assets'));
+
+  /* The first family in each stack is the brand face. The rest are fallbacks
+     that come with the operating system and need no @font-face. */
+  const named = [];
+  for (const role of ['display', 'script', 'util']) {
+    const stack = css.match(new RegExp(`--ss-${role}:\\s*([^;]+);`));
+    assert.ok(stack, `--ss-${role} is not defined`);
+    const first = stack[1].trim().split(',')[0].replace(/["']/g, '').trim();
+    named.push([role, first]);
+  }
+
+  for (const [role, family] of named) {
+    assert.ok(
+      fonts.includes(`font-family: "${family}"`),
+      `--ss-${role} asks for ${family} and ss-fonts.liquid never loads it, ` +
+        'so the browser will silently use a fallback. Run npm run fonts.'
+    );
+  }
+
+  for (const match of fonts.matchAll(/'([^']+\.woff2)'\s*\|\s*asset_url/g)) {
+    assert.ok(assets.includes(match[1]), `ss-fonts.liquid points at a missing file: ${match[1]}`);
+  }
+
+  /* A weight declared in the CSS but never downloaded gets synthesised by the
+     browser, which is what makes a light face look smeared on Android. */
+  const loaded = new Set(
+    [...fonts.matchAll(/font-family: "([^"]+)";\s*font-style: (\w+);\s*font-weight: (\d+);/g)]
+      .map((m) => `${m[1]}|${m[2]}|${m[3]}`)
+  );
+  assert.ok(loaded.has('Inter|normal|300'), 'ss-body sets weight 300, so Inter 300 must ship');
+  assert.ok(loaded.has('Inter|normal|500'), 'the instalment and arrives-by lines bold to 500');
+  assert.ok(
+    loaded.has('Cormorant Garamond|italic|300'),
+    'the script face is only ever used italic at 300, so that is the file that must exist'
+  );
+});
+
+test('the fonts snippet reaches every section', () => {
+  /* ss-tokens is rendered by every Sleep Shop section, so hanging the fonts
+     off it means a new section cannot forget them. */
+  assert.match(read('snippets/ss-tokens.liquid'), /\{% render 'ss-fonts' %\}/);
+
+  const sections = walk('sections').filter((f) => f.endsWith('.liquid'));
+  for (const file of sections) {
+    assert.match(read(file), /render 'ss-tokens'/, `${file}: no brand tokens, so no brand type`);
+  }
+});
+
+test('the typefaces are self hosted, not fetched from Google on every page view', () => {
+  for (const [file, source] of all()) {
+    assert.ok(
+      !/fonts\.(googleapis|gstatic)\.com/.test(source),
+      `${file}: a third party font request costs a DNS lookup and a round trip ` +
+        'before the first character paints. The faces are in assets/.'
+    );
+  }
+});
