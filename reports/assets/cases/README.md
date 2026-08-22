@@ -4,6 +4,16 @@ Eight single-case carousels from the Supreme Court of Victoria judgments of 19 t
 
 **Structure of every deck:** hook / the facts / the question / the ruling with a "Learn this" line / why it matters, inverted.
 
+## Jargon annotations
+
+Every deck glosses the legal terms a non-lawyer would trip over. The term is underlined in accent blue in the body copy, and a small curved arrow points back up to it from a plain English definition underneath.
+
+This is what makes the decks work for two audiences at once. A law student reads past the gloss. Someone who just finds the law interesting gets let in instead of shut out, which is most of the potential audience and almost none of the usual legal content.
+
+**Terms glossed:** contempt, suspended sentence, manslaughter, non-parole period, hearing de novo, no conviction recorded, unincorporated association, struck out, VCAT, liquidators, part heard, discovery, class action, writ.
+
+Definitions are written to be true without being technical. "A writ is only good for a year" rather than "r 5.12 provides for validity for service". If a definition ever needs to be more precise, tell me which and I will tighten it.
+
 Type is larger than earlier decks: statements 88px on the hook, 66px elsewhere, body 33px. Posts alternate navy and cream so the grid keeps its checkerboard.
 
 | Folder | Case | Colour | Hook |

@@ -7,12 +7,21 @@ for slug, cite, dark, slides in m.CASES:
     body = ""
     for i, s in enumerate(slides, 1):
         kicker, size, statement, *rest = s
+        lightval = (not dark) if i < 5 else dark
         inner = f'<div class="statement {size}">{statement}</div>'
         for r in rest:
             if r.startswith("SUB:"):   inner += f'<div class="sub">{r[4:]}</div>'
             if r.startswith("BODY:"):  inner += f'<div class="body">{r[5:]}</div>'
             if r.startswith("LEARN:"): inner += f'<div class="learn">{r[6:]}</div>'
+            if r.startswith("GLOSS:"):
+                t, d = r[6:].split("||")
+                arrow = ('<svg class="arw" width="58" height="50" viewBox="0 0 58 50">'
+                  '<path d="M54 46 C 40 42, 20 36, 10 9" stroke="COL" stroke-width="2.2" fill="none" stroke-linecap="round"/>'
+                  '<path d="M9 5 L 19 11 M9 5 L 7 17" stroke="COL" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>')
+                arrow = arrow.replace("COL", "#3A5697" if lightval else "#6E86C9")
+                inner += f'<div class="gloss">{arrow}<div class="glosstxt"><b>{t}</b>{d}</div></div>' 
         lightval = (not dark) if i < 5 else dark
+        _ = lightval
         args = f'light={lightval}'
         if i == 1: args += ', swipe=True'
         c = '""' if i == 1 else f'"{cite}"'

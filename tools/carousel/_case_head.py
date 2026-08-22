@@ -71,6 +71,17 @@ body.light{background:#EDE7DC;color:#171D2B;}
   font-size:36px;line-height:1.42;color:#EDE7DC;max-width:830px;}
 .light .learn{border-left-color:#3A5697;color:#171D2B;}
 
+/* jargon annotation: term underlined, arrow pointing back up to it */
+.term{border-bottom:2px solid #6E86C9;padding-bottom:2px;font-weight:600;color:#EDE7DC;}
+.light .term{border-bottom-color:#3A5697;color:#171D2B;}
+.gloss{margin-top:38px;margin-left:30px;display:flex;gap:16px;align-items:flex-start;max-width:800px;}
+.gloss .arw{flex:none;margin-top:-4px;}
+.glosstxt{font-family:'TikTok Sans',sans-serif;font-size:25px;line-height:1.5;color:#8892A6;}
+.light .glosstxt{color:#6E6858;}
+.glosstxt b{display:block;font-size:17px;font-weight:600;letter-spacing:.22em;
+  text-transform:uppercase;color:#6E86C9;margin-bottom:9px;}
+.light .glosstxt b{color:#3A5697;}
+
 .foot{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;gap:50px;
   padding-top:26px;border-top:1px solid rgba(237,231,220,.16);}
 .light .foot{border-top-color:rgba(23,29,43,.14);}
