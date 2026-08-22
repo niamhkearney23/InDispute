@@ -18,31 +18,68 @@
 <header data-header></header>
 
 <main>
-  <section class="page-head">
-    <div class="wrap">
+  <!-- ======================================================== masthead --
+       A prospectus opens with the institution, not with a sales line. The
+       crest, the name, a rule, and only then what the place is for. The words
+       below the crest are the owner's and are unchanged; what is new is the
+       setting around them. -->
+  <section class="mast">
+    <div class="wrap mast__in">
+      <svg class="crest" viewBox="0 0 88 104" aria-hidden="true" focusable="false">
+        <path class="crest__shield" d="M4 6h80v56c0 21-18 32-40 40C22 94 4 83 4 62Z"/>
+        <path class="crest__rule" d="M16 74h56"/>
+        <!-- scales: the beam, the pivot, the two pans -->
+        <path class="crest__line" d="M44 22v34"/>
+        <path class="crest__line" d="M22 32h44"/>
+        <path class="crest__line" d="M44 18a4 4 0 1 1 0 8 4 4 0 0 1 0-8"/>
+        <path class="crest__line" d="M22 32 14 48h16Z"/>
+        <path class="crest__line" d="M66 32 58 48h16Z"/>
+        <path class="crest__line" d="M32 60h24"/>
+      </svg>
+
       <p class="eyebrow" data-reveal="0">Litigation Academy</p>
       <h1 data-reveal="0">You can’t learn advocacy by reading about it.</h1>
-      <p class="lede" data-reveal="60">Practise analysing cases, making submissions and explaining legal problems out loud. Record your response and receive structured feedback on your reasoning, advocacy and presentation.</p>
-      <div class="btn-row" style="margin-top:24px" data-reveal="80">
-        <a class="btn btn--primary" href="advocacy.html">Start an exercise →</a>
+      <p class="lede lede--wide" data-reveal="60">Practise analysing cases, making submissions and explaining legal problems out loud. Record your response and receive structured feedback on your reasoning, advocacy and presentation.</p>
+      <div class="btn-row" style="margin-top:26px;justify-content:center" data-reveal="80">
+        <a class="btn btn--primary" href="advocacy.html" data-adv-link>Start an exercise →</a>
       </div>
-      <p style="font-size:.85rem;color:var(--ink-soft);margin-top:14px" data-reveal="80">Free while Lawgistics is in beta.</p>
-      <p class="lede" style="margin-top:26px" data-reveal="100">Built for the skills law school doesn’t give you enough chances to practise.</p>
+      <p class="mast__note" data-reveal="80">Free while Lawgistics is in beta.</p>
+      <hr class="rule-orn" data-reveal="100">
+      <p class="lede lede--wide" data-reveal="100">Built for the skills law school doesn’t give you enough chances to practise.</p>
     </div>
   </section>
 
-  <!-- The XP panel and the "tick them off yourself" card used to sit here.
-       Both were removed rather than rewritten: a lesson was a line of text in
-       a data file with a checkbox beside it, so the XP counted ticks against
-       material that did not exist, and the level it produced measured nothing.
-       Nothing on this page now claims to be a record. -->
+  <!-- ======================================================= at a glance --
+       The panel a prospectus puts on page two. Every line is checkable
+       against the product; nothing here is aspirational. -->
+  <section class="section section--tight section--white">
+    <div class="wrap">
+      <dl class="facts">
+        <div class="facts__item">
+          <dt>Jurisdictions</dt>
+          <dd>Malaysia and Australia, kept strictly apart</dd>
+        </div>
+        <div class="facts__item">
+          <dt>Who it is for</dt>
+          <dd>Law students, PLT students, pupils, paralegals and junior lawyers</dd>
+        </div>
+        <div class="facts__item">
+          <dt>Assessment</dt>
+          <dd>Advocacy marked against a rubric. Questions marked on the server</dd>
+        </div>
+        <div class="facts__item">
+          <dt>Entry requirements</dt>
+          <dd>None</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
 
   <!-- ================================================= country switch --
-       Asked before anything else on the page, because Australian and
-       Malaysian law are different bodies of law and almost everything below
-       changes with the answer. The choice is remembered, and it is also
-       readable from the address (?c=my or ?c=au) so a link can be sent to
-       somebody already set to the right country. -->
+       Asked before anything else that changes with the answer, because
+       Australian and Malaysian law are different bodies of law. The choice is
+       remembered, and it is readable from the address (?c=my or ?c=au) so a
+       link can be sent to somebody already set to the right country. -->
   <section class="section section--tight" style="padding-bottom:0">
     <div class="wrap">
       <div class="country-pick" data-country-pick>
@@ -58,37 +95,85 @@
   <!-- =================================================== the two halves -->
   <section class="section section--tight">
     <div class="wrap">
-      <div class="section-head" style="max-width:720px">
+      <div class="section-head section-head--center">
         <p class="eyebrow">How the training works</p>
         <h2>Two halves, marked in two different places.</h2>
-        <p class="lede">This page describes the training. Only one of the two halves is marked here.</p>
+        <p class="lede lede--wide">This page describes the training. Only one of the two halves is marked here.</p>
       </div>
-      <div class="grid grid-2">
-        <div class="card" data-reveal="0">
-          <h3>Advocacy, on this site</h3>
-          <p>Read a problem, argue it out loud, and get structured feedback on your reasoning, your structure and how you present. No account, nothing to install, and it is free while Lawgistics is in beta. The exercises are an appeal after trial, an appeal from an interlocutory decision, reading a judgment, and a problem you bring yourself, so they work the same in both countries.</p>
-          <a class="btn btn--primary btn--sm" style="margin-top:14px" href="advocacy.html" data-adv-link>Start an exercise →</a>
-        </div>
-        <div class="card" data-reveal="80">
-          <h3>Questions, in the app</h3>
-          <p>A short diagnostic works out what you already know, then you get asked about what you do not. Answers are checked on the server rather than in your browser, and anything you get wrong comes back later until it stops being wrong. That needs an account, because the point of it is the record.</p>
-          <a class="btn btn--primary btn--sm" style="margin-top:14px" data-app-link="/diagnostic" hidden>Take the diagnostic →</a>
-        </div>
+
+      <div class="halves">
+        <article class="half" data-reveal="0">
+          <div class="plate plate--advocacy" role="img" aria-label="A lectern facing an empty bench">
+            <svg viewBox="0 0 320 180" aria-hidden="true" focusable="false" class="plate__art">
+              <!-- A lectern, a microphone, and the sound leaving it. -->
+              <path class="pl-fill" d="M112 88h64l-8 64h-48Z"/>
+              <path class="pl-line" d="M112 88h64l-8 64h-48Z"/>
+              <path class="pl-line" d="M100 88h88l-10-14h-68Z"/>
+              <path class="pl-line" d="M144 74V58"/>
+              <path class="pl-line" d="M137 44a7 7 0 0 1 14 0v9a7 7 0 0 1-14 0Z"/>
+              <path class="pl-line" d="M128 50a16 16 0 0 0 32 0"/>
+              <path class="pl-line" d="M176 36a22 22 0 0 1 0 30"/>
+              <path class="pl-line" d="M190 26a38 38 0 0 1 0 50"/>
+              <path class="pl-line" d="M204 16a54 54 0 0 1 0 70"/>
+              <path class="pl-line" d="M40 152h240"/>
+              <path class="pl-line" d="M96 152v10M224 152v10"/>
+            </svg>
+          </div>
+          <div class="half__body">
+            <p class="eyebrow">On this site</p>
+            <h3>Advocacy</h3>
+            <p>Read a problem, argue it out loud, and get structured feedback on your reasoning, your structure and how you present. No account, nothing to install, and it is free while Lawgistics is in beta. The exercises are an appeal after trial, an appeal from an interlocutory decision, reading a judgment, and a problem you bring yourself, so they work the same in both countries.</p>
+            <a class="btn btn--primary btn--sm" href="advocacy.html" data-adv-link>Start an exercise →</a>
+          </div>
+        </article>
+
+        <article class="half" data-reveal="80">
+          <div class="plate plate--questions" role="img" aria-label="An indexed bundle of papers">
+            <svg viewBox="0 0 320 180" aria-hidden="true" focusable="false" class="plate__art">
+              <!-- Three sheets, ruled, and one of them marked. -->
+              <path class="pl-line" d="M128 26h92v104h-92Z"/>
+              <path class="pl-line" d="M112 38h92v104h-92Z"/>
+              <path class="pl-fill" d="M96 50h92v104H96Z"/>
+              <path class="pl-line" d="M96 50h92v104H96Z"/>
+              <path class="pl-line" d="M112 76h60M112 94h60M112 112h38"/>
+              <path class="pl-line" d="M216 108a30 30 0 1 1 0 60 30 30 0 0 1 0-60"/>
+              <path class="pl-line" d="M203 138l9 10 18-21"/>
+            </svg>
+          </div>
+          <div class="half__body">
+            <p class="eyebrow">In the app</p>
+            <h3>Questions</h3>
+            <p>A short diagnostic works out what you already know, then you get asked about what you do not. Answers are checked on the server rather than in your browser, and anything you get wrong comes back later until it stops being wrong. That needs an account, because the point of it is the record.</p>
+            <a class="btn btn--primary btn--sm" data-app-link="/diagnostic" hidden>Take the diagnostic →</a>
+          </div>
+        </article>
       </div>
     </div>
   </section>
 
-  <!-- ====================================================== daily quiz -->
-  <section class="section section--tight section--white" id="quiz">
+  <!-- ========================================================== levels -->
+  <section class="section section--tight section--white" id="levels">
     <div class="wrap">
-      <div class="section-head" style="max-width:660px;margin-bottom:30px">
+      <div class="section-head section-head--center">
+        <p class="eyebrow">The programme</p>
+        <h2>What you will be able to do</h2>
+        <p class="lede lede--wide" data-levels-lede></p>
+      </div>
+      <div class="prog" data-levels></div>
+    </div>
+  </section>
+
+  <!-- ====================================================== daily quiz -->
+  <section class="section section--tight" id="quiz">
+    <div class="wrap">
+      <div class="section-head section-head--center" style="margin-bottom:30px">
         <p class="eyebrow">Question of the day</p>
         <h2 style="margin-bottom:0">One question, every morning.</h2>
-        <p class="lede" style="margin-top:14px">A single point of Malaysian law, with the authority behind it. Everyone gets the same question each day, so you can argue about it with your cohort.</p>
+        <p class="lede lede--wide" style="margin-top:14px">A single point of Malaysian law, with the authority behind it. Everyone gets the same question each day, so you can argue about it with your cohort.</p>
         <!-- Shown only to somebody training in Australia. The daily question is
              Malaysian, and saying so is better than letting an Australian
              assume it is theirs. -->
-        <p class="lede" style="margin-top:14px" data-quiz-au hidden>The daily question is Malaysian law only at the moment. There is no Australian one yet, so this is worth reading if you are curious and worth nothing to your training if you are not.</p>
+        <p class="lede lede--wide" style="margin-top:14px" data-quiz-au hidden>The daily question is Malaysian law only at the moment. There is no Australian one yet, so this is worth reading if you are curious and worth nothing to your training if you are not.</p>
       </div>
 
       <div class="quiz" data-quiz>
@@ -137,17 +222,44 @@
     </div>
   </section>
 
-  <!-- ========================================================== levels -->
-  <section class="section section--tight" id="levels">
+  <!-- ======================================================== for firms --
+       Written as what this page IS rather than as a pitch. Everything above
+       is the running product, so a firm looking at it is looking at a working
+       installation and not a mockup. Nothing here promises multi-tenancy: the
+       white labelling is one firm per deployment, which is what exists. -->
+  <section class="section section--tight section--ink" id="firms">
     <div class="wrap">
-      <div class="section-head"><h2>What you will be able to do</h2><p class="lede" data-levels-lede></p></div>
-      <div class="level-track" data-levels></div>
+      <div class="section-head section-head--center">
+        <p class="eyebrow">For firms</p>
+        <h2>This page is the demonstration.</h2>
+        <p class="lede lede--wide">Everything above is the product running, not a mockup of it. Lawgistics uses its own academy to train its own people, which is the only recommendation worth much. Under your firm's name it would look like this, with your crest and your colour on it.</p>
+      </div>
+
+      <div class="grid grid-3" style="margin-top:44px">
+        <div class="card" data-reveal="0">
+          <h3>Your name on it</h3>
+          <p>The name, the wordmark, the tagline and the accent colour are settings, not a fork. One firm, one deployment, your branding throughout. Your people never see ours.</p>
+        </div>
+        <div class="card" data-reveal="80">
+          <h3>Your induction, in your words</h3>
+          <p>Your welcome, your AI policy and your joining checklist sit beside the training and never mix with it. An acknowledgement is pinned to the version somebody read, so republishing a policy puts it back in front of everyone.</p>
+        </div>
+        <div class="card" data-reveal="160">
+          <h3>A record that holds up</h3>
+          <p>Nothing here concludes that a person is ready. A named supervisor decides, and the record keeps their name, the date, and how many items were still outstanding when they decided. Mistakes are corrected by recording a correction, never by deleting.</p>
+        </div>
+      </div>
+
+      <div class="firm-note" data-reveal="160">
+        <p><b>What we will not claim.</b> This is one firm per deployment, not a platform serving many firms from one place. Every question carries its jurisdiction, and content is signed off by a named lawyer before it is published, which is slower than the alternative and the entire point.</p>
+        <a class="btn btn--light btn--sm" href="contactus.html">Talk to us about your firm →</a>
+      </div>
     </div>
   </section>
 
-  <section class="section section--navy">
+  <section class="section section--tight">
     <div class="wrap">
-      <div class="section-head section-head--center"><h2>Where this leads</h2></div>
+      <div class="section-head section-head--center"><p class="eyebrow">Afterwards</p><h2>Where this leads</h2></div>
       <div class="grid grid-3">
         <div class="card" data-reveal="0">
           <h3>Get booked</h3>
@@ -157,7 +269,7 @@
                applicant sets themselves. Applying is open to anyone, and a
                person decides. -->
           <p>Apply whenever you are ready to join the paralegal cohort that Malaysian firms book through Lawgistics. Working through the levels is good preparation, but the cohort is decided by a person who assesses you, not by your progress bar.</p>
-          <a class="btn btn--light btn--sm" style="margin-top:14px" href="paralegals.html">See the cohort</a>
+          <a class="btn btn--ghost btn--sm" style="margin-top:14px" href="paralegals.html">See the cohort</a>
         </div>
         <div class="card" data-reveal="80">
           <h3>Work on real matters</h3>
@@ -166,7 +278,7 @@
         <div class="card" data-reveal="160">
           <h3>Set up on your own</h3>
           <p>When you're ready to practise independently, we help with the marketing, the operations, and the setup.</p>
-          <a class="btn btn--light btn--sm" style="margin-top:14px" href="independent.html">Independent lawyering</a>
+          <a class="btn btn--ghost btn--sm" style="margin-top:14px" href="independent.html">Independent lawyering</a>
         </div>
       </div>
     </div>
@@ -204,16 +316,6 @@ window.pageInit = function () {
   var levels = Store.list('academyLevels', { sort: 'level' });
   var tracks = Store.list('learnTracks');
 
-  /* Links into the training app.
-
-     The app lives at a different address and holds the questions. Everything
-     inside it needs an account, including the diagnostic, so a link goes to
-     sign-up carrying where the person was trying to get to. They land where
-     they were headed once they have an account, instead of on a dashboard
-     wondering what they clicked.
-
-     If appUrl is blank the links are simply not shown. A dead button into an
-     app that is not deployed is worse than no button. */
   var APP_URL = String((window.LG_CONFIG || {}).appUrl || '').replace(/\/+$/, '');
 
   /* Which country the person is training in.
@@ -222,7 +324,7 @@ window.pageInit = function () {
      set correctly, then from what they chose last time, and only then the
      default. The default is Malaysia because this is lawgistics.my and every
      other page on it is Malaysian; an Australian is one tap from the right
-     answer and the tap is the first thing on the page. */
+     answer and the tap is near the top of the page. */
   var COUNTRIES = { MY: 'Malaysia', AU: 'Australia' };
   var country = readCountry();
 
@@ -249,8 +351,8 @@ window.pageInit = function () {
 
   /* Sign-up carries two things: where the person was trying to get to, and
      which country they are in. Without the country the app's form defaults to
-     Australia, so a Malaysian who came from this page would arrive on a form
-     set to the wrong body of law. */
+     Malaysia, which is right most of the time and wrong for an Australian who
+     told us so on this page. */
   function appHref(path) {
     if (!APP_URL) return '';
     return APP_URL + '/signup?next=' + encodeURIComponent(path) + '&country=' + country;
@@ -272,6 +374,9 @@ window.pageInit = function () {
     AU: 'Four strands, and fewer than Malaysia has, because these are the ones the app holds Australian questions for. The Malaysian strands on chambering, drafting, litigation support and advising clients have no Australian version yet, and showing them here with an Australian label would be a lie: they are built on the Rules of Court 2012 and the Copyright Act 1987.'
   };
 
+  // Prospectus numbering. A label, not a claim.
+  var ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
+
   function trackFor(level) {
     return tracks.filter(function (x) { return x.id === level.tracks; })[0] || null;
   }
@@ -291,11 +396,13 @@ window.pageInit = function () {
      What is left says what somebody should be able to DO at the end of each
      strand, which a learner can measure themselves against and a supervisor
      can check. Assessment happens where it can actually be trusted: the
-     advocacy coach, which marks a real recording. */
+     advocacy coach, which marks a real recording, and the app, which marks
+     questions on the server. */
   function paintLevels() {
     var forHere = levels.filter(function (l) { return l.country === country; });
     document.querySelector('[data-levels-lede]').textContent = LEVEL_LEDE[country];
-    document.querySelector('[data-levels]').innerHTML = forHere.map(function (l) {
+
+    document.querySelector('[data-levels]').innerHTML = forHere.map(function (l, i) {
       var t = trackFor(l);
       var outcomes = t ? linesOf(t.outcomes) : [];
       var covers = t ? linesOf(t.lessons) : [];
@@ -305,37 +412,41 @@ window.pageInit = function () {
       // is nothing on the other end of it to practise yet.
       var appPath = (t && !isAdvocacy && !soon) ? (APP_PATHS[t.id] || '/diagnostic') : '';
       var appLink = appPath ? appHref(appPath) : '';
+      var hasModule = t && APP_PATHS[t.id];
 
-      return '<div class="level-card' + (isAdvocacy ? ' is-current' : '') + '">' +
-        '<span class="level-badge">' + l.level + '</span>' +
-        '<div>' +
-          '<h3>' + esc(l.name) + (soon ? ' <span class="tag">Coming soon</span>' : '') + '</h3>' +
-          '<p>' + esc(l.blurb) + '</p>' +
-          (t ? '<p style="font-size:.8rem;margin-top:6px;color:var(--ink-soft)">' +
-                 esc(t.audience) + ' · ' + esc(t.duration) + '</p>' : '') +
-          (outcomes.length
-            ? '<p class="lvl-h">By the end you can</p><ul class="lvl-list">' +
-              outcomes.map(function (o) { return '<li>' + esc(o) + '</li>'; }).join('') + '</ul>'
-            : '') +
-          (covers.length
-            ? '<p class="lvl-h">It covers</p><p class="lvl-covers">' +
-              covers.map(esc).join(' · ') + '</p>'
-            : '') +
+      return '<article class="unit' + (isAdvocacy ? ' unit--marked' : '') + '">' +
+        '<div class="unit__num"><span class="unit__roman">' + (ROMAN[i + 1] || (i + 1)) + '</span></div>' +
+        '<div class="unit__body">' +
+          '<header class="unit__head">' +
+            '<h3>' + esc(l.name) + (soon ? ' <span class="tag">Coming soon</span>' : '') + '</h3>' +
+            (t ? '<p class="unit__meta">' + esc(t.audience) + ' <span aria-hidden="true">·</span> ' +
+                 esc(t.duration) + '</p>' : '') +
+          '</header>' +
+          '<p class="unit__blurb">' + esc(l.blurb) + '</p>' +
+          '<div class="unit__cols">' +
+            (outcomes.length
+              ? '<div><p class="lvl-h">By the end you can</p><ul class="lvl-list">' +
+                outcomes.map(function (o) { return '<li>' + esc(o) + '</li>'; }).join('') + '</ul></div>'
+              : '') +
+            (covers.length
+              ? '<div><p class="lvl-h">It covers</p><p class="lvl-covers">' +
+                covers.map(esc).join(' · ') + '</p></div>'
+              : '') +
+          '</div>' +
           (isAdvocacy
-            ? '<a class="btn btn--primary btn--sm" style="margin-top:12px" href="advocacy.html?c=' +
+            ? '<div class="unit__foot"><a class="btn btn--primary btn--sm" href="advocacy.html?c=' +
               country.toLowerCase() + '">Start an exercise →</a>' +
-              '<p style="font-size:.8rem;margin:8px 0 0;color:var(--ink-soft)">Marked here, on this site, with no account.</p>'
+              '<p class="unit__note">Marked here, on this site, with no account.</p></div>'
             : appLink
-              ? '<a class="btn btn--primary btn--sm" style="margin-top:12px" href="' +
-                esc(appLink) + '">' +
-                (APP_PATHS[t.id] ? 'Practise this in the app →' : 'Start with the diagnostic →') + '</a>' +
-                '<p style="font-size:.8rem;margin:8px 0 0;color:var(--ink-soft)">' +
-                (APP_PATHS[t.id]
+              ? '<div class="unit__foot"><a class="btn btn--primary btn--sm" href="' + esc(appLink) + '">' +
+                (hasModule ? 'Practise this in the app →' : 'Start with the diagnostic →') + '</a>' +
+                '<p class="unit__note">' +
+                (hasModule
                   ? 'Questions on this strand, marked on the server. Needs an account.'
                   : 'The app has no module of its own for this strand yet. The diagnostic works out what you know and asks accordingly.') +
-                '</p>'
+                '</p></div>'
               : '') +
-        '</div></div>';
+        '</div></article>';
     }).join('');
   }
 
@@ -356,8 +467,10 @@ window.pageInit = function () {
       }
     }
 
-    var adv = document.querySelector('[data-adv-link]');
-    if (adv) adv.setAttribute('href', 'advocacy.html?c=' + country.toLowerCase());
+    var adv = document.querySelectorAll('[data-adv-link]');
+    for (var k = 0; k < adv.length; k++) {
+      adv[k].setAttribute('href', 'advocacy.html?c=' + country.toLowerCase());
+    }
 
     var quizNote = document.querySelector('[data-quiz-au]');
     if (quizNote) {

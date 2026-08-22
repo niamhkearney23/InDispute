@@ -21,9 +21,19 @@ considered and set aside: contracts and leave are a different risk class, they
 bring data-protection obligations the firm carries, and most firms already have
 somewhere those live.
 
-White labelling exists in `src/lib/brand.ts` and works, but it is not the
-direction. One product with one name. Other firms buying it is a possibility,
-not the plan, and nothing should be built speculatively to serve it.
+White labelling exists in `src/lib/brand.ts` and works. **The owner has changed
+direction on it: firms wanting to buy it is now something to serve rather than
+a possibility to ignore.** `../lawgistics-site/academy.html` is written as the
+worked example, a real firm running the product on itself, and its "For firms"
+section is the pitch.
+
+Two things that did not change with it. It is still one firm per deployment,
+their own Vercel project and their own Supabase project, and it is still not
+multi-tenancy: nothing should claim, or be built towards, a single deployment
+serving many firms until there is a firm model, membership, and separation that
+stands up to a firm asking who else can see their people. And the showcase must
+stay a showcase of something true. No invented client, no testimonial nobody
+gave, no case study that did not happen.
 
 ## Standing rules
 
@@ -70,14 +80,23 @@ this app in any way yet.
 
 Two things to know before touching it.
 
-`academy.html` is a **second academy**, and it works nothing like this one.
-Lessons are checkboxes the learner ticks themselves, there is no assessment,
-progress lives in `localStorage` keyed on their email, and the client tells the
-server which level it reached. That page also says finishing Level 3 lets you
-apply to the paralegal cohort that Malaysian firms book through. A real
-commercial step is therefore gated on a number the candidate can edit in
-devtools. Which of the two academies survives is undecided, and the answer
-changes whether this app's level names can stay jokes.
+`academy.html` **used to be a second academy** with self-ticked checkboxes, XP
+and a paid-work application gated on a number the candidate could edit in
+devtools. That is gone. It is now the front door to this app and does not
+assess anything: it describes each strand, marks nothing, and sends people here
+for the questions. The two academies question is settled, and this one won.
+
+Three things about it are load-bearing:
+
+- It asks which country before anything that changes with the answer, keeps the
+  choice in `localStorage` under `lg.country`, and reads `?c=my` / `?c=au` from
+  the address. It passes the answer to `/signup?next=...&country=...`, so
+  changing how signup reads `country` breaks the handoff.
+- Australia deliberately shows fewer strands than Malaysia, because only three
+  app modules have Australian questions. Do not pad it.
+- Advocacy is the one strand marked on the site rather than here, and its coach
+  prompt is told the learner's country so a correct Australian citation is not
+  read as an error.
 
 Its layout is checked by `tools/site-qa/device-check.mjs`, which looks for the
 two failures that are invisible at desktop width: anything wider than the
