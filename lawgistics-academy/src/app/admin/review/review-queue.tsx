@@ -315,15 +315,24 @@ function ReviewCard({
   const [pending, startTransition] = useTransition();
   const [note, setNote] = useState(item.reviewNote ?? '');
   const [noteOpen, setNoteOpen] = useState(false);
+  /* The same failure, kept here as well as at the top of the list.
+     The banner at the top is right for somebody looking at the first card and
+     useless for anybody else: press sign off on the fortieth item and the
+     explanation appears a screen and a half above, so the button looks as
+     though it did nothing at all. */
+  const [failure, setFailure] = useState<string | null>(null);
   // Defaulted from the risk score, changed by the person who just read it.
   const [holds, setHolds] = useState<HoldMonths>(defaultHold(item.risk.level));
   const noteRef = useRef<HTMLTextAreaElement | null>(null);
 
   function decide(decision: 'verify' | 'flag' | 'retire') {
     onError(null);
+    setFailure(null);
     if (decision === 'flag' && !note.trim()) {
       setNoteOpen(true);
-      onError('Say what is wrong with it, a flag without a note is a dead end.');
+      const message = 'Say what is wrong with it, a flag without a note is a dead end.';
+      onError(message);
+      setFailure(message);
       return;
     }
 
@@ -337,6 +346,7 @@ function ReviewCard({
       });
       if (!result.ok) {
         onError(result.error);
+        setFailure(result.error);
         return;
       }
       onDecided(decision);
@@ -512,6 +522,12 @@ function ReviewCard({
               ))}
             </div>
           </fieldset>
+
+          {failure ? (
+            <div className="mt-4">
+              <Notice tone="error">{failure}</Notice>
+            </div>
+          ) : null}
 
           <div className="mt-4 flex flex-wrap gap-2">
             <Button size="sm" variant="primary" disabled={pending} onClick={() => decide('verify')}>
