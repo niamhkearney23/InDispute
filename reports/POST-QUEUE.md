@@ -13,7 +13,9 @@ One post per weekday. Fridays: The Big Case File (pop-culture legal breakdown).
 | Mon 10 Aug 2026 (post 2) | Recently in Court, roundup of the 5 Aug High Court sitting, 5 slides | reports/assets/2026-08-10/recently-slide-*.png | READY, second post |
 | Fri 14 Aug 2026 | Puleo v Bendigo and Adelaide Bank [2026] VSC 513, debanking a lawful business, 6 slides | reports/assets/2026-08-14/debank-slide-*.png | READY, lead post, built from the judgment |
 | Sat 15 Aug 2026 | Lewis v HWL Ebsworth Lawyers [2026] VSC 514, partner sues own firm, strike out refused, 6 slides | reports/assets/2026-08-15/lewis-slide-*.png | READY, built from the judgment |
-| Thu 13 Aug 2026 | How to read a judgment, 5 steps, study method, 7 slides | reports/assets/read-a-case/ | READY, today's second post, evergreen |
+| Fri 21 Aug 2026 | Recently in Court, Supreme Court of Victoria, 8 judgments 19 to 21 Aug, 7 slides | reports/assets/2026-08-21/vsc-slide-*.png | READY, built from the judgments |
+| Anytime | How to summarise a case, the five line case note, 8 slides | reports/assets/case-note/ | READY, evergreen, pairs with read-a-case |
+| Thu 13 Aug 2026 | How to read a judgment, 5 steps, study method, 7 slides | reports/assets/read-a-case/ | READY, evergreen |
 | Thu 13 Aug 2026 | Negligence, snail + underpants | reports/assets/2026-08-07/negligence/ | READY |
 | Blocked | Farrugia v The King [2026] HCA 28, one barrister for two co-offenders at sentencing, ethics | not built | BLOCKED, need the outcome, allowed or dismissed |
 | PIN | Pinned post, evergreen, 7 slides, status led, no dates so it never goes stale | reports/assets/pinned/ | READY to post and pin |
