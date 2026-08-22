@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { checkAdmin } from '@/lib/admin/guard';
 import { createServiceClient } from '@/lib/supabase/service';
 import { JURISDICTION_COUNTRY, JURISDICTION_VALUES } from '@/lib/types';
+import { seedContent } from '@/lib/setup/seed-content';
 
 
 export type AdminState = { error: string | null; ok?: string };
@@ -398,4 +399,56 @@ export async function transitionQuestion(formData: FormData): Promise<void> {
   revalidatePath('/admin');
   revalidatePath(`/admin/questions/${questionId}`);
   redirect(`/admin/questions/${questionId}`);
+}
+
+/**
+ * Load content the deployment has but the database does not.
+ *
+ * Loading the content used to happen exactly once, on the first-run page,
+ * bundled with claiming administrator rights. That page closes permanently the
+ * moment an administrator exists, so every question written after that first
+ * run could only be got into the database from a command line. This is built
+ * by somebody who does not have one, which made `npm run seed` the same as
+ * "impossible".
+ *
+ * The work is the same seedContent the first-run page and the command line
+ * both call, so there is still one answer to "what does this install contain".
+ * It is idempotent: a question whose wording has not changed is left exactly as
+ * it is, sign-off included, and one whose wording has changed mints a new
+ * version and keeps the old, because attempts point at the version the learner
+ * actually saw.
+ *
+ * Nothing here publishes anything unverified into training that was not already
+ * there: seeded questions arrive awaiting verification, and a person still has
+ * to sign each one off.
+ */
+export async function loadNewContent(): Promise<
+  { ok: true; message: string } | { ok: false; error: string }
+> {
+  const adminId = await checkAdmin();
+  if (!adminId) return { ok: false, error: 'Only an administrator can load content.' };
+
+  try {
+    const summary = await seedContent(createServiceClient());
+    const parts = [
+      `${summary.questionsCreated} new question${summary.questionsCreated === 1 ? '' : 's'}`,
+      `${summary.questionsReversioned} updated`,
+      `${summary.questionsUnchanged} already here and untouched`,
+    ];
+    revalidatePath('/admin');
+    revalidatePath('/admin/review');
+    return {
+      ok: true,
+      message: `${parts.join(', ')}. ${summary.awaitingVerification} item${
+        summary.awaitingVerification === 1 ? '' : 's'
+      } now await verification.`,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      error: `Could not load the content: ${
+        error instanceof Error ? error.message : 'unknown error'
+      }`,
+    };
+  }
 }

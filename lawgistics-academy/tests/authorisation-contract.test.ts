@@ -114,6 +114,7 @@ test('the server actions were actually found', () => {
     'finishSession',
     'invite',
     'join',
+    'loadNewContent',
     'publishAllVerified',
     'recordReviewDecision',
     'restoreAllWithdrawn',
