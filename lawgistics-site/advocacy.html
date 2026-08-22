@@ -106,7 +106,7 @@
         </div>
         <div class="field" style="margin-bottom:0">
           <label for="matter">What are you working from? <span class="hint">(optional, a case name or a note to yourself)</span></label>
-          <input class="input" id="matter" placeholder="e.g. Rayuan Sivil W-02-1234-05/2026, or 'the tenancy problem'">
+          <input class="input" id="matter" data-matter placeholder="e.g. Rayuan Sivil W-02-1234-05/2026, or 'the tenancy problem'">
         </div>
       </div>
 
@@ -192,6 +192,38 @@ window.pageInit = function () {
     return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
       .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   };
+
+  /* Which country the learner is training in, read the same way the academy
+     page reads it: the address first, then what they chose there, then the
+     default. The exercises themselves do not change. An appeal after trial, an
+     appeal from an interlocutory decision, reading a judgment and a problem
+     you bring yourself are the same skill in both countries, and the rubric
+     scores reasoning rather than knowledge of any particular law.
+
+     What does change is what the coach assumes when a learner names a court or
+     an authority. Told the wrong country it would read a correct reference as
+     a mistake, which is the one thing formative feedback must not do. */
+  var COUNTRY = (function () {
+    var q = (String(location.search).match(/[?&]c=(my|au)(?:&|$)/i) || [])[1];
+    if (q) return q.toUpperCase();
+    try {
+      var saved = localStorage.getItem('lg.country');
+      if (saved === 'MY' || saved === 'AU') return saved;
+    } catch (e) {}
+    return 'MY';
+  })();
+
+  var PROGRAMME = COUNTRY === 'AU'
+    ? 'an Australian legal-training programme. The learner is training in Australia, so read any court, statute or authority they name as Australian'
+    : 'a Malaysian legal-training programme. The learner is training in Malaysia, so read any court, statute or authority they name as Malaysian';
+
+  // The example in the matter field is a Malaysian civil appeal number, which
+  // means nothing to somebody in Australia.
+  (function () {
+    if (COUNTRY !== 'AU') return;
+    var matter = document.querySelector('[data-matter]');
+    if (matter) matter.placeholder = "e.g. Smith v Jones [2026] NSWCA 12, or 'the tenancy problem'";
+  })();
 
   /* ---- recorder ---------------------------------------------------- */
   var recognition = null, wantListening = false, finalText = '';
@@ -340,7 +372,7 @@ window.pageInit = function () {
     }
   };
 
-  var SYSTEM = 'You are a supportive but honest advocacy coach in the Lawgistics Litigation Academy, a Malaysian legal-training programme. A learner, a student, intern, pupil or paralegal, has read a problem and recorded themselves arguing it out loud. You are reading an automatic transcript of that recording. Your job is to help them get better at thinking and speaking like a lawyer, and to be honest about where they are.\n\n' +
+  var SYSTEM = 'You are a supportive but honest advocacy coach in the Lawgistics Litigation Academy, ' + PROGRAMME + '. A learner, a student, intern, pupil or paralegal, has read a problem and recorded themselves arguing it out loud. You are reading an automatic transcript of that recording. Your job is to help them get better at thinking and speaking like a lawyer, and to be honest about where they are.\n\n' +
     'HOW TO READ THE TRANSCRIPT. It is machine-transcribed speech. Case names, statutes and section numbers are frequently mangled, never treat a garbled citation as the learner’s error; if unsure, assume it is the transcriber’s and note it in the caveat. Most learners speak English as a second or third language: assess reasoning only, never accent, grammar, idiom or vocabulary, and never comment on phrasing. Repetition and self-correction are normal speech, not disorganisation.\n\n' +
     'WHAT MATTERS. Legal knowledge is not the point, reasoning is. Do they separate what matters from what does not? Do they reach a conclusion and defend it, or describe and stop (the most common weakness)? Do they engage the best argument against themselves? Do they reason from principle rather than reciting? Do they know what they do not know? Reward a hesitant learner who finds the real issue over a fluent one who does not. Do not reward confidence or polish as a substitute for thought.\n\n' +
     'TONE. This is formative feedback the learner will read themselves. Be warm, specific and encouraging, but do not inflate, tell them the truth so they can improve. Lead with what worked, then the single most valuable change. Never invent legal authority; if they state something as law you believe wrong, say it should be checked rather than declaring it wrong. Every piece of evidence you cite must be traceable to their actual words. Score against what an able beginner can achieve from the problem alone, and use the full range. The seven scores must sum exactly to the total. Do not use em dashes or en dashes.';

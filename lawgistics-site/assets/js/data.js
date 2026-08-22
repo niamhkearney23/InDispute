@@ -290,31 +290,64 @@ window.LG_SEED = {
   ],
 
   /* -------------------------------------------------------- learning --- */
+  /* Every track carries a country, because Malaysian and Australian law are
+     different bodies of law and a strand written for one is wrong for the
+     other. 'ALL' means the strand really does apply to both: at present only
+     oral advocacy, whose exercises are an appeal after trial, an interlocutory
+     appeal, reading a judgment and a problem the learner brings, none of which
+     turn on which country you are in.
+
+     The Malaysian strands are self-study, described here and marked nowhere.
+     The Australian ones are the modules the app actually holds questions for,
+     so each of them has something on the other end of the link. There are no
+     Australian versions of chambering, drafting, litigation support or SME
+     advice, and inventing them would be worse than their absence: the
+     Malaysian ones name the Rules of Court 2012 and the Copyright Act 1987,
+     and Australia has neither. */
   learnTracks: [
-    { id: 'lt1', title: 'Chambering starter pack', audience: 'Pupils in chambers', order: 1, duration: '6 hours', status: 'published',
+    { id: 'lt1', country: 'MY', title: 'Chambering starter pack', audience: 'Pupils in chambers', order: 1, duration: '6 hours', status: 'published',
       summary: 'The practical things pupillage assumes you already know: court etiquette, file management, taking attendance notes, and how a matter actually moves.',
       lessons: 'Reading a cause paper without panicking\nAttendance notes that a partner can use\nCourt etiquette and modes of address\nOpening and maintaining a matter file\nTime recording and why it matters',
       outcomes: 'Read a cause paper and say what the matter is and what stage it is at\nTake an attendance note a partner can act on without asking you questions\nAddress the court correctly and know what to do when you are unsure\nOpen a file, keep it in order, and record your time honestly' },
-    { id: 'lt2', title: 'Drafting fundamentals', audience: 'Interns & pupils', order: 2, duration: '8 hours', status: 'published',
+    { id: 'lt2', country: 'MY', title: 'Drafting fundamentals', audience: 'Interns & pupils', order: 2, duration: '8 hours', status: 'published',
       summary: 'How commercial documents are built, the clauses that matter, why they are worded as they are, and how to spot what is missing.',
       lessons: 'Anatomy of a commercial agreement\nScope, payment, and the five clauses disputes start over\nIntellectual property and the Copyright Act 1987 default\nLimitation and exclusion clauses\nMarking up a draft: house style and tracked changes',
       outcomes: 'Read a commercial agreement and say what it actually obliges each side to do\nSpot the clause that is missing, not just review the ones that are there\nExplain why a limitation or exclusion clause is worded the way it is\nMark up a draft in house style so a senior can review it quickly' },
-    { id: 'lt3', title: 'Litigation support skills', audience: 'Paralegals & interns', order: 3, duration: '10 hours', status: 'published',
+    { id: 'lt3', country: 'MY', title: 'Litigation support skills', audience: 'Paralegals & interns', order: 3, duration: '10 hours', status: 'published',
       summary: 'The work that wins cases before anyone stands up: bundles, chronologies, and witness statements that hold together.',
       lessons: 'Building an indexed bundle of documents\nChronologies that expose the real story\nWitness statements in question-and-answer form\nCause papers and the Rules of Court 2012\nCommon filing errors and how to avoid them',
       outcomes: 'Build an indexed bundle a judge can navigate without asking for help\nTurn a messy file into a chronology that shows what the case is really about\nTake a witness statement in proper question and answer form\nFile under the Rules of Court 2012 without the errors that get papers rejected' },
-    { id: 'lt4', title: 'Legal research that stands up', audience: 'Law students', order: 4, duration: '5 hours', status: 'published',
+    { id: 'lt4', country: 'MY', title: 'Legal research that stands up', audience: 'Law students', order: 4, duration: '5 hours', status: 'published',
       summary: 'Finding, verifying, and citing Malaysian authority properly, including how to check a case is still good law.',
       lessons: 'Where Malaysian judgments actually live\nReading a citation and finding the report\nChecking whether a case has been departed from\nStatutes, amendments, and finding the in-force version\nCiting authority in submissions',
       outcomes: 'Find Malaysian authority on a point and know you have found the right report\nCheck whether a case is still good law before you rely on it\nFind the version of a statute that was in force on the date that matters\nCite authority in submissions the way a court expects to see it' },
-    { id: 'lt5', title: 'Advising SME clients', audience: 'Junior lawyers', order: 5, duration: '6 hours', status: 'draft',
+    { id: 'lt5', country: 'MY', title: 'Advising SME clients', audience: 'Junior lawyers', order: 5, duration: '6 hours', status: 'draft',
       summary: 'Translating legal answers into commercial ones, scoping, pricing, and writing advice a business owner can act on.',
       lessons: 'The intake conversation\nScoping and quoting a small matter\nWriting advice without legalese\nWhen to say no, and how',
       outcomes: 'Run an intake conversation that gets to what the client actually needs\nScope and price a small matter without underquoting yourself\nWrite advice a business owner can act on without a translator\nRecognise the matter you should decline, and decline it well' },
-    { id: 'lt6', title: 'Oral advocacy', audience: 'Interns, pupils & paralegals', order: 6, duration: 'Practice-based', status: 'published',
+    { id: 'lt6', country: 'ALL', title: 'Oral advocacy', audience: 'Interns, pupils & paralegals', order: 6, duration: 'Practice-based', status: 'published',
       summary: 'The part pupillage never really teaches: standing up and arguing a case out loud. Read a problem, record yourself arguing it, and get structured feedback on how you reason and how you present.',
       lessons: 'Argue an appeal after a full trial\nArgue an appeal from an interlocutory decision\nAnalyse a judgment and give your own view\nFree practice on a problem your supervisor set you',
-      outcomes: 'Argue a case out loud and reach a conclusion instead of describing the facts\nAnswer the best argument against you rather than avoiding it\nStructure an argument so a judge can follow where you are going\nTake structured feedback on your reasoning and act on it' }
+      outcomes: 'Argue a case out loud and reach a conclusion instead of describing the facts\nAnswer the best argument against you rather than avoiding it\nStructure an argument so a judge can follow where you are going\nTake structured feedback on your reasoning and act on it' },
+
+    /* Australia. Each of these is a module the app holds questions for, and
+       the wording is taken from the module's own description rather than
+       written fresh, so the page and the thing behind it say the same. The
+       duration is deliberately not given in hours: a module finishes when
+       every question in it has been answered correctly at least once, which
+       takes as long as it takes. */
+    { id: 'au1', country: 'AU', title: 'Ethics and AI', audience: 'Students, graduates & juniors', order: 1, duration: 'Until every question is right', status: 'published',
+      summary: 'Confidentiality, verification, candour to the court, and who answers for the work. Every one of these situations arrives in an ordinary week without announcing itself, and most of them do not feel like breaking a rule at the time.',
+      lessons: 'What you may and may not put into a tool\nChecking a citation that looks right\nCandour to the court when the work was assisted\nWho is answerable for the finished work\nRecording time honestly when the drafting was fast',
+      outcomes: 'Say what may and may not be put into a tool, and why\nVerify a citation instead of trusting one that looks right\nRecognise the version of a rule that gets broken without feeling like a breach\nName who answers for the work when something in it is wrong' },
+    { id: 'au2', country: 'AU', title: 'Finding the right court', audience: 'Students & graduates', order: 2, duration: 'Until every question is right', status: 'published',
+      summary: 'The hierarchy, what each court may hear, and where an appeal goes. The first question on any new file is which court it belongs in, and getting it wrong costs the client time and money before anyone has argued anything.',
+      lessons: 'The hierarchy, federal and state\nWhat each court may hear, and the limits on it\nWhere an appeal from each court goes\nWhy the answer is usually decided by value',
+      outcomes: 'Say which court a matter belongs in and why\nWork out where an appeal from a decision would go\nUse the monetary and subject-matter limits rather than guessing from names\nSpot the file that is in the wrong court before it costs the client' },
+    { id: 'au3', country: 'AU', title: 'Legal research', audience: 'Students, graduates & juniors', order: 3, duration: 'Until every question is right', status: 'published',
+      summary: 'Finding the law, checking it is still the law, and being able to say how you know. Written as method rather than as a tour of databases, because a junior who has learned one product has learned a product.',
+      lessons: 'Starting from a secondary source rather than a search box\nChecking that what you are reading is the law today\nNoting up: what later courts did to it\nCiting the version the court will have in front of them\nKeeping a record of what you searched and when',
+      outcomes: 'Get a framework from a secondary source before you search\nCheck that what you are reading is the law today\nFind what later courts did to a case before you rely on it\nSay what you searched and when, and cite the version the court will have' }
   ],
 
   /* ------------------------------------------------- academy levels ----
@@ -330,17 +363,30 @@ window.LG_SEED = {
      against 50+50+50+50+40+40 = 280 XP total. Re-check after editing
      learnTracks lessons. */
   academyLevels: [
-    { id: 'al1', level: 1, name: 'Foundation', xpRequired: 0, tracks: 'lt4',
+    { id: 'al1', country: 'MY', level: 1, name: 'Foundation', xpRequired: 0, tracks: 'lt4',
       blurb: 'Find and verify Malaysian authority properly. Everything else is built on this.' },
-    { id: 'al2', level: 2, name: 'Drafter', xpRequired: 50, tracks: 'lt2',
+    { id: 'al2', country: 'MY', level: 2, name: 'Drafter', xpRequired: 50, tracks: 'lt2',
       blurb: 'Build and mark up commercial documents, and spot what is missing.' },
-    { id: 'al3', level: 3, name: 'Litigation support', xpRequired: 100, tracks: 'lt3',
+    { id: 'al3', country: 'MY', level: 3, name: 'Litigation support', xpRequired: 100, tracks: 'lt3',
       blurb: 'Bundles, chronologies, and witness statements that hold together under pressure.' },
-    { id: 'al4', level: 4, name: 'In chambers', xpRequired: 150, tracks: 'lt1',
+    { id: 'al4', country: 'MY', level: 4, name: 'In chambers', xpRequired: 150, tracks: 'lt1',
       blurb: 'The practical craft of pupillage, files, notes, etiquette, and pace.' },
-    { id: 'al5', level: 5, name: 'Advising', xpRequired: 200, tracks: 'lt5',
+    { id: 'al5', country: 'MY', level: 5, name: 'Advising', xpRequired: 200, tracks: 'lt5',
       blurb: 'Turn legal answers into commercial ones a business owner can act on.' },
-    { id: 'al6', level: 6, name: 'Advocate', xpRequired: 240, tracks: 'lt6',
+    { id: 'al6', country: 'MY', level: 6, name: 'Advocate', xpRequired: 240, tracks: 'lt6',
+      blurb: 'Stand up and argue a case out loud. Record yourself, get feedback, and do it again.' },
+
+    /* Australia is shorter than Malaysia, and the page says so rather than
+       padding it. Ethics and AI comes first because it is the one module the
+       app marks as required, and it is the one whose absence shows up in an
+       ordinary week rather than in an exam. */
+    { id: 'aa1', country: 'AU', level: 1, name: 'Ethics and AI', xpRequired: 0, tracks: 'au1',
+      blurb: 'What you may put into a tool, what has to be checked, and who answers for the work.' },
+    { id: 'aa2', country: 'AU', level: 2, name: 'The courts', xpRequired: 0, tracks: 'au2',
+      blurb: 'Which court a matter belongs in, what it may hear, and where an appeal goes.' },
+    { id: 'aa3', country: 'AU', level: 3, name: 'Research', xpRequired: 0, tracks: 'au3',
+      blurb: 'Find the law, check it is still the law, and be able to say how you know.' },
+    { id: 'aa4', country: 'AU', level: 4, name: 'Advocate', xpRequired: 0, tracks: 'lt6',
       blurb: 'Stand up and argue a case out loud. Record yourself, get feedback, and do it again.' }
   ],
 

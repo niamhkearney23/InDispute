@@ -1036,6 +1036,40 @@ a[data-forgot] { display: inline-block; padding: 8px 0; }
   border-top: 0; border-right: 0; transform: rotate(-45deg);
 }
 .lvl-covers { font-size: .82rem; color: var(--ink-soft); line-height: 1.6; }
+
+/* Country switch. Sits above everything it changes, and is a pair of real
+   buttons rather than a select, because it is the first decision on the page
+   and both answers should be visible without opening anything. Both are 44px
+   tall so they are comfortable targets on a phone. */
+.country-pick {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px;
+  padding: 16px 20px; border: 1px solid var(--line); border-radius: 12px;
+  background: var(--cream-deep);
+  /* Above the floating "need help choosing" button, which is fixed to the
+     bottom right and otherwise covers the Australia option at one scroll
+     position on a phone. Measured, not guessed. Equal to the guide panel
+     rather than higher, so the panel, which comes later in the document,
+     still opens over the top of this. */
+  position: relative; z-index: 96;
+}
+.country-pick__q { margin: 0; font-size: .9rem; font-weight: 600; }
+.country-pick__opts { display: flex; gap: 8px; }
+.country-pick__btn {
+  min-height: 44px; padding: 0 20px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--cream);
+  font: inherit; font-size: .9rem; color: var(--ink);
+  transition: background .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease);
+}
+.country-pick__btn:hover { border-color: var(--navy); }
+.country-pick__btn.is-on {
+  background: var(--navy); border-color: var(--navy); color: #fff; font-weight: 600;
+}
+@media (max-width: 520px) {
+  /* The two options share the row rather than wrapping one under the other,
+     which reads as one choice instead of two separate buttons. */
+  .country-pick__opts { width: 100%; }
+  .country-pick__btn { flex: 1; padding: 0 12px; }
+}
 .xp-bar { height: 8px; background: var(--cream-deep); border-radius: 4px; overflow: hidden; }
 .xp-bar span { display: block; height: 100%; background: var(--navy); border-radius: 4px; transition: width .4s var(--ease); }
 

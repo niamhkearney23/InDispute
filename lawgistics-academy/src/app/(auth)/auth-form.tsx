@@ -11,17 +11,30 @@ export function AuthForm({
   mode,
   next,
   problem,
+  defaultCountry = 'MY',
 }: {
   mode: 'login' | 'signup';
   next: string;
   /** Something that went wrong before this page loaded, such as a dead confirmation link. */
   problem?: string;
+  /**
+   * Which country to start on. The marketing site knows the answer already,
+   * because it asks before it sends anyone here, so it passes it rather than
+   * making somebody choose twice and land on the wrong body of law if they do
+   * not notice. It is a starting point, not a decision: the buttons are still
+   * there and still change it.
+   *
+   * Malaysia when nobody says otherwise, because that is where most of the
+   * people using this are. A default is a guess, and it should be the guess
+   * that is right most often.
+   */
+  defaultCountry?: Country;
 }) {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [country, setCountry] = useState<Country>('AU');
+  const [country, setCountry] = useState<Country>(defaultCountry);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(problem ?? null);
   const [notice, setNotice] = useState<string | null>(null);

@@ -37,6 +37,24 @@
        material that did not exist, and the level it produced measured nothing.
        Nothing on this page now claims to be a record. -->
 
+  <!-- ================================================= country switch --
+       Asked before anything else on the page, because Australian and
+       Malaysian law are different bodies of law and almost everything below
+       changes with the answer. The choice is remembered, and it is also
+       readable from the address (?c=my or ?c=au) so a link can be sent to
+       somebody already set to the right country. -->
+  <section class="section section--tight" style="padding-bottom:0">
+    <div class="wrap">
+      <div class="country-pick" data-country-pick>
+        <p class="country-pick__q" id="country-q">Which country are you training in?</p>
+        <div class="country-pick__opts" role="group" aria-labelledby="country-q">
+          <button class="country-pick__btn" type="button" data-country="MY">Malaysia</button>
+          <button class="country-pick__btn" type="button" data-country="AU">Australia</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- =================================================== the two halves -->
   <section class="section section--tight">
     <div class="wrap">
@@ -48,8 +66,8 @@
       <div class="grid grid-2">
         <div class="card" data-reveal="0">
           <h3>Advocacy, on this site</h3>
-          <p>Read a problem, argue it out loud, and get structured feedback on your reasoning, your structure and how you present. No account, nothing to install, and it is free while Lawgistics is in beta.</p>
-          <a class="btn btn--primary btn--sm" style="margin-top:14px" href="advocacy.html">Start an exercise →</a>
+          <p>Read a problem, argue it out loud, and get structured feedback on your reasoning, your structure and how you present. No account, nothing to install, and it is free while Lawgistics is in beta. The exercises are an appeal after trial, an appeal from an interlocutory decision, reading a judgment, and a problem you bring yourself, so they work the same in both countries.</p>
+          <a class="btn btn--primary btn--sm" style="margin-top:14px" href="advocacy.html" data-adv-link>Start an exercise →</a>
         </div>
         <div class="card" data-reveal="80">
           <h3>Questions, in the app</h3>
@@ -67,6 +85,10 @@
         <p class="eyebrow">Question of the day</p>
         <h2 style="margin-bottom:0">One question, every morning.</h2>
         <p class="lede" style="margin-top:14px">A single point of Malaysian law, with the authority behind it. Everyone gets the same question each day, so you can argue about it with your cohort.</p>
+        <!-- Shown only to somebody training in Australia. The daily question is
+             Malaysian, and saying so is better than letting an Australian
+             assume it is theirs. -->
+        <p class="lede" style="margin-top:14px" data-quiz-au hidden>The daily question is Malaysian law only at the moment. There is no Australian one yet, so this is worth reading if you are curious and worth nothing to your training if you are not.</p>
       </div>
 
       <div class="quiz" data-quiz>
@@ -118,7 +140,7 @@
   <!-- ========================================================== levels -->
   <section class="section section--tight" id="levels">
     <div class="wrap">
-      <div class="section-head"><h2>What you will be able to do</h2><p class="lede">Six strands, roughly in the order they become useful. Each one lists what you should be able to do at the end of it, so you can judge for yourself whether you are there.</p></div>
+      <div class="section-head"><h2>What you will be able to do</h2><p class="lede" data-levels-lede></p></div>
       <div class="level-track" data-levels></div>
     </div>
   </section>
@@ -194,26 +216,61 @@ window.pageInit = function () {
      app that is not deployed is worse than no button. */
   var APP_URL = String((window.LG_CONFIG || {}).appUrl || '').replace(/\/+$/, '');
 
-  function appHref(path) {
-    if (!APP_URL) return '';
-    return APP_URL + '/signup?next=' + encodeURIComponent(path);
+  /* Which country the person is training in.
+
+     Read from the address first, so a link can be sent to somebody already
+     set correctly, then from what they chose last time, and only then the
+     default. The default is Malaysia because this is lawgistics.my and every
+     other page on it is Malaysian; an Australian is one tap from the right
+     answer and the tap is the first thing on the page. */
+  var COUNTRIES = { MY: 'Malaysia', AU: 'Australia' };
+  var country = readCountry();
+
+  function readCountry() {
+    var q = (String(location.search).match(/[?&]c=(my|au)(?:&|$)/i) || [])[1];
+    if (q) return q.toUpperCase();
+    try {
+      var saved = localStorage.getItem('lg.country');
+      if (COUNTRIES[saved]) return saved;
+    } catch (e) { /* private browsing, fall through to the default */ }
+    return 'MY';
   }
 
-  (function () {
-    var links = document.querySelectorAll('[data-app-link]');
-    for (var i = 0; i < links.length; i++) {
-      var href = appHref(links[i].getAttribute('data-app-link'));
-      if (!href) continue;
-      links[i].setAttribute('href', href);
-      links[i].removeAttribute('hidden');
+  function setCountry(next) {
+    if (!COUNTRIES[next] || next === country) return;
+    country = next;
+    try { localStorage.setItem('lg.country', country); } catch (e) {}
+    // Keep the address in step so the page can be linked or reloaded as it is.
+    if (window.history && history.replaceState) {
+      history.replaceState(null, '', 'academy.html?c=' + country.toLowerCase() + location.hash);
     }
-  })();
+    paint();
+  }
 
-  /* One strand has a module of its own in the app; the rest go to the
-     diagnostic, which is the app's own way in and decides what to ask. This
-     map is deliberately short rather than invented: a link is only added where
-     a module actually exists on the other end. */
-  var APP_PATHS = { lt4: '/modules/research-my' };
+  /* Sign-up carries two things: where the person was trying to get to, and
+     which country they are in. Without the country the app's form defaults to
+     Australia, so a Malaysian who came from this page would arrive on a form
+     set to the wrong body of law. */
+  function appHref(path) {
+    if (!APP_URL) return '';
+    return APP_URL + '/signup?next=' + encodeURIComponent(path) + '&country=' + country;
+  }
+
+  /* Modules that exist in the app, per country. Deliberately short rather than
+     invented: a link is only added where a module actually exists on the other
+     end, and anything without one goes to the diagnostic, which is the app's
+     own way in and decides what to ask. */
+  var APP_PATHS = {
+    lt4: '/modules/research-my',
+    au1: '/modules/ai-ethics-au',
+    au2: '/modules/courts-au',
+    au3: '/modules/research-au'
+  };
+
+  var LEVEL_LEDE = {
+    MY: 'Six strands, roughly in the order they become useful. Each one lists what you should be able to do at the end of it, so you can judge for yourself whether you are there.',
+    AU: 'Four strands, and fewer than Malaysia has, because these are the ones the app holds Australian questions for. The Malaysian strands on chambering, drafting, litigation support and advising clients have no Australian version yet, and showing them here with an Australian label would be a lie: they are built on the Rules of Court 2012 and the Copyright Act 1987.'
+  };
 
   function trackFor(level) {
     return tracks.filter(function (x) { return x.id === level.tracks; })[0] || null;
@@ -236,7 +293,9 @@ window.pageInit = function () {
      can check. Assessment happens where it can actually be trusted: the
      advocacy coach, which marks a real recording. */
   function paintLevels() {
-    document.querySelector('[data-levels]').innerHTML = levels.map(function (l) {
+    var forHere = levels.filter(function (l) { return l.country === country; });
+    document.querySelector('[data-levels-lede]').textContent = LEVEL_LEDE[country];
+    document.querySelector('[data-levels]').innerHTML = forHere.map(function (l) {
       var t = trackFor(l);
       var outcomes = t ? linesOf(t.outcomes) : [];
       var covers = t ? linesOf(t.lessons) : [];
@@ -263,7 +322,8 @@ window.pageInit = function () {
               covers.map(esc).join(' · ') + '</p>'
             : '') +
           (isAdvocacy
-            ? '<a class="btn btn--primary btn--sm" style="margin-top:12px" href="advocacy.html">Start an exercise →</a>' +
+            ? '<a class="btn btn--primary btn--sm" style="margin-top:12px" href="advocacy.html?c=' +
+              country.toLowerCase() + '">Start an exercise →</a>' +
               '<p style="font-size:.8rem;margin:8px 0 0;color:var(--ink-soft)">Marked here, on this site, with no account.</p>'
             : appLink
               ? '<a class="btn btn--primary btn--sm" style="margin-top:12px" href="' +
@@ -279,7 +339,50 @@ window.pageInit = function () {
     }).join('');
   }
 
-  paintLevels();
+  /* Everything on the page that changes with the country, repainted together
+     so the page can never be half Malaysian and half Australian. */
+  function paint() {
+    paintLevels();
+
+    // The links into the app carry the country, so they are rewritten too.
+    var links = document.querySelectorAll('[data-app-link]');
+    for (var i = 0; i < links.length; i++) {
+      var href = appHref(links[i].getAttribute('data-app-link'));
+      if (href) {
+        links[i].setAttribute('href', href);
+        links[i].removeAttribute('hidden');
+      } else {
+        links[i].setAttribute('hidden', '');
+      }
+    }
+
+    var adv = document.querySelector('[data-adv-link]');
+    if (adv) adv.setAttribute('href', 'advocacy.html?c=' + country.toLowerCase());
+
+    var quizNote = document.querySelector('[data-quiz-au]');
+    if (quizNote) {
+      if (country === 'AU') quizNote.removeAttribute('hidden');
+      else quizNote.setAttribute('hidden', '');
+    }
+
+    var btns = document.querySelectorAll('[data-country]');
+    for (var j = 0; j < btns.length; j++) {
+      var on = btns[j].getAttribute('data-country') === country;
+      btns[j].classList.toggle('is-on', on);
+      btns[j].setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+  }
+
+  (function () {
+    var pick = document.querySelector('[data-country-pick]');
+    if (!pick) return;
+    pick.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-country]');
+      if (btn) setCountry(btn.getAttribute('data-country'));
+    });
+  })();
+
+  paint();
 
 };
 </script>

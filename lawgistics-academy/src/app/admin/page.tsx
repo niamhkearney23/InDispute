@@ -4,6 +4,8 @@ import { requireAdmin } from '@/lib/admin/guard';
 import { createServiceClient } from '@/lib/supabase/service';
 import { ButtonLink, Card, Notice, Pill, SectionHeading, Stat } from '@/components/ui';
 import { JURISDICTION_SHORT, type Jurisdiction, type QuestionStatus } from '@/lib/types';
+import { QUESTIONS } from '@/content/seed';
+import { LoadContent } from './load-content';
 
 export const metadata: Metadata = { title: 'Question bank' };
 
@@ -98,6 +100,14 @@ export default async function AdminHome({
           New question
         </ButtonLink>
       </section>
+
+      {/* Only when the deployment is carrying questions the database has not
+          got. Content is loaded once at first run and the page that does it
+          closes for good, so without this the only route for anything written
+          afterwards is a command line. */}
+      {QUESTIONS.length > rows.length ? (
+        <LoadContent missing={QUESTIONS.length - rows.length} />
+      ) : null}
 
       {unverifiedPublished.length > 0 ? (
         <Notice tone="warn">
