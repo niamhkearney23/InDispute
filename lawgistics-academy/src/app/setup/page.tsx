@@ -102,10 +102,17 @@ export default async function SetupPage() {
 
       {finished ? (
         <>
+          {/* These two counts are of what is PUBLISHED, not of what was
+              loaded, and the sentence used to say "loaded". Read as a total it
+              says content is missing when it is merely withdrawn, which is a
+              bad thing to be wrong about on the one page somebody reads when
+              they are trying to work out whether the install worked. */}
           <Notice tone="neutral">
             Setup is complete. {status.publishedQuestions} questions and{' '}
-            {status.publishedFacts} daily facts are loaded, and{' '}
-            {status.reviewOutstanding} still need to be verified by a person.
+            {status.publishedFacts} daily facts are published to learners, and{' '}
+            {status.reviewOutstanding} items still need to be verified by a person.
+            Anything loaded but withdrawn is not counted here; the review queue
+            has the full picture.
           </Notice>
           <div className="mt-5 flex flex-col gap-3 sm:flex-row">
             <ButtonLink href="/dashboard" size="lg" variant="accent">
