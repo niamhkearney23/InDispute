@@ -29,4 +29,10 @@ AGENTS.md
 # every note left for the next session died with the machine that wrote it.
 
 # Generated review packs
+# Generated documents. Both are built from the content rather than being the
+# content, so committing them means a stale copy sitting next to a live source
+# and somebody eventually reading the wrong one.
 review-pack.html
+review-pack-*.html
+academy-australia.html
+academy-malaysia.html

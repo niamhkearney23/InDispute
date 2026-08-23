@@ -257,7 +257,14 @@
     </div>
   </section>
 
-  <section class="section section--tight">
+  <!-- ======================================================= afterwards --
+       Malaysia only, and that is not a styling decision. All three of these
+       are Lawgistics services in Malaysia: a paralegal cohort Malaysian firms
+       book through, supervised work on Malaysian files, and help setting up a
+       Malaysian practice. Shown to an Australian they offer something that
+       does not exist for them, which is the exact failure the country split
+       was built to stop. -->
+  <section class="section section--tight" data-my-only hidden>
     <div class="wrap">
       <div class="section-head section-head--center"><p class="eyebrow">Afterwards</p><h2>Where this leads</h2></div>
       <div class="grid grid-3">
@@ -470,6 +477,13 @@ window.pageInit = function () {
     var adv = document.querySelectorAll('[data-adv-link]');
     for (var k = 0; k < adv.length; k++) {
       adv[k].setAttribute('href', 'advocacy.html?c=' + country.toLowerCase());
+    }
+
+    // Sections that describe something offered in one country only.
+    var myOnly = document.querySelectorAll('[data-my-only]');
+    for (var m = 0; m < myOnly.length; m++) {
+      if (country === 'MY') myOnly[m].removeAttribute('hidden');
+      else myOnly[m].setAttribute('hidden', '');
     }
 
     var quizNote = document.querySelector('[data-quiz-au]');
