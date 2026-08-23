@@ -43,25 +43,31 @@ The annotation explains how to read any citation: parties, year, court, judgment
 
 ## Instagram caption (copy-paste)
 
-A company is asking the Supreme Court to force a council to sell public land.
+The Fitzroy Beer Garden sits on a public road. Now a company wants the Supreme Court to make the council sell it.
 
 Not to look at the decision again. To order the sale.
 
-The background, as reported: operators of a Fitzroy pub began using the laneway behind it as a beer garden in the 1970s. It was later fenced off, which blocked neighbouring businesses from reaching their own back doors. The council refused to sell the laneway, and told the operator to remove the beer garden.
+The background, according to reporting: operators of the pub began using the laneway behind it as an outdoor area back in the 1970s. It was later blocked off with a barbed wire topped fence. Neighbouring businesses could not reach their own back doors, and their skip bins went out on the footpath instead.
 
-The company that owns the building has gone to the Supreme Court. Its court documents are reported to say the council's refusal was "legally unreasonable".
+Yarra City Council refused to sell the laneway, and told the operator to remove the beer garden. Reporting says the pub's position is that it cannot survive without it.
 
-That phrase is doing specific work. It is not a complaint that the decision was harsh or unfair. Legal unreasonableness is an administrative law ground, and the bar is deliberately brutal: the decision has to lack any evident and intelligible justification, so that no reasonable decision maker could have arrived at it. Most decisions you personally think are stupid still clear it comfortably.
+So the company that owns the building has gone to the Supreme Court. Its court documents are reported to say the council's refusal was "legally unreasonable".
 
-The company also wants the court to "discontinue" the road, meaning strip it of its legal status as a road, and order the land sold at market rates.
+That phrase is doing very specific work, and it is worth understanding.
+
+It is not a complaint that the decision was harsh, or short sighted, or bad for business. Legal unreasonableness is an administrative law ground, and the bar is deliberately brutal. The decision has to lack any evident and intelligible justification, so that no reasonable decision maker could have arrived at it. Plenty of decisions you would personally call stupid clear that bar comfortably.
+
+The company also wants the court to discontinue the road, meaning strip the laneway of its legal status as a road, and then order the land sold at market rates.
 
 That is the part worth sitting with.
 
-On judicial review, a court checks how a decision was made. Was it within power, was the process fair, were the right things considered. If a decision fails, the usual result is that it gets quashed and sent back to be made again, properly. The decision maker might reach exactly the same answer the second time, lawfully.
+On judicial review a court checks how a decision was made. Was it within power. Was the process fair. Were the right things taken into account. If a decision fails, the usual result is that it gets quashed and sent back to be made again, properly, and the council can lawfully arrive at exactly the same answer the second time.
 
-Asking a court to order the council to sell is a much larger request, because it asks the court to make the decision rather than police it. Courts are cautious about that, for a reason that has nothing to do with this dispute: the council was the body Parliament chose to make the call.
+Asking a court to order the sale is a much bigger request, because it asks the court to make the decision instead of policing it. Courts are careful about that, for a reason that has nothing to do with this dispute: the council is the body Parliament chose to make the call.
 
-Nothing here has been decided. These are claims in a proceeding that is still running, and reporting says the council had not yet filed a defence. This post describes the argument, not the answer.
+Nothing here has been decided. These are claims in a proceeding that is still running, and reporting says the council had not yet filed a defence. This is the argument, not the answer.
+
+If you want to read it yourself when judgment lands, it will be free on AustLII, and it will probably be styled something like X & G Pty Ltd v Yarra City Council [2026] VSC and then a number. Parties, year, court, judgment number. VSC is the Supreme Court of Victoria, VSCA is its Court of Appeal, HCA is the High Court. That is how you find any judgment in the country without paying anyone.
 
 Want international legal experience? You have come to the right place.
 
@@ -69,9 +75,9 @@ Lawgistics places Australian law students in legal internships in Kuala Lumpur. 
 
 Applications via the link in bio.
 
-Based on media reporting of an ongoing proceeding. General information only, not legal advice.
+Based on media reporting of an ongoing proceeding. Nothing has been decided. General information only, not legal advice.
 
-#auslaw #lawstudent #lawschool #adminlaw #administrativelaw #judicialreview #localgovernment #propertylaw #melbourne #lawyersofinstagram #lawgistics
+#auslaw #lawstudent #lawschool #adminlaw #administrativelaw #judicialreview #localgovernment #propertylaw #fitzroy #melbourne #lawyersofinstagram #lawgistics
 
 **Alt text:** Navy carousel describing a Supreme Court proceeding in which a company seeks orders that a council discontinue and sell a laneway, and explaining what legal unreasonableness and judicial review mean.
 
