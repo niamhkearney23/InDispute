@@ -79,6 +79,32 @@ Based on media reporting of an ongoing proceeding. Nothing has been decided. Gen
 
 #auslaw #lawstudent #lawschool #adminlaw #administrativelaw #judicialreview #localgovernment #propertylaw #fitzroy #melbourne #lawyersofinstagram #lawgistics
 
+## Short caption (copy-paste)
+
+The Fitzroy Beer Garden sits on a public road. Now a company wants the Supreme Court to make the council sell it.
+
+According to reporting: the pub started using the laneway behind it in the 1970s, later blocked it off with a barbed wire topped fence, and neighbouring businesses lost access to their own back doors. Yarra City Council refused to sell the laneway and told the operator to remove the beer garden.
+
+The company that owns the building has gone to the Supreme Court. Its court documents are reported to say the refusal was "legally unreasonable". That is a real legal ground, not a complaint that the decision was harsh, and the bar is brutal: no reasonable decision maker could have made it.
+
+It wants the court to strip the laneway of its road status and order the land sold.
+
+Here is the catch. Judicial review checks how a decision was made, not what it should be. Win, and you usually get the decision sent back, not the decision you wanted.
+
+Nothing has been decided. The council reportedly had not yet filed a defence.
+
+Want international legal experience? You have come to the right place.
+
+Lawgistics places Australian law students in legal internships in Kuala Lumpur. Courtroom access, practising lawyers, live matters.
+
+Applications via the link in bio.
+
+Based on media reporting of an ongoing proceeding. General information only, not legal advice.
+
+#auslaw #lawstudent #adminlaw #judicialreview #fitzroy #melbourne #lawschool #lawgistics
+
+---
+
 **Alt text:** Navy carousel describing a Supreme Court proceeding in which a company seeks orders that a council discontinue and sell a laneway, and explaining what legal unreasonableness and judicial review mean.
 
 ---
