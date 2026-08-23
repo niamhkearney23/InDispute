@@ -148,7 +148,7 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     explanation:
       'False. The Syariah courts are State courts established under State law, with jurisdiction over persons professing the religion of Islam in the matters listed in the State List. They sit outside the federal civil hierarchy, and article 121(1A) of the Federal Constitution provides that the civil High Courts have no jurisdiction in respect of any matter within the jurisdiction of the Syariah courts. Appeals run through the Syariah appellate structure of the State, not to the civil High Court.',
     whyItMatters:
-      'A file that turns on Islamic family law does not belong in the civil courts at all, and pressing it there wastes the client’s money on a jurisdictional argument you will lose.',
+      'Civil courts generally do not determine the merits of matters validly within Syariah Court jurisdiction; however, constitutional and jurisdictional questions may still fall within the civil courts’ supervisory role. Taking the merits of an Islamic family law file to the civil courts wastes the client’s money on an argument you will lose.',
     commonMisconception:
       'Reading article 121(1A) as making the Syariah courts superior. It is a division of jurisdiction, not a ranking.',
     concepts: ['syariah-courts', 'my-court-structure'],
@@ -170,12 +170,16 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['a'],
     explanation:
-      'Appeals from the subordinate courts go to the High Court, which exercises appellate jurisdiction over them. From there a further appeal may lie to the Court of Appeal, subject to the conditions in the Courts of Judicature Act.',
+      'Civil appeals from the subordinate courts go to the High Court, which exercises civil appellate jurisdiction over them under s 27 of the Courts of Judicature Act 1964, subject to the restrictions in s 28. From there a further appeal may lie to the Court of Appeal, again subject to the conditions in that Act.',
     whyItMatters:
       'Filing an appeal in the wrong court wastes time you usually do not have; appeal periods are short.',
+    commonMisconception:
+      'That s 26 is the provision to cite. Section 26 is the High Court’s criminal appellate jurisdiction; the civil route is ss 27 and 28.',
     concepts: ['appellate-structure', 'my-court-structure'],
     skills: ['procedural-sequencing'],
-    sourceReference: 'Courts of Judicature Act 1964 s 26',
+    // Corrected on review. The destination was right and the citation was not:
+    // s 26 is criminal appellate jurisdiction.
+    sourceReference: 'Courts of Judicature Act 1964 ss 27-28',
   },
   {
     slug: 'my-cs-leave-to-federal-court',
@@ -303,8 +307,13 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     domain: 'civil-procedure',
     type: 'multiple_choice',
     difficulty: 3,
-    jurisdiction: 'MY_GENERAL',
-    stem: 'A defendant served with a writ within Malaysia must ordinarily enter appearance within what time?',
+    jurisdiction: 'MY_MALAYA',
+    // Narrowed on review from "within Malaysia". Order 12 r 4 carries a longer
+    // period in Sabah and Sarawak situations, turning on the defendant's
+    // residence or registered office and the Division or Residency, so the
+    // unqualified question had more than one right answer.
+    stem:
+      'A defendant served with a writ within Peninsular Malaysia must ordinarily enter appearance within what time?',
     options: [
       { id: 'a', text: 'Eight days after service' },
       { id: 'b', text: 'Fourteen days after service' },
@@ -313,9 +322,11 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['b'],
     explanation:
-      'A memorandum of appearance must ordinarily be entered within fourteen days after service of the writ where the defendant is served within Malaysia. Different periods apply to service out of the jurisdiction.',
+      'A memorandum of appearance must ordinarily be entered within fourteen days after service of the writ on a defendant served within Peninsular Malaysia. Order 12 r 4 provides for a longer period in certain Sabah and Sarawak situations, depending on where the defendant resides or has its registered office and on the Division or Residency concerned, and different periods again apply to service out of the jurisdiction.',
     whyItMatters:
       'Failing to appear in time exposes the defendant to judgment in default, and setting that aside costs money the client should not have had to spend.',
+    commonMisconception:
+      'That fourteen days is the answer everywhere in Malaysia. Check the rule against where the defendant actually is before you diarise it.',
     concepts: ['originating-process', 'default-judgment', 'rules-of-court-2012'],
     skills: ['procedural-sequencing', 'attention-to-detail'],
     sourceReference: 'Rules of Court 2012 O 12 r 4',

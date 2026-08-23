@@ -114,7 +114,7 @@ export const BASICS_MY_QUESTIONS: SeedQuestion[] = [
     explanation:
       'False. The Syariah courts are State courts with jurisdiction over Muslims in the matters listed in the State List, and they sit outside the civil hierarchy rather than beneath it. Article 121(1A) of the Federal Constitution provides that the civil High Courts have no jurisdiction in matters within the Syariah courts’ jurisdiction. It is a division of subject matter, not a ranking.',
     whyItMatters:
-      'A matter that belongs to the Syariah courts does not belong in the civil courts at all, and pressing it there loses time on an argument you cannot win.',
+      'Civil courts generally do not determine the merits of matters validly within Syariah Court jurisdiction; however, constitutional and jurisdictional questions may still fall within the civil courts’ supervisory role. Pressing the merits in the wrong forum loses time on an argument you cannot win.',
     memoryTrick: 'A different ladder, not a lower rung.',
     concepts: ['syariah-courts', 'my-court-structure'],
     skills: ['procedural-sequencing', 'professional-judgment'],

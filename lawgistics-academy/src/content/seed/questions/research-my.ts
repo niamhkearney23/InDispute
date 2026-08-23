@@ -93,7 +93,7 @@ export const RESEARCH_MY_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['b'],
     explanation:
-      'Cite the reported version where one exists, because the court and the other side will be working from it and your page references have to lead them to the passage you are relying on. An unreported copy is fine for reading and useless for pinpointing. A summary is a finding aid, never the thing you rely on.',
+      'Cite the reported version where one exists, because the court and the other side will be working from it and your references have to lead them to the passage you are relying on. An unreported copy may still be pinpointed where the judgment carries numbered paragraphs, which modern ones usually do, but page references taken from it will not match the report. A summary is a finding aid, never the thing you rely on.',
     whyItMatters:
       'A pinpoint reference that sends the judge to the wrong page is a small error that reads as a careless one.',
     concepts: ['authoritative-sources'],

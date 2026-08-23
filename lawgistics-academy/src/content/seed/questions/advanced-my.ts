@@ -233,7 +233,11 @@ export const ADVANCED_MY_QUESTIONS: SeedQuestion[] = [
     jurisdiction: 'MY_FEDERAL',
     scenario:
       'You have lost in the Court of Appeal in a civil matter and your client wants to go to the Federal Court. The point is important to your client and worth a great deal of money.',
-    stem: 'What has to be shown to obtain leave?',
+    // Narrowed on review. Section 96 has two limbs, and (b) is a separate
+    // constitutional route, so the unqualified question was broader than the
+    // keyed answer.
+    stem:
+      'Assuming the proposed appeal does not concern the effect of a constitutional provision, what must ordinarily be shown under s 96(a) to obtain leave?',
     options: [
       { id: 'a', text: 'That the amount in dispute exceeds a prescribed threshold' },
       { id: 'b', text: 'That the Court of Appeal was wrong' },
@@ -242,7 +246,7 @@ export const ADVANCED_MY_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['c'],
     explanation:
-      'Section 96 of the Courts of Judicature Act 1964 conditions civil appeals to the Federal Court on leave, and the criteria are directed at the public significance of the question rather than at the size of the dispute or the strength of the applicant’s grievance. A question of general principle decided for the first time, or a question of importance on which a decision of the Federal Court would be to public advantage, is what the section is looking for. That a party has lost and lost expensively is not a criterion.',
+      'Section 96 of the Courts of Judicature Act 1964 conditions civil appeals to the Federal Court on leave, and the criteria in s 96(a) are directed at the public significance of the question rather than at the size of the dispute or the strength of the applicant’s grievance. A question of general principle decided for the first time, or a question of importance on which a decision of the Federal Court would be to public advantage, is what that limb is looking for. That a party has lost and lost expensively is not a criterion. Section 96(b) is a separate route, concerned with the effect of a provision of the Constitution, and this question sets it aside.',
     whyItMatters:
       'Leave applications framed as a complaint about the result rather than as a question of general importance are the ones that fail.',
     commonMisconception:
@@ -250,7 +254,7 @@ export const ADVANCED_MY_QUESTIONS: SeedQuestion[] = [
     memoryTrick: 'The question has to matter to more people than your client.',
     concepts: ['my-court-structure', 'appellate-structure'],
     skills: ['argument-construction', 'strategic-reasoning'],
-    sourceReference: 'Courts of Judicature Act 1964 s 96',
+    sourceReference: 'Courts of Judicature Act 1964 s 96(a)',
   },
   {
     slug: 'adv-my-order-14-triable-issue',
