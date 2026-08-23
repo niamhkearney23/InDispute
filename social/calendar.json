@@ -17,10 +17,10 @@
           "ground": "cocoa",
           "headline": "The line, alone on a dark ground",
           "shoot": "Nothing. Generated tile.",
-          "caption": "Rest is the greatest gift.\n\nWe are a small studio in Melbourne making one very good sleep box, and a few silk masks. Follow along. We open this month.",
+          "caption": "Give the gift of sleep.\n\nWe are a small studio in Melbourne making beautiful rituals around going to bed: one gift box, four pieces, and your message written by hand. We open this month.",
           "tile": {
             "kind": "script",
-            "text": "Rest is the greatest gift",
+            "text": "Give the gift of sleep",
             "tag": "The line"
           }
         },
@@ -66,15 +66,15 @@
           "ground": "powder",
           "headline": "Closed, ribbon tied, overhead",
           "shoot": "Shoot this one properly. It is the ad, the banner and the grid anchor. Straight overhead, powder ground, rose ribbon.",
-          "caption": "The Signature Sleep Box. Eight pieces, chosen so you do not have to assemble a gift yourself.\n\n$149, free shipping Australia wide, packed by hand in Fitzroy."
+          "caption": "The Gift of Sleep Box. For the person who needs absolutely nothing except a good night's sleep.\n\n$149, free shipping Australia wide, packed by hand in Fitzroy."
         },
         {
           "day": "Wed",
-          "format": "Carousel, 8 slides",
+          "format": "Carousel, 6 slides",
           "ground": "alternating",
           "headline": "One item per slide",
-          "shoot": "Each on a different ground: cocoa, powder, cream, repeat. Item name in display type. No prices on the slides.",
-          "caption": "Swipe for everything inside.\n\nMulberry silk eye mask. Silk pillowcase. Matching silk scrunchie. Bed socks. Pillow mist. Herbal tea. A small candle. A journal for the bedside table."
+          "shoot": "Each on a different ground: cocoa, powder, cream, rose. Item name in display type. No prices on the slides. Final slide is the ritual card on the tissue.",
+          "caption": "Swipe for everything inside.\n\nSilk sleep mask. Silk pillowcase, cut from the same run. An AM / PM journal for either end of the day. A lavender sleep wrap with a good weight to it. The ritual card on top, and your message, written by hand."
         },
         {
           "day": "Fri",
@@ -88,12 +88,12 @@
           "day": "Sun",
           "format": "Type tile",
           "ground": "rose",
-          "headline": "Eight pieces, one ritual",
+          "headline": "Instead of flowers",
           "shoot": "Nothing. Generated tile. Use this line on the box sleeve too so print and feed match.",
-          "caption": "Not a hamper. Not a candle with a bow on it. Eight pieces that were chosen against each other.",
+          "caption": "Not a hamper. Not a candle with a bow on it. Four pieces that were chosen against each other, and a card with your words on it.\n\nFlowers last a week. The box stays on the bedside table.",
           "tile": {
             "kind": "display",
-            "text": "Eight pieces, one ritual",
+            "text": "Instead of flowers",
             "tag": "The box"
           }
         }
@@ -101,32 +101,37 @@
     },
     {
       "week": 3,
-      "theme": "The masks",
-      "note": "Changed from the original plan. The masks now exist and they are the cheapest way in, so they get a week rather than a mention.",
+      "theme": "The rituals",
+      "note": "Changed again with the brand: rituals are the editorial spine now. Content that is useful on its own, with the pieces underneath it.",
       "posts": [
         {
           "day": "Mon",
-          "format": "Macro",
-          "ground": "cocoa",
-          "headline": "The silk mask, flat, side lit",
-          "shoot": "Show the covered strap and the outside seam. Those are the two things nobody else does and both photograph.",
-          "caption": "The seam sits on the outside, so nothing rests against your eyelid. The strap is covered along its whole length, so it does not catch in hair.\n\nSmall things. They are the whole reason this one took a year."
+          "format": "Type tile",
+          "ground": "powder",
+          "headline": "Tonight, try this",
+          "shoot": "Nothing. Generated tile.",
+          "caption": "The 15 minute night reset.\n\nPhone down, somewhere else. Lights low. Write down what is still in your head. Put your mask on. Goodnight.\n\nThe whole ritual is on the site, and it works with whatever you already own.",
+          "tile": {
+            "kind": "display",
+            "text": "Tonight, try this",
+            "tag": "The ritual"
+          }
         },
         {
           "day": "Wed",
-          "format": "Carousel, 4 slides",
-          "ground": "alternating",
-          "headline": "Four masks, four reasons",
-          "shoot": "One mask per slide, each on its own ground. Silk, weighted, contoured, travel.",
-          "caption": "Four masks now. Silk for most people. Weighted at 180 grams if you like the feel of something there. Contoured if you want to open your eyes underneath it. Travel if it lives in a bag.\n\nFrom $49, link in bio."
+          "format": "Macro",
+          "ground": "cocoa",
+          "headline": "The journal, open, lamp on",
+          "shoot": "AM / PM journal open on a bedside table, pen across it, one warm lamp. The PM page half filled with anything illegible.",
+          "caption": "A page for the end of the day and a page for the start of the next one.\n\nThe PM page is for whatever is still circling. It does not have to read well. It has to be out of your head and on the page."
         },
         {
           "day": "Fri",
-          "format": "Reel, 15 seconds",
+          "format": "Reel, 12 seconds",
           "ground": "cream",
-          "headline": "Cutting and finishing a strap",
-          "shoot": "The bench, close, hands only. Slight speed up is fine here.",
-          "caption": "Every strap is covered by hand. It is the slowest part of making a mask and the first thing you would notice if we skipped it."
+          "headline": "The wind down, real time",
+          "shoot": "Lamp on, journal closed, mask picked up, light off. Ambient sound, no talking, no captions on screen.",
+          "caption": "The last hour, with nothing that glows in it."
         },
         {
           "day": "Sun",
@@ -154,7 +159,7 @@
           "ground": "powder",
           "headline": "Now open",
           "shoot": "Same hero as week two, reshot at a different angle so it is not a repost. Pin this one.",
-          "caption": "Sleep Shop is open.\n\nThe Signature Sleep Box, $149. Silk masks from $49. Shipping across Australia, packed by hand in Melbourne. Link in bio."
+          "caption": "Sleep Shop is open.\n\nThe Gift of Sleep Box, $149. The pieces on their own from $39. Shipping across Australia, packed by hand in Melbourne. Link in bio."
         },
         {
           "day": "Wed",
@@ -214,7 +219,7 @@
           "text": "Packed by hand in Melbourne",
           "tag": "The studio"
         },
-        "caption": "Two of us, one bench, about forty boxes on a good weekday.\n\nEverything goes in the same order every time: tissue, pillowcase, mask, scrunchie, socks, then the four smaller pieces along the front so nothing moves in transit. The card goes in last, on top."
+        "caption": "Two of us, one bench, about forty boxes on a good weekday.\n\nEverything goes in the same order every time: tissue, pillowcase, wrap, journal, mask, then the ritual card on top so it is the first thing under the lid. Your card goes in last, in pen."
       },
       {
         "id": "card",
@@ -228,15 +233,15 @@
         "caption": "Your message, in pen, on a printed card, before the lid goes on.\n\nUp to 250 characters and we write it exactly as you type it, line breaks and all. We will quietly fix an obvious typo in a name and leave the rest alone."
       },
       {
-        "id": "strap",
-        "ground": "cocoa",
+        "id": "flowers",
+        "ground": "rose",
         "format": "Type tile",
         "tile": {
           "kind": "display",
-          "text": "Four masks, one strap",
-          "tag": "The range"
+          "text": "Instead of flowers",
+          "tag": "Gifting"
         },
-        "caption": "Silk, weighted, contoured, travel. Different jobs, same covered strap, because that is the part everyone else gets wrong.\n\nFrom $49, link in bio."
+        "caption": "The thing you send when flowers feel like a shrug.\n\nFour pieces, a ritual card and your words in pen, in a box that stays on the bedside table long after a bunch would have gone in the bin."
       },
       {
         "id": "light",
@@ -247,7 +252,7 @@
           "text": "The last thing before the light goes off",
           "tag": "The ritual"
         },
-        "caption": "Two sprays on the pillow. Socks on. Phone in the other room, on a charger, with an actual alarm clock doing the waking.\n\nWhat it is matters far less than that it never changes."
+        "caption": "Lamp, journal, mask, light off. In that order, because the mask goes on last.\n\nWhat the ritual is matters far less than that it never changes."
       },
       {
         "id": "invoice",
@@ -269,7 +274,7 @@
           "text": "22 momme, grade 6A",
           "tag": "The silk"
         },
-        "caption": "Most silk in gift sets is 16 momme, and it is silk on the front with polyester behind.\n\nOurs is 22 momme on both faces, cut from one run so the mask, the pillowcase and the scrunchie match exactly. It is the difference you feel in a year, not on day one."
+        "caption": "Most silk in gift sets is 16 momme, and it is silk on the front with polyester behind.\n\nOurs is 22 momme on both faces, cut from one run so the mask and the pillowcase match exactly. It is the difference you feel in a year, not on day one."
       }
     ]
   }

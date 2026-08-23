@@ -19,7 +19,6 @@ const captions = posts.map((p) => [p.ref, p.caption]);
 /* ---------------------------------------------------- therapeutic claims */
 
 const CLAIMS = [
-  /gift of sleep/i,
   /improves? (your )?sleep/i,
   /aids? sleep/i,
   /helps? you (fall )?asleep/i,
@@ -56,16 +55,29 @@ test('no caption implies a health outcome', () => {
   }
 });
 
-/* "Give the gift of sleep" is the obvious tagline and the category is full of
-   it. It says the product delivers sleep, which is a performance claim about
-   the goods. Blocked by name so it cannot come back in six months. */
-test('the gift of sleep tagline is blocked by name, and the reason is written down', () => {
-  const everything = JSON.stringify(calendar);
-  assert.ok(!/gift of sleep/i.test(everything), 'the blocked tagline appears in the calendar');
+/* "Give the gift of sleep" was blocked here for a year of commits, then chosen
+   as the brand line anyway — deliberately, by the founder, with the trade-off
+   in front of them. The line is allowed; the decision and its reasoning must
+   stay written down in the README so nobody re-litigates it by accident, and
+   everything underneath the line stays inside the strict rules above. */
+test('the tagline decision is recorded, and nothing escalates beyond the line itself', () => {
   assert.ok(
     /gift of sleep/i.test(readme),
-    'the README must explain why it is blocked, or somebody will just add it back'
+    'the README must record why the tagline is allowed and where the line is drawn'
   );
+  /* The tagline is the ceiling. Anything that promises more than the gesture —
+     delivering, guaranteeing, providing sleep — is still a claims problem. */
+  const ESCALATIONS = [
+    /guarantees? sleep/i,
+    /delivers sleep/i,
+    /provides sleep/i,
+    /gift of (better|deeper) sleep/i
+  ];
+  const everything = JSON.stringify(calendar);
+  for (const pattern of ESCALATIONS) {
+    const hit = everything.match(pattern);
+    assert.equal(hit, null, `"${hit && hit[0]}" goes past the line the tagline draws`);
+  }
 });
 
 /* ------------------------------------------------------------ house style */

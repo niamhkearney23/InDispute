@@ -3,29 +3,31 @@
 Instagram first, because that is what the brand plan is built around. Everything
 here ports to TikTok and Pinterest with the same captions and the same grounds.
 
-## The taglines, and one to avoid
+## The taglines
 
 | Line | Use it |
 | --- | --- |
-| **Rest is the greatest gift** | Yes. The anchor. Already on the site. |
-| **Give the most important thing** | Yes. Good secondary, works as a launch line and on the Birthdays page. |
-| ~~Give the gift of sleep~~ | **No.** See below. |
+| **Give the gift of sleep** | Yes. The brand line, chosen by the founder. See the decision record below. |
+| **Rest is the greatest gift** | Yes. Secondary, still true, still on the ritual card. |
+| **Give the most important thing** | Yes. Works as a launch line and for occasions. |
 
-"Give the gift of sleep" is the obvious line and half the category uses it. It is
-also the one that turns a box of silk and tea into a product that claims to
-deliver sleep. That is a performance claim about the goods, which is exactly what
-the TGA and ACCC rules in the brief rule out, and a tagline is the worst place to
-have one because it ends up on the bio, the ads and the packaging.
+### The decision record, so nobody re-litigates it by accident
 
-The difference is small and it matters:
+"Give the gift of sleep" was blocked here originally: read strictly, it says the
+product delivers sleep, and the brief's TGA and ACCC rules exclude performance
+claims about the goods. That reasoning was put to the founder, twice, and the
+line was chosen anyway as the core of the brand. That is a legitimate call to
+make: as a tagline it sits close to puffery, the kind of aspirational line a
+reasonable customer reads as sentiment rather than as a promise that a silk
+mask administers sleep. Half the category uses it for exactly that reason.
 
-- "Rest is the greatest gift" is a statement about rest. No promise attached.
-- "Give the most important thing" is a statement about the gesture. Same warmth,
-  no promise.
-- "Give the gift of sleep" says buying this gives someone sleep.
-
-The linter blocks the third one, so it cannot quietly reappear in a caption in
-six months when somebody is writing posts in a hurry.
+What the decision does **not** change: the line is the ceiling, not a licence.
+Everything underneath it stays inside rest, ritual, comfort, care and the
+object. The linter still fails any caption that promises an outcome, and it
+also blocks the escalations of the tagline itself: "delivers sleep",
+"guarantees sleep", "the gift of better sleep". If a regulator or a lawyer
+ever pushes back on the line, it is one string in `calendar.json`, one in the
+site data, and this section to update.
 
 ## Caption rules
 
@@ -70,9 +72,10 @@ the first run of these tiles went out in Chromium's default serif.
 ## The calendar
 
 `calendar.json` holds four weeks, sixteen posts, Monday Wednesday Friday Sunday.
-Each entry has the format, the ground, the caption and what to shoot. It differs
-from the original plan in one way: the mask range now exists, so week three
-introduces the masks as the way in rather than being purely about occasions.
+Each entry has the format, the ground, the caption and what to shoot. Week one
+builds the world, week two reveals the box, week three is the rituals, week
+four is the launch. The rituals week is the editorial spine: content that is
+useful on its own, with the pieces underneath it.
 
 Four a week is the most a founder packing boxes can sustain, and it is enough.
 Stories on the three days between.
@@ -88,9 +91,9 @@ is not, so it carries the location.
 **Bio**
 
 ```
-Rest is the greatest gift.
-One box, eight pieces, packed by hand in Melbourne.
-Silk masks from $49.
+Give the gift of sleep.
+One box, four pieces, packed by hand in Melbourne.
+Instead of flowers.
 ```
 
 Then the link. Do not put a phone number in the bio: it turns the profile into a
