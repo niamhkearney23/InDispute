@@ -7,7 +7,7 @@
   var Art = global.SleepArt;
   var Store = global.SleepStore;
   var BOX = global.SLEEP_BOX;
-  var CONTENTS = global.SLEEP_CONTENTS;
+  var CONTENTS = global.SLEEP_BOX_CONTENTS();
   var LIMIT = global.SLEEP_CONFIG.giftMessageLimit;
 
   /* Three views of the same box: tied, open, and the card that goes in it.
@@ -100,6 +100,10 @@
           return '<li style="margin-bottom:.4rem"><strong style="font-weight:400">' +
             UI.escapeHtml(piece.name) + '</strong> — ' + UI.escapeHtml(piece.material) + '</li>';
         }).join('') +
+        (BOX.always || []).map(function (extra) {
+          return '<li style="margin-bottom:.4rem"><strong style="font-weight:400">' +
+            UI.escapeHtml(extra.name) + '</strong> — in every box</li>';
+        }).join('') +
       '</ul>');
 
     fill('[data-specs]', Object.keys(BOX.specs).map(function (key) {
@@ -134,7 +138,7 @@
       }
       if (el.hasAttribute('data-add')) {
         var message = doc.querySelector('[data-message]').value;
-        Store.add(ribbon, message, qty);
+        Store.add(BOX.id, ribbon, message, qty);
         UI.toast(qty > 1 ? qty + ' boxes added' : 'Box added to cart');
         UI.openCart();
         /* Reset the message so the next box does not inherit the last one's. */

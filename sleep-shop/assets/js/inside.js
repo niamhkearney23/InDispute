@@ -5,7 +5,7 @@
   var doc = global.document;
   var UI = global.SleepUI;
   var Art = global.SleepArt;
-  var CONTENTS = global.SLEEP_CONTENTS;
+  var CONTENTS = global.SLEEP_BOX_CONTENTS();
 
   function section(piece, index) {
     var art = '<div class="split__art">' + Art.render(piece) + '</div>';

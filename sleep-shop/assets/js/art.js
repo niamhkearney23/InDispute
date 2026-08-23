@@ -165,6 +165,47 @@
         '<path d="M158 150c0 60 0 100 0 150" stroke="#fff" stroke-opacity=".28" stroke-width="7"/>';
     },
 
+    /* The lavender wrap, loosely folded, with a sprig lying across the corner.
+       The sprig lies flat — upright it reads as a tiny figure at card size. */
+    wrap: function (c) {
+      var sprig = function (x, y, angle) {
+        var buds = '';
+        for (var i = 0; i < 6; i++) {
+          buds += '<ellipse cx="' + (-40 - i * 15) + '" cy="0" rx="' + (10 - i * 0.9).toFixed(1) +
+            '" ry="' + (7.5 - i * 0.7).toFixed(1) + '" fill="' + c.obj + '" opacity="' +
+            (0.9 - i * 0.09).toFixed(2) + '"/>';
+        }
+        return '<g transform="translate(' + x + ',' + y + ') rotate(' + angle + ')">' +
+          '<path d="M0 0h-36" stroke="' + c.deep + '" stroke-opacity=".55" stroke-width="4" stroke-linecap="round"/>' +
+          buds + '</g>';
+      };
+      return shadow(c, 200, 312, 122) +
+        /* The wrap: a long soft rectangle folded back on itself once. */
+        '<rect x="70" y="140" width="260" height="76" rx="36" fill="' + c.obj + '"/>' +
+        '<rect x="70" y="208" width="260" height="76" rx="36" fill="' + c.obj + '"/>' +
+        '<rect x="70" y="198" width="260" height="22" fill="' + c.shade + '" opacity=".5"/>' +
+        /* Channel stitching, so it reads as filled rather than flat. */
+        '<path d="M135 140v144M200 140v144M265 140v144" stroke="' + c.deep +
+          '" stroke-opacity=".22" stroke-width="3"/>' +
+        '<path d="M70 176c44 8 88 8 132 0" stroke="#fff" stroke-opacity=".3" stroke-width="6" fill="none"/>' +
+        sprig(330, 322, -7);
+    },
+
+    /* A bedside lamp, lit, for the rituals section. */
+    lamp: function (c) {
+      return shadow(c, 200, 316, 92) +
+        /* The pool of light comes first, so everything sits inside it. */
+        '<ellipse cx="200" cy="210" rx="150" ry="140" fill="#fff" opacity=".14"/>' +
+        '<path d="M140 96h120l26 84H114z" fill="' + c.obj + '"/>' +
+        '<path d="M140 96h120l26 84H114z" fill="none" stroke="' + c.deep + '" stroke-opacity=".3"/>' +
+        '<rect x="192" y="180" width="16" height="96" fill="' + c.shade + '"/>' +
+        '<ellipse cx="200" cy="292" rx="58" ry="16" fill="' + c.shade + '"/>' +
+        '<ellipse cx="200" cy="288" rx="58" ry="14" fill="' + c.obj + '"/>' +
+        /* A small book beneath it, closed for the night. */
+        '<rect x="258" y="268" width="76" height="14" rx="3" fill="' + c.shade + '"/>' +
+        '<rect x="252" y="282" width="88" height="14" rx="3" fill="' + c.obj + '"/>';
+    },
+
     journal: function (c) {
       return shadow(c, 200, 300, 110) +
         '<rect x="92" y="104" width="216" height="196" rx="6" fill="' + c.shade + '" opacity=".7"/>' +

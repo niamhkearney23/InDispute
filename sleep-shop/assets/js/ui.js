@@ -9,10 +9,11 @@
   var CONFIG = global.SLEEP_CONFIG;
   var BOX = global.SLEEP_BOX;
 
+  /* The three pathways, then the studio. */
   var NAV = [
-    { href: 'box.html', label: 'The box', page: 'box' },
-    { href: 'inside.html', label: 'What is inside', page: 'inside' },
-    { href: 'gifting.html', label: 'Gifting', page: 'gifting' },
+    { href: 'box.html', label: 'Gift sleep', page: 'box' },
+    { href: 'shop.html', label: 'Shop sleep', page: 'shop' },
+    { href: 'rituals.html', label: 'Sleep rituals', page: 'rituals' },
     { href: 'about.html', label: 'About', page: 'about' },
     { href: 'contact.html', label: 'Contact', page: 'contact' }
   ];
@@ -135,12 +136,13 @@
             '<div class="footer__brand">' +
               '<a class="brand" href="index.html"><strong style="color:var(--cream)">' + CONFIG.brand +
                 '</strong><span>' + CONFIG.place + '</span></a>' +
-              '<p>One very good sleep box, packed by hand in ' + CONFIG.place +
-                ' and sent anywhere in Australia.</p>' +
+              '<p>' + CONFIG.tagline + ' Beautiful things for the last hour of the day, packed by ' +
+                'hand in ' + CONFIG.place + ' and sent anywhere in Australia.</p>' +
             '</div>' +
             '<div><h3>Shop</h3><div class="footer__links">' +
-              '<a href="box.html">The Signature Sleep Box</a>' +
-              '<a href="inside.html">What is inside</a>' +
+              '<a href="box.html">The Gift of Sleep Box</a>' +
+              '<a href="shop.html">Shop the bedside</a>' +
+              '<a href="rituals.html">Sleep rituals</a>' +
               '<a href="gifting.html">Gifting</a>' +
             '</div></div>' +
             '<div><h3>Help</h3><div class="footer__links">' +
@@ -233,11 +235,11 @@
     if (!summary.count) {
       lines.innerHTML =
         '<div class="empty">' +
-          '<p class="script">Nothing in the box yet</p>' +
-          '<p class="small">One box, eight pieces, ' + Store.money(BOX.price) + '.</p>' +
+          '<p class="script">Nothing here yet</p>' +
+          '<p class="small">' + BOX.name + ', ' + Store.money(BOX.price) + '. Or the pieces on their own.</p>' +
           '<a class="btn btn--ghost" href="box.html">See the box</a>' +
         '</div>';
-      foot.innerHTML = '<a class="btn btn--block btn--ghost" href="inside.html">What is inside</a>';
+      foot.innerHTML = '<a class="btn btn--block btn--ghost" href="shop.html">Shop the bedside</a>';
       return;
     }
 
@@ -255,14 +257,18 @@
   }
 
   function lineItem(line) {
-    var attrs = 'data-ribbon="' + escapeHtml(line.ribbon) + '" data-message="' + escapeHtml(line.message) + '"';
+    var attrs = lineAttrs(line);
+    var product = global.SLEEP_FIND(line.id) || BOX;
+    var media = line.isBox
+      ? Art.render(BOX, { ground: groundForRibbon(line.ribbon), label: '' })
+      : Art.render(product, { label: '' });
+    var meta = line.isBox ? escapeHtml(line.ribbon) + ' ribbon' : escapeHtml(product.material || '');
+
     return '<div class="line-item">' +
-      '<div class="line-item__media">' +
-        Art.render(BOX, { ground: groundForRibbon(line.ribbon), label: '' }) +
-      '</div>' +
+      '<div class="line-item__media">' + media + '</div>' +
       '<div>' +
-        '<div class="line-item__title">' + escapeHtml(BOX.name) + '</div>' +
-        '<div class="line-item__meta">' + escapeHtml(line.ribbon) + ' ribbon</div>' +
+        '<div class="line-item__title">' + escapeHtml(line.name) + '</div>' +
+        '<div class="line-item__meta">' + meta + '</div>' +
         (line.message ? '<p class="written">' + escapeHtml(line.message) + '</p>' : '') +
         '<div class="line-item__row">' +
           '<div class="qty">' +
@@ -282,6 +288,13 @@
   /* The ribbon choice picks the ground, so the cart thumbnail matches it. */
   function groundForRibbon(ribbon) {
     return ribbon === 'Clay rose' ? 'rose' : 'powder';
+  }
+
+  /* One place decides how a cart line is addressed in the DOM, so the drawer
+     and the cart page cannot disagree about it. */
+  function lineAttrs(line) {
+    return 'data-id="' + escapeHtml(line.id) + '" data-ribbon="' + escapeHtml(line.ribbon) +
+      '" data-message="' + escapeHtml(line.message) + '"';
   }
 
   /* --------------------------------------------------------------- toast */
@@ -312,15 +325,41 @@
     '</article>';
   }
 
+  /* The shop version of the card: same shape, plus a price and a way to buy.
+     Used on the shop page and under each ritual. */
+  function productCard(product) {
+    return '<article class="piece">' +
+      '<div class="piece__media">' + Art.render(product) + '</div>' +
+      '<div class="piece__body">' +
+        '<span class="label">' + escapeHtml(product.material) + '</span>' +
+        '<h3>' + escapeHtml(product.name) + '</h3>' +
+        '<p>' + escapeHtml(product.blurb) + '</p>' +
+        '<div class="piece__buy">' +
+          '<span class="piece__price">' + Store.money(product.price) + '</span>' +
+          '<button class="btn btn--quiet" type="button" data-shop-add="' +
+            escapeHtml(product.id) + '">Add to cart</button>' +
+        '</div>' +
+      '</div>' +
+    '</article>';
+  }
+
   /* ---------------------------------------------------------------- init */
 
   function bindGlobalEvents() {
     doc.addEventListener('click', function (event) {
       var el = event.target.closest('[data-cart-open], [data-cart-close], [data-cart-scrim], ' +
-        '[data-cart-inc], [data-cart-dec], [data-cart-remove], [data-theme-toggle], [data-menu-toggle]');
+        '[data-cart-inc], [data-cart-dec], [data-cart-remove], [data-theme-toggle], ' +
+        '[data-menu-toggle], [data-shop-add]');
       if (!el) return;
 
       if (el.hasAttribute('data-cart-open')) return openCart();
+      if (el.hasAttribute('data-shop-add')) {
+        var product = global.SLEEP_FIND(el.getAttribute('data-shop-add'));
+        if (!product) return;
+        Store.add(product.id, '', '', 1);
+        toast(product.name + ' added');
+        return openCart();
+      }
       if (el.hasAttribute('data-cart-close') || el.hasAttribute('data-cart-scrim')) return closeCart();
       if (el.hasAttribute('data-theme-toggle')) return toggleTheme();
       if (el.hasAttribute('data-menu-toggle')) {
@@ -330,12 +369,13 @@
         return;
       }
 
-      var ribbon = el.getAttribute('data-ribbon');
+      var id = el.getAttribute('data-id');
+      var ribbon = el.getAttribute('data-ribbon') || '';
       var message = el.getAttribute('data-message') || '';
-      var current = findQty(ribbon, message);
-      if (el.hasAttribute('data-cart-inc')) Store.setQty(ribbon, message, current + 1);
-      if (el.hasAttribute('data-cart-dec')) Store.setQty(ribbon, message, current - 1);
-      if (el.hasAttribute('data-cart-remove')) Store.remove(ribbon, message);
+      var current = findQty(id, ribbon, message);
+      if (el.hasAttribute('data-cart-inc')) Store.setQty(id, ribbon, message, current + 1);
+      if (el.hasAttribute('data-cart-dec')) Store.setQty(id, ribbon, message, current - 1);
+      if (el.hasAttribute('data-cart-remove')) Store.remove(id, ribbon, message);
     });
 
     doc.addEventListener('keydown', function (event) {
@@ -344,10 +384,12 @@
     });
   }
 
-  function findQty(ribbon, message) {
+  function findQty(id, ribbon, message) {
     var lines = Store.summary().lines;
     for (var i = 0; i < lines.length; i++) {
-      if (lines[i].ribbon === ribbon && lines[i].message === message) return lines[i].qty;
+      if (lines[i].id === id && lines[i].ribbon === ribbon && lines[i].message === message) {
+        return lines[i].qty;
+      }
     }
     return 0;
   }
@@ -398,6 +440,8 @@
   global.SleepUI = {
     init: init,
     pieceCard: pieceCard,
+    productCard: productCard,
+    lineAttrs: lineAttrs,
     groundForRibbon: groundForRibbon,
     ribbonSwatch: ribbonSwatch,
     escapeHtml: escapeHtml,

@@ -20,7 +20,7 @@
   }
 
   function keyOf(line) {
-    return line.ribbon + '|' + line.message;
+    return line.id + '|' + line.ribbon + '|' + line.message;
   }
 
   /* The page re-renders whenever the cart changes, which would otherwise wipe
@@ -79,30 +79,34 @@
     host().innerHTML =
       '<div class="empty" style="margin-block:3rem">' +
         '<p class="script" style="font-size:1.5rem">Nothing in the cart</p>' +
-        '<p class="small">One box, eight pieces, ' + Store.money(BOX.price) + '.</p>' +
+        '<p class="small">' + UI.escapeHtml(BOX.name) + ', ' + Store.money(BOX.price) +
+          '. Or the pieces on their own.</p>' +
         '<div class="cluster" style="justify-content:center">' +
           '<a class="btn" href="box.html">See the box</a>' +
-          '<a class="btn btn--ghost" href="inside.html">What is inside</a>' +
+          '<a class="btn btn--ghost" href="shop.html">Shop the bedside</a>' +
         '</div>' +
       '</div>';
   }
 
   function row(line) {
     var key = keyOf(line);
-    var attrs = 'data-ribbon="' + UI.escapeHtml(line.ribbon) + '" data-message="' +
-      UI.escapeHtml(line.message) + '"';
+    var attrs = UI.lineAttrs(line);
     var open = editing === key;
+    var product = global.SLEEP_FIND(line.id) || BOX;
+    var media = line.isBox
+      ? Art.render(BOX, { ground: UI.groundForRibbon(line.ribbon), label: '' })
+      : Art.render(product, { label: '' });
+    var meta = (line.isBox
+      ? UI.escapeHtml(line.ribbon) + ' ribbon'
+      : UI.escapeHtml(product.material || '')) + ' &middot; ' + Store.money(line.unitPrice) + ' each';
 
     return '<div class="line-item" style="grid-template-columns:110px minmax(0,1fr)">' +
-      '<div class="line-item__media">' +
-        Art.render(BOX, { ground: UI.groundForRibbon(line.ribbon), label: '' }) +
-      '</div>' +
+      '<div class="line-item__media">' + media + '</div>' +
       '<div>' +
-        '<div class="line-item__title">' + UI.escapeHtml(BOX.name) + '</div>' +
-        '<div class="line-item__meta">' + UI.escapeHtml(line.ribbon) + ' ribbon &middot; ' +
-          Store.money(line.unitPrice) + ' each</div>' +
+        '<div class="line-item__title">' + UI.escapeHtml(line.name) + '</div>' +
+        '<div class="line-item__meta">' + meta + '</div>' +
 
-        (open ? messageEditor(line, attrs) : messageView(line, attrs)) +
+        (line.isBox ? (open ? messageEditor(line, attrs) : messageView(line, attrs)) : '') +
 
         '<div class="line-item__row">' +
           '<div class="qty">' +
@@ -160,7 +164,7 @@
     return '<div class="card">' +
       '<p class="eyebrow">Order summary</p>' +
       '<h2 class="mt-0" style="font-size:1.3rem">' +
-        summary.count + (summary.count === 1 ? ' box' : ' boxes') + '</h2>' +
+        summary.count + (summary.count === 1 ? ' item' : ' items') + '</h2>' +
       '<div class="promo-row">' +
         '<label class="visually-hidden" for="promo">Promo code</label>' +
         '<input id="promo" type="text" placeholder="Promo code" value="' +
@@ -178,12 +182,14 @@
           (summary.shipping ? Store.money(summary.shipping) : 'Free') + '</span></div>' +
         '<div class="totals__grand"><span>Total</span><span>' + Store.money(summary.total) + '</span></div>' +
       '</div>' +
-      '<p class="small muted mt-1">' +
-        (summary.written
-          ? summary.written + ' of ' + summary.lines.length +
-            (summary.lines.length === 1 ? ' box has' : ' boxes have') + ' a handwritten card.'
-          : 'No card messages yet — you can add one to any box above.') +
-      '</p>' +
+      (summary.boxes
+        ? '<p class="small muted mt-1">' +
+          (summary.written
+            ? summary.written + (summary.written === 1 ? ' box carries' : ' boxes carry') +
+              ' a handwritten card.'
+            : 'No card messages yet — you can add one to any box above.') +
+          '</p>'
+        : '') +
       '<button class="btn btn--block btn--lg mt-1" type="submit" form="checkout">Place order</button>' +
       '<p class="tiny muted center mt-1">No payment is taken.</p>' +
     '</div>';
@@ -282,8 +288,10 @@
             'is a demonstration. Your cart has been emptied so you can try the flow again.</p>' +
           '<table class="spec-table mt-2"><tbody>' +
             order.lines.map(function (line) {
-              return '<tr><th scope="row">' + line.qty + ' × ' + UI.escapeHtml(BOX.name) +
-                '<br><span class="tiny">' + UI.escapeHtml(line.ribbon) + ' ribbon</span></th>' +
+              return '<tr><th scope="row">' + line.qty + ' × ' + UI.escapeHtml(line.name) +
+                (line.ribbon
+                  ? '<br><span class="tiny">' + UI.escapeHtml(line.ribbon) + ' ribbon</span>'
+                  : '') + '</th>' +
                 '<td>' + Store.money(line.total) +
                 (line.message
                   ? '<p class="written" style="margin-top:.5rem">' + UI.escapeHtml(line.message) + '</p>'
@@ -332,7 +340,8 @@
       }
 
       if (el.hasAttribute('data-edit-message')) {
-        editing = el.getAttribute('data-ribbon') + '|' + (el.getAttribute('data-message') || '');
+        editing = el.getAttribute('data-id') + '|' + el.getAttribute('data-ribbon') + '|' +
+          (el.getAttribute('data-message') || '');
         render();
         var field = doc.querySelector('[data-message-input]');
         if (field) field.focus();
@@ -347,7 +356,8 @@
       if (el.hasAttribute('data-save-message')) {
         var next = doc.querySelector('[data-message-input]').value;
         editing = null;
-        Store.setMessage(el.getAttribute('data-ribbon'), el.getAttribute('data-message') || '', next);
+        Store.setMessage(el.getAttribute('data-id'), el.getAttribute('data-ribbon'),
+          el.getAttribute('data-message') || '', next);
         UI.toast('Message saved');
         return;
       }
@@ -375,6 +385,7 @@
         total: summary.total,
         lines: summary.lines.map(function (line) {
           return {
+            name: line.name,
             ribbon: line.ribbon,
             message: line.message,
             qty: line.qty,

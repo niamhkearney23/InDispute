@@ -1,16 +1,20 @@
 /* Sleep Shop — catalogue data.
-   One product: the Signature Sleep Box. The eight pieces inside it are content,
-   not separate SKUs — the whole proposition is that you don't assemble the gift.
-   Pure data, no DOM. Loaded before every other script. */
+   Three pathways: the Gift of Sleep Box, the four pieces sold on their own,
+   and the rituals section that connects the two. Pure data, no DOM. Loaded
+   before every other script.
+
+   Prices on the individual pieces are placeholders to be confirmed before
+   launch. The box price is the one from the brief. */
 (function (global) {
   'use strict';
 
   var CONFIG = {
     brand: 'Sleep Shop',
+    tagline: 'Give the gift of sleep.',
     place: 'Melbourne',
     currency: 'AUD',
     locale: 'en-AU',
-    /* Standard delivery is free on every box; express is the only paid option. */
+    /* Standard delivery is free on everything; express is the only paid option. */
     expressFee: 12,
     giftMessageLimit: 220,
     promoCodes: { FIRSTRUN: 0.1 },
@@ -19,8 +23,9 @@
     address: 'By appointment, Fitzroy VIC 3065'
   };
 
-  /* The five grounds from the brand plan. Every illustration sits on one of
-     them — consistent grounds are what hold the look together. */
+  /* The five grounds, locked as palette B. Cream and linen dominate the site
+     itself; cocoa anchors it; clay rose belongs to gifting and powder blue to
+     the rituals. Not every colour everywhere. */
   var GROUNDS = {
     cocoa: { bg: '#3B2318', ink: '#F2E9DC', soft: '#7A5641' },
     rose: { bg: '#7A4A52', ink: '#F6E9E6', soft: '#A8848A' },
@@ -29,55 +34,25 @@
     stripe: { bg: '#F2E9DC', ink: '#3B2318', soft: '#C4AE97', striped: true }
   };
 
-  var BOX = {
-    id: 'signature-sleep-box',
-    name: 'The Signature Sleep Box',
-    price: 149,
-    art: 'box-closed',
-    ground: 'powder',
-    line: 'Eight pieces, one ritual',
-    blurb: 'Eight pieces, chosen so you do not have to assemble a gift yourself.',
-    description: [
-      'One box, packed by hand in Melbourne. Silk for the eye mask and pillowcase, a scrunchie cut from the same run, socks knitted from merino, and four smaller things that make the last half hour of a day feel deliberate.',
-      'It arrives tied, with your message written on the card by hand before the lid goes on. Nothing inside is branded with our name — it is a gift, not an advertisement.'
-    ],
-    /* Ribbon is the only choice to make, and it costs nothing either way. */
-    ribbons: [
-      { label: 'Clay rose', swatch: '#7A4A52' },
-      { label: 'Powder blue', swatch: '#AFC9DF' }
-    ],
-    /* Set `photo` on any of these and the drawing is replaced site-wide.
-       Paths are relative to the site root, e.g. 'photos/box-closed.jpg'. */
-    photo: '',
-    shots: [
-      { art: 'box-closed', ground: 'powder', photo: '', label: 'The box, tied' },
-      { art: 'box-open', ground: 'cream', photo: '', label: 'The box, open' },
-      { art: 'card', ground: 'cocoa', photo: '', label: 'The card, written by hand' }
-    ],
-    specs: {
-      Contains: 'Eight pieces',
-      Box: '320 × 240 × 90 mm, rigid, reusable',
-      Card: 'Letterpress, handwritten to your message',
-      Packed: 'By hand in Melbourne',
-      Delivery: 'Free Australia-wide'
-    }
-  };
-
-  /* The eight pieces, in the order they sit in the box. */
-  var CONTENTS = [
+  /* The four pieces. Each one is in the box and on the shelf, which is the
+     point: the box is not a bundle of seconds, it is the shop's best things
+     put together. */
+  var PRODUCTS = [
     {
-      id: 'eye-mask',
-      name: 'Silk eye mask',
+      id: 'silk-sleep-mask',
+      name: 'Silk sleep mask',
+      price: 49,
       material: '22-momme mulberry silk',
       art: 'mask',
       ground: 'cocoa',
       photo: '',
-      blurb: 'Weighted along the nose so it sits without pressing, on a soft elastic that does not catch in hair.',
-      detail: 'Cut from the same 22-momme silk as the pillowcase and finished with a covered elastic. The seam is on the outside, so nothing rests against your eyelid.'
+      blurb: 'Weighted along the nose so it sits without pressing, on a covered elastic that does not catch in hair.',
+      detail: 'Cut from 22-momme, grade 6A mulberry silk, the same run as the pillowcase. The seam is on the outside, so nothing rests against your eyelid.'
     },
     {
-      id: 'pillowcase',
+      id: 'silk-pillowcase',
       name: 'Silk pillowcase',
+      price: 89,
       material: '22-momme mulberry silk, standard',
       art: 'pillowcase',
       ground: 'powder',
@@ -86,80 +61,75 @@
       detail: 'Standard 48 × 74 cm with a hidden zip closure. Silk holds far less moisture than cotton, which is why anything you put on your face at night stays on your face.'
     },
     {
-      id: 'scrunchie',
-      name: 'Matching scrunchie',
-      material: 'Offcut silk, same run',
-      art: 'scrunchie',
-      ground: 'cream',
-      photo: '',
-      blurb: 'Cut from the offcuts of the pillowcase run, so the colour is an exact match.',
-      detail: 'Made from what would otherwise be waste. Gentle enough to sleep in, and the reason the box looks considered rather than assembled.'
-    },
-    {
-      id: 'bed-socks',
-      name: 'Merino bed socks',
-      material: '19.5-micron Australian merino',
-      art: 'socks',
-      ground: 'rose',
-      photo: '',
-      blurb: 'Fine-knit merino with a loose cuff that does not leave a mark on the ankle.',
-      detail: 'Knitted in Melbourne from 19.5-micron merino. Warm without the bulk of a boot sock, and the cuff is ribbed loosely on purpose.'
-    },
-    {
-      id: 'pillow-mist',
-      name: 'Pillow mist',
-      material: 'Tasmanian lavender, 100 ml',
-      art: 'bottle',
-      ground: 'cocoa',
-      photo: '',
-      blurb: 'Steam-distilled Tasmanian lavender with vetiver and cedarwood. Alcohol-free, so it will not mark linen.',
-      detail: 'Two sprays on the pillow before the light goes off. Alcohol-free and unbleached, in a recycled glass bottle with a fine atomiser.'
-    },
-    {
-      id: 'tea',
-      name: 'Evening tea',
-      material: 'Chamomile, lemon balm, rose — 30 g',
-      art: 'tea',
-      ground: 'stripe',
-      photo: '',
-      blurb: 'A loose leaf blend of chamomile, lemon balm and rose petal. Caffeine free.',
-      detail: 'Blended for us in Collingwood. Thirty grams is roughly fifteen cups, in a tin that fits the box and outlives it.'
-    },
-    {
-      id: 'candle',
-      name: 'Beeswax candle',
-      material: 'Pure beeswax, 40 hours',
-      art: 'candle',
-      ground: 'powder',
-      photo: '',
-      blurb: 'Poured beeswax with a cotton wick. Unscented, so it does not argue with the mist.',
-      detail: 'Forty hours of burn time. Unscented deliberately — there is already lavender in the box, and two scents in one room is one too many.'
-    },
-    {
-      id: 'journal',
-      name: 'Bedside journal',
+      id: 'am-pm-journal',
+      name: 'AM / PM journal',
+      price: 39,
       material: 'Letterpress cover, 96 pages',
       art: 'journal',
       ground: 'cream',
       photo: '',
-      blurb: 'Ninety-six unlined pages, sewn flat so it stays open on a bedside table.',
-      detail: 'Section-sewn so it lies flat, with a letterpress cover on cotton board. Unlined, because a ruled page asks you to be tidy at midnight.'
+      blurb: 'A page for the end of the day and a page for the start of the next one, sewn flat so it stays open on a bedside table.',
+      detail: 'Ninety-six pages, section-sewn so it lies flat. The PM page is for whatever is still in your head; the AM page is three lines before the phone comes on. Unlined, because a ruled page asks you to be tidy at midnight.'
+    },
+    {
+      id: 'lavender-sleep-wrap',
+      name: 'Lavender sleep wrap',
+      price: 59,
+      material: 'Washed linen, Australian lavender',
+      art: 'wrap',
+      ground: 'rose',
+      photo: '',
+      blurb: 'A linen wrap filled with lavender flowers and wheat, with a good weight to it. Warm it, or do not.',
+      detail: 'Washed linen outside, Australian lavender and wheat inside. It drapes across the shoulders or over the eyes, warmed for a minute or straight off the shelf. The cover unbuttons and washes.'
     }
   ];
 
-  var OCCASIONS = [
-    {
-      title: 'A birthday you remembered late',
-      body: 'Order by 2pm on a weekday and it leaves Melbourne the same afternoon. The card is written by hand, so it does not read as an emergency.'
-    },
-    {
-      title: 'A thank you that is not wine',
-      body: 'For the person who fed your cat, covered your shift, or drove you to the airport at 5am.'
-    },
-    {
-      title: 'Someone having a hard month',
-      body: 'When you want to send something and everything you can think of feels either too much or too little.'
+  /* The hero product. The contents point back at the pieces above so there is
+     one description of each thing on the whole site. */
+  var BOX = {
+    id: 'gift-of-sleep-box',
+    name: 'The Gift of Sleep Box',
+    price: 149,
+    art: 'box-closed',
+    ground: 'powder',
+    line: 'Send them sleep',
+    blurb: 'The four pieces, a ritual card, and your message on a card written by hand.',
+    description: [
+      'For the person who needs absolutely nothing except a good night\'s sleep. Four pieces chosen to sit together: a silk mask and pillowcase cut from the same run, a journal for either end of the day, and a lavender wrap with a good weight to it.',
+      'A ritual card sits on top of the tissue, and your message goes on a letterpress card, written by hand. It arrives tied, with no invoice inside and no pricing on the outside. Send it straight to them.'
+    ],
+    contents: ['silk-sleep-mask', 'silk-pillowcase', 'am-pm-journal', 'lavender-sleep-wrap'],
+    /* In the box but not on the shelf. */
+    always: [
+      { name: 'The ritual card', note: 'A short evening ritual, letterpressed. The same one is in every box, and it is the first thing under the lid.' },
+      { name: 'Your message', note: 'Up to 220 characters, written by hand on a card that sits on top of the tissue.' }
+    ],
+    /* Ribbon is the only choice to make, and it costs nothing either way. */
+    ribbons: [
+      { label: 'Clay rose', swatch: '#7A4A52' },
+      { label: 'Powder blue', swatch: '#AFC9DF' }
+    ],
+    /* Set `photo` on any of these and the drawing is replaced site-wide. */
+    photo: '',
+    shots: [
+      { art: 'box-closed', ground: 'powder', photo: '', label: 'The box, tied' },
+      { art: 'box-open', ground: 'cream', photo: '', label: 'The box, open' },
+      { art: 'card', ground: 'cocoa', photo: '', label: 'The card, written by hand' }
+    ],
+    specs: {
+      Contains: 'Four pieces and the ritual card',
+      Box: '320 × 240 × 90 mm, rigid, reusable',
+      Card: 'Letterpress, handwritten to your message',
+      Packed: 'By hand in Melbourne',
+      Delivery: 'Free Australia-wide'
     }
+  };
+
+  /* Where the range goes next, named so the gifting page can say so honestly.
+     These are not products and nothing on the site may pretend they are. */
+  var OCCASIONS_TO_COME = [
+    'For Mum', 'For the burnt-out friend', 'Birthday', 'New Mum',
+    'New home', 'Thinking of you', 'Corporate'
   ];
 
   var STEPS = [
@@ -169,21 +139,39 @@
     { title: 'It arrives ready to give', body: 'No invoice in the box, no pricing on the outside. Send it straight to them.' }
   ];
 
+  /* ------------------------------------------------------------- lookups */
+
+  function findProduct(id) {
+    if (id === BOX.id) return BOX;
+    for (var i = 0; i < PRODUCTS.length; i++) {
+      if (PRODUCTS[i].id === id) return PRODUCTS[i];
+    }
+    return null;
+  }
+
+  function boxContents() {
+    return BOX.contents.map(findProduct).filter(Boolean);
+  }
+
   global.SLEEP_CONFIG = CONFIG;
   global.SLEEP_GROUNDS = GROUNDS;
   global.SLEEP_BOX = BOX;
-  global.SLEEP_CONTENTS = CONTENTS;
-  global.SLEEP_OCCASIONS = OCCASIONS;
+  global.SLEEP_PRODUCTS = PRODUCTS;
+  global.SLEEP_OCCASIONS_TO_COME = OCCASIONS_TO_COME;
   global.SLEEP_STEPS = STEPS;
+  global.SLEEP_FIND = findProduct;
+  global.SLEEP_BOX_CONTENTS = boxContents;
 
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
       CONFIG: CONFIG,
       GROUNDS: GROUNDS,
       BOX: BOX,
-      CONTENTS: CONTENTS,
-      OCCASIONS: OCCASIONS,
-      STEPS: STEPS
+      PRODUCTS: PRODUCTS,
+      OCCASIONS_TO_COME: OCCASIONS_TO_COME,
+      STEPS: STEPS,
+      findProduct: findProduct,
+      boxContents: boxContents
     };
   }
 })(typeof globalThis !== 'undefined' ? globalThis : this);

@@ -1,4 +1,4 @@
-/* Home page: hero art, the nine-tile grid, the eight pieces, steps, occasions. */
+/* Home page: hero art, the nine-tile grid, the bedside grid, the ritual art. */
 (function (global) {
   'use strict';
 
@@ -6,7 +6,7 @@
   var UI = global.SleepUI;
   var Art = global.SleepArt;
   var BOX = global.SLEEP_BOX;
-  var CONTENTS = global.SLEEP_CONTENTS;
+  var PRODUCTS = global.SLEEP_PRODUCTS;
 
   function fill(selector, html) {
     var el = doc.querySelector(selector);
@@ -17,14 +17,14 @@
      no two tiles on the same ground touch. */
   var TILES = [
     { art: 'box-closed', ground: 'powder', label: 'The box, tied' },
-    { type: 'cocoa', kind: 'script', text: 'Rest is the greatest gift', tag: 'The line' },
+    { type: 'cocoa', kind: 'script', text: 'Give the gift of sleep', tag: 'The line' },
     { art: 'pillowcase', ground: 'cream', label: 'Silk, folded in thirds' },
 
-    { type: 'stripe', kind: 'display', text: 'Eight pieces, one ritual', tag: 'The box' },
-    { art: 'mask', ground: 'cocoa', label: 'Silk eye mask' },
+    { type: 'stripe', kind: 'display', text: 'Instead of flowers', tag: 'The box' },
+    { art: 'mask', ground: 'cocoa', label: 'Silk sleep mask' },
     { type: 'rose', kind: 'script', text: 'Written by hand', tag: 'The card' },
 
-    { art: 'socks', ground: 'rose', label: 'Merino bed socks' },
+    { art: 'wrap', ground: 'rose', label: 'Lavender sleep wrap' },
     { type: 'powder', kind: 'display', text: 'Packed in Melbourne', tag: 'The studio' },
     { art: 'box-open', ground: 'cream', label: 'Lid off, tissue open' }
   ];
@@ -65,20 +65,9 @@
   function init() {
     fill('[data-hero-art]', Art.render(BOX, { ground: 'powder', label: BOX.name }));
     fill('[data-tile-grid]', TILES.map(tile).join(''));
-    fill('[data-pieces-grid]', CONTENTS.map(UI.pieceCard).join(''));
-    fill('[data-card-art]', Art.render({ art: 'card', ground: 'cocoa', name: 'A card being written by hand' }));
-    fill('[data-studio-art]', Art.render({ art: 'ribbon', ground: 'cream', name: 'A ribbon, loose' }));
-
-    fill('[data-steps]', global.SLEEP_STEPS.map(function (step) {
-      return '<li><strong>' + UI.escapeHtml(step.title) + '</strong>' +
-        '<span>' + UI.escapeHtml(step.body) + '</span></li>';
-    }).join(''));
-
-    fill('[data-occasions]', global.SLEEP_OCCASIONS.map(function (item) {
-      return '<div class="card"><h3>' + UI.escapeHtml(item.title) + '</h3>' +
-        '<p class="muted small">' + UI.escapeHtml(item.body) + '</p></div>';
-    }).join(''));
-
+    fill('[data-box-art]', Art.render({ art: 'box-open', ground: 'cream', name: 'The box, open, tissue folded back' }));
+    fill('[data-products-grid]', PRODUCTS.map(UI.productCard).join(''));
+    fill('[data-ritual-art]', Art.render({ art: 'lamp', ground: 'powder', name: 'A bedside lamp, on, with a closed journal beneath it' }));
     signup();
   }
 
