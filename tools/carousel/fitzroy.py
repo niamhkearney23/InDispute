@@ -17,13 +17,13 @@ def gl(light,t,d): return f'<div class="gloss">{arrow(light)}<div class="glosstx
 T = lambda w: f'<span class="term">{w}</span>'
 R = "As reported. Proceedings are on foot and nothing has been decided."
 S=[]
-S.append((1,"Before The Court","lg","A beer garden built on a public road. For <em>half a century.</em>",
- '<div class="sub">Now a company wants the Supreme Court to make the council sell it.</div>', False, '""'))
+S.append((1,"Before The Court","lg","The Fitzroy Beer Garden sits on a <em>public road.</em>",
+ '<div class="sub">Reportedly for about half a century. Now a company wants the Supreme Court to make the council sell it.</div>', False, '""'))
 S.append((2,"The Laneway","md","It started in the <em>1970s.</em>",
- '<div class="body"><p>Reporting says operators of a Fitzroy pub began using the laneway behind it as a beer garden, and that it was later blocked off with a <b>barbed wire topped fence.</b></p>'
+ '<div class="body"><p>Reporting says operators of the <b>Fitzroy Beer Garden</b> began using the laneway behind the pub as an outdoor area, and that it was later blocked off with a barbed wire topped fence.</p>'
  '<p>Neighbouring businesses could not reach their own back doors. Their skip bins went out on the footpath instead.</p></div>', False, f'"{R}"'))
 S.append((3,"The Council","md","No sale. Take it down.",
- '<div class="body"><p>The council refused to sell the laneway and told the operator to remove the beer garden.</p>'
+ '<div class="body"><p><b>Yarra City Council</b> refused to sell the laneway, and told the operator to remove the beer garden.</p>'
  '<p>Reporting says the pub&rsquo;s position is that it cannot survive without it.</p></div>', False, f'"{R}"'))
 S.append((4,"The Claim","md","That refusal was <em>legally unreasonable.</em>",
  '<div class="body"><p>That is what the company&rsquo;s court documents are reported to say. It is a term of art, not a complaint that the decision was harsh.</p></div>'

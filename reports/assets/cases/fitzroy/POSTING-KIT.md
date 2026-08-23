@@ -11,7 +11,7 @@ The second batch of screenshots gave the actual legal claim, which is what made 
 
 **Three rules were applied throughout.**
 
-1. **Nobody is named.** Not the operator, not the directors, not the neighbours, not the councillors. None of them add anything to the legal point, and every one of them adds risk.
+1. **The venue and the council are named. No individuals are.** Updated at Niamh's direction. Fitzroy Beer Garden and Yarra City Council are named, because a venue and a council are the subject of ordinary public reporting of a court proceeding and naming them is what makes the post legible. The operator, the directors, the neighbours and the councillors are still not named, because none of them add anything to the legal point and every one of them adds risk.
 2. **The beer garden is never called illegal.** That is the newspaper's word, and it is close to the thing in dispute. The slides say only that the council refused to sell and told the operator to remove it, which is what happened.
 3. **Everything contested is attributed.** "Reporting says", "the company's court documents are reported to say". Five of the six slides carry the footer *"As reported. Proceedings are on foot and nothing has been decided."* Slide 6 does nothing but say so.
 
