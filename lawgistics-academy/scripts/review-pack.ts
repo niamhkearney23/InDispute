@@ -21,7 +21,7 @@ import path from 'node:path';
 import { config } from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 import { reviewRisk, RISK_LABEL, type RiskLevel } from '../src/lib/review/triage';
-import { JURISDICTION_LABELS } from '../src/lib/types';
+import { JURISDICTION_COUNTRY, JURISDICTION_LABELS } from '../src/lib/types';
 import type { Jurisdiction } from '../src/lib/types';
 import { DOMAINS, FACTS, QUESTIONS } from '../src/content/seed';
 
@@ -29,6 +29,24 @@ config({ path: '.env.local' });
 config({ path: '.env' });
 
 const fromSeed = process.argv.includes('--from-seed');
+
+/* Narrow the pack to one country's law.
+ *
+ * A reviewing practitioner is qualified in one place. Sending a Malaysian
+ * advocate a pack with 122 Australian questions in it wastes their time and
+ * invites the one thing a review must not produce: a tick against something
+ * they were not in a position to check.
+ *
+ *   npm run review:pack -- --from-seed --country=MY
+ */
+const countryArg = (process.argv.find((a) => a.startsWith('--country=')) ?? '')
+  .split('=')[1]
+  ?.toUpperCase();
+const country = countryArg === 'MY' || countryArg === 'AU' ? countryArg : null;
+if (countryArg && !country) {
+  console.error(`Unknown country "${countryArg}". Use --country=MY or --country=AU.`);
+  process.exit(1);
+}
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -94,7 +112,12 @@ function collectFromSeed(): PackItem[] {
     memoryTrick: q.memoryTrick ?? null,
     source: q.sourceReference ?? null,
     sourceUrl: q.sourceUrl ?? null,
-    live: true,
+    // Built from the repository, so there is no database to ask. This used to
+    // say true for everything, which told a reviewer that 81 Malaysian items
+    // were in front of learners when Malaysian content cannot publish itself
+    // at all. A false alarm in a document somebody is relying on is worse than
+    // no information.
+    live: false,
     risk: reviewRisk({
       text: [q.stem, q.scenario, q.explanation, q.whyItMatters].filter(Boolean).join(' '),
       jurisdiction: q.jurisdiction,
@@ -121,7 +144,7 @@ function collectFromSeed(): PackItem[] {
       memoryTrick: null,
       source: f.sourceReference ?? null,
       sourceUrl: f.sourceUrl ?? null,
-      live: true,
+      live: false,
       risk: reviewRisk({
         text: `${f.title} ${f.body} ${f.whyItMatters ?? ''}`,
         jurisdiction: f.jurisdiction,
@@ -284,7 +307,10 @@ function renderItem(item: PackItem, index: number): string {
 }
 
 async function main() {
-  const items = await collect();
+  const all = await collect();
+  const items = country
+    ? all.filter((i) => JURISDICTION_COUNTRY[i.jurisdiction as Jurisdiction] === country)
+    : all;
 
   if (items.length === 0) {
     console.error('No content found. Has the database been seeded?');
@@ -352,7 +378,7 @@ async function main() {
 </style></head><body>
 
 <h1>Content review pack</h1>
-<p class="lede">Lawgistics Academy · generated ${esc(generated)}</p>
+<p class="lede">Lawgistics Academy${country ? ` · ${country === 'MY' ? 'Malaysian' : 'Australian'} law only` : ''} · generated ${esc(generated)}</p>
 
 <div class="summary">
   <p><strong>${items.length} items to review.</strong> Ordered so that the ones most
@@ -362,8 +388,17 @@ async function main() {
     <tr><td>Check closely</td><td><strong>${counts.high}</strong></td></tr>
     <tr><td>Worth checking</td><td><strong>${counts.medium}</strong></td></tr>
     <tr><td>Lower risk</td><td><strong>${counts.low}</strong></td></tr>
-    <tr><td>Currently live to learners, unverified</td><td><strong>${counts.live}</strong></td></tr>
+    ${
+      fromSeed
+        ? '<tr><td>Currently live to learners</td><td><strong>Not known</strong></td></tr>'
+        : `<tr><td>Currently live to learners, unverified</td><td><strong>${counts.live}</strong></td></tr>`
+    }
   </table>
+  ${
+    fromSeed
+      ? '<p><strong>Where this came from.</strong> This pack was built from the repository rather than from a live database, so it shows what the content says and not what any installation is currently serving. Malaysian content is never published automatically in any case: it goes in front of learners only when a named person signs off each item.</p>'
+      : ''
+  }
   <p style="margin-bottom:0"><strong>What is being asked.</strong> For each item: is the
   proposition correct, is it correct <em>for the jurisdiction stated</em>, is the keyed
   answer right, and is the source accurate and current? Mark one box and note anything
@@ -374,19 +409,25 @@ async function main() {
 ${items.map(renderItem).join('\n')}
 
 <p style="margin-top:3em;font-size:.8em;color:#8a8177">
-  Generated from the live database. Once corrections are made, re-run
-  <code>npm run review:pack</code> for a fresh copy.
+  Once corrections are made, re-run <code>npm run review:pack</code> for a fresh copy.
 </p>
 </body></html>`;
 
-  const out = path.join(process.cwd(), 'review-pack.html');
+  const out = path.join(
+    process.cwd(),
+    country ? `review-pack-${country.toLowerCase()}.html` : 'review-pack.html',
+  );
   fs.writeFileSync(out, html);
 
   console.log(`Wrote ${out}`);
   console.log(
     `  ${items.length} items: ${counts.high} to check closely, ${counts.medium} worth checking, ${counts.low} lower risk.`,
   );
-  console.log(`  ${counts.live} are live to learners without having been verified.`);
+  if (fromSeed) {
+    console.log('  Built from the repository, so what any installation is serving is not known.');
+  } else {
+    console.log(`  ${counts.live} are live to learners without having been verified.`);
+  }
   console.log('\nOpen it in a browser and print to PDF to send it on.');
 }
 
