@@ -15,6 +15,12 @@ assume a terminal is available.
 **The academy, and the firm induction that goes with it.** That is the product.
 It is called Lawgistics and it stays called Lawgistics.
 
+**The end goal, in the owner's words: a law firm buys this to teach their
+interns and paralegals everything.** The individual learner is real and matters,
+but they are not who signs the cheque. When a decision could go either way, the
+tie-break is what a firm buying this for their juniors would want, and what
+their juniors would actually be taught by it.
+
 Deliberately **not** in scope: a firm intranet. No home page of firm news, no
 events, no contacts directory, no document storage, no leave requests. That was
 considered and set aside: contracts and leave are a different risk class, they
