@@ -159,7 +159,7 @@ test('every template parses and references sections that exist', () => {
 });
 
 test('the product page carries every part of the brief, in order', () => {
-  const product = JSON.parse(read('templates/product.signature-sleep-box.json'));
+  const product = JSON.parse(read('templates/product.gift-of-sleep-box.json'));
   assert.deepEqual(product.order, [
     'announcement', 'main', 'whats-inside', 'keepsake', 'founder', 'trust', 'reviews'
   ]);
@@ -167,9 +167,10 @@ test('the product page carries every part of the brief, in order', () => {
   const main = product.sections.main;
   assert.deepEqual(main.block_order, ['eyebrow', 'title', 'price', 'description', 'buy', 'accordions']);
 
-  /* All eight items must be listed, both in the accordion and the grid. */
+  /* The four pieces plus the ritual card and the message, in the grid. */
   const inside = product.sections['whats-inside'];
-  assert.equal(inside.block_order.length, 8, 'the box promises eight pieces');
+  assert.equal(inside.block_order.length, 6,
+    'the grid shows four pieces, the ritual card and the message');
   for (const key of inside.block_order) {
     const item = inside.blocks[key].settings;
     assert.ok(item.name, `${key}: missing a name`);
@@ -178,7 +179,7 @@ test('the product page carries every part of the brief, in order', () => {
 });
 
 test('the reviews section ships empty', () => {
-  const product = JSON.parse(read('templates/product.signature-sleep-box.json'));
+  const product = JSON.parse(read('templates/product.gift-of-sleep-box.json'));
   const reviews = product.sections.reviews;
   assert.ok(reviews, 'the reviews section should be present even while empty');
   assert.equal(reviews.blocks, undefined, 'no review blocks should exist before real reviews do');

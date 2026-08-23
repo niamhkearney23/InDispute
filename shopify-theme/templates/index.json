@@ -1,0 +1,113 @@
+{
+  "sections": {
+    "announcement": {
+      "type": "announcement-shipping"
+    },
+    "hero": {
+      "type": "occasion-hero",
+      "settings": {
+        "eyebrow": "Melbourne",
+        "heading": "Give the gift of sleep",
+        "script": "Instead of flowers",
+        "body": "<p>Beautiful things for better nights, slower mornings and the bedside in between. One gift box and four pieces, packed by hand.</p>",
+        "image_alt": "The Gift of Sleep Box tied with a clay rose ribbon, seen from above on a powder blue ground",
+        "link": "/products/the-gift-of-sleep-box",
+        "link_label": "Gift sleep",
+        "link2": "/collections/the-bedside",
+        "link2_label": "Shop sleep"
+      }
+    },
+    "gift": {
+      "type": "founder-teaser",
+      "settings": {
+        "eyebrow": "The gift of sleep",
+        "quote": "For the person who needs nothing",
+        "body": "<p>Except a good night's sleep. A silk mask and pillowcase cut from the same run, a journal for either end of the day, and a lavender wrap with a good weight to it. The ritual card sits on top, and your message is printed on a card and placed above it.</p><p>Flowers last a week. The box stays on the bedside table.</p>",
+        "image_alt": "The open box with the lid propped behind it, tissue folded back over the contents",
+        "link": "/products/the-gift-of-sleep-box",
+        "link_label": "Send sleep",
+        "flip": false
+      }
+    },
+    "bedside": {
+      "type": "cross-sell",
+      "settings": {
+        "collection": "the-bedside",
+        "eyebrow": "Shop sleep",
+        "heading": "Shop the bedside",
+        "link": "/collections/the-bedside",
+        "link_label": "Everything in the shop",
+        "limit": 4
+      }
+    },
+    "ritual": {
+      "type": "ritual-feature",
+      "blocks": {
+        "l1": { "type": "line", "settings": { "text": "Phone down." } },
+        "l2": { "type": "line", "settings": { "text": "Lights low." } },
+        "l3": { "type": "line", "settings": { "text": "Write down what is still in your head." } },
+        "l4": { "type": "line", "settings": { "text": "Put your mask on." } },
+        "l5": { "type": "line", "settings": { "text": "Goodnight.", "script": true } }
+      },
+      "block_order": ["l1", "l2", "l3", "l4", "l5"],
+      "settings": {
+        "eyebrow": "Tonight, try this",
+        "heading": "The 15-minute night reset",
+        "link": "/pages/sleep-rituals",
+        "link_label": "Try the ritual"
+      }
+    },
+    "personalise": {
+      "type": "trust-strip",
+      "blocks": {
+        "p1": {
+          "type": "item",
+          "settings": {
+            "heading": "A message on the card",
+            "text": "Up to 250 characters, printed and placed on top of the tissue"
+          }
+        },
+        "p2": {
+          "type": "item",
+          "settings": {
+            "heading": "Initials, soon",
+            "text": "Monogramming on the silk is coming, added properly rather than quickly"
+          }
+        },
+        "p3": {
+          "type": "item",
+          "settings": {
+            "heading": "Straight to their door",
+            "text": "No invoice in the box, no pricing on the outside"
+          }
+        },
+        "p4": {
+          "type": "item",
+          "settings": {
+            "heading": "Packed by hand",
+            "text": "In our Melbourne studio, sent tracked with Australia Post"
+          }
+        }
+      },
+      "block_order": ["p1", "p2", "p3", "p4"]
+    },
+    "closing": {
+      "type": "cta-banner",
+      "settings": {
+        "script": "Someone you love is tired",
+        "heading": "Send them sleep",
+        "link": "/products/the-gift-of-sleep-box",
+        "link_label": "The Gift of Sleep Box"
+      }
+    }
+  },
+  "order": [
+    "announcement",
+    "hero",
+    "gift",
+    "bedside",
+    "ritual",
+    "personalise",
+    "closing"
+  ]
+}

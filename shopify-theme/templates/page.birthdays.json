@@ -9,8 +9,8 @@
         "eyebrow": "Birthdays",
         "heading": "For the birthday you remembered late",
         "script": "Rest is the greatest gift",
-        "body": "<p>One box, eight pieces, packed by hand in Melbourne and sent with your message printed on the card. Order before the cut-off on a business day and it leaves the studio that afternoon.</p>",
-        "image_alt": "The Signature Sleep Box tied with a clay rose ribbon, seen from above on a powder blue ground",
+        "body": "<p>One box, four pieces and a ritual card, packed by hand in Melbourne and sent with your message printed on the card. Order before the cut-off on a business day and it leaves the studio that afternoon.</p>",
+        "image_alt": "The Gift of Sleep Box tied with a clay rose ribbon, seen from above on a powder blue ground",
         "link": "/products/the-signature-sleep-box",
         "link_label": "Send the box, $149"
       }
@@ -65,9 +65,9 @@
         "i1": {
           "type": "item",
           "settings": {
-            "name": "Mulberry silk eye mask",
+            "name": "Silk sleep mask",
             "spec": "22 momme, grade 6A silk",
-            "image_alt": "Silk eye mask lying flat on a cocoa ground"
+            "image_alt": "Silk sleep mask lying flat on a cocoa ground, side light across the weave"
           }
         },
         "i2": {
@@ -81,49 +81,33 @@
         "i3": {
           "type": "item",
           "settings": {
-            "name": "Matching silk scrunchie",
-            "spec": "Cut from the same silk run",
-            "image_alt": "Silk scrunchie beside the matching pillowcase on a cream ground"
+            "name": "AM / PM journal",
+            "spec": "96 pages, sewn flat",
+            "image_alt": "The journal open on a bedside table with a pen across the PM page"
           }
         },
         "i4": {
           "type": "item",
           "settings": {
-            "name": "Bed socks",
-            "spec": "Fine knit, ribbed cuff, AU 5 to 10",
-            "image_alt": "A pair of bed socks loosely folded on a clay rose ground"
+            "name": "Lavender sleep wrap",
+            "spec": "Washed linen, Australian lavender",
+            "image_alt": "The lavender wrap loosely folded on a clay rose ground with a sprig beside it"
           }
         },
         "i5": {
           "type": "item",
           "settings": {
-            "name": "Pillow mist",
-            "spec": "100 ml, alcohol free",
-            "image_alt": "Pillow mist bottle upright on a cocoa ground"
+            "name": "The ritual card",
+            "spec": "Letterpressed, in every box",
+            "image_alt": "The ritual card resting on folded tissue inside the open box"
           }
         },
         "i6": {
           "type": "item",
           "settings": {
-            "name": "Herbal wind down tea",
-            "spec": "Loose leaf, 30 g, caffeine free",
-            "image_alt": "Open tea tin with loose leaf beside it on a striped cream ground"
-          }
-        },
-        "i7": {
-          "type": "item",
-          "settings": {
-            "name": "Small candle",
-            "spec": "Poured wax, around 20 hours",
-            "image_alt": "Unlit candle seen from above the rim on a powder blue ground"
-          }
-        },
-        "i8": {
-          "type": "item",
-          "settings": {
-            "name": "Sleep journal",
-            "spec": "96 unlined pages, sewn flat",
-            "image_alt": "Closed journal with light across the letterpress cover on a cream ground"
+            "name": "Your message",
+            "spec": "Printed, placed on top",
+            "image_alt": "A gift card being written by hand on a cocoa ground"
           }
         }
       },
@@ -133,13 +117,11 @@
         "i3",
         "i4",
         "i5",
-        "i6",
-        "i7",
-        "i8"
+        "i6"
       ],
       "settings": {
         "eyebrow": "What is inside",
-        "heading": "Eight pieces, one ritual",
+        "heading": "Four pieces, one ritual",
         "body": ""
       }
     },

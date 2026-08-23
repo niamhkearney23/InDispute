@@ -9,13 +9,13 @@
         "eyebrow": {
           "type": "eyebrow",
           "settings": {
-            "text": "One box, eight pieces"
+            "text": "The gift of sleep"
           }
         },
         "title": {
           "type": "title",
           "settings": {
-            "subtitle": "Rest is the greatest gift"
+            "subtitle": "Instead of flowers"
           }
         },
         "price": {
@@ -25,7 +25,7 @@
         "description": {
           "type": "description",
           "settings": {
-            "text": "<p>Eight pieces chosen to sit together, packed by hand in our Melbourne studio and finished with a printed card in your own words. Mulberry silk for the eye mask, pillowcase and scrunchie, cut from the same run so the colour matches. Then bed socks, a pillow mist, a herbal tea, a small candle and a journal for the bedside table.</p><p>It arrives tied, in a rigid box worth keeping, with no invoice inside and no pricing on the outside. Send it straight to them.</p>"
+            "text": "<p>For the person who needs absolutely nothing except a good night's sleep. Four pieces chosen to sit together, packed by hand in our Melbourne studio: a mulberry silk sleep mask and pillowcase cut from the same run, a journal with a page for either end of the day, and a lavender wrap with a good weight to it.</p><p>The ritual card sits on top of the tissue, and your message goes on a printed card. It arrives tied, with no invoice inside and no pricing on the outside. Send it straight to them.</p>"
           }
         },
         "buy": {
@@ -35,8 +35,8 @@
         "accordions": {
           "type": "accordions",
           "settings": {
-            "a1_heading": "The eight items",
-            "a1_body": "<ul><li><strong>Mulberry silk eye mask.</strong> 22 momme, grade 6A silk, covered elastic strap.</li><li><strong>Silk pillowcase.</strong> Standard 48 by 74 cm, same 22 momme silk, hidden zip.</li><li><strong>Matching silk scrunchie.</strong> Cut from the offcuts of the pillowcase run, so the colour is an exact match.</li><li><strong>Bed socks.</strong> Fine knit, ribbed cuff, sized to fit AU 5 to 10.</li><li><strong>Pillow mist.</strong> 100 ml, alcohol free, in recycled glass with a fine atomiser.</li><li><strong>Herbal wind down tea.</strong> Loose leaf, 30 g, caffeine free, in a tin that outlives the box.</li><li><strong>Small candle.</strong> Poured wax, cotton wick, around 20 hours of burn time.</li><li><strong>Sleep journal.</strong> 96 unlined pages, sewn flat so it stays open on a bedside table.</li></ul>"
+            "a1_heading": "What is inside",
+            "a1_body": "<ul><li><strong>Silk sleep mask.</strong> 22 momme, grade 6A mulberry silk, covered elastic strap, seam on the outside.</li><li><strong>Silk pillowcase.</strong> Standard 48 by 74 cm, same 22 momme silk, cut from the same run as the mask, hidden zip.</li><li><strong>AM / PM journal.</strong> 96 pages, sewn flat so it stays open on a bedside table. A page for the end of the day and a page for the start of the next one.</li><li><strong>Lavender sleep wrap.</strong> Washed linen filled with Australian lavender and wheat. Warm it, or do not. The cover unbuttons and washes.</li><li><strong>The ritual card.</strong> A short evening ritual, letterpressed, the first thing under the lid.</li><li><strong>Your message.</strong> Printed on a card that sits on top of the tissue.</li></ul>"
           }
         }
       },
@@ -48,9 +48,9 @@
         "i1": {
           "type": "item",
           "settings": {
-            "name": "Mulberry silk eye mask",
+            "name": "Silk sleep mask",
             "spec": "22 momme, grade 6A silk",
-            "image_alt": "Silk eye mask lying flat on a cocoa ground, side light across the weave"
+            "image_alt": "Silk sleep mask lying flat on a cocoa ground, side light across the weave"
           }
         },
         "i2": {
@@ -64,57 +64,41 @@
         "i3": {
           "type": "item",
           "settings": {
-            "name": "Matching silk scrunchie",
-            "spec": "Cut from the same silk run",
-            "image_alt": "Silk scrunchie beside the corner of the matching pillowcase on a cream ground"
+            "name": "AM / PM journal",
+            "spec": "96 pages, sewn flat",
+            "image_alt": "The journal open on a bedside table with a pen across the PM page"
           }
         },
         "i4": {
           "type": "item",
           "settings": {
-            "name": "Bed socks",
-            "spec": "Fine knit, ribbed cuff, AU 5 to 10",
-            "image_alt": "A pair of bed socks loosely folded on a clay rose ground"
+            "name": "Lavender sleep wrap",
+            "spec": "Washed linen, Australian lavender",
+            "image_alt": "The lavender wrap loosely folded on a clay rose ground with a sprig beside it"
           }
         },
         "i5": {
           "type": "item",
           "settings": {
-            "name": "Pillow mist",
-            "spec": "100 ml, alcohol free, recycled glass",
-            "image_alt": "Pillow mist bottle standing upright on a cocoa ground"
+            "name": "The ritual card",
+            "spec": "Letterpressed, in every box",
+            "image_alt": "The ritual card resting on folded tissue inside the open box"
           }
         },
         "i6": {
           "type": "item",
           "settings": {
-            "name": "Herbal wind down tea",
-            "spec": "Loose leaf, 30 g, caffeine free",
-            "image_alt": "Open tea tin with a small spill of loose leaf beside it on a striped cream ground"
-          }
-        },
-        "i7": {
-          "type": "item",
-          "settings": {
-            "name": "Small candle",
-            "spec": "Poured wax, cotton wick, around 20 hours",
-            "image_alt": "Unlit candle seen from slightly above the rim on a powder blue ground"
-          }
-        },
-        "i8": {
-          "type": "item",
-          "settings": {
-            "name": "Sleep journal",
-            "spec": "96 unlined pages, sewn flat",
-            "image_alt": "Closed journal with light raking across the letterpress cover on a cream ground"
+            "name": "Your message",
+            "spec": "Printed, placed on top",
+            "image_alt": "A gift card being written by hand on a cocoa ground"
           }
         }
       },
-      "block_order": ["i1", "i2", "i3", "i4", "i5", "i6", "i7", "i8"],
+      "block_order": ["i1", "i2", "i3", "i4", "i5", "i6"],
       "settings": {
         "eyebrow": "What is inside",
-        "heading": "Eight pieces, one ritual",
-        "body": "<p>Every item had to earn its place next to the other seven. The silk is cut from one run so the mask, pillowcase and scrunchie match exactly. The candle is small on purpose, because there is already a scent in the box.</p>"
+        "heading": "Four pieces, one ritual",
+        "body": "<p>Every piece had to earn its place next to the other three. The silk is cut from one run so the mask and the pillowcase match exactly. The journal has a morning page because the evening page is only half the job. The wrap is filled here, not imported as a finished unit.</p>"
       }
     },
     "keepsake": {
@@ -143,7 +127,7 @@
       "settings": {
         "eyebrow": "Presentation",
         "heading": "A box worth keeping",
-        "body": "<p>The packaging is part of the gift rather than something to get through. A rigid keepsake box under a printed sleeve, tissue folded back over the contents, and a ribbon tied on the bench before the lid goes on.</p><p>Your message is written on a printed card and sits on top, so it is the first thing they read.</p>",
+        "body": "<p>The packaging is part of the gift rather than something to get through. A rigid keepsake box under a printed sleeve, tissue folded back over the contents, and a ribbon tied on the bench before the lid goes on.</p><p>The ritual card is the first thing under the lid, and your message sits on top of it, so your words are the first thing they read.</p>",
         "image_alt": "The open box with the lid propped behind it, tissue folded back over the contents",
         "flip": false
       }
@@ -152,8 +136,8 @@
       "type": "founder-teaser",
       "settings": {
         "eyebrow": "The studio",
-        "quote": "We wanted to send something better than a candle with a bow on it",
-        "body": "<p>Sleep Shop is a small studio in Melbourne making one thing properly. Making one box means we get to be particular about all eight pieces in it, and to know exactly where each one comes from.</p>",
+        "quote": "The thing you send when flowers feel like a shrug",
+        "body": "<p>Sleep Shop is a small studio in Melbourne making beautiful rituals around going to bed. Making one box means we get to be particular about all four pieces in it, and to know exactly where each one comes from.</p>",
         "image_alt": "Hands tying the ribbon on a finished box at the packing bench",
         "link": "/pages/about",
         "link_label": "Read our story",

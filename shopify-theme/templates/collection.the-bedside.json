@@ -6,11 +6,11 @@
     "range": {
       "type": "collection-range",
       "settings": {
-        "eyebrow": "The range",
-        "heading": "Four masks, four reasons",
-        "intro": "<p>We started with one mask, the silk one that goes in the box. People kept asking for it on its own, then asked for a heavier one, then for something that would survive a flight. So there are four. They are all cut in the same studio and they all use the same covered strap, because that is the part everyone gets wrong.</p>",
-        "note": "<p>Not sure which one? The silk is the safe answer and the one most people come back for. If you want it as a present, the Signature Sleep Box has the silk mask in it along with seven other pieces.</p>",
-        "empty_text": "The masks are being photographed. They will be here shortly."
+        "eyebrow": "Shop sleep",
+        "heading": "Shop the bedside",
+        "intro": "<p>The four pieces from the Gift of Sleep Box, sold on their own: the silk sleep mask, the silk pillowcase, the AM / PM journal and the lavender sleep wrap. Everything here is something we would put in a gift, which is the standard for what gets on the shelf at all.</p>",
+        "note": "<p>Rather send it? All four together with the ritual card and your message on a printed card is the Gift of Sleep Box. It arrives tied, ready to give, with nothing left to assemble.</p>",
+        "empty_text": "The shelf is being restocked. The Gift of Sleep Box is still available, and every piece in it will be back here soon."
       }
     },
     "trust": {

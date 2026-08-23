@@ -1,0 +1,67 @@
+{%- comment -%}
+  "Tonight, try this": one ritual, written as lines rather than a paragraph,
+  on the powder ground. Powder blue is the rituals colour and this is the only
+  section that uses it, which is what keeps it an accent.
+
+  The lines are blocks so the ritual can be swapped in the customiser without
+  touching code. The last line can be set as script for the sign-off.
+{%- endcomment -%}
+
+{{ 'sleep-shop.css' | asset_url | stylesheet_tag }}
+{% render 'ss-tokens' %}
+
+<div class="ss-section ss-section--powder">
+  <div class="ss-wrap">
+    {%- if section.settings.eyebrow != blank -%}
+      <p class="ss-eyebrow">{{ section.settings.eyebrow }}</p>
+    {%- endif -%}
+    <h2 class="ss-h2">{{ section.settings.heading }}</h2>
+
+    <div class="ss-ritual-lines">
+      {%- for block in section.blocks -%}
+        {%- if block.settings.script -%}
+          <p class="ss-script" {{ block.shopify_attributes }}>{{ block.settings.text }}</p>
+        {%- else -%}
+          <p {{ block.shopify_attributes }}>{{ block.settings.text }}</p>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+
+    {%- if section.settings.link_label != blank and section.settings.link != blank -%}
+      <p style="margin-top:2rem">
+        <a class="ss-btn" href="{{ section.settings.link }}">{{ section.settings.link_label }}</a>
+      </p>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Ritual feature",
+  "tag": "section",
+  "class": "ss-ritual-feature",
+  "blocks": [
+    {
+      "type": "line",
+      "name": "Line",
+      "settings": [
+        { "type": "text", "id": "text", "label": "Line" },
+        {
+          "type": "checkbox",
+          "id": "script",
+          "label": "Set in the script face",
+          "info": "For the sign-off only. One short phrase.",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Tonight, try this" },
+    { "type": "text", "id": "heading", "label": "Heading" },
+    { "type": "url", "id": "link", "label": "Button link" },
+    { "type": "text", "id": "link_label", "label": "Button label" }
+  ],
+  "presets": [{ "name": "Ritual feature" }]
+}
+{% endschema %}

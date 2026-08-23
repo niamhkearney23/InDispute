@@ -17,16 +17,16 @@ assets/     sleep-shop.css, gift-message.js, arrives-by.js
 config/     settings_schema.json  (merge, see below)
 sections/   the Sleep Shop sections
 snippets/   the Sleep Shop snippets
-templates/  product.signature-sleep-box.json, page.*.json
+templates/  index.json, product.*.json, collection.*.json, page.*.json
 ```
 
 3. `config/settings_schema.json` here contains **only the Sleep Shop block**. Paste that
    object into Dawn's existing `settings_schema.json` array rather than overwriting the
    file, or you will lose Dawn's own settings.
-4. Assign the template: Products, The Signature Sleep Box, Theme template,
-   `signature-sleep-box`.
-5. Create the pages (About, FAQ, Shipping and Delivery, Returns, Contact, Birthdays) and
-   assign each its matching template.
+4. Assign the template: Products, The Gift of Sleep Box, Theme template,
+   `gift-of-sleep-box`.
+5. Create the pages (Sleep rituals, About, FAQ, Shipping and Delivery, Returns, Contact,
+   Birthdays) and assign each its matching template.
 6. Fill in the settings listed below. Several are deliberately blank and the theme hides
    the block rather than inventing a value.
 
@@ -59,7 +59,7 @@ Top to bottom, matching the brief:
 | 5 | `snippets/dispatch-estimate.liquid`, arrives by and cut-off, beside the button |
 | 6 | Single add to cart, no competing buttons |
 | 7 | `snippets/reassurance-row.liquid` |
-| 8 | `sections/product-whats-inside.liquid`, all eight items |
+| 8 | `sections/product-whats-inside.liquid`, the four pieces, the ritual card and the message |
 | 9 | `sections/product-keepsake.liquid` |
 | 10 | `sections/founder-teaser.liquid`, links to About |
 | 11 | `snippets/accordion.liquid` x5 inside the main section |
@@ -68,38 +68,52 @@ Top to bottom, matching the brief:
 The gift message is submitted as a line item property named `Gift message`, so it appears
 on the order, the packing slip and in Klaviyo without any extra app.
 
-## The sleep mask range
+## The bedside, sold on its own
 
-Four masks sold on their own, sitting under the box as the cheaper way in.
+The four pieces from the box, each sold individually under the box as the
+cheaper way in.
 
 | Template | For |
 | --- | --- |
-| `templates/collection.sleep-masks.json` | The range page |
-| `templates/product.sleep-mask.json` | Every mask, all four share it |
+| `templates/collection.the-bedside.json` | The shop page |
+| `templates/product.bedside-piece.json` | Every piece, all four share it |
 
 `docs/products.md` has the products to create in admin: handles, options,
 suggested prices and the descriptions. **Nothing in the theme hardcodes a
 price.** Every figure is read from the product and the Afterpay instalment
 divides from the live one, so the range can be repriced in admin without a
-deploy. A test fails the build if a dollar figure appears in the mask section
+deploy. A test fails the build if a dollar figure appears in the piece section
 or the product card.
 
 Three decisions worth knowing:
 
-- **Colour swaps client side.** One option with four values does not justify a
-  server round trip per click. If a mask ever needs a second option the picker
-  stands down and Dawn's own one takes over rather than half working.
-- **The gift message is opt in on masks.** A mask is often bought for the
-  buyer, and an always open message field is one people feel obliged to fill.
-  It sits behind a checkbox, and closing it clears it so an unseen field can
-  never submit.
-- **Cross sell reads the collection.** Add a fifth mask in admin and it appears
-  on the range page, on every other mask page and on the box page, with no
-  theme edit.
+- **Colour swaps client side.** One option with a few values does not justify
+  a server round trip per click. If a piece ever needs a second option the
+  picker stands down and Dawn's own one takes over rather than half working.
+- **The gift message is opt in on the pieces.** A single piece is often bought
+  for the buyer, and an always open message field is one people feel obliged
+  to fill. It sits behind a checkbox, and closing it clears it so an unseen
+  field can never submit.
+- **Cross sell reads the collection.** Add a fifth piece in admin and it
+  appears on the shop page, on every other piece page and on the homepage
+  grid, with no theme edit.
 
-The masks and the box point at each other: each mask page notes that the silk
-one is also in the box, and the box page can show the range with a section
-setting.
+The pieces and the box point at each other: each piece page notes that it is
+also one of the four in the box, and the box page can show the shelf with a
+section setting.
+
+## The homepage and the rituals
+
+`templates/index.json` is the homepage from the brief: tagline hero with the
+two pathways, the box instead of flowers, the bedside grid, one ritual on the
+powder ground, the personalisation strip and the closing line. Two small
+sections carry it: `ritual-feature.liquid` (the only section on the powder
+ground, which is what keeps powder an accent) and `cta-banner.liquid`.
+
+`templates/page.sleep-rituals.json` is the Sleep Rituals page: three written
+rituals with the pieces linked under each one, the bedside grid, and the box
+as the closing move. Ritual copy describes actions and objects, never
+outcomes, and the claims tests cover it like everything else.
 
 ## Popups
 
@@ -211,7 +225,9 @@ snippet does not load, or loads a file that is not in `assets/`, so the two cann
 - **A typeface that is named but never loaded**, which is how the whole site would have
   rendered in Times New Roman while the stylesheet looked correct.
 
-## Not built
+## Not built, on purpose
 
-"Build Your Own Box" is deliberately absent, as instructed. The homepage template is
-waiting on your nine sections of copy.
+"Build Your Own Box" is deliberately absent, as instructed. So are the future occasion
+boxes and future products from the brand vision: they are listed at the end of
+`docs/products.md` precisely so nothing gets built for them yet. The homepage is no
+longer waiting on copy; `templates/index.json` follows the redesign brief.

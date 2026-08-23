@@ -1,0 +1,60 @@
+{
+  "sections": {
+    "announcement": {
+      "type": "announcement-shipping"
+    },
+    "main": {
+      "type": "page-prose",
+      "blocks": {
+        "r1": {
+          "type": "text",
+          "settings": {
+            "heading": "The 15-minute night reset",
+            "body": "<p>Fifteen minutes, counted backwards from when you want the light off. No app, no timer, nothing to get right. The order is the whole trick: each step makes the next one easier to start.</p><ol><li><strong>Phone down, somewhere else.</strong> Not face down on the bedside table. Another room, or a drawer. The distance is the point, because the distance is what you will not bother crossing.</li><li><strong>Lights low.</strong> One lamp, not the ceiling. The room getting darker is the day getting smaller.</li><li><strong>Write down what is still in your head.</strong> The PM page. Lists, fragments, one sentence about the thing you are dreading. It does not have to read well, it has to be out of your head and on the page.</li><li><strong>Put your mask on.</strong> Silk against your eyelids and the last of the lamp light gone.</li><li><strong>Goodnight.</strong> That is the whole ritual. If you are still awake in half an hour, that is fine. You did the part that was yours to do.</li></ol><p>Shop this ritual: the <a href=\"/products/silk-sleep-mask\">silk sleep mask</a> and the <a href=\"/products/am-pm-journal\">AM / PM journal</a>.</p>"
+          }
+        },
+        "r2": {
+          "type": "text",
+          "settings": {
+            "heading": "The Sunday night reset",
+            "body": "<p>Sunday night has a reputation it mostly deserves. This one takes half an hour, and most of it is just making the bed somewhere you want to be.</p><ol><li><strong>Fresh pillowcase.</strong> Whatever you do to the rest of the bed, change the pillowcase. It is the part your face knows about.</li><li><strong>Warm the wrap.</strong> A minute, no more, and take it to wherever you sit last.</li><li><strong>Ten minutes on the week, on paper.</strong> Not planning. Just the three things that actually matter by Friday, written down so they stop circling.</li><li><strong>Set out the morning.</strong> The cup, the keys, the clothes. Tomorrow's first five minutes, decided tonight by someone calmer than tomorrow's you.</li></ol><p>Shop this ritual: the <a href=\"/products/silk-pillowcase\">silk pillowcase</a> and the <a href=\"/products/lavender-sleep-wrap\">lavender sleep wrap</a>.</p>"
+          }
+        },
+        "r3": {
+          "type": "text",
+          "settings": {
+            "heading": "The screen-free wind-down",
+            "body": "<p>The last hour of the day, with nothing that glows in it. Harder than it sounds for about three nights, and then it is just what the evening is.</p><ol><li><strong>Pick the hour, not the intention.</strong> \"Less phone at night\" fails by Thursday. \"Nothing after ten\" is checkable, and you will know when you have done it.</li><li><strong>Give your hands something.</strong> The kettle, the dishes, the dog, the journal. The scroll mostly fills hands, not time, so fill the hands first.</li><li><strong>The wrap, warmed, wherever you land.</strong> Weight is very good company at the end of a day.</li><li><strong>Charge the phone at the door.</strong> It ends the argument before it starts, and it makes the morning's first act walking, not scrolling.</li></ol><p>Shop this ritual: the <a href=\"/products/lavender-sleep-wrap\">lavender sleep wrap</a> and the <a href=\"/products/am-pm-journal\">AM / PM journal</a>.</p>"
+          }
+        }
+      },
+      "block_order": ["r1", "r2", "r3"],
+      "settings": {
+        "eyebrow": "Sleep rituals",
+        "heading": "Sleep rituals",
+        "intro": "<p>Not a blog. Three short rituals, written plainly, that you can start tonight with whatever you already own. The pieces named under each one are the versions we make, and the ritual works without them.</p>"
+      }
+    },
+    "cross": {
+      "type": "cross-sell",
+      "settings": {
+        "collection": "the-bedside",
+        "eyebrow": "The pieces",
+        "heading": "Everything the rituals use",
+        "link": "/collections/the-bedside",
+        "link_label": "Shop the bedside",
+        "limit": 4
+      }
+    },
+    "closing": {
+      "type": "cta-banner",
+      "settings": {
+        "script": "Send someone the whole ritual",
+        "heading": "The Gift of Sleep Box",
+        "link": "/products/the-gift-of-sleep-box",
+        "link_label": "See the box"
+      }
+    }
+  },
+  "order": ["announcement", "main", "cross", "closing"]
+}

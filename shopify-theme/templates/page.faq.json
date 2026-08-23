@@ -10,7 +10,7 @@
           "type": "qa",
           "settings": {
             "question": "What is in the box?",
-            "answer": "<p>Eight pieces: a mulberry silk eye mask, a silk pillowcase, a matching silk scrunchie, bed socks, a pillow mist, a herbal wind down tea, a small candle and a sleep journal. A printed gift card with your message goes in on top.</p>"
+            "answer": "<p>Four pieces: a mulberry silk sleep mask, a silk pillowcase cut from the same run, an AM / PM journal, and a lavender sleep wrap. The ritual card sits on top of the tissue, and a printed gift card with your message goes in last.</p>"
           }
         },
         "q2": {
@@ -31,7 +31,7 @@
           "type": "qa",
           "settings": {
             "question": "Can I swap an item out?",
-            "answer": "<p>Not at the moment. The eight were chosen to sit together, and the moment we allow swaps we are back to being a shop that makes you assemble a gift. If something in it genuinely will not suit, this is probably not the right box.</p>"
+            "answer": "<p>Not at the moment. The four were chosen to sit together, and the moment we allow swaps we are back to being a shop that makes you assemble a gift. If one piece is all they need, every piece in the box is also sold on its own.</p>"
           }
         },
         "q5": {

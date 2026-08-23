@@ -3,77 +3,105 @@
 The theme cannot create products, only render them. Create these in admin, then
 assign the templates listed against each one.
 
-Prices below are **suggestions, not decisions.** They are set so the range has a
-sensible ladder under the box and so Afterpay stays useful. Change them freely:
-nothing in the theme hardcodes a price, every figure on the page is read from
-the product, and the Afterpay instalment divides from the live price.
+Prices on the pieces are **suggestions, not decisions.** They are set so the
+range has a sensible ladder under the box and so Afterpay stays useful. Change
+them freely: nothing in the theme hardcodes a price, every figure on the page is
+read from the product, and the Afterpay instalment divides from the live price.
 
 ## Collection
 
-**Sleep masks**, handle `sleep-masks`. Template `sleep-masks`. Add all four
-masks to it. The cross sell rows and the range page both read this collection,
-so adding a fifth mask later puts it everywhere without a theme edit.
+**The bedside**, handle `the-bedside`. Template `the-bedside`. Add all four
+pieces to it. The cross sell rows, the homepage grid and the shop page all read
+this collection, so adding a fifth piece later puts it everywhere without a
+theme edit.
 
-## The four masks
+## The box
 
-All four use the same covered strap. Every one needs a square hero image, and
-alt text that describes the object rather than repeating the title.
+**The Gift of Sleep Box**, handle `the-gift-of-sleep-box`, $149. Template
+`gift-of-sleep-box`. The hero product. One option, Ribbon, values Clay rose and
+Powder blue.
+
+## The four pieces
+
+Each piece is in the box and on the shelf. Every one needs a square hero image,
+and alt text that describes the object rather than repeating the title.
 
 | Product | Handle | Suggested price | Option | Values |
 | --- | --- | --- | --- | --- |
-| Mulberry Silk Sleep Mask | `mulberry-silk-sleep-mask` | $49 | Colour | Clay rose, Powder, Cocoa, Cream |
-| Weighted Sleep Mask | `weighted-sleep-mask` | $69 | Colour | Cocoa, Powder |
-| Contoured Sleep Mask | `contoured-sleep-mask` | $59 | Colour | Cocoa, Cream |
-| Travel Sleep Mask | `travel-sleep-mask` | $45 | Colour | Clay rose, Cocoa |
+| Silk Sleep Mask | `silk-sleep-mask` | $49 | Colour | Clay rose, Powder, Cocoa, Cream |
+| Silk Pillowcase | `silk-pillowcase` | $89 | Colour | Clay rose, Powder, Cocoa, Cream |
+| AM / PM Journal | `am-pm-journal` | $39 | none | |
+| Lavender Sleep Wrap | `lavender-sleep-wrap` | $59 | none | |
 
-Template for all four: `sleep-mask`.
+Template for all four: `bedside-piece`. The template's colour picker appears
+only on products with a single Colour option and stays out of the way on the
+journal and the wrap.
 
 ### Descriptions
 
 Written to the same rule as everything else: material, weight, dimensions, fit
-and how to wash it. Nothing about what it does to a person. The tests fail the
-build if a health claim appears, and product descriptions typed into admin are
-not covered by those tests, so this is the one place the discipline is manual.
+and how to care for it. Nothing about what it does to a person. The tests fail
+the build if a health claim appears, and product descriptions typed into admin
+are not covered by those tests, so this is the one place the discipline is
+manual.
 
-**Mulberry Silk Sleep Mask.** Grade 6A mulberry silk at 22 momme, on both faces
-rather than silk on the front and polyester behind. The seam sits on the outside
-so nothing rests against the eyelid, and the strap is covered along its whole
-length. Cut from the same run as the pillowcase in the Signature Sleep Box, so
-the colours match. Hand wash cold, dry flat, out of the sun.
+**Silk Sleep Mask.** Grade 6A mulberry silk at 22 momme, on both faces rather
+than silk on the front and polyester behind. The seam sits on the outside so
+nothing rests against the eyelid, and the strap is covered along its whole
+length. Cut from the same run as the pillowcase, so the colours match. Hand
+wash cold, dry flat, out of the sun.
 
-**Weighted Sleep Mask.** 180 grams of glass microbeads in eight stitched
-channels, so the weight sits evenly rather than sliding to one side. Silk face,
-brushed cotton lining, same covered strap. It is heavier than it looks in a
-photograph, which is the point. Spot clean, or remove the inner and wash the
-cover on a gentle cycle.
+**Silk Pillowcase.** Standard 48 by 74 cm in the same 22 momme, grade 6A silk,
+with a hidden zip. Heavy enough to drape properly and to survive being washed
+for years. Silk holds far less moisture than cotton, which is why anything you
+put on your face at night stays on your face. Hand wash cold or gentle cycle in
+a bag, dry flat.
 
-**Contoured Sleep Mask.** Moulded cups that arch over the eye socket, so you can
-open your eyes underneath it and nothing touches your lashes. Blocks light at
-the nose, which is where flat masks leak. Silk outer over a light moulded foam.
-Wipe clean.
+**AM / PM Journal.** Ninety-six pages, section-sewn so it lies flat on a
+bedside table. A page for the end of the day and a page for the start of the
+next one: the PM page is for whatever is still circling, the AM page is three
+lines before the phone comes on. Unlined, letterpress cover on cotton board.
 
-**Travel Sleep Mask.** Folds to the size of a passport and holds its shape after
-being sat on. Silk outer, packable inner, and a strap that lies flat so it does
-not press when your head is against a seat. Comes in a small silk pouch. Hand
-wash cold.
+**Lavender Sleep Wrap.** Washed linen outside, Australian lavender and wheat
+inside, with a good weight to it. It drapes across the shoulders or over the
+eyes, warmed for a minute or straight off the shelf. The cover unbuttons and
+washes on a gentle cycle; the inner is spot clean only.
 
-## The box
+## Pages
 
-**The Signature Sleep Box**, handle `the-signature-sleep-box`, $149. Template
-`signature-sleep-box`. Already built.
+Create these pages and assign the matching template:
 
-Add the masks collection to the cross sell row on the box template if you want
-the range shown there too. It is a section setting, no code needed.
+| Page | Handle | Template |
+| --- | --- | --- |
+| Sleep rituals | `sleep-rituals` | `sleep-rituals` |
+| About | `about` | `about` |
+| FAQ | `faq` | `faq` |
+| Shipping and Delivery | `shipping` | `shipping` |
+| Returns | `returns` | `returns` |
+| Contact | `contact` | `contact` |
+| Birthdays | `birthdays` | `birthdays` |
+
+The rituals page links to the four pieces by handle, so create the products
+first or the links 404.
 
 ## Metafield used by the cards
 
-The range grid shows an optional one line specification under each title. It
-reads `descriptors.subtitle`, which is a metafield Shopify creates for you under
+The grid shows an optional one line specification under each title. It reads
+`descriptors.subtitle`, which is a metafield Shopify creates for you under
 Settings, Custom data, Products, as **Subtitle**. Suggested values:
 
-- Mulberry Silk: `22 momme silk, four colours`
-- Weighted: `180 g, glass microbead`
-- Contoured: `Moulded cups, zero lash contact`
-- Travel: `Folds to passport size`
+- Silk Sleep Mask: `22 momme silk, four colours`
+- Silk Pillowcase: `22 momme silk, hidden zip`
+- AM / PM Journal: `96 pages, sewn flat`
+- Lavender Sleep Wrap: `Washed linen, Australian lavender`
 
 Leave it empty and the card simply omits the line.
+
+## Not yet, on purpose
+
+Future occasion boxes (For Mum, the burnt-out friend, Birthday, New Mum, New
+home, Thinking of you, Corporate) and future products (sleep light, acupressure
+mat, pill case, diffuser, oil, alarm clock) are part of the vision, not the
+launch. Nothing in the theme references them and nothing should be created for
+them yet. The Birthdays landing page sells the one box; it is an occasion door,
+not an occasion product.

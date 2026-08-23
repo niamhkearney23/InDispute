@@ -1,0 +1,41 @@
+{%- comment -%}
+  The closing move on a page: one script line, one heading, one button, on the
+  cocoa ground. No form, no secondary link, nothing competing.
+{%- endcomment -%}
+
+{{ 'sleep-shop.css' | asset_url | stylesheet_tag }}
+{% render 'ss-tokens' %}
+
+<div class="ss-section ss-section--cocoa" style="text-align:center">
+  <div class="ss-wrap" style="max-width:640px">
+    {%- if section.settings.script != blank -%}
+      <p class="ss-script" style="font-size:1.9rem">{{ section.settings.script }}</p>
+    {%- endif -%}
+    <h2 class="ss-h2" style="margin-top:.4rem">{{ section.settings.heading }}</h2>
+    {%- if section.settings.link_label != blank and section.settings.link != blank -%}
+      <p style="margin-top:1.8rem">
+        <a class="ss-btn ss-btn--cream" href="{{ section.settings.link }}">{{ section.settings.link_label }}</a>
+      </p>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Closing banner",
+  "tag": "section",
+  "class": "ss-cta-banner",
+  "settings": [
+    {
+      "type": "text",
+      "id": "script",
+      "label": "Script line",
+      "info": "One phrase only."
+    },
+    { "type": "text", "id": "heading", "label": "Heading" },
+    { "type": "url", "id": "link", "label": "Button link" },
+    { "type": "text", "id": "link_label", "label": "Button label" }
+  ],
+  "presets": [{ "name": "Closing banner" }]
+}
+{% endschema %}

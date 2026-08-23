@@ -10,14 +10,7 @@
           "type": "accordion",
           "settings": {
             "heading": "Materials and care",
-            "body": "<p>Details for this mask are on the product itself. As a rule: silk is washed cold by hand or on a gentle cycle in a bag, dried flat and away from sun. Do not wring it and do not tumble dry it. Elastic lasts longer if you do not stretch it over a doorknob.</p>"
-          }
-        },
-        "a2": {
-          "type": "accordion",
-          "settings": {
-            "heading": "Fit",
-            "body": "<p>The strap adjusts, and it is covered along its whole length so it does not catch in hair or leave a mark. If it sits low on the nose, loosen it by a centimetre rather than tightening it: the seal comes from the shape, not the tension.</p>"
+            "body": "<p>Details for each piece are on the product itself. As a rule: silk is washed cold by hand or on a gentle cycle in a bag, dried flat and away from sun, never wrung and never tumble dried. Linen covers unbutton and wash warm. Paper likes to be left alone.</p>"
           }
         },
         "a3": {
@@ -37,27 +30,26 @@
       },
       "block_order": [
         "a1",
-        "a2",
         "a3",
         "a4"
       ],
       "settings": {
-        "eyebrow": "Sleep masks",
-        "subtitle": "Rest is the greatest gift",
+        "eyebrow": "The bedside",
+        "subtitle": "Give the gift of sleep",
         "show_gift_message": true,
-        "box_link_text": "This mask is also one of the eight pieces in",
-        "box_link": "/products/the-signature-sleep-box",
-        "box_link_label": "the Signature Sleep Box"
+        "box_link_text": "This piece is also one of the four in",
+        "box_link": "/products/the-gift-of-sleep-box",
+        "box_link_label": "the Gift of Sleep Box"
       }
     },
     "cross": {
       "type": "cross-sell",
       "settings": {
-        "collection": "sleep-masks",
-        "eyebrow": "The range",
-        "heading": "The other masks",
-        "link": "/collections/sleep-masks",
-        "link_label": "See all four",
+        "collection": "the-bedside",
+        "eyebrow": "The bedside",
+        "heading": "The rest of the bedside",
+        "link": "/collections/the-bedside",
+        "link_label": "Everything in the shop",
         "limit": 4
       }
     },
