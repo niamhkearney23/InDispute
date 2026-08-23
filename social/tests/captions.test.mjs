@@ -3,7 +3,7 @@
    same rules apply here, enforced the same way. */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -162,6 +162,56 @@ test('every post says what to shoot, so nothing stalls on the day', () => {
     assert.ok(
       post.caption.length > floor,
       `${post.ref}: caption is too thin for a ${post.format}`
+    );
+  }
+});
+
+/* ---------------------------------------------------------------- the type */
+
+/* The first run of these tiles went out in Chromium's default serif. The SVG
+   named Playfair Display and Cormorant Garamond and nothing ever loaded them,
+   which at a glance looks close enough to a Didone to be posted without
+   noticing. The faces are embedded now, and that is checked rather than
+   assumed. */
+test('every generated tile carries its own typefaces', () => {
+  const dir = path.join(root, 'tiles');
+  if (!existsSync(dir)) return; /* tiles are generated, not committed prerequisites */
+
+  const svgs = readdirSync(dir).filter((f) => f.endsWith('.svg'));
+  assert.ok(svgs.length >= 4, 'no tiles to check, run npm run tiles');
+
+  for (const file of svgs) {
+    const svg = readFileSync(path.join(dir, file), 'utf8');
+    const families = [...svg.matchAll(/@font-face\{font-family:"([^"]+)"/g)].map((m) => m[1]);
+
+    assert.ok(
+      families.includes('Playfair Display') &&
+        families.includes('Cormorant Garamond') &&
+        families.includes('Inter'),
+      `${file}: a face is named in the stylesheet but not embedded, so it will ` +
+        'render in whatever serif the machine happens to have'
+    );
+    assert.ok(
+      /src:url\(data:font\/woff2;base64,/.test(svg),
+      `${file}: the faces must be data URIs, or the tile only looks right here`
+    );
+  }
+});
+
+test('the tiles are set in the same faces as the shop', () => {
+  /* One definition of what Sleep Shop is set in. The tile builder reads the
+     woff2 files out of the theme rather than keeping its own copy, so the two
+     cannot drift apart. */
+  const builder = readFileSync(path.join(root, 'scripts', 'build-tiles.mjs'), 'utf8');
+  assert.match(builder, /shopify-theme', 'assets'/, 'the tiles must read the theme fonts');
+
+  const css = readFileSync(
+    path.join(root, '..', 'shopify-theme', 'assets', 'sleep-shop.css'), 'utf8'
+  );
+  for (const [role, family] of [['display', 'Playfair Display'], ['script', 'Cormorant Garamond'], ['util', 'Inter']]) {
+    assert.match(
+      css, new RegExp(`--ss-${role}:\\s*"?${family}`),
+      `the shop sets ${role} in something other than ${family}, so the tiles are off brand`
     );
   }
 });

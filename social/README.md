@@ -60,6 +60,13 @@ ground, so this is a third of your posting load done without a camera.
 
 Change the lines in `calendar.json` and run it again.
 
+The typefaces are read out of `shopify-theme/assets/` and embedded in each SVG,
+so the tiles are set in exactly what the shop is set in and there is only one
+place that decides. Run `npm run fonts` in `shopify-theme` first if you have a
+fresh checkout, or the tile build stops rather than quietly rendering in
+whatever serif your machine happens to have. It stopped being theoretical once:
+the first run of these tiles went out in Chromium's default serif.
+
 ## The calendar
 
 `calendar.json` holds four weeks, sixteen posts, Monday Wednesday Friday Sunday.

@@ -15,6 +15,43 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const out = path.join(root, 'tiles');
 
+/* The brand faces live in the theme, downloaded by its scripts/fetch-fonts.mjs,
+   and are read from there rather than copied so there is one definition of what
+   Sleep Shop is set in.
+
+   They have to be embedded in the SVG as data URIs. Naming a family and
+   trusting the renderer to have it is how the first run of these tiles came out
+   in Chromium's default serif: the type looked broadly right at a glance and
+   was not Playfair at all. An SVG that carries its own fonts also survives
+   being opened on a machine that has never had them installed. */
+const FACES = [
+  { cls: 'd', file: 'ss-playfair-display-400-latin.woff2', family: 'Playfair Display', style: 'normal', weight: 400 },
+  { cls: 's', file: 'ss-cormorant-garamond-300i-latin.woff2', family: 'Cormorant Garamond', style: 'italic', weight: 300 },
+  { cls: 'u', file: 'ss-inter-400-latin.woff2', family: 'Inter', style: 'normal', weight: 400 }
+];
+
+const THEME_ASSETS = path.resolve(root, '..', 'shopify-theme', 'assets');
+
+async function embedFaces() {
+  const rules = [];
+  for (const face of FACES) {
+    const file = path.join(THEME_ASSETS, face.file);
+    if (!existsSync(file)) {
+      throw new Error(
+        `${face.family} is missing from the theme assets (${face.file}).\n` +
+          'Run `npm run fonts` in shopify-theme first. Building tiles without it ' +
+          'would silently render them in the wrong typeface.'
+      );
+    }
+    const base64 = (await readFile(file)).toString('base64');
+    rules.push(
+      `@font-face{font-family:"${face.family}";font-style:${face.style};` +
+        `font-weight:${face.weight};src:url(data:font/woff2;base64,${base64}) format("woff2")}`
+    );
+  }
+  return rules.join('\n      ');
+}
+
 /* The five brand grounds. Ink is chosen for contrast against each. */
 const GROUNDS = {
   cocoa: { bg: '#3B2318', ink: '#F2E9DC', quiet: '#C9B6A6' },
@@ -46,7 +83,7 @@ function wrap(text, perLine) {
   return lines;
 }
 
-function tile({ kind, text, tag, ground }) {
+function tile({ kind, text, tag, ground }, faceCss) {
   const g = GROUNDS[ground] || GROUNDS.cocoa;
   const script = kind === 'script';
 
@@ -73,6 +110,7 @@ function tile({ kind, text, tag, ground }) {
   <defs>
     ${stripes}
     <style>
+      ${faceCss}
       .d { font-family: "Playfair Display", Didot, Georgia, serif; font-weight: 400; }
       .s { font-family: "Cormorant Garamond", Didot, Georgia, serif; font-style: italic; font-weight: 300; }
       .u { font-family: Inter, Helvetica, Arial, sans-serif; font-size: 21px; letter-spacing: 4.4px; }
@@ -96,12 +134,14 @@ async function main() {
   const calendar = JSON.parse(await readFile(path.join(root, 'calendar.json'), 'utf8'));
   await mkdir(out, { recursive: true });
 
+  const faceCss = await embedFaces();
+
   const made = [];
   for (const week of calendar.weeks) {
     for (const post of week.posts) {
       if (!post.tile) continue;
       const name = `w${week.week}-${post.day.toLowerCase()}`;
-      const svg = tile({ ...post.tile, ground: post.ground });
+      const svg = tile({ ...post.tile, ground: post.ground }, faceCss);
       await writeFile(path.join(out, `${name}.svg`), svg);
       made.push({ name, headline: post.headline });
     }
@@ -110,7 +150,7 @@ async function main() {
   for (const post of calendar.evergreen?.posts ?? []) {
     if (!post.tile) continue;
     const name = `evergreen-${post.id}`;
-    await writeFile(path.join(out, `${name}.svg`), tile({ ...post.tile, ground: post.ground }));
+    await writeFile(path.join(out, `${name}.svg`), tile({ ...post.tile, ground: post.ground }, faceCss));
     made.push({ name, headline: post.tile.text });
   }
 
@@ -134,6 +174,17 @@ async function main() {
   const page = await browser.newPage({ viewport: { width: 1080, height: 1080 } });
   for (const { name } of made) {
     await page.goto('file://' + path.join(out, `${name}.svg`));
+    await page.evaluate(() => document.fonts.ready);
+
+    /* The failure mode this guards against is quiet: a missing face falls back
+       to the renderer's default serif, which looks enough like Playfair at a
+       glance to be posted without anyone noticing. Never write a PNG that is
+       not in the brand type. */
+    const embedded = await page.evaluate(() => [...document.fonts].filter((f) => f.status === 'loaded').length);
+    if (embedded < 1) {
+      await browser.close();
+      throw new Error(`${name}: no face loaded, the PNG would be in the wrong typeface`);
+    }
     await page.screenshot({ path: path.join(out, `${name}.png`) });
   }
   await browser.close();
