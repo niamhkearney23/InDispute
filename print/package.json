@@ -1,0 +1,17 @@
+{
+  "name": "sleep-shop-print",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sleep Shop print pack: the cards that go in the box, as print ready PDFs",
+  "scripts": {
+    "print": "node scripts/build-print.mjs",
+    "proof": "node scripts/build-print.mjs --proof",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.62.1"
+  }
+}
