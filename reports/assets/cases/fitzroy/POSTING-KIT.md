@@ -1,6 +1,6 @@
 # Posting Kit, A company asking a court to force a council to sell public land
 
-**Post:** 6 slides, `fitzroy-slide-01.png` to `-06.png`. Navy dominant, cream closer.
+**Post:** 7 slides, `fitzroy-slide-01.png` to `-07.png`. Navy dominant, cream closer.
 **Subject:** the Fitzroy laneway proceeding in the Supreme Court of Victoria. **Ongoing. No judgment.**
 
 ---
@@ -25,7 +25,19 @@ The second batch of screenshots gave the actual legal claim, which is what made 
 
 Because the ask is genuinely unusual. A company is not just asking the court to review a council decision. It is asking the court to **discontinue the road and order the land sold at market rates**. That is asking a court to make the decision instead of the council, and it sets up the single most useful lesson in administrative law: judicial review is about how a decision was made, not what it should have been.
 
-Slide 5 carries that: *winning judicial review usually gets you a second decision, not the decision you wanted.*
+Slide 6 carries that: *winning judicial review usually gets you a second decision, not the decision you wanted.*
+
+## Slide 7: the citation slide
+
+The post ends by teaching people how to find the judgment themselves. It shows the case name it will probably carry, with the number left blank:
+
+> **X & G Pty Ltd v Yarra City Council** [2026] VSC ___
+
+**That is a prediction, and the slide says "probably".** The company named in reporting as owning the building is X & G Pty Ltd, and the respondent to a judicial review of a council decision is the council. Victorian judicial review of local government decisions sits in the Common Law Division, Judicial Review and Appeals List, so a VSC medium neutral citation is the expected form. The number is unknowable until it is handed down, which is why it is a blank rather than a guess.
+
+**Never fill that blank in with an invented number.** A fabricated citation is the single worst thing this account could publish.
+
+The annotation explains how to read any citation: parties, year, court, judgment number. VSC is the Supreme Court of Victoria, VSCA its Court of Appeal, HCA the High Court. That one slide is probably the most genuinely useful thing in the deck for a non-lawyer, because it hands them the key to every judgment in the country for free.
 
 ---
 
