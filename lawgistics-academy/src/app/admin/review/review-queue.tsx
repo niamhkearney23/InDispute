@@ -2,13 +2,24 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { Button, Card, Notice, Pill, cn } from '@/components/ui';
-import { JURISDICTION_LABELS, JURISDICTION_SHORT } from '@/lib/types';
+import { JURISDICTION_COUNTRY, JURISDICTION_LABELS, JURISDICTION_SHORT } from '@/lib/types';
+import type { Country } from '@/lib/types';
 import { RISK_LABEL, type RiskLevel } from '@/lib/review/triage';
 import { recordReviewDecision } from './actions';
 import { HOLD_CHOICES, defaultHold, type HoldMonths } from '@/lib/review/expiry';
 import type { ReviewItem } from '@/lib/review/service';
 
 type Filter = 'outstanding' | 'live' | 'flagged' | 'done' | 'all';
+
+/* Which country's law to work through.
+
+   Verifying is done a body of law at a time, not a bank at a time. Somebody
+   sitting down to sign off Malaysian questions should not have Australian ones
+   between them, and the Malaysian bank matters more than most: it is the half
+   that cannot publish itself, so it stays invisible to learners until a person
+   has been through it one item at a time. Without this filter that person has
+   to read 122 Australian questions to find 81 Malaysian ones. */
+type Scope = 'all' | Country;
 
 /**
  * Whether a key press is somebody typing rather than somebody driving.
@@ -48,6 +59,7 @@ function isSignedOff(item: ReviewItem, outcome?: 'verify' | 'flag' | 'retire'): 
 
 export function ReviewQueue({ items }: { items: ReviewItem[] }) {
   const [filter, setFilter] = useState<Filter>('outstanding');
+  const [scope, setScope] = useState<Scope>('all');
   const [decided, setDecided] = useState<Record<string, 'verify' | 'flag' | 'retire'>>({});
   const [error, setError] = useState<string | null>(null);
   const [focused, setFocused] = useState(0);
@@ -56,8 +68,14 @@ export function ReviewQueue({ items }: { items: ReviewItem[] }) {
 
   const key = (item: ReviewItem) => `${item.kind}:${item.id}`;
 
+  const inScope = useCallback(
+    (item: ReviewItem) => scope === 'all' || JURISDICTION_COUNTRY[item.jurisdiction] === scope,
+    [scope],
+  );
+
   const visible = useMemo(() => {
     return items.filter((item) => {
+      if (!inScope(item)) return false;
       const outcome = decided[key(item)];
       const verified = isSignedOff(item, outcome);
       const flagged = outcome === 'flag' || (!outcome && item.reviewFlagged);
@@ -75,20 +93,38 @@ export function ReviewQueue({ items }: { items: ReviewItem[] }) {
           return true;
       }
     });
-  }, [items, filter, decided]);
+  }, [items, filter, decided, inScope]);
 
+  /* Counted within the chosen country, so the progress bar measures the job
+     actually in front of the person rather than the whole bank. */
   const counts = useMemo(() => {
     let outstanding = 0;
     let done = 0;
+    let total = 0;
     for (const item of items) {
+      if (!inScope(item)) continue;
+      total += 1;
       const outcome = decided[key(item)];
       if (isSignedOff(item, outcome)) done += 1;
       else if (outcome !== 'retire') outstanding += 1;
     }
-    return { outstanding, done };
+    return { outstanding, done, total };
+  }, [items, decided, inScope]);
+
+  /* How many are left in each country, so the chips say what choosing one
+     would cost before it is chosen. */
+  const byCountry = useMemo(() => {
+    const left: Record<Country, number> = { AU: 0, MY: 0 };
+    for (const item of items) {
+      const outcome = decided[key(item)];
+      if (isSignedOff(item, outcome) || outcome === 'retire') continue;
+      const c = JURISDICTION_COUNTRY[item.jurisdiction];
+      if (c) left[c] += 1;
+    }
+    return left;
   }, [items, decided]);
 
-  const progress = items.length ? Math.round((counts.done / items.length) * 100) : 0;
+  const progress = counts.total ? Math.round((counts.done / counts.total) * 100) : 0;
 
   /**
    * Keep the focused card on screen.
@@ -155,7 +191,7 @@ export function ReviewQueue({ items }: { items: ReviewItem[] }) {
         <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
           <p className="text-sm">
             <strong className="font-serif text-lg tabular-nums">{counts.done}</strong>
-            <span className="text-slate"> of {items.length} signed off</span>
+            <span className="text-slate"> of {counts.total} signed off</span>
           </p>
           <p className="text-xs text-muted tabular-nums">{counts.outstanding} to go</p>
         </div>
@@ -173,7 +209,36 @@ export function ReviewQueue({ items }: { items: ReviewItem[] }) {
           />
         </div>
 
+        {/* Country first, because it decides which body of law you are reading
+            and there is no sense mixing two of them in one sitting. */}
         <div className="mt-3 flex flex-wrap gap-1.5 text-xs">
+          {(
+            [
+              ['all', 'Both countries'],
+              ['MY', `Malaysia (${byCountry.MY} left)`],
+              ['AU', `Australia (${byCountry.AU} left)`],
+            ] as Array<[Scope, string]>
+          ).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => {
+                setScope(value);
+                setFocused(0);
+              }}
+              className={cn(
+                'rounded-full border px-3 py-2',
+                scope === value
+                  ? 'border-burgundy bg-burgundy text-paper'
+                  : 'border-rule-strong text-slate hover:bg-paper',
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
           {(
             [
               ['outstanding', 'To review'],
