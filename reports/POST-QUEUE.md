@@ -13,6 +13,7 @@ One post per weekday. Fridays: The Big Case File (pop-culture legal breakdown).
 | Mon 10 Aug 2026 (post 2) | Recently in Court, roundup of the 5 Aug High Court sitting, 5 slides | reports/assets/2026-08-10/recently-slide-*.png | READY, second post |
 | Fri 14 Aug 2026 | Puleo v Bendigo and Adelaide Bank [2026] VSC 513, debanking a lawful business, 6 slides | reports/assets/2026-08-14/debank-slide-*.png | READY, lead post, built from the judgment |
 | Sat 15 Aug 2026 | Lewis v HWL Ebsworth Lawyers [2026] VSC 514, partner sues own firm, strike out refused, 6 slides | reports/assets/2026-08-15/lewis-slide-*.png | READY, built from the judgment |
+| Anytime | Can you keep land you took? Laneway, public roads, adverse possession, discontinuance. Explainer, no names | reports/assets/cases/laneway/ | READY, topical while the Fitzroy story runs |
 | Next 8 weekdays | ONE CASE PER POST, eight single case decks from the 19 to 21 Aug VSC judgments, 5 slides each | reports/assets/cases/ | READY, see README for order |
 | Alternative | Recently in Court roundup of the same eight, 7 slides | reports/assets/2026-08-21/vsc-slide-*.png | READY, use if you want one post instead of eight |
 | Anytime | How to summarise a case, the five line case note, 8 slides | reports/assets/case-note/ | READY, evergreen, pairs with read-a-case |
