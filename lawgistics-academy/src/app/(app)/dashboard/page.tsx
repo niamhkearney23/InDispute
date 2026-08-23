@@ -6,7 +6,7 @@ import { masteryBand } from '@/lib/learning/mastery';
 import { outstandingRequired } from '@/lib/modules/service';
 import { outstandingFirmModules } from '@/lib/firm/service';
 import { beforeYouBegin } from '@/lib/onboarding/service';
-import { greeting } from '@/lib/greeting';
+import { greeting, greetingName } from '@/lib/greeting';
 import { QUESTIONS_PER_MINUTE_GOAL } from '@/lib/learning/config';
 import { TOP_LEVEL_NAME } from '@/lib/learning/progression';
 import {
@@ -108,12 +108,16 @@ export default async function DashboardPage() {
         </Notice>
       ) : null}
 
+      {/* The greeting leads, rather than sitting above the heading in small
+          capitals as a label. This is the page somebody opens every morning,
+          and being spoken to by name is most of what makes it feel like
+          somewhere they are expected. */}
       <section>
-        <p className="eyebrow mb-2">
+        <h1 className="text-3xl sm:text-4xl">
           {greeting(new Date(), profile.timezone)}
-          {profile.displayName ? `, ${profile.displayName}` : ''}
-        </p>
-        <h1 className="text-3xl sm:text-4xl">Ready to train like a lawyer?</h1>
+          {greetingName(profile.displayName) ? `, ${greetingName(profile.displayName)}` : ''}.
+        </h1>
+        <p className="mt-3 text-lg text-slate">Ready to train like a lawyer?</p>
       </section>
 
       <Card className="border-ink/15 bg-paper-raised">

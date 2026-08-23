@@ -279,7 +279,12 @@ window.pageInit = function () {
     recognition = new SR();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = 'en-GB';
+    /* The speech service does better when told which English to expect, and
+       the page already knows which country the learner is in. There is no
+       en-MY in the browser's list, and Malaysian English follows British
+       spelling and usage, so en-GB is the closest match; en-AU is a real
+       improvement for an Australian speaker over the generic default. */
+    recognition.lang = COUNTRY === 'AU' ? 'en-AU' : 'en-GB';
     recognition.onresult = function (e) {
       var interim = '';
       for (var i = e.resultIndex; i < e.results.length; i++) {

@@ -5,7 +5,7 @@ import { getLearnerOverview } from '@/lib/learner-overview';
 import { displayScore, masteryBand } from '@/lib/learning/mastery';
 import { getFactOfTheDay } from '@/lib/facts/service';
 import { getModuleProgress } from '@/lib/modules/service';
-import { greeting } from '@/lib/greeting';
+import { greeting, greetingName } from '@/lib/greeting';
 import { COUNTRY_LABELS } from '@/lib/types';
 import Link from 'next/link';
 import { AreaBreakdown, type Area } from './area-breakdown';
@@ -103,7 +103,7 @@ export default async function SkillsPage() {
       <section>
         <p className="eyebrow mb-2">
           {greeting(new Date(), profile.timezone)}
-          {profile.displayName ? `, ${profile.displayName}` : ''}
+          {greetingName(profile.displayName) ? `, ${greetingName(profile.displayName)}` : ''}
         </p>
         <h1 className="text-3xl sm:text-4xl">Where you are</h1>
         <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-slate">
