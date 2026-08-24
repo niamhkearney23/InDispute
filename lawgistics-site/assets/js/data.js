@@ -336,15 +336,15 @@ window.LG_SEED = {
        duration is deliberately not given in hours: a module finishes when
        every question in it has been answered correctly at least once, which
        takes as long as it takes. */
-    { id: 'au1', country: 'AU', title: 'Ethics and AI', audience: 'Students, graduates & juniors', order: 1, duration: 'Until every question is right', status: 'published',
+    { id: 'au1', country: 'AU', title: 'Ethics and AI', audience: 'Students, graduates & juniors', order: 1, duration: 'Questions', status: 'published',
       summary: 'Confidentiality, verification, candour to the court, and who answers for the work. Every one of these situations arrives in an ordinary week without announcing itself, and most of them do not feel like breaking a rule at the time.',
       lessons: 'What you may and may not put into a tool\nChecking a citation that looks right\nCandour to the court when the work was assisted\nWho is answerable for the finished work\nRecording time honestly when the drafting was fast',
       outcomes: 'Say what may and may not be put into a tool, and why\nVerify a citation instead of trusting one that looks right\nRecognise the version of a rule that gets broken without feeling like a breach\nName who answers for the work when something in it is wrong' },
-    { id: 'au2', country: 'AU', title: 'Finding the right court', audience: 'Students & graduates', order: 2, duration: 'Until every question is right', status: 'published',
+    { id: 'au2', country: 'AU', title: 'Finding the right court', audience: 'Students & graduates', order: 2, duration: 'Questions', status: 'published',
       summary: 'The hierarchy, what each court may hear, and where an appeal goes. The first question on any new file is which court it belongs in, and getting it wrong costs the client time and money before anyone has argued anything.',
       lessons: 'The hierarchy, federal and state\nWhat each court may hear, and the limits on it\nWhere an appeal from each court goes\nWhy the answer is usually decided by value',
       outcomes: 'Say which court a matter belongs in and why\nWork out where an appeal from a decision would go\nUse the monetary and subject-matter limits rather than guessing from names\nSpot the file that is in the wrong court before it costs the client' },
-    { id: 'au3', country: 'AU', title: 'Legal research', audience: 'Students, graduates & juniors', order: 3, duration: 'Until every question is right', status: 'published',
+    { id: 'au3', country: 'AU', title: 'Legal research', audience: 'Students, graduates & juniors', order: 3, duration: 'Questions', status: 'published',
       summary: 'Finding the law, checking it is still the law, and being able to say how you know. Written as method rather than as a tour of databases, because a junior who has learned one product has learned a product.',
       lessons: 'Starting from a secondary source rather than a search box\nChecking that what you are reading is the law today\nNoting up: what later courts did to it\nCiting the version the court will have in front of them\nKeeping a record of what you searched and when',
       outcomes: 'Get a framework from a secondary source before you search\nCheck that what you are reading is the law today\nFind what later courts did to a case before you rely on it\nSay what you searched and when, and cite the version the court will have' }
