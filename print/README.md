@@ -7,7 +7,7 @@ in. Run `npm run fonts` in `shopify-theme` first on a fresh checkout.
 
 | Piece | Size | Printed |
 | --- | --- | --- |
-| Gift card | 148 x 105 mm | Blanks in bulk, the message overprinted per order |
+| Gift card | 148 x 105 mm | Blanks in bulk, the message written on in pen per order |
 | Ritual card | 105 x 148 mm | One design, in bulk. The first thing under the lid. |
 | Care card | 90 x 55 mm | One design, in bulk |
 

@@ -22,7 +22,7 @@
       "settings": {
         "eyebrow": "The gift of sleep",
         "quote": "For the person who needs nothing",
-        "body": "<p>Except a good night's sleep. A silk mask and pillowcase cut from the same run, a journal for either end of the day, and a lavender wrap with a good weight to it. The ritual card sits on top, and your message is printed on a card and placed above it.</p><p>Flowers last a week. The box stays on the bedside table.</p>",
+        "body": "<p>Except a good night's sleep. A silk mask and pillowcase cut from the same run, a journal for either end of the day, and a lavender wrap with a good weight to it. The ritual card sits on top, and your message is written on a card by hand and placed above it.</p><p>Flowers last a week. The box stays on the bedside table.</p>",
         "image_alt": "The open box with the lid propped behind it, tissue folded back over the contents",
         "link": "/products/the-gift-of-sleep-box",
         "link_label": "Send sleep",
@@ -64,7 +64,7 @@
           "type": "item",
           "settings": {
             "heading": "A message on the card",
-            "text": "Up to 250 characters, printed and placed on top of the tissue"
+            "text": "Up to 250 characters, written by hand and placed on top of the tissue"
           }
         },
         "p2": {

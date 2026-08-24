@@ -17,7 +17,7 @@
           "type": "text",
           "settings": {
             "heading": "Sending it to someone else",
-            "body": "<p>Put their address as the delivery address at checkout and your message in the gift message field. The card is printed with your words and nothing else in the parcel mentions price.</p><p>Sending it to a workplace is fine. Put the company name in the address and we will keep it on the label rather than on the card.</p>"
+            "body": "<p>Put their address as the delivery address at checkout and your message in the gift message field. Your words are written on the card by hand and nothing else in the parcel mentions price.</p><p>Sending it to a workplace is fine. Put the company name in the address and we will keep it on the label rather than on the card.</p>"
           }
         },
         "b3": {

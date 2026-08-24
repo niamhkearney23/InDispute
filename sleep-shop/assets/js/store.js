@@ -32,7 +32,7 @@
 
   /* Messages are written by hand onto a small card, so the limit is physical. */
   function tidyMessage(text) {
-    var limit = config.giftMessageLimit || 220;
+    var limit = config.giftMessageLimit || 250;
     return String(text == null ? '' : text).replace(/\s+/g, ' ').trim().slice(0, limit);
   }
 

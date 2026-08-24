@@ -16,7 +16,7 @@
     locale: 'en-AU',
     /* Standard delivery is free on everything; express is the only paid option. */
     expressFee: 12,
-    giftMessageLimit: 220,
+    giftMessageLimit: 250,
     promoCodes: { FIRSTRUN: 0.1 },
     email: 'hello@sleepshop.example',
     phone: '(03) 9000 0000',
@@ -102,7 +102,7 @@
     /* In the box but not on the shelf. */
     always: [
       { name: 'The ritual card', note: 'A short evening ritual, letterpressed. The same one is in every box, and it is the first thing under the lid.' },
-      { name: 'Your message', note: 'Up to 220 characters, written by hand on a card that sits on top of the tissue.' }
+      { name: 'Your message', note: 'Up to 250 characters, written by hand on a card that sits on top of the tissue.' }
     ],
     /* Ribbon is the only choice to make, and it costs nothing either way. */
     ribbons: [
@@ -134,7 +134,7 @@
 
   var STEPS = [
     { title: 'Choose the box and a ribbon', body: 'Clay rose or powder blue. There is one box, so this is the only decision.' },
-    { title: 'Write your message', body: 'Up to 220 characters at checkout. We write it on the card by hand.' },
+    { title: 'Write your message', body: 'Up to 250 characters at checkout. We write it on the card by hand.' },
     { title: 'We pack it and tie it', body: 'By hand in Melbourne, usually the same working day.' },
     { title: 'It arrives ready to give', body: 'No invoice in the box, no pricing on the outside. Send it straight to them.' }
   ];

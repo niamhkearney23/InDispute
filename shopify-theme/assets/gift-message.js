@@ -1,4 +1,4 @@
-/* Live character counter for the printed gift card message.
+/* Live character counter for the handwritten gift card message.
    The limit is a physical one: the card is printed, so going over is not a
    soft warning. maxlength does the enforcing, this only reports. */
 (function () {

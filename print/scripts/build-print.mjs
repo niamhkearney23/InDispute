@@ -73,11 +73,11 @@ const GIFT_CARD = {
   label: 'Gift card, personalised',
   w: 148,
   h: 105,
-  note: 'Blanks letterpressed in bulk, message digitally overprinted per order',
+  note: 'Blanks letterpressed in bulk, the message written on in pen per order',
   body: `
     <div class="rule"></div>
     <div class="mark">Sleep Shop</div>
-    <div class="msg">{{ the customer's message, up to 250 characters }}</div>
+    <div class="msg proof-only">The space stays empty. The message is written here in pen, up to 250 characters.</div>
     <div class="foot">Melbourne</div>`
 };
 
@@ -131,8 +131,16 @@ function page(piece, faceCss) {
        <div class="stamp">PROOF ${piece.w} &times; ${piece.h} mm, ${BLEED} mm bleed. Not for print.</div>`
     : '';
 
+  /* Anything marked proof-only exists to annotate the proof, like the note on
+     the gift card saying where the pen goes. It must never reach the PDF a
+     printer receives. */
+  const proofOnly = PROOF
+    ? '.proof-only { opacity: 0.55; }'
+    : '.proof-only { display: none; }';
+
   return `<!doctype html><html><head><meta charset="utf-8"><style>
 ${faceCss}
+  ${proofOnly}
   @page { size: ${W}mm ${H}mm; margin: 0; }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }

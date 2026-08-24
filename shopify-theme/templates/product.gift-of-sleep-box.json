@@ -25,7 +25,7 @@
         "description": {
           "type": "description",
           "settings": {
-            "text": "<p>For the person who needs absolutely nothing except a good night's sleep. Four pieces chosen to sit together, packed by hand in our Melbourne studio: a mulberry silk sleep mask and pillowcase cut from the same run, a journal with a page for either end of the day, and a lavender wrap with a good weight to it.</p><p>The ritual card sits on top of the tissue, and your message goes on a printed card. It arrives tied, with no invoice inside and no pricing on the outside. Send it straight to them.</p>"
+            "text": "<p>For the person who needs absolutely nothing except a good night's sleep. Four pieces chosen to sit together, packed by hand in our Melbourne studio: a mulberry silk sleep mask and pillowcase cut from the same run, a journal with a page for either end of the day, and a lavender wrap with a good weight to it.</p><p>The ritual card sits on top of the tissue, and your message is written on the card by hand. It arrives tied, with no invoice inside and no pricing on the outside. Send it straight to them.</p>"
           }
         },
         "buy": {
@@ -36,7 +36,7 @@
           "type": "accordions",
           "settings": {
             "a1_heading": "What is inside",
-            "a1_body": "<ul><li><strong>Silk sleep mask.</strong> 22 momme, grade 6A mulberry silk, covered elastic strap, seam on the outside.</li><li><strong>Silk pillowcase.</strong> Standard 48 by 74 cm, same 22 momme silk, cut from the same run as the mask, hidden zip.</li><li><strong>AM / PM journal.</strong> 96 pages, sewn flat so it stays open on a bedside table. A page for the end of the day and a page for the start of the next one.</li><li><strong>Lavender sleep wrap.</strong> Washed linen filled with Australian lavender and wheat. Warm it, or do not. The cover unbuttons and washes.</li><li><strong>The ritual card.</strong> A short evening ritual, letterpressed, the first thing under the lid.</li><li><strong>Your message.</strong> Printed on a card that sits on top of the tissue.</li></ul>"
+            "a1_body": "<ul><li><strong>Silk sleep mask.</strong> 22 momme, grade 6A mulberry silk, covered elastic strap, seam on the outside.</li><li><strong>Silk pillowcase.</strong> Standard 48 by 74 cm, same 22 momme silk, cut from the same run as the mask, hidden zip.</li><li><strong>AM / PM journal.</strong> 96 pages, sewn flat so it stays open on a bedside table. A page for the end of the day and a page for the start of the next one.</li><li><strong>Lavender sleep wrap.</strong> Washed linen filled with Australian lavender and wheat. Warm it, or do not. The cover unbuttons and washes.</li><li><strong>The ritual card.</strong> A short evening ritual, letterpressed, the first thing under the lid.</li><li><strong>Your message.</strong> Written by hand on a card that sits on top of the tissue.</li></ul>"
           }
         }
       },
@@ -89,7 +89,7 @@
           "type": "item",
           "settings": {
             "name": "Your message",
-            "spec": "Printed, placed on top",
+            "spec": "Written by hand, placed on top",
             "image_alt": "A gift card being written by hand on a cocoa ground"
           }
         }
@@ -157,8 +157,8 @@
         "t2": {
           "type": "item",
           "settings": {
-            "heading": "Printed gift card",
-            "text": "Your message, included with every box"
+            "heading": "Handwritten card",
+            "text": "Your message, in pen, with every box"
           }
         },
         "t3": {

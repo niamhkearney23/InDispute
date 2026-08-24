@@ -9,7 +9,7 @@
         "eyebrow": "Birthdays",
         "heading": "For the birthday you remembered late",
         "script": "Rest is the greatest gift",
-        "body": "<p>One box, four pieces and a ritual card, packed by hand in Melbourne and sent with your message printed on the card. Order before the cut-off on a business day and it leaves the studio that afternoon.</p>",
+        "body": "<p>One box, four pieces and a ritual card, packed by hand in Melbourne and sent with your message written by hand on the card. Order before the cut-off on a business day and it leaves the studio that afternoon.</p>",
         "image_alt": "The Gift of Sleep Box tied with a clay rose ribbon, seen from above on a powder blue ground",
         "link": "/products/the-signature-sleep-box",
         "link_label": "Send the box, $149"
@@ -106,7 +106,7 @@
           "type": "item",
           "settings": {
             "name": "Your message",
-            "spec": "Printed, placed on top",
+            "spec": "Written by hand, placed on top",
             "image_alt": "A gift card being written by hand on a cocoa ground"
           }
         }
