@@ -20,7 +20,9 @@ One post per weekday. Fridays: The Big Case File (pop-culture legal breakdown).
 | Anytime | How to summarise a case, the five line case note, 8 slides | reports/assets/case-note/ | READY, evergreen, pairs with read-a-case |
 | Thu 13 Aug 2026 | How to read a judgment, 5 steps, study method, 7 slides | reports/assets/read-a-case/ | READY, evergreen |
 | Thu 13 Aug 2026 | Negligence, snail + underpants | reports/assets/2026-08-07/negligence/ | READY |
-| Blocked | Farrugia v The King [2026] HCA 28, one barrister for two co-offenders at sentencing, ethics | not built | BLOCKED, need the outcome, allowed or dismissed |
+| Mon 24 Aug 2026 | Farrugia v The King [2026] HCA 28, one barrister for two co-offenders at sentencing, 6 slides, mixed card templates, quote first | reports/assets/cases/farrugia/ | READY, UNBLOCKED, appeal dismissed, built from the judgment |
+| Banked | Plaintiff S32/2026 v Minister [2026] HCA 27, abuse of process, skipping the review hierarchy | not built | AVAILABLE, judgment supplied, say the word |
+| Banked | The King v Ko [2026] HCA 29, jury directions on intent to import, "suspicion is not intention" | not built | AVAILABLE, judgment supplied, strong criminal law teaching case |
 | PIN | Pinned post, evergreen, 7 slides, status led, no dates so it never goes stale | reports/assets/pinned/ | READY to post and pin |
 | Soon | "The Law and the People It Leaves Behind", carousel of the blog post, strongest writing on the site | not built yet | PROPOSED, say the word |
 | Blog | "The People in the Cars", follow-up revising the Ferraris line | reports/blog/the-people-in-the-cars.md | DRAFTED, ready to publish, carousel available on request |
