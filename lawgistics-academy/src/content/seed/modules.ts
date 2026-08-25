@@ -119,6 +119,40 @@ export const MODULES: SeedModule[] = [
     required: false,
     order: 1,
   },
+  {
+    slug: 'litigation-support-my',
+    name: 'Running a file',
+    summary:
+      'Procedure, evidence and drafting: the parts of a matter a paralegal touches every day.',
+    rationale:
+      'The work a litigation paralegal actually does on an ordinary day sits in ' +
+    'these three areas, and none of them was in a module: the file was in the ' +
+    'bank and reachable only by daily training, which never finishes. Daily ' +
+    'training is right for staying sharp and no use at all for a firm that needs ' +
+    'to say somebody has covered filing, or evidence, or how a pleading is put ' +
+    'together, on a date. This gives that work a finishing line.',
+    country: 'MY',
+    domains: ['civil-procedure', 'evidence', 'drafting'],
+    required: false,
+    order: 3,
+  },
+  {
+    slug: 'litigation-support-au',
+    name: 'Running a file',
+    summary:
+      'Procedure, evidence and drafting: the parts of a matter a paralegal touches every day.',
+    rationale:
+      'The work a litigation paralegal actually does on an ordinary day sits in ' +
+    'these three areas, and none of them was in a module: the file was in the ' +
+    'bank and reachable only by daily training, which never finishes. Daily ' +
+    'training is right for staying sharp and no use at all for a firm that needs ' +
+    'to say somebody has covered filing, or evidence, or how a pleading is put ' +
+    'together, on a date. This gives that work a finishing line.',
+    country: 'AU',
+    domains: ['civil-procedure', 'evidence', 'drafting'],
+    required: false,
+    order: 3,
+  },
 ];
 
 export function modulesFor(country: Country): SeedModule[] {

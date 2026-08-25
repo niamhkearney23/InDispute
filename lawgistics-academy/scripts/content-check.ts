@@ -136,7 +136,7 @@ for (const q of questions) {
       flags.push({
         ref,
         kind: 'stated-countrywide',
-        detail: `"${phrase}" — check the rule does not vary by State or Division.`,
+        detail: `"${phrase}": check the rule does not vary by State or Division.`,
       });
       break;
     }
