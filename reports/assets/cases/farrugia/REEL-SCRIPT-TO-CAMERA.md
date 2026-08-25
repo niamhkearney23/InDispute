@@ -2,7 +2,7 @@
 
 **Why this one of the three.** Ko is the better law. S32 is the better tutorial. Farrugia is the better *story*, and this is a talking video, so story wins. It has a hook a non-lawyer gets in one sentence, a real courtroom exchange you can perform, a twist, and a lesson. You do not have to explain a single piece of legislation to land it.
 
-**Format:** one shot, straight to camera, no cuts needed. About 60 seconds. A 30 second cutdown is at the bottom.
+**Format:** one shot, straight to camera, no cuts needed. **About 90 seconds** at a natural pace, not 60. A 30 second cutdown is at the bottom, and a true 60 second version is in `TELEPROMPTER.md` alongside a words-only read of this one.
 
 ---
 
