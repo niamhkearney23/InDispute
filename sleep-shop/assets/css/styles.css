@@ -927,3 +927,125 @@ select { cursor: pointer; }
 @media print {
   .site-header, .site-footer, .drawer, .scrim, .announce, .toast { display: none !important; }
 }
+
+/* ------------------------------------------- 15. Atmosphere and motion
+   The "unreal" layer: grain, depth, light and one well-orchestrated reveal.
+   All of it is decoration over a page that works without it: nothing here is
+   load-bearing, JavaScript only ever removes the veil, and reduced motion
+   turns the whole layer off. */
+
+/* Film grain over everything, at a level you feel rather than see. It is what
+   stops flat digital colour looking flat. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  pointer-events: none;
+  opacity: .035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+[data-theme="dark"] body::after { opacity: .05; }
+
+/* The hero as a staged scene: oversized display type with the script line
+   overlapping it, and the box floating in a pool of lamp light. */
+.hero__copy h1 {
+  font-size: clamp(2.6rem, 6.4vw, 4.4rem);
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+}
+.hero__copy h1 .script {
+  display: block;
+  font-size: 1.18em;
+  margin-top: -0.08em;
+  padding-left: 1.2em;
+  color: var(--mark);
+}
+[data-theme="dark"] .hero__copy h1 .script { color: #e8c3c0; }
+
+.hero__art { overflow: hidden; }
+.hero__art::before {
+  /* Lamp light: a warm pool behind the box, breathing very slowly. */
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(closest-side at 50% 42%, rgba(255, 244, 224, .5), rgba(255, 244, 224, 0) 70%);
+  animation: lamp 9s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+.hero__art .art { position: relative; }
+.hero__art svg.art { animation: drift 8s ease-in-out infinite; }
+@keyframes lamp {
+  0%, 100% { opacity: .55; }
+  50% { opacity: .9; }
+}
+@keyframes drift {
+  0%, 100% { transform: translateY(0) scale(1.02); }
+  50% { transform: translateY(-10px) scale(1.02); }
+}
+
+/* Entrance: the hero introduces itself one line at a time. Runs once, on
+   load, CSS only. */
+.js .hero__copy > * {
+  animation: rise .8s cubic-bezier(.2, .7, .2, 1) both;
+}
+.js .hero__copy > *:nth-child(1) { animation-delay: .05s; }
+.js .hero__copy > *:nth-child(2) { animation-delay: .15s; }
+.js .hero__copy > *:nth-child(3) { animation-delay: .3s; }
+.js .hero__copy > *:nth-child(4) { animation-delay: .45s; }
+.js .hero__copy > *:nth-child(5) { animation-delay: .6s; }
+@keyframes rise {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Scroll reveal: sections surface as you reach them. The .js guard means a
+   browser without JavaScript sees everything, immediately. */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .8s cubic-bezier(.2, .7, .2, 1), transform .8s cubic-bezier(.2, .7, .2, 1);
+  transition-delay: var(--reveal-delay, 0s);
+}
+.js .reveal.in-view { opacity: 1; transform: none; }
+
+/* Depth on everything touchable. Cards and pieces lift; the art inside them
+   leans in. */
+.piece, .card { transition: transform .35s ease, box-shadow .35s ease; }
+.piece:hover, .card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow);
+}
+.piece__media { overflow: hidden; }
+.piece__media .art { transition: transform .8s cubic-bezier(.2, .7, .2, 1); }
+.piece:hover .piece__media .art { transform: scale(1.045); }
+
+.tilegrid > * { transition: transform .5s ease; }
+.tilegrid > *:hover { transform: scale(1.015); }
+
+.btn { transition: background-color .18s ease, color .18s ease, border-color .18s ease, transform .25s ease, box-shadow .25s ease; }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(59, 35, 24, .18); }
+.btn--quiet:hover { transform: none; box-shadow: none; }
+
+/* The closing cocoa sections get the lamp treatment too: a faint warm centre
+   so the dark reads as evening, not as a slab. */
+.section--cocoa { position: relative; overflow: hidden; }
+.section--cocoa > * { position: relative; z-index: 1; }
+.section--cocoa::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(80% 120% at 50% 0%, rgba(242, 233, 220, .08), transparent 60%);
+  pointer-events: none;
+}
+
+/* Larger, calmer section headings. */
+h2 { font-size: clamp(1.6rem, 3.8vw, 2.4rem); }
+
+/* The whole layer stands down for anyone who asked for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  .hero__art::before, .hero__art svg.art { animation: none; }
+  .js .hero__copy > * { animation: none; }
+  .js .reveal { opacity: 1; transform: none; transition: none; }
+}

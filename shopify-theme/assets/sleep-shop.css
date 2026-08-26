@@ -768,3 +768,49 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* --------------------------------------------------- atmosphere and motion
+   Grain, depth, light and one well-orchestrated reveal. Decoration only:
+   the ss-js class is added by ss-tokens.liquid, so without JavaScript the
+   page simply shows everything, and reduced motion turns the layer off. */
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.ss-js .ss-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.ss-js .ss-reveal.ss-in-view { opacity: 1; transform: none; }
+
+.ss-card, .ss-piece { transition: transform 0.35s ease, box-shadow 0.35s ease; }
+.ss-card:hover, .ss-piece:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 40px rgba(59, 35, 24, 0.12);
+}
+
+.ss-btn { transition: background-color 0.18s ease, transform 0.25s ease, box-shadow 0.25s ease; }
+.ss-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(59, 35, 24, 0.18); }
+
+.ss-section--cocoa { position: relative; overflow: hidden; }
+.ss-section--cocoa > * { position: relative; z-index: 1; }
+.ss-section--cocoa::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(80% 120% at 50% 0%, rgba(242, 233, 220, 0.08), transparent 60%);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ss-js .ss-reveal { opacity: 1; transform: none; transition: none; }
+  .ss-card, .ss-piece, .ss-btn { transition: none; }
+}

@@ -18,3 +18,35 @@
   }
   body { background: var(--ss-linen); }
 </style>
+<script>
+  /* Sections surface as the reader reaches them. Runs once however many
+     sections render this snippet, only ever removes the veil, and stands
+     down for reduced motion. */
+  (function () {
+    if (window.__ssReveal) return;
+    window.__ssReveal = true;
+    var arm = function () {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (!('IntersectionObserver' in window)) return;
+      document.documentElement.classList.add('ss-js');
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('ss-in-view');
+          observer.unobserve(entry.target);
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+      document.querySelectorAll('.ss-section > .ss-wrap').forEach(function (el) {
+        if (el.getBoundingClientRect().top > window.innerHeight * 0.9) {
+          el.classList.add('ss-reveal');
+          observer.observe(el);
+        }
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', arm);
+    } else {
+      arm();
+    }
+  })();
+</script>

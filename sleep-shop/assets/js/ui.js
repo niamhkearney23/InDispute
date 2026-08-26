@@ -427,6 +427,34 @@
     }
   }
 
+  /* Sections surface as the reader reaches them. Decoration only: the .js
+     class is what arms the hidden state, so a browser that never runs this
+     sees the whole page immediately, and reduced motion opts out entirely. */
+  function revealOnScroll() {
+    var reduced = global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced || !('IntersectionObserver' in global)) return;
+
+    doc.documentElement.classList.add('js');
+
+    var targets = doc.querySelectorAll('.section > .wrap, .section > .wrap--narrow');
+    var observer = new global.IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('in-view');
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+
+    targets.forEach(function (el) {
+      /* Anything already on screen at load stays put; only what is below the
+         fold gets an entrance. */
+      if (el.getBoundingClientRect().top > global.innerHeight * 0.9) {
+        el.classList.add('reveal');
+        observer.observe(el);
+      }
+    });
+  }
+
   function init() {
     applyTheme(preferredTheme());
     renderHeader();
@@ -436,6 +464,7 @@
     bindGlobalEvents();
     Store.subscribe(renderCart);
     renderCart();
+    revealOnScroll();
   }
 
   global.SleepUI = {
