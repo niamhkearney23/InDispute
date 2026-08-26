@@ -15,6 +15,20 @@ window.LG_CONFIG = {
   // app disappears rather than pointing at nothing.
   appUrl: 'https://in-dispute.vercel.app',
 
+  /* Which country's question bank is actually open to learners.
+   *
+   * The Malaysian bank cannot publish itself. Every Malaysian question sits at
+   * requires_review until a named person signs it off one at a time, which is
+   * deliberate and is not going to change. Until that has happened, a Malaysian
+   * who presses "start the diagnostic" reaches the app, signs up, onboards, and
+   * is told there are no published Malaysian questions. Sending somebody
+   * through three screens to a dead end is worse than telling them at the door.
+   *
+   * So while this says false, the Malaysian page leads with advocacy, which
+   * works today, and says plainly that the questions are being checked.
+   * Flip it to true the day the first Malaysian module is published. */
+  questionsOpen: { MY: false, AU: true },
+
   // Paste your Calendly event link here (e.g. 'https://calendly.com/yourname/10min')
   // and the free intake call section embeds live scheduling automatically.
   calendlyUrl: '',
