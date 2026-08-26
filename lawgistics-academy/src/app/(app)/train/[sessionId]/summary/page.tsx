@@ -4,6 +4,7 @@ import { getCurrentUser, createSupabaseServerClient } from '@/lib/supabase/serve
 import { getLearnerOverview } from '@/lib/learner-overview';
 import { ButtonLink, Card, Stat } from '@/components/ui';
 import { levelForXp } from '@/lib/learning/progression';
+import { STREAK_MILESTONES, streakMilestoneLine } from '@/lib/learning/milestones';
 import { LevelUp } from '../level-up';
 
 export const metadata: Metadata = { title: 'Session complete' };
@@ -46,6 +47,21 @@ export default async function SummaryPage({
   const before = levelForXp(Math.max(0, totalXp - xpAwarded));
   const leveledUp = overview ? before.level < overview.level.level : false;
 
+  /* Streak milestones, said once.
+   *
+   * Only on the first session finished today, because the streak does not move
+   * again until tomorrow: without that, somebody who trains three times on the
+   * day they hit thirty is congratulated three times, and the third one is
+   * noise rather than a milestone.
+   *
+   * Nothing is nagged about in between. Seven, thirty and a hundred are worth
+   * saying. A message every day about a streak you might lose is the kind of
+   * pressure that makes people put an app down at work. */
+  const streak = overview?.currentStreak ?? 0;
+  const firstToday = overview?.sessionsToday === 1;
+  const milestone =
+    firstToday && (STREAK_MILESTONES as readonly number[]).includes(streak) ? streak : null;
+
   return (
     <div className="mx-auto max-w-2xl space-y-8">
       <section>
@@ -65,6 +81,15 @@ export default async function SummaryPage({
               : 'Everything you got wrong has been scheduled to return tomorrow. That is exactly how this is meant to work.'}
         </p>
       </section>
+
+      {milestone ? (
+        <Card className="border-verdict-correct/25 bg-verdict-correct-wash">
+          <p className="eyebrow mb-2 text-verdict-correct">
+            {milestone} days in a row
+          </p>
+          <p className="text-sm">{streakMilestoneLine(milestone)}</p>
+        </Card>
+      ) : null}
 
       {leveledUp && overview ? (
         <LevelUp

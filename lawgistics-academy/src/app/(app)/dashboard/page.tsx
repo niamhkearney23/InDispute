@@ -9,6 +9,7 @@ import { beforeYouBegin } from '@/lib/onboarding/service';
 import { greeting, greetingName } from '@/lib/greeting';
 import { QUESTIONS_PER_MINUTE_GOAL } from '@/lib/learning/config';
 import { TOP_LEVEL_NAME } from '@/lib/learning/progression';
+import { GoalRing } from '@/components/goal-ring';
 import {
   ButtonLink,
   Card,
@@ -50,6 +51,7 @@ export default async function DashboardPage() {
   const hasChecklist = joining.steps.length > 0;
   const questionCount =
     QUESTIONS_PER_MINUTE_GOAL[profile.dailyGoalMinutes] ?? QUESTIONS_PER_MINUTE_GOAL[10];
+  const goalMet = overview.answeredToday >= questionCount;
 
   const focusAreas = [...skillMap]
     .filter((entry) => entry.attempts > 0)
@@ -120,21 +122,42 @@ export default async function DashboardPage() {
         <p className="mt-3 text-lg text-slate">Ready to train like a lawyer?</p>
       </section>
 
+      {/* Today's card knows whether today has started.
+          Opening the app after a morning session and reading the same sentence
+          as before you began is how a daily habit stops feeling counted. */}
       <Card className="border-ink/15 bg-paper-raised">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="eyebrow mb-2">Today’s training</p>
-            <p className="font-serif text-3xl leading-none">
-              {questionCount} questions
-            </p>
-            <p className="mt-2 text-sm text-slate">
-              About {profile.dailyGoalMinutes} minutes
-              {focusAreas.length > 0
-                ? ` · Focus: ${focusAreas.map((f) => f.name).join(', ')}`
-                : ''}
-            </p>
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-5">
+            <GoalRing done={overview.answeredToday} goal={questionCount} />
+            <div>
+              <p className="eyebrow mb-2">Today’s training</p>
+              <p className="font-serif text-3xl leading-none">
+                {goalMet
+                  ? 'Done for today'
+                  : overview.answeredToday > 0
+                    ? `${Math.max(questionCount - overview.answeredToday, 0)} to go`
+                    : `${questionCount} questions`}
+              </p>
+              <p className="mt-2 text-sm text-slate">
+                {goalMet
+                  ? 'Anything more today is a bonus, and it still counts.'
+                  : `About ${profile.dailyGoalMinutes} minutes`}
+                {focusAreas.length > 0 && !goalMet
+                  ? ` · Focus: ${focusAreas.map((f) => f.name).join(', ')}`
+                  : ''}
+              </p>
+            </div>
           </div>
-          <BeginSessionButton kind="daily" label="Begin training" />
+          <BeginSessionButton
+            kind="daily"
+            label={
+              goalMet
+                ? 'Train again'
+                : overview.answeredToday > 0
+                  ? 'Keep going'
+                  : 'Begin training'
+            }
+          />
         </div>
       </Card>
 
