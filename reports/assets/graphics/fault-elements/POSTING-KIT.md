@@ -79,3 +79,22 @@ General information only, not legal advice.
 **Simplified on purpose, and safely.** The graphic writes "imports" where the section says "imports or exports", and "border controlled drug" where the section says "border controlled drug or border controlled plant", because the post is about importing drugs and the full disjunctives make the graphic unreadable. The caption and this table carry the full wording. No fault element has been altered.
 
 **Not asserted:** anything about Mr Ko. He appears only in the citation line. His conviction is quashed and a retrial ordered, so nothing about him belongs on a graphic about statutory architecture.
+
+---
+
+# FOUR TEMPLATES, SAME CONTENT
+
+Same words, same sources, four layouts. Pick one and delete the rest, or keep two and alternate them so the reference posts do not all look identical on the grid.
+
+| File | Name | What it is | Best for |
+|---|---|---|---|
+| `faultelements.png` | **A, the ledger** | Cream. Two columns, chips whose weight drops as the state of mind weakens. | The balanced one. Reads well large, still legible small. |
+| `faultB.png` | **B, the descent** | Navy. Three blocks that physically narrow, solid to outlined to dashed. | The clearest as an idea. The shrinking teaches the point without a word. |
+| `faultC.png` | **C, the stack** | Three full bleed colour bands, navy to accent to sand. | **The thumbnail winner.** Loudest, least text, survives being seen at grid size. Post this one if you want reach. |
+| `faultD.png` | **D, the card** | Cream. A real table, hairlines, air, small precise type. | **The save winner.** Looks like a page from a good textbook. Post this one if you want people keeping it. |
+
+**If you only pick one: C for reach, D for saves.** They pull in opposite directions and both are legitimate. C stops the scroll and teaches less; D teaches more and stops fewer people.
+
+**If you want to use two:** post C now and D at the start of next semester. Same content, different audience mood, and nobody notices because they are five months apart.
+
+**Grid rhythm.** B is the only navy one. If the posts either side of it are cream, use B. If they are navy, use C or D.
