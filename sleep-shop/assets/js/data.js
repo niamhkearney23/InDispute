@@ -20,7 +20,8 @@
     promoCodes: { FIRSTRUN: 0.1 },
     email: 'hello@sleepshop.example',
     phone: '(03) 9000 0000',
-    address: 'By appointment, Fitzroy VIC 3065'
+    address: 'By appointment, Fitzroy VIC 3065',
+    abn: '92 947 050 246'
   };
 
   /* The five grounds, locked as palette B. Cream and linen dominate the site

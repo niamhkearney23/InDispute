@@ -108,6 +108,7 @@
                   <a href="tel:{{ settings.ss_phone | remove: ' ' | remove: '(' | remove: ')' }}">{{ settings.ss_phone }}</a><br>
                 {%- endif -%}
                 {%- if settings.ss_address != blank -%}{{ settings.ss_address }}<br>{%- endif -%}
+                {%- if settings.ss_abn != blank -%}ABN {{ settings.ss_abn }}<br>{%- endif -%}
                 {%- if settings.ss_hours != blank -%}{{ settings.ss_hours }}{%- endif -%}
               </p>
             </div>

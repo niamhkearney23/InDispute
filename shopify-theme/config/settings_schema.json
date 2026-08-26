@@ -105,6 +105,13 @@
         "id": "ss_address",
         "label": "Studio address"
       },
+      {
+        "type": "text",
+        "id": "ss_abn",
+        "label": "ABN",
+        "default": "92 947 050 246",
+        "info": "Shown on the Contact page. Also add it under Settings, Store details in Shopify admin so it appears on order invoices."
+      },
 
       {
         "type": "header",

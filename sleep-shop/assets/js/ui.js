@@ -158,7 +158,8 @@
             '</div></div>' +
           '</div>' +
           '<div class="footer__bottom">' +
-            '<span>&copy; ' + new Date().getFullYear() + ' ' + CONFIG.brand + '. Prices in ' + CONFIG.currency + '.</span>' +
+            '<span>&copy; ' + new Date().getFullYear() + ' ' + CONFIG.brand +
+              (CONFIG.abn ? '. ABN ' + CONFIG.abn : '') + '. Prices in ' + CONFIG.currency + '.</span>' +
             '<span>Demonstration storefront — no payment is taken at checkout.</span>' +
           '</div>' +
         '</div>' +
