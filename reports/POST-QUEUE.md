@@ -18,6 +18,7 @@ One post per weekday. Fridays: The Big Case File (pop-culture legal breakdown).
 | Next 8 weekdays | ONE CASE PER POST, eight single case decks from the 19 to 21 Aug VSC judgments, 5 slides each | reports/assets/cases/ | READY, see README for order |
 | Alternative | Recently in Court roundup of the same eight, 7 slides | reports/assets/2026-08-21/vsc-slide-*.png | READY, use if you want one post instead of eight |
 | Thu 27 Aug 2026 | "Three High Court appeals. Every one turned on process." Student post built from the three HCA decks, 6 slides | reports/assets/cases/process/ | READY, no new facts, lowest risk post in the queue |
+| Anytime | GRAPHIC, single image. "One offence. Three elements. Three different states of mind." s 307.1(1) fault elements | reports/assets/graphics/fault-elements/ | READY, evergreen, no parties or outcome, repostable every semester |
 | Anytime | How to summarise a case, the five line case note, 8 slides | reports/assets/case-note/ | READY, evergreen, pairs with read-a-case |
 | Thu 13 Aug 2026 | How to read a judgment, 5 steps, study method, 7 slides | reports/assets/read-a-case/ | READY, evergreen |
 | Thu 13 Aug 2026 | Negligence, snail + underpants | reports/assets/2026-08-07/negligence/ | READY |
