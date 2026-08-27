@@ -21,17 +21,28 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-20 border-b border-rule bg-paper/95 backdrop-blur-sm">
-        {/* Tight on a 360px Android: labels are kept on one line and the
-            spacing tightens rather than letting the nav wrap to two rows. */}
+        {/* Tight on a 360px Android. The nav keeps its labels on one line and
+            tightens its spacing rather than wrapping, but it is allowed to wrap
+            as a last resort, which happens only for somebody who also has the
+            Admin link at the very narrowest widths.
+
+            The wordmark does not shrink. It used to carry min-w-0, which let
+            flex squash its box to 54px while the lettering inside stayed 88px
+            wide and did not clip, so the nav was laid out from the squashed box
+            and "Today" was printed on top of the last three letters. 34px of
+            overlap on a 360px Android, 19px on an iPhone SE, on every page a
+            learner opens. Invisible to the device sweep, which looks for things
+            past the edge of the screen and for horizontal scrolling, and two
+            elements sitting on top of each other are neither. */}
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-2 px-4 py-2.5 sm:gap-4 sm:px-8 sm:py-3.5">
           <Link
             href="/dashboard"
-            className="-mx-1 min-w-0 rounded-[5px] px-1 py-2 hover:bg-paper-sunk"
+            className="-mx-1 shrink-0 rounded-[5px] px-1 py-2 hover:bg-paper-sunk"
           >
             <Wordmark compact />
           </Link>
 
-          <nav className="flex items-center gap-0 text-[0.8125rem] sm:gap-1 sm:text-sm">
+          <nav className="flex flex-wrap items-center justify-end gap-0 text-[0.8125rem] sm:gap-1 sm:text-sm">
             <NavLink href="/dashboard">Today</NavLink>
             <NavLink href="/modules">Learn</NavLink>
             <NavLink href="/skills">Skills</NavLink>

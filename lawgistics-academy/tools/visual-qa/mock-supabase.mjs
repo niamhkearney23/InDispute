@@ -260,6 +260,51 @@ const STEP_SIGN_ID = 'aaaaaaaa-0000-0000-0000-000000000002';
 const STEP_TASK_ID = 'aaaaaaaa-0000-0000-0000-000000000003';
 
 const TABLES = {
+  /* The coach's own sessions, in the three states that render differently:
+     up and already aired, up but dated ahead, and a draft. Rendering an empty
+     list would prove nothing about the page that matters, which is the one with
+     a framed video on it.
+
+     The url is a real embed address on an allowed host, because the app filters
+     out anything it could not frame and the page would come back empty. It
+     points at nothing in particular; the sweep does not play it. */
+  coach_sessions: [
+    {
+      id: 'ddddddd1-0000-4000-8000-000000000001',
+      title: 'What went wrong in the Harbour Joinery affidavit',
+      summary:
+        'Four minutes on the two paragraphs that would have been struck out, and what to do instead.',
+      url: 'https://www.youtube-nocookie.com/embed/aqz-KE-bpKQ',
+      country: null,
+      airs_on: '2026-08-25',
+      published: true,
+      published_at: '2026-08-25T00:00:00.000Z',
+      position: 0,
+    },
+    {
+      id: 'ddddddd1-0000-4000-8000-000000000002',
+      title: 'Reading a bill of costs',
+      summary: 'Scheduled ahead, so nobody sees it until the morning it belongs to.',
+      url: 'https://player.vimeo.com/video/76979871',
+      country: 'MY',
+      airs_on: '2030-01-07',
+      published: true,
+      published_at: '2026-08-25T00:00:00.000Z',
+      position: 0,
+    },
+    {
+      id: 'ddddddd1-0000-4000-8000-000000000003',
+      title: 'Draft: cross-examining on a document',
+      summary: '',
+      url: 'https://www.youtube-nocookie.com/embed/aqz-KE-bpKQ',
+      country: null,
+      airs_on: null,
+      published: false,
+      published_at: null,
+      position: 0,
+    },
+  ],
+
   firm_modules: [
     {
       id: FIRM_MODULE_ID,

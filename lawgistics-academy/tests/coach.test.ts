@@ -52,6 +52,14 @@ const COACH_PAGES = [
   'src/app/admin/review/page.tsx',
   'src/app/admin/onboarding/page.tsx',
   'src/app/admin/onboarding/[userId]/page.tsx',
+  // The coach's own sessions. Writing these is the one exception to "a coach
+  // does not write content", and it is an exception because a session is not
+  // the question bank: no version chain, no answer key, no sign-off, and it
+  // never reaches the training engine. It is the coach's own teaching under
+  // their own name.
+  'src/app/admin/sessions/page.tsx',
+  'src/app/admin/sessions/new/page.tsx',
+  'src/app/admin/sessions/[id]/page.tsx',
 ];
 
 function read(rel: string): string {
