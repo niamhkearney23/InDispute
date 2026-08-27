@@ -18,12 +18,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     ? [
         ['/admin', 'Questions'],
         ['/admin/review', 'Verify'],
+        ['/admin/sessions', 'Sessions'],
         ['/admin/facts', 'Daily brief'],
         ['/admin/firm', 'Firm'],
         ['/admin/onboarding', 'Joiners'],
       ]
     : [
         ['/admin/review', 'Verify'],
+        ['/admin/sessions', 'Sessions'],
         ['/admin/onboarding', 'Joiners'],
       ];
 

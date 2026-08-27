@@ -10,6 +10,8 @@ import { greeting, greetingName } from '@/lib/greeting';
 import { QUESTIONS_PER_MINUTE_GOAL } from '@/lib/learning/config';
 import { TOP_LEVEL_NAME } from '@/lib/learning/progression';
 import { GoalRing } from '@/components/goal-ring';
+import { SessionCard } from '@/components/session-card';
+import { leadSession, sessionsForLearner } from '@/lib/lessons/sessions';
 import {
   ButtonLink,
   Card,
@@ -37,12 +39,24 @@ export default async function DashboardPage() {
   if (!overview.profile.diagnosticCompletedAt) redirect('/diagnostic');
 
   const { profile, level, skillMap } = overview;
-  const [fact, outstanding, firmOutstanding, joining] = await Promise.all([
+  const [fact, outstanding, firmOutstanding, joining, sessions] = await Promise.all([
     getFactOfTheDay(profile.timezone, profile.country),
     outstandingRequired(user.id, profile.country),
     outstandingFirmModules(user.id, profile.country),
     beforeYouBegin(user.id, profile.country),
+    sessionsForLearner(profile.country),
   ]);
+
+  /* Today in the learner's own timezone, not the server's. A coach in Kuala
+     Lumpur dating a session for Tuesday means Tuesday there, and a session
+     appearing a few hours early would give away the wrong morning's work. */
+  const today = new Intl.DateTimeFormat('en-CA', {
+    timeZone: profile.timezone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
+  const lead = leadSession(sessions, today);
 
   // The pre-start checklist supersedes the bare "you have not read the policy"
   // notice, because a reading step is already one line on it. Showing both
@@ -160,6 +174,11 @@ export default async function DashboardPage() {
           />
         </div>
       </Card>
+
+      {/* The coach's own session comes before the daily brief and before the
+          stats. The training runs seven to eight and this is the thing with a
+          time on it; the questions will still be there at nine. */}
+      {lead ? <SessionCard session={lead} more={sessions.length - 1} /> : null}
 
       {fact ? <DailyBrief fact={fact} /> : null}
 

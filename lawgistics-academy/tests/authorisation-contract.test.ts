@@ -127,7 +127,9 @@ test('the server actions were actually found', () => {
     'revoke',
     'saveFirmModule',
     'saveOnboarding',
+    'saveSession',
     'saveStep',
+    'setPublished',
     'setStartDate',
     'transitionFact',
     'transitionQuestion',
@@ -238,6 +240,15 @@ const COACH_ACTIONS = new Set([
   'recordReviewDecision',
   'confirm',
   'decide',
+  // The coach's own sessions. A coach writing these does not break the rule
+  // that a coach may not write content: that rule is about the question bank,
+  // which is versioned, immutable, carries an answer key and a sign-off
+  // somebody is answerable for, and feeds the training engine. A session is the
+  // coach's own teaching under their own name that nobody signs off, because
+  // nobody else is standing behind it. Keeping the coach out of it would leave
+  // the person who actually teaches these juniors unable to teach them.
+  'saveSession',
+  'setPublished',
 ]);
 
 test('every admin server action requires a staff role, never merely a session', () => {
