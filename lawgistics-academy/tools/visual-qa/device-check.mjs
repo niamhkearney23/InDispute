@@ -3,6 +3,7 @@ import fs from 'node:fs';
 
 const EXE = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 const BASE = 'http://127.0.0.1:3000';
+const MOCK = 'http://127.0.0.1:54321';
 const OUT = process.env.QA_OUT ?? '/tmp/lawgistics-qa';
 const SESSION_ID = '99999999-9999-9999-9999-999999999999';
 
@@ -76,6 +77,16 @@ const PAGES = [
   { name: 'admin', path: '/admin', auth: true },
   { name: 'admin-facts', path: '/admin/facts', auth: true },
   { name: 'admin-review', path: '/admin/review', auth: true },
+  { name: 'admin-sessions', path: '/admin/sessions', auth: true },
+  { name: 'admin-session-new', path: '/admin/sessions/new', auth: true },
+  {
+    name: 'admin-session-edit',
+    path: '/admin/sessions/ddddddd1-0000-4000-8000-000000000001',
+    auth: true,
+  },
+  // The learner's side, which is the one with a framed video on it and so the
+  // one most likely to run off the side of a phone.
+  { name: 'sessions', path: '/sessions', auth: true },
   { name: 'admin-question-new', path: '/admin/questions/new', auth: true },
   { name: 'admin-firm', path: '/admin/firm', auth: true },
   {
@@ -134,6 +145,45 @@ const OVERFLOW_PROBE = `(() => {
       });
     }
   }
+  /* Text printed on top of other text.
+     
+     Added after the header wordmark was found with the first nav link printed
+     across its last three letters: 34px of overlap on a 360px Android, 19px on
+     an iPhone SE, on every page a learner opens. It had been there a long time
+     and every check here was blind to it, because the others look for things
+     past the edge of the screen and for horizontal scrolling, and two elements
+     sitting on top of each other are neither.
+
+     Only leaf elements carrying their own text, and only siblings, so a link
+     inside a paragraph or a label around its input is not reported. Those
+     overlap by design, and a check that cries about them stops being read. */
+  const collisions = [];
+  const leaves = [...document.querySelectorAll('header *, nav *, h1, h2, h3')].filter(
+    (el) =>
+      el.children.length === 0 &&
+      (el.textContent || '').trim() &&
+      el.getBoundingClientRect().width > 0,
+  );
+  for (let i = 0; i < leaves.length; i++) {
+    for (let j = i + 1; j < leaves.length; j++) {
+      const a = leaves[i];
+      const b = leaves[j];
+      if (a.contains(b) || b.contains(a)) continue;
+      const ra = a.getBoundingClientRect();
+      const rb = b.getBoundingClientRect();
+      // A couple of pixels of kerning slop is not a collision.
+      const across = Math.min(ra.right, rb.right) - Math.max(ra.left, rb.left);
+      const down = Math.min(ra.bottom, rb.bottom) - Math.max(ra.top, rb.top);
+      if (across > 2 && down > 2) {
+        collisions.push({
+          a: (a.textContent || '').trim().slice(0, 20),
+          b: (b.textContent || '').trim().slice(0, 20),
+          by: Math.round(across),
+        });
+      }
+    }
+  }
+
   // Text fields below 16px cause iOS Safari to zoom the page on focus. It does
   // not do this for checkboxes or radios, which have no text to magnify.
   const zoomers = [];
@@ -142,14 +192,35 @@ const OVERFLOW_PROBE = `(() => {
     const size = parseFloat(getComputedStyle(el).fontSize);
     if (size < 16) zoomers.push({ tag: el.tagName.toLowerCase(), name: el.getAttribute('name'), size });
   }
-  return { docWidth, scrollWidth, horizontalScroll: scrollWidth > docWidth + 1, offenders: offenders.slice(0, 6), smallTargets: smallTargets.slice(0, 6), zoomers: zoomers.slice(0, 6) };
+  return { docWidth, scrollWidth, horizontalScroll: scrollWidth > docWidth + 1, offenders: offenders.slice(0, 6), smallTargets: smallTargets.slice(0, 6), zoomers: zoomers.slice(0, 6), collisions: collisions.slice(0, 6) };
 })()`;
 
 const browser = await chromium.launch({ executablePath: EXE });
 const report = [];
 
 for (const device of DEVICES) {
-  const context = await browser.newContext({
+  /**
+ * Nothing in this sweep is allowed to touch the internet.
+ *
+ * The pages with a coach's session on them frame a video from YouTube or Vimeo.
+ * In a browser with a network that is fine; here it meant `networkidle` never
+ * settled, because a request to a host this machine cannot reach hangs rather
+ * than failing, and the sweep sat on one page until it was killed.
+ *
+ * Aborting them makes the run deterministic and fast, and costs nothing: the
+ * frame keeps its aspect-ratio box whether or not a video arrives, so the
+ * layout being measured is the same layout. It also means the sweep reports on
+ * the page rather than on somebody else's uptime.
+ */
+async function keepOffline(target) {
+  await target.route('**/*', (route) => {
+    const url = route.request().url();
+    const local = url.startsWith(BASE) || url.startsWith(MOCK) || url.startsWith('data:') || url.startsWith('blob:');
+    return local ? route.continue() : route.abort();
+  });
+}
+
+const context = await browser.newContext({
     viewport: device.viewport,
     deviceScaleFactor: device.dpr,
     isMobile: device.mobile,
@@ -158,6 +229,7 @@ for (const device of DEVICES) {
   });
 
   const page = await context.newPage();
+  await keepOffline(page);
   const consoleErrors = [];
   page.on('console', (m) => {
     if (m.type() === 'error') consoleErrors.push(m.text().slice(0, 160));
@@ -198,6 +270,7 @@ for (const device of DEVICES) {
           userAgent: device.ua,
         });
         view = await scopedContext.newPage();
+        await keepOffline(view);
         view.on('console', (m) => {
           if (m.type() === 'error') consoleErrors.push(m.text().slice(0, 160));
         });
@@ -269,6 +342,7 @@ const problems = report.filter(
   (r) =>
     r.error ||
     r.horizontalScroll ||
+    (r.collisions && r.collisions.length) ||
     (r.smallTargets && r.smallTargets.length) ||
     r.redirectedTo ||
     (r.zoomers && r.zoomers.length) ||
@@ -287,6 +361,7 @@ if (problems.length === 0) {
     if (p.redirectedTo) console.log(`    NOT RENDERED: redirected to ${p.redirectedTo}`);
     if (p.horizontalScroll) console.log(`    HORIZONTAL SCROLL ${p.scrollWidth} > ${p.docWidth}`);
     for (const o of p.offenders ?? []) console.log(`      overflow: <${o.tag}> "${o.text}" [${o.left}..${o.right}] ${o.cls}`);
+    for (const c of p.collisions ?? []) console.log(`      overlapping text by ${c.by}px: "${c.a}" over "${c.b}"`);
     for (const t of p.smallTargets ?? []) console.log(`      small tap target ${t.h}px: <${t.tag}> "${t.text}"`);
     for (const z of p.zoomers ?? []) console.log(`      iOS zoom-on-focus: <${z.tag} name=${z.name}> ${z.size}px`);
     for (const e of p.consoleErrors ?? []) console.log(`      console: ${e}`);
