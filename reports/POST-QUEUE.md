@@ -19,6 +19,7 @@ One post per weekday. Fridays: The Big Case File (pop-culture legal breakdown).
 | Alternative | Recently in Court roundup of the same eight, 7 slides | reports/assets/2026-08-21/vsc-slide-*.png | READY, use if you want one post instead of eight |
 | Thu 27 Aug 2026 | "Three High Court appeals. Every one turned on process." Student post built from the three HCA decks, 6 slides | reports/assets/cases/process/ | READY, no new facts, lowest risk post in the queue |
 | Fri 28 Aug 2026 | THE BIG CASE FILE No. 2. ASIC v Latitude + Harvey Norman, $55m, "interest free was true, free was not", 6 slides | reports/assets/cases/harveynorman/ | READY, commercial, check against the judgment on AustLII before posting |
+| Mon 31 Aug 2026 | "Five commercial cases you will be expected to know." Salomon, Carlill, Masters v Cameron, Waltons Stores, Codelfa. 7 slides | reports/assets/cases/five-commercial/ | READY, commercial + student, evergreen, safest post on the account |
 | Anytime | GRAPHIC, single image. "One offence. Three elements. Three different states of mind." s 307.1(1) fault elements | reports/assets/graphics/fault-elements/ | READY, evergreen, FOUR templates to choose from, C for reach D for saves |
 | Anytime | How to summarise a case, the five line case note, 8 slides | reports/assets/case-note/ | READY, evergreen, pairs with read-a-case |
 | Thu 13 Aug 2026 | How to read a judgment, 5 steps, study method, 7 slides | reports/assets/read-a-case/ | READY, evergreen |
