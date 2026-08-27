@@ -98,6 +98,13 @@ Three things about it are load-bearing:
   choice in `localStorage` under `lg.country`, and reads `?c=my` / `?c=au` from
   the address. It passes the answer to `/signup?next=...&country=...`, so
   changing how signup reads `country` breaks the handoff.
+- `?only=my` / `?only=au` is a different thing from `?c=`. It is that country's
+  academy on its own address, reached as `/malaysia` and `/australia` through
+  the Vercel rewrites and linked that way from the footer. There is no country
+  switch on it, it does not write the choice to `localStorage`, and the
+  Australian one drops the daily question and the two notes explaining the
+  Malaysian bank, because none of the three offers an Australian anything.
+  Anything new that mentions the other country needs hiding there too.
 - Australia deliberately shows fewer strands than Malaysia, because only three
   app modules have Australian questions. Do not pad it.
 - Advocacy is the one strand marked on the site rather than here, and its coach
@@ -113,8 +120,13 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 - Migrations run to `0010`. `supabase/UPDATE.sql` is the one-paste update for a
   database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
-- 164 tests, 77 schema guarantees against a real Postgres, 135 page and device
-  combinations checked. Contract tests are mutation-tested; keep it that way.
+- 186 tests, 77 schema guarantees against a real Postgres, 96 page and device
+  combinations and 33 accessibility combinations checked. Contract tests are
+  mutation-tested; keep it that way.
+- The two marked exercises are checked by `npm run qa:marker`, which drives the
+  real pages with `/claude` stubbed. It exists because the drafting exercise
+  returned a bare 504 on a good letter and nothing caught it: rendering a page
+  is not pressing its button.
 - **The gate: 233 items in `/admin/review` are written but not verified.** This
   is the only thing standing between the app and being real. It is lawyer time
   and it cannot be delegated to a model. Do not let building crowd it out.
@@ -127,6 +139,10 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 npm run typecheck && npm run lint && npm test && npm run build
 npm run build:sql                  # after touching supabase/migrations/
 npm run qa:devices                 # see tools/visual-qa/README.md
+
+# The static site checks want it served first:
+#   python3 -m http.server 8466 --directory ../lawgistics-site
+npm run qa:site && npm run qa:a11y && npm run qa:marker
 psql "$DATABASE_URL" -f supabase/tests/schema-guarantees.sql
 ```
 

@@ -1,4 +1,4 @@
-// Claude API proxy as a Netlify Function — the deployed twin of serve.py's
+// Claude API proxy as a Netlify Function, the deployed twin of serve.py's
 // /claude route. The API key lives in Netlify's environment settings
 // (Site settings -> Environment variables -> ANTHROPIC_API_KEY) and never
 // reaches the browser.
@@ -99,6 +99,22 @@ export default async (req) => {
       },
       body: payload,
     });
+    // Streamed when the page asked for it, matching the Vercel twin. Marking a
+    // person's work is a slow request, and a buffered one looks idle to every
+    // machine in between until it is finished, which is what was getting these
+    // requests killed. Errors are never streamed: they come back as one small
+    // JSON object below, with their own status.
+    if (body.stream === true && upstream.ok && upstream.body) {
+      return new Response(upstream.body, {
+        status: 200,
+        headers: {
+          "content-type": "text/event-stream; charset=utf-8",
+          "cache-control": "no-cache, no-transform",
+          "x-accel-buffering": "no",
+        },
+      });
+    }
+
     return new Response(await upstream.text(), {
       status: upstream.status,
       headers: { "content-type": "application/json" },
