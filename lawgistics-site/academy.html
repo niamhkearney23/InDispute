@@ -149,9 +149,12 @@
           </div>
           <div class="half__body">
             <p class="eyebrow">On this site</p>
-            <h3>Advocacy</h3>
-            <p>Read a problem, argue it out loud, and get structured feedback on your reasoning, your structure and how you present. No account, nothing to install, and it is free while Lawgistics is in beta. The exercises are an appeal after trial, an appeal from an interlocutory decision, reading a judgment, and a problem you bring yourself, so they work the same in both countries.</p>
-            <a class="btn btn--primary btn--sm" href="advocacy.html" data-adv-link>Start an exercise →</a>
+            <h3>Exercises</h3>
+            <p>Do the thing, then have it marked. Argue a problem out loud and get feedback on your reasoning and how you present it, or draft a letter of demand from a file note and have it read the way a supervising solicitor would read it. No account, nothing to install, and free while Lawgistics is in beta.</p>
+            <div class="btn-row" style="margin-top:16px">
+              <a class="btn btn--primary btn--sm" href="advocacy.html" data-adv-link>Argue a case →</a>
+              <a class="btn btn--ghost btn--sm" href="drafting.html" data-draft-link hidden>Draft a letter →</a>
+            </div>
           </div>
         </article>
       </div>
@@ -523,6 +526,15 @@ window.pageInit = function () {
       shut[n].textContent = open ? '' : (SHUT_NOTE[country] || '');
       if (open) shut[n].setAttribute('hidden', '');
       else shut[n].removeAttribute('hidden');
+    }
+
+    /* The drafting exercise is set in Australia and is shown there only. Its
+       fact pattern, its conventions and what a partner would sign are all
+       Australian, and a Malaysian letter of demand is a different letter. */
+    var draft = document.querySelectorAll('[data-draft-link]');
+    for (var d = 0; d < draft.length; d++) {
+      if (country === 'AU') draft[d].removeAttribute('hidden');
+      else draft[d].setAttribute('hidden', '');
     }
 
     var adv = document.querySelectorAll('[data-adv-link]');
