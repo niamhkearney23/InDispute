@@ -2,7 +2,7 @@ import 'server-only';
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { displayScore } from '@/lib/learning/mastery';
-import { levelForXp, type LevelInfo } from '@/lib/learning/progression';
+import { levelForXp, localDateString, type LevelInfo } from '@/lib/learning/progression';
 import { MASTERY } from '@/lib/learning/config';
 import { asCountry } from '@/lib/types';
 import type { CareerStage, Country, Jurisdiction, SkillMapEntry } from '@/lib/types';
@@ -34,11 +34,52 @@ export interface LearnerOverview {
   level: LevelInfo;
   currentStreak: number;
   longestStreak: number;
+  /** Questions answered since midnight where the learner is, not where the server is. */
+  answeredToday: number;
+  /** Sessions finished today. One means the session just finished was the first. */
+  sessionsToday: number;
   skillMap: SkillMapEntry[];
   skillProfile: SkillMapEntry[];
   needsReview: string[];
   recentlyMastered: string[];
   dueCount: number;
+}
+
+
+/**
+ * How far a timezone is from UTC at a given instant, in minutes.
+ *
+ * Needed because a date string is not an instant: "2026-08-25" is a different
+ * moment in Kuala Lumpur than in Melbourne, and the daily goal has to reset
+ * where the learner is rather than where the server is. Derived from the zone
+ * itself rather than stored, so it stays right across daylight saving without
+ * anybody remembering to change a number twice a year.
+ */
+function zoneOffsetMinutes(timezone: string, at: Date): number {
+  try {
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone: timezone,
+      hour12: false,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    }).formatToParts(at);
+    const get = (type: string) => Number(parts.find((p) => p.type === type)?.value ?? '0');
+    const asUtc = Date.UTC(
+      get('year'),
+      get('month') - 1,
+      get('day'),
+      get('hour') === 24 ? 0 : get('hour'),
+      get('minute'),
+      get('second'),
+    );
+    return Math.round((asUtc - at.getTime()) / 60_000);
+  } catch {
+    return 0;
+  }
 }
 
 export async function getLearnerProfile(userId: string): Promise<LearnerProfile | null> {
@@ -71,8 +112,27 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
   const now = new Date().toISOString();
 
-  const [xpAll, xpWeek, streak, conceptMastery, skillMastery, due, domains] =
-    await Promise.all([
+  /* Midnight where the learner is.
+   *
+   * A daily goal measured against the server's midnight is wrong for everybody
+   * not sitting next to the server: somebody in Kuala Lumpur would watch their
+   * day reset at eight in the morning. localDateString already knows how to ask
+   * what day it is somewhere, and this turns that back into an instant. */
+  const startOfDay = new Date(`${localDateString(profile.timezone)}T00:00:00`);
+  const offsetMinutes = zoneOffsetMinutes(profile.timezone, startOfDay);
+  const dayStart = new Date(startOfDay.getTime() - offsetMinutes * 60_000).toISOString();
+
+  const [
+    xpAll,
+    xpWeek,
+    streak,
+    conceptMastery,
+    skillMastery,
+    due,
+    domains,
+    answeredToday,
+    sessionsToday,
+  ] = await Promise.all([
       supabase.from('xp_events').select('amount').eq('user_id', userId),
       supabase
         .from('xp_events')
@@ -99,6 +159,17 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
         .lte('next_review_at', now)
         .order('next_review_at', { ascending: true }),
       supabase.from('domains').select('id, slug, name, sort_order').order('sort_order'),
+      supabase
+        .from('user_question_attempts')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .gte('answered_at', dayStart),
+      supabase
+        .from('training_sessions')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .not('completed_at', 'is', null)
+        .gte('completed_at', dayStart),
     ]);
 
   const sum = (rows: Array<{ amount: number }> | null) =>
@@ -172,6 +243,8 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
   return {
     profile,
     totalXp,
+    answeredToday: answeredToday.count ?? 0,
+    sessionsToday: sessionsToday.count ?? 0,
     weeklyXp: sum(xpWeek.data),
     level: levelForXp(totalXp),
     currentStreak: (streak.data?.current_streak as number) ?? 0,

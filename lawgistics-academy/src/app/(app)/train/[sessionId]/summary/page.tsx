@@ -3,6 +3,9 @@ import { redirect } from 'next/navigation';
 import { getCurrentUser, createSupabaseServerClient } from '@/lib/supabase/server';
 import { getLearnerOverview } from '@/lib/learner-overview';
 import { ButtonLink, Card, Stat } from '@/components/ui';
+import { levelForXp } from '@/lib/learning/progression';
+import { STREAK_MILESTONES, streakMilestoneLine } from '@/lib/learning/milestones';
+import { LevelUp } from '../level-up';
 
 export const metadata: Metadata = { title: 'Session complete' };
 
@@ -33,6 +36,32 @@ export default async function SummaryPage({
 
   const perfect = session.total_answered > 0 && accuracy === 100;
 
+  /* Did this session take them up a level?
+   *
+   * Worked out by subtraction rather than recorded: the level before is the
+   * level the XP total was at before this session's XP was added. That needs no
+   * new column and cannot drift out of step with the XP it describes, which a
+   * separate "levelled up" flag eventually would. */
+  const xpAwarded = session.xp_awarded ?? 0;
+  const totalXp = overview?.totalXp ?? 0;
+  const before = levelForXp(Math.max(0, totalXp - xpAwarded));
+  const leveledUp = overview ? before.level < overview.level.level : false;
+
+  /* Streak milestones, said once.
+   *
+   * Only on the first session finished today, because the streak does not move
+   * again until tomorrow: without that, somebody who trains three times on the
+   * day they hit thirty is congratulated three times, and the third one is
+   * noise rather than a milestone.
+   *
+   * Nothing is nagged about in between. Seven, thirty and a hundred are worth
+   * saying. A message every day about a streak you might lose is the kind of
+   * pressure that makes people put an app down at work. */
+  const streak = overview?.currentStreak ?? 0;
+  const firstToday = overview?.sessionsToday === 1;
+  const milestone =
+    firstToday && (STREAK_MILESTONES as readonly number[]).includes(streak) ? streak : null;
+
   return (
     <div className="mx-auto max-w-2xl space-y-8">
       <section>
@@ -53,6 +82,23 @@ export default async function SummaryPage({
         </p>
       </section>
 
+      {milestone ? (
+        <Card className="border-verdict-correct/25 bg-verdict-correct-wash">
+          <p className="eyebrow mb-2 text-verdict-correct">
+            {milestone} days in a row
+          </p>
+          <p className="text-sm">{streakMilestoneLine(milestone)}</p>
+        </Card>
+      ) : null}
+
+      {leveledUp && overview ? (
+        <LevelUp
+          level={overview.level.level}
+          name={overview.level.name}
+          blurb={overview.level.blurb}
+        />
+      ) : null}
+
       <Card>
         <div className="grid grid-cols-3 gap-5">
           <Stat
@@ -68,6 +114,33 @@ export default async function SummaryPage({
           />
         </div>
       </Card>
+
+      {overview?.level.xpForNextLevel && !leveledUp ? (
+        <Card>
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <p className="text-sm">
+              <strong className="font-serif text-lg">{overview.level.xpForNextLevel}</strong>
+              <span className="text-slate"> XP to {overview.level.nextLevelName}</span>
+            </p>
+            <p className="text-xs text-muted tabular-nums">
+              {overview.level.progressPercent}% through {overview.level.name}
+            </p>
+          </div>
+          <div
+            className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-paper-sunk"
+            role="progressbar"
+            aria-valuenow={overview.level.progressPercent}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={`Progress towards ${overview.level.nextLevelName}`}
+          >
+            <div
+              className="h-full rounded-full bg-burgundy"
+              style={{ width: `${Math.max(overview.level.progressPercent, 2)}%` }}
+            />
+          </div>
+        </Card>
+      ) : null}
 
       {overview?.needsReview.length ? (
         <Card>

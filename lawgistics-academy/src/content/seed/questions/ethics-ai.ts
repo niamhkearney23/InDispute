@@ -65,7 +65,7 @@ export const ETHICS_AI_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['b'],
     explanation:
-      'These systems generate text that reads like a citation whether or not the case exists. If you cannot find it, treat it as not existing. And one fabrication in a draft is a reason to check every other authority in it, not just that one, because the same process produced them all. Asking the tool to confirm its own output is worthless: it will confirm it.',
+      'AI systems may produce outdated, fabricated or wrong-jurisdiction law while sounding authoritative. A citation you cannot find in a primary source should be treated as not existing, and one fabrication in a draft is a reason to check every other authority in it, because the same process produced them all. Asking the tool to check its own output is not verification: the check has to be against the primary source.',
     whyItMatters:
       'Citing an authority that does not exist misleads the court. That it was not deliberate is mitigation, not a defence, and practitioners have been referred to regulators for exactly this.',
     commonMisconception:
@@ -180,7 +180,7 @@ export const ETHICS_AI_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['b'],
     explanation:
-      'Competence extends to the means you use to do the work. You are not expected to explain the mathematics, any more than you must explain how a search database indexes. You are expected to know the characteristic failures of the thing you are relying on: that it invents citations, that it is confident when wrong, that it does not know what it does not know, and that its training has a cutoff and so it does not know recent law.',
+      'Competence extends to the means you use to do the work. You are not expected to explain the mathematics, any more than you must explain how a search database indexes. You are expected to know the characteristic failures of the thing you are relying on: that AI systems may produce outdated, fabricated or wrong-jurisdiction law while sounding authoritative, and that they cannot reliably tell you which of their answers is the unreliable one.',
     whyItMatters:
       'It is the difference between using a tool and being used by one. The failure modes are knowable, which is what makes not knowing them a choice.',
     concepts: ['ai-competence', 'ai-verification'],

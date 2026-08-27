@@ -259,16 +259,20 @@ export const AI_COMPLIANCE_QUESTIONS: SeedQuestion[] = [
     difficulty: 2,
     jurisdiction: 'MY_GENERAL',
     tentative: true,
-    stem: 'A supervising partner signs off work a pupil produced with AI assistance. Where does responsibility sit?',
+    // "Where does responsibility sit" read as though the answer put none of it
+    // on the pupil, which the explanation then had to argue against. The stem
+    // now asks who adopts the work, which is the point being taught.
+    stem:
+      'A supervising partner signs off work a pupil produced with AI assistance. Who has adopted the contents as their own?',
     options: [
-      { id: 'a', text: 'With the pupil, who did the work' },
-      { id: 'b', text: 'With the supervising partner, who adopted it by signing it' },
-      { id: 'c', text: 'With the tool provider' },
-      { id: 'd', text: 'Shared equally' },
+      { id: 'a', text: 'The pupil alone, who did the work' },
+      { id: 'b', text: 'The supervising partner, by signing it, without relieving the pupil of the duty to check their own work' },
+      { id: 'c', text: 'The tool provider' },
+      { id: 'd', text: 'Nobody, until the court relies on it' },
     ],
     correct: ['b'],
     explanation:
-      'Signing work is adopting it. Supervision is not a formality performed over a document someone else produced; it is where a practitioner takes responsibility for the content. That does not excuse the pupil from checking their own work, but a partner who signs without reading has accepted the risk rather than delegated it.',
+      'Signing work is adopting it. Supervision is not a formality performed over a document someone else produced; it is where a practitioner takes responsibility for the content. Responsibility is not a single parcel handed to one person: the pupil is expected to check their own work and to say what was AI-assisted, and the partner who signs without reading has accepted the risk rather than delegated it.',
     whyItMatters:
       'It sets how much checking a supervisor should be doing, which is more than most assume when a draft reads well.',
     concepts: ['ai-supervision', 'ai-policy'],

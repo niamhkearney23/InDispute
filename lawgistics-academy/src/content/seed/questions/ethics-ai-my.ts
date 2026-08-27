@@ -68,7 +68,7 @@ export const ETHICS_AI_MY_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['b'],
     explanation:
-      'These systems produce text shaped like a citation whether or not the case exists. If it cannot be found, treat it as not existing. One fabrication is reason to check all of them, because the same process produced the rest. Asking the tool to confirm its own output achieves nothing; it will confirm it.',
+      'AI systems may produce outdated, fabricated or wrong-jurisdiction law while sounding authoritative. A citation that cannot be found in a primary source should be treated as not existing, and one fabrication is reason to check every other authority in the draft, because the same process produced them. Asking the tool to check its own output is not verification: the check has to be against current Malaysian primary sources.',
     whyItMatters:
       'Putting a non-existent authority before a court misleads it. Inadvertence is mitigation, not an answer, and the duty to the court is paramount.',
     memoryTrick: 'If you have not read it, you cannot cite it.',
@@ -154,7 +154,7 @@ export const ETHICS_AI_MY_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['b'],
     explanation:
-      'Competence extends to the means used to do the work. You need not explain the mathematics. You must know the failure modes: that it invents citations, that it is fluent when wrong, that its knowledge has a cutoff and so it does not know recent amendments, and that it cannot tell you which of its answers is unreliable.',
+      'Competence extends to the means used to do the work. You need not explain the mathematics. You must know the failure modes: that AI systems may produce outdated, fabricated or wrong-jurisdiction law while sounding authoritative, and that they cannot reliably tell you which of their answers is the unreliable one. Verify propositions and citations against current Malaysian primary sources.',
     whyItMatters:
       'The failure modes are knowable, which is what makes not knowing them a choice rather than bad luck.',
     concepts: ['ai-competence', 'ai-verification'],
@@ -177,7 +177,7 @@ export const ETHICS_AI_MY_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['b'],
     explanation:
-      'These systems are trained overwhelmingly on English and American material. Asked a Malaysian question they will often answer from that material, in confident and familiar language, citing an Act that exists somewhere else. The answer is not garbled, which is what makes it dangerous: it looks exactly like a correct answer, and it takes a Malaysian lawyer to notice that the Act named is not the governing one.',
+      'Asked a Malaysian question, an AI system may answer from another country’s law in confident and familiar language, citing an Act that exists somewhere else. The answer is not garbled, which is what makes it dangerous: it reads exactly like a correct answer, and it takes somebody who knows Malaysian law to notice that the Act named is not the governing one. Verify propositions and citations against current Malaysian primary sources.',
     whyItMatters:
       'It is the failure most likely to catch a Malaysian junior, and it is invisible unless you check the source rather than the tone.',
     memoryTrick: 'Confident and foreign reads exactly like confident and correct.',

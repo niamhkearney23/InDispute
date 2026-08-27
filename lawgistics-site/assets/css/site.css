@@ -1835,3 +1835,10 @@ main p a:not([class]) {
   text-underline-offset: 2px;
   text-decoration-thickness: 1px;
 }
+
+/* The caveat under the programme. Smaller than the strands it qualifies,
+   because it is a footnote and reading like one is the point. */
+.prog-note {
+  margin: 26px auto 0; max-width: 62ch; text-align: center;
+  font-size: .88rem; color: var(--ink-soft);
+}

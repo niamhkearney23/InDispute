@@ -251,6 +251,85 @@ export const LESSONS: SeedLesson[] = [
       },
     ],
   },
+  /* Running a file.
+   *
+   * Written as craft rather than as rules. The three areas this module covers,
+   * procedure, evidence and drafting, are where the jurisdiction-specific
+   * detail lives, and stating that detail here would put unverified propositions
+   * in front of a learner before a single question has been asked. What a
+   * paralegal is missing on day one is not the rule anyway. It is the shape of
+   * the work: what a file is for, who reads it, and what each document has to
+   * do. The questions carry the provisions, with a citation and a reviewer
+   * behind each one.
+   */
+  {
+    slug: 'litigation-support-my-intro',
+    moduleSlug: 'litigation-support-my',
+    title: 'What running a file actually involves',
+    minutes: 3,
+    country: 'MY',
+    steps: [
+      {
+        heading: 'A file is for the reader',
+        body: 'Everything in a matter is built for somebody who was not there: a partner picking it up at short notice, opposing solicitors, and eventually a judge. The test for any document you produce is whether that person can follow it without asking you a question.',
+        takeaway: 'If it only makes sense with you in the room, it is not finished.',
+      },
+      {
+        heading: 'The chronology is the thinking',
+        body: 'A chronology looks like admin and is not. Putting events in order, each with the document it comes from, is usually the moment the case stops being a pile of complaints and becomes an argument. Do it early, and keep it current.',
+        takeaway: 'Order the facts and the issues tend to appear.',
+      },
+      {
+        heading: 'A bundle is navigation',
+        body: 'An indexed bundle exists so that a judge can find a page while counsel is speaking. Pagination, an index that matches, and consistent references are not neatness for its own sake; they are the difference between an argument that lands and one that stalls while everybody hunts.',
+        takeaway: 'Build it for the person turning the pages under time pressure.',
+      },
+      {
+        heading: 'Evidence: how does it get in',
+        body: 'Before asking whether a document helps, ask how it will be proved and whether it is admissible at all. The Evidence Act 1950 governs that, and the answer changes what you collect and how you record where it came from.',
+        takeaway: 'Useful and admissible are different questions.',
+      },
+      {
+        heading: 'Every document has a job',
+        body: 'A pleading defines the issues. A witness statement gives evidence in the witness’s own words. A submission argues. Trouble usually starts when one of them tries to do another one’s job, most often a pleading that tells the whole story instead of setting out the case.',
+        takeaway: 'Ask what this document is for before you write a line of it.',
+      },
+    ],
+  },
+  {
+    slug: 'litigation-support-au-intro',
+    moduleSlug: 'litigation-support-au',
+    title: 'What running a file actually involves',
+    minutes: 3,
+    country: 'AU',
+    steps: [
+      {
+        heading: 'A file is for the reader',
+        body: 'Everything in a matter is built for somebody who was not there: a supervisor picking it up at short notice, the other side, and eventually a judge. The test for any document you produce is whether that person can follow it without asking you a question.',
+        takeaway: 'If it only makes sense with you in the room, it is not finished.',
+      },
+      {
+        heading: 'Check which rules apply',
+        body: 'Procedure in Australia is not one set of rules. Each court has its own, and the State or Territory changes them again, so the first question on any step is which rules govern this matter in this court. A form or a deadline learned in one court is a guess in another.',
+        takeaway: 'The rule you remember is the rule of the court you last worked in.',
+      },
+      {
+        heading: 'The chronology is the thinking',
+        body: 'A chronology looks like admin and is not. Putting events in order, each with the document it comes from, is usually the moment the case stops being a pile of complaints and becomes an argument. Do it early, and keep it current.',
+        takeaway: 'Order the facts and the issues tend to appear.',
+      },
+      {
+        heading: 'A bundle is navigation',
+        body: 'A court book exists so that a judge can find a page while counsel is speaking. Pagination, an index that matches, and consistent references are not neatness for its own sake; they are the difference between an argument that lands and one that stalls while everybody hunts.',
+        takeaway: 'Build it for the person turning the pages under time pressure.',
+      },
+      {
+        heading: 'Every document has a job',
+        body: 'A pleading defines the issues. An affidavit or witness statement gives evidence. Submissions argue. Trouble usually starts when one of them tries to do another one’s job, most often a pleading that tells the whole story instead of setting out the case.',
+        takeaway: 'Ask what this document is for before you write a line of it.',
+      },
+    ],
+  },
 ];
 
 export function lessonForModule(moduleSlug: string): SeedLesson | null {
