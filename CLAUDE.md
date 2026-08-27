@@ -11,6 +11,14 @@ This repo powers the **Lawgistics Daily Court Intelligence** workflow. Any sessi
 - **Confirmed only applies to roundups too.** Only give a case its own slide and a stated holding if the outcome is confirmed. Cases whose outcomes cannot be verified go on a single "Three more, in brief" slide with name, citation and subject matter only, never an outcome.
 - **Every case slide carries a learning line.** A pull-out in serif italic against an accent rule, opening "Learn this:", stating the *principle* rather than repeating the outcome. One sentence, no sub-clauses, no hedging. The point is that the slide is useful in an exam, not just informative. Applies to case slides on roundups and on single-case carousels.
 
+## Subject matter: commercial over criminal
+
+Niamh's preference, 27 Aug 2026. Where there is a choice of case, **lead with commercial and corporate law over criminal law.** Contract, banking and finance, corporations, competition and consumer, insolvency, employment, IP, media and defamation, sports and entertainment contracts, regulatory enforcement. That is the material she likes and it is closer to what the internships actually involve.
+
+This is a preference, not a prohibition. Run a criminal case when it is genuinely the best story of the week, or when the legal point is unusually useful to a student. But when the docket offers both, take the commercial one, and do not run three criminal posts in a row.
+
+Applies to the Friday Big Case File too: pick the commercial pop-culture story (band royalties, sports contracts, influencer ad compliance, brand disputes, a collapse) over the celebrity criminal trial.
+
 ## Output locations
 
 - Daily brief: `reports/YYYY-MM-DD-daily-court-intelligence.md`
