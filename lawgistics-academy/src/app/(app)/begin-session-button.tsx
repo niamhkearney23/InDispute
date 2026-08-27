@@ -35,7 +35,11 @@ export function BeginSessionButton({
   }
 
   return (
-    <div className="w-full">
+    // Full width when stacked, so the button fills the row on a phone.
+    // Content width once the layout turns horizontal: left as w-full it
+    // takes the whole flex row, which strands the button against its own
+    // left edge and squeezes everything beside it.
+    <div className="w-full sm:w-auto">
       <Button size="lg" variant={variant} disabled={pending} onClick={start}>
         {pending ? 'Preparing…' : label}
       </Button>
