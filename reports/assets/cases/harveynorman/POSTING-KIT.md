@@ -64,6 +64,38 @@ Summary only. Read the judgments before relying on them. General information onl
 
 ---
 
+## Instagram caption, SHORT version
+
+Use this one if the long caption feels heavy for a Friday. It keeps the hook, the number and the legal point, and drops the procedural history.
+
+Sixty months interest free. No deposit. You have seen the ad.
+
+Last month it cost Harvey Norman and Latitude Finance $55 million.
+
+Everything in it was true. Sixty equal repayments, no deposit, no interest. All correct.
+
+What it did not say is that to get it you had to take out a credit card, with an establishment fee and a monthly account service fee. At least $537 in fees, on the interest free deal.
+
+Interest free was true. Free was not.
+
+$35 million against Harvey Norman, $20 million against Latitude, and ninety days of corrective advertising on their own home pages.
+
+That is what misleading conduct actually means. Not whether each sentence is accurate. Whether the impression is.
+
+*ASIC v Latitude Finance Australia and Harvey Norman Holdings*, Federal Court of Australia
+
+Want international legal experience? You have come to the right place.
+
+Lawgistics places Australian law students in legal internships in Kuala Lumpur. Courtroom access, practising lawyers, live matters.
+
+Applications via the link in bio.
+
+Summary only. General information, not legal advice.
+
+#auslaw #lawstudent #lawschool #consumerlaw #commerciallaw #ASIC #misleadingconduct #advertisinglaw #contractlaw #lawyersofinstagram #lawgistics
+
+---
+
 ## LinkedIn post (copy-paste; attach slide 3)
 
 A useful decision for anyone who signs off on financial services advertising.
