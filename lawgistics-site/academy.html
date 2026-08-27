@@ -63,7 +63,7 @@
       <dl class="facts">
         <div class="facts__item">
           <dt>Jurisdictions</dt>
-          <dd>Malaysia and Australia, kept strictly apart</dd>
+          <dd data-facts-jurisdiction>Malaysia and Australia, kept strictly apart</dd>
         </div>
         <div class="facts__item">
           <dt>Who it is for</dt>
@@ -86,7 +86,7 @@
        Australian and Malaysian law are different bodies of law. The choice is
        remembered, and it is readable from the address (?c=my or ?c=au) so a
        link can be sent to somebody already set to the right country. -->
-  <section class="section section--tight" style="padding-bottom:0">
+  <section class="section section--tight" style="padding-bottom:0" data-country-section>
     <div class="wrap">
       <div class="country-pick" data-country-pick>
         <p class="country-pick__q" id="country-q">Which country are you training in?</p>
@@ -175,7 +175,7 @@
   </section>
 
   <!-- ====================================================== daily quiz -->
-  <section class="section section--tight" id="quiz">
+  <section class="section section--tight" id="quiz" data-quiz-section>
     <div class="wrap">
       <div class="section-head section-head--center" style="margin-bottom:30px">
         <p class="eyebrow">Question of the day</p>
@@ -262,7 +262,7 @@
       </div>
 
       <div class="firm-note" data-reveal="160">
-        <p><b>What we will not claim.</b> This is one firm per deployment, not a platform serving many firms from one place. Every question carries its jurisdiction, and the interface will not publish one that has no named sign-off recorded against it. The exception is the starter content, which ships already published so that a new installation is not empty, and which the review queue counts and shows you until a person has been through it. The Malaysian bank is not even allowed that: it cannot publish itself at all, and goes out one signed-off item at a time.</p>
+        <p><b>What we will not claim.</b> This is one firm per deployment, not a platform serving many firms from one place. Every question carries its jurisdiction, and the interface will not publish one that has no named sign-off recorded against it. The exception is the starter content, which ships already published so that a new installation is not empty, and which the review queue counts and shows you until a person has been through it.<span data-firm-my-note> The Malaysian bank is not even allowed that: it cannot publish itself at all, and goes out one signed-off item at a time.</span></p>
         <a class="btn btn--light btn--sm" href="contactus.html">Talk to us about your firm →</a>
       </div>
     </div>
@@ -344,9 +344,24 @@ window.pageInit = function () {
      other page on it is Malaysian; an Australian is one tap from the right
      answer and the tap is near the top of the page. */
   var COUNTRIES = { MY: 'Malaysia', AU: 'Australia' };
+
+  /* One country, on its own address, with no way back to the other one.
+     ?c=au sets the country and leaves the switch on the page, which is right
+     for somebody who landed on the Malaysian page by default and needs to
+     correct it. ?only=au is a different thing: it is the Australian academy,
+     linked to as the Australian academy, and an Australian arriving there
+     should not have to step past Malaysia to read about their own training.
+     It is a query rather than a tidy path so that it behaves identically on
+     the live site, on a laptop, and opened from a folder. */
+  var LOCKED = (function () {
+    var q = (String(location.search).match(/[?&]only=(my|au)(?:&|$)/i) || [])[1];
+    return q ? q.toUpperCase() : '';
+  })();
+
   var country = readCountry();
 
   function readCountry() {
+    if (LOCKED) return LOCKED;
     var q = (String(location.search).match(/[?&]c=(my|au)(?:&|$)/i) || [])[1];
     if (q) return q.toUpperCase();
     try {
@@ -357,6 +372,10 @@ window.pageInit = function () {
   }
 
   function setCountry(next) {
+    // A locked page has no switch to press. It also deliberately does not write
+    // the choice down: reading the Australian page should not silently change
+    // what the rest of the site shows somebody who trains in Malaysia.
+    if (LOCKED) return;
     if (!COUNTRIES[next] || next === country) return;
     country = next;
     try { localStorage.setItem('lg.country', country); } catch (e) {}
@@ -560,6 +579,43 @@ window.pageInit = function () {
       var on = btns[j].getAttribute('data-country') === country;
       btns[j].classList.toggle('is-on', on);
       btns[j].setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+
+    paintLocked();
+  }
+
+  /* What a single-country page loses. Not decoration: each of these is
+     something that either asks the reader to consider the other country, or
+     offers them something that does not exist where they are. */
+  function paintLocked() {
+    if (!LOCKED) return;
+
+    // The switch itself, and the section holding it, so the padding goes too.
+    var pickSection = document.querySelector('[data-country-section]');
+    if (pickSection) pickSection.setAttribute('hidden', '');
+
+    var jur = document.querySelector('[data-facts-jurisdiction]');
+    if (jur) jur.textContent = COUNTRIES[country];
+
+    if (country === 'AU') {
+      /* The daily question is Malaysian law and there is no Australian one.
+         On a page that offers a country switch, saying so is the honest thing.
+         On the Australian academy it is an entire section pitching something
+         Australians cannot use, followed by a form asking them to sign up for
+         it at 7am Malaysian time. */
+      var quiz = document.querySelector('[data-quiz-section]');
+      if (quiz) quiz.setAttribute('hidden', '');
+
+      /* True, and it belongs on a page about both banks. Here it explains a
+         restriction on content this reader will never be shown. */
+      var firmNote = document.querySelector('[data-firm-my-note]');
+      if (firmNote) firmNote.setAttribute('hidden', '');
+
+      /* The note about two further Malaysian strands exists to stop an
+         Australian thinking the page is short-changing them. A page that never
+         claimed to cover Malaysia has nothing to explain. */
+      var other = document.querySelector('[data-levels-note]');
+      if (other) other.setAttribute('hidden', '');
     }
   }
 

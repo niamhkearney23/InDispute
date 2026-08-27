@@ -24,7 +24,14 @@ import { dirname, join } from 'node:path';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'lawgistics-site');
 const PORT = process.argv[2] || '8466';
-const PAGES = readdirSync(ROOT).filter((f) => f.endsWith('.html')).sort();
+/* Every page, plus the academy in each of its single-country forms. Those hide
+   whole sections, and a section that leaves a stray margin behind is the kind
+   of thing that only shows up at a phone width. */
+const PAGES = [
+  ...readdirSync(ROOT).filter((f) => f.endsWith('.html')).sort(),
+  'academy.html?only=au',
+  'academy.html?only=my',
+];
 const WIDTHS = [
   { w: 393, h: 852, name: 'phone' },
   { w: 768, h: 1024, name: 'tablet' },

@@ -1,4 +1,4 @@
-// Claude API proxy as a Vercel serverless function — the deployed twin of
+// Claude API proxy as a Vercel serverless function, the deployed twin of
 // serve.py's /claude route. Set ANTHROPIC_API_KEY in the Vercel project's
 // Environment Variables; it never reaches the browser.
 //
@@ -121,6 +121,31 @@ export default async function handler(req, res) {
       },
       body: payload,
     });
+
+    // Streamed, when the page asked for it and the upstream is happy. An error
+    // is never streamed: it arrives as one small JSON object, and the buffered
+    // path below returns it with its own status so the page can say something
+    // useful instead of "the stream ended".
+    if (body.stream === true && upstream.ok && upstream.body) {
+      res.status(200);
+      res.setHeader("content-type", "text/event-stream; charset=utf-8");
+      res.setHeader("cache-control", "no-cache, no-transform");
+      res.setHeader("connection", "keep-alive");
+      // Tell every proxy in the path to stop holding the bytes. Buffering here
+      // would undo the entire point: the browser would sit in silence and then
+      // get the whole thing at the end, which is the shape that was timing out.
+      res.setHeader("x-accel-buffering", "no");
+      if (typeof res.flushHeaders === "function") res.flushHeaders();
+
+      const reader = upstream.body.getReader();
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        res.write(Buffer.from(value));
+      }
+      return res.end();
+    }
+
     const text = await upstream.text();
     res.status(upstream.status).setHeader("content-type", "application/json").send(text);
   } catch {

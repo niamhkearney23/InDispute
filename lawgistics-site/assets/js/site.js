@@ -117,10 +117,15 @@
         ['independent.html', 'Go Independent'],
         ['for-lawyers.html', 'Lawgistics Network']
       ]],
+      // Each academy gets its own link. The page can switch country, but a
+      // switch is something you have to find and press, and an Australian
+      // arriving from the footer should land on their own academy rather than
+      // on a Malaysian one asking them where they are. The third entry here
+      // used to be a second link to the same page under a different name.
       ['For students', [
-        ['academy.html', 'Litigation Academy'],
-        ['for-students.html', 'Internships'],
-        ['academy.html', 'Practical skills']
+        ['academy.html?only=my', 'Litigation Academy, Malaysia'],
+        ['academy.html?only=au', 'Litigation Academy, Australia'],
+        ['for-students.html', 'Internships']
       ]],
       ['Lawgistics', [
         ['aboutus.html', 'About'],
@@ -209,8 +214,8 @@
     if (!els.length) return;
 
     // Content starts at opacity 0 and is revealed by JS. If the observer
-    // never reports back — a background tab, an embedded view, an odd
-    // browser — the page would stay blank. Always un-hide after a beat.
+    // never reports back, a background tab, an embedded view, an odd
+    // browser, the page would stay blank. Always un-hide after a beat.
     var safety = setTimeout(function () {
       document.querySelectorAll('[data-reveal]:not(.is-in)')
         .forEach(function (el) { el.classList.add('is-in'); });
@@ -383,7 +388,7 @@
           Store.notify('quiz', { event: 'quiz.subscribed', name: data.name,
             channel: data.channel || 'email', contact: data.contact });
           say(form, wa
-            ? 'Subscribed. Your first question arrives at 7am Malaysian time — reply STOP any time.'
+            ? 'Subscribed. Your first question arrives at 7am Malaysian time. Reply STOP any time.'
             : 'Subscribed. Your first question arrives at 7am Malaysian time.', true);
           form.reset();
           return;
@@ -617,7 +622,7 @@
     // The page must NEVER depend on the API answering. Hydration is an
     // upgrade, not a precondition: if lawgistics.my is slow, down, or
     // rejects, we still render from seed data and every form still works.
-    // Whichever happens first — resolve, reject, or the deadline — wins.
+    // Whichever happens first wins: resolve, reject, or the deadline.
     // Reveal what is already in the HTML straight away. The hero headline is
     // the most important thing on the page and must never wait on an API call.
     reveal();

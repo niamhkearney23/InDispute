@@ -1,5 +1,7 @@
 {
   "rewrites": [
+    { "source": "/australia", "destination": "/academy.html?only=au" },
+    { "source": "/malaysia", "destination": "/academy.html?only=my" },
     { "source": "/claude/health", "destination": "/api/claude?health=1" },
     { "source": "/claude", "destination": "/api/claude" },
     { "source": "/api/public/:path*", "destination": "https://legal-champions-production.up.railway.app/api/public/:path*" },

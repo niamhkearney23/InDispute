@@ -37,8 +37,16 @@ const PORT = process.argv[2] || '8466';
 const PAGES = readdirSync(ROOT).filter((f) => f.endsWith('.html')).sort();
 
 /* The academy page is checked in both countries. It renders a different set of
-   strands for each, so checking one leaves the other unchecked. */
-const EXTRA = ['academy.html?c=au'];
+   strands for each, so checking one leaves the other unchecked.
+
+   The single-country pages are checked separately again. They are the same
+   markup with whole sections removed, and removing a section is exactly how a
+   heading level ends up skipped or a landmark ends up empty. */
+const EXTRA = [
+  'academy.html?c=au',
+  'academy.html?only=au',
+  'academy.html?only=my',
+];
 
 const browser = await chromium.launch(
   process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {},

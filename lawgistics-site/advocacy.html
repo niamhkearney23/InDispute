@@ -185,6 +185,7 @@
 <script src="assets/js/store.js"></script>
 <script src="assets/js/site.js"></script>
 <script src="assets/js/guide.js"></script>
+<script src="assets/js/marker.js"></script>
 <script>
 window.pageInit = function () {
   var $ = function (id) { return document.getElementById(id); };
@@ -268,6 +269,21 @@ window.pageInit = function () {
   function stopThinking() {
     if (thinkTimer) { clearInterval(thinkTimer); thinkTimer = null; }
     $('thinking').classList.remove('show');
+  }
+
+  /* The rotating lines are a guess at what the coach is doing. Once real text
+     starts arriving the page knows, so it stops guessing. */
+  function arriving() {
+    if (!thinkTimer) return;
+    clearInterval(thinkTimer); thinkTimer = null;
+    $('thinkingLine').textContent = 'Writing your feedback.';
+  }
+
+  /* Said out loud, because feedback produced at a lower effort setting should
+     not present itself as the same feedback. */
+  function slower() {
+    if (thinkTimer) { clearInterval(thinkTimer); thinkTimer = null; }
+    $('thinkingLine').textContent = 'That took a while. Marking it again, a little faster.';
   }
   function fmt(s) { var m = Math.floor(s/60), r = s%60; return ('0'+m).slice(-2)+':'+('0'+r).slice(-2); }
   function words(t) { return (t.trim().match(/\S+/g) || []).length; }
@@ -455,30 +471,21 @@ window.pageInit = function () {
     clr($('subMsg'));
     startThinking();
 
-    fetch('/claude', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        // Opus 5. This is marking a person's advocacy, so it runs on the
-        // model that reasons best rather than the cheap one the rest of the
-        // site uses. Adaptive thinking and high effort are what make the
-        // feedback specific rather than generic.
-        model: 'claude-opus-5',
-        max_tokens: 16000,
-        thinking: { type: 'adaptive' },
-        output_config: { effort: 'high', format: { type: 'json_schema', schema: SCHEMA } },
-        system: SYSTEM,
-        messages: [{ role: 'user', content: user }]
-      })
-    }).then(function (r) {
-      if (r.status === 503) throw new Error('The feedback service isn’t switched on yet. Tell whoever set this up to add ANTHROPIC_API_KEY in Netlify.');
-      if (!r.ok) throw new Error('Something went wrong (' + r.status + '). Your transcript is safe in the box, try again in a moment.');
-      return r.json();
-    }).then(function (resp) {
-      if (resp.stop_reason === 'refusal') throw new Error('The coach couldn’t assess that submission. Try rephrasing your analysis.');
-      var text = (resp.content || []).filter(function (b) { return b.type === 'text'; }).map(function (b) { return b.text; }).join('');
-      var a;
-      try { a = JSON.parse(text); } catch (e) { throw new Error('The feedback came back garbled. Please try again.'); }
+    LG_MARK({
+      // Opus 5. This is marking a person's advocacy, so it runs on the
+      // model that reasons best rather than the cheap one the rest of the
+      // site uses. Adaptive thinking and high effort are what make the
+      // feedback specific rather than generic.
+      model: 'claude-opus-5',
+      max_tokens: 16000,
+      thinking: { type: 'adaptive' },
+      output_config: { effort: 'high', format: { type: 'json_schema', schema: SCHEMA } },
+      system: SYSTEM,
+      messages: [{ role: 'user', content: user }]
+    }, {
+      onText: function () { arriving(); },
+      onSlow: function () { slower(); }
+    }).then(function (a) {
       stopThinking();
       awardXp();
       render(a);

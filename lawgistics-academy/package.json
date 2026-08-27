@@ -15,6 +15,7 @@
     "qa:devices": "node tools/visual-qa/device-check.mjs",
     "qa:site": "node tools/site-qa/device-check.mjs",
     "qa:a11y": "node tools/site-qa/a11y-check.mjs",
+    "qa:marker": "node tools/site-qa/marker-check.mjs",
     "qa:mock": "node tools/visual-qa/mock-supabase.mjs",
     "check:content": "tsx --conditions=react-server scripts/content-check.ts",
     "review:pack": "tsx --conditions=react-server scripts/review-pack.ts",
