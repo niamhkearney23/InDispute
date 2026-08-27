@@ -156,7 +156,29 @@ const OVERFLOW_PROBE = `(() => {
 
      Only leaf elements carrying their own text, and only siblings, so a link
      inside a paragraph or a label around its input is not reported. Those
-     overlap by design, and a check that cries about them stops being read. */
+     overlap by design, and a check that cries about them stops being read.
+
+     A sticky header passing over the page as you scroll is not a collision
+     either, and getting that exclusion right matters more than it sounds. The
+     first version of this check reported the header sitting over a question on
+     a scrolled page, six times on one screen, which is exactly what a sticky
+     header is for. But the fault this was written to catch, the nav printed
+     across the wordmark, is itself inside that sticky header, so skipping
+     anything sticky would have made the check unable to find the one bug it
+     exists for.
+
+     So the rule is not "ignore sticky". It is: only compare two elements that
+     float over the page together, or not at all. Two things inside the same
+     sticky header are meant to sit side by side and overlapping is a fault; a
+     sticky header over the article beneath it is the design. */
+  const floatRoot = (el) => {
+    for (let node = el; node && node !== document.body; node = node.parentElement) {
+      const pos = getComputedStyle(node).position;
+      if (pos === 'sticky' || pos === 'fixed') return node;
+    }
+    return null;
+  };
+
   const collisions = [];
   const leaves = [...document.querySelectorAll('header *, nav *, h1, h2, h3')].filter(
     (el) =>
@@ -164,11 +186,13 @@ const OVERFLOW_PROBE = `(() => {
       (el.textContent || '').trim() &&
       el.getBoundingClientRect().width > 0,
   );
+  const roots = new Map(leaves.map((el) => [el, floatRoot(el)]));
   for (let i = 0; i < leaves.length; i++) {
     for (let j = i + 1; j < leaves.length; j++) {
       const a = leaves[i];
       const b = leaves[j];
       if (a.contains(b) || b.contains(a)) continue;
+      if (roots.get(a) !== roots.get(b)) continue;
       const ra = a.getBoundingClientRect();
       const rb = b.getBoundingClientRect();
       // A couple of pixels of kerning slop is not a collision.

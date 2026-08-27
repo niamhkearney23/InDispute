@@ -49,9 +49,15 @@ export function SessionCard({
         />
       </div>
 
+      {/* A link somebody taps on a phone, so it is given a row to be tapped in.
+          As bare text it was a 17px target, which is half what a thumb needs and
+          is the sort of thing that reads as the app ignoring you. */}
       {more > 0 ? (
-        <p className="mt-3 text-sm">
-          <Link href="/sessions" className="text-burgundy underline underline-offset-2">
+        <p className="mt-2">
+          <Link
+            href="/sessions"
+            className="-mx-1 inline-flex min-h-11 items-center rounded-[5px] px-1 text-sm text-burgundy underline underline-offset-2 hover:bg-paper-sunk"
+          >
             {more} earlier session{more === 1 ? '' : 's'}
           </Link>
         </p>

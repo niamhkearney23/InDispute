@@ -183,12 +183,15 @@ export function SessionForm({
             </p>
           </div>
 
-          <label className="flex items-start gap-2.5 text-sm">
+          {/* py-2 so the row is a comfortable target rather than the height of
+              one line of text, which is what it was on a wide screen where the
+              sentence does not wrap. */}
+          <label className="flex items-start gap-2.5 py-2 text-sm">
             <input
               type="checkbox"
               name="published"
               defaultChecked={initial.published}
-              className="mt-0.5 size-4"
+              className="mt-0.5 size-5"
             />
             <span>
               <strong className="font-medium">Publish it.</strong>{' '}
