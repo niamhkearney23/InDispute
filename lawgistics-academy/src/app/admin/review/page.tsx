@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { requireAdmin } from '@/lib/admin/guard';
+import { requireCoach } from '@/lib/admin/guard';
 import Link from 'next/link';
 import { asReviewOrder, getReviewItems, summarise } from '@/lib/review/service';
 import { Card, Notice, Stat, cn } from '@/components/ui';
@@ -14,7 +14,7 @@ export default async function ReviewPage({
 }: {
   searchParams: Promise<{ order?: string }>;
 }) {
-  await requireAdmin();
+  const { isAdmin } = await requireCoach();
 
   const { order: requested } = await searchParams;
   const order = asReviewOrder(requested);
@@ -122,11 +122,19 @@ export default async function ReviewPage({
         </ul>
       </Card>
 
-      <BulkActions
-        verifiedCount={stats.verified}
-        liveUnverifiedCount={stats.liveUnverified}
-        withdrawnCount={stats.withdrawn}
-      />
+      {/* Publishing, withdrawing and restoring move the whole bank at once and
+          stay with the administrator. A coach decides whether an item is sound;
+          deciding what ships to learners is a different call and belongs to
+          whoever owns the deployment. The actions refuse a coach on the server
+          too, so this is only about not showing somebody a button that will
+          turn them down. */}
+      {isAdmin ? (
+        <BulkActions
+          verifiedCount={stats.verified}
+          liveUnverifiedCount={stats.liveUnverified}
+          withdrawnCount={stats.withdrawn}
+        />
+      ) : null}
 
       <ReviewQueue items={items} />
     </div>

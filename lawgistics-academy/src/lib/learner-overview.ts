@@ -25,6 +25,12 @@ export interface LearnerProfile {
   onboardedAt: string | null;
   diagnosticCompletedAt: string | null;
   isAdmin: boolean;
+  /**
+   * May sign content off and record supervisor decisions. Read this through
+   * `canCoach` rather than directly: an administrator is a coach too, and every
+   * caller wants "may this person coach", never "is this person only a coach".
+   */
+  isCoach: boolean;
 }
 
 export interface LearnerOverview {
@@ -100,6 +106,7 @@ export async function getLearnerProfile(userId: string): Promise<LearnerProfile 
     onboardedAt: data.onboarded_at,
     diagnosticCompletedAt: data.diagnostic_completed_at,
     isAdmin: data.is_admin,
+    isCoach: data.is_coach ?? false,
   };
 }
 
