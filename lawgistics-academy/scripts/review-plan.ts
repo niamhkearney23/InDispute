@@ -41,29 +41,11 @@
 import { QUESTIONS } from '../src/content/seed';
 import { JURISDICTION_COUNTRY } from '../src/lib/types';
 import type { Country } from '../src/lib/types';
+import { classifyPile, pileReason, PILE_ORDER, PILE_LABEL } from '../src/lib/review/pile';
+import type { Pile } from '../src/lib/review/pile';
 
 const arg = (process.argv[2] ?? '').toUpperCase();
 const only: Country | null = arg === 'MY' || arg === 'AU' ? arg : null;
-
-/* The marks of a legal proposition. A named instrument, or a pinpoint into
-   one. Deliberately generous: a false positive costs a lawyer thirty seconds
-   of reading, a false negative puts an unsourced claim in front of a paralegal
-   with a signature under it. */
-const INSTRUMENT = /\b(Act|Rules|Order|Constitution|Code|Regulations|Circular|Practice Direction|Ordinance|Enactment)\b/;
-const PINPOINT = /(\bss?\s?\d|\bO\s?\d|\br\s?\d|\bart\s?\d|\bs\.\s?\d|\breg\s?\d|\bpara\s?\d|\bsch(edule)?\s\d)/i;
-
-/* Naming an instrument without pinning a provision is not a citation you can
-   check. "Rules of Court 2012" is a book. */
-function citesAProvision(source: string | null): boolean {
-  if (!source) return false;
-  return PINPOINT.test(source);
-}
-
-function assertsLaw(text: string): boolean {
-  return INSTRUMENT.test(text) || PINPOINT.test(text);
-}
-
-type Pile = 'experience' | 'check' | 'find';
 
 interface Sorted {
   slug: string;
@@ -83,40 +65,26 @@ for (const q of QUESTIONS) {
   const source = q.sourceReference ?? null;
   const body = [q.scenario ?? '', q.stem, q.explanation, q.commonMisconception ?? ''].join(' ');
 
-  let pile: Pile;
-  let why: string;
+  const classifiable = { sourceReference: source, text: body };
 
-  if (citesAProvision(source)) {
-    pile = 'check';
-    why = 'cites a provision, read it and confirm';
-  } else if (source) {
-    pile = 'find';
-    why = `names "${source}" but no section, order or rule`;
-  } else if (assertsLaw(body)) {
-    pile = 'find';
-    why = 'states a rule of law with nothing to check it against';
-  } else {
-    pile = 'experience';
-    why = 'no provision asserted, this is craft';
-  }
-
-  sorted.push({ slug: q.slug, domain: q.domain, stem: q.stem, source, pile, why });
+  sorted.push({
+    slug: q.slug,
+    domain: q.domain,
+    stem: q.stem,
+    source,
+    pile: classifyPile(classifiable),
+    why: pileReason(classifiable),
+  });
 }
 
-const label: Record<Pile, string> = {
-  experience: 'SIGN FROM EXPERIENCE',
-  check: 'CHECK THE CITATION',
-  find: 'FIND A CITATION FIRST',
-};
-
 const blurb: Record<Pile, string> = {
-  experience:
+  sign_from_experience:
     'No provision asserted. A practising lawyer signs these from experience,\n' +
     '  without looking anything up. This is the pile that gets a module live.',
-  check:
+  check_the_citation:
     'A provision is cited. Read it and confirm the question says what it says.\n' +
     '  Several questions share a source, so the reading list is shorter than this.',
-  find:
+  find_a_citation:
     'Asserts law and cites nothing checkable. Nobody can sign these off yet,\n' +
     '  however senior. Somebody has to find the provision first.',
 };
@@ -125,9 +93,9 @@ console.log('');
 console.log(`${sorted.length} questions${only ? `, ${only} only` : ''}.`);
 console.log('');
 
-for (const pile of ['experience', 'check', 'find'] as Pile[]) {
+for (const pile of PILE_ORDER) {
   const items = sorted.filter((s) => s.pile === pile);
-  console.log(`${label[pile]}  (${items.length})`);
+  console.log(`${PILE_LABEL[pile].toUpperCase()}  (${items.length})`);
   console.log(`  ${blurb[pile]}`);
   console.log('');
 
@@ -142,7 +110,7 @@ for (const pile of ['experience', 'check', 'find'] as Pile[]) {
     for (const item of group) {
       console.log(`    ${item.slug}`);
       console.log(`      ${item.stem.slice(0, 96)}${item.stem.length > 96 ? '...' : ''}`);
-      if (pile !== 'experience') console.log(`      ${item.why}`);
+      if (pile !== 'sign_from_experience') console.log(`      ${item.why}`);
     }
     console.log('');
   }
@@ -153,13 +121,13 @@ for (const pile of ['experience', 'check', 'find'] as Pile[]) {
    and it is always shorter than the question count. */
 const sources = new Map<string, string[]>();
 for (const item of sorted) {
-  if (item.pile !== 'check' || !item.source) continue;
+  if (item.pile !== 'check_the_citation' || !item.source) continue;
   if (!sources.has(item.source)) sources.set(item.source, []);
   sources.get(item.source)!.push(item.slug);
 }
 
 console.log(`THE READING LIST  (${sources.size} distinct sources behind ${
-  sorted.filter((s) => s.pile === 'check').length
+  sorted.filter((s) => s.pile === 'check_the_citation').length
 } questions)`);
 console.log('');
 for (const [source, slugs] of [...sources.entries()].sort((a, b) => b[1].length - a[1].length)) {
@@ -167,9 +135,9 @@ for (const [source, slugs] of [...sources.entries()].sort((a, b) => b[1].length 
   console.log(`        ${slugs.length} question${slugs.length === 1 ? '' : 's'}: ${slugs.join(', ')}`);
 }
 
-const experience = sorted.filter((s) => s.pile === 'experience').length;
-const check = sorted.filter((s) => s.pile === 'check').length;
-const find = sorted.filter((s) => s.pile === 'find').length;
+const experience = sorted.filter((s) => s.pile === 'sign_from_experience').length;
+const check = sorted.filter((s) => s.pile === 'check_the_citation').length;
+const find = sorted.filter((s) => s.pile === 'find_a_citation').length;
 
 console.log('');
 console.log('WHERE TO START');
