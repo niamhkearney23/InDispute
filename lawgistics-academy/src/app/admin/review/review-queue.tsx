@@ -8,8 +8,25 @@ import { RISK_LABEL, type RiskLevel } from '@/lib/review/triage';
 import { recordReviewDecision } from './actions';
 import { HOLD_CHOICES, defaultHold, type HoldMonths } from '@/lib/review/expiry';
 import type { ReviewItem } from '@/lib/review/service';
+import { classifyPile, PILE_LABEL, PILE_ORDER, type Pile } from '@/lib/review/pile';
 
 type Filter = 'outstanding' | 'live' | 'flagged' | 'done' | 'all';
+
+/* What kind of attention an item needs, which is not the same question as
+   whether it has been signed off.
+
+   The queue is hundreds of items long and that is the number that stops people
+   starting it. It is not one job. Some items assert no provision at all, and a
+   practising lawyer signs those from experience without looking anything up:
+   that is a proper sign-off and it is an evening's work rather than a month's.
+   Others name a section, and those want the section read. A third group states
+   law and cites nothing, and cannot be signed off by anybody until somebody
+   finds the provision.
+
+   Sorting by that turns "233 outstanding" into "27 you could do tonight", which
+   is the difference between a queue somebody works and a queue somebody
+   avoids. */
+type PileFilter = 'all' | Pile;
 
 /* Which country's law to work through.
 
@@ -60,6 +77,7 @@ function isSignedOff(item: ReviewItem, outcome?: 'verify' | 'flag' | 'retire'): 
 export function ReviewQueue({ items }: { items: ReviewItem[] }) {
   const [filter, setFilter] = useState<Filter>('outstanding');
   const [scope, setScope] = useState<Scope>('all');
+  const [pile, setPile] = useState<PileFilter>('all');
   const [decided, setDecided] = useState<Record<string, 'verify' | 'flag' | 'retire'>>({});
   const [error, setError] = useState<string | null>(null);
   const [focused, setFocused] = useState(0);
@@ -73,9 +91,39 @@ export function ReviewQueue({ items }: { items: ReviewItem[] }) {
     [scope],
   );
 
+  /* The item's own words, which is what the classifier reads. Memoised across
+     the whole list rather than recomputed per render: it runs several regular
+     expressions over every item, and the chips alone would run it four times a
+     keystroke. */
+  const pileOf = useMemo(() => {
+    const map = new Map<string, Pile>();
+    for (const item of items) {
+      map.set(
+        `${item.kind}:${item.id}`,
+        classifyPile({
+          sourceReference: item.sourceReference,
+          text: [
+            item.heading,
+            item.scenario ?? '',
+            item.body ?? '',
+            item.explanation ?? '',
+            item.commonMisconception ?? '',
+          ].join(' '),
+        }),
+      );
+    }
+    return map;
+  }, [items]);
+
+  const inPile = useCallback(
+    (item: ReviewItem) => pile === 'all' || pileOf.get(`${item.kind}:${item.id}`) === pile,
+    [pile, pileOf],
+  );
+
   const visible = useMemo(() => {
     return items.filter((item) => {
       if (!inScope(item)) return false;
+      if (!inPile(item)) return false;
       const outcome = decided[key(item)];
       const verified = isSignedOff(item, outcome);
       const flagged = outcome === 'flag' || (!outcome && item.reviewFlagged);
@@ -93,7 +141,7 @@ export function ReviewQueue({ items }: { items: ReviewItem[] }) {
           return true;
       }
     });
-  }, [items, filter, decided, inScope]);
+  }, [items, filter, decided, inScope, inPile]);
 
   /* Counted within the chosen country, so the progress bar measures the job
      actually in front of the person rather than the whole bank. */
@@ -102,27 +150,44 @@ export function ReviewQueue({ items }: { items: ReviewItem[] }) {
     let done = 0;
     let total = 0;
     for (const item of items) {
-      if (!inScope(item)) continue;
+      if (!inScope(item) || !inPile(item)) continue;
       total += 1;
       const outcome = decided[key(item)];
       if (isSignedOff(item, outcome)) done += 1;
       else if (outcome !== 'retire') outstanding += 1;
     }
     return { outstanding, done, total };
-  }, [items, decided, inScope]);
+  }, [items, decided, inScope, inPile]);
 
   /* How many are left in each country, so the chips say what choosing one
-     would cost before it is chosen. */
+     would cost before it is chosen. Counted within the chosen pile, because a
+     chip that says "Malaysia (81 left)" while the pile above it is showing
+     twenty-seven is describing a different list from the one on screen. */
   const byCountry = useMemo(() => {
     const left: Record<Country, number> = { AU: 0, MY: 0 };
     for (const item of items) {
+      if (!inPile(item)) continue;
       const outcome = decided[key(item)];
       if (isSignedOff(item, outcome) || outcome === 'retire') continue;
       const c = JURISDICTION_COUNTRY[item.jurisdiction];
       if (c) left[c] += 1;
     }
     return left;
-  }, [items, decided]);
+  }, [items, decided, inPile]);
+
+  /* And how many are left in each pile, within the chosen country. Same rule in
+     the other direction. */
+  const byPile = useMemo(() => {
+    const left = new Map<Pile, number>(PILE_ORDER.map((p) => [p, 0]));
+    for (const item of items) {
+      if (!inScope(item)) continue;
+      const outcome = decided[key(item)];
+      if (isSignedOff(item, outcome) || outcome === 'retire') continue;
+      const p = pileOf.get(key(item));
+      if (p) left.set(p, (left.get(p) ?? 0) + 1);
+    }
+    return left;
+  }, [items, decided, inScope, pileOf]);
 
   const progress = counts.total ? Math.round((counts.done / counts.total) * 100) : 0;
 
@@ -238,6 +303,38 @@ export function ReviewQueue({ items }: { items: ReviewItem[] }) {
           ))}
         </div>
 
+        {/* Then what kind of work it is. The one that turns a queue nobody
+            starts into an evening somebody can finish: the first pile needs
+            nothing looked up, and the last cannot be signed off by anybody
+            until a provision is found for it. */}
+        <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
+          {(
+            [
+              ['all', 'Any kind'],
+              ...PILE_ORDER.map(
+                (p) => [p, `${PILE_LABEL[p]} (${byPile.get(p) ?? 0} left)`] as [PileFilter, string],
+              ),
+            ] as Array<[PileFilter, string]>
+          ).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => {
+                setPile(value);
+                setFocused(0);
+              }}
+              className={cn(
+                'rounded-full border px-3 py-2',
+                pile === value
+                  ? 'border-burgundy bg-burgundy text-paper'
+                  : 'border-rule-strong text-slate hover:bg-paper',
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
         <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
           {(
             [
@@ -310,10 +407,16 @@ export function ReviewQueue({ items }: { items: ReviewItem[] }) {
 
       {visible.length === 0 ? (
         <Card className="text-center">
+          {/* An empty list means two very different things. With no filters on,
+              the work is genuinely done. With a filter on, it means this
+              particular corner is done, and saying "every item has been signed
+              off" there would be a plain untruth about the rest of the bank. */}
           <p className="text-slate">
-            {filter === 'outstanding'
-              ? 'Nothing left to review. Every item has been signed off or set aside.'
-              : 'Nothing here.'}
+            {filter !== 'outstanding'
+              ? 'Nothing here.'
+              : pile !== 'all' || scope !== 'all'
+                ? 'Nothing left in this corner of the queue. Widen the filters above to see the rest.'
+                : 'Nothing left to review. Every item has been signed off or set aside.'}
           </p>
         </Card>
       ) : null}
