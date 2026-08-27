@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { checkAdmin } from '@/lib/admin/guard';
+import { checkAdmin, checkCoach } from '@/lib/admin/guard';
 import { createServiceClient } from '@/lib/supabase/service';
 import { confirmStep, recordDecision } from '@/lib/onboarding/service';
 import { createInvitation, revokeInvitation } from '@/lib/onboarding/invitations';
@@ -13,15 +13,20 @@ import type { AdminState } from '../actions';
 /**
  * Overseeing the pre-start checklist.
  *
- * Every write in this file takes the acting administrator's id from their
- * session and puts it in the row. That is the only reason any of these records
- * are worth keeping: "the NDA was confirmed" is an assertion nobody can stand
- * behind, and "Matthew confirmed the NDA on 3 September" is one somebody can.
+ * Every write in this file takes the acting person's id from their session and
+ * puts it in the row. That is the only reason any of these records are worth
+ * keeping: "the NDA was confirmed" is an assertion nobody can stand behind, and
+ * "Matthew confirmed the NDA on 3 September" is one somebody can.
+ *
+ * Two roles reach this file. Confirming an item and deciding somebody is ready
+ * are supervisor judgements, so a coach may record them. Writing the checklist
+ * itself, setting start dates and issuing invitations shape what the firm asks
+ * of people, so those stay with an administrator.
  *
  * These run through the service role, which bypasses Row Level Security, so the
  * policies that pin confirmed_by and decided_by to auth.uid() do not apply here.
- * checkAdmin() plus passing the caller's own id is what stands in their place,
- * and the policies remain as the second lock on the same door.
+ * The guard plus passing the caller's own id is what stands in their place, and
+ * the policies remain as the second lock on the same door.
  */
 
 const stepSchema = z
@@ -109,8 +114,11 @@ export async function saveStep(_state: AdminState, formData: FormData): Promise<
 
 /** The firm confirming one person's item, in the name of whoever is signed in. */
 export async function confirm(_state: AdminState, formData: FormData): Promise<AdminState> {
-  const adminId = await checkAdmin();
-  if (!adminId) return { error: 'You are not signed in as an administrator.' };
+  // A supervisor's act, so a coach records it. Their id is what goes into the
+  // record, which is the point of asking who is signed in rather than trusting
+  // the form.
+  const adminId = await checkCoach();
+  if (!adminId) return { error: 'You are not signed in as a coach or administrator.' };
 
   const userId = String(formData.get('userId') ?? '');
   const stepId = String(formData.get('stepId') ?? '');
@@ -133,8 +141,11 @@ export async function confirm(_state: AdminState, formData: FormData): Promise<A
  * new policy must not be able to record that the list was empty.
  */
 export async function decide(_state: AdminState, formData: FormData): Promise<AdminState> {
-  const adminId = await checkAdmin();
-  if (!adminId) return { error: 'You are not signed in as an administrator.' };
+  // Deciding somebody is ready to be put in front of a client is the judgement
+  // the coach role exists for. It is recorded against them by name, with the
+  // count of what was still outstanding when they decided.
+  const adminId = await checkCoach();
+  if (!adminId) return { error: 'You are not signed in as a coach or administrator.' };
 
   const userId = String(formData.get('userId') ?? '');
   const decision = String(formData.get('decision') ?? '');

@@ -24,7 +24,13 @@ import { DOMAINS } from '../src/content/seed/taxonomy';
 const ROOT = path.join(__dirname, '..');
 const SRC = path.join(ROOT, 'src');
 
-const AUTH_CALLS = ['checkAdmin', 'requireAdmin', 'getCurrentUser'];
+const AUTH_CALLS = [
+  'checkAdmin',
+  'requireAdmin',
+  'checkCoach',
+  'requireCoach',
+  'getCurrentUser',
+];
 
 /**
  * Actions whose caller is identified by a capability rather than a session.
@@ -217,22 +223,60 @@ test('an invitation token is stored hashed and never in the clear', () => {
   assert.match(source, /\.eq\('token_hash', hashToken\(token\)\)/);
 });
 
-test('every admin server action requires admin specifically, not merely a session', () => {
+/**
+ * The three actions a coach may take, named one by one.
+ *
+ * A coach is a lawyer the firm trusts to judge whether content is sound and
+ * whether a person is ready. That is a real role and it needs real rights, but
+ * it is not administration, and the difference has to be visible in a diff
+ * rather than inferred from which guard somebody happened to import.
+ *
+ * Anything not on this list must require an administrator. Adding to it is an
+ * act somebody has to perform deliberately and a reviewer can see.
+ */
+const COACH_ACTIONS = new Set([
+  'recordReviewDecision',
+  'confirm',
+  'decide',
+]);
+
+test('every admin server action requires a staff role, never merely a session', () => {
   const adminActions = ACTIONS.filter((a) => a.file.includes('app/admin'));
   assert.ok(adminActions.length >= 6, `only found ${adminActions.length} admin actions`);
 
   const weak = adminActions
-    .filter((a) => !a.body.includes('checkAdmin(') && !a.body.includes('requireAdmin('))
+    .filter((a) => {
+      const guards = COACH_ACTIONS.has(a.name)
+        ? ['checkCoach(', 'requireCoach(', 'checkAdmin(', 'requireAdmin(']
+        : ['checkAdmin(', 'requireAdmin('];
+      return !guards.some((g) => a.body.includes(g));
+    })
     .map((a) => `${a.file}:${a.line} ${a.name}`);
 
-  assert.deepEqual(weak, [], 'a signed-in learner is not an administrator');
+  assert.deepEqual(weak, [], 'a signed-in learner is neither an administrator nor a coach');
+});
+
+test('nothing outside the named three settles for a coach', () => {
+  // The other half of the same rule, and the half that matters. The test above
+  // would pass if every action in the app quietly moved to checkCoach; this one
+  // fails the moment one does, and names it.
+  const slipped = ACTIONS.filter((a) => a.file.includes('app/admin'))
+    .filter((a) => !COACH_ACTIONS.has(a.name))
+    .filter((a) => /(checkCoach|requireCoach)\(/.test(a.body))
+    .map((a) => `${a.file}:${a.line} ${a.name}`);
+
+  assert.deepEqual(
+    slipped,
+    [],
+    'a coach signs content off and records decisions about people, nothing else',
+  );
 });
 
 test('the admin authorisation check is the first thing an admin action does', () => {
   // A check that runs after the write has already happened is not a check.
   const late = ACTIONS.filter((a) => a.file.includes('app/admin'))
     .filter((action) => {
-      const guardAt = action.body.search(/(checkAdmin|requireAdmin)\(/);
+      const guardAt = action.body.search(/(checkAdmin|requireAdmin|checkCoach|requireCoach)\(/);
       const writeAt = action.body.search(/createServiceClient\(/);
       return writeAt !== -1 && guardAt > writeAt;
     })

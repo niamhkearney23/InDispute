@@ -50,6 +50,15 @@ These come from the owner and are not up for renegotiation.
 - **Never expose** the Supabase service role key, the OpenAI or Anthropic keys,
   or admin credentials. Hiding an admin button is presentation, not security:
   authorisation happens server-side, in every action, before anything else.
+- **Two staff roles, and the line between them holds.** An administrator writes
+  content and runs the firm's setup. A **coach** is the lawyer who supervises
+  the juniors: they sign content off and record supervisor decisions, weekly,
+  and they cannot write content. Editing a question mints a new version and
+  clears its sign-off, so an account that could edit and verify could sign its
+  own rewrite with the audit trail showing an ordinary review. A coach who
+  thinks an item is wrong flags it with a note; somebody else changes it.
+  Exactly three actions accept a coach, named in `tests/authorisation-contract`,
+  and a test fails if a fourth quietly does.
 - **AI never publishes legal content.** It may draft. A named person signs off,
   and that sign-off is a statement they are answerable for.
 - **Say what is true.** The product's whole value is a record a firm can rely
@@ -117,19 +126,28 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0010`. `supabase/UPDATE.sql` is the one-paste update for a
+- Migrations run to `0011`. `supabase/UPDATE.sql` is the one-paste update for a
   database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
-- 186 tests, 77 schema guarantees against a real Postgres, 96 page and device
+- 193 tests, 79 schema guarantees against a real Postgres, 96 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - The two marked exercises are checked by `npm run qa:marker`, which drives the
   real pages with `/claude` stubbed. It exists because the drafting exercise
   returned a bare 504 on a good letter and nothing caught it: rendering a page
   is not pressing its button.
-- **The gate: 233 items in `/admin/review` are written but not verified.** This
-  is the only thing standing between the app and being real. It is lawyer time
-  and it cannot be delegated to a model. Do not let building crowd it out.
+- **The gate: the review queue is written but not verified.** This is the only
+  thing standing between the app and being real. It is lawyer time and it
+  cannot be delegated to a model. Do not let building crowd it out.
+- `npm run plan:review [-- MY|AU]` sorts it into the three piles it actually
+  is: sign from experience, check the citation, find a citation first. Malaysia
+  is 27 signable today, 42 behind 38 sources, 12 blocked. Australia is 67, 36
+  behind 35 sources, 19 blocked. The 27 are the shortest path to a live
+  Malaysian module, after which `questionsOpen.MY` in the site's `config.js`
+  flips to true.
+- `npx tsx scripts/make-coach.ts them@theirfirm.com` grants the coach role, and
+  they must sign up themselves first: a sign-off records who decided, and that
+  is worth nothing if the account was not theirs.
 - Account creation on the joining path needs a real Supabase project and is not
   covered by the mock, so it wants one throwaway invitation before a real one.
 

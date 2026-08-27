@@ -18,6 +18,7 @@
     "qa:marker": "node tools/site-qa/marker-check.mjs",
     "qa:mock": "node tools/visual-qa/mock-supabase.mjs",
     "check:content": "tsx --conditions=react-server scripts/content-check.ts",
+    "plan:review": "tsx --conditions=react-server scripts/review-plan.ts",
     "review:pack": "tsx --conditions=react-server scripts/review-pack.ts",
     "doctor": "tsx --conditions=react-server scripts/doctor.ts",
     "build:sql": "tsx scripts/build-combined-sql.ts"

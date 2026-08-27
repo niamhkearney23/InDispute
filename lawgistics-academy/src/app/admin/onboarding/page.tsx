@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { requireAdmin } from '@/lib/admin/guard';
+import { requireCoach } from '@/lib/admin/guard';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { onboardingRoster, listStepsForAdmin } from '@/lib/onboarding/service';
 import { daysUntil, shortDate } from '@/lib/onboarding/rules';
@@ -10,7 +10,7 @@ import { ButtonLink, Card, EmptyState, InlineLink, Pill, SectionHeading } from '
 export const metadata: Metadata = { title: 'Before they begin' };
 
 export default async function OnboardingRosterPage() {
-  const { userId: adminId } = await requireAdmin();
+  const { userId: adminId, isAdmin } = await requireCoach();
   const me = await getLearnerProfile(adminId);
   // The supervisor's own clock, so "starts soon" means soon where they are.
   const timezone = me?.timezone ?? 'Australia/Melbourne';
@@ -37,14 +37,20 @@ export default async function OnboardingRosterPage() {
             <p className="eyebrow mb-2">Oversight</p>
             <h1 className="text-3xl">Before they begin</h1>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <ButtonLink href="/admin/onboarding/steps" variant="outline">
-              The checklist
-            </ButtonLink>
-            <ButtonLink href="/admin/onboarding/invite" variant="accent">
-              Invite somebody
-            </ButtonLink>
-          </div>
+          {/* Editing the checklist and issuing invitations decide what the
+              firm asks of people. A coach reads this list and records decisions
+              about the people on it; they do not decide who joins. Both pages
+              refuse them anyway. */}
+          {isAdmin ? (
+            <div className="flex flex-wrap gap-2">
+              <ButtonLink href="/admin/onboarding/steps" variant="outline">
+                The checklist
+              </ButtonLink>
+              <ButtonLink href="/admin/onboarding/invite" variant="accent">
+                Invite somebody
+              </ButtonLink>
+            </div>
+          ) : null}
         </div>
         <p className="mt-3 max-w-2xl text-slate">
           Who has read what, who has signed what, and who is about to start work without

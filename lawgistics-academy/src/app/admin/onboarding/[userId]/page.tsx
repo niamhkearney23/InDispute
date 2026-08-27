@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { requireAdmin } from '@/lib/admin/guard';
+import { requireCoach } from '@/lib/admin/guard';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { onboardingForPerson, decisionHistory } from '@/lib/onboarding/service';
 import { longDate } from '@/lib/onboarding/rules';
@@ -15,7 +15,7 @@ export default async function PersonOnboardingPage({
   params: Promise<{ userId: string }>;
 }) {
   const { userId } = await params;
-  const { userId: adminId } = await requireAdmin();
+  const { userId: adminId, isAdmin } = await requireCoach();
 
   const [person, history, me] = await Promise.all([
     onboardingForPerson(userId),
@@ -39,7 +39,10 @@ export default async function PersonOnboardingPage({
       </section>
 
       <Card>
-        <StartDateForm userId={userId} startsOn={state.startsOn} />
+        {/* When somebody starts is a firm arrangement, not a supervisor's
+            judgement, so the action refuses a coach and the form is not drawn
+            for one. Confirming items and deciding readiness stay. */}
+        {isAdmin ? <StartDateForm userId={userId} startsOn={state.startsOn} /> : null}
         <p className="mt-3 text-xs text-muted">
           Only an administrator can set this. It is the firm’s fact about somebody, not a
           setting they get to move, and the database refuses the change if they try.

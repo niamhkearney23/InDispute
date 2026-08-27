@@ -56,21 +56,33 @@ insert into auth.users (id, email, raw_user_meta_data)
 values
   ('11111111-1111-1111-1111-111111111111', 'learner-a@example.test', '{"display_name":"A"}'),
   ('22222222-2222-2222-2222-222222222222', 'learner-b@example.test', '{}'),
-  ('33333333-3333-3333-3333-333333333333', 'admin@example.test', '{}');
+  ('33333333-3333-3333-3333-333333333333', 'admin@example.test', '{}'),
+  ('44444444-4444-4444-4444-444444444444', 'coach@example.test', '{}');
 
 select pg_temp.expect(
   (select count(*) from public.profiles
    where id in ('11111111-1111-1111-1111-111111111111',
                 '22222222-2222-2222-2222-222222222222',
-                '33333333-3333-3333-3333-333333333333')) = 3,
+                '33333333-3333-3333-3333-333333333333',
+                '44444444-4444-4444-4444-444444444444')) = 4,
   'a profile is created for every new auth user');
 
 select pg_temp.expect(
-  (select count(*) from public.user_streaks) = 3,
+  (select count(*) from public.user_streaks) = 4,
   'a streak row is created for every new auth user');
 
 update public.profiles set is_admin = true
 where id = '33333333-3333-3333-3333-333333333333';
+
+update public.profiles set is_coach = true
+where id = '44444444-4444-4444-4444-444444444444';
+
+select pg_temp.expect(
+  exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'profiles'
+      and column_name = 'is_coach'),
+  'profiles carries a coach flag distinct from the administrator flag');
 
 insert into public.domains (id, slug, name)
 values ('aaaaaaaa-0000-0000-0000-000000000001', 'test-domain', 'Test Domain');
@@ -201,6 +213,16 @@ select pg_temp.expect_failure(
     where id = '11111111-1111-1111-1111-111111111111'$$,
   'a learner cannot make themselves an administrator');
 
+-- The same door, the other handle. A coach signs content off and records
+-- decisions about people, so an account that could hand itself that flag could
+-- verify the whole bank and clear anybody to start work. Guarded by the same
+-- trigger as is_admin, and tested separately because widening a guard to cover
+-- a second column is exactly the kind of edit that silently covers one.
+select pg_temp.expect_failure(
+  $$update public.profiles set is_coach = true
+    where id = '11111111-1111-1111-1111-111111111111'$$,
+  'a learner cannot make themselves a coach');
+
 select pg_temp.expect(
   (select count(*) from public.questions) = 0,
   'a learner cannot read the questions table directly');
@@ -235,6 +257,36 @@ select pg_temp.expect_failure(
             'cccccccc-0000-0000-0000-000000000001',
             'dddddddd-0000-0000-0000-000000000001', array['a'], true)$$,
   'a learner cannot record an attempt against another learner’s account');
+
+-- -----------------------------------------------------------------------------
+-- Row Level Security, as a coach
+-- -----------------------------------------------------------------------------
+-- A coach signs content off and records decisions about people, and does all of
+-- it through server code using the service role. RLS was deliberately NOT
+-- widened for them, so from the browser they are an ordinary learner. If that
+-- ever stops being true it should be a decision somebody made, not something
+-- that happened.
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+
+select pg_temp.expect(
+  (select count(*) from public.question_versions) = 0,
+  'a coach cannot read question versions from the browser; the answers live there');
+
+select pg_temp.expect(
+  (select count(*) from public.profiles) = 1,
+  'a coach cannot read other people’s profiles from the browser');
+
+select pg_temp.expect_failure(
+  $$update public.profiles set is_admin = true
+    where id = '44444444-4444-4444-4444-444444444444'$$,
+  'a coach cannot promote themselves to administrator');
+
+select pg_temp.expect_failure(
+  $$update public.profiles set is_coach = true
+    where id = '11111111-1111-1111-1111-111111111111'$$,
+  'a coach cannot make somebody else a coach');
+
+set local request.jwt.claim.sub = '22222222-2222-2222-2222-222222222222';
 
 select pg_temp.expect_failure(
   $$insert into public.xp_events (user_id, kind, amount)
@@ -682,7 +734,7 @@ select pg_temp.expect(
   not exists (
     select 1 from information_schema.columns
     where table_schema = 'public' and table_name = 'joiner_invitations'
-      and column_name in ('is_admin', 'admin', 'role', 'password')),
+      and column_name in ('is_admin', 'is_coach', 'admin', 'role', 'password')),
   'there is no column on an invitation that could grant rights or carry a password');
 
 -- Revoking is what closes a live invitation, and it frees the address again.
