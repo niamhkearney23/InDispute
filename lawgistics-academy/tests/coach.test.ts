@@ -146,3 +146,89 @@ test('the coach flag cannot be granted from the browser', () => {
     'and it is proved against a real Postgres, not just asserted here',
   );
 });
+
+/**
+ * A function redefined by more than one migration is redefining the WHOLE
+ * function, not adding to it.
+ *
+ * `guard_profile_privileges()` was written once in 0001, extended in 0008 to
+ * also guard `starts_on` (a joiner moving their own start date moves their own
+ * deadline), then redefined again in 0011 to add `is_coach`. 0011 was written
+ * against 0001's body rather than 0008's, so `create or replace function`
+ * quietly dropped the starts_on guard the moment 0011 ran. From then on any
+ * joiner could set their own start date to whatever they liked, and nothing
+ * objected.
+ *
+ * Nothing here caught it. The unit test above only checked that 0011 itself
+ * contained the two clauses 0011 was adding, which it did; it never checked
+ * against what an earlier migration had put there. This one does, generically:
+ * every column any migration ever guarded in this function must still be
+ * guarded in whichever migration defines it last, whatever that column is
+ * called and whichever file added it.
+ *
+ * Found the way it should have been found the first time: not by reading the
+ * diff, but by running the schema guarantee suite against a real Postgres,
+ * where the RLS and the trigger are both actually exercised rather than
+ * assumed. A mocked backend cannot catch either.
+ */
+test('every column any migration has ever guarded is still guarded in the latest definition', () => {
+  const MIGRATIONS_DIR = path.join(ROOT, 'supabase/migrations');
+  const files = fs
+    .readdirSync(MIGRATIONS_DIR)
+    .filter((f) => /^\d{4}_.*\.sql$/.test(f))
+    .sort();
+
+  const FN = 'guard_profile_privileges';
+  const CLAUSE = /new\.(\w+)\s+is\s+distinct\s+from\s+old\.\1/g;
+  const HEADER = `create or replace function public.${FN}(`;
+
+  /**
+   * Just this function's body, not the whole migration file. A migration is
+   * free to define other triggers alongside this one, and an earlier version
+   * of this test learned that the hard way: it matched `new.stem is distinct
+   * from old.stem` out of the unrelated question-immutability trigger sitting
+   * in the same file as the first `guard_profile_privileges` definition, and
+   * reported that as a column this function was supposed to guard. Scoped to
+   * `$$ ... $$` starting at the header, which is how every function body in
+   * these migrations is written.
+   */
+  function functionBody(source: string): string {
+    const start = source.indexOf(HEADER);
+    const bodyStart = source.indexOf('$$', start);
+    const bodyEnd = source.indexOf('$$;', bodyStart + 2);
+    return source.slice(bodyStart, bodyEnd);
+  }
+
+  const definingFiles = files.filter((f) =>
+    read(`supabase/migrations/${f}`).includes(HEADER),
+  );
+
+  // Nothing to compare if the function is never touched more than once; that
+  // is not this test's failure mode, but a silent pass here would be worse
+  // than not running at all.
+  assert.ok(
+    definingFiles.length >= 2,
+    `expected at least two migrations to define ${FN}, found ${definingFiles.length}`,
+  );
+
+  const everGuarded = new Set<string>();
+  for (const file of definingFiles) {
+    const body = functionBody(read(`supabase/migrations/${file}`));
+    for (const match of body.matchAll(CLAUSE)) everGuarded.add(match[1]);
+  }
+
+  const latest = definingFiles[definingFiles.length - 1];
+  const latestBody = functionBody(read(`supabase/migrations/${latest}`));
+  const latestGuards = new Set([...latestBody.matchAll(CLAUSE)].map((m) => m[1]));
+
+  const dropped = [...everGuarded].filter((column) => !latestGuards.has(column));
+
+  assert.deepEqual(
+    dropped,
+    [],
+    `${latest} redefines ${FN}() without guarding: ${dropped.join(', ')}. ` +
+      `An earlier migration protected ${dropped.join(', ')} from being changed by ` +
+      `anyone but an administrator; redefining the function without carrying that ` +
+      `clause forward silently deletes the protection.`,
+  );
+});
