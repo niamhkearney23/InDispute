@@ -281,11 +281,30 @@ select pg_temp.expect_failure(
     where id = '44444444-4444-4444-4444-444444444444'$$,
   'a coach cannot promote themselves to administrator');
 
-select pg_temp.expect_failure(
-  $$update public.profiles set is_coach = true
-    where id = '11111111-1111-1111-1111-111111111111'$$,
+-- Not expect_failure, on purpose. The row above raises an exception because
+-- id = auth.uid() satisfies the profiles UPDATE policy's USING clause, so the
+-- statement reaches guard_profile_privileges and the trigger raises. Somebody
+-- else's row fails the USING clause first: RLS filters it out of the update's
+-- target set before the trigger is ever reached, so the statement runs to
+-- completion having touched nothing. "Blocked with an error" and "silently
+-- matched zero rows" are both a coach not being able to do this, but they are
+-- different mechanisms, and asserting the wrong one here would report this as
+-- broken forever while actually proving nothing about the real one.
+update public.profiles set is_coach = true
+  where id = '11111111-1111-1111-1111-111111111111';
+
+-- Checked as the table owner, not as the coach: RLS already hides that row
+-- from the coach's own SELECT, which would make this pass whether or not the
+-- update actually failed. The point is not "the coach cannot see it changed",
+-- it is "the coach did not change it".
+reset role;
+
+select pg_temp.expect(
+  (select is_coach from public.profiles
+   where id = '11111111-1111-1111-1111-111111111111') is distinct from true,
   'a coach cannot make somebody else a coach');
 
+set local role authenticated;
 set local request.jwt.claim.sub = '22222222-2222-2222-2222-222222222222';
 
 select pg_temp.expect_failure(
