@@ -26,6 +26,18 @@
     close: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"/></svg>'
   };
 
+  /* The mark: two ribbon loops over a tied knot, the same shape the box
+     artwork ties on the lid. currentColor so it follows the header (ink) and
+     the footer (cream) without a second copy of the SVG per context. */
+  var MARK = '<svg class="brand__mark" viewBox="0 0 120 120" aria-hidden="true" fill="none" ' +
+    'stroke-width="7" stroke-linecap="round" stroke-linejoin="round">' +
+    '<path d="M60 66C40 40 8 44 8 62c0 16 26 20 52 8"/>' +
+    '<path d="M60 66C80 40 112 44 112 62c0 16-26 20-52 8"/>' +
+    '<path d="M60 66C40 96 30 112 36 118c7 6 20-8 30-38"/>' +
+    '<path d="M60 66C80 96 90 112 84 118c-7 6-20-8-30-38"/>' +
+    '<circle cx="60" cy="64" r="10"/>' +
+  '</svg>';
+
   /* ------------------------------------------------------------- helpers */
 
   function escapeHtml(value) {
@@ -103,8 +115,9 @@
       '<div class="announce">Free delivery Australia-wide &middot; packed by hand in ' + CONFIG.place + '</div>' +
       '<div class="site-header">' +
         '<div class="wrap header__inner">' +
-          '<a class="brand" href="index.html"><strong>' + CONFIG.brand + '</strong>' +
-            '<span>' + CONFIG.place + '</span></a>' +
+          '<a class="brand" href="index.html">' + MARK +
+            '<span class="brand__type"><strong>' + CONFIG.brand + '</strong>' +
+            '<span>' + CONFIG.place + '</span></span></a>' +
           '<nav class="nav" aria-label="Primary">' + links + '</nav>' +
           '<div class="header__actions">' +
             '<button class="icon-btn" type="button" data-theme-toggle></button>' +
@@ -134,8 +147,9 @@
         '<div class="wrap">' +
           '<div class="footer__grid">' +
             '<div class="footer__brand">' +
-              '<a class="brand" href="index.html"><strong style="color:var(--cream)">' + CONFIG.brand +
-                '</strong><span>' + CONFIG.place + '</span></a>' +
+              '<a class="brand" href="index.html" style="color:var(--cream)">' + MARK +
+                '<span class="brand__type"><strong>' + CONFIG.brand +
+                '</strong><span>' + CONFIG.place + '</span></span></a>' +
               '<p>' + CONFIG.tagline + ' Beautiful things for the last hour of the day, packed by ' +
                 'hand in ' + CONFIG.place + ' and sent anywhere in Australia.</p>' +
             '</div>' +

@@ -302,17 +302,24 @@ p:last-child { margin-bottom: 0; }
 
 .brand {
   display: inline-flex;
-  flex-direction: column;
+  align-items: center;
+  gap: .6rem;
   text-decoration: none;
   line-height: 1;
 }
+.brand__mark { flex: none; width: 26px; height: 26px; }
+.brand__mark path, .brand__mark circle { stroke: currentColor; }
+.brand__type { display: inline-flex; flex-direction: column; }
 .brand strong {
   font-family: var(--display);
   font-weight: 400;
   font-size: 1.4rem;
   letter-spacing: .01em;
 }
-.brand span {
+/* Direct child of .brand__type only — .brand__type is itself a span now
+   that the mark sits beside it, and text-transform/letter-spacing inherit
+   into children, so a bare ".brand span" was uppercasing "Sleep Shop" too. */
+.brand__type > span {
   font-size: 8.5px;
   letter-spacing: .3em;
   text-transform: uppercase;
