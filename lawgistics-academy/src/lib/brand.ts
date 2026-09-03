@@ -42,7 +42,7 @@ export interface Brand {
   initial: string;
 }
 
-const DEFAULT_NAME = 'Lawgistics';
+const DEFAULT_NAME = 'Litigation';
 const DEFAULT_SUFFIX = 'Academy';
 
 /** The burgundy the stylesheet ships with, for anywhere the variable cannot reach. */

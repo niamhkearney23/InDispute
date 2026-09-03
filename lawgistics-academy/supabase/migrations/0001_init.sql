@@ -1,5 +1,5 @@
 -- =============================================================================
--- Lawgistics Academy -- initial schema
+-- Litigation Academy -- initial schema
 -- =============================================================================
 -- Design notes that matter more than the DDL:
 --

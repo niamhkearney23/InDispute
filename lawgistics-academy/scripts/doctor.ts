@@ -26,7 +26,7 @@ function report(ok: boolean, label: string, fix?: string) {
 }
 
 async function main() {
-  console.log('\nLawgistics Academy setup check\n');
+  console.log('\nLitigation Academy setup check\n');
 
   /* --- environment ------------------------------------------------------- */
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

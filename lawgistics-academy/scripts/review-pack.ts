@@ -328,7 +328,7 @@ async function main() {
 
   const html = `<!doctype html>
 <html lang="en-AU"><head><meta charset="utf-8">
-<title>Lawgistics Academy content review pack</title>
+<title>Litigation Academy content review pack</title>
 <style>
   :root { --ink:#14110f; --slate:#5c554d; --muted:#8a8177; --rule:#e2dbcd; --burgundy:#6b1f2a; }
   * { box-sizing: border-box; }
@@ -378,7 +378,7 @@ async function main() {
 </style></head><body>
 
 <h1>Content review pack</h1>
-<p class="lede">Lawgistics Academy${country ? ` · ${country === 'MY' ? 'Malaysian' : 'Australian'} law only` : ''} · generated ${esc(generated)}</p>
+<p class="lede">Litigation Academy${country ? ` · ${country === 'MY' ? 'Malaysian' : 'Australian'} law only` : ''} · generated ${esc(generated)}</p>
 
 <div class="summary">
   <p><strong>${items.length} items to review.</strong> Ordered so that the ones most

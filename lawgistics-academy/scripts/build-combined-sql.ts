@@ -54,7 +54,7 @@ export function buildUpdateSql(): string {
   const files = migrationFiles().filter((f) => f >= FIRST_RERUNNABLE);
 
   const header = `-- =============================================================================
--- Lawgistics Academy: update an existing database
+-- Litigation Academy: update an existing database
 -- =============================================================================
 -- Paste this whole file into the Supabase SQL editor and run it.
 --
@@ -80,7 +80,7 @@ export function buildCombinedSql(): string {
   const files = migrationFiles();
 
   const header = `-- =============================================================================
--- Lawgistics Academy: complete database setup
+-- Litigation Academy: complete database setup
 -- =============================================================================
 -- Paste this whole file into the Supabase SQL editor and run it, once, on a new
 -- project. It creates every table, view, policy and trigger the app needs.
