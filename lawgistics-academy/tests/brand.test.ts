@@ -37,10 +37,10 @@ test('an accent colour is checked before it can reach a stylesheet', () => {
   assert.equal(safeAccent(''), null);
 });
 
-test('the default brand is Lawgistics, and it is complete', () => {
-  assert.equal(brand.name, 'Lawgistics');
+test('the default brand is Litigation Academy, and it is complete', () => {
+  assert.equal(brand.name, 'Litigation');
   assert.equal(brand.suffix, 'Academy');
-  assert.equal(brand.fullName, 'Lawgistics Academy');
+  assert.equal(brand.fullName, 'Litigation Academy');
   assert.ok(brand.tagline.length > 10);
   assert.equal(brand.accent, null, 'no accent set means the built-in burgundy');
   assert.equal(brand.initial, 'L');

@@ -1,4 +1,4 @@
-# Lawgistics Academy
+# Litigation Academy
 
 **Train like a lawyer.**
 

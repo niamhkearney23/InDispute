@@ -1,5 +1,5 @@
 -- =============================================================================
--- Lawgistics Academy: update an existing database
+-- Litigation Academy: update an existing database
 -- =============================================================================
 -- Paste this whole file into the Supabase SQL editor and run it.
 --
@@ -636,8 +636,8 @@ create policy onboarding_decisions_select on public.onboarding_decisions
 -- 0008 gave a joiner a checklist and gave the firm somebody to oversee it, but
 -- it still assumed the joiner had found the sign-up page and made an account
 -- by themselves, and that somebody at the firm had then found them in a list
--- and typed in a start date. That is not "everyone joins through Lawgistics",
--- it is "everyone joins, and then Lawgistics finds out".
+-- and typed in a start date. That is not "everyone joins through the app",
+-- it is "everyone joins, and then the app finds out".
 --
 -- So the firm invites them. An administrator enters a name, an email and a
 -- start date, and gets a link. The person opens it, sets a password, and lands

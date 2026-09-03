@@ -1,6 +1,6 @@
 @AGENTS.md
 
-# Lawgistics Academy
+# Litigation Academy
 
 Adaptive litigation training for Australian and Malaysian law students, PLT
 students, graduates and junior lawyers, plus the induction a firm puts in front
@@ -13,7 +13,11 @@ assume a terminal is available.
 ## Scope
 
 **The academy, and the firm induction that goes with it.** That is the product.
-It is called Lawgistics and it stays called Lawgistics.
+It is called the **Litigation Academy**, set as the default brand in
+`src/lib/brand.ts` (renamed from "Lawgistics" once the owner settled on the
+name that actually describes it, and that everyone already called it in
+conversation). White labelling still works exactly as before: a firm's own
+name overrides the default per deployment, the default just changed.
 
 **The end goal, in the owner's words: a law firm buys this to teach their
 interns and paralegals everything.** The individual learner is real and matters,
