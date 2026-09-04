@@ -65,6 +65,7 @@ const PAGES = [
   { name: 'onboarding', path: '/onboarding', auth: true, as: 'new@lawgistics.test' },
   { name: 'dashboard', path: '/dashboard', auth: true },
   { name: 'skills', path: '/skills', auth: true },
+  { name: 'courts', path: '/courts', auth: true },
   { name: 'modules', path: '/modules', auth: true },
   { name: 'module', path: '/modules/ai-ethics-au', auth: true },
   { name: 'firm-module', path: '/modules/firm/ai-policy', auth: true },

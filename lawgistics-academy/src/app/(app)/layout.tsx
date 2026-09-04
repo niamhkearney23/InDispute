@@ -46,6 +46,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <NavLink href="/dashboard">Today</NavLink>
             <NavLink href="/modules">Learn</NavLink>
             <NavLink href="/skills">Skills</NavLink>
+            <NavLink href="/courts">Courts</NavLink>
             {profile?.isAdmin ? <NavLink href="/admin">Admin</NavLink> : null}
             <form action="/auth/sign-out" method="post">
               <button

@@ -5,7 +5,7 @@ import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { getModuleProgress } from '@/lib/modules/service';
 import { listFirmModulesForLearner } from '@/lib/firm/service';
-import { Card, Pill, SectionHeading } from '@/components/ui';
+import { ButtonLink, Card, Pill, SectionHeading } from '@/components/ui';
 
 export const metadata: Metadata = { title: 'Modules' };
 
@@ -32,6 +32,18 @@ export default async function ModulesPage() {
           has covered something. A module has a finishing line.
         </p>
       </section>
+
+      {/* One line in, not a whole section: this is a shortcut for somebody who
+          already knows what they want, not the main thing on this page. */}
+      <Card className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="font-medium">Which court does this go in?</p>
+          <p className="text-sm text-slate">Tap through the hierarchy and see where an appeal goes.</p>
+        </div>
+        <ButtonLink href="/courts" variant="outline" size="sm">
+          Open the court map
+        </ButtonLink>
+      </Card>
 
       {/* The firm's own content sits above ours on purpose. On somebody's first
           day, "what this firm allows you to put into a tool" outranks anything
