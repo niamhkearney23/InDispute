@@ -20,7 +20,9 @@ const withFonts = !process.argv.includes('--no-fonts');
 /* Route order drives the preview's own navigation. */
 const ROUTES = [
   { id: 'home', file: 'index.html', label: 'Home' },
-  { id: 'box', file: 'box.html', label: 'The box' },
+  { id: 'box', file: 'box.html', label: 'Gift sleep' },
+  { id: 'shop', file: 'shop.html', label: 'Shop sleep' },
+  { id: 'rituals', file: 'rituals.html', label: 'Sleep rituals' },
   { id: 'inside', file: 'inside.html', label: 'What is inside' },
   { id: 'gifting', file: 'gifting.html', label: 'Gifting' },
   { id: 'about', file: 'about.html', label: 'About' },
@@ -221,7 +223,7 @@ async function build() {
     `<button type="button" data-go="${r.id}">${r.label}</button>`).join('');
 
   const out = [
-    '<title>Sleep Shop — full site preview</title>',
+    '<title>Sleep Shop</title>',
     '<style>',
     fonts,
     styles,
