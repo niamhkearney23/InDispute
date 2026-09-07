@@ -11,7 +11,7 @@ export function DailyBrief({ fact }: { fact: DailyFact }) {
   return (
     <Card className="border-ink/12 bg-paper-sunk">
       <div className="mb-3 flex flex-wrap items-center gap-2">
-        <p className="eyebrow">Daily brief</p>
+        <p className="eyebrow">Did you know?</p>
         <Pill tone={fact.jurisdiction === 'AU_GENERAL' ? 'neutral' : 'accent'}>
           <span title={JURISDICTION_LABELS[fact.jurisdiction]}>
             {JURISDICTION_SHORT[fact.jurisdiction]}
