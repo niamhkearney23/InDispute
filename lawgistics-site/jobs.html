@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Law Jobs, Australian clerkship and graduate program dates | Lawgistics</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f4f1ea'/%3E%3Ctext x='27' y='44' font-family='Georgia,serif' font-weight='700' font-size='38' fill='%231a1f28' text-anchor='middle'%3EL%3C/text%3E%3Ccircle cx='47' cy='41' r='5' fill='%232d4a75'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#f4f1ea">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Lawgistics">
+<meta property="og:title" content="Law Jobs, Australian clerkship and graduate program dates | Lawgistics">
+<meta property="og:image" content="https://lawgistics.my/assets/img/og.png">
+<meta property="og:description" content="Real, sourced clerkship and graduate program application windows for Australian law students, refreshed daily with a link to the official page for each one.">
+<meta property="og:url" content="https://lawgistics.my/jobs.html">
+<meta name="description" content="Real, sourced clerkship and graduate program application windows for Australian law students, refreshed daily with a link to the official page for each one.">
+<link rel="canonical" href="https://lawgistics.my/jobs.html">
+<link rel="stylesheet" href="assets/css/site.css">
+<style>
+  .jb-fresh{ display:inline-flex; align-items:center; gap:.45rem; margin-top:.9rem; font-size:.85rem; font-weight:600; color:var(--green); background:#e8f3ec; border:1px solid #bfddcc; padding:.32rem .8rem; border-radius:999px; }
+  .jb-fresh .dot{ width:.5rem; height:.5rem; border-radius:50%; background:var(--green); animation:jb-pulse 2s ease-in-out infinite; }
+  @keyframes jb-pulse{ 0%,100%{ opacity:1 } 50%{ opacity:.4 } }
+  .jb-note{ display:flex; gap:.6rem; align-items:flex-start; margin:1.4rem 0 0; padding:.8rem 1rem; background:#faf3e3; border:1px solid #ecd9ae; border-radius:var(--r); font-size:.86rem; color:var(--amber); line-height:1.55; }
+  .jb-note svg{ flex:none; width:17px; height:17px; margin-top:.12rem; }
+  .jb-note b{ color:var(--ink); }
+  .jb-card{ display:flex; flex-direction:column; gap:.55rem; }
+  .jb-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:.8rem; }
+  .jb-employer{ font-family:var(--serif); font-size:1.15rem; font-weight:700; color:var(--ink); line-height:1.3; }
+  .jb-program{ font-size:.9rem; color:var(--ink-soft); margin-top:.15rem; }
+  .jb-dates{ font-size:.85rem; color:var(--ink); font-weight:600; margin-top:.3rem; }
+  .jb-dates.jb-unconfirmed{ color:var(--ink-soft); font-weight:500; font-style:italic; }
+  .jb-notes{ font-size:.88rem; color:var(--ink-soft); line-height:1.55; }
+  .jb-foot{ display:flex; justify-content:space-between; align-items:center; margin-top:.3rem; font-size:.78rem; color:var(--haze); }
+  .jb-empty{ padding:3rem 0; text-align:center; color:var(--ink-soft); }
+</style>
+</head>
+<body>
+
+<header data-header></header>
+
+<main>
+
+  <section class="page-head">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal="0">Law Jobs</p>
+      <h1 data-reveal="0">Australian clerkship and graduate program dates</h1>
+      <p class="lede" data-reveal="60">Real application windows, sourced from each firm or Law Society's own page. Refreshed daily. Always confirm on the official page before applying.</p>
+      <p class="jb-fresh" id="jbfresh" role="status" hidden></p>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="wrap">
+      <div class="jb-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+        <span><b>Sourced, not guaranteed.</b> Every listing here links to the employer's or Law Society's own page. Dates shown as "not yet confirmed" mean the official source hadn't published them as of the last check — go to the source page for the latest.</span>
+      </div>
+
+      <div class="tpl-toolbar" style="margin-top:1.4rem">
+        <div class="chip-row" data-filters></div>
+        <label style="flex:0 1 300px">
+          <span style="position:absolute;left:-9999px">Search jobs</span>
+          <input class="input" type="search" data-search placeholder="Search employer or jurisdiction…">
+        </label>
+      </div>
+      <div class="grid grid-3" data-jobs style="margin-top:1.4rem"></div>
+      <p class="jb-empty" data-empty hidden>No verified openings right now. Check back tomorrow, or see the official recruitment scheme pages linked from your state Law Society.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer data-footer></footer>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/site.js"></script>
+<script>
+window.pageInit = function () {
+  var esc = window.lgEsc || function(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); };
+  var grid = document.querySelector("[data-jobs]");
+  var empty = document.querySelector("[data-empty]");
+  var filterHost = document.querySelector("[data-filters]");
+  var state = { jur: "all", q: "" };
+  var jobs = [];
+
+  function fmt(d){
+    if(!d) return null;
+    var parts = d.split("-");
+    var MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    return parts[2] + " " + MON[parseInt(parts[1],10)-1] + " " + parts[0];
+  }
+
+  function render(){
+    filterHost.querySelectorAll(".chip").forEach(function(b){
+      b.classList.toggle("is-active", b.getAttribute("data-jur") === state.jur);
+    });
+
+    var rows = jobs.filter(function(j){
+      var okJur = state.jur === "all" || j.jurisdiction === state.jur;
+      var hay = (j.employer + " " + j.jurisdiction + " " + (j.program||"")).toLowerCase();
+      return okJur && (!state.q || hay.indexOf(state.q) !== -1);
+    });
+
+    empty.hidden = rows.length > 0;
+
+    grid.innerHTML = rows.map(function(j){
+      var dates = (j.opens && j.closes)
+        ? '<span class="jb-dates">' + fmt(j.opens) + ' &rarr; ' + fmt(j.closes) + '</span>'
+        : '<span class="jb-dates jb-unconfirmed">Dates not yet confirmed</span>';
+      return '<div class="card jb-card">' +
+        '<div class="jb-top"><div><div class="jb-employer">' + esc(j.employer) + '</div>' +
+        '<div class="jb-program">' + esc(j.program||"") + '</div></div>' +
+        '<span class="tag">' + esc(j.jurisdiction||"") + '</span></div>' +
+        dates +
+        (j.notes ? '<p class="jb-notes">' + esc(j.notes) + '</p>' : '') +
+        '<div class="jb-foot"><span>Verified ' + esc(j.verifiedDate||"") + '</span>' +
+        '<a class="link-arrow" href="' + esc(j.url) + '" target="_blank" rel="noopener">Official page &rarr;</a></div>' +
+        '</div>';
+    }).join("");
+  }
+
+  filterHost.addEventListener("click", function(e){
+    var btn = e.target.closest(".chip");
+    if(!btn) return;
+    state.jur = btn.getAttribute("data-jur");
+    render();
+  });
+  document.querySelector("[data-search]").addEventListener("input", function(e){
+    state.q = e.target.value.trim().toLowerCase();
+    render();
+  });
+
+  fetch("assets/data/jobs-live.json",{cache:"no-store"}).then(function(r){
+    return r.ok ? r.json() : {jobs:[]};
+  }).then(function(data){
+    jobs = data.jobs || [];
+    var jurs = Array.from(new Set(jobs.map(function(j){ return j.jurisdiction; }).filter(Boolean))).sort();
+    filterHost.innerHTML = '<button class="chip is-active" data-jur="all">All</button>' +
+      jurs.map(function(j){ return '<button class="chip" data-jur="' + esc(j) + '">' + esc(j) + '</button>'; }).join("");
+    if(data.generatedDate){
+      var fresh = document.getElementById("jbfresh");
+      fresh.innerHTML = '<span class="dot"></span>Last checked ' + esc(data.generatedDate);
+      fresh.hidden = false;
+    }
+    render();
+  }).catch(function(){
+    empty.hidden = false;
+  });
+};
+</script>
+</body>
+</html>

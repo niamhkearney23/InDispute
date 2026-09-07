@@ -1,0 +1,14 @@
+{
+  "name": "lawgistics-daily-content",
+  "private": true,
+  "type": "module",
+  "description": "Scheduled scripts that keep court-updates.html and jobs.html current. Run by .github/workflows/daily-lawgistics-content.yml — see automation/README.md.",
+  "scripts": {
+    "court-updates": "node daily-court-updates.mjs",
+    "jobs": "node daily-jobs.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.70.0",
+    "zod": "^3.24.0"
+  }
+}

@@ -1,0 +1,55 @@
+name: Daily Lawgistics content
+
+# Keeps court-updates.html and jobs.html current. Runs the two scripts in
+# lawgistics-site/automation/, which research real, sourced content via
+# Claude's web search tool and write it to lawgistics-site/assets/data/*.json
+# — see lawgistics-site/automation/README.md for what they do and don't do.
+#
+# Assumes this repo's default branch is what Vercel deploys to production.
+# If that's wrong, change the branch Vercel watches (Vercel dashboard ->
+# Project -> Settings -> Git) rather than this workflow.
+on:
+  schedule:
+    - cron: "0 20 * * *" # ~6am AEST / 6am MYT+... see README for the reasoning
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install automation dependencies
+        working-directory: lawgistics-site/automation
+        run: npm ci
+
+      - name: Refresh daily court updates
+        working-directory: lawgistics-site/automation
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node daily-court-updates.mjs
+
+      - name: Refresh daily law jobs
+        working-directory: lawgistics-site/automation
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node daily-jobs.mjs
+
+      - name: Commit and push if anything changed
+        run: |
+          git config user.name "lawgistics-daily-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add lawgistics-site/assets/data/court-updates-live.json lawgistics-site/assets/data/jobs-live.json
+          if git diff --cached --quiet; then
+            echo "No content changes today."
+          else
+            git commit -m "Daily court updates and law jobs refresh"
+            git push
+          fi
