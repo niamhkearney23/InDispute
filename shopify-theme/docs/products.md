@@ -28,8 +28,8 @@ and alt text that describes the object rather than repeating the title.
 
 | Product | Handle | Suggested price | Option | Values |
 | --- | --- | --- | --- | --- |
-| Silk Sleep Mask | `silk-sleep-mask` | $49 | Colour | Clay rose, Powder, Cocoa, Cream |
-| Silk Pillowcase | `silk-pillowcase` | $89 | Colour | Clay rose, Powder, Cocoa, Cream |
+| Silk Sleep Mask | `silk-sleep-mask` | $49 | Colour | Clay rose, Powder, Cocoa, Cream, Linen |
+| Silk Pillowcase | `silk-pillowcase` | $89 | Colour | Clay rose, Powder, Cocoa, Cream, Linen |
 | AM / PM Journal | `am-pm-journal` | $39 | none | |
 | Lavender Sleep Wrap | `lavender-sleep-wrap` | $59 | none | |
 
@@ -90,7 +90,7 @@ The grid shows an optional one line specification under each title. It reads
 `descriptors.subtitle`, which is a metafield Shopify creates for you under
 Settings, Custom data, Products, as **Subtitle**. Suggested values:
 
-- Silk Sleep Mask: `22 momme silk, four colours`
+- Silk Sleep Mask: `22 momme silk, five colours`
 - Silk Pillowcase: `22 momme silk, hidden zip`
 - AM / PM Journal: `96 pages, sewn flat`
 - Lavender Sleep Wrap: `Washed linen, Australian lavender`
