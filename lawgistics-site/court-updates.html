@@ -192,6 +192,31 @@ var CU_DATA = {"cases": [{"title": "Zhou Ting v Public Prosecutor", "suit": "WA-
   mP.addEventListener("click",function(){setMode("plain");});
   qEl.addEventListener("input",render); sortEl.addEventListener("change",render);
   render();
+
+  // Live daily cases, written by automation/daily-court-updates.mjs (see
+  // .github/workflows/daily-lawgistics-content.yml). Fetched on top of the
+  // baked-in seed above so the page still works if this file is missing or
+  // the automation hasn't run yet.
+  fetch("assets/data/court-updates-live.json",{cache:"no-store"}).then(function(r){
+    return r.ok ? r.json() : null;
+  }).then(function(live){
+    if(!live || !live.cases || !live.cases.length) return;
+    var known={};
+    cases.forEach(function(c){ known[c.suit]=true; });
+    var added=0;
+    live.cases.forEach(function(c){
+      if(known[c.suit]) return;
+      known[c.suit]=true;
+      cases.unshift(c);
+      added++;
+    });
+    if(added){
+      var fresh=document.getElementById("cufresh");
+      fresh.innerHTML='<span class="dot"></span>'+added+" new since "+(live.generatedDate||"today");
+      fresh.hidden=false;
+      render();
+    }
+  }).catch(function(){ /* seed data still renders */ });
 })();
 </script>
 </body>

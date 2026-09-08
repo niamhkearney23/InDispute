@@ -1,0 +1,142 @@
+<!doctype html><html><head><meta charset="utf-8"><style>@font-face{font-family:'Playfair';font-weight:400;font-style:normal;src:url('file:///home/user/InDispute/tools/carousel/node_modules/@fontsource/playfair-display/files/playfair-display-latin-400-normal.woff2') format('woff2');}
+@font-face{font-family:'Playfair';font-weight:500;font-style:normal;src:url('file:///home/user/InDispute/tools/carousel/node_modules/@fontsource/playfair-display/files/playfair-display-latin-500-normal.woff2') format('woff2');}
+@font-face{font-family:'Playfair';font-weight:600;font-style:normal;src:url('file:///home/user/InDispute/tools/carousel/node_modules/@fontsource/playfair-display/files/playfair-display-latin-600-normal.woff2') format('woff2');}
+@font-face{font-family:'Playfair';font-weight:700;font-style:normal;src:url('file:///home/user/InDispute/tools/carousel/node_modules/@fontsource/playfair-display/files/playfair-display-latin-700-normal.woff2') format('woff2');}
+@font-face{font-family:'Playfair';font-weight:400;font-style:italic;src:url('file:///home/user/InDispute/tools/carousel/node_modules/@fontsource/playfair-display/files/playfair-display-latin-400-italic.woff2') format('woff2');}
+@font-face{font-family:'Playfair';font-weight:500;font-style:italic;src:url('file:///home/user/InDispute/tools/carousel/node_modules/@fontsource/playfair-display/files/playfair-display-latin-500-italic.woff2') format('woff2');}
+@font-face{font-family:'Playfair';font-weight:600;font-style:italic;src:url('file:///home/user/InDispute/tools/carousel/node_modules/@fontsource/playfair-display/files/playfair-display-latin-600-italic.woff2') format('woff2');}
+@font-face{font-family:'Playfair';font-weight:700;font-style:italic;src:url('file:///home/user/InDispute/tools/carousel/node_modules/@fontsource/playfair-display/files/playfair-display-latin-700-italic.woff2') format('woff2');}
+@font-face{font-family:'TikTok Sans';font-weight:400;src:url('file:///home/user/InDispute/tools/carousel/node_modules/@fontsource/tiktok-sans/files/tiktok-sans-latin-400-normal.woff2') format('woff2');}
+@font-face{font-family:'TikTok Sans';font-weight:500;src:url('file:///home/user/InDispute/tools/carousel/node_modules/@fontsource/tiktok-sans/files/tiktok-sans-latin-500-normal.woff2') format('woff2');}
+@font-face{font-family:'TikTok Sans';font-weight:600;src:url('file:///home/user/InDispute/tools/carousel/node_modules/@fontsource/tiktok-sans/files/tiktok-sans-latin-600-normal.woff2') format('woff2');}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:1080px;height:1350px;overflow:hidden;-webkit-font-smoothing:antialiased;}
+body{background:#141A28;color:#EDE7DC;}
+body.light{background:#EDE7DC;color:#171D2B;}
+.grain{position:absolute;inset:0;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='180' height='180' filter='url(%23n)' opacity='0.035'/></svg>");pointer-events:none;opacity:.5;}
+.light .grain{opacity:1;}
+
+.page{position:absolute;inset:0;padding:98px 92px 88px;display:flex;flex-direction:column;}
+.head{display:flex;justify-content:space-between;align-items:baseline;
+  padding-bottom:26px;border-bottom:1px solid rgba(237,231,220,.16);}
+.light .head{border-bottom-color:rgba(23,29,43,.14);}
+.kicker{font-family:'TikTok Sans',sans-serif;font-size:18px;font-weight:500;
+  letter-spacing:.3em;text-transform:uppercase;color:#8892A6;}
+.light .kicker{color:#8C8577;}
+.num{font-family:'Playfair',serif;font-size:26px;font-weight:400;letter-spacing:.06em;color:#6F7A90;}
+.light .num{color:#A8A093;}
+
+.well{flex:1;display:flex;flex-direction:column;justify-content:center;padding-bottom:46px;}
+
+.statement{font-family:'Playfair',serif;font-weight:600;}
+.lg{font-size:88px;line-height:1.12;letter-spacing:-.012em;max-width:900px;}
+.md{font-size:66px;line-height:1.2;letter-spacing:-.008em;max-width:900px;}
+.statement em{font-style:italic;font-weight:500;}
+
+.sub{margin-top:52px;font-family:'Playfair',serif;font-style:italic;font-weight:400;
+  font-size:38px;line-height:1.44;color:#A3ACC0;max-width:830px;}
+.light .sub{color:#6E6858;}
+
+.body{margin-top:50px;font-family:'TikTok Sans',sans-serif;font-size:33px;
+  line-height:1.62;color:#A9B0C2;max-width:860px;}
+.light .body{color:#4E4A3F;}
+.body p+p{margin-top:30px;}
+.body b{font-weight:600;color:#EDE7DC;}
+.light .body b{color:#171D2B;}
+
+.learn{margin-top:44px;padding-left:30px;border-left:2px solid #6E86C9;
+  font-family:'Playfair',serif;font-style:italic;font-weight:400;
+  font-size:36px;line-height:1.42;color:#EDE7DC;max-width:830px;}
+.light .learn{border-left-color:#3A5697;color:#171D2B;}
+
+/* jargon annotation: term underlined, arrow pointing back up to it */
+.term{border-bottom:2px solid #6E86C9;padding-bottom:2px;font-weight:600;color:#EDE7DC;}
+.light .term{border-bottom-color:#3A5697;color:#171D2B;}
+.gloss{margin-top:38px;margin-left:30px;display:flex;gap:16px;align-items:flex-start;max-width:800px;}
+.gloss .arw{flex:none;margin-top:-4px;}
+.glosstxt{font-family:'TikTok Sans',sans-serif;font-size:25px;line-height:1.5;color:#8892A6;}
+.light .glosstxt{color:#6E6858;}
+.glosstxt b{display:block;font-size:17px;font-weight:600;letter-spacing:.22em;
+  text-transform:uppercase;color:#6E86C9;margin-bottom:9px;}
+.light .glosstxt b{color:#3A5697;}
+
+
+/* ---------- B, the descent ---------- */
+.dwell{flex:1;display:flex;flex-direction:column;justify-content:center;}
+.dtitle{font-family:'Playfair',serif;font-weight:600;font-size:56px;line-height:1.14;
+  letter-spacing:-.01em;max-width:860px;}
+.dtitle em{font-style:italic;font-weight:500;}
+.dsub{margin-top:20px;font-family:'TikTok Sans',sans-serif;font-size:25px;
+  line-height:1.55;color:#8892A6;max-width:760px;}
+.step{margin-top:22px;padding:30px 34px;border-radius:3px;}
+.step:first-of-type{margin-top:46px;}
+.s1{width:100%;background:#EDE7DC;color:#141A28;}
+.s2{width:80%;background:transparent;color:#EDE7DC;border:2px solid #6E86C9;}
+.s3{width:60%;background:transparent;color:#7C8598;border:1px dashed #4A5468;}
+.stitle{font-family:'Playfair',serif;font-weight:600;font-size:52px;
+  line-height:1.1;letter-spacing:-.01em;}
+.smeta{margin-top:14px;font-family:'TikTok Sans',sans-serif;font-size:22px;
+  line-height:1.45;opacity:.72;}
+.dfoot{margin-top:42px;font-family:'Playfair',serif;font-style:italic;
+  font-size:31px;line-height:1.4;color:#EDE7DC;max-width:840px;
+  padding-left:26px;border-left:2px solid #6E86C9;}
+
+/* ---------- C, the stack ---------- */
+.cwell{flex:1;display:flex;flex-direction:column;margin:0 -92px;}
+.chead{padding:0 92px 30px;}
+.ctitle{font-family:'Playfair',serif;font-weight:600;font-size:60px;line-height:1.1;
+  letter-spacing:-.015em;color:#171D2B;}
+.ctitle em{font-style:italic;font-weight:500;}
+.cband{flex:1;padding:0 92px;display:flex;flex-direction:column;justify-content:center;}
+.k1{background:#141A28;color:#EDE7DC;}
+.k2{background:#3A5697;color:#EDE7DC;}
+.k3{background:#DCD4C4;color:#171D2B;}
+.csec{font-family:'TikTok Sans',sans-serif;font-size:17px;font-weight:600;
+  letter-spacing:.24em;text-transform:uppercase;opacity:.62;margin-bottom:12px;}
+.cfault{font-family:'Playfair',serif;font-weight:600;font-size:68px;line-height:1;
+  letter-spacing:-.02em;}
+.cel{margin-top:16px;font-family:'TikTok Sans',sans-serif;font-size:25px;
+  line-height:1.4;opacity:.8;max-width:800px;}
+
+/* ---------- D, the card ---------- */
+.rwell{flex:1;display:flex;flex-direction:column;justify-content:center;}
+.rtitle{font-family:'Playfair',serif;font-weight:600;font-size:50px;line-height:1.16;
+  letter-spacing:-.008em;max-width:800px;}
+.rtitle em{font-style:italic;font-weight:500;}
+.rsub{margin-top:18px;font-family:'TikTok Sans',sans-serif;font-size:23px;
+  line-height:1.55;color:#8C8577;max-width:720px;}
+.rtab{margin-top:58px;width:100%;border-collapse:collapse;}
+.rtab th{text-align:left;font-family:'TikTok Sans',sans-serif;font-size:15px;
+  font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:#A8A093;
+  padding-bottom:16px;border-bottom:1px solid rgba(23,29,43,.22);}
+.rtab td{vertical-align:top;padding:30px 0;border-bottom:1px solid rgba(23,29,43,.13);}
+.rtab td:first-child{padding-right:44px;}
+.rel{font-family:'Playfair',serif;font-weight:500;font-size:33px;line-height:1.24;
+  color:#171D2B;}
+.rref{margin-top:9px;font-family:'TikTok Sans',sans-serif;font-size:16px;
+  font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#A8A093;}
+.rf{font-family:'Playfair',serif;font-style:italic;font-weight:500;font-size:33px;
+  line-height:1.24;color:#3A5697;white-space:nowrap;}
+.rfn{margin-top:9px;font-family:'TikTok Sans',sans-serif;font-size:19px;
+  line-height:1.4;color:#8C8577;}
+.rkey{margin-top:46px;font-family:'TikTok Sans',sans-serif;font-size:23px;
+  line-height:1.6;color:#4E4A3F;max-width:800px;}
+.rkey b{font-weight:600;color:#171D2B;}
+
+.foot{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;gap:50px;
+  padding-top:26px;border-top:1px solid rgba(237,231,220,.16);}
+.light .foot{border-top-color:rgba(23,29,43,.14);}
+.cite{font-family:'TikTok Sans',sans-serif;font-size:18px;line-height:1.6;
+  font-weight:500;color:#7C8598;max-width:690px;}
+.light .cite{color:#9A9384;}
+.mark{font-family:'TikTok Sans',sans-serif;font-size:17px;font-weight:600;
+  letter-spacing:.34em;color:#7C8598;white-space:nowrap;}
+.light .mark{color:#9A9384;}
+.swipe{font-family:'Playfair',serif;font-style:italic;font-size:25px;color:#8892A6;white-space:nowrap;}
+.light .swipe{color:#8C8577;}
+</style></head>
+<body class="light"><div class="grain"></div><div class="page">
+  <div class="head"><div class="kicker">CRIMINAL LAW</div><div class="num">SAVE THIS</div></div>
+  <div class="cwell"><div class="chead"><div class="ctitle">Three elements. <em>Three states of mind.</em></div></div><div class="cband k1"><div class="csec">s 307.1(1)(a)</div><div class="cfault">Intention</div><div class="cel">That he imports a substance. He meant to.</div></div><div class="cband k2"><div class="csec">s 307.1(1)(b)</div><div class="cfault">Recklessness</div><div class="cel">That it is a border controlled drug. He saw the risk and ran it.</div></div><div class="cband k3"><div class="csec">s 307.1(1)(c)</div><div class="cfault">Absolute liability</div><div class="cel">That the quantity is commercial. No state of mind at all.</div></div></div>
+  <div class="foot"><div class="cite">s 307.1(1) Criminal Code (Cth). Fault elements as set out in The King v Ko [2026] HCA 29 at [12] to [13]. Not legal advice.</div><div class="mark">LAWGISTICS</div></div>
+</div></body></html>

@@ -23,6 +23,7 @@
     { href: 'documents.html', label: 'Templates' },
     { href: 'legalhelp.html', label: 'Find a lawyer' },
     { href: 'court-updates.html', label: 'Court Updates' },
+    { href: 'jobs.html', label: 'Law Jobs' },
     { href: 'for-businesses.html', label: 'For business' },
   { href: 'for-lawyers.html', label: 'For lawyers' },
     { href: 'for-students.html', label: 'For students' }
@@ -119,6 +120,7 @@
       ]],
       ['For students', [
         ['academy.html', 'Litigation Academy'],
+        ['jobs.html', 'Law Jobs'],
         ['for-students.html', 'Internships'],
         ['academy.html', 'Practical skills']
       ]],

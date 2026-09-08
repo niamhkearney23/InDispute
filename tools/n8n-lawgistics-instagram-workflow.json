@@ -1,0 +1,271 @@
+{
+  "name": "Lawgistics, publish carousel to Instagram",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "a1000000-0000-4000-8000-000000000001",
+      "name": "Run manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-460, 300]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * 1-5"
+            }
+          ]
+        }
+      },
+      "id": "a1000000-0000-4000-8000-000000000002",
+      "name": "Weekdays 8am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [-460, 480],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// ─────────────────────────────────────────────\n// FILL IN THESE THREE THINGS\n// ─────────────────────────────────────────────\n\nconst IG_USER_ID  = 'PASTE_YOUR_INSTAGRAM_USER_ID';\nconst ACCESS_TOKEN = 'PASTE_YOUR_LONG_LIVED_PAGE_TOKEN';\n\n// Six PUBLIC https image URLs, in slide order.\n// Instagram fetches these itself, so they must be reachable\n// by Meta's servers. Cloudinary, Imgur, S3 or a public repo.\nconst IMAGE_URLS = [\n  'https://example.com/potter-slide-1.jpg',\n  'https://example.com/potter-slide-2.jpg',\n  'https://example.com/potter-slide-3.jpg',\n  'https://example.com/potter-slide-4.jpg',\n  'https://example.com/potter-slide-5.jpg',\n  'https://example.com/potter-slide-6.jpg'\n];\n\nconst CAPTION = `PASTE THE CAPTION FROM THE POSTING KIT HERE.\n\nLine breaks work fine.\n\n#auslaw #highcourt #lawstudent`;\n\n// ─────────────────────────────────────────────\n// Nothing below needs editing\n// ─────────────────────────────────────────────\n\nif (IMAGE_URLS.length < 2 || IMAGE_URLS.length > 10) {\n  throw new Error('Instagram carousels need between 2 and 10 images. You have ' + IMAGE_URLS.length);\n}\nif (CAPTION.length > 2200) {\n  throw new Error('Caption is ' + CAPTION.length + ' characters. Instagram allows 2200.');\n}\n\nreturn IMAGE_URLS.map((url, i) => ({\n  json: {\n    igUserId: IG_USER_ID,\n    accessToken: ACCESS_TOKEN,\n    caption: CAPTION,\n    imageUrl: url,\n    slide: i + 1\n  }\n}));"
+      },
+      "id": "a1000000-0000-4000-8000-000000000003",
+      "name": "Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-220, 380]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v21.0/{{ $json.igUserId }}/media",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "image_url",
+              "value": "={{ $json.imageUrl }}"
+            },
+            {
+              "name": "is_carousel_item",
+              "value": "true"
+            },
+            {
+              "name": "access_token",
+              "value": "={{ $json.accessToken }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1000000-0000-4000-8000-000000000004",
+      "name": "Stage 1, container per slide",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [20, 380]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Collect the six container ids, in slide order,\n// and hand them to stage 2 as a comma separated list.\n\nconst ids = items.map(i => i.json.id);\n\nif (ids.some(id => !id)) {\n  throw new Error('One or more containers failed. Raw responses: ' + JSON.stringify(items.map(i => i.json)));\n}\n\nconst cfg = $('Config').first().json;\n\nreturn [{\n  json: {\n    igUserId: cfg.igUserId,\n    accessToken: cfg.accessToken,\n    caption: cfg.caption,\n    children: ids.join(','),\n    count: ids.length\n  }\n}];"
+      },
+      "id": "a1000000-0000-4000-8000-000000000005",
+      "name": "Collect container ids",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [260, 380]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v21.0/{{ $json.igUserId }}/media",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "media_type",
+              "value": "CAROUSEL"
+            },
+            {
+              "name": "children",
+              "value": "={{ $json.children }}"
+            },
+            {
+              "name": "caption",
+              "value": "={{ $json.caption }}"
+            },
+            {
+              "name": "access_token",
+              "value": "={{ $json.accessToken }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1000000-0000-4000-8000-000000000006",
+      "name": "Stage 2, carousel container",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [500, 380]
+    },
+    {
+      "parameters": {
+        "amount": 15
+      },
+      "id": "a1000000-0000-4000-8000-000000000007",
+      "name": "Wait for processing",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [740, 380],
+      "webhookId": "a1000000-0000-4000-8000-00000000000a"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v21.0/{{ $('Collect container ids').first().json.igUserId }}/media_publish",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "creation_id",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "name": "access_token",
+              "value": "={{ $('Collect container ids').first().json.accessToken }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1000000-0000-4000-8000-000000000008",
+      "name": "Stage 3, publish",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [980, 380]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://graph.facebook.com/v21.0/{{ $json.id }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "permalink"
+            },
+            {
+              "name": "access_token",
+              "value": "={{ $('Collect container ids').first().json.accessToken }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1000000-0000-4000-8000-000000000009",
+      "name": "Get permalink",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1220, 380]
+    }
+  ],
+  "connections": {
+    "Run manually": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekdays 8am": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Stage 1, container per slide",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stage 1, container per slide": {
+      "main": [
+        [
+          {
+            "node": "Collect container ids",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect container ids": {
+      "main": [
+        [
+          {
+            "node": "Stage 2, carousel container",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stage 2, carousel container": {
+      "main": [
+        [
+          {
+            "node": "Wait for processing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for processing": {
+      "main": [
+        [
+          {
+            "node": "Stage 3, publish",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stage 3, publish": {
+      "main": [
+        [
+          {
+            "node": "Get permalink",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Australia/Melbourne"
+  },
+  "pinData": {}
+}
