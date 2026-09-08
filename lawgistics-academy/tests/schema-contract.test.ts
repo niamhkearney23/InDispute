@@ -226,7 +226,13 @@ function collectUsages(): Usage[] {
         ts.isPropertyAccessExpression(node.expression) &&
         node.expression.name.text === 'from' &&
         node.arguments.length >= 1 &&
-        ts.isStringLiteral(node.arguments[0])
+        ts.isStringLiteral(node.arguments[0]) &&
+        // `.storage.from('bucket')` names a Storage bucket, not a table this
+        // schema knows anything about; only `supabase.from(...)` itself does.
+        !(
+          ts.isPropertyAccessExpression(node.expression.expression) &&
+          node.expression.expression.name.text === 'storage'
+        )
       ) {
         const table = node.arguments[0].text;
         const usage: Usage = {
@@ -514,7 +520,7 @@ test('the update file matches the migrations, and only contains re-runnable ones
   const sql = committed.replace(/--.*$/gm, '');
 
   const dropped = new Set(
-    [...sql.matchAll(/drop policy if exists (\w+) on (public\.\w+)/gi)].map(
+    [...sql.matchAll(/drop policy if exists (\w+) on (\w+\.\w+)/gi)].map(
       (m) => `${m[1]} ${m[2]}`,
     ),
   );
@@ -533,7 +539,7 @@ test('the update file matches the migrations, and only contains re-runnable ones
     .filter((line) => /^create (table|trigger|policy|index|type)\b/i.test(line))
     .filter((line) => !/if not exists/i.test(line) && !/^create or replace/i.test(line))
     .filter((line) => {
-      const policy = /^create policy (\w+) on (public\.\w+)/i.exec(line);
+      const policy = /^create policy (\w+) on (\w+\.\w+)/i.exec(line);
       if (policy) return !dropped.has(`${policy[1]} ${policy[2]}`);
 
       const type = /^create type (\w+)/i.exec(line);

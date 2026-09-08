@@ -639,6 +639,17 @@ const server = http.createServer((req, res) => {
     if (url.pathname === '/auth/v1/signup') return send(200, { ...SESSION, ...USER });
     if (url.pathname === '/auth/v1/logout') return send(204, {});
 
+    // --- Storage ------------------------------------------------------------
+    // Just enough to let an upload complete without an error: this mock does
+    // not persist writes to any table (see TABLES below), so it does not
+    // persist an uploaded file either. What it proves is that the app's own
+    // request succeeds and the UI reacts to that; it cannot prove the photo
+    // survives a reload, and nothing here should be read as claiming it does.
+    if (url.pathname.startsWith('/storage/v1/object/')) {
+      if (req.method === 'DELETE') return send(200, []);
+      return send(200, { Key: url.pathname.replace('/storage/v1/object/', '') });
+    }
+
     // --- PostgREST --------------------------------------------------------
     if (url.pathname.startsWith('/rest/v1/')) {
       if (process.env.MOCK_DEBUG) {

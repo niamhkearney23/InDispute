@@ -137,10 +137,10 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0012`. `supabase/UPDATE.sql` is the one-paste update for a
+- Migrations run to `0014`. `supabase/UPDATE.sql` is the one-paste update for a
   database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
-- 206 tests, 79 schema guarantees against a real Postgres, 96 page and device
+- 207 tests, 89 schema guarantees against a real Postgres, 96 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - The two marked exercises are checked by `npm run qa:marker`, which drives the

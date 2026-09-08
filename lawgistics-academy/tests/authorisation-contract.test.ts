@@ -123,6 +123,7 @@ test('the server actions were actually found', () => {
     'loadNewContent',
     'publishAllVerified',
     'recordReviewDecision',
+    'removeAvatar',
     'restoreAllWithdrawn',
     'revoke',
     'saveFirmModule',
@@ -135,6 +136,7 @@ test('the server actions were actually found', () => {
     'transitionQuestion',
     'updateFact',
     'updateQuestion',
+    'uploadAvatar',
     'withdrawAllUnverified',
   ]);
 });

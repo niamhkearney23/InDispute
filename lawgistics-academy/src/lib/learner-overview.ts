@@ -16,6 +16,7 @@ export interface LearnerProfile {
   id: string;
   email: string | null;
   displayName: string | null;
+  avatarUrl: string | null;
   careerStage: CareerStage | null;
   improvementGoals: string[];
   dailyGoalMinutes: number;
@@ -97,6 +98,7 @@ export async function getLearnerProfile(userId: string): Promise<LearnerProfile 
     id: data.id,
     email: data.email,
     displayName: data.display_name,
+    avatarUrl: data.avatar_url,
     careerStage: data.career_stage,
     improvementGoals: data.improvement_goals ?? [],
     dailyGoalMinutes: data.daily_goal_minutes,

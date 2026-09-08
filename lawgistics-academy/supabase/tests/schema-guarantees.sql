@@ -841,6 +841,70 @@ select pg_temp.expect(
      and column_name = 'review_due_on') = 2,
   'both the question versions and the daily facts carry an expiry');
 
+-- -----------------------------------------------------------------------------
+-- Avatars
+-- -----------------------------------------------------------------------------
+-- The one place this schema touches storage.objects rather than a table of its
+-- own. Learner A and learner B are the same two fixtures used above; B's photo
+-- is seeded here, as the unrestricted role, before A's session ever begins.
+insert into storage.objects (bucket_id, name, owner)
+values ('avatars', '22222222-2222-2222-2222-222222222222/avatar.png',
+        '22222222-2222-2222-2222-222222222222');
+
+set local role authenticated;
+set local request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+
+insert into storage.objects (bucket_id, name, owner)
+values ('avatars', '11111111-1111-1111-1111-111111111111/avatar.png', auth.uid());
+
+select pg_temp.expect(
+  (select count(*) from storage.objects
+   where bucket_id = 'avatars' and name = '11111111-1111-1111-1111-111111111111/avatar.png') = 1,
+  'a learner can upload to their own avatar folder');
+
+select pg_temp.expect_failure(
+  $$insert into storage.objects (bucket_id, name, owner)
+    values ('avatars', '22222222-2222-2222-2222-222222222222/avatar2.png',
+            '11111111-1111-1111-1111-111111111111')$$,
+  'a learner cannot upload into another learner''s avatar folder');
+
+-- An UPDATE or DELETE the USING clause hides the target row from is not an
+-- error, it is zero rows changed, so the check is that the row survives
+-- untouched rather than that the statement throws.
+update storage.objects set name = '22222222-2222-2222-2222-222222222222/pwned.png'
+where bucket_id = 'avatars' and name = '22222222-2222-2222-2222-222222222222/avatar.png';
+
+select pg_temp.expect(
+  (select count(*) from storage.objects
+   where bucket_id = 'avatars' and name = '22222222-2222-2222-2222-222222222222/avatar.png') = 1,
+  'a learner cannot rewrite another learner''s avatar object');
+
+delete from storage.objects
+where bucket_id = 'avatars' and name = '22222222-2222-2222-2222-222222222222/avatar.png';
+
+select pg_temp.expect(
+  (select count(*) from storage.objects
+   where bucket_id = 'avatars' and name = '22222222-2222-2222-2222-222222222222/avatar.png') = 1,
+  'a learner cannot delete another learner''s avatar object');
+
+delete from storage.objects
+where bucket_id = 'avatars' and name = '11111111-1111-1111-1111-111111111111/avatar.png';
+
+select pg_temp.expect(
+  (select count(*) from storage.objects
+   where bucket_id = 'avatars' and name = '11111111-1111-1111-1111-111111111111/avatar.png') = 0,
+  'a learner can delete their own avatar object');
+
+reset role;
+
+set local role anon;
+
+select pg_temp.expect(
+  (select count(*) from storage.objects where bucket_id = 'avatars') = 1,
+  'a signed-out visitor can still read from the avatars bucket');
+
+reset role;
+
 
 \echo ''
 \echo 'All schema guarantees hold.'

@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { Wordmark } from '@/components/ui';
+import { Avatar } from '@/components/avatar';
 
 /**
  * Every page under this layout is per-learner and auth-gated. Say so explicitly
@@ -48,6 +49,19 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <NavLink href="/skills">Skills</NavLink>
             <NavLink href="/courts">Courts</NavLink>
             {profile?.isAdmin ? <NavLink href="/admin">Admin</NavLink> : null}
+            {/* An icon-sized link rather than a fifth word: the nav is already
+                tight at 360px (see the note above on the wordmark), and a photo
+                or an initial takes less width than "Account" ever could. The
+                26px avatar sits inside a 44px tap target, the same minimum the
+                sign-out button and every other nav link are held to; padding
+                around a small photo is not optional, it is half a thumb. */}
+            <Link
+              href="/account"
+              aria-label="Your account"
+              className="-mx-1 flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full hover:bg-paper-sunk"
+            >
+              <Avatar url={profile?.avatarUrl ?? null} name={profile?.displayName ?? null} size={26} />
+            </Link>
             <form action="/auth/sign-out" method="post">
               <button
                 type="submit"

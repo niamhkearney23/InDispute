@@ -28,6 +28,7 @@ function session(over: Partial<CoachSession> = {}): CoachSession {
     airsOn: over.airsOn ?? null,
     published: true,
     publishedByName: null,
+    publishedByAvatarUrl: null,
     publishedAt: null,
     position: 0,
     ...over,
