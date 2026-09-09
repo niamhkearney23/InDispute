@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { resumeIndexFor } from '../src/lib/training/service';
+import { isFromToday, resumeIndexFor } from '../src/lib/training/service';
 
 /**
  * Resuming a part-finished session.
@@ -50,4 +50,37 @@ test('an empty session reports zero rather than a negative index', () => {
 
 test('every question withdrawn leaves nothing to answer', () => {
   assert.equal(resumeIndexFor([], new Set(['a', 'b'])), 0);
+});
+
+/**
+ * Whether an unfinished session is still today's.
+ *
+ * A session started yesterday and never finished must not be handed back as
+ * "today's session": that is the bug where opening the app on a fresh day
+ * dropped a learner mid-way through a batch from days earlier, on a question
+ * they had never seen that day, because the query that found it never checked
+ * the date at all.
+ */
+
+test('a session started earlier today is still today’s', () => {
+  const now = new Date('2026-08-25T05:00:00Z');
+  const startedAt = '2026-08-25T00:00:00Z';
+  assert.equal(isFromToday(startedAt, 'Australia/Melbourne', now), true);
+});
+
+test('a session started yesterday is not today’s', () => {
+  const now = new Date('2026-08-25T05:00:00Z');
+  const startedAt = '2026-08-24T00:00:00Z';
+  assert.equal(isFromToday(startedAt, 'Australia/Melbourne', now), false);
+});
+
+test('the day boundary is the learner’s timezone, not the server’s', () => {
+  // Started at 2026-08-25T12:00:00Z, checked 8 hours later. Melbourne (UTC+10)
+  // has already crossed into the 26th by then, so the session is no longer
+  // today's there; Los Angeles (UTC-7) is still on the 25th at both instants,
+  // so the same pair of timestamps reads as still-today's there.
+  const startedAt = '2026-08-25T12:00:00Z';
+  const now = new Date('2026-08-25T20:00:00Z');
+  assert.equal(isFromToday(startedAt, 'Australia/Melbourne', now), false);
+  assert.equal(isFromToday(startedAt, 'America/Los_Angeles', now), true);
 });

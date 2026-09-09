@@ -140,16 +140,42 @@ export async function startSession(
   return { sessionId: session.id as string };
 }
 
-/** Reuses today's unfinished session rather than stacking up abandoned ones. */
+/**
+ * Whether an existing session is still "today's", where the learner is.
+ *
+ * Pure and tested directly for the same reason `resumeIndexFor` is: the
+ * interesting case is a date boundary, which is awkward to set up through the
+ * database but trivial to hand two timestamps and a timezone.
+ */
+export function isFromToday(startedAt: string, timezone: string, now: Date = new Date()): boolean {
+  return localDateString(timezone, new Date(startedAt)) === localDateString(timezone, now);
+}
+
+/**
+ * Reuses today's unfinished session rather than stacking up abandoned ones.
+ *
+ * "Today's" is the part that has to be checked, not assumed. Without it, a
+ * session left half-answered on a Tuesday is still the most recent
+ * `in_progress` row on Thursday, and opening the app then resumes it exactly
+ * where Tuesday left off, mid-way through a batch the learner never touched
+ * today. That reads as the app being broken, not as a session being resumed.
+ */
 export async function resumeOrStartSession(
   userId: string,
   kind: SessionKind,
 ): Promise<{ sessionId: string } | { error: string }> {
   const db = createServiceClient();
 
+  const { data: profile } = await db
+    .from('profiles')
+    .select('timezone')
+    .eq('id', userId)
+    .maybeSingle();
+  const timezone = profile?.timezone ?? 'Australia/Melbourne';
+
   const { data: existing } = await db
     .from('training_sessions')
-    .select('id')
+    .select('id, started_at')
     .eq('user_id', userId)
     .eq('kind', kind)
     .eq('status', 'in_progress')
@@ -157,7 +183,16 @@ export async function resumeOrStartSession(
     .limit(1)
     .maybeSingle();
 
-  if (existing) return { sessionId: existing.id as string };
+  if (existing) {
+    if (isFromToday(existing.started_at as string, timezone)) {
+      return { sessionId: existing.id as string };
+    }
+
+    // Left over from an earlier day. Close it out rather than leaving it to
+    // be found and resumed again tomorrow, and give the learner a fresh one.
+    await db.from('training_sessions').update({ status: 'abandoned' }).eq('id', existing.id);
+  }
+
   return startSession(userId, kind);
 }
 
