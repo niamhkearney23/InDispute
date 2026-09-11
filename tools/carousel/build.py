@@ -81,10 +81,10 @@ slide("a3", K_A, 3,
     '<p>Round one, April. White Oak challenged privilege claims by <strong>BCC and the Tokio Marine parties</strong> over settlement-talk documents.</p><p>Held: messages canvassing a &ldquo;general approach&rdquo;, with <span class="u">no element of compromise</span>, are not negotiations. No privilege.</p>',
     CITE_A1)
 slide("a4", K_A, 4,
-    '<p>Round two, published this week. IAL demanded twelve messages and a draft term sheet White Oak created while negotiating a resolution.</p><p>Held: <span class="u">not directly relevant.</span> Production refused. The privilege question never needed answering.</p>',
+    '<p>Round two: IAL sought twelve messages and a draft term sheet White Oak created while settlement talks were live.</p><p>We are re-verifying the exact ruling against the sealed judgment before restating <span class="u">who won this round.</span></p>',
     CITE_A2)
 slide("a5", K_A, 5,
-    '<p>Substantiate privilege document by document, with evidence.</p><p>Argue relevance first. It can end the fight early.</p><p>And make negotiations <span class="u">look like negotiations.</span></p>',
+    '<p>Substantiate privilege document by document, with evidence.</p><p>A generic &ldquo;general approach&rdquo; message <span class="u">doesn&rsquo;t attract privilege.</span></p><p>And make negotiations look like negotiations.</p>',
     CITE_A)
 slide("a6", K_A, 6,
     'Be honest: have you ever written &ldquo;without prejudice&rdquo; <span class="u">just in case?</span>',

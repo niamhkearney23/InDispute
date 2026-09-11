@@ -2,6 +2,21 @@
 
 Two posts today. Upload the slides in filename order (a1→a6, b1→b6).
 
+> **CORRECTION (11 Sept 2026):** This post already went out with slides a4/a5
+> and the captions below claiming the Court **refused** production in
+> [2026] FCA 769 because the documents were "not directly relevant." Fresh
+> research turned up press coverage saying the opposite: on 17 June 2026 the
+> Court **ordered** White Oak to produce WhatsApp messages, rejecting a
+> relevance objection. Neither claim could be verified against the sealed
+> judgment (fedcourt.gov.au, austlii.edu.au and jade.io are all unreachable
+> from this environment), and a mixed outcome across different documents in
+> the same ruling is plausible. Rather than swap one unverified claim for
+> another, slides a4/a5 and the copy below have been softened to state only
+> what's confirmed and to say the specific outcome is being re-verified.
+> **If you have AustLII/Jade access, please check [2026] FCA 769 directly**
+> — that settles it properly. See `POST-CORRECTION.md` in this folder for a
+> ready-to-post comment/caption addendum for the version already live.
+
 ---
 
 ## POST 1, Instagram carousel (files a1.png → a6.png)
@@ -14,7 +29,7 @@ Two rulings in the Greensill insurance wars just proved it.
 
 April: messages canvassing a "general approach" to a dispute, with no offer and no element of compromise, are not negotiations at all. No privilege. ([2026] FCA 530)
 
-This week: the insurer demanded White Oak's settlement messages and draft term sheet. Production refused, not on privilege, but because the documents weren't relevant. The fight ended at the first gate. ([2026] FCA 769)
+Round two: the insurer sought White Oak's settlement messages and a draft term sheet. We're re-verifying the exact ruling against the sealed judgment before restating who won this round. ([2026] FCA 769)
 
 Swipe for the breakdown 👉
 
@@ -36,13 +51,12 @@ In the Greensill insurance litigation, White Oak Commercial Finance is pursuing 
 
 Round one: White Oak Commercial Finance Europe (Non-Levered) Ltd v Insurance Australia Ltd (No 3) [2026] FCA 530 (Thawley J, 28 April 2026). White Oak challenged without prejudice privilege claims asserted by BCC and the Tokio Marine parties over settlement-talk documents. The Court held a group of messages did not attract privilege: they canvassed only a general approach the parties might take, with no reference to litigation, no admissions and no observable element of compromise. Talking about a dispute is not negotiating to end it.
 
-Round two: White Oak v Insurance Australia Ltd (Without Prejudice Privilege) [2026] FCA 769, published this week. This time IAL sought production of twelve messages and a draft term sheet White Oak created while negotiating a possible resolution. The Court refused production on a simpler basis: the documents were not directly relevant to any issue in the proceeding, so the privilege question never needed answering.
+Round two: White Oak v Insurance Australia Ltd (Without Prejudice Privilege) [2026] FCA 769. IAL sought production of twelve messages and a draft term sheet White Oak created while negotiating a possible resolution. We're re-verifying the exact outcome against the sealed judgment before stating who won this round.
 
-Three takeaways:
+Two takeaways, from what's confirmed:
 
 1. Without prejudice privilege follows substance, not headers. A label is not a shield.
 2. The asserting party must substantiate the claim with evidence, document by document.
-3. Relevance is the first gate. Win there and the privilege fight never starts.
 
 Expect more of these skirmishes as the Greensill fallout grinds on, and expect courts to keep reading the actual messages rather than deferring to the labels on them.
 

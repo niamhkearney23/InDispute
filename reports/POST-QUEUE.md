@@ -4,7 +4,7 @@ One post per weekday. Fridays: The Big Case File (pop-culture legal breakdown).
 
 | Date | Post | Assets | Status |
 |------|------|--------|--------|
-| Thu 30 Jul 2026 | White Oak v Insurance Australia, FCA 530 + FCA 769, "Without prejudice is not a magic spell" | reports/assets/2026-07-30/whiteoak-slide-*.png | POSTED (assumed) |
+| Thu 30 Jul 2026 | White Oak v Insurance Australia, FCA 530 + FCA 769, "Without prejudice is not a magic spell" | reports/assets/2026-07-30/whiteoak-slide-*.png | POSTED, but see POST-CORRECTION.md (11 Sept 2026): FCA 769 outcome claim unconfirmed, needs primary-source check |
 | Fri 31 Jul 2026 | The Big Case File No. 1, MacInnes v Wilson (Rebel Wilson defamation win) | reports/assets/2026-07-31/bigcasefile1-slide-*.png | READY (post if not yet posted) |
 | Sat 1 Aug 2026 | Hanson v Faruqi, Full Court, s 18C appeal dismissed | reports/assets/2026-08-01/hanson-slide-*.png + dayincourt catch-up | POSTED ✅ |
 | Sat 1 Aug 2026 (post 2) | ACCC v JustAnswer [2026] FCA 871, "$2 that cost $10 million" + subscription trap ban | reports/assets/2026-08-01/justanswer-slide-*.png | READY |
