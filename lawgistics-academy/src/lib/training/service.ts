@@ -639,24 +639,12 @@ export async function submitAnswer(args: {
     ]);
   });
 
-  /* --- optional AI layer, strictly after everything that matters --- */
-  const coachNote = await coachOnAnswer({
-    stem: version.stem,
-    scenario: version.scenario,
-    options: (version.options ?? []) as QuestionOption[],
-    selectedOptionIds: args.selectedOptionIds,
-    correctOptionIds,
-    isCorrect,
-    explanation: version.explanation,
-    commonMisconception: version.common_misconception,
-    jurisdiction: version.jurisdiction,
-    conceptNames: (conceptLinks ?? []).flatMap((l) => {
-      const concept = l.concepts as unknown as { name: string } | { name: string }[] | null;
-      if (!concept) return [];
-      return Array.isArray(concept) ? concept.map((c) => c.name) : [concept.name];
-    }),
-  });
-
+  // The AI note is fetched separately, by getCoachNote below, rather than
+  // awaited here. It used to be awaited here, which meant every answer,
+  // right or wrong, waited on a live model call before the learner saw
+  // anything at all: on a deployment with the coach turned on, up to
+  // TIMEOUT_MS on every single question. Nothing above this line depends on
+  // it, and the explanation the learner actually needs is already in hand.
   return {
     isCorrect,
     correctOptionIds,
@@ -671,8 +659,82 @@ export async function submitAnswer(args: {
     sourceUrl: version.source_url,
     xpAwarded,
     nextReviewLabel: soonestReviewAt ? describeNextReview(soonestReviewAt, now) : null,
-    coachNote,
+    coachNote: null,
   };
+}
+
+/**
+ * The AI coach's note, fetched on its own so it never holds up an answer.
+ *
+ * Only for a question this learner has actually already answered in this
+ * session: the prompt needs the answer key, and this is the check that
+ * stops that from being a way to read it for a question that has not been
+ * graded yet.
+ */
+export async function getCoachNote(
+  userId: string,
+  sessionId: string,
+  questionVersionId: string,
+): Promise<{ coachNote: string | null } | { error: string }> {
+  const db = createServiceClient();
+
+  const [{ data: session }, { data: slot }] = await Promise.all([
+    db.from('training_sessions').select('id, user_id').eq('id', sessionId).maybeSingle(),
+    db
+      .from('training_session_questions')
+      .select('id, answered_at')
+      .eq('session_id', sessionId)
+      .eq('question_version_id', questionVersionId)
+      .maybeSingle(),
+  ]);
+
+  if (!session || session.user_id !== userId) return { error: 'Session not found.' };
+  if (!slot || !slot.answered_at) return { error: 'That question has not been answered yet.' };
+
+  const [{ data: attempt }, { data: version }] = await Promise.all([
+    db
+      .from('user_question_attempts')
+      .select('is_correct, selected_option_ids')
+      .eq('session_id', sessionId)
+      .eq('question_version_id', questionVersionId)
+      .eq('user_id', userId)
+      .order('answered_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    db
+      .from('question_versions')
+      .select(
+        'question_id, stem, scenario, options, correct_option_ids, explanation, common_misconception, jurisdiction',
+      )
+      .eq('id', questionVersionId)
+      .maybeSingle(),
+  ]);
+
+  if (!attempt || !version) return { error: 'Could not load that question.' };
+
+  const { data: conceptLinks } = await db
+    .from('question_concepts')
+    .select('concepts(name)')
+    .eq('question_id', version.question_id);
+
+  const coachNote = await coachOnAnswer({
+    stem: version.stem,
+    scenario: version.scenario,
+    options: (version.options ?? []) as QuestionOption[],
+    selectedOptionIds: (attempt.selected_option_ids ?? []) as string[],
+    correctOptionIds: (version.correct_option_ids ?? []) as string[],
+    isCorrect: attempt.is_correct as boolean,
+    explanation: version.explanation,
+    commonMisconception: version.common_misconception,
+    jurisdiction: version.jurisdiction,
+    conceptNames: (conceptLinks ?? []).flatMap((l) => {
+      const concept = l.concepts as unknown as { name: string } | { name: string }[] | null;
+      if (!concept) return [];
+      return Array.isArray(concept) ? concept.map((c) => c.name) : [concept.name];
+    }),
+  });
+
+  return { coachNote };
 }
 
 /* -------------------------------------------------------------------------- */

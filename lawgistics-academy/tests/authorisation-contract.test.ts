@@ -124,6 +124,7 @@ test('the server actions were actually found', () => {
     'publishAllVerified',
     'recordReviewDecision',
     'removeAvatar',
+    'requestCoachNote',
     'restoreAllWithdrawn',
     'revoke',
     'saveFirmModule',

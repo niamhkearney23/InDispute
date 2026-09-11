@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { createSupabaseServerClient, getCurrentUser } from '@/lib/supabase/server';
 import {
   completeSession,
+  getCoachNote,
   resumeOrStartSession,
   startModuleSession,
   submitAnswer,
@@ -165,6 +166,28 @@ export async function answerQuestion(
     confidence: parsed.data.confidence,
     responseMs: parsed.data.responseMs,
   });
+}
+
+const coachNoteSchema = z.object({
+  sessionId: z.string().uuid(),
+  questionVersionId: z.string().uuid(),
+});
+
+/**
+ * Fetched separately from answerQuestion, on purpose: see the note on
+ * getCoachNote in the training service for why. Nothing here is more
+ * privileged than answerQuestion itself, it is just called later.
+ */
+export async function requestCoachNote(
+  input: z.input<typeof coachNoteSchema>,
+): Promise<{ coachNote: string | null } | { error: string }> {
+  const user = await getCurrentUser();
+  if (!user) return { error: 'You are not signed in.' };
+
+  const parsed = coachNoteSchema.safeParse(input);
+  if (!parsed.success) return { error: 'That could not be read.' };
+
+  return getCoachNote(user.id, parsed.data.sessionId, parsed.data.questionVersionId);
 }
 
 export async function finishSession(sessionId: string) {
