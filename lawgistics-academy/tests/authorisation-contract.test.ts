@@ -127,10 +127,12 @@ test('the server actions were actually found', () => {
     'requestCoachNote',
     'restoreAllWithdrawn',
     'revoke',
+    'saveCertificationEntry',
     'saveFirmModule',
     'saveOnboarding',
     'saveSession',
     'saveStep',
+    'saveTrainee',
     'setPublished',
     'setStartDate',
     'transitionFact',
@@ -229,7 +231,7 @@ test('an invitation token is stored hashed and never in the clear', () => {
 });
 
 /**
- * The three actions a coach may take, named one by one.
+ * The actions a coach may take, named one by one.
  *
  * A coach is a lawyer the firm trusts to judge whether content is sound and
  * whether a person is ready. That is a real role and it needs real rights, but
@@ -252,6 +254,15 @@ const COACH_ACTIONS = new Set([
   // the person who actually teaches these juniors unable to teach them.
   'saveSession',
   'setPublished',
+  // The certification register: a coach's own trainees, on their own real
+  // cases, graded by the coach who supervises them. This is the clearest fit
+  // of anything on this list for "record supervisor decisions about people":
+  // it never touches the question bank, never enters the review queue, and
+  // is not a decision about a third party's rights the way an onboarding
+  // clearance is, so a mis-graded entry is corrected in place rather than
+  // superseded by a new row.
+  'saveTrainee',
+  'saveCertificationEntry',
 ]);
 
 test('every admin server action requires a staff role, never merely a session', () => {

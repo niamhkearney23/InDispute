@@ -905,6 +905,65 @@ select pg_temp.expect(
 
 reset role;
 
+-- -----------------------------------------------------------------------------
+-- Certification register
+-- -----------------------------------------------------------------------------
+-- A coach's own trainees, on their own real cases: reachable by a coach or
+-- administrator only. The coach fixture above (44444444...) already has
+-- is_coach set; learner-a (11111111...) is a plain learner with neither flag.
+set local role authenticated;
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+
+insert into public.certification_trainees (id, full_name, firm_name, created_by)
+values ('aaaa2222-0000-0000-0000-000000000001', 'Test Trainee', 'Test Firm',
+        '44444444-4444-4444-4444-444444444444');
+
+insert into public.certification_entries (id, trainee_id, box_number, case_no, created_by)
+values ('aaaa2222-0000-0000-0000-000000000002', 'aaaa2222-0000-0000-0000-000000000001',
+        1, 'Case 1/2026', '44444444-4444-4444-4444-444444444444');
+
+select pg_temp.expect(
+  (select count(*) from public.certification_trainees
+   where id = 'aaaa2222-0000-0000-0000-000000000001') = 1,
+  'a coach can add a trainee to the certification register');
+
+select pg_temp.expect(
+  (select count(*) from public.certification_entries
+   where id = 'aaaa2222-0000-0000-0000-000000000002') = 1,
+  'a coach can log a certification entry against a trainee');
+
+-- A mis-graded entry is corrected in place, unlike the append-only firm
+-- records: this is a coach grading their own trainee's own work, not a
+-- decision about a third party's rights.
+update public.certification_entries set grade = 'l3_independent'
+where id = 'aaaa2222-0000-0000-0000-000000000002';
+
+select pg_temp.expect(
+  (select grade::text from public.certification_entries
+   where id = 'aaaa2222-0000-0000-0000-000000000002') = 'l3_independent',
+  'a coach can correct a certification entry they logged');
+
+select pg_temp.expect_failure(
+  $$insert into public.certification_entries (trainee_id, box_number, case_no)
+    values ('aaaa2222-0000-0000-0000-000000000001', 16, 'Case 2/2026')$$,
+  'a box number outside 1 to 15 is rejected');
+
+reset role;
+
+set local role authenticated;
+set local request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+
+select pg_temp.expect(
+  (select count(*) from public.certification_trainees) = 0,
+  'a learner cannot see any trainee on the certification register');
+
+select pg_temp.expect_failure(
+  $$insert into public.certification_trainees (full_name, firm_name)
+    values ('Sneaky', 'Nobody''s Firm')$$,
+  'a learner cannot add themselves to the certification register');
+
+reset role;
+
 
 \echo ''
 \echo 'All schema guarantees hold.'
