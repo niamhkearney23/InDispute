@@ -1,4 +1,15 @@
 {
-  "generatedDate": "2026-09-13",
-  "jobs": []
+  "generatedDate": "2026-09-14",
+  "jobs": [
+    {
+      "employer": "Allens",
+      "program": "Dive In (May 2027 pre-penultimate insight program)",
+      "jurisdiction": "National",
+      "opens": null,
+      "closes": null,
+      "notes": "Only forward-dated early-careers window I could verify from an official firm source — Allens states applications for the May 2027 Dive In program open in March 2027 (month only, no exact date published), and it is an insight program for pre-penultimate students (2nd/3rd-year LLB or 1st-year JD) rather than a clerkship or graduate program; Allens' own page confirms its 2026/27 clerkship applications are closed and gives no 2027/28 open date.",
+      "url": "https://graduates.allens.com.au/our-programs/",
+      "verifiedDate": "2026-09-14"
+    }
+  ]
 }
