@@ -1,0 +1,15 @@
+{
+  "name": "lawgistics-instagram-daily",
+  "private": true,
+  "type": "module",
+  "description": "Generates the daily Instagram/LinkedIn carousel content (research + slides + posting kit). Run by .github/workflows/daily-instagram-carousel.yml — see automation/README.md. Delivery stays manual: this commits ready-to-post assets, it never posts anything.",
+  "scripts": {
+    "daily": "node daily-carousel.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.70.0",
+    "@fontsource/playfair-display": "^5.3.0",
+    "@fontsource/tiktok-sans": "^5.3.0",
+    "playwright": "^1.62.1"
+  }
+}

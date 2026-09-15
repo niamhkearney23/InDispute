@@ -1,0 +1,51 @@
+name: Daily Instagram carousel
+
+# Generates one Instagram/LinkedIn carousel post per weekday (Friday = The
+# Big Case File), per CLAUDE.md. Research + copy via Claude with web
+# search, rendered via the same house-style pipeline as tools/carousel/.
+# Delivery stays MANUAL: this commits ready-to-post assets to
+# reports/assets/YYYY-MM-DD/ and appends reports/POST-QUEUE.md. It never
+# posts to Instagram or LinkedIn itself — see automation/README.md.
+on:
+  schedule:
+    - cron: "0 20 * * 0-4" # ~6am AEST/AEDT Mon-Fri
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install automation dependencies
+        working-directory: automation
+        run: npm install
+
+      - name: Install Chromium for rendering
+        working-directory: automation
+        run: npx playwright install --with-deps chromium
+
+      - name: Generate today's carousel
+        working-directory: automation
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node daily-carousel.mjs
+
+      - name: Commit and push if anything was generated
+        run: |
+          git config user.name "lawgistics-daily-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add reports/
+          if git diff --cached --quiet; then
+            echo "No post generated today."
+          else
+            git commit -m "Daily Instagram carousel, $(date -u +%Y-%m-%d)"
+            git push
+          fi
