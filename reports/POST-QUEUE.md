@@ -36,3 +36,4 @@ One post per weekday. Fridays: The Big Case File (pop-culture legal breakdown).
 | Anytime | 5 more legal cases that sound fake, 7 slides | reports/assets/2026-08-07/sound-fake/ | READY, check no overlap with the original |
 | Anytime | The snail and the underpants, Donoghue + Grant, 9 slides | reports/assets/2026-08-07/negligence/ | READY, strongest student post |
 | Next available weekday | Elvin v Fair Work Ombudsman [2026] FCAFC 92, "The company cut a deal. The regulator kept coming." | reports/assets/2026-07-30/elvin-slide-*.png | BANKED |
+| Mon 15 Sept 2026 | Coal Mining Industry (LSL Funding) Corporation v Orica Australia, [2026] HCA 30, shotfirers win coverage | reports/assets/2026-09-15/slide*.png | READY, lead post, compiled by hand this session, verify against primary judgment before posting |

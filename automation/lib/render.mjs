@@ -83,7 +83,12 @@ export function slideHtml({ kicker, inner, cite, dark = false, swipe = false }) 
 // slides: array of { slug, kicker, inner, cite, dark, swipe }
 export async function renderSlides(slides, outDir) {
   await mkdir(outDir, { recursive: true });
-  const browser = await chromium.launch({ args: ["--no-sandbox"] });
+  // CI installs its own matching browser via `npx playwright install`. Local
+  // dev/testing can point at a pre-installed system Chromium instead of
+  // downloading one, by setting this env var (see automation/README.md).
+  const launchOpts = { args: ["--no-sandbox"] };
+  if (process.env.PLAYWRIGHT_CHROMIUM_PATH) launchOpts.executablePath = process.env.PLAYWRIGHT_CHROMIUM_PATH;
+  const browser = await chromium.launch(launchOpts);
   const page = await browser.newPage({ viewport: { width: 1080, height: 1350 }, deviceScaleFactor: 1 });
   const paths = [];
   for (const s of slides) {
