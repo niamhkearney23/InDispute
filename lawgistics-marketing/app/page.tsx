@@ -42,7 +42,7 @@ export default function Page() {
           <div className="stepcard panel">
             <div className="stephead">
               <h2>
-                First, <em>your brand.</em>
+                What does <em>your brand</em> look like?
               </h2>
               <p>Defaults are Lawgistics. Change anything, or just press Next.</p>
             </div>
@@ -149,9 +149,9 @@ export default function Page() {
           <div className="stepcard stepcard-wide panel">
             <div className="stephead">
               <h2>
-                Check <em>every</em> slide.
+                Does <em>every slide</em> read right?
               </h2>
-              <p>Edit anything. What you see here is exactly what downloads.</p>
+              <p>Edit anything. What you see here is exactly what you get.</p>
             </div>
             <div className="reviewgrid">
               <div className="previewcol">
@@ -202,7 +202,7 @@ export default function Page() {
           <div className="stepcard panel">
             <div className="stephead">
               <h2>
-                Ready to <em>download?</em>
+                Ready to <em>save it?</em>
               </h2>
               <p>One last look. You are the publisher, not the AI.</p>
             </div>
