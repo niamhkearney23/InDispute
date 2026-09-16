@@ -3,13 +3,6 @@
 import { useEffect, useRef } from "react";
 import { initStudio } from "@/lib/studio";
 
-const STEPS = [
-  { key: "brand", label: "Brand" },
-  { key: "topic", label: "Topic" },
-  { key: "review", label: "Review" },
-  { key: "export", label: "Download" },
-];
-
 export default function Page() {
   const started = useRef(false);
   useEffect(() => {
@@ -24,18 +17,16 @@ export default function Page() {
         <div className="topbar">
           <div className="brandmark">
             <h1>Lawgistics Marketing</h1>
-            <span>one graphic a day</span>
+            <span>one post a day</span>
           </div>
-          <ol className="steps" id="stepBar">
-            {STEPS.map((s, i) => (
-              <li key={s.key}>
-                <button type="button" className="stepbtn" data-step={s.key}>
-                  <span className="stepnum">{i + 1}</span>
-                  <span className="steplabel">{s.label}</span>
-                </button>
-              </li>
-            ))}
-          </ol>
+          <div className="topbar-actions">
+            <button className="btn btn-sm" type="button" data-go="brand">
+              Brand
+            </button>
+            <button className="btn btn-sm" id="btnNewPost" type="button">
+              New post
+            </button>
+          </div>
         </div>
 
         <section className="step" data-step="brand">
@@ -44,7 +35,7 @@ export default function Page() {
               <h2>
                 What does <em>your brand</em> look like?
               </h2>
-              <p>Defaults are Lawgistics. Change anything, or just press Next.</p>
+              <p>Set once. Defaults are Lawgistics. Change anything, or just press Done.</p>
             </div>
             <div className="brandgrid" id="brandPanel">
               <div className="selectfield">
@@ -89,7 +80,7 @@ export default function Page() {
                   id="brandVoice"
                   data-brand="voice"
                   rows={4}
-                  placeholder="A post, an email, anything in your own words. The draft will sound like this instead of like AI."
+                  placeholder="A post, an email, anything in your own words. The drafts will sound like this instead of like AI."
                 />
               </div>
             </div>
@@ -97,75 +88,54 @@ export default function Page() {
               <button className="btn btn-sm" id="btnResetBrand" type="button">
                 Reset to Lawgistics
               </button>
-              <button className="btn btn-accent" type="button" data-go="topic">
-                Next
+              <button className="btn btn-accent" type="button" data-go="post">
+                Done
               </button>
             </div>
           </div>
         </section>
 
-        <section className="step" data-step="topic">
-          <div className="stepcard panel">
-            <div className="stephead">
-              <h2>
-                What do you want to <em>post about</em> today?
-              </h2>
-              <p>One line is enough. It drafts a full carousel and a caption for you to check. Nothing posts on its own.</p>
-            </div>
-            <div className="aibar">
-              <textarea
-                id="aiPrompt"
-                rows={3}
-                placeholder="e.g. the High Court's long service leave ruling, or five things that actually get you a clerkship"
-              />
-              <div className="aibar-row">
-                <p className="aistatus" id="aiStatus"></p>
-                <button className="btn btn-accent" id="btnAiGenerate" type="button">
-                  Draft it
+        <section className="step" data-step="post">
+          <div className="postgrid">
+            <div className="panel panel-pad chatcol">
+              <div className="stephead compact">
+                <h2>
+                  What do you want to <em>post about</em> today?
+                </h2>
+              </div>
+              <div className="chatlog" id="chatLog"></div>
+              <div className="chatbar">
+                <textarea id="chatInput" rows={2} placeholder="Type it here. One line is enough." />
+                <button className="btn btn-accent" id="btnSend" type="button">
+                  Send
                 </button>
               </div>
+              <p className="chathint">
+                Then just tell it what to change. &ldquo;Shorter.&rdquo; &ldquo;Punchier hook.&rdquo; &ldquo;Slide 3
+                should name the case.&rdquo;
+              </p>
             </div>
-            <p className="altlinks">
-              <button type="button" className="linkbtn" id="btnLoadExample">
-                Load the example carousel
-              </button>
-              <span aria-hidden="true">·</span>
-              <button type="button" className="linkbtn" id="btnNew">
-                Start from a blank slide
-              </button>
-            </p>
-            <div className="stepfoot">
-              <button className="btn" type="button" data-go="brand">
-                Back
-              </button>
-              <button className="btn" type="button" data-go="review">
-                Next
-              </button>
-            </div>
-          </div>
-        </section>
 
-        <section className="step" data-step="review">
-          <div className="stepcard stepcard-wide panel">
-            <div className="stephead">
-              <h2>
-                Does <em>every slide</em> read right?
-              </h2>
-              <p>Edit anything. What you see here is exactly what you get.</p>
-            </div>
-            <div className="reviewgrid">
-              <div className="previewcol">
-                <div className="previewframe">
-                  <div className="canvasholder" id="previewHolder"></div>
-                </div>
-                <div className="slidenav">
-                  <button className="btn btn-sm" id="btnPrevSlide" type="button">
-                    ← Prev
-                  </button>
-                  <div className="dotrow" id="dotRow"></div>
-                  <button className="btn btn-sm" id="btnNextSlide" type="button">
-                    Next →
-                  </button>
+            <div className="panel panel-pad resultcol" id="resultPanel">
+              <p className="panel-title">Your post</p>
+              <textarea id="captionText" rows={10} />
+              <div className="captionrow">
+                <button className="btn btn-sm" id="btnCopyCaption" type="button">
+                  Copy post
+                </button>
+              </div>
+
+              <p className="panel-title striptitle">
+                Slides <span className="hint">tap one to edit it by hand</span>
+              </p>
+              <div className="strip" id="strip"></div>
+              <details className="morefields" id="editDrawer">
+                <summary>Edit this slide by hand</summary>
+                <div className="editgrid">
+                  <div className="previewframe">
+                    <div className="canvasholder" id="previewHolder"></div>
+                  </div>
+                  <div id="editorPanel"></div>
                 </div>
                 <div className="slidetools">
                   <button className="btn btn-sm" id="btnAddSlide" type="button">
@@ -184,69 +154,32 @@ export default function Page() {
                     Delete
                   </button>
                 </div>
-              </div>
-              <div id="editorPanel"></div>
-            </div>
-            <div className="stepfoot">
-              <button className="btn" type="button" data-go="topic">
-                Back
-              </button>
-              <button className="btn btn-accent" type="button" data-go="export">
-                Next
-              </button>
-            </div>
-          </div>
-        </section>
+              </details>
 
-        <section className="step" data-step="export">
-          <div className="stepcard panel">
-            <div className="stephead">
-              <h2>
-                Ready to <em>save it?</em>
-              </h2>
-              <p>One last look. You are the publisher, not the AI.</p>
-            </div>
-            <div className="strip" id="strip"></div>
-            <label className="consentbar" htmlFor="consentCheck">
-              <input type="checkbox" id="consentCheck" />
-              <span>
-                This was drafted by AI. I have read every slide and the caption, checked any facts, names and citations
-                myself, and I take responsibility for what I post.
-              </span>
-            </label>
-            <div className="exportbar" id="shareBar" hidden>
-              <button className="btn btn-accent" id="btnShareAll" type="button">
-                Save all slides to Photos
-              </button>
-              <button className="btn" id="btnShareOne" type="button">
-                Save this slide to Photos
-              </button>
-            </div>
-            <div className="exportbar" id="downloadBar">
-              <button className="btn btn-accent" id="btnExportAll" type="button">
-                Download whole carousel (ZIP)
-              </button>
-              <button className="btn" id="btnExportOne" type="button">
-                Download this slide (PNG)
-              </button>
-            </div>
-            <p className="exportnote" id="exportNote"></p>
-            <div className="captionpanel" id="captionPanel" hidden>
-              <p className="panel-title">Caption</p>
-              <textarea id="captionText" rows={12} />
-              <div className="captionrow">
-                <button className="btn btn-sm" id="btnCopyCaption" type="button">
-                  Copy caption
+              <label className="consentbar" htmlFor="consentCheck">
+                <input type="checkbox" id="consentCheck" />
+                <span>
+                  This was drafted by AI. I have read every slide and the post, checked any facts, names and citations
+                  myself, and I take responsibility for what I post.
+                </span>
+              </label>
+              <div className="exportbar" id="shareBar" hidden>
+                <button className="btn btn-accent" id="btnShareAll" type="button">
+                  Save all slides to Photos
+                </button>
+                <button className="btn" id="btnShareOne" type="button">
+                  Save this slide to Photos
                 </button>
               </div>
-            </div>
-            <div className="stepfoot">
-              <button className="btn" type="button" data-go="review">
-                Back
-              </button>
-              <button className="btn" type="button" data-go="topic">
-                Start another
-              </button>
+              <div className="exportbar" id="downloadBar">
+                <button className="btn btn-accent" id="btnExportAll" type="button">
+                  Download whole carousel (ZIP)
+                </button>
+                <button className="btn" id="btnExportOne" type="button">
+                  Download this slide (PNG)
+                </button>
+              </div>
+              <p className="exportnote" id="exportNote"></p>
             </div>
           </div>
         </section>

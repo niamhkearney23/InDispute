@@ -11,28 +11,34 @@ runs on the server with the API key kept out of the browser.
 
 ## What it does today (MVP)
 
-One question per screen. Four screens, Back and Next at the bottom, and a
-step bar top-right to jump between them.
+Two screens.
 
-1. **Brand**: wordmark, light/dark background colours, accent, serif and
-   sans font choices. Defaults are the Lawgistics palette and type, so the
-   first run is one click. Also **Your voice**: paste a few things you have
-   written and the draft matches how you actually sound. This is the
-   compliant version of "read my LinkedIn", you paste the text yourself,
-   nothing is scraped.
-2. **Topic**: "What do you want to post about today?" -> drafts 5-6 slides
-   plus a caption via `/api/draft` (Claude, server-side) and moves you to
-   Review. Or load the example carousel, or start from a blank slide.
-3. **Review**: one slide at a time, live preview that is pixel-identical to
-   the export, every field editable, bold/italic with `**` and `*`,
-   add/duplicate/reorder/delete.
-4. **Download**: a strip of every slide, the consent box, and the buttons.
-   Downloads are disabled until the "I have checked this" box is ticked.
-   That is deliberate and should stay. Single slide PNG, or the whole
-   carousel as a ZIP with the caption as `caption.txt`.
+1. **Brand**, set once: wordmark, light/dark background colours, accent,
+   serif and sans font choices. Defaults are the Lawgistics palette and
+   type, so the first run is one click on Done. Also **Your voice**: paste
+   a few things you have written and every draft matches how you actually
+   sound. This is the compliant version of "read my LinkedIn", you paste
+   the text yourself, nothing is scraped. Reachable later from the Brand
+   button in the header.
+2. **Post**, every day: a chat on the left ("What do you want to post about
+   today?") and the result on the right. The first message drafts the
+   LinkedIn-style post and 5-6 slides via `/api/draft` (Claude,
+   server-side). Every message after that is a revision: "shorter",
+   "punchier hook", "slide 3 should name the case". The current draft goes
+   back to the model with the instruction and it returns the whole thing
+   updated. **New post** clears the thread and starts again.
 
-Everything autosaves in the browser (localStorage), including which screen
-you were on. No accounts yet.
+   On the right: the post text with **Copy post** (keeps the line spacing),
+   a strip of the slides (tap one to open the hand editor, which is folded
+   away by default), the consent box, and the save buttons. Saving is
+   disabled until the "I have checked this" box is ticked. That is
+   deliberate and should stay. On a phone the buttons are **Save all slides
+   to Photos** / **Save this slide to Photos**, which hand pre-rendered PNGs
+   to the share sheet; on desktop they are a ZIP (with `post.txt`) or a
+   single PNG.
+
+Everything autosaves in the browser (localStorage), including the chat
+thread. No accounts yet.
 
 Not in this MVP, on purpose: accounts/login, billing, AI logo generation,
 posting cadence reminders, website builder. See the scope discussion in the
@@ -67,11 +73,11 @@ the academy app.
 
 ## Where things are
 
-- `app/page.tsx`: the four screens (markup only).
-- `lib/studio.ts`: all the behaviour: steps, state, editor, preview, export.
+- `app/page.tsx`: the two screens (markup only).
+- `lib/studio.ts`: all the behaviour: chat, state, editor, preview, export.
 - `app/api/draft/route.ts`: the server-side Claude call and the drafting
   brief (voice rules, no em dashes, no AI-sounding patterns, no invented
-  citations).
+  citations). Accepts `current` for revisions.
 - `app/globals.css`: the dark studio chrome plus the house-style slide CSS,
   ported verbatim from `tools/carousel/house-style.py`.
 - `public/fonts/`: Playfair Display and TikTok Sans, self-hosted.

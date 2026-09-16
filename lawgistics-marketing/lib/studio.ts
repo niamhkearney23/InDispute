@@ -57,6 +57,9 @@ function exampleCaption(){
   ].join("\n\n");
 }
 
+var EXAMPLE_INTRO = "Hi. That is an example post on the right so you can see the shape. Tell me what you want to post about today and I will draft yours.";
+var NEW_POST_INTRO = "What do you want to post about today?";
+
 // ---- colour derivation from the three brand colours, in JS rather than CSS
 // color-mix so html2canvas export matches the preview exactly ----
 function hexToRgb(hex){
@@ -161,10 +164,10 @@ function buildCanvasEl(slide, brand){
   return div;
 }
 
-var STEP_KEYS = ['brand','topic','review','export'];
+var STEP_KEYS = ['brand','post'];
 
 export function initStudio(){
-  var state = {slides: [], activeIndex: 0, brand: defaultBrand(), caption: '', consented: false, step: 'brand'};
+  var state = {slides: [], activeIndex: 0, brand: defaultBrand(), caption: '', consented: false, step: 'brand', messages: [], drafted: false};
 
   function loadLocal(){
     try{ var raw = localStorage.getItem('lgm_state_v1'); return raw ? JSON.parse(raw) : null; }catch(e){ return null; }
@@ -172,26 +175,25 @@ export function initStudio(){
   function saveLocal(){ try{ localStorage.setItem('lgm_state_v1', JSON.stringify(state)); }catch(e){} }
 
   var $ = function(id){ return document.getElementById(id); };
-  var editorPanel = $('editorPanel'), previewHolder = $('previewHolder'), strip = $('strip'), stepBar = $('stepBar');
-  var dotRow = $('dotRow'), exportStage = $('exportStage'), toast = $('toast');
+  var editorPanel = $('editorPanel'), previewHolder = $('previewHolder'), strip = $('strip'), editDrawer = $('editDrawer');
+  var exportStage = $('exportStage'), toast = $('toast'), resultPanel = $('resultPanel');
   var btnAddSlide = $('btnAddSlide'), btnDupSlide = $('btnDupSlide'), btnDelSlide = $('btnDelSlide');
-  var btnMoveUp = $('btnMoveUp'), btnMoveDown = $('btnMoveDown'), btnNew = $('btnNew'), btnLoadExample = $('btnLoadExample');
-  var btnPrevSlide = $('btnPrevSlide'), btnNextSlide = $('btnNextSlide');
+  var btnMoveUp = $('btnMoveUp'), btnMoveDown = $('btnMoveDown'), btnNewPost = $('btnNewPost');
   var btnExportOne = $('btnExportOne'), btnExportAll = $('btnExportAll');
   var shareBar = $('shareBar'), downloadBar = $('downloadBar'), btnShareAll = $('btnShareAll'), btnShareOne = $('btnShareOne');
   var exportNote = $('exportNote');
-  var aiPrompt = $('aiPrompt'), btnAiGenerate = $('btnAiGenerate'), aiStatus = $('aiStatus');
+  var chatLog = $('chatLog'), chatInput = $('chatInput'), btnSend = $('btnSend');
   var brandPanel = $('brandPanel'), btnResetBrand = $('btnResetBrand');
   var brandCream = $('brandCream'), brandNavy = $('brandNavy'), brandAccent = $('brandAccent');
   var brandWordmark = $('brandWordmark'), brandSerif = $('brandSerif'), brandSans = $('brandSans'), brandVoice = $('brandVoice');
-  var captionPanel = $('captionPanel'), captionText = $('captionText'), btnCopyCaption = $('btnCopyCaption');
+  var captionText = $('captionText'), btnCopyCaption = $('btnCopyCaption');
   var consentCheck = $('consentCheck');
 
   function previewWidth(){
     var frame = previewHolder.parentElement;
     var pad = parseFloat(getComputedStyle(frame).paddingLeft) || 0;
     var avail = frame.clientWidth - pad*2;
-    return avail > 0 ? Math.min(340, avail) : 340;
+    return avail > 0 ? Math.min(300, avail) : 300;
   }
   var toastTimer = null;
   function showToast(msg){
@@ -224,29 +226,27 @@ export function initStudio(){
       strip.appendChild(btn);
     });
   }
+  var stripTimer = null;
+  function renderStripSoon(){ clearTimeout(stripTimer); stripTimer = setTimeout(renderStrip, 250); }
 
   function showStep(name){
-    if(STEP_KEYS.indexOf(name)<0) name = 'topic';
+    if(STEP_KEYS.indexOf(name)<0) name = 'post';
     state.step = name;
-    var idx = STEP_KEYS.indexOf(name);
     document.querySelectorAll('.step').forEach(function(sec){
       sec.classList.toggle('active', sec.dataset.step===name);
     });
-    stepBar.querySelectorAll('.stepbtn').forEach(function(b,i){
-      b.classList.toggle('active', i===idx);
-      b.classList.toggle('done', i<idx);
-      if(i===idx) b.setAttribute('aria-current','step'); else b.removeAttribute('aria-current');
-    });
-    if(name==='export'){ renderStrip(); if(state.consented) prepareBlobs(); }
-    if(name==='review') setTimeout(updatePreview, 0);
+    if(name==='post'){
+      renderStrip();
+      if(state.consented) prepareBlobs();
+      if(editDrawer.open) setTimeout(updatePreview, 0);
+    }
     saveLocal();
     window.scrollTo(0,0);
-    if(name==='topic') setTimeout(function(){ aiPrompt.focus(); }, 0);
   }
   var resizeTimer = null;
   window.addEventListener('resize', function(){
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(function(){ if(state.step==='review') updatePreview(); }, 120);
+    resizeTimer = setTimeout(function(){ if(state.step==='post' && editDrawer.open) updatePreview(); }, 120);
   });
 
   function renderEditor(){
@@ -309,30 +309,25 @@ export function initStudio(){
     wrap.style.overflow = 'hidden';
     wrap.style.borderRadius = '5px';
     wrap.appendChild(canvas);
-    previewHolder.innerHTML = '';
     previewHolder.appendChild(wrap);
   }
 
-  function renderDots(){
-    dotRow.innerHTML = state.slides.map(function(s,i){
-      return '<button type="button" class="dot'+(i===state.activeIndex?' active':'')+'" data-idx="'+i+'" aria-label="Slide '+(i+1)+'"></button>';
-    }).join('');
+  function renderCaption(){
+    if(document.activeElement !== captionText) captionText.value = state.caption || '';
+    captionText.placeholder = state.drafted ? '' : 'Your post will appear here.';
   }
 
-  function renderCaption(){
-    if(state.caption){
-      captionPanel.hidden = false;
-      captionText.value = state.caption;
-    } else {
-      captionPanel.hidden = true;
-    }
+  function renderChat(){
+    chatLog.innerHTML = state.messages.map(function(m){
+      var cls = 'msg '+(m.role==='user'?'user':'bot')+(m.busy?' busy':'')+(m.error?' error':'');
+      return '<div class="'+cls+'">'+textEsc(m.text).replace(/\n/g,'<br>')+'</div>';
+    }).join('');
+    chatLog.scrollTop = chatLog.scrollHeight;
   }
 
   function updateButtons(){
     btnMoveUp.disabled = state.activeIndex===0;
     btnMoveDown.disabled = state.activeIndex===state.slides.length-1;
-    btnPrevSlide.disabled = state.activeIndex===0;
-    btnNextSlide.disabled = state.activeIndex===state.slides.length-1;
     btnDelSlide.disabled = state.slides.length<=1;
     consentCheck.checked = !!state.consented;
     btnExportOne.disabled = !state.consented;
@@ -357,25 +352,20 @@ export function initStudio(){
     renderEditor();
     syncBrandFields();
     updatePreview();
-    renderDots();
+    renderStrip();
     renderCaption();
+    renderChat();
     updateButtons();
-    if(state.step==='export') renderStrip();
   }
-  function select(i){ state.activeIndex = i; renderAll(); }
+  function select(i){ state.activeIndex = i; saveLocal(); renderAll(); }
 
-  dotRow.addEventListener('click', function(e){
-    var d = e.target.closest('.dot'); if(!d) return; select(+d.dataset.idx);
-  });
   strip.addEventListener('click', function(e){
     var item = e.target.closest('.stripitem'); if(!item) return;
-    select(+item.dataset.idx); showStep('review');
+    select(+item.dataset.idx);
+    if(!editDrawer.open) editDrawer.open = true;
+    setTimeout(updatePreview, 0);
   });
-  btnPrevSlide.addEventListener('click', function(){ if(state.activeIndex>0) select(state.activeIndex-1); });
-  btnNextSlide.addEventListener('click', function(){ if(state.activeIndex<state.slides.length-1) select(state.activeIndex+1); });
-  stepBar.addEventListener('click', function(e){
-    var b = e.target.closest('.stepbtn'); if(!b) return; showStep(b.dataset.step);
-  });
+  editDrawer.addEventListener('toggle', function(){ if(editDrawer.open) updatePreview(); });
   document.addEventListener('click', function(e){
     var go = e.target.closest('[data-go]'); if(!go) return; showStep(go.dataset.go);
   });
@@ -384,7 +374,7 @@ export function initStudio(){
     var el = e.target, field = el.dataset.field; if(!field) return;
     var slide = state.slides[state.activeIndex];
     slide[field] = (el.type==='checkbox') ? el.checked : el.value;
-    saveLocal(); updatePreview();
+    saveLocal(); updatePreview(); renderStripSoon();
   });
   editorPanel.addEventListener('click', function(e){
     var actBtn = e.target.closest('button[data-act]');
@@ -392,7 +382,7 @@ export function initStudio(){
       var slide = state.slides[state.activeIndex];
       if(actBtn.dataset.act==='setDark') slide.dark = actBtn.dataset.val==='true';
       if(actBtn.dataset.act==='setSize') slide.size = actBtn.dataset.val;
-      saveLocal(); renderEditor(); updatePreview();
+      saveLocal(); renderEditor(); updatePreview(); renderStrip();
       return;
     }
     var wrapBtn = e.target.closest('button[data-wrap]');
@@ -451,14 +441,12 @@ export function initStudio(){
     state.activeIndex = Math.max(0, state.activeIndex-1);
     saveLocal(); renderAll();
   });
-  armConfirm(btnNew, function(){
+  armConfirm(btnNewPost, function(){
     state.slides = [blankSlideBase()]; state.activeIndex = 0; state.caption = ''; state.consented = false;
-    saveLocal(); renderAll(); showStep('review');
-  });
-  armConfirm(btnLoadExample, function(){
-    state.slides = exampleSlides(); state.activeIndex = 0; state.caption = exampleCaption(); state.consented = false;
-    saveLocal(); renderAll(); showStep('review');
-    showToast('Loaded the example');
+    state.drafted = false; state.messages = [{role:'bot', text: NEW_POST_INTRO}];
+    editDrawer.open = false;
+    saveLocal(); renderAll(); showStep('post');
+    chatInput.focus();
   });
 
   btnResetBrand.addEventListener('click', function(){
@@ -479,52 +467,75 @@ export function initStudio(){
   });
 
   btnCopyCaption.addEventListener('click', async function(){
-    try{ await navigator.clipboard.writeText(captionText.value); showToast('Caption copied'); }
-    catch(e){ showToast('Select the caption and copy it manually'); }
+    if(!captionText.value.trim()){ showToast('Nothing to copy yet'); return; }
+    try{ await navigator.clipboard.writeText(captionText.value); showToast('Post copied'); }
+    catch(e){ showToast('Select the post and copy it manually'); }
   });
   captionText.addEventListener('input', function(){ state.caption = captionText.value; saveLocal(); });
 
-  // ---------- AI drafting ----------
-  function setAiStatus(msg, kind){
-    aiStatus.textContent = msg;
-    aiStatus.className = 'aistatus' + (kind ? ' '+kind : '');
+  // ---------- the bot ----------
+  function currentDraft(){
+    var s0 = state.slides[0] || {};
+    return {
+      kicker: s0.kicker || '', cite: s0.cite || '', caption: state.caption || '',
+      slides: state.slides.map(function(s){
+        return {dark:!!s.dark, size:s.size||'md', swipe:!!s.swipe, statement:s.statement||'', sub:s.sub||'', body:s.body||'', learn:s.learn||''};
+      })
+    };
   }
-  btnAiGenerate.addEventListener('click', async function(){
-    var topic = aiPrompt.value.trim();
-    if(!topic){ setAiStatus('Type what you want to post about first.', 'bad'); aiPrompt.focus(); return; }
-    btnAiGenerate.disabled = true;
-    var label = btnAiGenerate.textContent; btnAiGenerate.textContent = 'Drafting…';
-    setAiStatus('Drafting. Usually under a minute.', 'busy');
+  function applyDraft(result){
+    var kicker = result.kicker || '', cite = result.cite || '';
+    var slides = (result.slides || []).map(function(s){
+      return { dark: !!s.dark, size: s.size==='lg'?'lg':'md', swipe: !!s.swipe, kicker: kicker, cite: cite,
+        statement: s.statement||'', sub: s.sub||'', body: s.body||'', learn: s.learn||'' };
+    });
+    if(!slides.length) throw new Error('no slides came back');
+    state.slides = slides; state.activeIndex = 0;
+    state.caption = typeof result.caption==='string' ? result.caption : '';
+    state.consented = false;
+    state.drafted = true;
+    return slides.length;
+  }
+  var sending = false;
+  async function sendChat(){
+    var text = chatInput.value.trim();
+    if(!text || sending) return;
+    sending = true;
+    chatInput.value = '';
+    var revising = state.drafted;
+    state.messages.push({role:'user', text:text});
+    var pending = {role:'bot', text: revising ? 'On it.' : 'Drafting your post. Usually under a minute.', busy:true};
+    state.messages.push(pending);
+    saveLocal(); renderChat();
+    btnSend.disabled = true;
+    var ok = false;
     try{
-      var res = await fetch('/api/draft', {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({topic: topic, voiceSample: state.brand.voice || ''})
-      });
+      var payload = {topic:text, voiceSample: state.brand.voice || ''};
+      if(revising) payload.current = currentDraft();
+      var res = await fetch('/api/draft', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
       var data = await res.json();
       if(!res.ok) throw new Error(data && data.error ? data.error : 'request failed');
-      var result = data.draft;
-      var kicker = result.kicker || '', cite = result.cite || '';
-      var slides = (result.slides || []).map(function(s){
-        return { dark: !!s.dark, size: s.size==='lg'?'lg':'md', swipe: !!s.swipe, kicker: kicker, cite: cite,
-          statement: s.statement||'', sub: s.sub||'', body: s.body||'', learn: s.learn||'' };
-      });
-      if(!slides.length) throw new Error('no slides came back');
-      state.slides = slides; state.activeIndex = 0;
-      state.caption = result.caption || '';
-      state.consented = false;
-      saveLocal(); renderAll();
-      setAiStatus('Drafted '+slides.length+' slides and a caption.', '');
-      showStep('review');
-      showToast('Drafted '+slides.length+' slides. Check every fact before you post.');
+      var n = applyDraft(data.draft);
+      pending.text = revising
+        ? 'Done. Have a look, then tell me the next change, or tick the box and save it.'
+        : 'Done. '+n+' slides and the post are on the right. Read every line, then tell me what to change, or tick the box and save it.';
+      ok = true;
+      editDrawer.open = false;
     }catch(err){
-      setAiStatus('Could not draft that: '+((err && err.message) ? err.message : 'please try again'), 'bad');
+      pending.text = 'Could not do that: '+((err && err.message) ? err.message : 'please try again')+'.';
+      pending.error = true;
     } finally {
-      btnAiGenerate.disabled = false;
-      btnAiGenerate.textContent = label;
+      pending.busy = false;
+      sending = false;
+      btnSend.disabled = false;
+      saveLocal(); renderAll();
+      if(ok && window.innerWidth < 900) resultPanel.scrollIntoView({behavior:'smooth', block:'start'});
+      if(ok) showToast('Drafted. Check every fact before you post.');
     }
-  });
-  aiPrompt.addEventListener('keydown', function(e){
-    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); btnAiGenerate.click(); }
+  }
+  btnSend.addEventListener('click', sendChat);
+  chatInput.addEventListener('keydown', function(e){
+    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendChat(); }
   });
 
   // ---------- export ----------
@@ -547,8 +558,8 @@ export function initStudio(){
   }
 
   // iOS Safari only lets navigator.share run inside a fresh tap, so the PNGs
-  // are rendered ahead of time (on consent / entering the Download step) and
-  // the tap itself just hands the cached files to the share sheet.
+  // are rendered ahead of time (on consent) and the tap itself just hands the
+  // cached files to the share sheet.
   var renderCache = {key:null, blobs:null, promise:null};
   function renderKey(){ return JSON.stringify({s:state.slides, b:state.brand}); }
   function prepareBlobs(){
@@ -608,6 +619,7 @@ export function initStudio(){
     if(!state.consented) return;
     shareSlides([state.activeIndex]);
   });
+
   function saveBlob(filename, blob){
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
@@ -634,7 +646,7 @@ export function initStudio(){
         btnExportAll.textContent = 'Rendering '+(i+1)+' of '+state.slides.length+'…';
         zip.file('slide'+(i+1)+'.png', await exportSlideBlob(i));
       }
-      if(state.caption) zip.file('caption.txt', state.caption);
+      if(state.caption) zip.file('post.txt', state.caption);
       btnExportAll.textContent = 'Zipping…';
       saveBlob('carousel.zip', await zip.generateAsync({type:'blob'}));
     }catch(e){ showToast('Export failed, try again'); }
@@ -650,9 +662,13 @@ export function initStudio(){
     if(state.brand.voice==null) state.brand.voice = '';
     if(typeof state.caption !== 'string') state.caption = '';
     state.consented = !!state.consented;
-    if(STEP_KEYS.indexOf(state.step)<0) state.step = 'topic';
+    state.drafted = !!state.drafted;
+    if(!Array.isArray(state.messages) || !state.messages.length) state.messages = [{role:'bot', text: state.drafted ? 'Welcome back. Tell me what to change, or start a new post.' : EXAMPLE_INTRO}];
+    state.messages.forEach(function(m){ if(m.busy){ m.busy = false; m.error = true; m.text = 'That one did not finish. Send it again.'; } });
+    if(STEP_KEYS.indexOf(state.step)<0) state.step = 'post';
   } else {
-    state = {slides: exampleSlides(), activeIndex: 0, brand: defaultBrand(), caption: exampleCaption(), consented: false, step: 'brand'};
+    state = {slides: exampleSlides(), activeIndex: 0, brand: defaultBrand(), caption: exampleCaption(), consented: false,
+      step: 'brand', messages: [{role:'bot', text: EXAMPLE_INTRO}], drafted: false};
   }
   ensureGoogleFont(state.brand.serif);
   ensureGoogleFont(state.brand.sans);

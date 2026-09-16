@@ -7,9 +7,17 @@ export const maxDuration = 60;
 // One request per topic, server-side, so the API key never reaches the
 // browser. Same drafting brief as the Claude-artifact prototype this app
 // grew out of, including the "don't sound like a language model" rules.
-function buildPrompt(topic: string, voiceSample: string | undefined): string {
+function buildPrompt(topic: string, voiceSample: string | undefined, current: unknown): string {
   const voice = voiceSample && voiceSample.trim()
     ? `\n\nHere is a sample of how this person actually writes. Match its rhythm, vocabulary and level of formality, not its topic:\n"""\n${voiceSample.trim().slice(0, 4000)}\n"""\n`
+    : "";
+  const revision = current
+    ? "\n\nThe author already has a draft and is asking for a change. Here is the current draft as JSON:\n" +
+      JSON.stringify(current).slice(0, 20000) +
+      "\n\nApply exactly this request from the author, and leave everything the request does not touch as it is " +
+      "(same slide count, same wording elsewhere, same caption lines that were not mentioned):\n\"" +
+      topic +
+      "\"\n\nReturn the complete updated draft in the same JSON shape described below.\n\n"
     : "";
   return (
     "You are drafting an Instagram carousel for a law-student-focused legal marketing account, " +
@@ -20,8 +28,8 @@ function buildPrompt(topic: string, voiceSample: string | undefined): string {
     "telltale AI-written pattern: no 'it's not just X, it's Y', no 'in a world where', no rhetorical " +
     "questions as filler, no hedge-then-reveal structure, no tricolons for their own sake. Write plain, " +
     "specific, declarative sentences the way a sharp, opinionated person would actually talk, not the way " +
-    "a language model default-writes." + voice + "\n\n" +
-    "Topic: " + topic + "\n\n" +
+    "a language model default-writes." + voice + revision +
+    (current ? "" : "\n\nTopic: " + topic + "\n\n") +
     "If this is a real case, event or statistic you are not fully certain of the exact citation, date or " +
     "figures for, keep the copy general and do NOT invent a specific citation, party name, date or number. " +
     "Write the substantive point clearly instead of guessing at specifics.\n\n" +
@@ -57,7 +65,7 @@ export async function POST(req: Request) {
     );
   }
 
-  let body: { topic?: unknown; voiceSample?: unknown };
+  let body: { topic?: unknown; voiceSample?: unknown; current?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -69,12 +77,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Tell us what to post about (up to 1000 characters)." }, { status: 400 });
   }
   const voiceSample = typeof body.voiceSample === "string" ? body.voiceSample : undefined;
+  const current =
+    body.current && typeof body.current === "object" && Array.isArray((body.current as { slides?: unknown }).slides)
+      ? body.current
+      : undefined;
 
   const anthropic = new Anthropic();
   const response = await anthropic.messages.create({
     model: "claude-opus-5",
     max_tokens: 8000,
-    messages: [{ role: "user", content: buildPrompt(topic, voiceSample) }],
+    messages: [{ role: "user", content: buildPrompt(topic, voiceSample, current) }],
   });
 
   const text = response.content
