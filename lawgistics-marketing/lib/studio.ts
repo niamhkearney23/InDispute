@@ -41,6 +41,22 @@ function exampleSlides(){
   ];
 }
 
+function exampleCaption(){
+  return [
+    "166 workers. Two companies. One question: who actually employed them?",
+    "Strandline Resources and its subsidiary Coburn Resources ran a mineral sands project together.",
+    "Both collapsed on the same day.",
+    "The workers' contracts named Strandline as the employer. The work was on Coburn's project.",
+    "The Commonwealth, having paid out the workers' entitlements, wanted the priority claim to sit with Coburn, where the money was.",
+    "The Federal Court said no. Read the contract.",
+    "Justice Jackson held that written employment contracts naming the employer ordinarily prevail.",
+    "For anyone advising on group structures, that is the whole lesson.",
+    "Get the employment contracts right before the group is under stress. Insolvency will test exactly who they name.",
+    "Brauer v Coburn Resources Pty Ltd [2026] FCA 1110.",
+    "General information, not legal advice."
+  ].join("\n\n");
+}
+
 // ---- colour derivation from the three brand colours, in JS rather than CSS
 // color-mix so html2canvas export matches the preview exactly ----
 function hexToRgb(hex){
@@ -162,6 +178,8 @@ export function initStudio(){
   var btnMoveUp = $('btnMoveUp'), btnMoveDown = $('btnMoveDown'), btnNew = $('btnNew'), btnLoadExample = $('btnLoadExample');
   var btnPrevSlide = $('btnPrevSlide'), btnNextSlide = $('btnNextSlide');
   var btnExportOne = $('btnExportOne'), btnExportAll = $('btnExportAll');
+  var shareBar = $('shareBar'), downloadBar = $('downloadBar'), btnShareAll = $('btnShareAll'), btnShareOne = $('btnShareOne');
+  var exportNote = $('exportNote');
   var aiPrompt = $('aiPrompt'), btnAiGenerate = $('btnAiGenerate'), aiStatus = $('aiStatus');
   var brandPanel = $('brandPanel'), btnResetBrand = $('btnResetBrand');
   var brandCream = $('brandCream'), brandNavy = $('brandNavy'), brandAccent = $('brandAccent');
@@ -169,7 +187,12 @@ export function initStudio(){
   var captionPanel = $('captionPanel'), captionText = $('captionText'), btnCopyCaption = $('btnCopyCaption');
   var consentCheck = $('consentCheck');
 
-  var PREVIEW_WIDTH = 340;
+  function previewWidth(){
+    var frame = previewHolder.parentElement;
+    var pad = parseFloat(getComputedStyle(frame).paddingLeft) || 0;
+    var avail = frame.clientWidth - pad*2;
+    return avail > 0 ? Math.min(340, avail) : 340;
+  }
   var toastTimer = null;
   function showToast(msg){
     toast.textContent = msg;
@@ -214,11 +237,17 @@ export function initStudio(){
       b.classList.toggle('done', i<idx);
       if(i===idx) b.setAttribute('aria-current','step'); else b.removeAttribute('aria-current');
     });
-    if(name==='export') renderStrip();
+    if(name==='export'){ renderStrip(); if(state.consented) prepareBlobs(); }
+    if(name==='review') setTimeout(updatePreview, 0);
     saveLocal();
     window.scrollTo(0,0);
     if(name==='topic') setTimeout(function(){ aiPrompt.focus(); }, 0);
   }
+  var resizeTimer = null;
+  window.addEventListener('resize', function(){
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function(){ if(state.step==='review') updatePreview(); }, 120);
+  });
 
   function renderEditor(){
     var idx = state.activeIndex, total = state.slides.length, slide = state.slides[idx];
@@ -267,12 +296,14 @@ export function initStudio(){
 
   function updatePreview(){
     var slide = state.slides[state.activeIndex];
-    var scale = PREVIEW_WIDTH/1080;
+    previewHolder.innerHTML = '';
+    var width = previewWidth();
+    var scale = width/1080;
     var canvas = buildCanvasEl(slide, state.brand);
     canvas.style.transform = 'scale('+scale+')';
     canvas.style.transformOrigin = 'top left';
     var wrap = document.createElement('div');
-    wrap.style.width = PREVIEW_WIDTH+'px';
+    wrap.style.width = width+'px';
     wrap.style.height = Math.round(1350*scale)+'px';
     wrap.style.position = 'relative';
     wrap.style.overflow = 'hidden';
@@ -306,6 +337,8 @@ export function initStudio(){
     consentCheck.checked = !!state.consented;
     btnExportOne.disabled = !state.consented;
     btnExportAll.disabled = !state.consented;
+    btnShareAll.disabled = !state.consented;
+    btnShareOne.disabled = !state.consented;
   }
 
   function syncBrandFields(){
@@ -423,7 +456,7 @@ export function initStudio(){
     saveLocal(); renderAll(); showStep('review');
   });
   armConfirm(btnLoadExample, function(){
-    state.slides = exampleSlides(); state.activeIndex = 0; state.caption = ''; state.consented = false;
+    state.slides = exampleSlides(); state.activeIndex = 0; state.caption = exampleCaption(); state.consented = false;
     saveLocal(); renderAll(); showStep('review');
     showToast('Loaded the example');
   });
@@ -442,6 +475,7 @@ export function initStudio(){
 
   consentCheck.addEventListener('change', function(){
     state.consented = consentCheck.checked; saveLocal(); updateButtons();
+    if(state.consented) prepareBlobs();
   });
 
   btnCopyCaption.addEventListener('click', async function(){
@@ -494,17 +528,86 @@ export function initStudio(){
   });
 
   // ---------- export ----------
-  async function exportSlideBlob(index){
-    var html2canvas = (await import('html2canvas')).default;
-    var slide = state.slides[index];
-    exportStage.innerHTML = '';
-    var canvas = buildCanvasEl(slide, state.brand);
-    exportStage.appendChild(canvas);
-    if(document.fonts && document.fonts.ready) await document.fonts.ready;
-    var shot = await html2canvas(canvas, {width:1080, height:1350, windowWidth:1080, windowHeight:1350, scale:1, backgroundColor:null});
-    exportStage.innerHTML = '';
-    return new Promise(function(resolve){ shot.toBlob(function(blob){ resolve(blob); }, 'image/png'); });
+  // One shared off-screen stage, so renders are queued rather than overlapping.
+  var renderQueue = Promise.resolve();
+  function exportSlideBlob(index){
+    var job = renderQueue.then(async function(){
+      var html2canvas = (await import('html2canvas')).default;
+      var slide = state.slides[index];
+      exportStage.innerHTML = '';
+      var canvas = buildCanvasEl(slide, state.brand);
+      exportStage.appendChild(canvas);
+      if(document.fonts && document.fonts.ready) await document.fonts.ready;
+      var shot = await html2canvas(canvas, {width:1080, height:1350, windowWidth:1080, windowHeight:1350, scale:1, backgroundColor:null});
+      exportStage.innerHTML = '';
+      return new Promise(function(resolve){ shot.toBlob(function(blob){ resolve(blob); }, 'image/png'); });
+    });
+    renderQueue = job.catch(function(){});
+    return job;
   }
+
+  // iOS Safari only lets navigator.share run inside a fresh tap, so the PNGs
+  // are rendered ahead of time (on consent / entering the Download step) and
+  // the tap itself just hands the cached files to the share sheet.
+  var renderCache = {key:null, blobs:null, promise:null};
+  function renderKey(){ return JSON.stringify({s:state.slides, b:state.brand}); }
+  function prepareBlobs(){
+    var key = renderKey();
+    if(renderCache.key===key && renderCache.promise) return renderCache.promise;
+    renderCache = {key:key, blobs:null, promise:null};
+    setExportNote('Preparing your slides…');
+    var p = (async function(){
+      var blobs = [];
+      for(var i=0;i<state.slides.length;i++) blobs.push(await exportSlideBlob(i));
+      return blobs;
+    })();
+    renderCache.promise = p;
+    p.then(function(blobs){
+      if(renderCache.key===key){ renderCache.blobs = blobs; setExportNote(shareSupported ? 'Ready. Tap Save, then choose Save Image in the share sheet.' : ''); }
+    }, function(){ if(renderCache.key===key) setExportNote('Could not prepare the slides, try again.'); });
+    return p;
+  }
+  function setExportNote(msg){ exportNote.textContent = msg; }
+
+  function makeFiles(blobs, indices){
+    return indices.map(function(i){ return new File([blobs[i]], 'slide'+(i+1)+'.png', {type:'image/png'}); });
+  }
+  var shareSupported = (function(){
+    try{
+      if(!navigator.share || !navigator.canShare) return false;
+      var probe = new File([new Blob(['x'], {type:'image/png'})], 'probe.png', {type:'image/png'});
+      return navigator.canShare({files:[probe]}) && (navigator.maxTouchPoints > 0);
+    }catch(e){ return false; }
+  })();
+  shareBar.hidden = !shareSupported;
+  if(shareSupported){ downloadBar.classList.add('exportbar-secondary'); }
+
+  async function shareSlides(indices){
+    var blobs = renderCache.blobs;
+    if(!blobs || renderCache.key!==renderKey()){
+      setExportNote('Preparing your slides, tap again in a moment.');
+      try{ await prepareBlobs(); }catch(e){ return; }
+      blobs = renderCache.blobs;
+      if(!blobs) return;
+    }
+    var files = makeFiles(blobs, indices);
+    try{
+      await navigator.share({files:files, title: files.length>1 ? 'Carousel' : 'Slide'});
+      showToast(files.length>1 ? 'Sent to the share sheet. Save Image puts them in Photos.' : 'Sent to the share sheet.');
+    }catch(e){
+      if(e && e.name==='AbortError') return;
+      if(e && e.name==='NotAllowedError'){ setExportNote('Ready now. Tap Save once more.'); return; }
+      showToast('Sharing failed, use the download buttons instead');
+    }
+  }
+  btnShareAll.addEventListener('click', function(){
+    if(!state.consented) return;
+    shareSlides(state.slides.map(function(_,i){ return i; }));
+  });
+  btnShareOne.addEventListener('click', function(){
+    if(!state.consented) return;
+    shareSlides([state.activeIndex]);
+  });
   function saveBlob(filename, blob){
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
@@ -549,7 +652,7 @@ export function initStudio(){
     state.consented = !!state.consented;
     if(STEP_KEYS.indexOf(state.step)<0) state.step = 'topic';
   } else {
-    state = {slides: exampleSlides(), activeIndex: 0, brand: defaultBrand(), caption: '', consented: false, step: 'brand'};
+    state = {slides: exampleSlides(), activeIndex: 0, brand: defaultBrand(), caption: exampleCaption(), consented: false, step: 'brand'};
   }
   ensureGoogleFont(state.brand.serif);
   ensureGoogleFont(state.brand.sans);

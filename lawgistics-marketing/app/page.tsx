@@ -214,17 +214,26 @@ export default function Page() {
                 myself, and I take responsibility for what I post.
               </span>
             </label>
-            <div className="exportbar">
-              <button className="btn" id="btnExportOne" type="button">
-                Download this slide (PNG)
+            <div className="exportbar" id="shareBar" hidden>
+              <button className="btn btn-accent" id="btnShareAll" type="button">
+                Save all slides to Photos
               </button>
+              <button className="btn" id="btnShareOne" type="button">
+                Save this slide to Photos
+              </button>
+            </div>
+            <div className="exportbar" id="downloadBar">
               <button className="btn btn-accent" id="btnExportAll" type="button">
                 Download whole carousel (ZIP)
               </button>
+              <button className="btn" id="btnExportOne" type="button">
+                Download this slide (PNG)
+              </button>
             </div>
+            <p className="exportnote" id="exportNote"></p>
             <div className="captionpanel" id="captionPanel" hidden>
               <p className="panel-title">Caption</p>
-              <textarea id="captionText" rows={8} />
+              <textarea id="captionText" rows={12} />
               <div className="captionrow">
                 <button className="btn btn-sm" id="btnCopyCaption" type="button">
                   Copy caption

@@ -29,7 +29,11 @@ function buildPrompt(topic: string, voiceSample: string | undefined): string {
     '{"kicker":"a short label for every slide, e.g. a series name or date",' +
     '"cite":"footer text for every slide, a real citation if you have one, otherwise a short honest note ' +
     "like 'General information, not legal advice.', use \\\\n for a second line\"," +
-    '"caption":"an Instagram caption in the same voice, 3-6 short paragraphs, ending with a one-line general-information disclaimer, no hashtags",' +
+    '"caption":"the post caption, written and spaced the way a strong LinkedIn post is: ' +
+    "line 1 is a hook that stands on its own and earns the click on 'see more', then one idea per line, " +
+    "a blank line between every line (use \\\\n\\\\n), most lines under 12 words, no line longer than two " +
+    "sentences, a plain-spoken point of view in the middle, the takeaway near the end as its own line, " +
+    'then a one-line general-information disclaimer, no hashtags, no emoji, no em dashes, 120 to 220 words",' +
     '"slides":[{"dark":false,"size":"lg","swipe":true,"statement":"...","sub":"..."},' +
     '{"dark":false,"size":"md","statement":"...","body":"..."}]}\n' +
     "Use **text** for bold and *text* for italics inside statement/sub/body/learn. Each slide object needs " +
