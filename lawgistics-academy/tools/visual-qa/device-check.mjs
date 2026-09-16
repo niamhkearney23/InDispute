@@ -65,6 +65,8 @@ const PAGES = [
   { name: 'onboarding', path: '/onboarding', auth: true, as: 'new@lawgistics.test' },
   { name: 'dashboard', path: '/dashboard', auth: true },
   { name: 'skills', path: '/skills', auth: true },
+  { name: 'courts', path: '/courts', auth: true },
+  { name: 'account', path: '/account', auth: true },
   { name: 'modules', path: '/modules', auth: true },
   { name: 'module', path: '/modules/ai-ethics-au', auth: true },
   { name: 'firm-module', path: '/modules/firm/ai-policy', auth: true },
@@ -82,6 +84,13 @@ const PAGES = [
   {
     name: 'admin-session-edit',
     path: '/admin/sessions/ddddddd1-0000-4000-8000-000000000001',
+    auth: true,
+  },
+  { name: 'admin-certification', path: '/admin/certification', auth: true },
+  { name: 'admin-certification-new', path: '/admin/certification/new', auth: true },
+  {
+    name: 'admin-certification-trainee',
+    path: '/admin/certification/ffff1111-0000-0000-0000-000000000001',
     auth: true,
   },
   // The learner's side, which is the one with a framed video on it and so the

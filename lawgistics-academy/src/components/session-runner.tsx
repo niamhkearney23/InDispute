@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
-import { answerQuestion, finishSession } from '@/app/(app)/actions';
+import { answerQuestion, finishSession, requestCoachNote } from '@/app/(app)/actions';
 import { CourtHierarchyDiagram } from '@/components/court-hierarchy-diagram';
 import { JURISDICTION_COUNTRY } from '@/lib/types';
 import { Button, Notice, Pill, cn } from '@/components/ui';
@@ -31,6 +31,7 @@ export function SessionRunner({
   const [index, setIndex] = useState(Math.min(startIndex, questions.length - 1));
   const [selected, setSelected] = useState<string[]>([]);
   const [feedback, setFeedback] = useState<AnswerFeedback | null>(null);
+  const [coachNoteLoading, setCoachNoteLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [finishing, startFinishing] = useTransition();
@@ -43,6 +44,10 @@ export function SessionRunner({
   // clock during render would be impure.
   const shownAt = useRef<number>(0);
   const headingRef = useRef<HTMLHeadingElement>(null);
+  // The coach's note is fetched after the answer is already shown, so it can
+  // still be in flight when the learner moves on. This is what stops a slow
+  // reply from landing under the next question instead of the one it is for.
+  const awaitingCoachNoteFor = useRef<string | null>(null);
 
   const question = questions[index];
   const isLast = index === questions.length - 1;
@@ -79,12 +84,30 @@ export function SessionRunner({
         setFeedback(result);
         setAnsweredThisSitting((n) => n + 1);
         if (result.isCorrect) setCorrectSoFar((n) => n + 1);
+
+        // Fetched separately, deliberately outside this transition: the
+        // explanation above is everything the learner needs, already in hand,
+        // and a slow or absent AI reply must never be what "pending" waits on.
+        const questionVersionId = question.questionVersionId;
+        awaitingCoachNoteFor.current = questionVersionId;
+        setCoachNoteLoading(true);
+        requestCoachNote({ sessionId, questionVersionId }).then((noteResult) => {
+          if (awaitingCoachNoteFor.current !== questionVersionId) return;
+          setCoachNoteLoading(false);
+          if ('coachNote' in noteResult && noteResult.coachNote) {
+            setFeedback((current) =>
+              current ? { ...current, coachNote: noteResult.coachNote } : current,
+            );
+          }
+        });
       });
     },
     [answered, pending, question, selected, sessionId],
   );
 
   function next() {
+    awaitingCoachNoteFor.current = null;
+    setCoachNoteLoading(false);
     if (isLast) {
       startFinishing(() => finishSession(sessionId));
       return;
@@ -251,7 +274,9 @@ export function SessionRunner({
         ) : null}
 
         {/* Feedback ------------------------------------------------------ */}
-        {feedback ? <FeedbackPanel feedback={feedback} /> : null}
+        {feedback ? (
+          <FeedbackPanel feedback={feedback} coachNoteLoading={coachNoteLoading} />
+        ) : null}
       </article>
 
       {/* Sticky rather than fixed, so it stays in the document flow and cannot
@@ -274,7 +299,13 @@ export function SessionRunner({
   );
 }
 
-function FeedbackPanel({ feedback }: { feedback: AnswerFeedback }) {
+function FeedbackPanel({
+  feedback,
+  coachNoteLoading,
+}: {
+  feedback: AnswerFeedback;
+  coachNoteLoading: boolean;
+}) {
   return (
     <section
       className="mt-7 rise-in"
@@ -328,6 +359,10 @@ function FeedbackPanel({ feedback }: { feedback: AnswerFeedback }) {
 
           {feedback.coachNote ? (
             <Block label="Your coach">{feedback.coachNote}</Block>
+          ) : coachNoteLoading ? (
+            <Block label="Your coach">
+              <span className="text-muted">Your coach is looking at this one…</span>
+            </Block>
           ) : null}
         </div>
 

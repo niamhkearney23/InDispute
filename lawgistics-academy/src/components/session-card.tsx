@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Card, Pill } from '@/components/ui';
+import { Avatar } from '@/components/avatar';
 import type { CoachSession } from '@/lib/lessons/sessions';
 
 /**
@@ -28,7 +29,10 @@ export function SessionCard({
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <Pill tone="accent">This morning</Pill>
         {session.publishedByName ? (
-          <span className="text-xs text-muted">from {session.publishedByName}</span>
+          <span className="flex items-center gap-1.5 text-xs text-muted">
+            <Avatar url={session.publishedByAvatarUrl} name={session.publishedByName} size={18} />
+            from {session.publishedByName}
+          </span>
         ) : null}
       </div>
 

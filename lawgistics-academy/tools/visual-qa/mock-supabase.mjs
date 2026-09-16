@@ -588,6 +588,47 @@ const TABLES = {
   question_skills: [{ question_id: 'aaaaaaaa-0000-4000-8000-000000000001', skill_id: 'procedural-sequencing' }],
   user_question_attempts: [],
   legal_sources: [],
+  // Without these the certification pages render only the empty-roster state,
+  // and the box grid, the densest of the new pages, is never drawn at any
+  // viewport.
+  certification_trainees: [
+    {
+      id: 'ffff1111-0000-0000-0000-000000000001',
+      full_name: 'Test Trainee',
+      firm_name: 'Test Firm',
+      country: 'MY',
+      notes: '',
+      created_at: '2026-08-01T00:00:00Z',
+    },
+  ],
+  certification_entries: [
+    {
+      id: 'ffff2222-0000-0000-0000-000000000001',
+      trainee_id: 'ffff1111-0000-0000-0000-000000000001',
+      box_number: 1,
+      case_no: 'Case 1/2026',
+      court_file_ref: 'Sessions Court, Suit 1/2026',
+      case_type_stage: 'Sessions Court civil, pre-trial',
+      date_in: '2026-08-01',
+      draft_back: '2026-08-05',
+      grade: 'l3_independent',
+      screening_confirmed: true,
+      note: '',
+    },
+    {
+      id: 'ffff2222-0000-0000-0000-000000000002',
+      trainee_id: 'ffff1111-0000-0000-0000-000000000001',
+      box_number: 2,
+      case_no: 'Case 1/2026',
+      court_file_ref: 'Sessions Court, Suit 1/2026',
+      case_type_stage: 'Sessions Court civil, pre-trial',
+      date_in: '2026-08-01',
+      draft_back: null,
+      grade: 'l2_assisted',
+      screening_confirmed: true,
+      note: '',
+    },
+  ],
 };
 
 /* -------------------------------------------------------------------------- */
@@ -638,6 +679,17 @@ const server = http.createServer((req, res) => {
     }
     if (url.pathname === '/auth/v1/signup') return send(200, { ...SESSION, ...USER });
     if (url.pathname === '/auth/v1/logout') return send(204, {});
+
+    // --- Storage ------------------------------------------------------------
+    // Just enough to let an upload complete without an error: this mock does
+    // not persist writes to any table (see TABLES below), so it does not
+    // persist an uploaded file either. What it proves is that the app's own
+    // request succeeds and the UI reacts to that; it cannot prove the photo
+    // survives a reload, and nothing here should be read as claiming it does.
+    if (url.pathname.startsWith('/storage/v1/object/')) {
+      if (req.method === 'DELETE') return send(200, []);
+      return send(200, { Key: url.pathname.replace('/storage/v1/object/', '') });
+    }
 
     // --- PostgREST --------------------------------------------------------
     if (url.pathname.startsWith('/rest/v1/')) {

@@ -5,7 +5,7 @@ import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { getModuleProgress } from '@/lib/modules/service';
 import { listFirmModulesForLearner } from '@/lib/firm/service';
-import { Card, Pill, SectionHeading } from '@/components/ui';
+import { ButtonLink, Card, Pill, SectionHeading } from '@/components/ui';
 
 export const metadata: Metadata = { title: 'Modules' };
 
@@ -32,6 +32,18 @@ export default async function ModulesPage() {
           has covered something. A module has a finishing line.
         </p>
       </section>
+
+      {/* One line in, not a whole section: this is a shortcut for somebody who
+          already knows what they want, not the main thing on this page. */}
+      <Card className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="font-medium">Which court does this go in?</p>
+          <p className="text-sm text-slate">Tap through the hierarchy and see where an appeal goes.</p>
+        </div>
+        <ButtonLink href="/courts" variant="outline" size="sm">
+          Open the court map
+        </ButtonLink>
+      </Card>
 
       {/* The firm's own content sits above ours on purpose. On somebody's first
           day, "what this firm allows you to put into a tool" outranks anything
@@ -67,25 +79,29 @@ export default async function ModulesPage() {
 
       <section>
         <SectionHeading title="Your modules" />
-        <div className="space-y-3">
+        <div className="grid grid-cols-2 gap-3">
           {progress.map((entry) => (
-            <Link key={entry.module.slug} href={`/modules/${entry.module.slug}`} className="block">
-              <Card className="transition-colors hover:bg-paper-sunk">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-lg">{entry.module.name}</h3>
+            <Link
+              key={entry.module.slug}
+              href={`/modules/${entry.module.slug}`}
+              className="block"
+            >
+              <Card className="flex h-full flex-col justify-between transition-colors hover:bg-paper-sunk">
+                <div>
+                  {entry.module.required || entry.complete ? (
+                    <div className="mb-2 flex flex-wrap items-center gap-1.5">
                       {entry.module.required ? <Pill tone="accent">Required</Pill> : null}
                       {entry.complete ? <Pill tone="correct">Complete</Pill> : null}
                     </div>
-                    <p className="mt-1 text-sm text-slate">{entry.module.summary}</p>
-                  </div>
-                  <p className="shrink-0 text-sm tabular-nums text-muted">
-                    {entry.total === 0
-                      ? 'Not published yet'
-                      : `${entry.correctOnce} of ${entry.total}`}
-                  </p>
+                  ) : null}
+                  <h3 className="text-base leading-snug sm:text-lg">{entry.module.name}</h3>
+                  <p className="mt-1.5 text-sm text-slate">{entry.module.summary}</p>
                 </div>
+                <p className="mt-3 text-sm tabular-nums text-muted">
+                  {entry.total === 0
+                    ? 'Not published yet'
+                    : `${entry.correctOnce} of ${entry.total}`}
+                </p>
               </Card>
             </Link>
           ))}

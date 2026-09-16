@@ -841,6 +841,129 @@ select pg_temp.expect(
      and column_name = 'review_due_on') = 2,
   'both the question versions and the daily facts carry an expiry');
 
+-- -----------------------------------------------------------------------------
+-- Avatars
+-- -----------------------------------------------------------------------------
+-- The one place this schema touches storage.objects rather than a table of its
+-- own. Learner A and learner B are the same two fixtures used above; B's photo
+-- is seeded here, as the unrestricted role, before A's session ever begins.
+insert into storage.objects (bucket_id, name, owner)
+values ('avatars', '22222222-2222-2222-2222-222222222222/avatar.png',
+        '22222222-2222-2222-2222-222222222222');
+
+set local role authenticated;
+set local request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+
+insert into storage.objects (bucket_id, name, owner)
+values ('avatars', '11111111-1111-1111-1111-111111111111/avatar.png', auth.uid());
+
+select pg_temp.expect(
+  (select count(*) from storage.objects
+   where bucket_id = 'avatars' and name = '11111111-1111-1111-1111-111111111111/avatar.png') = 1,
+  'a learner can upload to their own avatar folder');
+
+select pg_temp.expect_failure(
+  $$insert into storage.objects (bucket_id, name, owner)
+    values ('avatars', '22222222-2222-2222-2222-222222222222/avatar2.png',
+            '11111111-1111-1111-1111-111111111111')$$,
+  'a learner cannot upload into another learner''s avatar folder');
+
+-- An UPDATE or DELETE the USING clause hides the target row from is not an
+-- error, it is zero rows changed, so the check is that the row survives
+-- untouched rather than that the statement throws.
+update storage.objects set name = '22222222-2222-2222-2222-222222222222/pwned.png'
+where bucket_id = 'avatars' and name = '22222222-2222-2222-2222-222222222222/avatar.png';
+
+select pg_temp.expect(
+  (select count(*) from storage.objects
+   where bucket_id = 'avatars' and name = '22222222-2222-2222-2222-222222222222/avatar.png') = 1,
+  'a learner cannot rewrite another learner''s avatar object');
+
+delete from storage.objects
+where bucket_id = 'avatars' and name = '22222222-2222-2222-2222-222222222222/avatar.png';
+
+select pg_temp.expect(
+  (select count(*) from storage.objects
+   where bucket_id = 'avatars' and name = '22222222-2222-2222-2222-222222222222/avatar.png') = 1,
+  'a learner cannot delete another learner''s avatar object');
+
+delete from storage.objects
+where bucket_id = 'avatars' and name = '11111111-1111-1111-1111-111111111111/avatar.png';
+
+select pg_temp.expect(
+  (select count(*) from storage.objects
+   where bucket_id = 'avatars' and name = '11111111-1111-1111-1111-111111111111/avatar.png') = 0,
+  'a learner can delete their own avatar object');
+
+reset role;
+
+set local role anon;
+
+select pg_temp.expect(
+  (select count(*) from storage.objects where bucket_id = 'avatars') = 1,
+  'a signed-out visitor can still read from the avatars bucket');
+
+reset role;
+
+-- -----------------------------------------------------------------------------
+-- Certification register
+-- -----------------------------------------------------------------------------
+-- A coach's own trainees, on their own real cases: reachable by a coach or
+-- administrator only. The coach fixture above (44444444...) already has
+-- is_coach set; learner-a (11111111...) is a plain learner with neither flag.
+set local role authenticated;
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+
+insert into public.certification_trainees (id, full_name, firm_name, created_by)
+values ('aaaa2222-0000-0000-0000-000000000001', 'Test Trainee', 'Test Firm',
+        '44444444-4444-4444-4444-444444444444');
+
+insert into public.certification_entries (id, trainee_id, box_number, case_no, created_by)
+values ('aaaa2222-0000-0000-0000-000000000002', 'aaaa2222-0000-0000-0000-000000000001',
+        1, 'Case 1/2026', '44444444-4444-4444-4444-444444444444');
+
+select pg_temp.expect(
+  (select count(*) from public.certification_trainees
+   where id = 'aaaa2222-0000-0000-0000-000000000001') = 1,
+  'a coach can add a trainee to the certification register');
+
+select pg_temp.expect(
+  (select count(*) from public.certification_entries
+   where id = 'aaaa2222-0000-0000-0000-000000000002') = 1,
+  'a coach can log a certification entry against a trainee');
+
+-- A mis-graded entry is corrected in place, unlike the append-only firm
+-- records: this is a coach grading their own trainee's own work, not a
+-- decision about a third party's rights.
+update public.certification_entries set grade = 'l3_independent'
+where id = 'aaaa2222-0000-0000-0000-000000000002';
+
+select pg_temp.expect(
+  (select grade::text from public.certification_entries
+   where id = 'aaaa2222-0000-0000-0000-000000000002') = 'l3_independent',
+  'a coach can correct a certification entry they logged');
+
+select pg_temp.expect_failure(
+  $$insert into public.certification_entries (trainee_id, box_number, case_no)
+    values ('aaaa2222-0000-0000-0000-000000000001', 16, 'Case 2/2026')$$,
+  'a box number outside 1 to 15 is rejected');
+
+reset role;
+
+set local role authenticated;
+set local request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+
+select pg_temp.expect(
+  (select count(*) from public.certification_trainees) = 0,
+  'a learner cannot see any trainee on the certification register');
+
+select pg_temp.expect_failure(
+  $$insert into public.certification_trainees (full_name, firm_name)
+    values ('Sneaky', 'Nobody''s Firm')$$,
+  'a learner cannot add themselves to the certification register');
+
+reset role;
+
 
 \echo ''
 \echo 'All schema guarantees hold.'

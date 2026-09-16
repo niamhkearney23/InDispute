@@ -27,6 +27,7 @@ export interface CoachSession {
   airsOn: string | null;
   published: boolean;
   publishedByName: string | null;
+  publishedByAvatarUrl: string | null;
   publishedAt: string | null;
   position: number;
 }
@@ -41,7 +42,7 @@ interface Row {
   published: boolean;
   published_at: string | null;
   position: number;
-  publisher?: { display_name: string | null; email: string } | null;
+  publisher?: { display_name: string | null; email: string; avatar_url: string | null } | null;
 }
 
 function first<T>(value: unknown): T | null {
@@ -50,7 +51,9 @@ function first<T>(value: unknown): T | null {
 }
 
 function toSession(row: Row): CoachSession {
-  const publisher = first<{ display_name: string | null; email: string }>(row.publisher);
+  const publisher = first<{ display_name: string | null; email: string; avatar_url: string | null }>(
+    row.publisher,
+  );
   return {
     id: row.id,
     title: row.title,
@@ -62,6 +65,7 @@ function toSession(row: Row): CoachSession {
     // The name if they gave one, otherwise nothing. Falling back to an email
     // address would put somebody's inbox on a page their whole cohort reads.
     publishedByName: publisher?.display_name ?? null,
+    publishedByAvatarUrl: publisher?.avatar_url ?? null,
     publishedAt: row.published_at,
     position: row.position,
   };
@@ -69,7 +73,7 @@ function toSession(row: Row): CoachSession {
 
 const SELECT =
   'id, title, summary, url, country, airs_on, published, published_at, position, ' +
-  'publisher:profiles!coach_sessions_published_by_fkey(display_name, email)';
+  'publisher:profiles!coach_sessions_published_by_fkey(display_name, email, avatar_url)';
 
 /**
  * What this learner may watch, newest morning first.
