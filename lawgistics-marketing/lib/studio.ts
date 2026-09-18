@@ -9,7 +9,7 @@ function blankSlideBase(){
 }
 
 function defaultBrand(){
-  return {kind:'person', style:'editorial', cream:'#EDE7DC', navy:'#171D2B', accent:'#3A5697', wordmark:'', serif:'default', sans:'default', voice:''};
+  return {kind:'person', style:'editorial', cream:'#EDE7DC', navy:'#171D2B', accent:'#3A5697', wordmark:'', field:'', serif:'default', sans:'default', voice:''};
 }
 
 function exampleSlides(){
@@ -181,7 +181,36 @@ function buildCanvasEl(slide, brand){
   return div;
 }
 
-var STEP_KEYS = ['brand','ask','post'];
+var STEP_KEYS = ['you','look','voice','ask','review','save'];
+var SETUP_STEPS = ['you','look','voice'];
+
+// A calendar invite is the only reminder that works with no accounts and no
+// push permission, and it survives the browser being closed.
+function weeklyReminderIcs(){
+  function pad(n){ return (n<10?'0':'')+n; }
+  function stamp(d){
+    return d.getUTCFullYear()+pad(d.getUTCMonth()+1)+pad(d.getUTCDate())+'T'+
+      pad(d.getUTCHours())+pad(d.getUTCMinutes())+'00Z';
+  }
+  var start = new Date();
+  start.setDate(start.getDate()+7);
+  start.setHours(9,0,0,0);
+  var end = new Date(start.getTime()+30*60000);
+  return [
+    'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Lawgistics Marketing//EN','CALSCALE:GREGORIAN',
+    'BEGIN:VEVENT',
+    'UID:'+Date.now()+'@lawgistics-marketing',
+    'DTSTAMP:'+stamp(new Date()),
+    'DTSTART:'+stamp(start),
+    'DTEND:'+stamp(end),
+    'RRULE:FREQ=WEEKLY',
+    'SUMMARY:Write this week\'s post',
+    'DESCRIPTION:Open Lawgistics Marketing and draft this week\'s post.',
+    'URL:'+(typeof location!=='undefined' ? location.origin : ''),
+    'BEGIN:VALARM','TRIGGER:-PT10M','ACTION:DISPLAY','DESCRIPTION:Write this week\'s post','END:VALARM',
+    'END:VEVENT','END:VCALENDAR'
+  ].join('\r\n');
+}
 
 var PALETTES = [
   {name:'House',    cream:'#EDE7DC', navy:'#171D2B', accent:'#3A5697'},
@@ -205,7 +234,7 @@ function previewSlide(brand){
 }
 
 export function initStudio(){
-  var state = {slides: [], activeIndex: 0, brand: defaultBrand(), caption: '', consented: false, step: 'brand', messages: [], drafted: false, format: 'carousel'};
+  var state = {slides: [], activeIndex: 0, brand: defaultBrand(), caption: '', consented: false, step: 'you', messages: [], drafted: false, format: 'carousel', setupDone: false};
 
   function loadLocal(){
     try{ var raw = localStorage.getItem('lgm_state_v1'); return raw ? JSON.parse(raw) : null; }catch(e){ return null; }
@@ -214,7 +243,7 @@ export function initStudio(){
 
   var $ = function(id){ return document.getElementById(id); };
   var editorPanel = $('editorPanel'), previewHolder = $('previewHolder'), strip = $('strip'), editDrawer = $('editDrawer'), stageCount = $('stageCount');
-  var exportStage = $('exportStage'), toast = $('toast'), resultPanel = $('resultPanel');
+  var exportStage = $('exportStage'), toast = $('toast');
   var btnAddSlide = $('btnAddSlide'), btnDupSlide = $('btnDupSlide'), btnDelSlide = $('btnDelSlide');
   var btnMoveUp = $('btnMoveUp'), btnMoveDown = $('btnMoveDown'), btnNewPost = $('btnNewPost');
   var btnExportOne = $('btnExportOne'), btnExportAll = $('btnExportAll');
@@ -222,13 +251,14 @@ export function initStudio(){
   var exportNote = $('exportNote');
   var chatLog = $('chatLog'), chatInput = $('chatInput'), btnSend = $('btnSend');
   var askInput = $('askInput'), btnAsk = $('btnAsk'), askStatus = $('askStatus'), btnSeeExample = $('btnSeeExample'), formatPick = $('formatPick');
-  var brandPanel = $('brandPanel'), btnResetBrand = $('btnResetBrand'), kindPick = $('kindPick'), palettes = $('palettes'), styles = $('styles'), brandPreview = $('brandPreview'), btnRandomise = $('btnRandomise');
+  var kindPick = $('kindPick'), kindDetails = $('kindDetails'), palettes = $('palettes'), styles = $('styles'), brandPreview = $('brandPreview'), btnRandomise = $('btnRandomise');
   var brandCream = $('brandCream'), brandNavy = $('brandNavy'), brandAccent = $('brandAccent');
-  var brandWordmark = $('brandWordmark'), brandWordmarkBiz = $('brandWordmarkBiz'), brandName = $('brandName'), brandSerif = $('brandSerif'), brandSans = $('brandSans'), brandVoice = $('brandVoice');
+  var brandName = $('brandName'), brandField = $('brandField'), brandSerif = $('brandSerif'), brandSans = $('brandSans'), brandVoice = $('brandVoice');
   var KINDS = ['person','firm','business'];
   function brandKind(){ return KINDS.indexOf(state.brand.kind)>=0 ? state.brand.kind : 'person'; }
-  var captionText = $('captionText'), btnCopyCaption = $('btnCopyCaption');
-  var consentCheck = $('consentCheck');
+  var captionText = $('captionText'), captionOut = $('captionOut'), btnCopyCaption = $('btnCopyCaption');
+  var consentCheck = $('consentCheck'), changePanel = $('changePanel'), btnChange = $('btnChange');
+  var btnRemindWeekly = $('btnRemindWeekly'), btnAnother = $('btnAnother');
 
   function previewWidth(){
     var frame = previewHolder.parentElement;
@@ -276,17 +306,16 @@ export function initStudio(){
   function renderStripSoon(){ clearTimeout(stripTimer); stripTimer = setTimeout(renderStrip, 250); }
 
   function showStep(name){
-    if(STEP_KEYS.indexOf(name)<0) name = 'post';
+    if(STEP_KEYS.indexOf(name)<0) name = 'ask';
     state.step = name;
+    if(name==='ask') state.setupDone = true;
     document.querySelectorAll('.step').forEach(function(sec){
       sec.classList.toggle('active', sec.dataset.step===name);
     });
-    if(name==='post'){
-      renderStrip();
-      if(state.consented) prepareBlobs();
-      setTimeout(updatePreview, 0);
-    }
-    if(name==='brand') setTimeout(renderBrandPreview, 0);
+    if(name==='review'){ renderStrip(); setTimeout(updatePreview, 0); }
+    if(name==='save'){ captionOut.value = state.caption || ''; if(state.consented) prepareBlobs(); }
+    if(name==='look') setTimeout(renderBrandPreview, 0);
+    if(name==='you') setTimeout(function(){ brandName.focus(); }, 0);
     if(name==='ask') setTimeout(function(){ askInput.focus(); }, 0);
     saveLocal();
     window.scrollTo(0,0);
@@ -367,7 +396,8 @@ export function initStudio(){
   window.addEventListener('resize', function(){
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(function(){
-      if(state.step==='post'){ renderStrip(); updatePreview(); }
+      if(state.step==='review'){ renderStrip(); updatePreview(); }
+      if(state.step==='look') renderBrandPreview();
     }, 120);
   });
 
@@ -456,6 +486,7 @@ export function initStudio(){
   function renderCaption(){
     if(document.activeElement !== captionText) captionText.value = state.caption || '';
     captionText.placeholder = state.drafted ? '' : 'Your post will appear here.';
+    captionOut.value = state.caption || '';
   }
 
   function renderChat(){
@@ -483,19 +514,18 @@ export function initStudio(){
       b.classList.toggle('active', b.dataset.kind===kind);
       if(b.dataset.kind===kind) b.setAttribute('aria-pressed','true'); else b.removeAttribute('aria-pressed');
     });
-    brandPanel.querySelectorAll('.brandfields').forEach(function(f){ f.classList.toggle('on', f.dataset.for.split(' ').indexOf(kind)>=0); });
     brandCream.value = state.brand.cream;
     brandNavy.value = state.brand.navy;
     brandAccent.value = state.brand.accent;
-    brandWordmark.value = state.brand.wordmark;
-    brandWordmarkBiz.value = state.brand.wordmark;
-    brandName.value = state.brand.wordmark;
+    if(document.activeElement!==brandName) brandName.value = state.brand.wordmark;
+    if(document.activeElement!==brandField) brandField.value = state.brand.field || '';
     brandSerif.value = state.brand.serif;
     brandSans.value = state.brand.sans;
-    brandVoice.value = state.brand.voice || '';
+    if(document.activeElement!==brandVoice) brandVoice.value = state.brand.voice || '';
+    brandName.placeholder = kind==='person' ? 'e.g. John Smith' : (kind==='firm' ? 'e.g. Smith & Co Lawyers' : 'e.g. Corner Lane Cafe');
     renderPalettes();
     renderStyles();
-    if(state.step==='brand') renderBrandPreview();
+    if(state.step==='look') renderBrandPreview();
   }
   kindPick.addEventListener('click', function(e){
     var b = e.target.closest('button[data-kind]'); if(!b) return;
@@ -503,10 +533,8 @@ export function initStudio(){
     if(kind===state.brand.kind) return;
     // switching who it is from keeps the look they have chosen and the name they typed
     state.brand.kind = kind;
-    syncBrandFields(); saveLocal(); updatePreview(); renderStrip();
-    if(kind==='person') brandName.focus();
-    else if(kind==='business') brandWordmarkBiz.focus();
-    else brandWordmark.focus();
+    syncBrandFields(); saveLocal(); updatePreview();
+    brandName.focus();
   });
   formatPick.addEventListener('click', function(e){
     var b = e.target.closest('button[data-format]'); if(!b) return;
@@ -676,31 +704,27 @@ export function initStudio(){
     state.activeIndex = Math.max(0, state.activeIndex-1);
     saveLocal(); renderAll();
   });
-  armConfirm(btnNewPost, function(){
+  function startNewPost(){
     state.slides = [blankSlideBase()]; state.activeIndex = 0; state.caption = ''; state.consented = false;
     state.drafted = false; state.messages = [];
-    editDrawer.open = false; askInput.value = ''; setAskStatus('', '');
+    editDrawer.open = false; changePanel.hidden = true; btnChange.textContent = 'Change something';
+    askInput.value = ''; setAskStatus('', '');
     saveLocal(); renderAll(); showStep('ask');
-  });
+  }
+  btnNewPost.addEventListener('click', startNewPost);
   btnSeeExample.addEventListener('click', function(){
-    if(!state.drafted){
-      state.slides = exampleSlides(); state.activeIndex = 0; state.caption = exampleCaption(); state.consented = false;
-      state.messages = [{role:'bot', text: EXAMPLE_INTRO}];
-    }
-    saveLocal(); renderAll(); showStep('post');
+    state.slides = exampleSlides(); state.activeIndex = 0; state.caption = exampleCaption(); state.consented = false;
+    state.messages = [{role:'bot', text: EXAMPLE_INTRO}]; state.drafted = true;
+    saveLocal(); renderAll(); showStep('review');
   });
 
-  btnResetBrand.addEventListener('click', function(){
-    var voice = state.brand.voice;
-    state.brand = defaultBrand(); state.brand.voice = voice;
-    syncBrandFields(); saveLocal(); updatePreview(); renderStrip();
-  });
-  brandPanel.addEventListener('input', function(e){
-    var el = e.target, key = el.dataset.brand; if(!key) return;
+  // the brand inputs live on three different screens now, so listen once at the top
+  document.addEventListener('input', function(e){
+    var el = e.target, key = el.dataset && el.dataset.brand; if(!key) return;
     state.brand[key] = el.value;
-    if(key==='wordmark'){ [brandWordmark, brandWordmarkBiz, brandName].forEach(function(i){ if(i!==el) i.value = el.value; }); }
     if(key==='serif' || key==='sans') ensureGoogleFont(el.value);
-    if(key!=='voice'){ renderPalettes(); renderBrandPreview(); }
+    if(key!=='voice' && key!=='field') renderBrandPreview();
+    if(key==='wordmark') renderBrandPreview();
     saveLocal(); updatePreview(); renderStripSoon();
   });
 
@@ -709,10 +733,23 @@ export function initStudio(){
     if(state.consented) prepareBlobs();
   });
 
+  btnChange.addEventListener('click', function(){
+    changePanel.hidden = !changePanel.hidden;
+    btnChange.textContent = changePanel.hidden ? 'Change something' : 'Hide changes';
+    if(!changePanel.hidden) chatInput.focus();
+  });
+  btnAnother.addEventListener('click', function(){ startNewPost(); });
+  btnRemindWeekly.addEventListener('click', function(){
+    var blob = new Blob([weeklyReminderIcs()], {type:'text/calendar'});
+    saveBlob('weekly-post-reminder.ics', blob);
+    showToast('Open the file to add it to your calendar');
+  });
+
   btnCopyCaption.addEventListener('click', async function(){
-    if(!captionText.value.trim()){ showToast('Nothing to copy yet'); return; }
-    try{ await navigator.clipboard.writeText(captionText.value); showToast('Post copied'); }
-    catch(e){ showToast('Select the post and copy it manually'); }
+    var text = state.caption || '';
+    if(!text.trim()){ showToast('Nothing to copy yet'); return; }
+    try{ await navigator.clipboard.writeText(text); showToast('Post copied. Paste it into LinkedIn.'); }
+    catch(e){ captionOut.select(); showToast('Select the post and copy it manually'); }
   });
   captionText.addEventListener('input', function(){ state.caption = captionText.value; saveLocal(); });
 
@@ -760,7 +797,7 @@ export function initStudio(){
     var ok = false;
     try{
       var payload = {topic:text, voiceSample: state.brand.voice || '', format: state.format==='poster' ? 'poster' : 'carousel',
-        brand: {kind: brandKind(), name: state.brand.wordmark || ''}};
+        brand: {kind: brandKind(), name: state.brand.wordmark || '', field: state.brand.field || ''}};
       if(revising) payload.current = currentDraft();
       var res = await fetch('/api/draft', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
       var data = await res.json();
@@ -782,8 +819,7 @@ export function initStudio(){
       btnSend.disabled = false; btnAsk.disabled = false; btnAsk.textContent = askLabel;
       saveLocal(); renderAll();
       if(ok){
-        if(fromAsk){ askInput.value = ''; setAskStatus('', ''); showStep('post'); }
-        else if(window.innerWidth < 900) resultPanel.scrollIntoView({behavior:'smooth', block:'start'});
+        if(fromAsk){ askInput.value = ''; setAskStatus('', ''); showStep('review'); }
         showToast('Drafted. Check every fact before you post.');
       }
     }
@@ -927,16 +963,18 @@ export function initStudio(){
     if(state.brand.voice==null) state.brand.voice = '';
     if(KINDS.indexOf(state.brand.kind)<0) state.brand.kind = 'person';
     if(!state.brand.style) state.brand.style = 'editorial';
+    if(typeof state.brand.field !== 'string') state.brand.field = '';
+    state.setupDone = !!state.setupDone;
     if(typeof state.caption !== 'string') state.caption = '';
     state.consented = !!state.consented;
     state.drafted = !!state.drafted;
     if(!Array.isArray(state.messages)) state.messages = [];
     state.messages.forEach(function(m){ if(m.busy){ m.busy = false; m.error = true; m.text = 'That one did not finish. Send it again.'; } });
     if(state.format!=='poster') state.format = 'carousel';
-    if(STEP_KEYS.indexOf(state.step)<0) state.step = 'ask';
+    if(STEP_KEYS.indexOf(state.step)<0) state.step = state.setupDone ? 'ask' : 'you';
   } else {
     state = {slides: exampleSlides(), activeIndex: 0, brand: defaultBrand(), caption: exampleCaption(), consented: false,
-      step: 'brand', messages: [{role:'bot', text: EXAMPLE_INTRO}], drafted: false, format: 'carousel'};
+      step: 'you', messages: [{role:'bot', text: EXAMPLE_INTRO}], drafted: false, format: 'carousel', setupDone: false};
   }
   ensureGoogleFont(state.brand.serif);
   ensureGoogleFont(state.brand.sans);

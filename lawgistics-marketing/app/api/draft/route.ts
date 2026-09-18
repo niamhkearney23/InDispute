@@ -7,7 +7,7 @@ export const maxDuration = 60;
 // One request per topic, server-side, so the API key never reaches the
 // browser. Same drafting brief as the Claude-artifact prototype this app
 // grew out of, including the "don't sound like a language model" rules.
-type Brand = { kind: "firm" | "business" | "person"; name: string };
+type Brand = { kind: "firm" | "business" | "person"; name: string; field: string };
 
 function buildPrompt(topic: string, voiceSample: string | undefined, current: unknown, brand: Brand, format: "carousel" | "poster"): string {
   const shape =
@@ -27,6 +27,9 @@ function buildPrompt(topic: string, voiceSample: string | undefined, current: un
         : isLawgistics
           ? "Lawgistics, a law-careers account for Australian law students and early-career lawyers, posting on its own page"
           : `an Australian law firm called ${brand.name}, posting on its own page for clients, prospective clients and referrers. Write as the firm ("we"), plain English, no legal advice to any individual, general information only`;
+  const speciality = brand.field
+    ? `\n\nTheir field is: ${brand.field}. Write for the people who would hire them for that, in the language those people actually use, and make the post useful to that audience specifically rather than to lawyers in general.`
+    : "";
   const voice = voiceSample && voiceSample.trim()
     ? `\n\nHere is a sample of how this person actually writes. Match its rhythm, vocabulary and level of formality, not its topic:\n"""\n${voiceSample.trim().slice(0, 4000)}\n"""\n`
     : "";
@@ -46,7 +49,7 @@ function buildPrompt(topic: string, voiceSample: string | undefined, current: un
     "telltale AI-written pattern: no 'it's not just X, it's Y', no 'in a world where', no rhetorical " +
     "questions as filler, no hedge-then-reveal structure, no tricolons for their own sake. Write plain, " +
     "specific, declarative sentences the way a sharp, opinionated person would actually talk, not the way " +
-    "a language model default-writes." + voice + revision +
+    "a language model default-writes." + speciality + voice + revision +
     (current ? "" : "\n\nTopic: " + topic + "\n\n") +
     "If this is a real case, event or statistic you are not fully certain of the exact citation, date or " +
     "figures for, keep the copy general and do NOT invent a specific citation, party name, date or number. " +
@@ -100,10 +103,15 @@ export async function POST(req: Request) {
       ? body.current
       : undefined;
 
-  const rawBrand = (body.brand && typeof body.brand === "object" ? body.brand : {}) as { kind?: unknown; name?: unknown };
+  const rawBrand = (body.brand && typeof body.brand === "object" ? body.brand : {}) as {
+    kind?: unknown;
+    name?: unknown;
+    field?: unknown;
+  };
   const brand: Brand = {
-    kind: rawBrand.kind === "person" ? "person" : rawBrand.kind === "business" ? "business" : "firm",
+    kind: rawBrand.kind === "firm" ? "firm" : rawBrand.kind === "business" ? "business" : "person",
     name: typeof rawBrand.name === "string" ? rawBrand.name.trim().slice(0, 60) : "",
+    field: typeof rawBrand.field === "string" ? rawBrand.field.trim().slice(0, 120) : "",
   };
 
   const format = body.format === "poster" ? "poster" : "carousel";

@@ -11,7 +11,29 @@ runs on the server with the API key kept out of the browser.
 
 ## What it does today (MVP)
 
-Three screens.
+Six screens, one question each. The first three are setup and only appear
+on the first run (the Brand button reopens them); after that the daily
+loop is screens 4 to 6.
+
+1. **Who are you**: your name and what you do. The field ("employment law
+   for small business owners") is fed to the model so the post is written
+   for the people who would hire you, not for lawyers in general. A
+   fold-out switches to posting as a law firm or a business instead.
+2. **Your look**: ten colour ways, four layouts, a live preview slide, and
+   **Surprise me** for a random pairing. A fold-out has exact colours and
+   fonts.
+3. **Your voice** (optional): paste anything you have written and the
+   drafts copy your rhythm. This is the compliant version of "read my
+   LinkedIn", you paste it yourself, nothing is scraped.
+4. **What to write about**: one box, plus Slides or One poster, plus a
+   one-tap weekly reminder that downloads a repeating calendar event.
+5. **Happy with this?**: the slides at full size, the post text, and
+   **Change something** which opens the chat (say "shorter", "punchier
+   hook") and the hand editor.
+6. **Save it and post it**: the consent box, Save to Photos on a phone or
+   ZIP/PNG on desktop, and Copy post.
+
+Older description of the three-screen version follows.
 
 1. **Brand**, set once: "Who is this post coming from?" — **Me** (the
    default, since a personal LinkedIn post reaches further than a company
