@@ -9,7 +9,7 @@ function blankSlideBase(){
 }
 
 function defaultBrand(){
-  return {cream:'#EDE7DC', navy:'#171D2B', accent:'#3A5697', wordmark:'LAWGISTICS', serif:'default', sans:'default', voice:''};
+  return {kind:'business', cream:'#EDE7DC', navy:'#171D2B', accent:'#3A5697', wordmark:'LAWGISTICS', serif:'default', sans:'default', voice:''};
 }
 
 function exampleSlides(){
@@ -164,10 +164,27 @@ function buildCanvasEl(slide, brand){
   return div;
 }
 
-var STEP_KEYS = ['brand','post'];
+var STEP_KEYS = ['brand','ask','post'];
+
+var PALETTES = [
+  {name:'House', cream:'#EDE7DC', navy:'#171D2B', accent:'#3A5697'},
+  {name:'Stone', cream:'#F2EEE6', navy:'#23211E', accent:'#B85C38'},
+  {name:'Sage',  cream:'#EDF0EA', navy:'#1C2A22', accent:'#4C7C5B'},
+  {name:'Slate', cream:'#EEF1F5', navy:'#151A22', accent:'#5B7FA6'},
+  {name:'Plum',  cream:'#F3ECF0', navy:'#241A22', accent:'#8E4A6B'},
+  {name:'Sand',  cream:'#F5EFE2', navy:'#2B2416', accent:'#A6782C'}
+];
+
+function previewSlide(brand){
+  var who = brand.kind==='person' ? 'your name' : 'your business name';
+  return {dark:false, size:'lg', swipe:false, kicker:'Your series · today',
+    statement:"This is what your posts will *look like.*",
+    sub:"Serif for the statement, sans for the detail, "+who+" in the corner.",
+    body:'', learn:'', cite:'General information, not legal advice.'};
+}
 
 export function initStudio(){
-  var state = {slides: [], activeIndex: 0, brand: defaultBrand(), caption: '', consented: false, step: 'brand', messages: [], drafted: false};
+  var state = {slides: [], activeIndex: 0, brand: defaultBrand(), caption: '', consented: false, step: 'brand', messages: [], drafted: false, format: 'carousel'};
 
   function loadLocal(){
     try{ var raw = localStorage.getItem('lgm_state_v1'); return raw ? JSON.parse(raw) : null; }catch(e){ return null; }
@@ -183,9 +200,10 @@ export function initStudio(){
   var shareBar = $('shareBar'), downloadBar = $('downloadBar'), btnShareAll = $('btnShareAll'), btnShareOne = $('btnShareOne');
   var exportNote = $('exportNote');
   var chatLog = $('chatLog'), chatInput = $('chatInput'), btnSend = $('btnSend');
-  var brandPanel = $('brandPanel'), btnResetBrand = $('btnResetBrand');
+  var askInput = $('askInput'), btnAsk = $('btnAsk'), askStatus = $('askStatus'), btnSeeExample = $('btnSeeExample'), formatPick = $('formatPick');
+  var brandPanel = $('brandPanel'), btnResetBrand = $('btnResetBrand'), kindPick = $('kindPick'), palettes = $('palettes'), brandPreview = $('brandPreview');
   var brandCream = $('brandCream'), brandNavy = $('brandNavy'), brandAccent = $('brandAccent');
-  var brandWordmark = $('brandWordmark'), brandSerif = $('brandSerif'), brandSans = $('brandSans'), brandVoice = $('brandVoice');
+  var brandWordmark = $('brandWordmark'), brandName = $('brandName'), brandSerif = $('brandSerif'), brandSans = $('brandSans'), brandVoice = $('brandVoice');
   var captionText = $('captionText'), btnCopyCaption = $('btnCopyCaption');
   var consentCheck = $('consentCheck');
 
@@ -240,9 +258,50 @@ export function initStudio(){
       if(state.consented) prepareBlobs();
       if(editDrawer.open) setTimeout(updatePreview, 0);
     }
+    if(name==='brand') setTimeout(renderBrandPreview, 0);
+    if(name==='ask') setTimeout(function(){ askInput.focus(); }, 0);
     saveLocal();
     window.scrollTo(0,0);
   }
+
+  function renderBrandPreview(){
+    var frame = brandPreview.parentElement;
+    var pad = parseFloat(getComputedStyle(frame).paddingLeft) || 0;
+    var width = Math.max(120, Math.min(300, frame.clientWidth - pad*2));
+    var scale = width/1080;
+    var canvas = buildCanvasEl(previewSlide(state.brand), state.brand);
+    canvas.style.transform = 'scale('+scale+')';
+    canvas.style.transformOrigin = 'top left';
+    var wrap = document.createElement('div');
+    wrap.style.width = width+'px';
+    wrap.style.height = Math.round(1350*scale)+'px';
+    wrap.style.position = 'relative'; wrap.style.overflow = 'hidden'; wrap.style.borderRadius = '5px';
+    wrap.appendChild(canvas);
+    brandPreview.innerHTML = '';
+    brandPreview.appendChild(wrap);
+  }
+  function activePaletteName(){
+    var b = state.brand;
+    for(var i=0;i<PALETTES.length;i++){
+      var p = PALETTES[i];
+      if(p.cream.toLowerCase()===String(b.cream).toLowerCase() && p.navy.toLowerCase()===String(b.navy).toLowerCase() && p.accent.toLowerCase()===String(b.accent).toLowerCase()) return p.name;
+    }
+    return null;
+  }
+  function renderPalettes(){
+    var active = activePaletteName();
+    palettes.innerHTML = PALETTES.map(function(p){
+      return '<button type="button" class="palette'+(p.name===active?' active':'')+'" data-palette="'+p.name+'">'+
+        '<span class="sw"><i style="background:'+p.cream+'"></i><i style="background:'+p.navy+'"></i><i style="background:'+p.accent+'"></i></span>'+
+        textEsc(p.name)+'</button>';
+    }).join('');
+  }
+  palettes.addEventListener('click', function(e){
+    var b = e.target.closest('[data-palette]'); if(!b) return;
+    var p = PALETTES.filter(function(x){ return x.name===b.dataset.palette; })[0]; if(!p) return;
+    state.brand.cream = p.cream; state.brand.navy = p.navy; state.brand.accent = p.accent;
+    syncBrandFields(); saveLocal(); updatePreview(); renderStripSoon();
+  });
   var resizeTimer = null;
   window.addEventListener('resize', function(){
     clearTimeout(resizeTimer);
@@ -337,13 +396,43 @@ export function initStudio(){
   }
 
   function syncBrandFields(){
+    var kind = state.brand.kind==='person' ? 'person' : 'business';
+    kindPick.querySelectorAll('button').forEach(function(b){ b.classList.toggle('active', b.dataset.kind===kind); });
+    brandPanel.querySelectorAll('.brandfields').forEach(function(f){ f.classList.toggle('on', f.dataset.for===kind); });
     brandCream.value = state.brand.cream;
     brandNavy.value = state.brand.navy;
     brandAccent.value = state.brand.accent;
     brandWordmark.value = state.brand.wordmark;
+    brandName.value = state.brand.wordmark;
     brandSerif.value = state.brand.serif;
     brandSans.value = state.brand.sans;
     brandVoice.value = state.brand.voice || '';
+    renderPalettes();
+    if(state.step==='brand') renderBrandPreview();
+  }
+  kindPick.addEventListener('click', function(e){
+    var b = e.target.closest('button[data-kind]'); if(!b) return;
+    var kind = b.dataset.kind;
+    if(kind===state.brand.kind) return;
+    var voice = state.brand.voice;
+    if(kind==='person'){
+      // a person keeps the house type, gets a warmer default look, and only the name is theirs
+      var name = state.brand.wordmark==='LAWGISTICS' ? '' : state.brand.wordmark;
+      state.brand = defaultBrand(); state.brand.kind = 'person'; state.brand.voice = voice; state.brand.wordmark = name;
+      state.brand.cream = PALETTES[1].cream; state.brand.navy = PALETTES[1].navy; state.brand.accent = PALETTES[1].accent;
+    } else {
+      state.brand = defaultBrand(); state.brand.voice = voice;
+    }
+    syncBrandFields(); saveLocal(); updatePreview(); renderStrip();
+    if(kind==='person') brandName.focus();
+  });
+  formatPick.addEventListener('click', function(e){
+    var b = e.target.closest('button[data-format]'); if(!b) return;
+    state.format = b.dataset.format==='poster' ? 'poster' : 'carousel';
+    syncFormat(); saveLocal();
+  });
+  function syncFormat(){
+    formatPick.querySelectorAll('button').forEach(function(b){ b.classList.toggle('active', b.dataset.format===state.format); });
   }
 
   function renderAll(){
@@ -443,22 +532,30 @@ export function initStudio(){
   });
   armConfirm(btnNewPost, function(){
     state.slides = [blankSlideBase()]; state.activeIndex = 0; state.caption = ''; state.consented = false;
-    state.drafted = false; state.messages = [{role:'bot', text: NEW_POST_INTRO}];
-    editDrawer.open = false;
+    state.drafted = false; state.messages = [];
+    editDrawer.open = false; askInput.value = ''; setAskStatus('', '');
+    saveLocal(); renderAll(); showStep('ask');
+  });
+  btnSeeExample.addEventListener('click', function(){
+    if(!state.drafted){
+      state.slides = exampleSlides(); state.activeIndex = 0; state.caption = exampleCaption(); state.consented = false;
+      state.messages = [{role:'bot', text: EXAMPLE_INTRO}];
+    }
     saveLocal(); renderAll(); showStep('post');
-    chatInput.focus();
   });
 
   btnResetBrand.addEventListener('click', function(){
     var voice = state.brand.voice;
     state.brand = defaultBrand(); state.brand.voice = voice;
-    syncBrandFields(); saveLocal(); updatePreview();
+    syncBrandFields(); saveLocal(); updatePreview(); renderStrip();
   });
   brandPanel.addEventListener('input', function(e){
     var el = e.target, key = el.dataset.brand; if(!key) return;
     state.brand[key] = el.value;
+    if(key==='wordmark'){ brandWordmark.value = el.value; brandName.value = el.value; }
     if(key==='serif' || key==='sans') ensureGoogleFont(el.value);
-    saveLocal(); updatePreview();
+    if(key!=='voice'){ renderPalettes(); renderBrandPreview(); }
+    saveLocal(); updatePreview(); renderStripSoon();
   });
 
   consentCheck.addEventListener('change', function(){
@@ -496,21 +593,25 @@ export function initStudio(){
     state.drafted = true;
     return slides.length;
   }
+  function setAskStatus(msg, kind){ askStatus.textContent = msg; askStatus.className = 'askstatus' + (kind ? ' '+kind : ''); }
   var sending = false;
-  async function sendChat(){
-    var text = chatInput.value.trim();
+  // fromAsk: a brand-new post from the big box. Otherwise a revision typed in the chat.
+  async function sendDraft(text, fromAsk){
     if(!text || sending) return;
     sending = true;
-    chatInput.value = '';
-    var revising = state.drafted;
+    var revising = !fromAsk && state.drafted;
+    if(fromAsk){ state.messages = []; state.drafted = false; }
     state.messages.push({role:'user', text:text});
     var pending = {role:'bot', text: revising ? 'On it.' : 'Drafting your post. Usually under a minute.', busy:true};
     state.messages.push(pending);
     saveLocal(); renderChat();
-    btnSend.disabled = true;
+    btnSend.disabled = true; btnAsk.disabled = true;
+    var askLabel = btnAsk.textContent;
+    if(fromAsk){ btnAsk.textContent = 'Writing…'; setAskStatus('Drafting your post and slides. Usually under a minute.', 'busy'); }
     var ok = false;
     try{
-      var payload = {topic:text, voiceSample: state.brand.voice || ''};
+      var payload = {topic:text, voiceSample: state.brand.voice || '', format: state.format==='poster' ? 'poster' : 'carousel',
+        brand: {kind: state.brand.kind==='person' ? 'person' : 'business', name: state.brand.wordmark || ''}};
       if(revising) payload.current = currentDraft();
       var res = await fetch('/api/draft', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
       var data = await res.json();
@@ -518,24 +619,39 @@ export function initStudio(){
       var n = applyDraft(data.draft);
       pending.text = revising
         ? 'Done. Have a look, then tell me the next change, or tick the box and save it.'
-        : 'Done. '+n+' slides and the post are on the right. Read every line, then tell me what to change, or tick the box and save it.';
+        : (n===1 ? 'Done. Your poster and the post are on the right.' : 'Done. '+n+' slides and the post are on the right.')+
+          ' Read every line, then tell me what to change, or tick the box and save it.';
       ok = true;
       editDrawer.open = false;
     }catch(err){
-      pending.text = 'Could not do that: '+((err && err.message) ? err.message : 'please try again')+'.';
-      pending.error = true;
+      var msg = 'Could not do that: '+((err && err.message) ? err.message : 'please try again')+'.';
+      pending.text = msg; pending.error = true;
+      if(fromAsk) setAskStatus(msg, 'bad');
     } finally {
       pending.busy = false;
       sending = false;
-      btnSend.disabled = false;
+      btnSend.disabled = false; btnAsk.disabled = false; btnAsk.textContent = askLabel;
       saveLocal(); renderAll();
-      if(ok && window.innerWidth < 900) resultPanel.scrollIntoView({behavior:'smooth', block:'start'});
-      if(ok) showToast('Drafted. Check every fact before you post.');
+      if(ok){
+        if(fromAsk){ askInput.value = ''; setAskStatus('', ''); showStep('post'); }
+        else if(window.innerWidth < 900) resultPanel.scrollIntoView({behavior:'smooth', block:'start'});
+        showToast('Drafted. Check every fact before you post.');
+      }
     }
+  }
+  function sendChat(){ var t = chatInput.value.trim(); if(!t) return; chatInput.value = ''; sendDraft(t, false); }
+  function sendAsk(){
+    var t = askInput.value.trim();
+    if(!t){ setAskStatus('Type what you want to post about first.', 'bad'); askInput.focus(); return; }
+    sendDraft(t, true);
   }
   btnSend.addEventListener('click', sendChat);
   chatInput.addEventListener('keydown', function(e){
     if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendChat(); }
+  });
+  btnAsk.addEventListener('click', sendAsk);
+  askInput.addEventListener('keydown', function(e){
+    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendAsk(); }
   });
 
   // ---------- export ----------
@@ -660,18 +776,22 @@ export function initStudio(){
     if(typeof state.activeIndex !== 'number') state.activeIndex = 0;
     if(!state.brand) state.brand = defaultBrand();
     if(state.brand.voice==null) state.brand.voice = '';
+    if(state.brand.kind!=='person') state.brand.kind = 'business';
     if(typeof state.caption !== 'string') state.caption = '';
     state.consented = !!state.consented;
     state.drafted = !!state.drafted;
-    if(!Array.isArray(state.messages) || !state.messages.length) state.messages = [{role:'bot', text: state.drafted ? 'Welcome back. Tell me what to change, or start a new post.' : EXAMPLE_INTRO}];
+    if(!Array.isArray(state.messages)) state.messages = [];
     state.messages.forEach(function(m){ if(m.busy){ m.busy = false; m.error = true; m.text = 'That one did not finish. Send it again.'; } });
-    if(STEP_KEYS.indexOf(state.step)<0) state.step = 'post';
+    if(state.format!=='poster') state.format = 'carousel';
+    if(STEP_KEYS.indexOf(state.step)<0) state.step = 'ask';
   } else {
     state = {slides: exampleSlides(), activeIndex: 0, brand: defaultBrand(), caption: exampleCaption(), consented: false,
-      step: 'brand', messages: [{role:'bot', text: EXAMPLE_INTRO}], drafted: false};
+      step: 'brand', messages: [{role:'bot', text: EXAMPLE_INTRO}], drafted: false, format: 'carousel'};
   }
   ensureGoogleFont(state.brand.serif);
   ensureGoogleFont(state.brand.sans);
+  syncFormat();
   renderAll();
   showStep(state.step);
+  window.addEventListener('resize', function(){ if(state.step==='brand') renderBrandPreview(); });
 }

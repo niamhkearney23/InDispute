@@ -11,22 +11,28 @@ runs on the server with the API key kept out of the browser.
 
 ## What it does today (MVP)
 
-Two screens.
+Three screens.
 
-1. **Brand**, set once: wordmark, light/dark background colours, accent,
-   serif and sans font choices. Defaults are the Lawgistics palette and
-   type, so the first run is one click on Done. Also **Your voice**: paste
-   a few things you have written and every draft matches how you actually
-   sound. This is the compliant version of "read my LinkedIn", you paste
-   the text yourself, nothing is scraped. Reachable later from the Brand
-   button in the header.
-2. **Post**, every day: a chat on the left ("What do you want to post about
-   today?") and the result on the right. The first message drafts the
-   LinkedIn-style post and 5-6 slides via `/api/draft` (Claude,
-   server-side). Every message after that is a revision: "shorter",
-   "punchier hook", "slide 3 should name the case". The current draft goes
-   back to the model with the instruction and it returns the whole thing
-   updated. **New post** clears the thread and starts again.
+1. **Brand**, set once: "Are you posting as a business or a person?" A
+   business gets a name, six ready-made looks (House is the Lawgistics
+   palette, the default) and a fold-out for exact colours and fonts. A
+   person gets just their name and the same looks, defaulting to Stone so
+   it does not read as Lawgistics. A live preview slide on the right shows
+   what their posts will look like. Also **Your voice**: paste a few things
+   you have written and every draft matches how you actually sound. This
+   is the compliant version of "read my LinkedIn", you paste the text
+   yourself, nothing is scraped. Reachable later from the Brand button.
+2. **Ask**, every day: one big box, "What do you want to post about
+   today?", and a choice of **Slides (a carousel)** or **One poster** (for
+   a one-off event: "live music at the cafe this Friday from 6"). Write my
+   post drafts it via `/api/draft` (Claude, server-side) and moves to the
+   Post screen. The model is told whether it is writing for a business or
+   a named person, and for a poster it returns exactly one slide and is
+   told not to invent dates, times, places or prices.
+3. **Post**: the result on the right, a chat on the left for changes:
+   "shorter", "punchier hook", "slide 3 should name the case". The current
+   draft goes back to the model with the instruction and it returns the
+   whole thing updated. **New post** goes back to Ask.
 
    On the right: the post text with **Copy post** (keeps the line spacing),
    a strip of the slides (tap one to open the hand editor, which is folded

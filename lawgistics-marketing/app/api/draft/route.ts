@@ -7,7 +7,21 @@ export const maxDuration = 60;
 // One request per topic, server-side, so the API key never reaches the
 // browser. Same drafting brief as the Claude-artifact prototype this app
 // grew out of, including the "don't sound like a language model" rules.
-function buildPrompt(topic: string, voiceSample: string | undefined, current: unknown): string {
+type Brand = { kind: "business" | "person"; name: string };
+
+function buildPrompt(topic: string, voiceSample: string | undefined, current: unknown, brand: Brand, format: "carousel" | "poster"): string {
+  const shape =
+    format === "poster"
+      ? "This is a SINGLE POSTER, not a carousel: return exactly ONE slide. Put the headline in \"statement\" (size 'lg'), " +
+        "the one detail people need (date, time, place, price, or the single takeaway) in \"sub\", and any remaining details " +
+        "in \"body\", kept short. \"swipe\" is false. Use the details the author gave exactly as given and do not invent any " +
+        "date, time, place or price they did not give. The caption is the post text that goes with the poster."
+      : "The carousel reads as hook / facts / issue / ruling or key development / a striking quote or key line / " +
+        "why it matters, across 5 or 6 slides.";
+  const who =
+    brand.kind === "person"
+      ? `an individual legal professional posting under their own name${brand.name ? ` (${brand.name})` : ""} on their personal LinkedIn and Instagram. Write in the first person singular, as that person, never as a firm or "we"`
+      : `a legal business${brand.name && brand.name !== "LAWGISTICS" ? ` called ${brand.name}` : " (Lawgistics, a law-careers account for Australian law students and early-career lawyers)"}, posting on its own page`;
   const voice = voiceSample && voiceSample.trim()
     ? `\n\nHere is a sample of how this person actually writes. Match its rhythm, vocabulary and level of formality, not its topic:\n"""\n${voiceSample.trim().slice(0, 4000)}\n"""\n`
     : "";
@@ -20,10 +34,9 @@ function buildPrompt(topic: string, voiceSample: string | undefined, current: un
       "\"\n\nReturn the complete updated draft in the same JSON shape described below.\n\n"
     : "";
   return (
-    "You are drafting an Instagram carousel for a law-student-focused legal marketing account, " +
-    "in a consistent house style: Playfair-serif statements with exactly one italicised phrase each, " +
-    "short declarative sentences, one idea per slide. The carousel reads as hook / facts / " +
-    "issue / ruling or key development / a striking quote or key line / why it matters, across 5 or 6 slides.\n\n" +
+    "You are drafting a LinkedIn post and matching carousel slides for " + who + ". " +
+    "House style: Playfair-serif statements with exactly one italicised phrase each, " +
+    "short declarative sentences, one idea per slide. " + shape + "\n\n" +
     "Writing voice: never use an em dash, anywhere, use a comma, colon or full stop instead. Avoid every " +
     "telltale AI-written pattern: no 'it's not just X, it's Y', no 'in a world where', no rhetorical " +
     "questions as filler, no hedge-then-reveal structure, no tricolons for their own sake. Write plain, " +
@@ -65,7 +78,7 @@ export async function POST(req: Request) {
     );
   }
 
-  let body: { topic?: unknown; voiceSample?: unknown; current?: unknown };
+  let body: { topic?: unknown; voiceSample?: unknown; current?: unknown; brand?: unknown; format?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -82,11 +95,19 @@ export async function POST(req: Request) {
       ? body.current
       : undefined;
 
+  const rawBrand = (body.brand && typeof body.brand === "object" ? body.brand : {}) as { kind?: unknown; name?: unknown };
+  const brand: Brand = {
+    kind: rawBrand.kind === "person" ? "person" : "business",
+    name: typeof rawBrand.name === "string" ? rawBrand.name.trim().slice(0, 60) : "",
+  };
+
+  const format = body.format === "poster" ? "poster" : "carousel";
+
   const anthropic = new Anthropic();
   const response = await anthropic.messages.create({
     model: "claude-opus-5",
     max_tokens: 8000,
-    messages: [{ role: "user", content: buildPrompt(topic, voiceSample, current) }],
+    messages: [{ role: "user", content: buildPrompt(topic, voiceSample, current, brand, format) }],
   });
 
   const text = response.content
