@@ -324,6 +324,7 @@ export function initStudio(){
   var captionText = $('captionText'), captionOut = $('captionOut'), btnCopyCaption = $('btnCopyCaption');
   var consentCheck = $('consentCheck'), changePanel = $('changePanel'), btnChange = $('btnChange');
   var btnRemindWeekly = $('btnRemindWeekly'), btnAnother = $('btnAnother');
+  var sameAsLast = $('sameAsLast'), sameRow = $('sameRow'), brandBar = $('brandBar');
 
   function previewWidth(){
     var frame = previewHolder.parentElement;
@@ -381,7 +382,7 @@ export function initStudio(){
     if(name==='save'){ captionOut.value = state.caption || ''; if(state.consented) prepareBlobs(); }
     if(name==='look') setTimeout(renderBrandPreview, 0);
     if(name==='you') setTimeout(function(){ brandName.focus(); }, 0);
-    if(name==='ask') setTimeout(function(){ askInput.focus(); }, 0);
+    if(name==='ask'){ renderBrandBar(); renderSameRow(); setTimeout(function(){ askInput.focus(); }, 0); }
     saveLocal();
     window.scrollTo(0,0);
   }
@@ -421,6 +422,24 @@ export function initStudio(){
         textEsc(p.name)+'</button>';
     }).join('');
   }
+  function renderBrandBar(){
+    var b = state.brand;
+    var styleName = (STYLES.filter(function(s){ return s.key===(b.style||'editorial'); })[0]||STYLES[0]).name;
+    var pal = activePaletteName();
+    brandBar.innerHTML =
+      '<span class="sw"><i style="background:'+attrEsc(b.cream)+'"></i><i style="background:'+attrEsc(b.navy)+'"></i><i style="background:'+attrEsc(b.accent)+'"></i></span>'+
+      '<b>'+textEsc(b.wordmark || 'No name yet')+'</b>'+
+      '<span class="sep">/</span><span>'+textEsc(pal || 'Custom colours')+'</span>'+
+      '<span class="sep">/</span><span>'+textEsc(styleName)+'</span>'+
+      '<button type="button" class="linkbtn edit" data-go="look">Change</button>';
+  }
+  function renderSameRow(){
+    var has = !!(state.lastPattern && state.lastPattern.length);
+    sameRow.hidden = !has;
+    if(has) sameAsLast.checked = !!state.sameAsLast;
+  }
+  sameAsLast.addEventListener('change', function(){ state.sameAsLast = sameAsLast.checked; saveLocal(); });
+
   function renderStyles(){
     var active = state.brand.style || 'editorial';
     styles.innerHTML = STYLES.map(function(s){
@@ -856,6 +875,8 @@ export function initStudio(){
       return slide;
     });
     if(!slides.length) throw new Error('no slides came back');
+    // remember the shape of this post so the next one can match it
+    state.lastPattern = slides.map(function(s){ return {layout:s.layout, ground:s.ground}; });
     state.slides = slides; state.activeIndex = 0;
     state.caption = typeof result.caption==='string' ? result.caption : '';
     state.consented = false;
@@ -882,6 +903,7 @@ export function initStudio(){
       var payload = {topic:text, voiceSample: state.brand.voice || '', format: state.format==='poster' ? 'poster' : 'carousel',
         brand: {kind: brandKind(), name: state.brand.wordmark || '', field: state.brand.field || ''}};
       if(revising) payload.current = currentDraft();
+      if(fromAsk && state.sameAsLast && state.lastPattern && state.lastPattern.length) payload.pattern = state.lastPattern;
       var res = await fetch('/api/draft', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
       var data = await res.json();
       if(!res.ok) throw new Error(data && data.error ? data.error : 'request failed');
@@ -1048,6 +1070,8 @@ export function initStudio(){
     if(!state.brand.style) state.brand.style = 'editorial';
     if(typeof state.brand.field !== 'string') state.brand.field = '';
     state.setupDone = !!state.setupDone;
+    state.sameAsLast = !!state.sameAsLast;
+    if(!Array.isArray(state.lastPattern)) state.lastPattern = null;
     if(typeof state.caption !== 'string') state.caption = '';
     state.consented = !!state.consented;
     state.drafted = !!state.drafted;

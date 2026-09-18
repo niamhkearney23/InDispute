@@ -221,10 +221,17 @@ export default function Page() {
               </h2>
               <p>One line is enough. You get a post and the slides to go with it. Nothing posts on its own.</p>
             </div>
-            <div className="segmented formatpick" id="formatPick">
-              <button type="button" data-format="carousel">Slides</button>
-              <button type="button" data-format="poster">One poster</button>
+            <div className="askcontrols">
+              <div className="segmented formatpick" id="formatPick">
+                <button type="button" data-format="carousel">Slides</button>
+                <button type="button" data-format="poster">One poster</button>
+              </div>
+              <label className="samecheck" id="sameRow" htmlFor="sameAsLast" hidden>
+                <input type="checkbox" id="sameAsLast" />
+                <span>Same shapes as last time</span>
+              </label>
             </div>
+            <div className="brandbar" id="brandBar"></div>
             <textarea
               className="askbox"
               id="askInput"

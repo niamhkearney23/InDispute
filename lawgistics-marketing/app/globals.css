@@ -600,8 +600,23 @@ details.brandfields.on{display:block;}
 .palette .sw i{display:block;width:14px;height:20px;}
 
 /* ---- ask step ---- */
-.formatpick{margin-bottom:14px;}
+.askcontrols{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:14px;}
 .formatpick button{padding:9px 16px;font-size:13.5px;}
+.samecheck{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-soft);cursor:pointer;}
+.samecheck[hidden]{display:none;}
+.samecheck input{width:17px;height:17px;}
+
+/* the brand, always visible, so you can see it is not drifting */
+.brandbar{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px;padding:10px 14px;
+  border:1px solid var(--border);border-radius:10px;background:var(--surface-2);
+  font-size:12.5px;color:var(--ink-soft);
+}
+.brandbar .sw{display:inline-flex;border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,.14);}
+.brandbar .sw i{display:block;width:16px;height:22px;}
+.brandbar b{color:var(--ink);font-weight:600;}
+.brandbar .sep{color:var(--ink-faint);}
+.brandbar .edit{margin-left:auto;}
 .askbox{
   width:100%;font:inherit;font-size:18px;line-height:1.45;padding:18px 20px;border-radius:12px;resize:vertical;
   border:1px solid var(--border-strong);background:var(--bg);color:var(--ink);min-height:150px;

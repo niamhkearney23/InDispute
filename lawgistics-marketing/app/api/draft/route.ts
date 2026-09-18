@@ -9,7 +9,24 @@ export const maxDuration = 60;
 // grew out of, including the "don't sound like a language model" rules.
 type Brand = { kind: "firm" | "business" | "person"; name: string; field: string };
 
-function buildPrompt(topic: string, voiceSample: string | undefined, current: unknown, brand: Brand, format: "carousel" | "poster"): string {
+type Pattern = { layout: string; ground: string }[];
+
+function buildPrompt(
+  topic: string,
+  voiceSample: string | undefined,
+  current: unknown,
+  brand: Brand,
+  format: "carousel" | "poster",
+  pattern: Pattern | undefined,
+): string {
+  // Reusing last time's shapes is what keeps a grid looking like one brand.
+  const patternBrief =
+    pattern && pattern.length
+      ? "\n\nThe author wants this post to match the shape of their last one, so their feed stays consistent. " +
+        "Use exactly these slides, in this order, with these layouts and grounds, and write the content to fit them:\n" +
+        pattern.map((p, i) => `${i + 1}. layout "${p.layout}" on ground "${p.ground}"`).join("\n") +
+        "\nDo not add, drop or reorder slides, and do not substitute a different layout.\n"
+      : "";
   const shape =
     format === "poster"
       ? 'This is a SINGLE POSTER, not a carousel: return exactly ONE slide, with "layout" set to "title" or "impact" ' +
@@ -60,7 +77,7 @@ function buildPrompt(topic: string, voiceSample: string | undefined, current: un
   return (
     "You are drafting a LinkedIn post and matching carousel slides for " + who + ". " +
     "House style: Playfair-serif statements with exactly one italicised phrase each, " +
-    "short declarative sentences, one idea per slide. " + shape + "\n\n" +
+    "short declarative sentences, one idea per slide. " + shape + patternBrief + "\n\n" +
     "Writing voice: never use an em dash, anywhere, use a comma, colon or full stop instead. Avoid every " +
     "telltale AI-written pattern: no 'it's not just X, it's Y', no 'in a world where', no rhetorical " +
     "questions as filler, no hedge-then-reveal structure, no tricolons for their own sake. Write plain, " +
@@ -102,7 +119,7 @@ export async function POST(req: Request) {
     );
   }
 
-  let body: { topic?: unknown; voiceSample?: unknown; current?: unknown; brand?: unknown; format?: unknown };
+  let body: { topic?: unknown; voiceSample?: unknown; current?: unknown; brand?: unknown; format?: unknown; pattern?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -131,12 +148,20 @@ export async function POST(req: Request) {
   };
 
   const format = body.format === "poster" ? "poster" : "carousel";
+  const pattern = Array.isArray(body.pattern)
+    ? (body.pattern as unknown[])
+        .slice(0, 12)
+        .filter((p): p is { layout: string; ground: string } =>
+          !!p && typeof p === "object" && typeof (p as { layout?: unknown }).layout === "string",
+        )
+        .map((p) => ({ layout: String(p.layout).slice(0, 20), ground: String(p.ground || "light").slice(0, 10) }))
+    : undefined;
 
   const anthropic = new Anthropic();
   const response = await anthropic.messages.create({
     model: "claude-opus-5",
     max_tokens: 8000,
-    messages: [{ role: "user", content: buildPrompt(topic, voiceSample, current, brand, format) }],
+    messages: [{ role: "user", content: buildPrompt(topic, voiceSample, current, brand, format, pattern) }],
   });
 
   const text = response.content
