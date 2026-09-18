@@ -34,7 +34,40 @@ body{
   font-family:'Studio Sans','TikTok Sans',-apple-system,sans-serif;
 }
 .wrap{max-width:1400px;min-height:100vh;min-height:100svh;margin-inline:auto;padding:24px 20px 40px;display:flex;flex-direction:column;gap:20px;}
-@media (max-width:600px){.wrap{padding:16px 16px 28px;gap:14px;}}
+@media (max-width:600px){
+  .wrap{padding:calc(12px + env(safe-area-inset-top,0px)) 16px calc(24px + env(safe-area-inset-bottom,0px));gap:14px;}
+  .brandmark span{display:none;}
+  .brandmark h1{font-size:22px;}
+  .topbar{align-items:center;}
+  .btn{min-height:44px;padding:10px 16px;font-size:14px;border-radius:12px;}
+  .btn-sm{min-height:38px;padding:8px 12px;font-size:13px;border-radius:10px;}
+  .btn:active{transform:scale(.98);}
+  .panel{border-radius:16px;}
+  .field input[type=text],.field textarea,.askbox,.chatbar textarea,#captionText{border-radius:12px;}
+  /* the one action you need sits in a bar at the bottom of the screen */
+  .stepfoot{
+    position:sticky;bottom:0;z-index:5;margin:22px -16px -18px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));
+    background:rgba(17,19,24,.82);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+    border-top:1px solid var(--border);border-radius:0 0 16px 16px;
+  }
+  .stepfoot .btn-accent{flex:1;justify-content:center;max-width:260px;}
+  #shareBar{
+    position:sticky;bottom:0;z-index:5;margin:6px -16px -18px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));
+    background:rgba(17,19,24,.82);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+    border-top:1px solid var(--border);border-radius:0 0 16px 16px;
+  }
+  #shareBar + #downloadBar{margin-top:26px;}
+  .toast{bottom:calc(20px + env(safe-area-inset-bottom,0px));max-width:calc(100vw - 32px);text-align:center;}
+  /* everything you can tap is at least a thumb wide */
+  .segmented button{min-height:44px;padding:10px 16px;font-size:14px;}
+  .mdbar button{width:34px;height:34px;font-size:14px;border-radius:8px;}
+  .morefields>summary{min-height:44px;padding:11px 0;font-size:14px;}
+  .linkbtn{display:inline-flex;align-items:center;min-height:44px;}
+  .palette{min-height:44px;padding:8px 14px 8px 8px;}
+  .stylebtn{min-height:60px;}
+  .consentbar{padding:14px;font-size:13px;}
+  .consentbar input{width:22px;height:22px;}
+}
 
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
 .brandmark{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;}
@@ -83,7 +116,9 @@ body{
 .stephead h2{
   font-family:'Studio Serif','Playfair',serif;font-weight:600;font-size:34px;line-height:1.15;margin:0 0 10px;
   letter-spacing:-.01em;text-wrap:balance;
+  background:linear-gradient(180deg,#FFFFFF 0%,#D8D6CF 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
 }
+.stephead h2 em{-webkit-text-fill-color:var(--accent-strong);}
 .stephead h2 em{font-style:italic;font-weight:500;color:var(--accent-strong);}
 .stephead p{margin:0;font-size:14px;color:var(--ink-soft);line-height:1.5;max-width:60ch;}
 .stepfoot{
@@ -124,6 +159,13 @@ body{
 .slidetools{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:12px 0 18px;}
 
 .strip{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+@media (max-width:600px){
+  /* swipe through the slides like the real carousel */
+  .strip{flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;margin-inline:-16px;padding:4px 16px 10px;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none;}
+  .strip::-webkit-scrollbar{display:none;}
+  .stripitem{flex:none;scroll-snap-align:center;border-radius:10px;}
+}
 .stripitem{
   border:1px solid var(--border);border-radius:5px;overflow:hidden;padding:0;background:#020203;cursor:pointer;
   box-shadow:0 6px 18px rgba(0,0,0,.45);transition:border-color .12s,transform .08s;
@@ -139,7 +181,10 @@ body{
 #captionText:focus{outline:2px solid var(--accent);outline-offset:0;border-color:transparent;}
 .captionrow{display:flex;justify-content:flex-end;margin-top:8px;}
 
-.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);}
+.panel{
+  background:linear-gradient(180deg,#14171D 0%,var(--surface) 120px);border:1px solid var(--border);border-radius:12px;
+  box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.04);
+}
 .panel-pad{padding:16px;}
 .panel-title{font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 12px;}
 

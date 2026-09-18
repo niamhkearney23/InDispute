@@ -169,7 +169,7 @@ export default function Page() {
               className="askbox"
               id="askInput"
               rows={5}
-              placeholder="e.g. the High Court's long service leave ruling and what it means for employers, or: what to bring to your first family law appointment, or for a poster: free wills clinic, Tuesday 10am, Parramatta office, or: live music this Friday from 6, free entry"
+              placeholder="e.g. what to bring to your first family law appointment&#10;or: free wills clinic, Tuesday 10am, Parramatta office"
             />
             <p className="askstatus" id="askStatus"></p>
             <div className="stepfoot">

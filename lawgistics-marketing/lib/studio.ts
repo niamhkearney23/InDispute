@@ -240,8 +240,9 @@ export function initStudio(){
     toastTimer = setTimeout(function(){ toast.classList.remove('show'); }, 2600);
   }
 
-  var STRIP_WIDTH = 96;
+  function stripWidth(){ return window.innerWidth <= 600 ? 168 : 96; }
   function renderStrip(){
+    var STRIP_WIDTH = stripWidth();
     var scale = STRIP_WIDTH/1080;
     strip.innerHTML = '';
     state.slides.forEach(function(s,i){
@@ -262,6 +263,10 @@ export function initStudio(){
       btn.appendChild(canvas);
       strip.appendChild(btn);
     });
+    var active = strip.querySelector('.stripitem.active');
+    if(active && window.innerWidth <= 600 && strip.scrollWidth > strip.clientWidth){
+      strip.scrollLeft = active.offsetLeft - (strip.clientWidth - active.offsetWidth)/2;
+    }
   }
   var stripTimer = null;
   function renderStripSoon(){ clearTimeout(stripTimer); stripTimer = setTimeout(renderStrip, 250); }
@@ -336,7 +341,9 @@ export function initStudio(){
   var resizeTimer = null;
   window.addEventListener('resize', function(){
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(function(){ if(state.step==='post' && editDrawer.open) updatePreview(); }, 120);
+    resizeTimer = setTimeout(function(){
+      if(state.step==='post'){ renderStrip(); if(editDrawer.open) updatePreview(); }
+    }, 120);
   });
 
   function renderEditor(){
