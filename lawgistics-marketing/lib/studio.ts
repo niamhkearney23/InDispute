@@ -168,7 +168,7 @@ function slideInnerHtml(slide, brand){
   var photo = slide.photo ? '<img class="photo" src="'+attrEsc(slide.photo)+'" alt="">' : '';
   return photo + '<div class="page">'+
     '<div class="kicker">'+mdInline(slide.kicker)+'</div>'+
-    inner+
+    '<div class="content">'+inner+'</div>'+
     '<div class="foot"><div class="cite">'+citeHtml+'</div>'+sw+'</div>'+
     '</div>';
 }

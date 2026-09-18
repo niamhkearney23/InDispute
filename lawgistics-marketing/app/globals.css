@@ -217,8 +217,10 @@ body{
   letter-spacing:.28em;text-transform:uppercase;color:var(--t-kicker-cream,#8C8577);}
 .slide-canvas.dark .kicker{color:var(--t-kicker-navy,#8892A6);}
 .slide-canvas .statement{font-family:var(--f-serif,'Studio Serif'),'Playfair',serif;font-weight:600;color:inherit;}
-.slide-canvas .statement.lg{margin-top:120px;font-size:78px;line-height:1.14;letter-spacing:-.005em;max-width:900px;}
-.slide-canvas .statement.md{margin-top:110px;font-size:60px;line-height:1.2;max-width:900px;}
+/* the main text sits centred between the label and the citation, not in the top third */
+.slide-canvas .content{flex:1;display:flex;flex-direction:column;justify-content:center;padding:40px 0 70px;min-height:0;}
+.slide-canvas .statement.lg{font-size:78px;line-height:1.14;letter-spacing:-.005em;max-width:900px;}
+.slide-canvas .statement.md{font-size:60px;line-height:1.2;max-width:900px;}
 .slide-canvas .statement em{font-style:italic;font-weight:500;}
 .slide-canvas .statement p+p{margin-top:38px;}
 .slide-canvas .sub{margin-top:44px;font-family:var(--f-serif,'Studio Serif'),'Playfair',serif;font-style:italic;font-weight:400;
@@ -251,8 +253,8 @@ body{
 .slide-canvas.style-bold .kicker{color:var(--t-accent,#3A5697);font-weight:600;}
 .slide-canvas.style-bold.dark .kicker{color:var(--t-accent-navy,#6E86C9);}
 .slide-canvas.style-bold .statement{font-family:var(--f-sans,'Studio Sans'),'TikTok Sans',sans-serif;font-weight:600;letter-spacing:-.02em;}
-.slide-canvas.style-bold .statement.lg{font-size:96px;line-height:1.04;margin-top:96px;}
-.slide-canvas.style-bold .statement.md{font-size:74px;line-height:1.08;margin-top:90px;}
+.slide-canvas.style-bold .statement.lg{font-size:96px;line-height:1.04;}
+.slide-canvas.style-bold .statement.md{font-size:74px;line-height:1.08;}
 .slide-canvas.style-bold .statement::before{content:'';display:block;width:120px;height:10px;background:var(--t-accent,#3A5697);margin-bottom:44px;}
 .slide-canvas.style-bold.dark .statement::before{background:var(--t-accent-navy,#6E86C9);}
 .slide-canvas.style-bold .statement em{font-style:normal;font-weight:600;color:var(--t-accent,#3A5697);}
@@ -264,8 +266,9 @@ body{
 /* ---- style: minimal. centred, quiet ---- */
 .slide-canvas.style-minimal .page{text-align:center;align-items:center;}
 .slide-canvas.style-minimal .statement{font-weight:500;margin-left:auto;margin-right:auto;}
-.slide-canvas.style-minimal .statement.lg{font-size:72px;margin-top:150px;}
-.slide-canvas.style-minimal .statement.md{font-size:56px;margin-top:140px;}
+.slide-canvas.style-minimal .statement.lg{font-size:72px;}
+.slide-canvas.style-minimal .statement.md{font-size:56px;}
+.slide-canvas.style-minimal .content{align-items:center;}
 .slide-canvas.style-minimal .statement::before{content:'';display:block;width:72px;height:2px;background:var(--t-accent,#3A5697);margin:0 auto 54px;}
 .slide-canvas.style-minimal.dark .statement::before{background:var(--t-accent-navy,#6E86C9);}
 .slide-canvas.style-minimal .sub,.slide-canvas.style-minimal .body,.slide-canvas.style-minimal .learn{margin-left:auto;margin-right:auto;max-width:780px;}
