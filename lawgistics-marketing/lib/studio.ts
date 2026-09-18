@@ -156,14 +156,53 @@ function mdInline(s){
   return t;
 }
 
+// Each slide picks a composition, so one carousel can run a title card, a
+// dense block of argument, a figure and a quote instead of six of the same.
+var LAYOUTS = [
+  {key:'statement', name:'Statement', desc:'A line that lands, detail underneath.'},
+  {key:'title',     name:'Title card', desc:'Big and centred, nothing else.'},
+  {key:'essay',     name:'Essay', desc:'Headline over a dense block of text.'},
+  {key:'impact',    name:'Impact', desc:'Huge uppercase. Shouts.'},
+  {key:'stat',      name:'Figure', desc:'One number, blown up.'},
+  {key:'list',      name:'List', desc:'Numbered points, one per line.'},
+  {key:'quote',     name:'Quote', desc:'A quoted line, with who said it.'}
+];
+var LAYOUT_KEYS = LAYOUTS.map(function(l){ return l.key; });
+function layoutOf(slide){ return LAYOUT_KEYS.indexOf(slide.layout)>=0 ? slide.layout : 'statement'; }
+function groundOf(slide){
+  if(slide.ground==='accent') return 'accent';
+  if(slide.ground==='dark' || (slide.ground==null && slide.dark)) return 'dark';
+  return 'light';
+}
+
 function slideInnerHtml(slide, brand){
   var sw = slide.swipe ? '<div class="swipe">swipe &rarr;</div>' : ('<div class="mark">'+mdInline(brand.wordmark||'')+'</div>');
-  var paras = String(slide.body||'').split(/\n\s*\n/).map(function(p){return p.trim();}).filter(Boolean)
-    .map(function(p){return '<p>'+mdInline(p)+'</p>';}).join('');
-  var inner = '<div class="statement '+(slide.size||'md')+'">'+mdInline(slide.statement)+'</div>';
-  if(slide.sub) inner += '<div class="sub">'+mdInline(slide.sub)+'</div>';
-  if(paras) inner += '<div class="body">'+paras+'</div>';
+  var layout = layoutOf(slide);
+  var bodyParas = String(slide.body||'').split(/\n\s*\n/).map(function(p){return p.trim();}).filter(Boolean);
+  var inner = '';
+
+  if(layout==='list'){
+    var items = String(slide.body||'').split(/\n+/).map(function(l){return l.replace(/^\s*[-*\d.)\s]+/,'').trim();}).filter(Boolean);
+    inner = '<div class="statement '+(slide.size||'md')+'">'+mdInline(slide.statement)+'</div>';
+    if(slide.sub) inner += '<div class="sub">'+mdInline(slide.sub)+'</div>';
+    inner += '<ol class="listrows">'+items.map(function(t,i){
+      return '<li><span class="n">'+(i+1)+'</span><span class="t">'+mdInline(t)+'</span></li>';
+    }).join('')+'</ol>';
+  } else if(layout==='stat'){
+    inner = '<div class="figure">'+mdInline(slide.statement)+'</div>';
+    if(slide.sub) inner += '<div class="figcaption">'+mdInline(slide.sub)+'</div>';
+    if(bodyParas.length) inner += '<div class="body">'+bodyParas.map(function(p){return '<p>'+mdInline(p)+'</p>';}).join('')+'</div>';
+  } else if(layout==='quote'){
+    inner = '<div class="quotemark">&ldquo;</div>'+
+      '<div class="quotetext">'+mdInline(slide.statement)+'</div>';
+    if(slide.sub) inner += '<div class="quoteattrib">'+mdInline(slide.sub)+'</div>';
+  } else {
+    inner = '<div class="statement '+(slide.size||'md')+'">'+mdInline(slide.statement)+'</div>';
+    if(slide.sub) inner += '<div class="sub">'+mdInline(slide.sub)+'</div>';
+    if(bodyParas.length) inner += '<div class="body">'+bodyParas.map(function(p){return '<p>'+mdInline(p)+'</p>';}).join('')+'</div>';
+  }
   if(slide.learn) inner += '<div class="learn"><b>Learn this:</b> '+mdInline(slide.learn)+'</div>';
+
   var citeHtml = mdInline(slide.cite).replace(/\n/g,'<br>');
   var photo = slide.photo ? '<img class="photo" src="'+attrEsc(slide.photo)+'" alt="">' : '';
   return photo + '<div class="page">'+
@@ -174,7 +213,9 @@ function slideInnerHtml(slide, brand){
 }
 function buildCanvasEl(slide, brand){
   var div = document.createElement('div');
-  div.className = 'slide-canvas' + (slide.dark ? ' dark' : '') + styleClass(brand) +
+  var ground = groundOf(slide);
+  div.className = 'slide-canvas' + (ground==='dark' ? ' dark' : '') + (ground==='accent' ? ' onaccent' : '') +
+    ' lay-'+layoutOf(slide) + styleClass(brand) +
     (slide.photo ? ' has-photo' + (slide.photoKind==='design' ? ' has-design' : '') : '');
   div.innerHTML = slideInnerHtml(slide, brand);
   applyBrand(div, brand);
@@ -405,11 +446,17 @@ export function initStudio(){
     var idx = state.activeIndex, total = state.slides.length, slide = state.slides[idx];
     editorPanel.innerHTML =
       '<p class="panel-title">Slide '+(idx+1)+' of '+total+'</p>'+
+      '<div class="field"><label>Shape of this slide</label>'+
+        '<div class="styles">'+LAYOUTS.map(function(l){
+          return '<button type="button" class="stylebtn'+(layoutOf(slide)===l.key?' active':'')+'" data-act="setLayout" data-val="'+l.key+'">'+
+            '<b>'+textEsc(l.name)+'</b><span>'+textEsc(l.desc)+'</span></button>';
+        }).join('')+'</div></div>'+
       '<div class="rowfields">'+
         '<div class="field"><label>Background</label>'+
           '<div class="segmented">'+
-            '<button type="button" data-act="setDark" data-val="false" class="'+(!slide.dark?'active':'')+'">Light</button>'+
-            '<button type="button" data-act="setDark" data-val="true" class="'+(slide.dark?'active':'')+'">Dark</button>'+
+            '<button type="button" data-act="setGround" data-val="light" class="'+(groundOf(slide)==='light'?'active':'')+'">Light</button>'+
+            '<button type="button" data-act="setGround" data-val="dark" class="'+(groundOf(slide)==='dark'?'active':'')+'">Dark</button>'+
+            '<button type="button" data-act="setGround" data-val="accent" class="'+(groundOf(slide)==='accent'?'active':'')+'">Accent</button>'+
           '</div></div>'+
         '<div class="field"><label>Statement size</label>'+
           '<div class="segmented">'+
@@ -643,7 +690,8 @@ export function initStudio(){
         state.slides.forEach(function(s){ s.photo = slide.photo; s.photoKind = slide.photoKind; });
         showToast('Used on every slide');
       }
-      if(actBtn.dataset.act==='setDark') slide.dark = actBtn.dataset.val==='true';
+      if(actBtn.dataset.act==='setGround'){ slide.ground = actBtn.dataset.val; slide.dark = slide.ground==='dark'; }
+      if(actBtn.dataset.act==='setLayout') slide.layout = actBtn.dataset.val;
       if(actBtn.dataset.act==='setSize') slide.size = actBtn.dataset.val;
       saveLocal(); renderEditor(); updatePreview(); renderStrip();
       return;
@@ -759,7 +807,8 @@ export function initStudio(){
     return {
       kicker: s0.kicker || '', cite: s0.cite || '', caption: state.caption || '',
       slides: state.slides.map(function(s){
-        return {dark:!!s.dark, size:s.size||'md', swipe:!!s.swipe, statement:s.statement||'', sub:s.sub||'', body:s.body||'', learn:s.learn||''};
+        return {layout:layoutOf(s), ground:groundOf(s), size:s.size||'md', swipe:!!s.swipe,
+          statement:s.statement||'', sub:s.sub||'', body:s.body||'', learn:s.learn||''};
       })
     };
   }
@@ -767,7 +816,9 @@ export function initStudio(){
     var kicker = result.kicker || '', cite = result.cite || '';
     var old = state.slides;
     var slides = (result.slides || []).map(function(s, i){
-      var slide = { dark: !!s.dark, size: s.size==='lg'?'lg':'md', swipe: !!s.swipe, kicker: kicker, cite: cite,
+      var ground = (s.ground==='dark' || s.ground==='accent' || s.ground==='light') ? s.ground : (s.dark ? 'dark' : 'light');
+      var slide = { layout: LAYOUT_KEYS.indexOf(s.layout)>=0 ? s.layout : 'statement',
+        ground: ground, dark: ground==='dark', size: s.size==='lg'?'lg':'md', swipe: !!s.swipe, kicker: kicker, cite: cite,
         statement: s.statement||'', sub: s.sub||'', body: s.body||'', learn: s.learn||'' };
       if(keepPhotos && old[i] && old[i].photo){ slide.photo = old[i].photo; slide.photoKind = old[i].photoKind; }
       return slide;

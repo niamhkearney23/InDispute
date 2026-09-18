@@ -77,9 +77,18 @@ Not in this MVP, on purpose: accounts/login, billing, AI logo generation,
 posting cadence reminders, website builder. See the scope discussion in the
 session that built this.
 
-**Styles and colours.** Four layouts (Editorial, Bold, Minimal, Colour
-block) and six colour looks, chosen on the Brand screen. Lawgistics is
-Editorial + House.
+**Styles and colours.** Four type systems (Editorial, Bold, Minimal,
+Colour block) and ten colour ways, chosen on the Brand screen. Lawgistics
+is Editorial + House.
+
+**Per-slide composition.** The thing that stops a carousel looking like
+six of the same slide. Each slide carries a `layout` (title / statement /
+essay / impact / stat / list / quote) and a `ground` (light / dark /
+accent), both chosen by the model and overridable by hand in the editor.
+The drafting brief explicitly tells it to vary both and not to repeat a
+shape or a ground three times running. `essay` wants a real block of
+argument, `stat` wants a genuine figure, `list` splits `body` on
+newlines, `quote` needs a real quotation.
 
 **Photos and AI design.** In the hand editor, any slide can take an image
 behind the text (OpenAI images via `/api/image`, key kept on the server

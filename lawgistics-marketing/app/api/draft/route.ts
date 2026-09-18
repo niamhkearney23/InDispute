@@ -12,12 +12,26 @@ type Brand = { kind: "firm" | "business" | "person"; name: string; field: string
 function buildPrompt(topic: string, voiceSample: string | undefined, current: unknown, brand: Brand, format: "carousel" | "poster"): string {
   const shape =
     format === "poster"
-      ? "This is a SINGLE POSTER, not a carousel: return exactly ONE slide. Put the headline in \"statement\" (size 'lg'), " +
+      ? 'This is a SINGLE POSTER, not a carousel: return exactly ONE slide, with "layout" set to "title" or "impact" ' +
+        'and "ground" set to "light", "dark" or "accent". Put the headline in "statement" (size \'lg\'), ' +
         "the one detail people need (date, time, place, price, or the single takeaway) in \"sub\", and any remaining details " +
         "in \"body\", kept short. \"swipe\" is false. Use the details the author gave exactly as given and do not invent any " +
         "date, time, place or price they did not give. The caption is the post text that goes with the poster."
       : "The carousel reads as hook / context / the issue / the key point or development / a striking line / " +
-        "why it matters, across 5 or 6 slides.";
+        "why it matters, across 5 or 6 slides.\n\n" +
+        "IMPORTANT, this is what separates a good carousel from a boring one: give each slide a different " +
+        '"layout" and vary the "ground" it sits on. Do not send six slides of the same shape. Pick per slide from:\n' +
+        '- "title": a big centred line and nothing else. Best for slide 1.\n' +
+        '- "statement": a line that lands, with a short sub or a paragraph or two under it. The workhorse.\n' +
+        '- "essay": a headline over a genuinely dense block of writing, three or four sentences of real argument in "body". Use this once.\n' +
+        '- "impact": very large uppercase. Short. Five words at the very most. Use it for the single loudest idea.\n' +
+        '- "stat": one figure or short phrase in "statement" (e.g. "166" or "3 years"), and what it means in "sub". Only if there is a real number.\n' +
+        '- "list": "statement" is the heading, and "body" is one short item per line, three to five lines. Great for the practical slide.\n' +
+        '- "quote": "statement" is the quoted line, "sub" is who said it. Only for a genuine quotation.\n\n' +
+        '"ground" is "light", "dark" or "accent" (the brand colour as the background). Most slides are light. ' +
+        "Put one or two on dark or accent for rhythm, usually the loudest slide and the last one. Never three in a row the same.\n\n" +
+        "A good six-slide set might run title / statement / essay / stat / list / impact on accent. Choose what the " +
+        "content actually calls for, but make the shapes differ.";
   const isLawgistics = !brand.name || brand.name.toUpperCase() === "LAWGISTICS";
   const who =
     brand.kind === "person"
@@ -63,12 +77,12 @@ function buildPrompt(topic: string, voiceSample: string | undefined, current: un
     "a blank line between every line (use \\\\n\\\\n), most lines under 12 words, no line longer than two " +
     "sentences, a plain-spoken point of view in the middle, the takeaway near the end as its own line, " +
     'then a one-line general-information disclaimer, no hashtags, no emoji, no em dashes, 120 to 220 words",' +
-    '"slides":[{"dark":false,"size":"lg","swipe":true,"statement":"...","sub":"..."},' +
-    '{"dark":false,"size":"md","statement":"...","body":"..."}]}\n' +
+    '"slides":[{"layout":"title","ground":"light","size":"lg","swipe":true,"statement":"...","sub":"..."},' +
+    '{"layout":"essay","ground":"light","size":"md","statement":"...","body":"..."},' +
+    '{"layout":"impact","ground":"accent","size":"lg","statement":"..."}]}\n' +
     "Use **text** for bold and *text* for italics inside statement/sub/body/learn. Each slide object needs " +
-    '"statement" and may include "sub", "body", "learn" (the exam-usable principle, one sentence), ' +
-    '"dark" (boolean, alternate some slides to navy for variety), "size" (\'lg\' for the cover/quote slides, ' +
-    "'md' for the rest), and \"swipe\" (true only on slide 1)."
+    '"layout", "ground" and "statement", and may include "sub", "body", "learn" (the exam-usable principle, ' +
+    'one sentence, at most one slide in the set), "size" ("lg" or "md"), and "swipe" (true only on slide 1).'
   );
 }
 
