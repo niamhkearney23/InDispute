@@ -379,8 +379,16 @@ body{
 .brandlayout{display:grid;grid-template-columns:minmax(0,1fr) 264px;gap:28px;align-items:start;}
 @media (max-width:760px){.brandlayout{grid-template-columns:minmax(0,1fr);}}
 .brandpreview .previewframe{padding:12px;}
-.kindpick{margin-bottom:22px;}
-.kindpick button{padding:10px 18px;font-size:14px;}
+.optiongrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;}
+.kindpick{margin-bottom:26px;}
+.randombtn{
+  font:inherit;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  border:1px solid var(--border-strong);background:var(--surface-2);color:var(--ink-soft);
+  border-radius:999px;padding:5px 12px;cursor:pointer;transition:color .12s,border-color .12s,background .12s;
+}
+.randombtn:hover{color:var(--accent-ink);background:var(--accent);border-color:var(--accent);}
+.randombtn:active{transform:translateY(1px);}
+.randombtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .brandgrid{display:flex;gap:22px;flex-wrap:wrap;margin-bottom:16px;}
 .brandfields{display:none;}
 .brandfields.on{display:flex;}
@@ -391,11 +399,18 @@ details.brandfields.on{display:block;}
 .brandvoice label .hint{white-space:normal;overflow:visible;margin-left:0;flex-basis:100%;}
 .styles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;}
 .stylebtn{
-  text-align:left;font:inherit;padding:10px 12px;border-radius:10px;cursor:pointer;
+  position:relative;text-align:left;font:inherit;padding:12px 14px;border-radius:12px;cursor:pointer;
   border:1px solid var(--border-strong);background:var(--surface-2);color:var(--ink-soft);
+  transition:border-color .12s,color .12s,background .12s,transform .06s;
 }
-.stylebtn:hover{color:var(--ink);border-color:var(--ink-faint);}
-.stylebtn.active{border-color:var(--accent);color:var(--ink);box-shadow:0 0 0 1px var(--accent);}
+.stylebtn:hover{color:var(--ink);border-color:var(--ink-faint);background:var(--surface-3);}
+.stylebtn:active{transform:translateY(1px);}
+.stylebtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.stylebtn.active{
+  border-color:var(--accent);color:var(--ink);
+  background:linear-gradient(180deg,rgba(124,147,209,.16),rgba(124,147,209,.05));
+  box-shadow:0 0 0 1px var(--accent), 0 8px 24px -12px var(--accent-glow);
+}
 .stylebtn b{display:block;font-size:13px;font-weight:600;margin-bottom:2px;}
 .stylebtn span{display:block;font-size:11.5px;line-height:1.4;color:var(--ink-faint);}
 .stylebtn.active span{color:var(--ink-soft);}

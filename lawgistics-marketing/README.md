@@ -13,14 +13,16 @@ runs on the server with the API key kept out of the browser.
 
 Three screens.
 
-1. **Brand**, set once: "Are you posting as a firm, a business, or
-   yourself?" A firm or business gets a name, four layouts, six ready-made
-   colour looks (House is the Lawgistics palette, the firm default) and a
-   fold-out for exact colours and fonts. A person gets just their name and
-   the same choices. Anyone who is not the firm defaults to Stone so it
-   does not read as Lawgistics. The model is told which it is: a law firm
-   writes as "we" for clients and referrers, general information only; a
-   business writes for its customers; a person writes in the first person. A live preview slide on the right shows
+1. **Brand**, set once: "Who is this post coming from?" — **Me** (the
+   default, since a personal LinkedIn post reaches further than a company
+   page), **My law firm**, or **My business**. Then a name, one of four
+   layouts (Editorial, Bold, Minimal, Colour block), one of ten colour
+   ways, and a fold-out for exact colours and fonts. **Surprise me** picks
+   a random layout-and-colour pairing you have not just seen. A live
+   preview slide shows the result as you choose. The model is told which
+   kind it is: a law firm writes as "we" for clients and referrers,
+   general information only; a business writes for its customers; a person
+   writes in the first person. A live preview slide on the right shows
    what their posts will look like. Also **Your voice**: paste a few things
    you have written and every draft matches how you actually sound. This
    is the compliant version of "read my LinkedIn", you paste the text

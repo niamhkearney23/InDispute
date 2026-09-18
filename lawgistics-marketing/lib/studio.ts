@@ -9,7 +9,7 @@ function blankSlideBase(){
 }
 
 function defaultBrand(){
-  return {kind:'firm', style:'editorial', cream:'#EDE7DC', navy:'#171D2B', accent:'#3A5697', wordmark:'LAWGISTICS', serif:'default', sans:'default', voice:''};
+  return {kind:'person', style:'editorial', cream:'#EDE7DC', navy:'#171D2B', accent:'#3A5697', wordmark:'', serif:'default', sans:'default', voice:''};
 }
 
 function exampleSlides(){
@@ -184,19 +184,23 @@ function buildCanvasEl(slide, brand){
 var STEP_KEYS = ['brand','ask','post'];
 
 var PALETTES = [
-  {name:'House', cream:'#EDE7DC', navy:'#171D2B', accent:'#3A5697'},
-  {name:'Stone', cream:'#F2EEE6', navy:'#23211E', accent:'#B85C38'},
-  {name:'Sage',  cream:'#EDF0EA', navy:'#1C2A22', accent:'#4C7C5B'},
-  {name:'Slate', cream:'#EEF1F5', navy:'#151A22', accent:'#5B7FA6'},
-  {name:'Plum',  cream:'#F3ECF0', navy:'#241A22', accent:'#8E4A6B'},
-  {name:'Sand',  cream:'#F5EFE2', navy:'#2B2416', accent:'#A6782C'}
+  {name:'House',    cream:'#EDE7DC', navy:'#171D2B', accent:'#3A5697'},
+  {name:'Mono',     cream:'#F4F4F2', navy:'#0B0B0C', accent:'#4A4A4E'},
+  {name:'Stone',    cream:'#F2EEE6', navy:'#23211E', accent:'#B85C38'},
+  {name:'Sage',     cream:'#EDF0EA', navy:'#1C2A22', accent:'#4C7C5B'},
+  {name:'Slate',    cream:'#EEF1F5', navy:'#151A22', accent:'#5B7FA6'},
+  {name:'Electric', cream:'#EFF1FC', navy:'#0C0F1F', accent:'#4A45C8'},
+  {name:'Ember',    cream:'#F7EFE8', navy:'#1A1411', accent:'#C0552A'},
+  {name:'Plum',     cream:'#F3ECF0', navy:'#241A22', accent:'#8E4A6B'},
+  {name:'Sand',     cream:'#F5EFE2', navy:'#2B2416', accent:'#A6782C'},
+  {name:'Forest',   cream:'#EAEFEA', navy:'#0F1C15', accent:'#2F6B43'}
 ];
 
 function previewSlide(brand){
   var who = brand.kind==='person' ? 'your name' : (brand.kind==='business' ? 'your business name' : 'your firm name');
   return {dark:false, size:'lg', swipe:false, kicker:'Your series · today',
     statement:"This is what your posts will *look like.*",
-    sub:"Serif for the statement, sans for the detail, "+who+" in the corner.",
+    sub:"The statement carries the point, the detail sits under it, "+who+" in the corner.",
     body:'', learn:'', cite:'General information, not legal advice.'};
 }
 
@@ -218,11 +222,11 @@ export function initStudio(){
   var exportNote = $('exportNote');
   var chatLog = $('chatLog'), chatInput = $('chatInput'), btnSend = $('btnSend');
   var askInput = $('askInput'), btnAsk = $('btnAsk'), askStatus = $('askStatus'), btnSeeExample = $('btnSeeExample'), formatPick = $('formatPick');
-  var brandPanel = $('brandPanel'), btnResetBrand = $('btnResetBrand'), kindPick = $('kindPick'), palettes = $('palettes'), styles = $('styles'), brandPreview = $('brandPreview');
+  var brandPanel = $('brandPanel'), btnResetBrand = $('btnResetBrand'), kindPick = $('kindPick'), palettes = $('palettes'), styles = $('styles'), brandPreview = $('brandPreview'), btnRandomise = $('btnRandomise');
   var brandCream = $('brandCream'), brandNavy = $('brandNavy'), brandAccent = $('brandAccent');
   var brandWordmark = $('brandWordmark'), brandWordmarkBiz = $('brandWordmarkBiz'), brandName = $('brandName'), brandSerif = $('brandSerif'), brandSans = $('brandSans'), brandVoice = $('brandVoice');
-  var KINDS = ['firm','business','person'];
-  function brandKind(){ return KINDS.indexOf(state.brand.kind)>=0 ? state.brand.kind : 'firm'; }
+  var KINDS = ['person','firm','business'];
+  function brandKind(){ return KINDS.indexOf(state.brand.kind)>=0 ? state.brand.kind : 'person'; }
   var captionText = $('captionText'), btnCopyCaption = $('btnCopyCaption');
   var consentCheck = $('consentCheck');
 
@@ -293,7 +297,10 @@ export function initStudio(){
     var pad = parseFloat(getComputedStyle(frame).paddingLeft) || 0;
     var width = Math.max(120, Math.min(300, frame.clientWidth - pad*2));
     var scale = width/1080;
-    var canvas = buildCanvasEl(previewSlide(state.brand), state.brand);
+    // show a stand-in name so the corner is never empty before they type one
+    var shown = JSON.parse(JSON.stringify(state.brand));
+    if(!shown.wordmark) shown.wordmark = state.brand.kind==='person' ? 'YOUR NAME' : 'YOUR BUSINESS';
+    var canvas = buildCanvasEl(previewSlide(state.brand), shown);
     canvas.style.transform = 'scale('+scale+')';
     canvas.style.transformOrigin = 'top left';
     var wrap = document.createElement('div');
@@ -335,8 +342,26 @@ export function initStudio(){
   palettes.addEventListener('click', function(e){
     var b = e.target.closest('[data-palette]'); if(!b) return;
     var p = PALETTES.filter(function(x){ return x.name===b.dataset.palette; })[0]; if(!p) return;
+    applyPalette(p);
+  });
+  function applyPalette(p){
     state.brand.cream = p.cream; state.brand.navy = p.navy; state.brand.accent = p.accent;
     syncBrandFields(); saveLocal(); updatePreview(); renderStripSoon();
+  }
+  btnRandomise.addEventListener('click', function(){
+    // never hand back the combination they are already looking at
+    var current = activePaletteName(), currentStyle = state.brand.style || 'editorial';
+    var picks = [];
+    PALETTES.forEach(function(p){
+      STYLES.forEach(function(s){
+        if(p.name===current && s.key===currentStyle) return;
+        picks.push({p:p, s:s});
+      });
+    });
+    var pick = picks[Math.floor(Math.random()*picks.length)];
+    state.brand.style = pick.s.key;
+    applyPalette(pick.p);
+    showToast(pick.s.name + ' · ' + pick.p.name);
   });
   var resizeTimer = null;
   window.addEventListener('resize', function(){
@@ -454,7 +479,10 @@ export function initStudio(){
 
   function syncBrandFields(){
     var kind = brandKind();
-    kindPick.querySelectorAll('button').forEach(function(b){ b.classList.toggle('active', b.dataset.kind===kind); });
+    kindPick.querySelectorAll('button').forEach(function(b){
+      b.classList.toggle('active', b.dataset.kind===kind);
+      if(b.dataset.kind===kind) b.setAttribute('aria-pressed','true'); else b.removeAttribute('aria-pressed');
+    });
     brandPanel.querySelectorAll('.brandfields').forEach(function(f){ f.classList.toggle('on', f.dataset.for.split(' ').indexOf(kind)>=0); });
     brandCream.value = state.brand.cream;
     brandNavy.value = state.brand.navy;
@@ -473,18 +501,12 @@ export function initStudio(){
     var b = e.target.closest('button[data-kind]'); if(!b) return;
     var kind = b.dataset.kind;
     if(kind===state.brand.kind) return;
-    var voice = state.brand.voice, style = state.brand.style;
-    var name = state.brand.wordmark==='LAWGISTICS' ? '' : state.brand.wordmark;
-    state.brand = defaultBrand(); state.brand.kind = kind; state.brand.voice = voice; state.brand.style = style;
-    if(kind==='firm'){ state.brand.wordmark = name || 'LAWGISTICS'; }
-    else {
-      // anyone who is not the firm keeps the house type, gets a warmer default look, and only the name is theirs
-      state.brand.wordmark = name;
-      state.brand.cream = PALETTES[1].cream; state.brand.navy = PALETTES[1].navy; state.brand.accent = PALETTES[1].accent;
-    }
+    // switching who it is from keeps the look they have chosen and the name they typed
+    state.brand.kind = kind;
     syncBrandFields(); saveLocal(); updatePreview(); renderStrip();
     if(kind==='person') brandName.focus();
-    if(kind==='business') brandWordmarkBiz.focus();
+    else if(kind==='business') brandWordmarkBiz.focus();
+    else brandWordmark.focus();
   });
   formatPick.addEventListener('click', function(e){
     var b = e.target.closest('button[data-format]'); if(!b) return;
@@ -903,7 +925,7 @@ export function initStudio(){
     if(typeof state.activeIndex !== 'number') state.activeIndex = 0;
     if(!state.brand) state.brand = defaultBrand();
     if(state.brand.voice==null) state.brand.voice = '';
-    if(KINDS.indexOf(state.brand.kind)<0) state.brand.kind = 'firm';
+    if(KINDS.indexOf(state.brand.kind)<0) state.brand.kind = 'person';
     if(!state.brand.style) state.brand.style = 'editorial';
     if(typeof state.caption !== 'string') state.caption = '';
     state.consented = !!state.consented;

@@ -33,16 +33,25 @@ export default function Page() {
           <div className="stepcard stepcard-brand panel">
             <div className="stephead">
               <h2>
-                Are you posting as a <em>firm</em>, a <em>business</em>, or <em>yourself</em>?
+                Who is this post <em>coming from</em>?
               </h2>
               <p>Set once. You can change it from the Brand button later.</p>
             </div>
             <div className="brandlayout">
               <div id="brandPanel">
-                <div className="segmented kindpick" id="kindPick">
-                  <button type="button" data-kind="firm">A law firm</button>
-                  <button type="button" data-kind="business">A business</button>
-                  <button type="button" data-kind="person">Myself</button>
+                <div className="optiongrid kindpick" id="kindPick">
+                  <button type="button" className="stylebtn" data-kind="person">
+                    <b>Me</b>
+                    <span>Your own name. Personal posts reach further than a company page.</span>
+                  </button>
+                  <button type="button" className="stylebtn" data-kind="firm">
+                    <b>My law firm</b>
+                    <span>Posts as the firm, for clients and referrers.</span>
+                  </button>
+                  <button type="button" className="stylebtn" data-kind="business">
+                    <b>My business</b>
+                    <span>Anything else, written for its customers.</span>
+                  </button>
                 </div>
 
                 <div className="brandgrid brandfields" data-for="person">
@@ -81,7 +90,10 @@ export default function Page() {
 
                 <div className="field">
                   <label>
-                    Your colours <span className="hint">tap one, the preview updates</span>
+                    Your colours
+                    <button type="button" className="randombtn" id="btnRandomise">
+                      Surprise me
+                    </button>
                   </label>
                   <div className="palettes" id="palettes"></div>
                 </div>
