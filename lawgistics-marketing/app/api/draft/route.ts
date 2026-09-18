@@ -22,16 +22,18 @@ function buildPrompt(topic: string, voiceSample: string | undefined, current: un
         "IMPORTANT, this is what separates a good carousel from a boring one: give each slide a different " +
         '"layout" and vary the "ground" it sits on. Do not send six slides of the same shape. Pick per slide from:\n' +
         '- "title": a big centred line and nothing else. Best for slide 1.\n' +
+        '- "bigtype": the words fill the entire frame, edge to edge, with no label or citation showing. Ten words at the very most, and it must be a sentence worth shouting. One per carousel at the most.\n' +
         '- "statement": a line that lands, with a short sub or a paragraph or two under it. The workhorse.\n' +
         '- "essay": a headline over a genuinely dense block of writing, three or four sentences of real argument in "body". Use this once.\n' +
         '- "impact": very large uppercase. Short. Five words at the very most. Use it for the single loudest idea.\n' +
         '- "stat": one figure or short phrase in "statement" (e.g. "166" or "3 years"), and what it means in "sub". Only if there is a real number.\n' +
-        '- "list": "statement" is the heading, and "body" is one short item per line, three to five lines. Great for the practical slide.\n' +
+        '- "list": "statement" is the heading, and "body" is one item per line. Write each line as "Short heading: the sentence that explains it" so every row has a title and a line under it. Three to five rows.\n' +
+        '- "checklist": the same shape as "list", but rendered with tick boxes. Use it when the content is genuinely things to do or check. These are the slides people save.\n' +
         '- "quote": "statement" is the quoted line, "sub" is who said it. Only for a genuine quotation.\n\n' +
         '"ground" is "light", "dark" or "accent" (the brand colour as the background). Most slides are light. ' +
         "Put one or two on dark or accent for rhythm, usually the loudest slide and the last one. Never three in a row the same.\n\n" +
-        "A good six-slide set might run title / statement / essay / stat / list / impact on accent. Choose what the " +
-        "content actually calls for, but make the shapes differ.";
+        "A good six-slide set might run title / essay / stat / checklist / bigtype / statement, with one or two of " +
+        "them on dark or accent. Choose what the content actually calls for, but make the shapes differ.";
   const isLawgistics = !brand.name || brand.name.toUpperCase() === "LAWGISTICS";
   const who =
     brand.kind === "person"

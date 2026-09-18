@@ -161,10 +161,12 @@ function mdInline(s){
 var LAYOUTS = [
   {key:'statement', name:'Statement', desc:'A line that lands, detail underneath.'},
   {key:'title',     name:'Title card', desc:'Big and centred, nothing else.'},
+  {key:'bigtype',   name:'Wall of type', desc:'Words fill the whole frame, edge to edge.'},
   {key:'essay',     name:'Essay', desc:'Headline over a dense block of text.'},
   {key:'impact',    name:'Impact', desc:'Huge uppercase. Shouts.'},
   {key:'stat',      name:'Figure', desc:'One number, blown up.'},
-  {key:'list',      name:'List', desc:'Numbered points, one per line.'},
+  {key:'list',      name:'List', desc:'Numbered points, each with a line under it.'},
+  {key:'checklist', name:'Checklist', desc:'Ticky boxes. People save these.'},
   {key:'quote',     name:'Quote', desc:'A quoted line, with who said it.'}
 ];
 var LAYOUT_KEYS = LAYOUTS.map(function(l){ return l.key; });
@@ -181,13 +183,31 @@ function slideInnerHtml(slide, brand){
   var bodyParas = String(slide.body||'').split(/\n\s*\n/).map(function(p){return p.trim();}).filter(Boolean);
   var inner = '';
 
-  if(layout==='list'){
-    var items = String(slide.body||'').split(/\n+/).map(function(l){return l.replace(/^\s*[-*\d.)\s]+/,'').trim();}).filter(Boolean);
+  if(layout==='list' || layout==='checklist'){
+    // "Heading: the line under it" gives each row a title and a description
+    var items = String(slide.body||'').split(/\n+/)
+      .map(function(l){ return l.replace(/^\s*[-*•]?\s*\d{0,2}[.)]?\s*/,'').trim(); })
+      .filter(Boolean)
+      .map(function(l){
+        var m = l.match(/^(.{2,42}?)\s*[:–]\s+(.+)$/);
+        return m ? {head:m[1], desc:m[2]} : {head:l, desc:''};
+      });
     inner = '<div class="statement '+(slide.size||'md')+'">'+mdInline(slide.statement)+'</div>';
     if(slide.sub) inner += '<div class="sub">'+mdInline(slide.sub)+'</div>';
-    inner += '<ol class="listrows">'+items.map(function(t,i){
-      return '<li><span class="n">'+(i+1)+'</span><span class="t">'+mdInline(t)+'</span></li>';
+    inner += '<ol class="listrows'+(layout==='checklist' ? ' checks' : '')+'">'+items.map(function(it,i){
+      var marker = layout==='checklist'
+        ? '<span class="box"></span>'
+        : '<span class="n">'+(i+1)+'</span>';
+      var text = '<span class="t"><b>'+mdInline(it.head)+'</b>'+
+        (it.desc ? '<em>'+mdInline(it.desc)+'</em>' : '')+'</span>';
+      return '<li>'+marker+text+'</li>';
     }).join('')+'</ol>';
+  } else if(layout==='bigtype'){
+    // size the type to the amount of text so it genuinely fills the frame
+    var raw = String(slide.statement||'').replace(/\*/g,'');
+    var px = raw.length>90 ? 78 : raw.length>60 ? 96 : raw.length>38 ? 118 : raw.length>22 ? 142 : 172;
+    inner = '<div class="bigtype" style="font-size:'+px+'px">'+mdInline(slide.statement)+'</div>';
+    if(slide.sub) inner += '<div class="bigsub">'+mdInline(slide.sub)+'</div>';
   } else if(layout==='stat'){
     inner = '<div class="figure">'+mdInline(slide.statement)+'</div>';
     if(slide.sub) inner += '<div class="figcaption">'+mdInline(slide.sub)+'</div>';
@@ -205,18 +225,22 @@ function slideInnerHtml(slide, brand){
 
   var citeHtml = mdInline(slide.cite).replace(/\n/g,'<br>');
   var photo = slide.photo ? '<img class="photo" src="'+attrEsc(slide.photo)+'" alt="">' : '';
-  return photo + '<div class="page">'+
-    '<div class="kicker">'+mdInline(slide.kicker)+'</div>'+
-    '<div class="content">'+inner+'</div>'+
-    '<div class="foot"><div class="cite">'+citeHtml+'</div>'+sw+'</div>'+
+  // a wall of type carries the whole frame, so the label and citation get out of its way
+  var head = layout==='bigtype' ? '' : '<div class="kicker">'+mdInline(slide.kicker)+'</div>';
+  var foot = layout==='bigtype'
+    ? '<div class="foot">'+sw+'</div>'
+    : '<div class="foot"><div class="cite">'+citeHtml+'</div>'+sw+'</div>';
+  return photo + '<div class="page">'+ head +
+    '<div class="content">'+inner+'</div>'+ foot +
     '</div>';
 }
 function buildCanvasEl(slide, brand){
   var div = document.createElement('div');
   var ground = groundOf(slide);
+  var pm = (slide.photoMode==='plain' || slide.photoMode==='card') ? slide.photoMode : 'scrim';
   div.className = 'slide-canvas' + (ground==='dark' ? ' dark' : '') + (ground==='accent' ? ' onaccent' : '') +
     ' lay-'+layoutOf(slide) + styleClass(brand) +
-    (slide.photo ? ' has-photo' + (slide.photoKind==='design' ? ' has-design' : '') : '');
+    (slide.photo ? ' has-photo photo-'+pm + (slide.photoKind==='design' ? ' has-design' : '') : '');
   div.innerHTML = slideInnerHtml(slide, brand);
   applyBrand(div, brand);
   return div;
@@ -470,7 +494,14 @@ export function initStudio(){
               '<div class="photobar">'+
                 (total>1 ? '<button type="button" class="btn btn-sm" data-act="photoAll">Use on every slide</button>' : '')+
                 '<button type="button" class="btn btn-sm btn-danger" data-act="removePhoto">Remove</button>'+
-              '</div></div>'
+              '</div></div>'+
+            '<div class="segmented" style="margin-top:10px">'+
+              ['scrim','plain','card'].map(function(m){
+                var label = m==='scrim' ? 'Faded' : (m==='plain' ? 'Straight on' : 'In a card');
+                var on = (slide.photoMode||'scrim')===m;
+                return '<button type="button" data-act="setPhotoMode" data-val="'+m+'" class="'+(on?'active':'')+'">'+label+'</button>';
+              }).join('')+
+            '</div>'
           : '<textarea data-photo-prompt rows="2" placeholder="Optional for a design. For a photo, describe it: a quiet courtroom corridor in morning light">'+textEsc(defaultPhotoPrompt(slide))+'</textarea>'+
             '<div class="photobar">'+
               '<button type="button" class="btn btn-sm btn-accent" data-act="genDesign">Design with AI</button>'+
@@ -685,7 +716,8 @@ export function initStudio(){
       var slide = state.slides[state.activeIndex];
       if(actBtn.dataset.act==='genPhoto'){ generateImage('photo'); return; }
       if(actBtn.dataset.act==='genDesign'){ generateImage('design'); return; }
-      if(actBtn.dataset.act==='removePhoto'){ delete slide.photo; delete slide.photoKind; }
+      if(actBtn.dataset.act==='removePhoto'){ delete slide.photo; delete slide.photoKind; delete slide.photoMode; }
+      if(actBtn.dataset.act==='setPhotoMode') slide.photoMode = actBtn.dataset.val;
       if(actBtn.dataset.act==='photoAll'){
         state.slides.forEach(function(s){ s.photo = slide.photo; s.photoKind = slide.photoKind; });
         showToast('Used on every slide');
