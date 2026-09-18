@@ -174,7 +174,8 @@ function slideInnerHtml(slide, brand){
 }
 function buildCanvasEl(slide, brand){
   var div = document.createElement('div');
-  div.className = 'slide-canvas' + (slide.dark ? ' dark' : '') + styleClass(brand) + (slide.photo ? ' has-photo' : '');
+  div.className = 'slide-canvas' + (slide.dark ? ' dark' : '') + styleClass(brand) +
+    (slide.photo ? ' has-photo' + (slide.photoKind==='design' ? ' has-design' : '') : '');
   div.innerHTML = slideInnerHtml(slide, brand);
   applyBrand(div, brand);
   return div;
@@ -356,14 +357,19 @@ export function initStudio(){
       '</div>'+
       '<div class="field photofield"><label>Photo <span class="hint">optional, sits behind the text</span></label>'+
         (slide.photo
-          ? '<div class="photothumb"><img src="'+attrEsc(slide.photo)+'" alt=""><button type="button" class="btn btn-sm btn-danger" data-act="removePhoto">Remove photo</button></div>'
-          : '<textarea data-photo-prompt rows="2" placeholder="Describe it, e.g. a quiet courtroom corridor in morning light">'+textEsc(defaultPhotoPrompt(slide))+'</textarea>'+
+          ? '<div class="photothumb"><img src="'+attrEsc(slide.photo)+'" alt="">'+
+              '<div class="photobar">'+
+                (total>1 ? '<button type="button" class="btn btn-sm" data-act="photoAll">Use on every slide</button>' : '')+
+                '<button type="button" class="btn btn-sm btn-danger" data-act="removePhoto">Remove</button>'+
+              '</div></div>'
+          : '<textarea data-photo-prompt rows="2" placeholder="Optional for a design. For a photo, describe it: a quiet courtroom corridor in morning light">'+textEsc(defaultPhotoPrompt(slide))+'</textarea>'+
             '<div class="photobar">'+
-              '<button type="button" class="btn btn-sm btn-accent" data-act="genPhoto">Generate with AI</button>'+
+              '<button type="button" class="btn btn-sm btn-accent" data-act="genDesign">Design with AI</button>'+
+              '<button type="button" class="btn btn-sm" data-act="genPhoto">Photo with AI</button>'+
               '<label class="btn btn-sm">Upload your own<input type="file" accept="image/*" data-photo-upload hidden></label>'+
             '</div>'+
             '<p class="photostatus hint" data-photo-status></p>'+
-            '<p class="photonote">AI photos are places and objects only, no faces, no text. Upload only photos you have the right to post, and nobody’s face without their OK.</p>')+
+            '<p class="photonote">Design with AI makes an abstract background in your colours. Photos are places and objects only, no faces, no text. Upload only photos you have the right to post, and nobody’s face without their OK.</p>')+
       '</div>'+
       '<div class="field"><label>Series label / kicker</label>'+
         '<input type="text" data-field="kicker" value="'+attrEsc(slide.kicker)+'"></div>'+
@@ -532,27 +538,31 @@ export function initStudio(){
     var el = editorPanel.querySelector('[data-photo-status]'); if(!el) return;
     el.textContent = msg; el.className = 'photostatus hint' + (kind ? ' '+kind : '');
   }
-  async function setSlidePhoto(index, src){
+  async function setSlidePhoto(index, src, kind){
     var jpeg = await toSlideJpeg(src);
     state.slides[index].photo = jpeg;
+    state.slides[index].photoKind = kind || 'photo';
     saveLocal(); renderEditor(); updatePreview(); renderStrip();
-    showToast('Photo added');
+    showToast(kind==='design' ? 'Design added' : 'Photo added');
   }
-  async function generatePhoto(){
+  async function generateImage(mode){
     var ta = editorPanel.querySelector('[data-photo-prompt]'); if(!ta) return;
     var prompt = ta.value.trim();
-    if(!prompt){ setPhotoStatus('Describe the photo first.', 'bad'); ta.focus(); return; }
-    var btn = editorPanel.querySelector('[data-act="genPhoto"]'); if(btn) btn.disabled = true;
+    if(mode==='photo' && !prompt){ setPhotoStatus('Describe the photo first.', 'bad'); ta.focus(); return; }
+    if(mode==='design' && /^A scene that fits:/.test(prompt)) prompt = '';
+    var btns = editorPanel.querySelectorAll('[data-act="genPhoto"],[data-act="genDesign"]');
+    btns.forEach(function(b){ b.disabled = true; });
     var index = state.activeIndex;
-    setPhotoStatus('Generating. About 20 seconds.', 'busy');
+    setPhotoStatus(mode==='design' ? 'Designing in your colours. About 20 seconds.' : 'Generating. About 20 seconds.', 'busy');
     try{
-      var res = await fetch('/api/image', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt: prompt})});
+      var res = await fetch('/api/image', {method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({prompt: prompt, mode: mode, colours: {navy: state.brand.navy, accent: state.brand.accent, cream: state.brand.cream}})});
       var data = await res.json();
       if(!res.ok) throw new Error(data && data.error ? data.error : 'request failed');
-      await setSlidePhoto(index, data.image);
+      await setSlidePhoto(index, data.image, mode);
     }catch(err){
-      setPhotoStatus('Could not make that photo: '+((err && err.message) ? err.message : 'try again'), 'bad');
-      if(btn) btn.disabled = false;
+      setPhotoStatus('Could not make that: '+((err && err.message) ? err.message : 'try again'), 'bad');
+      btns.forEach(function(b){ b.disabled = false; });
     }
   }
   editorPanel.addEventListener('change', function(e){
@@ -568,8 +578,13 @@ export function initStudio(){
     var actBtn = e.target.closest('button[data-act]');
     if(actBtn){
       var slide = state.slides[state.activeIndex];
-      if(actBtn.dataset.act==='genPhoto'){ generatePhoto(); return; }
-      if(actBtn.dataset.act==='removePhoto'){ delete slide.photo; }
+      if(actBtn.dataset.act==='genPhoto'){ generateImage('photo'); return; }
+      if(actBtn.dataset.act==='genDesign'){ generateImage('design'); return; }
+      if(actBtn.dataset.act==='removePhoto'){ delete slide.photo; delete slide.photoKind; }
+      if(actBtn.dataset.act==='photoAll'){
+        state.slides.forEach(function(s){ s.photo = slide.photo; s.photoKind = slide.photoKind; });
+        showToast('Used on every slide');
+      }
       if(actBtn.dataset.act==='setDark') slide.dark = actBtn.dataset.val==='true';
       if(actBtn.dataset.act==='setSize') slide.size = actBtn.dataset.val;
       saveLocal(); renderEditor(); updatePreview(); renderStrip();
@@ -687,7 +702,7 @@ export function initStudio(){
     var slides = (result.slides || []).map(function(s, i){
       var slide = { dark: !!s.dark, size: s.size==='lg'?'lg':'md', swipe: !!s.swipe, kicker: kicker, cite: cite,
         statement: s.statement||'', sub: s.sub||'', body: s.body||'', learn: s.learn||'' };
-      if(keepPhotos && old[i] && old[i].photo) slide.photo = old[i].photo;
+      if(keepPhotos && old[i] && old[i].photo){ slide.photo = old[i].photo; slide.photoKind = old[i].photoKind; }
       return slide;
     });
     if(!slides.length) throw new Error('no slides came back');

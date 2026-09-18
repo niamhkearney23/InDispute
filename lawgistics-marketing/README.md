@@ -57,12 +57,16 @@ session that built this.
 block) and six colour looks, chosen on the Brand screen. Lawgistics is
 Editorial + House.
 
-**Photos.** In the hand editor, any slide can take a photo behind the
-text: generate one with AI (OpenAI images, via `/api/image`, key kept on
-the server as `OPENAI_API_KEY`) or upload your own. AI photos are
-prompted as places and objects only, no text, no faces. Photos are stored
-as slide-sized JPEGs in localStorage; revisions from the chat keep them
-by slide position.
+**Photos and AI design.** In the hand editor, any slide can take an image
+behind the text (OpenAI images via `/api/image`, key kept on the server
+as `OPENAI_API_KEY`): **Design with AI** makes an abstract, dark-toned
+background in the brand's own colours with the middle left clear for the
+words; **Photo with AI** makes an editorial photo from a description,
+places and objects only, no text, no faces; or upload your own. **Use on
+every slide** copies one image across the carousel so it stays
+consistent for the cost of one image. Images are stored as slide-sized
+JPEGs in localStorage; revisions from the chat keep them by slide
+position.
 
 ## Run it locally
 

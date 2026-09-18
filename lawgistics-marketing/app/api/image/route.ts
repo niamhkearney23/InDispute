@@ -14,6 +14,18 @@ function buildImagePrompt(userPrompt: string): string {
   );
 }
 
+// A designed background rather than a photo: dark-toned in the brand's own
+// colours so the slide's white text reads on it, with the middle left open.
+function buildDesignPrompt(userPrompt: string, colours: { navy: string; accent: string; cream: string }): string {
+  return (
+    "Abstract background design for a premium social media graphic, portrait orientation. " +
+    `Dark overall, built from the colour ${colours.navy}, with shapes and highlights in ${colours.accent} and small touches of ${colours.cream}. ` +
+    "Soft geometric forms, layered depth, subtle grain, restrained and modern, with generous empty space in the middle for text to sit on. " +
+    (userPrompt.trim() ? `Direction: ${userPrompt.trim()}. ` : "") +
+    "No text, no letters, no words, no numbers, no logos, no people."
+  );
+}
+
 async function generate(model: string, prompt: string, size: string, extra: Record<string, unknown>) {
   const res = await fetch("https://api.openai.com/v1/images/generations", {
     method: "POST",
@@ -31,17 +43,21 @@ export async function POST(req: Request) {
   if (!process.env.OPENAI_API_KEY) {
     return NextResponse.json({ error: "OPENAI_API_KEY is not set on the server." }, { status: 500 });
   }
-  let body: { prompt?: unknown };
+  let body: { prompt?: unknown; mode?: unknown; colours?: unknown };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
   const userPrompt = typeof body.prompt === "string" ? body.prompt.trim() : "";
-  if (!userPrompt || userPrompt.length > 600) {
+  const mode = body.mode === "design" ? "design" : "photo";
+  if (userPrompt.length > 600 || (mode === "photo" && !userPrompt)) {
     return NextResponse.json({ error: "Describe the photo in a sentence or two." }, { status: 400 });
   }
-  const prompt = buildImagePrompt(userPrompt);
+  const hex = (v: unknown, fallback: string) => (typeof v === "string" && /^#[0-9a-f]{6}$/i.test(v) ? v : fallback);
+  const raw = (body.colours && typeof body.colours === "object" ? body.colours : {}) as Record<string, unknown>;
+  const colours = { navy: hex(raw.navy, "#171D2B"), accent: hex(raw.accent, "#3A5697"), cream: hex(raw.cream, "#EDE7DC") };
+  const prompt = mode === "design" ? buildDesignPrompt(userPrompt, colours) : buildImagePrompt(userPrompt);
 
   try {
     let b64: string;
