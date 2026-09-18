@@ -167,8 +167,13 @@ var LAYOUTS = [
   {key:'stat',      name:'Figure', desc:'One number, blown up.'},
   {key:'list',      name:'List', desc:'Numbered points, each with a line under it.'},
   {key:'checklist', name:'Checklist', desc:'Ticky boxes. People save these.'},
-  {key:'quote',     name:'Quote', desc:'A quoted line, with who said it.'}
+  {key:'quote',     name:'Quote', desc:'A quoted line, with who said it.'},
+  {key:'split',     name:'Split', desc:'Colour block on top, the detail underneath.'},
+  {key:'twocol',    name:'Two columns', desc:'Heading down one side, content down the other.'},
+  {key:'sidebar',   name:'Stripe', desc:'A band of colour down the edge.'}
 ];
+// these carve the canvas into zones rather than stacking everything down one page
+var ZONED = {split:1, twocol:1, sidebar:1};
 var LAYOUT_KEYS = LAYOUTS.map(function(l){ return l.key; });
 function layoutOf(slide){ return LAYOUT_KEYS.indexOf(slide.layout)>=0 ? slide.layout : 'statement'; }
 function groundOf(slide){
@@ -230,6 +235,26 @@ function slideInnerHtml(slide, brand){
   var foot = layout==='bigtype'
     ? '<div class="foot">'+sw+'</div>'
     : '<div class="foot"><div class="cite">'+citeHtml+'</div>'+sw+'</div>';
+
+  if(ZONED[layout]){
+    var lede = '<div class="statement '+(slide.size||'md')+'">'+mdInline(slide.statement)+'</div>';
+    var rest = '';
+    if(slide.sub) rest += '<div class="sub">'+mdInline(slide.sub)+'</div>';
+    if(bodyParas.length) rest += '<div class="body">'+bodyParas.map(function(p){return '<p>'+mdInline(p)+'</p>';}).join('')+'</div>';
+    if(slide.learn) rest += '<div class="learn"><b>Learn this:</b> '+mdInline(slide.learn)+'</div>';
+    if(layout==='sidebar'){
+      // the stripe carries the label, the page carries everything else
+      return photo + '<div class="page zoned">'+
+        '<div class="zA"><div class="stripelabel">'+mdInline(slide.kicker)+'</div></div>'+
+        '<div class="zB"><div class="content">'+lede+rest+'</div>'+foot+'</div>'+
+        '</div>';
+    }
+    return photo + '<div class="page zoned">'+
+      '<div class="zA">'+head+'<div class="content">'+lede+'</div></div>'+
+      '<div class="zB"><div class="content">'+rest+'</div>'+foot+'</div>'+
+      '</div>';
+  }
+
   return photo + '<div class="page">'+ head +
     '<div class="content">'+inner+'</div>'+ foot +
     '</div>';

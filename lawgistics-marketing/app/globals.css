@@ -376,6 +376,63 @@ body{
 }
 .slide-canvas.lay-stat .body{margin-top:36px;}
 
+/* ---- zoned compositions: the canvas is divided, not stacked ---- */
+.slide-canvas .page.zoned{padding:0;display:grid;}
+.slide-canvas .page.zoned .content{padding:0;flex:1;}
+.slide-canvas .page.zoned .zA,.slide-canvas .page.zoned .zB{display:flex;flex-direction:column;min-height:0;overflow:hidden;}
+.slide-canvas .page.zoned .foot{margin-top:auto;}
+
+/* split: a block of colour holding the line, the detail underneath */
+.slide-canvas.lay-split .page{grid-template-rows:48% 1fr;}
+.slide-canvas.lay-split .zA{
+  background:var(--t-accent,#3A5697);color:var(--t-ink-accent,#EDE7DC);
+  padding:80px 84px 64px;justify-content:space-between;
+}
+.slide-canvas.lay-split .zA .kicker,.slide-canvas.lay-split .zA .statement{color:inherit;}
+.slide-canvas.lay-split .zA .statement{font-size:64px;line-height:1.14;margin:0;}
+.slide-canvas.lay-split .zA .statement.lg{font-size:74px;}
+.slide-canvas.lay-split .zA .statement em{font-style:italic;color:inherit;}
+.slide-canvas.lay-split .zB{padding:64px 84px 76px;}
+.slide-canvas.lay-split .zB .sub{margin-top:0;}
+.slide-canvas.lay-split .zB .body{margin-top:28px;}
+/* on a dark slide the block flips to the light colour so the two zones still read */
+.slide-canvas.lay-split.dark .zA{background:var(--t-cream,#EDE7DC);color:var(--t-navy,#171D2B);}
+.slide-canvas.lay-split.onaccent .zA{background:var(--t-navy,#171D2B);color:var(--t-cream,#EDE7DC);}
+
+/* two columns: heading down one side, the content down the other */
+.slide-canvas.lay-twocol .page{grid-template-columns:42% 1fr;}
+.slide-canvas.lay-twocol .zA{
+  background:var(--t-accent,#3A5697);color:var(--t-ink-accent,#EDE7DC);
+  padding:84px 52px 64px;justify-content:space-between;
+}
+.slide-canvas.lay-twocol .zA .kicker,.slide-canvas.lay-twocol .zA .statement{color:inherit;}
+.slide-canvas.lay-twocol .zA .statement{font-size:52px;line-height:1.16;margin:0;}
+.slide-canvas.lay-twocol .zA .statement.lg{font-size:60px;}
+.slide-canvas.lay-twocol .zA .statement em{font-style:italic;color:inherit;}
+.slide-canvas.lay-twocol .zA .kicker{font-size:16px;letter-spacing:.2em;}
+.slide-canvas.lay-twocol .zB{padding:84px 72px 76px;}
+.slide-canvas.lay-twocol .zB .foot{gap:24px;}
+.slide-canvas.lay-twocol .zB .cite{font-size:16px;max-width:300px;}
+.slide-canvas.lay-twocol .zB .sub{margin-top:0;font-size:32px;}
+.slide-canvas.lay-twocol .zB .body{margin-top:26px;font-size:30px;}
+.slide-canvas.lay-twocol.dark .zA{background:var(--t-cream,#EDE7DC);color:var(--t-navy,#171D2B);}
+.slide-canvas.lay-twocol.onaccent .zA{background:var(--t-navy,#171D2B);color:var(--t-cream,#EDE7DC);}
+
+/* stripe: a band of colour down the edge carrying the label */
+.slide-canvas.lay-sidebar .page{grid-template-columns:132px 1fr;}
+.slide-canvas.lay-sidebar .zA{
+  background:var(--t-accent,#3A5697);color:var(--t-ink-accent,#EDE7DC);
+  align-items:center;justify-content:center;
+}
+.slide-canvas.lay-sidebar .stripelabel{
+  font-family:var(--f-sans,'Studio Sans'),'TikTok Sans',sans-serif;font-size:21px;font-weight:500;
+  letter-spacing:.3em;text-transform:uppercase;white-space:nowrap;
+  transform:rotate(180deg);writing-mode:vertical-rl;
+}
+.slide-canvas.lay-sidebar .zB{padding:88px 84px 76px;}
+.slide-canvas.lay-sidebar.dark .zA{background:var(--t-cream,#EDE7DC);color:var(--t-navy,#171D2B);}
+.slide-canvas.lay-sidebar.onaccent .zA{background:var(--t-navy,#171D2B);color:var(--t-cream,#EDE7DC);}
+
 /* wall of type: the words are the whole composition */
 .slide-canvas.lay-bigtype .page{padding:70px 64px 56px;}
 .slide-canvas.lay-bigtype .content{justify-content:center;padding:0;}

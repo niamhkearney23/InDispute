@@ -46,11 +46,16 @@ function buildPrompt(
         '- "stat": one figure or short phrase in "statement" (e.g. "166" or "3 years"), and what it means in "sub". Only if there is a real number.\n' +
         '- "list": "statement" is the heading, and "body" is one item per line. Write each line as "Short heading: the sentence that explains it" so every row has a title and a line under it. Three to five rows.\n' +
         '- "checklist": the same shape as "list", but rendered with tick boxes. Use it when the content is genuinely things to do or check. These are the slides people save.\n' +
-        '- "quote": "statement" is the quoted line, "sub" is who said it. Only for a genuine quotation.\n\n' +
+        '- "quote": "statement" is the quoted line, "sub" is who said it. Only for a genuine quotation.\n' +
+        '- "split": the canvas is divided. A block of colour across the top carries "statement", and "sub" plus "body" sit on the plain half underneath. Strong for a claim and its explanation.\n' +
+        '- "twocol": divided down the middle. "statement" runs down a coloured column on the left, "sub" and "body" fill the right. Good when the heading and the detail are equally important.\n' +
+        '- "sidebar": a narrow band of colour down the left edge carrying the label, with "statement", "sub" and "body" on the rest. A quieter way to break the rhythm.\n\n' +
         '"ground" is "light", "dark" or "accent" (the brand colour as the background). Most slides are light. ' +
         "Put one or two on dark or accent for rhythm, usually the loudest slide and the last one. Never three in a row the same.\n\n" +
-        "A good six-slide set might run title / essay / stat / checklist / bigtype / statement, with one or two of " +
-        "them on dark or accent. Choose what the content actually calls for, but make the shapes differ.";
+        "A good six-slide set might run title / split / stat / checklist / twocol / bigtype, with one or two of " +
+        "them on dark or accent. Reach for the divided ones (split, twocol, sidebar) at least once in every " +
+        "carousel: a set built only from full-page stacked slides is the boring failure mode. Choose what the " +
+        "content actually calls for, but make the shapes differ.";
   const isLawgistics = !brand.name || brand.name.toUpperCase() === "LAWGISTICS";
   const who =
     brand.kind === "person"
