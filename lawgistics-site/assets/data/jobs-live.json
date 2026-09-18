@@ -1,65 +1,16 @@
 {
-  "generatedDate": "2026-09-17",
+  "generatedDate": "2026-09-18",
   "jobs": [
     {
-      "employer": "The Law Society of NSW",
-      "program": "Summer Clerkship Recruitment Program (next cycle)",
-      "jurisdiction": "NSW",
+      "employer": "Clayton Utz",
+      "program": "Seasonal Clerkship 2027/28",
+      "jurisdiction": "National",
       "opens": null,
       "closes": null,
-      "notes": "The key dates published on this page (applications open 10 June, close 5/12 July, offers from 9 September) belong to the cycle that has just concluded, and the next cycle's dates were not published on the page at the time of checking, so no future window can be confirmed.",
-      "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Clerkship-Recruitment-Program",
-      "verifiedDate": "2026-09-17"
-    },
-    {
-      "employer": "The Law Society of NSW",
-      "program": "Graduate Recruitment Program (next cycle)",
-      "jurisdiction": "NSW",
-      "opens": null,
-      "closes": null,
-      "notes": "The scheme runs annually with applications historically opening in late February and closing in early April, but the dates currently shown on the page relate to the completed cycle, so the next opening date is not confirmed.",
-      "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Graduate-Recruitment-Program",
-      "verifiedDate": "2026-09-17"
-    },
-    {
-      "employer": "Law Institute of Victoria (LIV)",
-      "program": "Seasonal Clerkship and Graduate Program (signatory scheme, next cycle)",
-      "jurisdiction": "VIC",
-      "opens": null,
-      "closes": null,
-      "notes": "The most recent guidelines document published on the LIV site is the 2026 edition and its Schedule 1 dates apply to the completed cycle; the next cycle's Schedule 1 dates were not available to verify.",
-      "url": "https://www.liv.asn.au/clerkshipgradguidelines",
-      "verifiedDate": "2026-09-17"
-    },
-    {
-      "employer": "Queensland Law Society",
-      "program": "Seasonal Clerkship and Graduate Recruitment Guidelines (next cycle)",
-      "jurisdiction": "QLD",
-      "opens": null,
-      "closes": null,
-      "notes": "QLS states the recruitment cycle commences with clerkship recruitment in July/August with Summer One, Summer Two, Autumn and Winter placements, but no specific open/close dates for the next cycle were published on the page.",
-      "url": "https://www.qls.com.au/the-hub-early-career-lawyers/your-legal-career/seasonal-clerkship-and-graduate-recruitment",
-      "verifiedDate": "2026-09-17"
-    },
-    {
-      "employer": "The Blackstone Society (UWA) — WA clerkship guidelines coordinator",
-      "program": "Perth Seasonal Clerkship scheme (next cycle)",
-      "jurisdiction": "WA",
-      "opens": null,
-      "closes": null,
-      "notes": "The Law Society of WA does not run a centralised clerkship scheme — WA firms follow the Blackstone Society guidelines — and no verified open/close dates for the next cycle were published on the Blackstone careers page at the time of checking.",
-      "url": "https://www.blackstone.asn.au/careers",
-      "verifiedDate": "2026-09-17"
-    },
-    {
-      "employer": "Uniform Clerkship Scheme (AULSS, USALSA and FLSA)",
-      "program": "SA Uniform Clerkship Scheme (next cycle)",
-      "jurisdiction": "SA",
-      "opens": null,
-      "closes": null,
-      "notes": "The scheme is coordinated by the three SA law student societies and runs in the mid-year break, but the scheme page available at the time of checking still displayed a previous year's dates, so no current or future window could be confirmed.",
-      "url": "https://www.aulss.org/uniformclerkshipscheme",
-      "verifiedDate": "2026-09-17"
+      "closes_note": null,
+      "notes": "Firm's own early careers page states applications are currently closed and will open in June (for the 2027/28 seasonal clerkship, aimed at penultimate-year law students), with a pre-registration option to be notified; no exact open/close dates are published on the page, so dates are left null rather than guessed.",
+      "url": "https://www.claytonutz.com/early-careers/clerkship-program/",
+      "verifiedDate": "2026-09-18"
     }
   ]
 }
