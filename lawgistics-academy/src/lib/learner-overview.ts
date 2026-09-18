@@ -25,6 +25,9 @@ export interface LearnerProfile {
   timezone: string;
   onboardedAt: string | null;
   diagnosticCompletedAt: string | null;
+  /** A placement's first and last day. Set by an administrator only. */
+  startsOn: string | null;
+  endsOn: string | null;
   isAdmin: boolean;
   /**
    * May sign content off and record supervisor decisions. Read this through
@@ -107,6 +110,8 @@ export async function getLearnerProfile(userId: string): Promise<LearnerProfile 
     timezone: data.timezone,
     onboardedAt: data.onboarded_at,
     diagnosticCompletedAt: data.diagnostic_completed_at,
+    startsOn: data.starts_on,
+    endsOn: data.ends_on,
     isAdmin: data.is_admin,
     isCoach: data.is_coach ?? false,
   };

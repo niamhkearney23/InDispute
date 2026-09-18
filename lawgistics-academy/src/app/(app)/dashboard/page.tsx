@@ -1,12 +1,14 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { getCurrentUser } from '@/lib/supabase/server';
+import { getCurrentUser, createSupabaseServerClient } from '@/lib/supabase/server';
 import { getLearnerOverview } from '@/lib/learner-overview';
 import { masteryBand } from '@/lib/learning/mastery';
 import { outstandingRequired } from '@/lib/modules/service';
 import { outstandingFirmModules } from '@/lib/firm/service';
 import { beforeYouBegin } from '@/lib/onboarding/service';
 import { greeting, greetingName } from '@/lib/greeting';
+import { longDate } from '@/lib/onboarding/rules';
+import { essayTopic } from '@/content/seed/essay-topics';
 import { QUESTIONS_PER_MINUTE_GOAL } from '@/lib/learning/config';
 import { TOP_LEVEL_NAME } from '@/lib/learning/progression';
 import { GoalRing } from '@/components/goal-ring';
@@ -39,13 +41,27 @@ export default async function DashboardPage() {
   if (!overview.profile.diagnosticCompletedAt) redirect('/diagnostic');
 
   const { profile, level, skillMap } = overview;
-  const [fact, outstanding, firmOutstanding, joining, sessions] = await Promise.all([
-    getFactOfTheDay(profile.timezone, profile.country),
-    outstandingRequired(user.id, profile.country),
-    outstandingFirmModules(user.id, profile.country),
-    beforeYouBegin(user.id, profile.country),
-    sessionsForLearner(profile.country),
-  ]);
+  const hasPlacement = Boolean(profile.startsOn || profile.endsOn);
+  const supabase = await createSupabaseServerClient();
+  const [fact, outstanding, firmOutstanding, joining, sessions, diagnosticSittings] =
+    await Promise.all([
+      getFactOfTheDay(profile.timezone, profile.country),
+      outstandingRequired(user.id, profile.country),
+      outstandingFirmModules(user.id, profile.country),
+      beforeYouBegin(user.id, profile.country),
+      sessionsForLearner(profile.country),
+      hasPlacement
+        ? supabase
+            .from('diagnostic_results')
+            .select('essay_topic_slug, completed_at')
+            .eq('user_id', user.id)
+            .order('completed_at', { ascending: true })
+        : Promise.resolve({ data: null }),
+    ]);
+
+  const sittingCount = diagnosticSittings.data?.length ?? 0;
+  const assignedTopicSlug = diagnosticSittings.data?.[0]?.essay_topic_slug as string | undefined;
+  const assignedTopic = assignedTopicSlug ? essayTopic(assignedTopicSlug) : undefined;
 
   /* Today in the learner's own timezone, not the server's. A coach in Kuala
      Lumpur dating a session for Tuesday means Tuesday there, and a session
@@ -135,6 +151,29 @@ export default async function DashboardPage() {
         </h1>
         <p className="mt-3 text-lg text-slate">Ready to train like a lawyer?</p>
       </section>
+
+      {hasPlacement ? (
+        <Card>
+          <p className="eyebrow mb-2">Your placement</p>
+          <p className="text-slate">
+            {profile.startsOn ? `Begins ${longDate(profile.startsOn)}.` : ''}
+            {profile.startsOn && profile.endsOn ? ' ' : ''}
+            {profile.endsOn ? `Ends ${longDate(profile.endsOn)}.` : ''}
+          </p>
+          {assignedTopic ? (
+            <p className="mt-3 text-sm text-slate">
+              <strong>Your comparison essay:</strong> {assignedTopic.prompt}
+            </p>
+          ) : null}
+          {sittingCount >= 2 ? (
+            <div className="mt-4">
+              <ButtonLink href="/diagnostic/compare" variant="outline" size="sm">
+                See your day one against your latest
+              </ButtonLink>
+            </div>
+          ) : null}
+        </Card>
+      ) : null}
 
       {/* Today's card knows whether today has started.
           Opening the app after a morning session and reading the same sentence

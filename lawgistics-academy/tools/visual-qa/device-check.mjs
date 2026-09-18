@@ -73,6 +73,7 @@ const PAGES = [
   { name: 'start', path: '/start', auth: true },
   { name: 'diagnostic', path: '/diagnostic', auth: true },
   { name: 'diagnostic-results', path: '/diagnostic/results', auth: true },
+  { name: 'diagnostic-compare', path: '/diagnostic/compare', auth: true },
   { name: 'train', path: `/train/${SESSION_ID}`, auth: true },
   { name: 'train-answered', path: `/train/${SESSION_ID}`, auth: true, answer: true },
   { name: 'summary', path: `/train/${SESSION_ID}/summary`, auth: true },

@@ -3,7 +3,7 @@
 import { useActionState, useState } from 'react';
 import { Button, Notice } from '@/components/ui';
 import type { AdminState } from '../../actions';
-import { confirm, decide, setStartDate } from '../actions';
+import { confirm, decide, setPlacementDates } from '../actions';
 
 /** Confirming one item for one person. */
 export function ConfirmButton({
@@ -33,14 +33,18 @@ export function ConfirmButton({
   );
 }
 
-export function StartDateForm({
+export function PlacementDatesForm({
   userId,
   startsOn,
+  endsOn,
 }: {
   userId: string;
   startsOn: string | null;
+  endsOn: string | null;
 }) {
-  const [state, formAction, pending] = useActionState(setStartDate, { error: null } as AdminState);
+  const [state, formAction, pending] = useActionState(setPlacementDates, {
+    error: null,
+  } as AdminState);
 
   return (
     <form action={formAction} className="flex flex-wrap items-end gap-3">
@@ -54,6 +58,18 @@ export function StartDateForm({
           name="startsOn"
           type="date"
           defaultValue={startsOn ?? ''}
+          className="h-11 rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy"
+        />
+      </div>
+      <div>
+        <label htmlFor="endsOn" className="mb-1.5 block text-sm font-medium">
+          Ends on
+        </label>
+        <input
+          id="endsOn"
+          name="endsOn"
+          type="date"
+          defaultValue={endsOn ?? ''}
           className="h-11 rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy"
         />
       </div>

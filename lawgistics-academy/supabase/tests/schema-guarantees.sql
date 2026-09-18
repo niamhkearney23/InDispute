@@ -682,6 +682,12 @@ select pg_temp.expect_failure(
     where id = 'aaaa1111-0000-0000-0000-000000000001'$$,
   'a joiner cannot move their own start date, which would move their own deadline');
 
+-- Its last day is the same fact, held by the same person.
+select pg_temp.expect_failure(
+  $$update public.profiles set ends_on = current_date + 90
+    where id = 'aaaa1111-0000-0000-0000-000000000001'$$,
+  'a joiner cannot move their own end date either');
+
 reset role;
 
 

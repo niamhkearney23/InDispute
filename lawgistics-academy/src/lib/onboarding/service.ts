@@ -65,6 +65,7 @@ export interface OnboardingDecision {
 
 export interface BeforeYouBegin {
   startsOn: string | null;
+  endsOn: string | null;
   steps: LearnerStep[];
   /** Required steps not yet done. What the whole page is counting down. */
   outstanding: LearnerStep[];
@@ -150,15 +151,23 @@ export async function beforeYouBegin(
       .eq('published', true)
       .or(`country.is.null,country.eq.${country}`)
       .order('position'),
-    db.from('profiles').select('starts_on').eq('id', userId).maybeSingle(),
+    db.from('profiles').select('starts_on, ends_on').eq('id', userId).maybeSingle(),
     decisionFor(userId),
   ]);
 
   const steps = (rows ?? []).map((r) => shape(r as StepRow));
   const startsOn = (profile?.starts_on as string | null) ?? null;
+  const endsOn = (profile?.ends_on as string | null) ?? null;
 
   if (steps.length === 0) {
-    return { startsOn, steps: [], outstanding: [], decision, cleared: decision?.decision === 'cleared' };
+    return {
+      startsOn,
+      endsOn,
+      steps: [],
+      outstanding: [],
+      decision,
+      cleared: decision?.decision === 'cleared',
+    };
   }
 
   const stepIds = steps.map((s) => s.id);
@@ -218,6 +227,7 @@ export async function beforeYouBegin(
 
   return {
     startsOn,
+    endsOn,
     steps: resolved,
     outstanding: resolved.filter((s) => s.required && !s.done),
     decision,

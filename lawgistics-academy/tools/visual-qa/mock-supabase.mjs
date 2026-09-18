@@ -434,6 +434,7 @@ const TABLES = {
       home_jurisdiction: 'VIC',
       timezone: 'Australia/Melbourne',
       starts_on: '2099-03-02',
+      ends_on: '2099-05-25',
       onboarded_at: '2026-02-01T00:00:00Z',
       diagnostic_completed_at: '2026-02-01T00:20:00Z',
       is_admin: true,
@@ -472,6 +473,28 @@ const TABLES = {
   domains,
   daily_facts: [FACT, LAPSED_FACT],
   diagnostic_results: [
+    // Day one, before "most recent" below: used by the placement compare page
+    // to render two sittings side by side rather than its "not enough data
+    // yet" fallback, and the only one carrying an assigned essay topic.
+    {
+      id: 'dr0',
+      user_id: USER_ID,
+      session_id: SESSION_ID,
+      domain_scores: {
+        'court-system': 70,
+        'legal-reasoning': 60,
+        evidence: 45,
+        'civil-procedure': 30,
+        advocacy: 22,
+        drafting: 18,
+      },
+      skill_scores: { 'evidence-analysis': 50 },
+      priority_domains: ['drafting', 'advocacy', 'civil-procedure'],
+      essay_topic_slug: 'pleadings-au-my',
+      total_questions: 30,
+      total_correct: 12,
+      completed_at: '2026-01-15T09:00:00Z',
+    },
     {
       id: 'dr1',
       user_id: USER_ID,
