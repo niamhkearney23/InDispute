@@ -202,26 +202,18 @@ export default function Page() {
             </div>
 
             <div className="panel panel-pad resultcol" id="resultPanel">
-              <p className="panel-title">Your post</p>
-              <textarea id="captionText" rows={10} />
-              <div className="captionrow">
-                <button className="btn btn-sm" id="btnCopyCaption" type="button">
-                  Copy post
-                </button>
+              <div className="stage">
+                <div className="previewframe">
+                  <div className="canvasholder" id="previewHolder"></div>
+                </div>
+                <p className="stagecount" id="stageCount"></p>
               </div>
 
-              <p className="panel-title striptitle">
-                Slides <span className="hint">tap one to edit it by hand</span>
-              </p>
               <div className="strip" id="strip"></div>
-              <details className="morefields" id="editDrawer">
+
+              <details className="morefields editdrawer" id="editDrawer">
                 <summary>Edit this slide by hand</summary>
-                <div className="editgrid">
-                  <div className="previewframe">
-                    <div className="canvasholder" id="previewHolder"></div>
-                  </div>
-                  <div id="editorPanel"></div>
-                </div>
+                <div id="editorPanel"></div>
                 <div className="slidetools">
                   <button className="btn btn-sm" id="btnAddSlide" type="button">
                     + Add slide after
@@ -240,6 +232,18 @@ export default function Page() {
                   </button>
                 </div>
               </details>
+
+              <div className="captionblock">
+                <p className="panel-title striptitle">
+                  Your post <span className="hint">paste this into LinkedIn</span>
+                </p>
+                <textarea id="captionText" rows={7} />
+                <div className="captionrow">
+                  <button className="btn btn-sm" id="btnCopyCaption" type="button">
+                    Copy post
+                  </button>
+                </div>
+              </div>
 
               <label className="consentbar" htmlFor="consentCheck">
                 <input type="checkbox" id="consentCheck" />

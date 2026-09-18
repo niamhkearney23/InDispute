@@ -57,7 +57,7 @@ function exampleCaption(){
   ].join("\n\n");
 }
 
-var EXAMPLE_INTRO = "Hi. That is an example post on the right so you can see the shape. Tell me what you want to post about today and I will draft yours.";
+var EXAMPLE_INTRO = "Hi. That is an example post, just so you can see the shape. Tell me what you want to post about and I will draft yours.";
 var NEW_POST_INTRO = "What do you want to post about today?";
 
 // ---- colour derivation from the three brand colours, in JS rather than CSS
@@ -209,7 +209,7 @@ export function initStudio(){
   function saveLocal(){ try{ localStorage.setItem('lgm_state_v1', JSON.stringify(state)); }catch(e){} }
 
   var $ = function(id){ return document.getElementById(id); };
-  var editorPanel = $('editorPanel'), previewHolder = $('previewHolder'), strip = $('strip'), editDrawer = $('editDrawer');
+  var editorPanel = $('editorPanel'), previewHolder = $('previewHolder'), strip = $('strip'), editDrawer = $('editDrawer'), stageCount = $('stageCount');
   var exportStage = $('exportStage'), toast = $('toast'), resultPanel = $('resultPanel');
   var btnAddSlide = $('btnAddSlide'), btnDupSlide = $('btnDupSlide'), btnDelSlide = $('btnDelSlide');
   var btnMoveUp = $('btnMoveUp'), btnMoveDown = $('btnMoveDown'), btnNewPost = $('btnNewPost');
@@ -230,7 +230,7 @@ export function initStudio(){
     var frame = previewHolder.parentElement;
     var pad = parseFloat(getComputedStyle(frame).paddingLeft) || 0;
     var avail = frame.clientWidth - pad*2;
-    return avail > 0 ? Math.min(300, avail) : 300;
+    return avail > 0 ? Math.min(420, avail) : 340;
   }
   var toastTimer = null;
   function showToast(msg){
@@ -280,7 +280,7 @@ export function initStudio(){
     if(name==='post'){
       renderStrip();
       if(state.consented) prepareBlobs();
-      if(editDrawer.open) setTimeout(updatePreview, 0);
+      setTimeout(updatePreview, 0);
     }
     if(name==='brand') setTimeout(renderBrandPreview, 0);
     if(name==='ask') setTimeout(function(){ askInput.focus(); }, 0);
@@ -342,7 +342,7 @@ export function initStudio(){
   window.addEventListener('resize', function(){
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(function(){
-      if(state.step==='post'){ renderStrip(); if(editDrawer.open) updatePreview(); }
+      if(state.step==='post'){ renderStrip(); updatePreview(); }
     }, 120);
   });
 
@@ -423,6 +423,9 @@ export function initStudio(){
     wrap.style.borderRadius = '5px';
     wrap.appendChild(canvas);
     previewHolder.appendChild(wrap);
+    stageCount.textContent = state.slides.length>1
+      ? 'Slide '+(state.activeIndex+1)+' of '+state.slides.length
+      : 'Your poster';
   }
 
   function renderCaption(){
@@ -508,8 +511,6 @@ export function initStudio(){
   strip.addEventListener('click', function(e){
     var item = e.target.closest('.stripitem'); if(!item) return;
     select(+item.dataset.idx);
-    if(!editDrawer.open) editDrawer.open = true;
-    setTimeout(updatePreview, 0);
   });
   editDrawer.addEventListener('toggle', function(){ if(editDrawer.open) updatePreview(); });
   document.addEventListener('click', function(e){
@@ -745,8 +746,8 @@ export function initStudio(){
       var n = applyDraft(data.draft, revising);
       pending.text = revising
         ? 'Done. Have a look, then tell me the next change, or tick the box and save it.'
-        : (n===1 ? 'Done. Your poster and the post are on the right.' : 'Done. '+n+' slides and the post are on the right.')+
-          ' Read every line, then tell me what to change, or tick the box and save it.';
+        : (n===1 ? 'Done. Your poster and your post are ready.' : 'Done. '+n+' slides and your post are ready.')+
+          ' Read every line, then tell me what to change, or tick the box and save.';
       ok = true;
       editDrawer.open = false;
     }catch(err){

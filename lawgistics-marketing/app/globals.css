@@ -6,6 +6,10 @@
 @font-face{font-family:'Studio Serif';font-weight:500;font-style:italic;src:url('/fonts/playfair-display-latin-500-italic.woff2') format('woff2');font-display:swap;}
 @font-face{font-family:'Studio Serif';font-weight:600;font-style:italic;src:url('/fonts/playfair-display-latin-600-italic.woff2') format('woff2');font-display:swap;}
 @font-face{font-family:'Studio Serif';font-weight:700;font-style:italic;src:url('/fonts/playfair-display-latin-700-italic.woff2') format('woff2');font-display:swap;}
+@font-face{font-family:'Studio UI';font-weight:400;src:url('/fonts/inter-latin-400-normal.woff2') format('woff2');font-display:swap;}
+@font-face{font-family:'Studio UI';font-weight:500;src:url('/fonts/inter-latin-500-normal.woff2') format('woff2');font-display:swap;}
+@font-face{font-family:'Studio UI';font-weight:600;src:url('/fonts/inter-latin-600-normal.woff2') format('woff2');font-display:swap;}
+@font-face{font-family:'Studio UI';font-weight:700;src:url('/fonts/inter-latin-700-normal.woff2') format('woff2');font-display:swap;}
 @font-face{font-family:'Studio Sans';font-weight:400;src:url('/fonts/tiktok-sans-latin-400-normal.woff2') format('woff2');font-display:swap;}
 @font-face{font-family:'Studio Sans';font-weight:500;src:url('/fonts/tiktok-sans-latin-500-normal.woff2') format('woff2');font-display:swap;}
 @font-face{font-family:'Studio Sans';font-weight:600;src:url('/fonts/tiktok-sans-latin-600-normal.woff2') format('woff2');font-display:swap;}
@@ -31,7 +35,10 @@ body{
     radial-gradient(1200px 420px at 15% -10%, rgba(124,147,209,.10), transparent 60%),
     var(--bg);
   color:var(--ink);
-  font-family:'Studio Sans','TikTok Sans',-apple-system,sans-serif;
+  font-family:'Studio UI',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  font-feature-settings:'cv05' 1,'ss03' 1;
+  letter-spacing:-.011em;
+  -webkit-font-smoothing:antialiased;
 }
 .wrap{max-width:1400px;min-height:100vh;min-height:100svh;margin-inline:auto;padding:24px 20px 40px;display:flex;flex-direction:column;gap:20px;}
 @media (max-width:600px){
@@ -72,7 +79,7 @@ body{
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
 .brandmark{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;}
 .brandmark h1{
-  font-family:'Studio Serif','Playfair',serif;font-weight:600;font-size:25px;margin:0;letter-spacing:-.01em;
+  font-weight:600;font-size:19px;margin:0;letter-spacing:-.035em;
   background:linear-gradient(100deg,var(--ink) 40%,var(--accent-strong) 100%);
   -webkit-background-clip:text;background-clip:text;color:transparent;
 }
@@ -104,7 +111,7 @@ body{
 
 /* margin:auto inside the flex step centres the card in the viewport and
    still scrolls normally once the card is taller than the screen */
-.stepcard{width:100%;max-width:720px;margin:auto;padding:36px 36px 24px;}
+.stepcard{width:100%;max-width:720px;margin:auto;padding:48px 48px 32px;}
 .stepcard-wide{max-width:1160px;}
 @media (max-width:600px){
   .stepcard{padding:22px 16px 18px;}
@@ -112,24 +119,34 @@ body{
   .stepfoot .btn{padding:12px 18px;}
   input[type=text], textarea, select{font-size:16px !important;}
 }
-.stephead{margin-bottom:26px;}
+.stephead{margin-bottom:34px;}
 .stephead h2{
-  font-family:'Studio Serif','Playfair',serif;font-weight:600;font-size:34px;line-height:1.15;margin:0 0 10px;
-  letter-spacing:-.01em;text-wrap:balance;
-  background:linear-gradient(180deg,#FFFFFF 0%,#D8D6CF 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  font-weight:600;font-size:30px;line-height:1.18;margin:0 0 12px;
+  letter-spacing:-.04em;text-wrap:balance;
+  background:linear-gradient(180deg,#FFFFFF 0%,#C7CAD2 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
 }
-.stephead h2 em{-webkit-text-fill-color:var(--accent-strong);}
+.stephead h2 em{font-style:normal;-webkit-text-fill-color:var(--accent-strong);}
 .stephead h2 em{font-style:italic;font-weight:500;color:var(--accent-strong);}
 .stephead p{margin:0;font-size:14px;color:var(--ink-soft);line-height:1.5;max-width:60ch;}
 .stepfoot{
   display:flex;justify-content:space-between;align-items:center;gap:12px;
-  margin-top:28px;padding-top:18px;border-top:1px solid var(--border);
+  margin-top:38px;padding-top:24px;border-top:1px solid var(--border);
 }
 
-.postgrid{width:100%;max-width:1200px;margin:auto;display:grid;grid-template-columns:400px minmax(0,1fr);gap:20px;align-items:start;}
-@media (max-width:900px){.postgrid{grid-template-columns:minmax(0,1fr);}}
-.chatcol{position:sticky;top:16px;display:flex;flex-direction:column;gap:12px;}
+.postgrid{width:100%;max-width:1240px;margin:auto;display:grid;grid-template-columns:360px minmax(0,1fr);gap:28px;align-items:start;}
+@media (max-width:900px){.postgrid{grid-template-columns:minmax(0,1fr);gap:16px;}
+  /* the slides are what you came for, so they lead on a phone */
+  .resultcol{order:1;} .chatcol{order:2;}}
+.chatcol{position:sticky;top:16px;display:flex;flex-direction:column;gap:16px;padding:24px;}
 @media (max-width:900px){.chatcol{position:static;}}
+
+/* the slide, at a size you can actually read */
+.stage{display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:22px;}
+.stage .previewframe{width:100%;padding:30px;}
+.stagecount{margin:0;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);}
+.captionblock{margin-top:26px;}
+.editdrawer{margin:4px 0 8px;}
+.editdrawer #editorPanel{margin-top:16px;}
 .stephead.compact{margin-bottom:2px;}
 .stephead.compact h2{font-size:26px;}
 .chatlog{display:flex;flex-direction:column;gap:8px;max-height:46vh;overflow-y:auto;padding-right:2px;}
@@ -147,8 +164,8 @@ body{
 .chatbar .btn{padding:11px 16px;}
 .chathint{margin:0;font-size:12px;color:var(--ink-faint);line-height:1.5;}
 
-.resultcol{display:flex;flex-direction:column;}
-.resultcol .captionrow{margin-bottom:22px;}
+.resultcol{display:flex;flex-direction:column;padding:26px;}
+.resultcol .captionrow{margin-bottom:24px;}
 .striptitle{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
 .striptitle .hint{text-transform:none;letter-spacing:.02em;}
 .editgrid{display:grid;grid-template-columns:minmax(0,326px) minmax(0,1fr);gap:18px;margin-top:12px;align-items:start;}
@@ -412,7 +429,7 @@ details.brandfields.on{display:block;}
 .colorfield label{font-size:12px;font-weight:600;color:var(--ink-soft);}
 .colorfield input[type=color]{width:52px;height:36px;border-radius:8px;border:1px solid var(--border);padding:2px;background:var(--surface);cursor:pointer;}
 .selectfield{display:flex;flex-direction:column;gap:6px;min-width:170px;}
-.selectfield label{font-size:12px;font-weight:600;color:var(--ink-soft);}
+.selectfield label{font-size:12px;font-weight:600;color:var(--ink-soft);display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
 .selectfield select, .selectfield input[type=text]{
   font:inherit;font-size:13.5px;padding:8px 10px;border-radius:8px;border:1px solid var(--border);
   background:var(--bg);color:var(--ink);

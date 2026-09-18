@@ -14,15 +14,36 @@ function buildImagePrompt(userPrompt: string): string {
   );
 }
 
-// A designed background rather than a photo: dark-toned in the brand's own
-// colours so the slide's white text reads on it, with the middle left open.
-function buildDesignPrompt(userPrompt: string, colours: { navy: string; accent: string; cream: string }): string {
+// A designed background rather than a photo. A generic "abstract gradient"
+// brief produces forgettable images, so each request picks one committed art
+// direction and describes it concretely.
+const ART_DIRECTIONS = [
+  "Liquid chrome: molten metal caught mid-flow, iridescent reflections, razor-sharp highlights against deep shadow, the surface rippling like mercury.",
+  "Brutalist architecture photographed from below: vast concrete planes, a hard diagonal shaft of afternoon light, deep geometric shadow, monumental and still.",
+  "Risograph print: two inks overprinted slightly out of register, visible paper tooth, coarse halftone dots, bold simple shapes, the ink sitting heavy and matte.",
+  "Long-exposure light trails in darkness: fine luminous lines carving arcs through black space, motion frozen, everything else falling away into shadow.",
+  "Extreme macro of a natural surface: cracked mineral, raw silk weave, or oxidised metal, the texture filling the frame, lit raking from one side so every ridge casts a shadow.",
+  "Aerial abstraction: a coastline or salt flat seen from very high up, rivers and sediment reading as pure line and field, flattened into graphic shapes.",
+  "Glass and caustics: thick prisms refracting a single beam, sharp bands of colour thrown across a dark surface, hard edges and clean optical geometry.",
+  "Volumetric fog in a dark room with one distant light source, thick atmosphere, a single soft shaft cutting through, everything dissolving into depth.",
+  "Cut paper: layered heavy stock in a few flat tones, each layer casting a real soft shadow on the one beneath, crisp scissored edges, tactile and physical.",
+  "Ink in water: a single plume blooming and unfurling in slow motion through dark liquid, delicate tendrils, high contrast, caught at the moment of dispersal.",
+];
+
+function buildDesignPrompt(
+  userPrompt: string,
+  colours: { navy: string; accent: string; cream: string },
+): string {
+  const direction = ART_DIRECTIONS[Math.floor(Math.random() * ART_DIRECTIONS.length)];
   return (
-    "Abstract background design for a premium social media graphic, portrait orientation. " +
-    `Dark overall, built from the colour ${colours.navy}, with shapes and highlights in ${colours.accent} and small touches of ${colours.cream}. ` +
-    "Soft geometric forms, layered depth, subtle grain, restrained and modern, with generous empty space in the middle for text to sit on. " +
-    (userPrompt.trim() ? `Direction: ${userPrompt.trim()}. ` : "") +
-    "No text, no letters, no words, no numbers, no logos, no people."
+    "A striking, art-directed background image for a premium social media graphic. Portrait orientation, 4:5. " +
+    `Art direction: ${direction} ` +
+    `Palette: predominantly deep dark tones built around ${colours.navy}, with the key accents and highlights in ${colours.accent}, ` +
+    `and occasional pale ${colours.cream} catching the light. Rich, contrasty, gallery quality, shot or rendered with real craft. ` +
+    (userPrompt.trim() ? `The subject should evoke: ${userPrompt.trim()}. ` : "") +
+    "Composition: the visual interest sits around the edges and corners, leaving the centre of the frame calmer and darker " +
+    "so white text can be laid over it and stay readable. " +
+    "Absolutely no text, no letters, no words, no numbers, no logos, no watermarks, no people."
   );
 }
 
