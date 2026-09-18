@@ -7,7 +7,7 @@ export const maxDuration = 60;
 // One request per topic, server-side, so the API key never reaches the
 // browser. Same drafting brief as the Claude-artifact prototype this app
 // grew out of, including the "don't sound like a language model" rules.
-type Brand = { kind: "business" | "person"; name: string };
+type Brand = { kind: "firm" | "business" | "person"; name: string };
 
 function buildPrompt(topic: string, voiceSample: string | undefined, current: unknown, brand: Brand, format: "carousel" | "poster"): string {
   const shape =
@@ -16,12 +16,17 @@ function buildPrompt(topic: string, voiceSample: string | undefined, current: un
         "the one detail people need (date, time, place, price, or the single takeaway) in \"sub\", and any remaining details " +
         "in \"body\", kept short. \"swipe\" is false. Use the details the author gave exactly as given and do not invent any " +
         "date, time, place or price they did not give. The caption is the post text that goes with the poster."
-      : "The carousel reads as hook / facts / issue / ruling or key development / a striking quote or key line / " +
+      : "The carousel reads as hook / context / the issue / the key point or development / a striking line / " +
         "why it matters, across 5 or 6 slides.";
+  const isLawgistics = !brand.name || brand.name.toUpperCase() === "LAWGISTICS";
   const who =
     brand.kind === "person"
-      ? `an individual legal professional posting under their own name${brand.name ? ` (${brand.name})` : ""} on their personal LinkedIn and Instagram. Write in the first person singular, as that person, never as a firm or "we"`
-      : `a legal business${brand.name && brand.name !== "LAWGISTICS" ? ` called ${brand.name}` : " (Lawgistics, a law-careers account for Australian law students and early-career lawyers)"}, posting on its own page`;
+      ? `an individual posting under their own name${brand.name ? ` (${brand.name})` : ""} on their personal LinkedIn and Instagram, building their own profile. Write in the first person singular, as that person, never as a firm or "we". If the topic is legal, general information only, no advice to any individual`
+      : brand.kind === "business"
+        ? `a business${brand.name ? ` called ${brand.name}` : ""}, posting on its own page. Work out what kind of business it is from the name and the topic and write for its customers, as the business ("we")`
+        : isLawgistics
+          ? "Lawgistics, a law-careers account for Australian law students and early-career lawyers, posting on its own page"
+          : `an Australian law firm called ${brand.name}, posting on its own page for clients, prospective clients and referrers. Write as the firm ("we"), plain English, no legal advice to any individual, general information only`;
   const voice = voiceSample && voiceSample.trim()
     ? `\n\nHere is a sample of how this person actually writes. Match its rhythm, vocabulary and level of formality, not its topic:\n"""\n${voiceSample.trim().slice(0, 4000)}\n"""\n`
     : "";
@@ -97,7 +102,7 @@ export async function POST(req: Request) {
 
   const rawBrand = (body.brand && typeof body.brand === "object" ? body.brand : {}) as { kind?: unknown; name?: unknown };
   const brand: Brand = {
-    kind: rawBrand.kind === "person" ? "person" : "business",
+    kind: rawBrand.kind === "person" ? "person" : rawBrand.kind === "business" ? "business" : "firm",
     name: typeof rawBrand.name === "string" ? rawBrand.name.trim().slice(0, 60) : "",
   };
 

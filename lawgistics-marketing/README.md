@@ -13,11 +13,14 @@ runs on the server with the API key kept out of the browser.
 
 Three screens.
 
-1. **Brand**, set once: "Are you posting as a business or a person?" A
-   business gets a name, six ready-made looks (House is the Lawgistics
-   palette, the default) and a fold-out for exact colours and fonts. A
-   person gets just their name and the same looks, defaulting to Stone so
-   it does not read as Lawgistics. A live preview slide on the right shows
+1. **Brand**, set once: "Are you posting as a firm, a business, or
+   yourself?" A firm or business gets a name, four layouts, six ready-made
+   colour looks (House is the Lawgistics palette, the firm default) and a
+   fold-out for exact colours and fonts. A person gets just their name and
+   the same choices. Anyone who is not the firm defaults to Stone so it
+   does not read as Lawgistics. The model is told which it is: a law firm
+   writes as "we" for clients and referrers, general information only; a
+   business writes for its customers; a person writes in the first person. A live preview slide on the right shows
    what their posts will look like. Also **Your voice**: paste a few things
    you have written and every draft matches how you actually sound. This
    is the compliant version of "read my LinkedIn", you paste the text
@@ -50,12 +53,24 @@ Not in this MVP, on purpose: accounts/login, billing, AI logo generation,
 posting cadence reminders, website builder. See the scope discussion in the
 session that built this.
 
+**Styles and colours.** Four layouts (Editorial, Bold, Minimal, Colour
+block) and six colour looks, chosen on the Brand screen. Lawgistics is
+Editorial + House.
+
+**Photos.** In the hand editor, any slide can take a photo behind the
+text: generate one with AI (OpenAI images, via `/api/image`, key kept on
+the server as `OPENAI_API_KEY`) or upload your own. AI photos are
+prompted as places and objects only, no text, no faces. Photos are stored
+as slide-sized JPEGs in localStorage; revisions from the chat keep them
+by slide position.
+
 ## Run it locally
 
 ```bash
 cd lawgistics-marketing
 npm install
 echo 'ANTHROPIC_API_KEY=sk-ant-...' > .env.local
+echo 'OPENAI_API_KEY=sk-...' >> .env.local   # optional, only for AI photos
 npm run dev
 ```
 
@@ -71,7 +86,8 @@ project pointed at that folder.
 3. Under **Root Directory**, click Edit and choose `lawgistics-marketing`.
 4. Framework preset should auto-detect **Next.js**. Leave build settings.
 5. Under **Environment Variables**, add `ANTHROPIC_API_KEY` with your key
-   (same key the other automations use).
+   (same key the other automations use), and `OPENAI_API_KEY` if you want
+   the AI photo button to work.
 6. Click **Deploy**. Every push to the production branch redeploys.
 
 The Vercel region is pinned to Sydney (`syd1`) in `vercel.json`, matching

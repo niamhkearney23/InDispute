@@ -33,15 +33,16 @@ export default function Page() {
           <div className="stepcard stepcard-brand panel">
             <div className="stephead">
               <h2>
-                Are you posting as a <em>business</em> or a <em>person</em>?
+                Are you posting as a <em>firm</em>, a <em>business</em>, or <em>yourself</em>?
               </h2>
               <p>Set once. You can change it from the Brand button later.</p>
             </div>
             <div className="brandlayout">
               <div id="brandPanel">
                 <div className="segmented kindpick" id="kindPick">
+                  <button type="button" data-kind="firm">A law firm</button>
                   <button type="button" data-kind="business">A business</button>
-                  <button type="button" data-kind="person">A person</button>
+                  <button type="button" data-kind="person">Myself</button>
                 </div>
 
                 <div className="brandgrid brandfields" data-for="person">
@@ -53,21 +54,39 @@ export default function Page() {
                   </div>
                 </div>
 
+                <div className="brandgrid brandfields" data-for="firm">
+                  <div className="selectfield wide">
+                    <label htmlFor="brandWordmark">
+                      Firm name <span className="hint">sits in the corner of every slide</span>
+                    </label>
+                    <input type="text" id="brandWordmark" data-brand="wordmark" maxLength={24} placeholder="e.g. Smith & Co Lawyers" />
+                  </div>
+                </div>
+
                 <div className="brandgrid brandfields" data-for="business">
                   <div className="selectfield wide">
-                    <label htmlFor="brandWordmark">Business name</label>
-                    <input type="text" id="brandWordmark" data-brand="wordmark" maxLength={24} placeholder="e.g. Lawgistics" />
+                    <label htmlFor="brandWordmarkBiz">
+                      Business name <span className="hint">sits in the corner of every slide</span>
+                    </label>
+                    <input type="text" id="brandWordmarkBiz" data-brand="wordmark" maxLength={24} placeholder="e.g. Corner Lane Cafe" />
                   </div>
                 </div>
 
                 <div className="field">
                   <label>
-                    Your look <span className="hint">tap one, the preview updates</span>
+                    Your style <span className="hint">how the slides are laid out</span>
+                  </label>
+                  <div className="styles" id="styles"></div>
+                </div>
+
+                <div className="field">
+                  <label>
+                    Your colours <span className="hint">tap one, the preview updates</span>
                   </label>
                   <div className="palettes" id="palettes"></div>
                 </div>
 
-                <details className="morefields brandfields" data-for="business">
+                <details className="morefields brandfields" data-for="firm business">
                   <summary>Fine-tune colours and type</summary>
                   <div className="brandgrid" style={{ marginTop: 12 }}>
                     <div className="colorfield">
@@ -150,7 +169,7 @@ export default function Page() {
               className="askbox"
               id="askInput"
               rows={5}
-              placeholder="e.g. the High Court's long service leave ruling, or five things that actually get you a clerkship, or: live music at the cafe this Friday from 6, free entry"
+              placeholder="e.g. the High Court's long service leave ruling and what it means for employers, or: what to bring to your first family law appointment, or for a poster: free wills clinic, Tuesday 10am, Parramatta office, or: live music this Friday from 6, free entry"
             />
             <p className="askstatus" id="askStatus"></p>
             <div className="stepfoot">

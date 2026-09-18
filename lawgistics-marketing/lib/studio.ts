@@ -9,7 +9,7 @@ function blankSlideBase(){
 }
 
 function defaultBrand(){
-  return {kind:'business', cream:'#EDE7DC', navy:'#171D2B', accent:'#3A5697', wordmark:'LAWGISTICS', serif:'default', sans:'default', voice:''};
+  return {kind:'firm', style:'editorial', cream:'#EDE7DC', navy:'#171D2B', accent:'#3A5697', wordmark:'LAWGISTICS', serif:'default', sans:'default', voice:''};
 }
 
 function exampleSlides(){
@@ -85,8 +85,19 @@ function computeBrandTokens(brand){
     bodyOnCream: mixHex(navy, cream, .88), bodyOnNavy: mixHex(cream, navy, .82),
     subOnCream: mixHex(navy, cream, .70), subOnNavy: mixHex(cream, navy, .78),
     mutedOnCream: mixHex(navy, cream, .40), mutedOnNavy: mixHex(cream, navy, .40),
-    accent: accent, accentOnNavy: mixHex(accent, '#ffffff', .68)
+    accent: accent, accentOnNavy: mixHex(accent, '#ffffff', .68),
+    inkOnAccent: cream, kickerOnAccent: mixHex(cream, accent, .72), bodyOnAccent: mixHex(cream, accent, .9), mutedOnAccent: mixHex(cream, accent, .62)
   };
+}
+var STYLES = [
+  {key:'editorial', name:'Editorial', desc:'Serif statements, small labels. The Lawgistics look.'},
+  {key:'bold', name:'Bold', desc:'Big sans headlines and an accent bar. Loud.'},
+  {key:'minimal', name:'Minimal', desc:'Centred and quiet, with room to breathe.'},
+  {key:'block', name:'Colour block', desc:'Your accent colour as the background.'}
+];
+function styleClass(brand){
+  var s = brand && brand.style;
+  return (s==='bold'||s==='minimal'||s==='block') ? ' style-'+s : '';
 }
 var loadedGoogleFonts = {};
 function ensureGoogleFont(family){
@@ -119,6 +130,10 @@ function applyBrand(el, brand){
   el.style.setProperty('--t-muted-navy', t.mutedOnNavy);
   el.style.setProperty('--t-accent', t.accent);
   el.style.setProperty('--t-accent-navy', t.accentOnNavy);
+  el.style.setProperty('--t-ink-accent', t.inkOnAccent);
+  el.style.setProperty('--t-kicker-accent', t.kickerOnAccent);
+  el.style.setProperty('--t-body-accent', t.bodyOnAccent);
+  el.style.setProperty('--t-muted-accent', t.mutedOnAccent);
   el.style.setProperty('--f-serif', fontVarValue('serif', brand));
   el.style.setProperty('--f-sans', fontVarValue('sans', brand));
 }
@@ -150,7 +165,8 @@ function slideInnerHtml(slide, brand){
   if(paras) inner += '<div class="body">'+paras+'</div>';
   if(slide.learn) inner += '<div class="learn"><b>Learn this:</b> '+mdInline(slide.learn)+'</div>';
   var citeHtml = mdInline(slide.cite).replace(/\n/g,'<br>');
-  return '<div class="page">'+
+  var photo = slide.photo ? '<img class="photo" src="'+attrEsc(slide.photo)+'" alt="">' : '';
+  return photo + '<div class="page">'+
     '<div class="kicker">'+mdInline(slide.kicker)+'</div>'+
     inner+
     '<div class="foot"><div class="cite">'+citeHtml+'</div>'+sw+'</div>'+
@@ -158,7 +174,7 @@ function slideInnerHtml(slide, brand){
 }
 function buildCanvasEl(slide, brand){
   var div = document.createElement('div');
-  div.className = 'slide-canvas' + (slide.dark ? ' dark' : '');
+  div.className = 'slide-canvas' + (slide.dark ? ' dark' : '') + styleClass(brand) + (slide.photo ? ' has-photo' : '');
   div.innerHTML = slideInnerHtml(slide, brand);
   applyBrand(div, brand);
   return div;
@@ -176,7 +192,7 @@ var PALETTES = [
 ];
 
 function previewSlide(brand){
-  var who = brand.kind==='person' ? 'your name' : 'your business name';
+  var who = brand.kind==='person' ? 'your name' : (brand.kind==='business' ? 'your business name' : 'your firm name');
   return {dark:false, size:'lg', swipe:false, kicker:'Your series · today',
     statement:"This is what your posts will *look like.*",
     sub:"Serif for the statement, sans for the detail, "+who+" in the corner.",
@@ -201,9 +217,11 @@ export function initStudio(){
   var exportNote = $('exportNote');
   var chatLog = $('chatLog'), chatInput = $('chatInput'), btnSend = $('btnSend');
   var askInput = $('askInput'), btnAsk = $('btnAsk'), askStatus = $('askStatus'), btnSeeExample = $('btnSeeExample'), formatPick = $('formatPick');
-  var brandPanel = $('brandPanel'), btnResetBrand = $('btnResetBrand'), kindPick = $('kindPick'), palettes = $('palettes'), brandPreview = $('brandPreview');
+  var brandPanel = $('brandPanel'), btnResetBrand = $('btnResetBrand'), kindPick = $('kindPick'), palettes = $('palettes'), styles = $('styles'), brandPreview = $('brandPreview');
   var brandCream = $('brandCream'), brandNavy = $('brandNavy'), brandAccent = $('brandAccent');
-  var brandWordmark = $('brandWordmark'), brandName = $('brandName'), brandSerif = $('brandSerif'), brandSans = $('brandSans'), brandVoice = $('brandVoice');
+  var brandWordmark = $('brandWordmark'), brandWordmarkBiz = $('brandWordmarkBiz'), brandName = $('brandName'), brandSerif = $('brandSerif'), brandSans = $('brandSans'), brandVoice = $('brandVoice');
+  var KINDS = ['firm','business','person'];
+  function brandKind(){ return KINDS.indexOf(state.brand.kind)>=0 ? state.brand.kind : 'firm'; }
   var captionText = $('captionText'), btnCopyCaption = $('btnCopyCaption');
   var consentCheck = $('consentCheck');
 
@@ -296,6 +314,18 @@ export function initStudio(){
         textEsc(p.name)+'</button>';
     }).join('');
   }
+  function renderStyles(){
+    var active = state.brand.style || 'editorial';
+    styles.innerHTML = STYLES.map(function(s){
+      return '<button type="button" class="stylebtn'+(s.key===active?' active':'')+'" data-style="'+s.key+'">'+
+        '<b>'+textEsc(s.name)+'</b><span>'+textEsc(s.desc)+'</span></button>';
+    }).join('');
+  }
+  styles.addEventListener('click', function(e){
+    var b = e.target.closest('[data-style]'); if(!b) return;
+    state.brand.style = b.dataset.style;
+    syncBrandFields(); saveLocal(); updatePreview(); renderStripSoon();
+  });
   palettes.addEventListener('click', function(e){
     var b = e.target.closest('[data-palette]'); if(!b) return;
     var p = PALETTES.filter(function(x){ return x.name===b.dataset.palette; })[0]; if(!p) return;
@@ -323,6 +353,17 @@ export function initStudio(){
             '<button type="button" data-act="setSize" data-val="lg" class="'+(slide.size==='lg'?'active':'')+'">Large</button>'+
             '<button type="button" data-act="setSize" data-val="md" class="'+(slide.size==='md'?'active':'')+'">Medium</button>'+
           '</div></div>'+
+      '</div>'+
+      '<div class="field photofield"><label>Photo <span class="hint">optional, sits behind the text</span></label>'+
+        (slide.photo
+          ? '<div class="photothumb"><img src="'+attrEsc(slide.photo)+'" alt=""><button type="button" class="btn btn-sm btn-danger" data-act="removePhoto">Remove photo</button></div>'
+          : '<textarea data-photo-prompt rows="2" placeholder="Describe it, e.g. a quiet courtroom corridor in morning light">'+textEsc(defaultPhotoPrompt(slide))+'</textarea>'+
+            '<div class="photobar">'+
+              '<button type="button" class="btn btn-sm btn-accent" data-act="genPhoto">Generate with AI</button>'+
+              '<label class="btn btn-sm">Upload your own<input type="file" accept="image/*" data-photo-upload hidden></label>'+
+            '</div>'+
+            '<p class="photostatus hint" data-photo-status></p>'+
+            '<p class="photonote">AI photos are places and objects only, no faces, no text. Upload only photos you have the right to post, and nobody’s face without their OK.</p>')+
       '</div>'+
       '<div class="field"><label>Series label / kicker</label>'+
         '<input type="text" data-field="kicker" value="'+attrEsc(slide.kicker)+'"></div>'+
@@ -396,35 +437,38 @@ export function initStudio(){
   }
 
   function syncBrandFields(){
-    var kind = state.brand.kind==='person' ? 'person' : 'business';
+    var kind = brandKind();
     kindPick.querySelectorAll('button').forEach(function(b){ b.classList.toggle('active', b.dataset.kind===kind); });
-    brandPanel.querySelectorAll('.brandfields').forEach(function(f){ f.classList.toggle('on', f.dataset.for===kind); });
+    brandPanel.querySelectorAll('.brandfields').forEach(function(f){ f.classList.toggle('on', f.dataset.for.split(' ').indexOf(kind)>=0); });
     brandCream.value = state.brand.cream;
     brandNavy.value = state.brand.navy;
     brandAccent.value = state.brand.accent;
     brandWordmark.value = state.brand.wordmark;
+    brandWordmarkBiz.value = state.brand.wordmark;
     brandName.value = state.brand.wordmark;
     brandSerif.value = state.brand.serif;
     brandSans.value = state.brand.sans;
     brandVoice.value = state.brand.voice || '';
     renderPalettes();
+    renderStyles();
     if(state.step==='brand') renderBrandPreview();
   }
   kindPick.addEventListener('click', function(e){
     var b = e.target.closest('button[data-kind]'); if(!b) return;
     var kind = b.dataset.kind;
     if(kind===state.brand.kind) return;
-    var voice = state.brand.voice;
-    if(kind==='person'){
-      // a person keeps the house type, gets a warmer default look, and only the name is theirs
-      var name = state.brand.wordmark==='LAWGISTICS' ? '' : state.brand.wordmark;
-      state.brand = defaultBrand(); state.brand.kind = 'person'; state.brand.voice = voice; state.brand.wordmark = name;
+    var voice = state.brand.voice, style = state.brand.style;
+    var name = state.brand.wordmark==='LAWGISTICS' ? '' : state.brand.wordmark;
+    state.brand = defaultBrand(); state.brand.kind = kind; state.brand.voice = voice; state.brand.style = style;
+    if(kind==='firm'){ state.brand.wordmark = name || 'LAWGISTICS'; }
+    else {
+      // anyone who is not the firm keeps the house type, gets a warmer default look, and only the name is theirs
+      state.brand.wordmark = name;
       state.brand.cream = PALETTES[1].cream; state.brand.navy = PALETTES[1].navy; state.brand.accent = PALETTES[1].accent;
-    } else {
-      state.brand = defaultBrand(); state.brand.voice = voice;
     }
     syncBrandFields(); saveLocal(); updatePreview(); renderStrip();
     if(kind==='person') brandName.focus();
+    if(kind==='business') brandWordmarkBiz.focus();
   });
   formatPick.addEventListener('click', function(e){
     var b = e.target.closest('button[data-format]'); if(!b) return;
@@ -465,10 +509,67 @@ export function initStudio(){
     slide[field] = (el.type==='checkbox') ? el.checked : el.value;
     saveLocal(); updatePreview(); renderStripSoon();
   });
+  function defaultPhotoPrompt(slide){
+    var s = String(slide.statement||'').replace(/\*/g,'').trim();
+    return s ? 'A scene that fits: '+s : '';
+  }
+  // Photos are stored as slide-sized JPEGs so six of them still fit in localStorage.
+  function toSlideJpeg(src){
+    return new Promise(function(resolve, reject){
+      var img = new Image();
+      img.onload = function(){
+        var c = document.createElement('canvas'); c.width = 1080; c.height = 1350;
+        var ctx = c.getContext('2d');
+        var s = Math.max(1080/img.width, 1350/img.height), w = img.width*s, h = img.height*s;
+        ctx.drawImage(img, (1080-w)/2, (1350-h)/2, w, h);
+        resolve(c.toDataURL('image/jpeg', .86));
+      };
+      img.onerror = function(){ reject(new Error('could not read that image')); };
+      img.src = src;
+    });
+  }
+  function setPhotoStatus(msg, kind){
+    var el = editorPanel.querySelector('[data-photo-status]'); if(!el) return;
+    el.textContent = msg; el.className = 'photostatus hint' + (kind ? ' '+kind : '');
+  }
+  async function setSlidePhoto(index, src){
+    var jpeg = await toSlideJpeg(src);
+    state.slides[index].photo = jpeg;
+    saveLocal(); renderEditor(); updatePreview(); renderStrip();
+    showToast('Photo added');
+  }
+  async function generatePhoto(){
+    var ta = editorPanel.querySelector('[data-photo-prompt]'); if(!ta) return;
+    var prompt = ta.value.trim();
+    if(!prompt){ setPhotoStatus('Describe the photo first.', 'bad'); ta.focus(); return; }
+    var btn = editorPanel.querySelector('[data-act="genPhoto"]'); if(btn) btn.disabled = true;
+    var index = state.activeIndex;
+    setPhotoStatus('Generating. About 20 seconds.', 'busy');
+    try{
+      var res = await fetch('/api/image', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt: prompt})});
+      var data = await res.json();
+      if(!res.ok) throw new Error(data && data.error ? data.error : 'request failed');
+      await setSlidePhoto(index, data.image);
+    }catch(err){
+      setPhotoStatus('Could not make that photo: '+((err && err.message) ? err.message : 'try again'), 'bad');
+      if(btn) btn.disabled = false;
+    }
+  }
+  editorPanel.addEventListener('change', function(e){
+    var input = e.target.closest('[data-photo-upload]'); if(!input || !input.files || !input.files[0]) return;
+    var file = input.files[0], index = state.activeIndex;
+    setPhotoStatus('Adding your photo.', 'busy');
+    var reader = new FileReader();
+    reader.onload = function(){ setSlidePhoto(index, reader.result).catch(function(){ setPhotoStatus('Could not read that image.', 'bad'); }); };
+    reader.onerror = function(){ setPhotoStatus('Could not read that image.', 'bad'); };
+    reader.readAsDataURL(file);
+  });
   editorPanel.addEventListener('click', function(e){
     var actBtn = e.target.closest('button[data-act]');
     if(actBtn){
       var slide = state.slides[state.activeIndex];
+      if(actBtn.dataset.act==='genPhoto'){ generatePhoto(); return; }
+      if(actBtn.dataset.act==='removePhoto'){ delete slide.photo; }
       if(actBtn.dataset.act==='setDark') slide.dark = actBtn.dataset.val==='true';
       if(actBtn.dataset.act==='setSize') slide.size = actBtn.dataset.val;
       saveLocal(); renderEditor(); updatePreview(); renderStrip();
@@ -552,7 +653,7 @@ export function initStudio(){
   brandPanel.addEventListener('input', function(e){
     var el = e.target, key = el.dataset.brand; if(!key) return;
     state.brand[key] = el.value;
-    if(key==='wordmark'){ brandWordmark.value = el.value; brandName.value = el.value; }
+    if(key==='wordmark'){ [brandWordmark, brandWordmarkBiz, brandName].forEach(function(i){ if(i!==el) i.value = el.value; }); }
     if(key==='serif' || key==='sans') ensureGoogleFont(el.value);
     if(key!=='voice'){ renderPalettes(); renderBrandPreview(); }
     saveLocal(); updatePreview(); renderStripSoon();
@@ -580,11 +681,14 @@ export function initStudio(){
       })
     };
   }
-  function applyDraft(result){
+  function applyDraft(result, keepPhotos){
     var kicker = result.kicker || '', cite = result.cite || '';
-    var slides = (result.slides || []).map(function(s){
-      return { dark: !!s.dark, size: s.size==='lg'?'lg':'md', swipe: !!s.swipe, kicker: kicker, cite: cite,
+    var old = state.slides;
+    var slides = (result.slides || []).map(function(s, i){
+      var slide = { dark: !!s.dark, size: s.size==='lg'?'lg':'md', swipe: !!s.swipe, kicker: kicker, cite: cite,
         statement: s.statement||'', sub: s.sub||'', body: s.body||'', learn: s.learn||'' };
+      if(keepPhotos && old[i] && old[i].photo) slide.photo = old[i].photo;
+      return slide;
     });
     if(!slides.length) throw new Error('no slides came back');
     state.slides = slides; state.activeIndex = 0;
@@ -611,12 +715,12 @@ export function initStudio(){
     var ok = false;
     try{
       var payload = {topic:text, voiceSample: state.brand.voice || '', format: state.format==='poster' ? 'poster' : 'carousel',
-        brand: {kind: state.brand.kind==='person' ? 'person' : 'business', name: state.brand.wordmark || ''}};
+        brand: {kind: brandKind(), name: state.brand.wordmark || ''}};
       if(revising) payload.current = currentDraft();
       var res = await fetch('/api/draft', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
       var data = await res.json();
       if(!res.ok) throw new Error(data && data.error ? data.error : 'request failed');
-      var n = applyDraft(data.draft);
+      var n = applyDraft(data.draft, revising);
       pending.text = revising
         ? 'Done. Have a look, then tell me the next change, or tick the box and save it.'
         : (n===1 ? 'Done. Your poster and the post are on the right.' : 'Done. '+n+' slides and the post are on the right.')+
@@ -776,7 +880,8 @@ export function initStudio(){
     if(typeof state.activeIndex !== 'number') state.activeIndex = 0;
     if(!state.brand) state.brand = defaultBrand();
     if(state.brand.voice==null) state.brand.voice = '';
-    if(state.brand.kind!=='person') state.brand.kind = 'business';
+    if(KINDS.indexOf(state.brand.kind)<0) state.brand.kind = 'firm';
+    if(!state.brand.style) state.brand.style = 'editorial';
     if(typeof state.caption !== 'string') state.caption = '';
     state.consented = !!state.consented;
     state.drafted = !!state.drafted;
