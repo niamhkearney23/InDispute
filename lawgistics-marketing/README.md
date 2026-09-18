@@ -97,6 +97,24 @@ project pointed at that folder.
 The Vercel region is pinned to Sydney (`syd1`) in `vercel.json`, matching
 the academy app.
 
+### If the short URL never updates
+
+This repo's default branch is `claude/paralegal-application-review-FCor4`,
+not `main`, and `main` holds different work (the academy and the site).
+A fresh Vercel project assumes `main`, which causes three symptoms at
+once: Root Directory rejects `lawgistics-marketing` as invalid (it is
+looking on `main`, where the folder does not exist), every push lands as
+a Preview so the `.vercel.app` URL stays frozen, and preview URLs ask you
+to log in to Vercel.
+
+Fix it in this order, in **Settings → Git** (newer Vercel: **Settings →
+Environments → Production**):
+
+1. Set **Production Branch** to `claude/paralegal-application-review-FCor4`.
+2. Then set **Root Directory** to `lawgistics-marketing`; it validates now.
+3. Push a commit, or use **Deployments → ⋯ → Redeploy**. Changing the
+   setting alone does not rebuild anything.
+
 ## Where things are
 
 - `app/page.tsx`: the two screens (markup only).
