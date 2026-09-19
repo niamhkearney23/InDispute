@@ -1,16 +1,15 @@
 {
-  "generatedDate": "2026-09-18",
+  "generatedDate": "2026-09-19",
   "jobs": [
     {
       "employer": "Clayton Utz",
       "program": "Seasonal Clerkship 2027/28",
-      "jurisdiction": "National",
+      "jurisdiction": "National (Sydney, Melbourne, Brisbane, Perth, Canberra)",
       "opens": null,
       "closes": null,
-      "closes_note": null,
-      "notes": "Firm's own early careers page states applications are currently closed and will open in June (for the 2027/28 seasonal clerkship, aimed at penultimate-year law students), with a pre-registration option to be notified; no exact open/close dates are published on the page, so dates are left null rather than guessed.",
+      "notes": "Firm's official early careers page states applications are currently closed and will open 'in June' for the 2027/28 seasonal clerkship program (penultimate-year students), with a pre-registration option — no exact opening or closing dates are published yet, so both are null rather than guessed; note that as at 19 Sep 2026 every 2026/27 clerkship window I could verify (NSW: opened 10 Jun 2026, closed 5/12 Jul 2026; VIC/LIV: 6 Jul – 9 Aug 2026; QLD: mid-Jul – early Aug 2026; WA: late Jun – late Jul 2026; Legal Services Commission SA: 3–30 Aug 2026) had already closed, and no 2027-cycle Law Society schedules had yet been published, so nothing else met the 'currently open or confirmed future open date' test.",
       "url": "https://www.claytonutz.com/early-careers/clerkship-program/",
-      "verifiedDate": "2026-09-18"
+      "verifiedDate": "2026-09-19"
     }
   ]
 }
