@@ -27,7 +27,7 @@ export default function Page() {
         <div className="topbar">
           <div className="brandmark">
             <h1>Lawgistics Marketing</h1>
-            <span>one post a day</span>
+            <span>one post a week</span>
           </div>
           <div className="topbar-actions">
             <button className="btn btn-sm" type="button" data-go="you">
