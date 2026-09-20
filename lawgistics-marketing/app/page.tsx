@@ -57,7 +57,7 @@ export default function Page() {
               <h2>
                 First, <em>who are you?</em>
               </h2>
-              <p>Two answers and you are set up for good.</p>
+              <p>Two answers and you are set up for good. About three minutes to your first post.</p>
             </div>
 
             <div className="rowfields">
