@@ -49,7 +49,11 @@ function buildPrompt(
         '- "quote": "statement" is the quoted line, "sub" is who said it. Only for a genuine quotation.\n' +
         '- "split": the canvas is divided. A block of colour across the top carries "statement", and "sub" plus "body" sit on the plain half underneath. Strong for a claim and its explanation.\n' +
         '- "twocol": divided down the middle. "statement" runs down a coloured column on the left, "sub" and "body" fill the right. Good when the heading and the detail are equally important.\n' +
-        '- "sidebar": a narrow band of colour down the left edge carrying the label, with "statement", "sub" and "body" on the rest. A quieter way to break the rhythm.\n\n' +
+        '- "sidebar": a narrow band of colour down the left edge carrying the label, with "statement", "sub" and "body" on the rest. A quieter way to break the rhythm.\n' +
+        '- "pyramid": a tiered diagram. "body" is one tier per line, TOP tier first, each as "Label: what it covers", three or four tiers. Use it when things genuinely stack, where the top rests on the bottom (foundations under surface, or a small visible part over a large hidden one). Not for a plain list.\n' +
+        '- "steps": a numbered sequence with a thread running down it. "body" is one step per line as "Step name: what happens". Use it for a process in real order, three to five steps.\n' +
+        '- "compare": two columns side by side. "body" is exactly TWO blocks separated by a blank line; in each block the first line is the column heading (e.g. "What clients think" / "What actually happens", or "Before" / "After") and the lines under it are its points, two to four each.\n\n' +
+        "The three diagrams are worth reaching for when the content really has that structure: they are the slides people save and send on. Do not force one onto content that is just a list.\n\n" +
         '"ground" is "light", "dark" or "accent" (the brand colour as the background). Most slides are light. ' +
         "Put one or two on dark or accent for rhythm, usually the loudest slide and the last one. Never three in a row the same.\n\n" +
         "A good six-slide set might run title / split / stat / checklist / twocol / bigtype, with one or two of " +

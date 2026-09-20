@@ -170,12 +170,29 @@ var LAYOUTS = [
   {key:'quote',     name:'Quote', desc:'A quoted line, with who said it.'},
   {key:'split',     name:'Split', desc:'Colour block on top, the detail underneath.'},
   {key:'twocol',    name:'Two columns', desc:'Heading down one side, content down the other.'},
-  {key:'sidebar',   name:'Stripe', desc:'A band of colour down the edge.'}
+  {key:'sidebar',   name:'Stripe', desc:'A band of colour down the edge.'},
+  {key:'pyramid',   name:'Pyramid', desc:'Tiers, narrow at the top. What sits on what.'},
+  {key:'steps',     name:'Steps', desc:'A numbered sequence, in order.'},
+  {key:'compare',   name:'This vs that', desc:'Two columns, side by side.'}
 ];
 // these carve the canvas into zones rather than stacking everything down one page
 var ZONED = {split:1, twocol:1, sidebar:1};
 var LAYOUT_KEYS = LAYOUTS.map(function(l){ return l.key; });
 function layoutOf(slide){ return LAYOUT_KEYS.indexOf(slide.layout)>=0 ? slide.layout : 'statement'; }
+
+// "Heading: the line under it" is the shape every rowed layout reads
+function rowsFrom(body){
+  return String(body||'').split(/\n+/)
+    .map(function(l){ return l.replace(/^\s*[-*•]?\s*\d{0,2}[.)]?\s*/,'').trim(); })
+    .filter(Boolean)
+    .map(function(l){
+      var m = l.match(/^(.{2,42}?)\s*[:–]\s+(.+)$/);
+      return m ? {head:m[1], desc:m[2]} : {head:l, desc:''};
+    });
+}
+function rowHtml(r, md){
+  return '<b>'+md(r.head)+'</b>'+(r.desc ? '<em>'+md(r.desc)+'</em>' : '');
+}
 function groundOf(slide){
   if(slide.ground==='accent') return 'accent';
   if(slide.ground==='dark' || (slide.ground==null && slide.dark)) return 'dark';
@@ -189,24 +206,46 @@ function slideInnerHtml(slide, brand){
   var inner = '';
 
   if(layout==='list' || layout==='checklist'){
-    // "Heading: the line under it" gives each row a title and a description
-    var items = String(slide.body||'').split(/\n+/)
-      .map(function(l){ return l.replace(/^\s*[-*•]?\s*\d{0,2}[.)]?\s*/,'').trim(); })
-      .filter(Boolean)
-      .map(function(l){
-        var m = l.match(/^(.{2,42}?)\s*[:–]\s+(.+)$/);
-        return m ? {head:m[1], desc:m[2]} : {head:l, desc:''};
-      });
+    var items = rowsFrom(slide.body);
     inner = '<div class="statement '+(slide.size||'md')+'">'+mdInline(slide.statement)+'</div>';
     if(slide.sub) inner += '<div class="sub">'+mdInline(slide.sub)+'</div>';
     inner += '<ol class="listrows'+(layout==='checklist' ? ' checks' : '')+'">'+items.map(function(it,i){
       var marker = layout==='checklist'
         ? '<span class="box"></span>'
         : '<span class="n">'+(i+1)+'</span>';
-      var text = '<span class="t"><b>'+mdInline(it.head)+'</b>'+
-        (it.desc ? '<em>'+mdInline(it.desc)+'</em>' : '')+'</span>';
-      return '<li>'+marker+text+'</li>';
+      return '<li>'+marker+'<span class="t">'+rowHtml(it, mdInline)+'</span></li>';
     }).join('')+'</ol>';
+  } else if(layout==='pyramid'){
+    // first line is the top tier, so the widths grow as you read down
+    var tiers = rowsFrom(slide.body);
+    var n = Math.max(tiers.length, 1);
+    inner = '<div class="statement '+(slide.size||'md')+'">'+mdInline(slide.statement)+'</div>';
+    if(slide.sub) inner += '<div class="sub">'+mdInline(slide.sub)+'</div>';
+    inner += '<div class="pyramid">'+tiers.map(function(t,i){
+      var w = Math.round(44 + (56 * (n===1 ? 1 : i/(n-1))));
+      return '<div class="tier" style="width:'+w+'%">'+rowHtml(t, mdInline)+'</div>';
+    }).join('')+'</div>';
+  } else if(layout==='steps'){
+    var steps = rowsFrom(slide.body);
+    inner = '<div class="statement '+(slide.size||'md')+'">'+mdInline(slide.statement)+'</div>';
+    if(slide.sub) inner += '<div class="sub">'+mdInline(slide.sub)+'</div>';
+    inner += '<ol class="steprows">'+steps.map(function(s,i){
+      return '<li><span class="dot">'+(i+1)+'</span><span class="t">'+rowHtml(s, mdInline)+'</span></li>';
+    }).join('')+'</ol>';
+  } else if(layout==='compare'){
+    // two blank-line separated blocks: each block is a heading then its points
+    var cols = String(slide.body||'').split(/\n\s*\n/).slice(0,2).map(function(block){
+      var lines = block.split(/\n+/).map(function(l){ return l.replace(/^\s*[-*•]\s*/,'').trim(); }).filter(Boolean);
+      return {head: lines.shift() || '', items: lines};
+    });
+    inner = '<div class="statement '+(slide.size||'md')+'">'+mdInline(slide.statement)+'</div>';
+    if(slide.sub) inner += '<div class="sub">'+mdInline(slide.sub)+'</div>';
+    inner += '<div class="compare">'+cols.map(function(c,i){
+      return '<div class="col'+(i===1?' alt':'')+'">'+
+        '<div class="colhead">'+mdInline(c.head)+'</div>'+
+        '<ul>'+c.items.map(function(t){ return '<li>'+mdInline(t)+'</li>'; }).join('')+'</ul>'+
+      '</div>';
+    }).join('')+'</div>';
   } else if(layout==='bigtype'){
     // size the type to the amount of text so it genuinely fills the frame
     var raw = String(slide.statement||'').replace(/\*/g,'');
