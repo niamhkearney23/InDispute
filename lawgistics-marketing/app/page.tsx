@@ -27,7 +27,7 @@ export default function Page() {
         <div className="topbar">
           <div className="brandmark">
             <h1>Lawgistics Marketing</h1>
-            <span>one post a week</span>
+            <span>one idea in, a post worth publishing out</span>
           </div>
           <div className="topbar-actions">
             <button className="btn btn-sm" type="button" data-go="you">
@@ -50,23 +50,54 @@ export default function Page() {
               <p>Two answers and you are set up for good.</p>
             </div>
 
-            <div className="field">
-              <label htmlFor="brandName">
-                Your name <span className="hint">sits in the corner of every slide</span>
-              </label>
-              <input type="text" id="brandName" data-brand="wordmark" maxLength={28} placeholder="e.g. John Smith" />
+            <div className="rowfields">
+              <div className="field">
+                <label htmlFor="brandName">Your name</label>
+                <input type="text" id="brandName" data-brand="wordmark" maxLength={28} placeholder="e.g. Mathew Thomas Philip" />
+              </div>
+              <div className="field">
+                <label htmlFor="brandRole">
+                  Your practice <span className="hint">optional</span>
+                </label>
+                <input type="text" id="brandRole" data-brand="role" maxLength={34} placeholder="e.g. Dispute Resolution" />
+              </div>
             </div>
 
             <div className="field">
-              <label htmlFor="brandField">
-                What you do <span className="hint">so the writing lands with the right people</span>
-              </label>
+              <label htmlFor="brandField">What do you do?</label>
               <input
                 type="text"
                 id="brandField"
                 data-brand="field"
-                maxLength={60}
-                placeholder="e.g. employment law, or family law for small business owners"
+                maxLength={80}
+                placeholder="e.g. Commercial litigation and shareholder disputes"
+              />
+            </div>
+
+            <div className="field">
+              <label htmlFor="brandAudience">
+                Who do you want reading your posts?{" "}
+                <span className="hint">this changes the writing more than anything else</span>
+              </label>
+              <input
+                type="text"
+                id="brandAudience"
+                data-brand="audience"
+                maxLength={80}
+                placeholder="e.g. Founders, directors and business owners"
+              />
+            </div>
+
+            <div className="field">
+              <label htmlFor="brandDisclaimer">
+                Footer note <span className="hint">on every slide. clear it if you do not want one</span>
+              </label>
+              <input
+                type="text"
+                id="brandDisclaimer"
+                data-brand="disclaimer"
+                maxLength={90}
+                placeholder="General information, not legal advice."
               />
             </div>
 

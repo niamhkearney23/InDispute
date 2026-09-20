@@ -1,5 +1,5 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
+import { draftText, pickProvider } from "@/lib/provider";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -7,7 +7,13 @@ export const maxDuration = 60;
 // One request per topic, server-side, so the API key never reaches the
 // browser. Same drafting brief as the Claude-artifact prototype this app
 // grew out of, including the "don't sound like a language model" rules.
-type Brand = { kind: "firm" | "business" | "person"; name: string; field: string };
+type Brand = {
+  kind: "firm" | "business" | "person";
+  name: string;
+  field: string;
+  audience: string;
+  hasDisclaimer: boolean;
+};
 
 type Pattern = { layout: string; ground: string }[];
 
@@ -56,10 +62,17 @@ function buildPrompt(
         "The three diagrams are worth reaching for when the content really has that structure: they are the slides people save and send on. Do not force one onto content that is just a list.\n\n" +
         '"ground" is "light", "dark" or "accent" (the brand colour as the background). Most slides are light. ' +
         "Put one or two on dark or accent for rhythm, usually the loudest slide and the last one. Never three in a row the same.\n\n" +
-        "A good six-slide set might run title / split / stat / checklist / twocol / bigtype, with one or two of " +
-        "them on dark or accent. Reach for the divided ones (split, twocol, sidebar) at least once in every " +
-        "carousel: a set built only from full-page stacked slides is the boring failure mode. Choose what the " +
-        "content actually calls for, but make the shapes differ.";
+        "Build the set so the reader gets a different KIND of slide each time they swipe. Across six slides you " +
+        "should hit most of these roles, in an order that suits the argument:\n" +
+        "  1. an opening statement or title\n" +
+        "  2. a short story or a dense block of real argument (essay)\n" +
+        "  3. something enumerated: a numbered list, a checklist or steps\n" +
+        "  4. something visual: a figure, a pyramid or a comparison\n" +
+        "  5. a pull-out: a quote, an impact line or a wall of type\n" +
+        "  6. a closing takeaway\n" +
+        "Reach for a divided composition (split, twocol, sidebar) at least once. Never use the same layout " +
+        "twice in a row, and never more than twice in the whole set. A carousel of six stacked statement " +
+        "slides is the failure mode: it is what makes a post look generated rather than designed.";
   const isLawgistics = !brand.name || brand.name.toUpperCase() === "LAWGISTICS";
   const who =
     brand.kind === "person"
@@ -70,8 +83,14 @@ function buildPrompt(
           ? "Lawgistics, a law-careers account for Australian law students and early-career lawyers, posting on its own page"
           : `an Australian law firm called ${brand.name}, posting on its own page for clients, prospective clients and referrers. Write as the firm ("we"), plain English, no legal advice to any individual, general information only`;
   const speciality = brand.field
-    ? `\n\nTheir field is: ${brand.field}. Write for the people who would hire them for that, in the language those people actually use, and make the post useful to that audience specifically rather than to lawyers in general.`
+    ? `\n\nTheir field is: ${brand.field}.`
     : "";
+  // Who they want reading it shapes the writing more than the practice area does.
+  const audience = brand.audience
+    ? `\n\nThey want this read by: ${brand.audience}. Write it FOR those people. Use the words they use about their own problems, not the words lawyers use about the law. Assume they are intelligent and busy and have no legal training. The test for every line is whether one of those readers would stop scrolling for it.`
+    : brand.field
+      ? "\n\nWrite for the people who would hire them for that, in the language those people actually use, not for other lawyers."
+      : "";
   const voice = voiceSample && voiceSample.trim()
     ? `\n\nHere is a sample of how this person actually writes. Match its rhythm, vocabulary and level of formality, not its topic:\n"""\n${voiceSample.trim().slice(0, 4000)}\n"""\n`
     : "";
@@ -91,15 +110,18 @@ function buildPrompt(
     "telltale AI-written pattern: no 'it's not just X, it's Y', no 'in a world where', no rhetorical " +
     "questions as filler, no hedge-then-reveal structure, no tricolons for their own sake. Write plain, " +
     "specific, declarative sentences the way a sharp, opinionated person would actually talk, not the way " +
-    "a language model default-writes." + speciality + voice + revision +
+    "a language model default-writes." + speciality + audience + voice + revision +
     (current ? "" : "\n\nTopic: " + topic + "\n\n") +
     "If this is a real case, event or statistic you are not fully certain of the exact citation, date or " +
     "figures for, keep the copy general and do NOT invent a specific citation, party name, date or number. " +
     "Write the substantive point clearly instead of guessing at specifics.\n\n" +
     "Respond with ONLY JSON (no prose, no code fence) matching exactly this shape:\n" +
     '{"kicker":"a short label for every slide, e.g. a series name or date",' +
-    '"cite":"footer text for every slide, a real citation if you have one, otherwise a short honest note ' +
-    "like 'General information, not legal advice.', use \\\\n for a second line\"," +
+    '"cite":"' + (brand.hasDisclaimer
+      ? "a real case citation if this post is about a specific decision you are certain of, otherwise the EMPTY STRING. " +
+        "The author has set their own footer note, which is used whenever this is empty, so do not write a disclaimer here"
+      : "a real citation if you have one, otherwise a short honest note like 'General information, not legal advice.', use \\\\n for a second line") +
+    '",' +
     '"caption":"the post caption, written and spaced the way a strong LinkedIn post is: ' +
     "line 1 is a hook that stands on its own and earns the click on 'see more', then one idea per line, " +
     "a blank line between every line (use \\\\n\\\\n), most lines under 12 words, no line longer than two " +
@@ -124,52 +146,6 @@ function extractJson(text: string): unknown {
   const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
   const raw = fence ? fence[1] : text;
   return JSON.parse(raw.trim());
-}
-
-// Either provider can write the drafts. DRAFT_PROVIDER pins one; otherwise
-// whichever key is present wins, so the app works with just one of them set.
-function pickProvider(): "openai" | "anthropic" | null {
-  const pinned = (process.env.DRAFT_PROVIDER || "").toLowerCase();
-  if (pinned === "openai") return process.env.OPENAI_API_KEY ? "openai" : null;
-  if (pinned === "anthropic") return process.env.ANTHROPIC_API_KEY ? "anthropic" : null;
-  if (process.env.ANTHROPIC_API_KEY) return "anthropic";
-  if (process.env.OPENAI_API_KEY) return "openai";
-  return null;
-}
-
-async function draftWithOpenAI(prompt: string): Promise<string> {
-  const model = process.env.OPENAI_DRAFT_MODEL || "gpt-4o";
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model,
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" },
-      max_completion_tokens: 8000,
-    }),
-  });
-  const data = (await res.json().catch(() => ({}))) as {
-    choices?: { message?: { content?: string } }[];
-    error?: { message?: string };
-  };
-  if (!res.ok) throw new Error(data.error?.message || `OpenAI request failed (${res.status})`);
-  const text = data.choices?.[0]?.message?.content;
-  if (!text) throw new Error("OpenAI returned an empty draft");
-  return text;
-}
-
-async function draftWithAnthropic(prompt: string): Promise<string> {
-  const anthropic = new Anthropic();
-  const response = await anthropic.messages.create({
-    model: "claude-opus-5",
-    max_tokens: 8000,
-    messages: [{ role: "user", content: prompt }],
-  });
-  return response.content
-    .filter((b) => b.type === "text")
-    .map((b) => (b as { text: string }).text)
-    .join("\n");
 }
 
 export async function POST(req: Request) {
@@ -202,11 +178,15 @@ export async function POST(req: Request) {
     kind?: unknown;
     name?: unknown;
     field?: unknown;
+    audience?: unknown;
+    hasDisclaimer?: unknown;
   };
   const brand: Brand = {
     kind: rawBrand.kind === "firm" ? "firm" : rawBrand.kind === "business" ? "business" : "person",
     name: typeof rawBrand.name === "string" ? rawBrand.name.trim().slice(0, 60) : "",
     field: typeof rawBrand.field === "string" ? rawBrand.field.trim().slice(0, 120) : "",
+    audience: typeof rawBrand.audience === "string" ? rawBrand.audience.trim().slice(0, 120) : "",
+    hasDisclaimer: rawBrand.hasDisclaimer === true,
   };
 
   const format = body.format === "poster" ? "poster" : "carousel";
@@ -223,7 +203,7 @@ export async function POST(req: Request) {
 
   let text: string;
   try {
-    text = provider === "openai" ? await draftWithOpenAI(prompt) : await draftWithAnthropic(prompt);
+    text = await draftText(provider, prompt, 8000, true);
   } catch (err) {
     const message = err instanceof Error ? err.message : "the drafting request failed";
     return NextResponse.json({ error: message }, { status: 502 });

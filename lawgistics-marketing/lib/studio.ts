@@ -9,7 +9,14 @@ function blankSlideBase(){
 }
 
 function defaultBrand(){
-  return {kind:'person', style:'editorial', cream:'#EDE7DC', navy:'#171D2B', accent:'#3A5697', wordmark:'', field:'', serif:'default', sans:'default', voice:''};
+  return {kind:'person', style:'editorial', cream:'#EDE7DC', navy:'#171D2B', accent:'#3A5697',
+    wordmark:'', role:'', field:'', audience:'', disclaimer:'General information, not legal advice.',
+    serif:'default', sans:'default', voice:''};
+}
+// the corner reads "Name · Practice" when a practice is given
+function markText(brand){
+  var n = (brand.wordmark||'').trim(), r = (brand.role||'').trim();
+  return r ? n+' · '+r : n;
 }
 
 function exampleSlides(){
@@ -249,7 +256,7 @@ function groundOf(slide){
 }
 
 function slideInnerHtml(slide, brand){
-  var sw = slide.swipe ? '<div class="swipe">swipe &rarr;</div>' : ('<div class="mark">'+mdInline(brand.wordmark||'')+'</div>');
+  var sw = slide.swipe ? '<div class="swipe">swipe &rarr;</div>' : ('<div class="mark">'+mdInline(markText(brand))+'</div>');
   var layout = layoutOf(slide);
   var bodyParas = String(slide.body||'').split(/\n\s*\n/).map(function(p){return p.trim();}).filter(Boolean);
   var inner = '';
@@ -431,7 +438,9 @@ export function initStudio(){
   var askInput = $('askInput'), btnAsk = $('btnAsk'), askStatus = $('askStatus'), btnSeeExample = $('btnSeeExample'), formatPick = $('formatPick');
   var kindPick = $('kindPick'), kindDetails = $('kindDetails'), palettes = $('palettes'), styles = $('styles'), brandPreview = $('brandPreview'), btnRandomise = $('btnRandomise');
   var brandCream = $('brandCream'), brandNavy = $('brandNavy'), brandAccent = $('brandAccent');
-  var brandName = $('brandName'), brandField = $('brandField'), brandSerif = $('brandSerif'), brandSans = $('brandSans'), brandVoice = $('brandVoice');
+  var brandName = $('brandName'), brandField = $('brandField'), brandRole = $('brandRole');
+  var brandAudience = $('brandAudience'), brandDisclaimer = $('brandDisclaimer');
+  var brandSerif = $('brandSerif'), brandSans = $('brandSans'), brandVoice = $('brandVoice');
   var KINDS = ['person','firm','business'];
   function brandKind(){ return KINDS.indexOf(state.brand.kind)>=0 ? state.brand.kind : 'person'; }
   var captionText = $('captionText'), captionOut = $('captionOut'), btnCopyCaption = $('btnCopyCaption');
@@ -598,6 +607,17 @@ export function initStudio(){
     }, 120);
   });
 
+  // a one-line instruction that rewrites just this piece of text
+  var REFINE_CHIPS = ['Shorter', 'Less corporate', 'Punchier', 'More like me'];
+  function refineBar(field){
+    return '<div class="refine" data-refine="'+field+'">'+
+      '<div class="refinechips">'+REFINE_CHIPS.map(function(c){
+        return '<button type="button" class="chip" data-refinechip="'+attrEsc(c)+'">'+textEsc(c)+'</button>';
+      }).join('')+
+      '<input type="text" class="refineinput" placeholder="or say it yourself, e.g. name the case">'+
+      '</div><p class="refinestatus"></p></div>';
+  }
+
   function renderEditor(){
     var idx = state.activeIndex, total = state.slides.length, slide = state.slides[idx];
     editorPanel.innerHTML =
@@ -654,15 +674,18 @@ export function initStudio(){
           '<button type="button" data-wrap="**" data-target="statement" title="Bold selection"><b>B</b></button>'+
           '<button type="button" data-wrap="*" data-target="statement" title="Italicise selection"><i>I</i></button>'+
         '</div>'+
-        '<textarea data-field="statement" rows="3">'+textEsc(slide.statement)+'</textarea></div>'+
-      '<div class="field"><label>Subline <span class="hint">optional, italic serif</span></label>'+
-        '<textarea data-field="sub" rows="2">'+textEsc(slide.sub)+'</textarea></div>'+
+        '<textarea data-field="statement" rows="3">'+textEsc(slide.statement)+'</textarea>'+
+        refineBar('statement')+'</div>'+
+      '<div class="field"><label>Subline <span class="hint">optional</span></label>'+
+        '<textarea data-field="sub" rows="2">'+textEsc(slide.sub)+'</textarea>'+
+        refineBar('sub')+'</div>'+
       '<div class="field"><label>Body <span class="hint">optional, blank line = new paragraph</span></label>'+
         '<div class="mdbar">'+
           '<button type="button" data-wrap="**" data-target="body" title="Bold selection"><b>B</b></button>'+
           '<button type="button" data-wrap="*" data-target="body" title="Italicise selection"><i>I</i></button>'+
         '</div>'+
-        '<textarea data-field="body" rows="4">'+textEsc(slide.body)+'</textarea></div>'+
+        '<textarea data-field="body" rows="4">'+textEsc(slide.body)+'</textarea>'+
+        refineBar('body')+'</div>'+
       '<details class="morefields"'+((slide.learn||slide.cite||slide.swipe)?' open':'')+'>'+
         '<summary>More fields (learning line, citation, cover slide)</summary>'+
         '<div class="field"><label>"Learn this" pull-quote <span class="hint">optional</span></label>'+
@@ -733,6 +756,9 @@ export function initStudio(){
     brandAccent.value = state.brand.accent;
     if(document.activeElement!==brandName) brandName.value = state.brand.wordmark;
     if(document.activeElement!==brandField) brandField.value = state.brand.field || '';
+    if(document.activeElement!==brandRole) brandRole.value = state.brand.role || '';
+    if(document.activeElement!==brandAudience) brandAudience.value = state.brand.audience || '';
+    if(document.activeElement!==brandDisclaimer) brandDisclaimer.value = state.brand.disclaimer || '';
     brandSerif.value = state.brand.serif;
     brandSans.value = state.brand.sans;
     if(document.activeElement!==brandVoice) brandVoice.value = state.brand.voice || '';
@@ -846,7 +872,39 @@ export function initStudio(){
     reader.onerror = function(){ setPhotoStatus('Could not read that image.', 'bad'); };
     reader.readAsDataURL(file);
   });
+  async function runRefine(wrap, instruction){
+    var field = wrap.dataset.refine;
+    var slide = state.slides[state.activeIndex];
+    var status = wrap.querySelector('.refinestatus');
+    if(!String(slide[field]||'').trim()){ status.textContent = 'Nothing there to rewrite yet.'; status.className = 'refinestatus bad'; return; }
+    wrap.classList.add('busy');
+    status.textContent = 'Rewriting…'; status.className = 'refinestatus busy';
+    try{
+      var res = await fetch('/api/refine', {method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({field: field, text: slide[field], instruction: instruction,
+          voiceSample: state.brand.voice || '', audience: state.brand.audience || ''})});
+      var data = await res.json();
+      if(!res.ok) throw new Error(data && data.error ? data.error : 'request failed');
+      slide[field] = data.text;
+      saveLocal(); renderEditor(); updatePreview(); renderStrip();
+      showToast('Rewrote the ' + field);
+    }catch(err){
+      status.textContent = 'Could not: '+((err && err.message) ? err.message : 'try again');
+      status.className = 'refinestatus bad';
+      wrap.classList.remove('busy');
+    }
+  }
+  editorPanel.addEventListener('keydown', function(e){
+    if(e.key!=='Enter') return;
+    var input = e.target.closest('.refineinput'); if(!input) return;
+    e.preventDefault();
+    var v = input.value.trim(); if(!v) return;
+    input.value = '';
+    runRefine(input.closest('[data-refine]'), v);
+  });
   editorPanel.addEventListener('click', function(e){
+    var chip = e.target.closest('[data-refinechip]');
+    if(chip){ runRefine(chip.closest('[data-refine]'), chip.dataset.refinechip); return; }
     var actBtn = e.target.closest('button[data-act]');
     if(actBtn){
       var slide = state.slides[state.activeIndex];
@@ -940,8 +998,12 @@ export function initStudio(){
     var el = e.target, key = el.dataset && el.dataset.brand; if(!key) return;
     state.brand[key] = el.value;
     if(key==='serif' || key==='sans') ensureGoogleFont(el.value);
-    if(key!=='voice' && key!=='field') renderBrandPreview();
-    if(key==='wordmark') renderBrandPreview();
+    if(key!=='voice' && key!=='field' && key!=='audience') renderBrandPreview();
+    if(key==='disclaimer'){
+      // the footer note is a brand setting, so it follows every slide that has no real citation
+      state.slides.forEach(function(s){ if(!s.citeIsReal) s.cite = el.value; });
+      renderStrip();
+    }
     saveLocal(); updatePreview(); renderStripSoon();
   });
 
@@ -982,13 +1044,16 @@ export function initStudio(){
     };
   }
   function applyDraft(result, keepPhotos){
-    var kicker = result.kicker || '', cite = result.cite || '';
+    var kicker = result.kicker || '';
+    var realCite = (result.cite || '').trim();
+    var cite = realCite || (state.brand.disclaimer || '');
     var old = state.slides;
     var slides = (result.slides || []).map(function(s, i){
       var ground = (s.ground==='dark' || s.ground==='accent' || s.ground==='light') ? s.ground : (s.dark ? 'dark' : 'light');
       var slide = { layout: LAYOUT_KEYS.indexOf(s.layout)>=0 ? s.layout : 'statement',
         motif: MOTIF_KEYS.indexOf(s.motif)>=0 ? s.motif : 'none',
-        ground: ground, dark: ground==='dark', size: s.size==='lg'?'lg':'md', swipe: !!s.swipe, kicker: kicker, cite: cite,
+        ground: ground, dark: ground==='dark', size: s.size==='lg'?'lg':'md', swipe: !!s.swipe,
+        kicker: kicker, cite: cite, citeIsReal: !!realCite,
         statement: s.statement||'', sub: s.sub||'', body: s.body||'', learn: s.learn||'' };
       if(keepPhotos && old[i] && old[i].photo){ slide.photo = old[i].photo; slide.photoKind = old[i].photoKind; }
       return slide;
@@ -1020,7 +1085,8 @@ export function initStudio(){
     var ok = false;
     try{
       var payload = {topic:text, voiceSample: state.brand.voice || '', format: state.format==='poster' ? 'poster' : 'carousel',
-        brand: {kind: brandKind(), name: state.brand.wordmark || '', field: state.brand.field || ''}};
+        brand: {kind: brandKind(), name: state.brand.wordmark || '', field: state.brand.field || '',
+          audience: state.brand.audience || '', hasDisclaimer: !!(state.brand.disclaimer||'').trim()}};
       if(revising) payload.current = currentDraft();
       if(fromAsk && state.sameAsLast && state.lastPattern && state.lastPattern.length) payload.pattern = state.lastPattern;
       var res = await fetch('/api/draft', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
@@ -1188,6 +1254,9 @@ export function initStudio(){
     if(KINDS.indexOf(state.brand.kind)<0) state.brand.kind = 'person';
     if(!state.brand.style) state.brand.style = 'editorial';
     if(typeof state.brand.field !== 'string') state.brand.field = '';
+    if(typeof state.brand.role !== 'string') state.brand.role = '';
+    if(typeof state.brand.audience !== 'string') state.brand.audience = '';
+    if(typeof state.brand.disclaimer !== 'string') state.brand.disclaimer = 'General information, not legal advice.';
     state.setupDone = !!state.setupDone;
     state.sameAsLast = !!state.sameAsLast;
     if(!Array.isArray(state.lastPattern)) state.lastPattern = null;
