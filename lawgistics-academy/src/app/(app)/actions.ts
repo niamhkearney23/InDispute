@@ -12,6 +12,9 @@ import {
   submitAnswer,
 } from '@/lib/training/service';
 import { moduleBySlug } from '@/content/seed/modules';
+import { HOMEWORK_DAYS, homeworkForDay } from '@/content/seed/homework';
+import { homeworkDay, lastArrivedDay } from '@/lib/homework/rules';
+import { getLearnerProfile } from '@/lib/learner-overview';
 import {
   IMPROVEMENT_GOALS,
   JURISDICTION_COUNTRY,
@@ -205,4 +208,64 @@ export async function finishSession(sessionId: string) {
       ? `/diagnostic/results?session=${sessionId}`
       : `/train/${sessionId}/summary`,
   );
+}
+
+const homeworkSchema = z.object({
+  day: z.coerce.number().int().min(1).max(HOMEWORK_DAYS),
+});
+
+export type HomeworkState = { error: string | null };
+
+/**
+ * A person recording that they have done one of their homework tasks.
+ *
+ * The user comes from the session and the task comes from the day number, so
+ * the only thing the request decides is which of their own days it is
+ * talking about. It cannot tick somebody else's day, name the date, or tick
+ * a day that has not come round yet: a placement that looked, at the end,
+ * like twenty days done in one afternoon would be worth nothing to a firm
+ * reading it.
+ *
+ * A day already gone is fair game, weekend included: Friday's task is still
+ * real on Saturday, and a record that refused to admit that would just teach
+ * people to lie about which day it was.
+ */
+export async function declareHomework(
+  _prev: HomeworkState,
+  formData: FormData,
+): Promise<HomeworkState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: 'You are not signed in.' };
+
+  const parsed = homeworkSchema.safeParse({ day: formData.get('day') });
+  if (!parsed.success) return { error: 'That day could not be read.' };
+
+  const profile = await getLearnerProfile(user.id);
+  if (!profile) return { error: 'Your profile could not be found.' };
+
+  const arrived = lastArrivedDay(
+    homeworkDay(profile.startsOn, profile.endsOn, profile.timezone),
+  );
+  if (parsed.data.day > arrived) {
+    return { error: 'That day has not come round yet.' };
+  }
+
+  const task = homeworkForDay(parsed.data.day);
+  if (!task) return { error: 'That day could not be found.' };
+
+  // A learner recording their own homework needs no elevated privilege, go
+  // through RLS, exactly as saveOnboarding does above.
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from('homework_declarations')
+    .insert({ user_id: user.id, day: parsed.data.day, task_slug: task.slug });
+
+  // Already there is the outcome that was asked for.
+  if (error && error.code !== '23505') {
+    return { error: 'That could not be recorded. Please try again.' };
+  }
+
+  revalidatePath('/dashboard');
+  revalidatePath('/homework');
+  return { error: null };
 }

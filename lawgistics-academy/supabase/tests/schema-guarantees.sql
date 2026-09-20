@@ -692,6 +692,87 @@ reset role;
 
 
 -- -----------------------------------------------------------------------------
+-- Daily homework
+-- -----------------------------------------------------------------------------
+-- The promise: a person ticks off their own homework, nobody ticks it for
+-- them, and nobody, administrators included, can quietly change or remove
+-- what they said afterwards.
+
+insert into public.homework_declarations (user_id, day, task_slug)
+values ('aaaa1111-0000-0000-0000-000000000001', 1, 'find-your-way');
+
+select pg_temp.expect(
+  (select declared_at > now() - interval '1 minute'
+   from public.homework_declarations
+   where user_id = 'aaaa1111-0000-0000-0000-000000000001' and day = 1),
+  'homework is dated by the database, not by whoever sent the request');
+
+select pg_temp.expect_failure(
+  $$insert into public.homework_declarations (user_id, day, task_slug)
+    values ('aaaa1111-0000-0000-0000-000000000001', 0, 'find-your-way')$$,
+  'there is no day zero of a placement');
+
+select pg_temp.expect_failure(
+  $$insert into public.homework_declarations (user_id, day, task_slug)
+    values ('aaaa1111-0000-0000-0000-000000000001', 21, 'find-your-way')$$,
+  'a day past the end of the four weeks is not a day that can be ticked off');
+
+select pg_temp.expect_failure(
+  $$insert into public.homework_declarations (user_id, day, task_slug)
+    values ('aaaa1111-0000-0000-0000-000000000001', 1, 'find-your-way')$$,
+  'the same day cannot be ticked off twice');
+
+select pg_temp.expect(
+  not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'homework_declarations'
+      and cmd in ('UPDATE', 'DELETE', 'ALL')),
+  'no policy grants update or delete on a homework record, administrators included');
+
+-- Somebody else's homework, as somebody else.
+set local role authenticated;
+set local request.jwt.claim.sub = '22222222-2222-2222-2222-222222222222';
+
+select pg_temp.expect_failure(
+  $$insert into public.homework_declarations (user_id, day, task_slug)
+    values ('aaaa1111-0000-0000-0000-000000000001', 2, 'the-file-anatomy')$$,
+  'nobody can tick off somebody else''s homework');
+
+select pg_temp.expect(
+  (select count(*) from public.homework_declarations) = 0,
+  'and nobody can read it either');
+
+-- Their own, as themselves.
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000001';
+
+insert into public.homework_declarations (user_id, day, task_slug)
+values ('aaaa1111-0000-0000-0000-000000000001', 2, 'the-file-anatomy');
+
+select pg_temp.expect(
+  (select count(*) from public.homework_declarations) = 2,
+  'a person can tick off their own homework');
+
+-- No policy means a write matches no rows and reports success, so this is a
+-- survival check rather than an expected error, as with the decisions above.
+delete from public.homework_declarations where day = 1;
+update public.homework_declarations set day = 20 where day = 2;
+
+set local request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+delete from public.homework_declarations
+where user_id = 'aaaa1111-0000-0000-0000-000000000001';
+update public.homework_declarations set task_slug = 'handover'
+where user_id = 'aaaa1111-0000-0000-0000-000000000001';
+
+reset role;
+
+select pg_temp.expect(
+  (select count(*) from public.homework_declarations
+   where user_id = 'aaaa1111-0000-0000-0000-000000000001'
+     and day in (1, 2) and task_slug in ('find-your-way', 'the-file-anatomy')) = 2,
+  'neither the person nor an administrator can take back or rewrite what was said');
+
+
+-- -----------------------------------------------------------------------------
 -- Joining: the invitation is a credential
 -- -----------------------------------------------------------------------------
 -- The link is the only way into this system without an existing account, so

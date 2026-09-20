@@ -9,6 +9,12 @@ import http from 'node:http';
 
 const PORT = 54321;
 
+/** ISO date, days from now. Used for homework fixtures so the sweep always
+ *  lands mid-placement regardless of which calendar day it actually runs on. */
+function isoDateFromNow(days) {
+  return new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+}
+
 function b64url(obj) {
   return Buffer.from(JSON.stringify(obj))
     .toString('base64')
@@ -39,6 +45,18 @@ const NEW_USER = {
   user_metadata: {},
 };
 
+// Mid-placement, with a week's homework already behind them, so the "day"
+// state of the homework card renders: today's task with its button, and an
+// earlier day already ticked off. Dated relative to whenever the sweep
+// actually runs, rather than a fixed calendar date that would drift stale.
+const TRAINEE_USER_ID = '44444444-4444-4444-4444-444444444444';
+const TRAINEE_USER = {
+  ...USER,
+  id: TRAINEE_USER_ID,
+  email: 'trainee@lawgistics.test',
+  user_metadata: { display_name: 'Aisyah' },
+};
+
 const EXP = Math.floor(Date.now() / 1000) + 60 * 60 * 24;
 
 function tokenFor(user) {
@@ -66,7 +84,7 @@ function sessionFor(user) {
   };
 }
 
-const USERS = [USER, NEW_USER];
+const USERS = [USER, NEW_USER, TRAINEE_USER];
 
 /** Reads the subject out of an unsigned mock token. */
 function userFromToken(token) {
@@ -456,6 +474,25 @@ const TABLES = {
       diagnostic_completed_at: null,
       is_admin: false,
     },
+    {
+      id: TRAINEE_USER_ID,
+      email: TRAINEE_USER.email,
+      display_name: 'Aisyah',
+      career_stage: 'plt_student',
+      improvement_goals: ['litigation_knowledge'],
+      daily_goal_minutes: 10,
+      country: 'MY',
+      home_jurisdiction: 'MY_GENERAL',
+      timezone: 'Asia/Kuala_Lumpur',
+      starts_on: isoDateFromNow(-7),
+      ends_on: isoDateFromNow(21),
+      onboarded_at: '2026-02-01T00:00:00Z',
+      diagnostic_completed_at: '2026-02-01T00:20:00Z',
+      is_admin: false,
+    },
+  ],
+  homework_declarations: [
+    { user_id: TRAINEE_USER_ID, day: 1, declared_at: isoDateFromNow(-6) },
   ],
   xp_events: Array.from({ length: 43 }, () => ({ amount: 10 })),
   user_streaks: [{ user_id: USER_ID, current_streak: 6, longest_streak: 11 }],

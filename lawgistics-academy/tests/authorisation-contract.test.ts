@@ -117,6 +117,7 @@ test('the server actions were actually found', () => {
     'createQuestion',
     'decide',
     'declare',
+    'declareHomework',
     'finishSession',
     'invite',
     'join',

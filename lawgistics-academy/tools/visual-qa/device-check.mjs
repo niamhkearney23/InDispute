@@ -74,6 +74,10 @@ const PAGES = [
   { name: 'diagnostic', path: '/diagnostic', auth: true },
   { name: 'diagnostic-results', path: '/diagnostic/results', auth: true },
   { name: 'diagnostic-compare', path: '/diagnostic/compare', auth: true },
+  // A trainee mid-placement, so the homework card shows a real day rather
+  // than "before it begins" (the default fixture's placement is in 2099).
+  { name: 'dashboard-homework', path: '/dashboard', auth: true, as: 'trainee@lawgistics.test' },
+  { name: 'homework', path: '/homework', auth: true, as: 'trainee@lawgistics.test' },
   { name: 'train', path: `/train/${SESSION_ID}`, auth: true },
   { name: 'train-answered', path: `/train/${SESSION_ID}`, auth: true, answer: true },
   { name: 'summary', path: `/train/${SESSION_ID}/summary`, auth: true },

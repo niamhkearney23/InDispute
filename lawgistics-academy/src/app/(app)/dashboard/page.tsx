@@ -9,6 +9,9 @@ import { beforeYouBegin } from '@/lib/onboarding/service';
 import { greeting, greetingName } from '@/lib/greeting';
 import { longDate } from '@/lib/onboarding/rules';
 import { essayTopic } from '@/content/seed/essay-topics';
+import { homeworkForDay } from '@/content/seed/homework';
+import { homeworkDay, lastArrivedDay } from '@/lib/homework/rules';
+import { HomeworkForm } from '../homework-form';
 import { QUESTIONS_PER_MINUTE_GOAL } from '@/lib/learning/config';
 import { TOP_LEVEL_NAME } from '@/lib/learning/progression';
 import { GoalRing } from '@/components/goal-ring';
@@ -43,7 +46,7 @@ export default async function DashboardPage() {
   const { profile, level, skillMap } = overview;
   const hasPlacement = Boolean(profile.startsOn || profile.endsOn);
   const supabase = await createSupabaseServerClient();
-  const [fact, outstanding, firmOutstanding, joining, sessions, diagnosticSittings] =
+  const [fact, outstanding, firmOutstanding, joining, sessions, diagnosticSittings, homeworkRows] =
     await Promise.all([
       getFactOfTheDay(profile.timezone, profile.country),
       outstandingRequired(user.id, profile.country),
@@ -57,11 +60,22 @@ export default async function DashboardPage() {
             .eq('user_id', user.id)
             .order('completed_at', { ascending: true })
         : Promise.resolve({ data: null }),
+      profile.startsOn
+        ? supabase.from('homework_declarations').select('day').eq('user_id', user.id)
+        : Promise.resolve({ data: null }),
     ]);
 
   const sittingCount = diagnosticSittings.data?.length ?? 0;
   const assignedTopicSlug = diagnosticSittings.data?.[0]?.essay_topic_slug as string | undefined;
   const assignedTopic = assignedTopicSlug ? essayTopic(assignedTopicSlug) : undefined;
+
+  const homework = homeworkDay(profile.startsOn, profile.endsOn, profile.timezone);
+  const declaredDays = new Set((homeworkRows.data ?? []).map((r) => r.day as number));
+  // Today's own day is offered its own button below, not counted as "earlier".
+  const lastEarlierDay = homework.state === 'day' ? homework.day - 1 : lastArrivedDay(homework);
+  const missedDays = [...Array(lastEarlierDay).keys()]
+    .map((i) => i + 1)
+    .filter((d) => !declaredDays.has(d)).length;
 
   /* Today in the learner's own timezone, not the server's. A coach in Kuala
      Lumpur dating a session for Tuesday means Tuesday there, and a session
@@ -172,6 +186,69 @@ export default async function DashboardPage() {
               </ButtonLink>
             </div>
           ) : null}
+        </Card>
+      ) : null}
+
+      {profile.startsOn ? (
+        <Card>
+          {homework.state === 'before' ? (
+            <>
+              <p className="eyebrow mb-2">Homework</p>
+              <p className="text-slate">
+                Your homework begins on {longDate(profile.startsOn)}. Twenty tasks, one for
+                each working day.
+              </p>
+            </>
+          ) : homework.state === 'weekend' ? (
+            <>
+              <p className="eyebrow mb-2">Homework</p>
+              <p className="text-slate">
+                No homework today. Day {homework.nextDay} picks up on Monday.
+              </p>
+            </>
+          ) : homework.state === 'finished' ? (
+            <>
+              <p className="eyebrow mb-2">Homework</p>
+              <p className="text-slate">You finished the four weeks.</p>
+              <p className="mt-2 text-sm text-slate">{declaredDays.size} of 20 recorded.</p>
+            </>
+          ) : homework.state === 'day' ? (
+            (() => {
+              const task = homeworkForDay(homework.day);
+              const done = declaredDays.has(homework.day);
+              return (
+                <>
+                  <p className="eyebrow mb-2">
+                    Homework, day {homework.day} of 20
+                  </p>
+                  {task ? (
+                    <>
+                      <p className="font-serif text-xl leading-snug">{task.title}</p>
+                      <p className="mt-2 text-slate">{task.task}</p>
+                      <p className="mt-2 text-sm text-muted">{task.why}</p>
+                    </>
+                  ) : null}
+                  {done ? (
+                    <div className="mt-4 flex items-center gap-2">
+                      <Pill tone="correct">Done</Pill>
+                    </div>
+                  ) : (
+                    <HomeworkForm day={homework.day} />
+                  )}
+                </>
+              );
+            })()
+          ) : null}
+          {missedDays > 0 ? (
+            <p className="mt-3 text-sm text-slate">
+              {missedDays} earlier {missedDays === 1 ? 'day is' : 'days are'} not ticked off.{' '}
+              <InlineLink href="/homework">Catch up</InlineLink>
+            </p>
+          ) : (
+            <p className="mt-3 text-sm text-muted">
+              <InlineLink href="/homework">See all twenty</InlineLink>
+            </p>
+          )}
         </Card>
       ) : null}
 
