@@ -120,10 +120,57 @@ function extractJson(text: string): unknown {
   return JSON.parse(raw.trim());
 }
 
+// Either provider can write the drafts. DRAFT_PROVIDER pins one; otherwise
+// whichever key is present wins, so the app works with just one of them set.
+function pickProvider(): "openai" | "anthropic" | null {
+  const pinned = (process.env.DRAFT_PROVIDER || "").toLowerCase();
+  if (pinned === "openai") return process.env.OPENAI_API_KEY ? "openai" : null;
+  if (pinned === "anthropic") return process.env.ANTHROPIC_API_KEY ? "anthropic" : null;
+  if (process.env.ANTHROPIC_API_KEY) return "anthropic";
+  if (process.env.OPENAI_API_KEY) return "openai";
+  return null;
+}
+
+async function draftWithOpenAI(prompt: string): Promise<string> {
+  const model = process.env.OPENAI_DRAFT_MODEL || "gpt-4o";
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model,
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" },
+      max_completion_tokens: 8000,
+    }),
+  });
+  const data = (await res.json().catch(() => ({}))) as {
+    choices?: { message?: { content?: string } }[];
+    error?: { message?: string };
+  };
+  if (!res.ok) throw new Error(data.error?.message || `OpenAI request failed (${res.status})`);
+  const text = data.choices?.[0]?.message?.content;
+  if (!text) throw new Error("OpenAI returned an empty draft");
+  return text;
+}
+
+async function draftWithAnthropic(prompt: string): Promise<string> {
+  const anthropic = new Anthropic();
+  const response = await anthropic.messages.create({
+    model: "claude-opus-5",
+    max_tokens: 8000,
+    messages: [{ role: "user", content: prompt }],
+  });
+  return response.content
+    .filter((b) => b.type === "text")
+    .map((b) => (b as { text: string }).text)
+    .join("\n");
+}
+
 export async function POST(req: Request) {
-  if (!process.env.ANTHROPIC_API_KEY) {
+  const provider = pickProvider();
+  if (!provider) {
     return NextResponse.json(
-      { error: "ANTHROPIC_API_KEY is not set on the server." },
+      { error: "No drafting key is set on the server. Add ANTHROPIC_API_KEY or OPENAI_API_KEY." },
       { status: 500 },
     );
   }
@@ -166,17 +213,15 @@ export async function POST(req: Request) {
         .map((p) => ({ layout: String(p.layout).slice(0, 20), ground: String(p.ground || "light").slice(0, 10) }))
     : undefined;
 
-  const anthropic = new Anthropic();
-  const response = await anthropic.messages.create({
-    model: "claude-opus-5",
-    max_tokens: 8000,
-    messages: [{ role: "user", content: buildPrompt(topic, voiceSample, current, brand, format, pattern) }],
-  });
+  const prompt = buildPrompt(topic, voiceSample, current, brand, format, pattern);
 
-  const text = response.content
-    .filter((b) => b.type === "text")
-    .map((b) => (b as { text: string }).text)
-    .join("\n");
+  let text: string;
+  try {
+    text = provider === "openai" ? await draftWithOpenAI(prompt) : await draftWithAnthropic(prompt);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "the drafting request failed";
+    return NextResponse.json({ error: message }, { status: 502 });
+  }
 
   try {
     const draft = extractJson(text);

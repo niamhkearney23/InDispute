@@ -107,9 +107,16 @@ position.
 cd lawgistics-marketing
 npm install
 echo 'ANTHROPIC_API_KEY=sk-ant-...' > .env.local
-echo 'OPENAI_API_KEY=sk-...' >> .env.local   # optional, only for AI photos
+echo 'OPENAI_API_KEY=sk-...' >> .env.local   # images, and drafting if you prefer it
 npm run dev
 ```
+
+**Which model writes the drafts.** Either provider can. With both keys set
+it uses Anthropic; with only one, it uses that one. To pin it, set
+`DRAFT_PROVIDER=openai` or `DRAFT_PROVIDER=anthropic`. The OpenAI model
+defaults to `gpt-4o` and is overridable with `OPENAI_DRAFT_MODEL` (set a
+newer one if you want it, the API's error message will tell you if the
+name is wrong). Images always use OpenAI.
 
 Open http://localhost:3000.
 
