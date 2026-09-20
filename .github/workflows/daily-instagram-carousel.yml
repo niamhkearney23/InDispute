@@ -38,14 +38,24 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: node daily-carousel.mjs
 
-      - name: Commit and push if anything was generated
+      - name: Commit and push, or fail loudly
         run: |
           git config user.name "lawgistics-daily-bot"
           git config user.email "actions@users.noreply.github.com"
           git add reports/
           if git diff --cached --quiet; then
-            echo "No post generated today."
-          else
-            git commit -m "Daily Instagram carousel, $(date -u +%Y-%m-%d)"
-            git push
+            # A green tick on a run that produced nothing is worse than a red
+            # one: the post silently stops appearing and nobody finds out for
+            # weeks. There is always something to post, so no output is a fault.
+            echo "::error::No carousel was generated. The run produced no new files under reports/."
+            echo "Check the 'Generate today's carousel' step above for the real cause."
+            echo "Common ones: the Anthropic credit balance is too low, the API call"
+            echo "failed, or Chromium could not render the slides."
+            exit 1
+          fi
+          git commit -m "Daily Instagram carousel, $(date -u +%Y-%m-%d)"
+          git push
+          TODAY=$(date -u +%Y-%m-%d)
+          if [ ! -d "reports/assets/$TODAY" ]; then
+            echo "::warning::Files were committed but reports/assets/$TODAY does not exist."
           fi
