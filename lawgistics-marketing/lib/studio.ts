@@ -98,13 +98,18 @@ function computeBrandTokens(brand){
 }
 var STYLES = [
   {key:'editorial', name:'Editorial', desc:'Serif statements, small labels. The Lawgistics look.'},
-  {key:'bold', name:'Bold', desc:'Big sans headlines and an accent bar. Loud.'},
-  {key:'minimal', name:'Minimal', desc:'Centred and quiet, with room to breathe.'},
-  {key:'block', name:'Colour block', desc:'Your accent colour as the background.'}
+  {key:'bold',      name:'Bold', desc:'Big sans headlines and an accent bar. Loud.'},
+  {key:'minimal',   name:'Minimal', desc:'Centred and quiet, with room to breathe.'},
+  {key:'block',     name:'Colour block', desc:'Your accent colour as the background.'},
+  {key:'swiss',     name:'Swiss', desc:'Hard left, tight sans, one heavy rule. Design studio.'},
+  {key:'mono',      name:'Mono', desc:'Technical. Monospaced labels, boxed content.'},
+  {key:'press',     name:'Press', desc:'Paper grain and heavy ink. Printed, not posted.'},
+  {key:'stack',     name:'Stack', desc:'Air at the top, everything weighted to the floor.'}
 ];
+var STYLE_KEYS = STYLES.map(function(s){ return s.key; });
 function styleClass(brand){
   var s = brand && brand.style;
-  return (s==='bold'||s==='minimal'||s==='block') ? ' style-'+s : '';
+  return (s && s!=='editorial' && STYLE_KEYS.indexOf(s)>=0) ? ' style-'+s : '';
 }
 var loadedGoogleFonts = {};
 function ensureGoogleFont(family){
