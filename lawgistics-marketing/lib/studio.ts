@@ -177,6 +177,55 @@ var LAYOUTS = [
 ];
 // these carve the canvas into zones rather than stacking everything down one page
 var ZONED = {split:1, twocol:1, sidebar:1};
+
+// Drawn geometry that sits behind the words. Kept to the accent colour and
+// off the centre of the frame so it never fights the type.
+var MOTIFS = [
+  {key:'none',     name:'None'},
+  {key:'arc',      name:'Arc'},
+  {key:'circle',   name:'Circle'},
+  {key:'triangle', name:'Triangle'},
+  {key:'rules',    name:'Rules'},
+  {key:'grid',     name:'Dot grid'},
+  {key:'corner',   name:'Corners'},
+  {key:'burst',    name:'Burst'}
+];
+var MOTIF_KEYS = MOTIFS.map(function(m){ return m.key; });
+function motifOf(slide){ return MOTIF_KEYS.indexOf(slide.motif)>=0 ? slide.motif : 'none'; }
+function motifSvg(slide){
+  var m = motifOf(slide);
+  if(m==='none') return '';
+  var s = '<svg class="motif" viewBox="0 0 1080 1350" preserveAspectRatio="none" aria-hidden="true">';
+  if(m==='arc'){
+    s += '<circle cx="1010" cy="1270" r="420" fill="none" stroke="currentColor" stroke-width="3"/>'+
+         '<circle cx="1010" cy="1270" r="300" fill="none" stroke="currentColor" stroke-width="3"/>'+
+         '<circle cx="1010" cy="1270" r="180" fill="none" stroke="currentColor" stroke-width="3"/>';
+  } else if(m==='circle'){
+    s += '<circle cx="940" cy="210" r="260" fill="none" stroke="currentColor" stroke-width="3"/>'+
+         '<circle cx="940" cy="210" r="96" fill="currentColor" opacity=".18"/>';
+  } else if(m==='triangle'){
+    s += '<path d="M 150 1120 L 440 610 L 730 1120 Z" fill="none" stroke="currentColor" stroke-width="3"/>'+
+         '<path d="M 295 1120 L 440 865 L 585 1120 Z" fill="currentColor" opacity=".16"/>';
+  } else if(m==='rules'){
+    for(var i=0;i<5;i++) s += '<line x1="620" y1="'+(150+i*26)+'" x2="1010" y2="'+(150+i*26)+'" stroke="currentColor" stroke-width="3"/>';
+    for(var j=0;j<5;j++) s += '<line x1="70" y1="'+(1130+j*26)+'" x2="460" y2="'+(1130+j*26)+'" stroke="currentColor" stroke-width="3"/>';
+  } else if(m==='grid'){
+    for(var r=0;r<9;r++) for(var c=0;c<7;c++)
+      s += '<circle cx="'+(700+c*58)+'" cy="'+(880+r*52)+'" r="4.5" fill="currentColor"/>';
+  } else if(m==='corner'){
+    s += '<path d="M 64 210 L 64 64 L 210 64" fill="none" stroke="currentColor" stroke-width="4"/>'+
+         '<path d="M 1016 1140 L 1016 1286 L 870 1286" fill="none" stroke="currentColor" stroke-width="4"/>';
+  } else if(m==='burst'){
+    for(var k=0;k<16;k++){
+      var a = (k/16)*Math.PI*2, cx=920, cy=1150;
+      s += '<line x1="'+(cx+Math.cos(a)*70).toFixed(1)+'" y1="'+(cy+Math.sin(a)*70).toFixed(1)+
+           '" x2="'+(cx+Math.cos(a)*230).toFixed(1)+'" y2="'+(cy+Math.sin(a)*230).toFixed(1)+
+           '" stroke="currentColor" stroke-width="3"/>';
+    }
+    s += '<circle cx="920" cy="1150" r="44" fill="none" stroke="currentColor" stroke-width="3"/>';
+  }
+  return s + '</svg>';
+}
 var LAYOUT_KEYS = LAYOUTS.map(function(l){ return l.key; });
 function layoutOf(slide){ return LAYOUT_KEYS.indexOf(slide.layout)>=0 ? slide.layout : 'statement'; }
 
@@ -268,7 +317,7 @@ function slideInnerHtml(slide, brand){
   if(slide.learn) inner += '<div class="learn"><b>Learn this:</b> '+mdInline(slide.learn)+'</div>';
 
   var citeHtml = mdInline(slide.cite).replace(/\n/g,'<br>');
-  var photo = slide.photo ? '<img class="photo" src="'+attrEsc(slide.photo)+'" alt="">' : '';
+  var photo = (slide.photo ? '<img class="photo" src="'+attrEsc(slide.photo)+'" alt="">' : '') + motifSvg(slide);
   // a wall of type carries the whole frame, so the label and citation get out of its way
   var head = layout==='bigtype' ? '' : '<div class="kicker">'+mdInline(slide.kicker)+'</div>';
   var foot = layout==='bigtype'
@@ -553,6 +602,10 @@ export function initStudio(){
     var idx = state.activeIndex, total = state.slides.length, slide = state.slides[idx];
     editorPanel.innerHTML =
       '<p class="panel-title">Slide '+(idx+1)+' of '+total+'</p>'+
+      '<div class="field"><label>Drawn shape <span class="hint">sits behind the words</span></label>'+
+        '<div class="segmented motifpick">'+MOTIFS.map(function(m){
+          return '<button type="button" data-act="setMotif" data-val="'+m.key+'" class="'+(motifOf(slide)===m.key?'active':'')+'">'+textEsc(m.name)+'</button>';
+        }).join('')+'</div></div>'+
       '<div class="field"><label>Shape of this slide</label>'+
         '<div class="styles">'+LAYOUTS.map(function(l){
           return '<button type="button" class="stylebtn'+(layoutOf(slide)===l.key?' active':'')+'" data-act="setLayout" data-val="'+l.key+'">'+
@@ -807,6 +860,7 @@ export function initStudio(){
       }
       if(actBtn.dataset.act==='setGround'){ slide.ground = actBtn.dataset.val; slide.dark = slide.ground==='dark'; }
       if(actBtn.dataset.act==='setLayout') slide.layout = actBtn.dataset.val;
+      if(actBtn.dataset.act==='setMotif') slide.motif = actBtn.dataset.val;
       if(actBtn.dataset.act==='setSize') slide.size = actBtn.dataset.val;
       saveLocal(); renderEditor(); updatePreview(); renderStrip();
       return;
@@ -933,6 +987,7 @@ export function initStudio(){
     var slides = (result.slides || []).map(function(s, i){
       var ground = (s.ground==='dark' || s.ground==='accent' || s.ground==='light') ? s.ground : (s.dark ? 'dark' : 'light');
       var slide = { layout: LAYOUT_KEYS.indexOf(s.layout)>=0 ? s.layout : 'statement',
+        motif: MOTIF_KEYS.indexOf(s.motif)>=0 ? s.motif : 'none',
         ground: ground, dark: ground==='dark', size: s.size==='lg'?'lg':'md', swipe: !!s.swipe, kicker: kicker, cite: cite,
         statement: s.statement||'', sub: s.sub||'', body: s.body||'', learn: s.learn||'' };
       if(keepPhotos && old[i] && old[i].photo){ slide.photo = old[i].photo; slide.photoKind = old[i].photoKind; }

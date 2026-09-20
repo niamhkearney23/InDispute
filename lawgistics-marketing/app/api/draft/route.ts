@@ -110,7 +110,13 @@ function buildPrompt(
     '{"layout":"impact","ground":"accent","size":"lg","statement":"..."}]}\n' +
     "Use **text** for bold and *text* for italics inside statement/sub/body/learn. Each slide object needs " +
     '"layout", "ground" and "statement", and may include "sub", "body", "learn" (the exam-usable principle, ' +
-    'one sentence, at most one slide in the set), "size" ("lg" or "md"), and "swipe" (true only on slide 1).'
+    'one sentence, at most one slide in the set), "size" ("lg" or "md"), "swipe" (true only on slide 1), and ' +
+    '"motif".\n\n' +
+    '"motif" draws geometry in the brand colour behind the words: "none", "arc" (rings, lower right), ' +
+    '"circle" (upper right), "triangle" (lower left), "rules" (short line stacks in two corners), ' +
+    '"grid" (a field of dots, lower right), "corner" (bracket marks), "burst" (radiating lines, lower right). ' +
+    "Use one on two or three slides in a set, not on all of them, and leave it \"none\" on any slide whose " +
+    "content already fills the frame (bigtype, the diagrams, a long essay or list). It is punctuation, not decoration."
   );
 }
 
