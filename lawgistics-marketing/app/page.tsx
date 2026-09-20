@@ -325,6 +325,21 @@ export default function Page() {
             </div>
 
             <div className="changepanel" id="changePanel" hidden>
+              {/* design notes, not copy edits: these change how it looks */}
+              <div className="directions" id="directions">
+                {[
+                  "Try another direction",
+                  "Bolder",
+                  "Cleaner",
+                  "Less corporate",
+                  "More editorial",
+                  "More like this",
+                ].map((d) => (
+                  <button key={d} type="button" className="dirbtn" data-direction={d}>
+                    {d}
+                  </button>
+                ))}
+              </div>
               <div className="chatlog" id="chatLog"></div>
               <div className="chatbar">
                 <textarea id="chatInput" rows={2} placeholder="Shorter. Punchier hook. Slide 3 should name the case." />

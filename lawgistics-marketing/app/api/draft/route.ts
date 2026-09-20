@@ -16,6 +16,9 @@ type Brand = {
 };
 
 type Pattern = { layout: string; ground: string }[];
+// What the author has actually approved, which is worth more than anything
+// they told us about themselves.
+type Approved = { direction?: string; layouts?: string[]; grounds?: string[]; note?: string }[];
 
 function buildPrompt(
   topic: string,
@@ -24,7 +27,29 @@ function buildPrompt(
   brand: Brand,
   format: "carousel" | "poster",
   pattern: Pattern | undefined,
+  approved: Approved | undefined,
 ): string {
+  // Brand DNA: the posts this author kept. The point is to work in the same
+  // visual language, not to reprint the same layout.
+  const dna =
+    approved && approved.length
+      ? "\n\nThis author has approved posts before. Their visual language so far:\n" +
+        approved
+          .map((a, i) => {
+            const bits = [
+              a.direction ? `direction ${a.direction}` : "",
+              a.layouts && a.layouts.length ? `compositions ${a.layouts.join(", ")}` : "",
+              a.grounds && a.grounds.length ? `grounds ${a.grounds.join(", ")}` : "",
+              a.note || "",
+            ].filter(Boolean);
+            return `${i + 1}. ${bits.join(" · ")}`;
+          })
+          .join("\n") +
+        "\nMake something NEW in that language. Someone should recognise it as the same brand without it " +
+        "being the same post: take the register, the weight, the amount of type on a slide and the way space " +
+        "is used, not the exact sequence of layouts. If the same composition appears in most of what they " +
+        "approved, it is clearly theirs, so keep it in the set but do not build the whole set out of it.\n"
+      : "";
   // Reusing last time's shapes is what keeps a grid looking like one brand.
   const patternBrief =
     pattern && pattern.length
@@ -40,8 +65,9 @@ function buildPrompt(
         "the one detail people need (date, time, place, price, or the single takeaway) in \"sub\", and any remaining details " +
         "in \"body\", kept short. \"swipe\" is false. Use the details the author gave exactly as given and do not invent any " +
         "date, time, place or price they did not give. The caption is the post text that goes with the poster."
-      : "The carousel reads as hook / context / the issue / the key point or development / a striking line / " +
-        "why it matters, across 5 or 6 slides.\n\n" +
+      : "A carousel of 5 or 6 slides. Decide the shape of the argument from the material itself: it might " +
+        "open on the conclusion, it might build to it, it might be a list from the first slide, it might be one " +
+        "idea held for six slides at different scales. Do not follow a fixed sequence.\n\n" +
         "IMPORTANT, this is what separates a good carousel from a boring one: give each slide a different " +
         '"layout" and vary the "ground" it sits on. Do not send six slides of the same shape. Pick per slide from:\n' +
         '- "title": a big centred line and nothing else. Best for slide 1.\n' +
@@ -69,14 +95,19 @@ function buildPrompt(
         "Put one or two on dark or accent for rhythm, usually the loudest slide and the last one. Never three in a row the same.\n\n" +
         '"anchor" moves the block of words within the frame: "top", "mid" or "bottom". Change it from slide to slide. ' +
         "Two slides that share a layout but sit at different heights still read as two different slides.\n\n" +
-        "Build the set so the reader gets a different KIND of slide each time they swipe. Across six slides you " +
-        "should hit most of these roles, in an order that suits the argument:\n" +
-        "  1. an opening statement or title\n" +
-        "  2. a short story or a dense block of real argument (essay)\n" +
-        "  3. something enumerated: a numbered list, a checklist or steps\n" +
-        "  4. something visual: a figure, a pyramid or a comparison\n" +
-        "  5. a pull-out: a quote, an impact line or a wall of type\n" +
-        "  6. a closing takeaway\n" +
+        '"align" is "left" (the default) or "centre". Centre a slide when you mean it, for a single line held in ' +
+        "the middle of the frame. Do NOT centre everything: a whole carousel of centred type is the look of a " +
+        "motivational poster.\n\n" +
+        '"kicker" is an optional small label. A label is not compulsory and most slides in the middle of a set do ' +
+        "not need one. Give a slide a label only when it tells the reader something the slide does not already " +
+        "say. Never invent editorial-sounding section names to fill the corner.\n\n" +
+        "FIRST decide the creative direction for this particular post, from the content and the brand, never at " +
+        "random. Typography-led. Photographic. Editorial. Collage. Magazine. Minimal. Bold. Information-led. " +
+        "Experimental. A list of practical steps wants an information-led treatment; a single hard opinion wants " +
+        "type at scale and almost nothing else; a story wants room to breathe. Then build every slide to serve " +
+        "that direction, so the set hangs together as one piece of work rather than six unrelated slides.\n\n" +
+        "Within that direction, give the reader a different kind of slide each time they swipe: vary the " +
+        "composition, the scale of the type, where the weight sits, how much is on the slide.\n\n" +
         "At least TWO slides must use a composition that carves up the canvas rather than stacking words down " +
         "the middle of it: split, twocol, sidebar, band, duo, frame, numeral or edge. Never use the same layout " +
         "twice in a row, and never more than twice in the whole set. A carousel of six stacked statement " +
@@ -106,19 +137,31 @@ function buildPrompt(
     ? "\n\nThe author already has a draft and is asking for a change. Here is the current draft as JSON:\n" +
       JSON.stringify(current).slice(0, 20000) +
       "\n\nApply exactly this request from the author, and leave everything the request does not touch as it is " +
-      "(same slide count, same wording elsewhere, same caption lines that were not mentioned):\n\"" +
+      "(same slide count, same wording elsewhere, same caption lines that were not mentioned).\n\n" +
+      "Some requests are creative direction rather than a copy edit. \"Bolder\", \"cleaner\", \"less corporate\", " +
+      "\"more editorial\", \"try another direction\", \"more like this\" and anything similar are instructions about " +
+      "the DESIGN. Answer them by changing composition, scale, contrast, how much sits on a slide and how the " +
+      "space is used, keeping the words unless the words are what they objected to. \"Try another direction\" " +
+      "means genuinely rework the visual treatment while keeping the argument. \"More like this\" means keep " +
+      "this direction and push further into it. Do not answer a design note by only rewriting the copy.\n\n" +
+      "The request:\n\"" +
       topic +
       "\"\n\nReturn the complete updated draft in the same JSON shape described below.\n\n"
     : "";
   return (
     "You are drafting a LinkedIn post and matching carousel slides for " + who + ". " +
-    "House style: Playfair-serif statements with exactly one italicised phrase each, " +
-    "short declarative sentences, one idea per slide. " + shape + patternBrief + "\n\n" +
+    "House style: serif statements, short declarative sentences, one idea per slide. Italics are for one " +
+    "phrase that genuinely carries the emphasis, not a decoration to apply to every line. " +
+    shape + patternBrief + "\n\n" +
     "Writing voice: never use an em dash, anywhere, use a comma, colon or full stop instead. Avoid every " +
     "telltale AI-written pattern: no 'it's not just X, it's Y', no 'in a world where', no rhetorical " +
     "questions as filler, no hedge-then-reveal structure, no tricolons for their own sake. Write plain, " +
     "specific, declarative sentences the way a sharp, opinionated person would actually talk, not the way " +
-    "a language model default-writes." + speciality + audience + voice + revision +
+    "a language model default-writes.\n\n" +
+    "Where the author has given you their own words, KEEP THEM. Shorten a line when the design needs it, but " +
+    "do not translate an ordinary human sentence into thought-leadership language, and do not make a plain " +
+    "point sound profound. If their sentence already works, use their sentence." +
+    speciality + audience + voice + dna + revision +
     (current
       ? ""
       : "\n\nWhat to post about. This may be a one-line topic, or it may be source material " +
@@ -128,7 +171,7 @@ function buildPrompt(
     "figures for, keep the copy general and do NOT invent a specific citation, party name, date or number. " +
     "Write the substantive point clearly instead of guessing at specifics.\n\n" +
     "Respond with ONLY JSON (no prose, no code fence) matching exactly this shape:\n" +
-    '{"kicker":"a short label for every slide, e.g. a series name or date",' +
+    '{"kicker":"an optional short label used where a slide has no label of its own. Leave it EMPTY unless the post genuinely has a series name or date",' +
     '"cite":"' + (brand.hasDisclaimer
       ? "a real case citation if this post is about a specific decision you are certain of, otherwise the EMPTY STRING. " +
         "The author has set their own footer note, which is used whenever this is empty, so do not write a disclaimer here"
@@ -143,14 +186,18 @@ function buildPrompt(
     '{"layout":"essay","ground":"light","size":"md","statement":"...","body":"..."},' +
     '{"layout":"impact","ground":"accent","size":"lg","statement":"..."}]}\n' +
     "Use **text** for bold and *text* for italics inside statement/sub/body/learn. Each slide object needs " +
-    '"layout", "ground" and "statement", and may include "anchor", "tag", "sub", "body", "learn" (the exam-usable principle, ' +
-    'one sentence, at most one slide in the set), "size" ("lg" or "md"), "swipe" (true only on slide 1), and ' +
-    '"motif".\n\n' +
+    '"layout", "ground" and "statement", and may include "anchor", "align", "kicker", "tag", "sub", "body", ' +
+    '"learn" (a pull-quote set apart from the rest of the slide. It is printed with NO label in front of it, so ' +
+    'write it as a sentence that stands alone, never as "Learn this:" or "Why it matters" or any other heading. ' +
+    'At most one slide in the set has one, and only if there is genuinely a line worth pulling out), ' +
+    '"size" ("lg" or "md"), "swipe" (true only on slide 1), and "motif".\n\n' +
     '"motif" draws geometry in the brand colour behind the words: "none", "arc" (rings, lower right), ' +
     '"circle" (upper right), "triangle" (lower left), "rules" (short line stacks in two corners), ' +
     '"grid" (a field of dots, lower right), "corner" (bracket marks), "burst" (radiating lines, lower right). ' +
     "Use one on two or three slides in a set, not on all of them, and leave it \"none\" on any slide whose " +
-    "content already fills the frame (bigtype, the diagrams, a long essay or list). It is punctuation, not decoration."
+    "content already fills the frame (bigtype, the diagrams, a long essay or list). It is punctuation, not " +
+    "decoration. Never add one merely because a slide looks empty: negative space is a decision, not a gap to " +
+    "fill.\n\n" + ART_DIRECTION
   );
 }
 
@@ -159,6 +206,36 @@ function extractJson(text: string): unknown {
   const raw = fence ? fence[1] : text;
   return JSON.parse(raw.trim());
 }
+
+// Read back before returning. This is the difference between a graphic that
+// looks designed and one that looks generated, and it is a taste check, not a
+// rulebook: unusual, asymmetric and severe choices are supposed to survive it.
+const ART_DIRECTION =
+  "FINALLY, before you return the JSON, read the whole thing back as a senior art director looking at a " +
+  "proof, and fix anything that fails. The single standard is that EVERY ELEMENT MUST LOOK INTENTIONAL.\n" +
+  "  1. Why is each element on the slide? If you cannot say, delete it.\n" +
+  "  2. Is anything floating with nothing holding it there?\n" +
+  "  3. Is any punctuation stranded away from the words it belongs to? Never end a statement with a space " +
+  "before its full stop, never leave a lone full stop or comma as a fragment, never open an emphasis marker " +
+  "you do not close.\n" +
+  "  4. Do the lines break in good places? Read each statement as it will set, and rewrite any line that " +
+  "would leave one short word or a single mark alone at the end.\n" +
+  "  5. Is there any text present only to fill space? Cut it.\n" +
+  "  6. Have you invented a disclaimer, an author, a source, a date, a series name or a label the author " +
+  "never gave you? Remove it. Inventing a credential is worse than leaving a corner empty.\n" +
+  "  7. Is the empty space doing compositional work, or is it just a gap? Either is fine; a gap you tried to " +
+  "patch with an ornament is not.\n" +
+  "  8. Is the hierarchy unmistakable? One thing is the loudest on each slide.\n" +
+  "  9. Does it look like it was made this year?\n" +
+  " 10. Would a person who designs for a living put their name to it?\n\n" +
+  "Things that give away machine-made design, all banned: floating punctuation; decorative rules and shapes " +
+  "that mean nothing; a scatter of tiny labels; invented editorial terminology; unasked-for disclaimers; " +
+  "invented bylines; filler text set small in a corner; the generic-inspirational-poster layout with " +
+  "everything centred; and the phrases \"Learn this\", \"Why it matters\", \"Here is the thing\", " +
+  "\"Unlock\", \"The truth is\", \"Let that sink in\".\n\n" +
+  "None of this is a reason to play safe. A designer uses a single dot, a hard rule, brutal scale, deep " +
+  "asymmetry or a strange composition on purpose, and that is exactly what you should be doing. The test is " +
+  "not whether a choice is unusual. It is whether it was a choice.";
 
 export async function POST(req: Request) {
   const provider = pickProvider();
@@ -169,7 +246,7 @@ export async function POST(req: Request) {
     );
   }
 
-  let body: { topic?: unknown; voiceSample?: unknown; current?: unknown; brand?: unknown; format?: unknown; pattern?: unknown };
+  let body: { topic?: unknown; voiceSample?: unknown; current?: unknown; brand?: unknown; format?: unknown; pattern?: unknown; approved?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -222,7 +299,22 @@ export async function POST(req: Request) {
         .map((p) => ({ layout: String(p.layout).slice(0, 20), ground: String(p.ground || "light").slice(0, 10) }))
     : undefined;
 
-  const prompt = buildPrompt(topic, voiceSample, current, brand, format, pattern);
+  const str = (v: unknown, n: number) => (typeof v === "string" ? v.slice(0, n) : "");
+  const strs = (v: unknown, n: number) =>
+    Array.isArray(v) ? v.filter((x) => typeof x === "string").slice(0, 10).map((x) => String(x).slice(0, 20)) : [];
+  const approved: Approved | undefined = Array.isArray(body.approved)
+    ? (body.approved as unknown[])
+        .slice(-6)
+        .filter((a): a is Record<string, unknown> => !!a && typeof a === "object")
+        .map((a) => ({
+          direction: str(a.direction, 40),
+          layouts: strs(a.layouts, 20),
+          grounds: strs(a.grounds, 10),
+          note: str(a.note, 120),
+        }))
+    : undefined;
+
+  const prompt = buildPrompt(topic, voiceSample, current, brand, format, pattern, approved);
 
   let text: string;
   try {

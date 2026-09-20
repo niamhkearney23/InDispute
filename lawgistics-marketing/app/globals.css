@@ -175,6 +175,16 @@ body{
 .msg.bot{align-self:flex-start;background:var(--surface);border:1px solid var(--border);color:var(--ink);border-bottom-left-radius:4px;}
 .msg.busy{color:var(--accent-strong);}
 .msg.error{color:var(--danger);}
+.directions{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;}
+.dirbtn{
+  font:inherit;font-size:12.5px;font-weight:500;border-radius:999px;cursor:pointer;
+  border:1px solid var(--border-strong);background:var(--surface-2);color:var(--ink-soft);
+  padding:7px 13px;transition:color .12s,border-color .12s,background .12s;
+}
+.dirbtn:hover{color:var(--ink);border-color:var(--accent);background:var(--surface-3);}
+.dirbtn:active{transform:translateY(1px);}
+.dirbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
 .chatbar{display:flex;gap:8px;align-items:flex-end;}
 .chatbar textarea{
   flex:1;min-width:0;font:inherit;font-size:15px;line-height:1.4;padding:11px 12px;border-radius:10px;
@@ -365,6 +375,8 @@ body{
   font-size:34px;line-height:1.38;color:var(--t-ink-cream,#171D2B);max-width:820px;}
 .slide-canvas.dark .learn{border-left-color:var(--t-accent-navy,#6E86C9);color:var(--t-ink-navy,#EDE7DC);}
 .slide-canvas .learn b{font-style:normal;font-weight:600;}
+/* it carries its own emphasis now that it has no label in front of it */
+.slide-canvas .learn{font-size:35px;}
 .slide-canvas .foot{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;gap:50px;}
 .slide-canvas .cite{font-family:var(--f-sans,'Studio Sans'),'TikTok Sans',sans-serif;font-size:19px;line-height:1.55;
   font-weight:500;color:var(--t-muted-cream,#9A9384);max-width:680px;}
@@ -523,17 +535,16 @@ body{
 }
 .slide-canvas.dark .ruleframe{border-color:var(--t-accent-navy,#6E86C9);}
 .slide-canvas.onaccent .ruleframe{border-color:var(--t-ink-accent,#EDE7DC);}
-.slide-canvas.lay-frame .page{padding:52px 84px 76px;align-items:center;text-align:center;}
+.slide-canvas.lay-frame .page{padding:52px 84px 76px;}
 .slide-canvas.lay-frame .kicker{
-  margin-top:-10px;padding:0 20px;background:var(--t-cream,#EDE7DC);
+  margin-top:-10px;padding:0 20px;align-self:flex-start;margin-left:20px;background:var(--t-cream,#EDE7DC);
   color:var(--t-accent,#3A5697);font-weight:600;
 }
 .slide-canvas.lay-frame.dark .kicker{background:var(--t-navy,#141A28);color:var(--t-accent-navy,#6E86C9);}
 .slide-canvas.lay-frame.onaccent .kicker{background:var(--t-accent,#3A5697);color:var(--t-ink-accent,#EDE7DC);}
-.slide-canvas.lay-frame .content{padding:52px 44px 60px;align-items:center;}
+.slide-canvas.lay-frame .content{padding:52px 44px 60px;}
 .slide-canvas.lay-frame .statement{max-width:760px;}
 .slide-canvas.lay-frame .sub,.slide-canvas.lay-frame .body{max-width:700px;}
-.slide-canvas.lay-frame .learn{border-left:0;padding-left:0;padding-top:24px;border-top:2px solid var(--t-accent,#3A5697);}
 .slide-canvas.lay-frame .foot{padding:0 44px;}
 
 /* ---- numeral: a figure the height of the page, words over it ---- */
@@ -563,6 +574,16 @@ body{
 .slide-canvas.lay-edge .foot{padding-top:34px;border-top:2px solid var(--t-accent,#3A5697);}
 .slide-canvas.lay-edge.dark .foot{border-top-color:var(--t-accent-navy,#6E86C9);}
 .slide-canvas.lay-edge.onaccent .foot{border-top-color:var(--t-ink-accent,#EDE7DC);}
+
+/* ---- centred is a choice a slide makes, available on any layout ---- */
+.slide-canvas.al-centre .page{align-items:center;text-align:center;}
+.slide-canvas.al-centre .content{align-items:center;}
+.slide-canvas.al-centre .foot{width:100%;text-align:left;}
+.slide-canvas.al-centre .learn{border-left:0;padding-left:0;padding-top:24px;
+  border-top:2px solid var(--t-accent,#3A5697);}
+.slide-canvas.al-centre.dark .learn{border-top-color:var(--t-accent-navy,#6E86C9);}
+.slide-canvas.al-centre.onaccent .learn{border-top-color:var(--t-ink-accent,#EDE7DC);}
+.slide-canvas.al-centre.lay-frame .kicker{align-self:center;margin-left:0;}
 
 /* ---- where the block sits in the frame ---- */
 .slide-canvas.anc-top .content{justify-content:flex-start;padding-top:26px;}

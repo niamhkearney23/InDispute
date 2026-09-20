@@ -159,9 +159,40 @@ function smartQuotes(s){
   out = out.replace(/(\w)'\B/g, '$1’');
   return out;
 }
+// A designer does not leave a full stop stranded on its own line, a space
+// floating before a comma, or an empty emphasis pair. None of this is taste,
+// it is the mechanical stuff that makes a graphic read as machine output.
+function typeset(s){
+  var t = String(s==null?'':s);
+  t = t.replace(/\*\*\s*\*\*|\*\s*\*/g, '');   // emphasis wrapped around nothing
+  t = t.replace(/[ \t]+/g, ' ');
+  t = t.replace(/ +([,.;:!?%)\]])/g, '$1');      // no space before punctuation
+  t = t.replace(/([(\[]) +/g, '$1');
+  t = t.split('\n').map(function(line){
+    // a line with no letters or digits in it is a stray mark, not a line
+    return /[A-Za-z0-9]/.test(line) ? line : '';
+  }).join('\n');
+  t = t.replace(/\n{3,}/g, '\n\n');
+  t = t.replace(/[\s.,;:]+$/, function(m){ return /[.!?]$/.test(m.trim()) ? m.trim().slice(-1) : ''; });
+  return t.trim();
+}
+// Bind the last short word to the one before it, so the tail of a line, and
+// above all its final punctuation, can never be widowed onto a line of its own.
+function noWidow(html){
+  var t = String(html).trim();
+  var words = t.split(/\s+/);
+  // nothing to widow, and binding here would only force a worse break
+  if(words.length < 4) return html;
+  var last = words[words.length-1].replace(/<[^>]+>/g, '');
+  if(last.length > 9) return html;
+  return String(html).replace(/ ([^ ]+)$/, '&nbsp;$1');
+}
+function hasWords(s){ return /[A-Za-z0-9]/.test(String(s||'')); }
+
 function mdInline(s){
   if(!s) return '';
-  var t = smartQuotes(String(s));
+  var t = smartQuotes(typeset(s));
+  if(!t) return '';
   t = textEsc(t);
   t = t.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
   t = t.replace(/\*(.+?)\*/g, '<em>$1</em>');
@@ -196,7 +227,10 @@ var LAYOUTS = [
 var ZONED = {split:1, twocol:1, sidebar:1, band:1, duo:1};
 // where the words sit in the frame. one carousel that runs top, floor, middle
 // reads as designed; six slides all vertically centred read as a template.
+var HAS_FURNITURE = {frame:1, band:1, duo:1, sidebar:1, split:1, twocol:1, numeral:1, edge:1, bigtype:1};
 var ANCHORS = ['top','mid','bottom'];
+var ALIGNS = ['left','centre'];
+function alignOf(slide){ return slide.align==='centre' ? 'centre' : 'left'; }
 function anchorOf(slide){ return ANCHORS.indexOf(slide.anchor)>=0 ? slide.anchor : 'mid'; }
 
 // Drawn geometry that sits behind the words. Kept to the accent colour and
@@ -277,8 +311,8 @@ function slideInnerHtml(slide, brand){
 
   if(layout==='list' || layout==='checklist'){
     var items = rowsFrom(slide.body);
-    inner = '<div class="statement '+(slide.size||'md')+'">'+mdInline(slide.statement)+'</div>';
-    if(slide.sub) inner += '<div class="sub">'+mdInline(slide.sub)+'</div>';
+    inner = '<div class="statement '+(slide.size||'md')+'">'+noWidow(mdInline(slide.statement))+'</div>';
+    if(slide.sub) inner += '<div class="sub">'+noWidow(mdInline(slide.sub))+'</div>';
     inner += '<ol class="listrows'+(layout==='checklist' ? ' checks' : '')+'">'+items.map(function(it,i){
       var marker = layout==='checklist'
         ? '<span class="box"></span>'
@@ -289,16 +323,16 @@ function slideInnerHtml(slide, brand){
     // first line is the top tier, so the widths grow as you read down
     var tiers = rowsFrom(slide.body);
     var n = Math.max(tiers.length, 1);
-    inner = '<div class="statement '+(slide.size||'md')+'">'+mdInline(slide.statement)+'</div>';
-    if(slide.sub) inner += '<div class="sub">'+mdInline(slide.sub)+'</div>';
+    inner = '<div class="statement '+(slide.size||'md')+'">'+noWidow(mdInline(slide.statement))+'</div>';
+    if(slide.sub) inner += '<div class="sub">'+noWidow(mdInline(slide.sub))+'</div>';
     inner += '<div class="pyramid">'+tiers.map(function(t,i){
       var w = Math.round(44 + (56 * (n===1 ? 1 : i/(n-1))));
       return '<div class="tier" style="width:'+w+'%">'+rowHtml(t, mdInline)+'</div>';
     }).join('')+'</div>';
   } else if(layout==='steps'){
     var steps = rowsFrom(slide.body);
-    inner = '<div class="statement '+(slide.size||'md')+'">'+mdInline(slide.statement)+'</div>';
-    if(slide.sub) inner += '<div class="sub">'+mdInline(slide.sub)+'</div>';
+    inner = '<div class="statement '+(slide.size||'md')+'">'+noWidow(mdInline(slide.statement))+'</div>';
+    if(slide.sub) inner += '<div class="sub">'+noWidow(mdInline(slide.sub))+'</div>';
     inner += '<ol class="steprows">'+steps.map(function(s,i){
       return '<li><span class="dot">'+(i+1)+'</span><span class="t">'+rowHtml(s, mdInline)+'</span></li>';
     }).join('')+'</ol>';
@@ -308,8 +342,8 @@ function slideInnerHtml(slide, brand){
       var lines = block.split(/\n+/).map(function(l){ return l.replace(/^\s*[-*•]\s*/,'').trim(); }).filter(Boolean);
       return {head: lines.shift() || '', items: lines};
     });
-    inner = '<div class="statement '+(slide.size||'md')+'">'+mdInline(slide.statement)+'</div>';
-    if(slide.sub) inner += '<div class="sub">'+mdInline(slide.sub)+'</div>';
+    inner = '<div class="statement '+(slide.size||'md')+'">'+noWidow(mdInline(slide.statement))+'</div>';
+    if(slide.sub) inner += '<div class="sub">'+noWidow(mdInline(slide.sub))+'</div>';
     inner += '<div class="compare">'+cols.map(function(c,i){
       return '<div class="col'+(i===1?' alt':'')+'">'+
         '<div class="colhead">'+mdInline(c.head)+'</div>'+
@@ -328,29 +362,29 @@ function slideInnerHtml(slide, brand){
     if(bodyParas.length) inner += '<div class="body">'+bodyParas.map(function(p){return '<p>'+mdInline(p)+'</p>';}).join('')+'</div>';
   } else if(layout==='quote'){
     inner = '<div class="quotemark">&ldquo;</div>'+
-      '<div class="quotetext">'+mdInline(slide.statement)+'</div>';
+      '<div class="quotetext">'+noWidow(mdInline(slide.statement))+'</div>';
     if(slide.sub) inner += '<div class="quoteattrib">'+mdInline(slide.sub)+'</div>';
   } else {
-    inner = '<div class="statement '+(slide.size||'md')+'">'+mdInline(slide.statement)+'</div>';
-    if(slide.sub) inner += '<div class="sub">'+mdInline(slide.sub)+'</div>';
+    inner = '<div class="statement '+(slide.size||'md')+'">'+noWidow(mdInline(slide.statement))+'</div>';
+    if(slide.sub) inner += '<div class="sub">'+noWidow(mdInline(slide.sub))+'</div>';
     if(bodyParas.length) inner += '<div class="body">'+bodyParas.map(function(p){return '<p>'+mdInline(p)+'</p>';}).join('')+'</div>';
   }
-  if(slide.learn) inner += '<div class="learn"><b>Learn this:</b> '+mdInline(slide.learn)+'</div>';
+  if(hasWords(slide.learn)) inner += '<div class="learn">'+noWidow(mdInline(slide.learn))+'</div>';
 
   var citeHtml = mdInline(slide.cite).replace(/\n/g,'<br>');
   var photo = (slide.photo ? '<img class="photo" src="'+attrEsc(slide.photo)+'" alt="">' : '') + motifSvg(slide);
   // a wall of type carries the whole frame, so the label and citation get out of its way
-  var head = layout==='bigtype' ? '' : '<div class="kicker">'+mdInline(slide.kicker)+'</div>';
+  var head = (layout==='bigtype' || !hasWords(slide.kicker)) ? '' : '<div class="kicker">'+mdInline(slide.kicker)+'</div>';
   var foot = layout==='bigtype'
     ? '<div class="foot">'+sw+'</div>'
     : '<div class="foot"><div class="cite">'+citeHtml+'</div>'+sw+'</div>';
 
   if(ZONED[layout]){
-    var lede = '<div class="statement '+(slide.size||'md')+'">'+mdInline(slide.statement)+'</div>';
+    var lede = '<div class="statement '+(slide.size||'md')+'">'+noWidow(mdInline(slide.statement))+'</div>';
     var rest = '';
-    if(slide.sub) rest += '<div class="sub">'+mdInline(slide.sub)+'</div>';
+    if(slide.sub) rest += '<div class="sub">'+noWidow(mdInline(slide.sub))+'</div>';
     if(bodyParas.length) rest += '<div class="body">'+bodyParas.map(function(p){return '<p>'+mdInline(p)+'</p>';}).join('')+'</div>';
-    if(slide.learn) rest += '<div class="learn"><b>Learn this:</b> '+mdInline(slide.learn)+'</div>';
+    if(hasWords(slide.learn)) rest += '<div class="learn">'+noWidow(mdInline(slide.learn))+'</div>';
     if(layout==='band'){
       // three horizontal fields: label, a full-bleed stripe carrying the line,
       // then the detail. nothing about it reads as the standard page.
@@ -395,7 +429,7 @@ function buildCanvasEl(slide, brand){
   var ground = groundOf(slide);
   var pm = (slide.photoMode==='plain' || slide.photoMode==='card') ? slide.photoMode : 'scrim';
   div.className = 'slide-canvas' + (ground==='dark' ? ' dark' : '') + (ground==='accent' ? ' onaccent' : '') +
-    ' lay-'+layoutOf(slide) + ' anc-'+anchorOf(slide) + styleClass(brand) +
+    ' lay-'+layoutOf(slide) + ' anc-'+anchorOf(slide) + ' al-'+alignOf(slide) + styleClass(brand) +
     (slide.photo ? ' has-photo photo-'+pm + (slide.photoKind==='design' ? ' has-design' : '') : '');
   div.innerHTML = slideInnerHtml(slide, brand);
   applyBrand(div, brand);
@@ -537,7 +571,7 @@ export function initStudio(){
       sec.classList.toggle('active', sec.dataset.step===name);
     });
     if(name==='review'){ renderStrip(); setTimeout(updatePreview, 0); }
-    if(name==='save'){ captionOut.value = state.caption || ''; if(state.consented) prepareBlobs(); }
+    if(name==='save'){ captionOut.value = state.caption || ''; rememberApproved(); if(state.consented) prepareBlobs(); }
     if(name==='look') setTimeout(renderBrandPreview, 0);
     if(name==='you') setTimeout(function(){ brandName.focus(); }, 0);
     if(name==='ask'){ renderBrandBar(); renderSameRow(); setTimeout(function(){ askInput.focus(); }, 0); }
@@ -724,7 +758,7 @@ export function initStudio(){
         refineBar('body')+'</div>'+
       '<details class="morefields"'+((slide.learn||slide.cite||slide.swipe)?' open':'')+'>'+
         '<summary>More fields (learning line, citation, cover slide)</summary>'+
-        '<div class="field"><label>"Learn this" pull-quote <span class="hint">optional</span></label>'+
+        '<div class="field"><label>Pull-quote <span class="hint">optional</span></label>'+
           '<textarea data-field="learn" rows="2">'+textEsc(slide.learn)+'</textarea></div>'+
         '<div class="field"><label>Citation <span class="hint">a line break starts the second line</span></label>'+
           '<textarea data-field="cite" rows="3">'+textEsc(slide.cite)+'</textarea></div>'+
@@ -1074,7 +1108,7 @@ export function initStudio(){
     return {
       kicker: s0.kicker || '', cite: s0.cite || '', caption: state.caption || '',
       slides: state.slides.map(function(s){
-        return {layout:layoutOf(s), ground:groundOf(s), anchor:anchorOf(s), tag:s.tag||'',
+        return {layout:layoutOf(s), ground:groundOf(s), anchor:anchorOf(s), align:alignOf(s), tag:s.tag||'',
           size:s.size||'md', swipe:!!s.swipe,
           statement:s.statement||'', sub:s.sub||'', body:s.body||'', learn:s.learn||''};
       })
@@ -1085,6 +1119,49 @@ export function initStudio(){
   // statement/sub/body slide safely, so one can be swapped in for another
   // without losing a word of what was written.
   var SWAPPABLE = ['statement','essay','band','numeral','frame','edge','duo','split','twocol','impact','sidebar'];
+  // Does the citation line look like an actual source, or like a disclaimer the
+  // model decided a professional slide "should" have?
+  function looksLikeSource(t){
+    return /\[\d{4}\]|\(\d{4}\)|\bv\b|\d{4}|·|https?:/i.test(String(t||''));
+  }
+
+  // Stock editorial furniture. Harmless inside a sentence; when one of these
+  // IS the whole line, it is a heading the model reached for, not content.
+  var DEAD_LABELS = /^(why it matters|learn this|the bottom line|key takeaway|takeaway|the point|in short|tl;?dr|the truth is|let that sink in|here is the thing|what this means|the lesson)\b[:.]?$/i;
+  function isDeadLabel(t){ return DEAD_LABELS.test(String(t||'').trim()); }
+
+  // ---- the art director pass ----
+  // Everything here removes what a human designer would not have left in. It
+  // never adds, never invents and never flattens a deliberate choice: an
+  // unusual layout, a huge statement or a hard asymmetry all survive it.
+  function artDirect(slides){
+    var brandNote = (state.brand.disclaimer||'').trim();
+    for(var i=0;i<slides.length;i++){
+      var s = slides[i], last = i===slides.length-1;
+      s.statement = typeset(s.statement);
+      s.sub = typeset(s.sub);
+      s.body = typeset(s.body);
+      s.learn = typeset(s.learn);
+
+      // a sub that restates the statement is filler, not hierarchy
+      if(!hasWords(s.sub) || s.sub.toLowerCase()===s.statement.toLowerCase() || isDeadLabel(s.sub)) s.sub = '';
+      if(isDeadLabel(s.kicker)) s.kicker = '';
+      if(isDeadLabel(s.statement)) s.statement = '';
+      // so is a pull-quote too short to carry a thought, or one that just
+      // repeats the line above it
+      if(!hasWords(s.learn) || s.learn.replace(/[^A-Za-z0-9]/g,'').length < 18 ||
+         s.learn.toLowerCase()===s.statement.toLowerCase()) s.learn = '';
+      // a footer note the author never asked for
+      if(hasWords(s.cite) && !looksLikeSource(s.cite) && !brandNote) s.cite = '';
+      // one drawn system per slide, not two
+      if(HAS_FURNITURE[s.layout]) s.motif = 'none';
+      // the label belongs at the start and the end, not stamped on all six
+      if(!s.ownKicker && i>0 && !last) s.kicker = '';
+      if(!hasWords(s.statement) && !hasWords(s.body) && !hasWords(s.sub)) s.drop = true;
+    }
+    return slides.filter(function(s){ return !s.drop; });
+  }
+
   function diversify(slides){
     var lastGrounds = 0;
     for(var i=0;i<slides.length;i++){
@@ -1122,12 +1199,17 @@ export function initStudio(){
         motif: MOTIF_KEYS.indexOf(s.motif)>=0 ? s.motif : 'none',
         ground: ground, dark: ground==='dark', size: s.size==='lg'?'lg':'md', swipe: !!s.swipe,
         anchor: ANCHORS.indexOf(s.anchor)>=0 ? s.anchor : '',
+        ownKicker: typeof s.kicker==='string' && s.kicker.trim() ? 1 : 0,
+        align: s.align==='centre' ? 'centre' : 'left',
         tag: typeof s.tag==='string' ? s.tag.slice(0,3) : '',
-        kicker: kicker, cite: cite, citeIsReal: !!realCite,
+        kicker: (typeof s.kicker==='string' && s.kicker.trim()) ? s.kicker.trim() : kicker,
+        cite: cite, citeIsReal: !!realCite,
         statement: s.statement||'', sub: s.sub||'', body: s.body||'', learn: s.learn||'' };
       if(keepPhotos && old[i] && old[i].photo){ slide.photo = old[i].photo; slide.photoKind = old[i].photoKind; }
       return slide;
     });
+    if(!slides.length) throw new Error('no slides came back');
+    slides = artDirect(slides);
     if(!slides.length) throw new Error('no slides came back');
     diversify(slides);
     // remember the shape of this post so the next one can match it
@@ -1138,6 +1220,27 @@ export function initStudio(){
     state.drafted = true;
     return slides.length;
   }
+  // Brand DNA. Kept as the shape of the work, not the words, so the next post
+  // is recognisably theirs without being a reprint.
+  function rememberApproved(){
+    if(!state.drafted || !state.slides.length) return;
+    var sig = state.slides.map(function(s){ return layoutOf(s)+':'+groundOf(s); }).join('|');
+    if(!Array.isArray(state.approved)) state.approved = [];
+    if(state.approved.length && state.approved[state.approved.length-1].sig===sig) return;
+    var words = state.slides.reduce(function(n,s){
+      return n + String(s.statement||'').split(/\s+/).length + String(s.body||'').split(/\s+/).length; }, 0);
+    state.approved.push({
+      sig: sig,
+      direction: state.brand.style || 'editorial',
+      layouts: state.slides.map(layoutOf),
+      grounds: state.slides.map(groundOf),
+      note: state.slides.length + ' slides, about ' + Math.round(words/Math.max(state.slides.length,1)) +
+            ' words a slide, ' + (state.slides.filter(function(s){ return alignOf(s)==='centre'; }).length ? 'some centred' : 'ranged left')
+    });
+    state.approved = state.approved.slice(-8);
+    saveLocal();
+  }
+
   function setAskStatus(msg, kind){ askStatus.textContent = msg; askStatus.className = 'askstatus' + (kind ? ' '+kind : ''); }
   var sending = false;
   // fromAsk: a brand-new post from the big box. Otherwise a revision typed in the chat.
@@ -1160,6 +1263,7 @@ export function initStudio(){
           audience: state.brand.audience || '', hasDisclaimer: !!(state.brand.disclaimer||'').trim()}};
       if(revising) payload.current = currentDraft();
       if(fromAsk && state.sameAsLast && state.lastPattern && state.lastPattern.length) payload.pattern = state.lastPattern;
+      if(Array.isArray(state.approved) && state.approved.length) payload.approved = state.approved.slice(-6);
       var res = await fetch('/api/draft', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
       var data = await res.json();
       if(!res.ok) throw new Error(data && data.error ? data.error : 'request failed');
@@ -1192,6 +1296,12 @@ export function initStudio(){
     sendDraft(t, true);
   }
   btnSend.addEventListener('click', sendChat);
+  // one tap for the notes people actually give a designer
+  var directions = $('directions');
+  if(directions) directions.addEventListener('click', function(e){
+    var btn = e.target.closest('button[data-direction]');
+    if(btn) sendDraft(btn.dataset.direction, false);
+  });
   chatInput.addEventListener('keydown', function(e){
     if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendChat(); }
   });
@@ -1331,6 +1441,7 @@ export function initStudio(){
     state.setupDone = !!state.setupDone;
     state.sameAsLast = !!state.sameAsLast;
     if(!Array.isArray(state.lastPattern)) state.lastPattern = null;
+    if(!Array.isArray(state.approved)) state.approved = [];
     if(typeof state.caption !== 'string') state.caption = '';
     state.consented = !!state.consented;
     state.drafted = !!state.drafted;
