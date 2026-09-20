@@ -119,7 +119,11 @@ function buildPrompt(
     "questions as filler, no hedge-then-reveal structure, no tricolons for their own sake. Write plain, " +
     "specific, declarative sentences the way a sharp, opinionated person would actually talk, not the way " +
     "a language model default-writes." + speciality + audience + voice + revision +
-    (current ? "" : "\n\nTopic: " + topic + "\n\n") +
+    (current
+      ? ""
+      : "\n\nWhat to post about. This may be a one-line topic, or it may be source material " +
+        "(a case note, an email, a draft, a judgment summary) to build the post from. If it is " +
+        "source material, use it as the substance and do not simply summarise it:\n" + topic + "\n\n") +
     "If this is a real case, event or statistic you are not fully certain of the exact citation, date or " +
     "figures for, keep the copy general and do NOT invent a specific citation, party name, date or number. " +
     "Write the substantive point clearly instead of guessing at specifics.\n\n" +
@@ -172,9 +176,20 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
+  // Generous, because people paste in a judgment summary, a client email or a
+  // draft article they want turned into a post, not just a one-line topic.
+  const TOPIC_MAX = 12000;
   const topic = typeof body.topic === "string" ? body.topic.trim() : "";
-  if (!topic || topic.length > 1000) {
-    return NextResponse.json({ error: "Tell us what to post about (up to 1000 characters)." }, { status: 400 });
+  if (!topic) {
+    return NextResponse.json({ error: "Tell us what to post about." }, { status: 400 });
+  }
+  if (topic.length > TOPIC_MAX) {
+    return NextResponse.json(
+      {
+        error: `That is ${topic.length.toLocaleString()} characters and the limit is ${TOPIC_MAX.toLocaleString()}. Trim it, or paste the part you want the post built from.`,
+      },
+      { status: 400 },
+    );
   }
   const voiceSample = typeof body.voiceSample === "string" ? body.voiceSample : undefined;
   const current =

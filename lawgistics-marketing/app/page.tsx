@@ -259,7 +259,10 @@ export default function Page() {
               <h2>
                 What do you want to <em>write about</em> today?
               </h2>
-              <p>One line is enough. You get a post and the slides to go with it. Nothing posts on its own.</p>
+              <p>
+                One line is enough, or paste a whole case note, email or draft and it will build the post from that.
+                Nothing posts on its own.
+              </p>
             </div>
             <div className="askcontrols">
               <div className="segmented formatpick" id="formatPick">
