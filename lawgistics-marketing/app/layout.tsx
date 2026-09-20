@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Lawgistics Marketing",
   description:
-    "Draft one on-brand social graphic a week: describe the post, review the AI draft, download the slides.",
+    "One idea in, a post worth publishing out. Describe it, review the draft, save the slides.",
   appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "Lawgistics" },
 };
 

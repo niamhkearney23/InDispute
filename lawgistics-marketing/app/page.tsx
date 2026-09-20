@@ -25,9 +25,14 @@ export default function Page() {
     <>
       <div className="wrap">
         <div className="topbar">
+          {/* master brand, then a quiet product label, matching the Academy's
+              lockup so the two read as one company rather than two */}
           <div className="brandmark">
-            <h1>Lawgistics Marketing</h1>
-            <span>one idea in, a post worth publishing out</span>
+            <h1>
+              <span className="mk-name">Lawgistics</span>
+              <span className="mk-suffix">Marketing</span>
+            </h1>
+            <span className="mk-tag">one post a week</span>
           </div>
           <div className="topbar-actions">
             <button className="btn btn-sm" type="button" data-go="you">
