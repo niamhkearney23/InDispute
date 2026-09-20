@@ -100,7 +100,7 @@ export default function Page() {
 
             <div className="field">
               <label htmlFor="brandDisclaimer">
-                Footer note <span className="hint">on every slide. clear it if you do not want one</span>
+                Footer note <span className="hint">on every slide. leave it empty for none</span>
               </label>
               <input
                 type="text"

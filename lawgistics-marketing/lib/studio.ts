@@ -10,7 +10,7 @@ function blankSlideBase(){
 
 function defaultBrand(){
   return {kind:'person', style:'editorial', cream:'#EDE7DC', navy:'#171D2B', accent:'#3A5697',
-    wordmark:'', role:'', field:'', audience:'', disclaimer:'General information, not legal advice.',
+    wordmark:'', role:'', field:'', audience:'', disclaimer:'',
     serif:'default', sans:'default', voice:''};
 }
 // the corner reads "Name · Practice" when a practice is given
@@ -48,7 +48,8 @@ function exampleSlides(){
   ];
 }
 
-function exampleCaption(){
+function exampleCaption(disclaimer){
+  var note = (disclaimer||'').trim();
   return [
     "166 workers. Two companies. One question: who actually employed them?",
     "Strandline Resources and its subsidiary Coburn Resources ran a mineral sands project together.",
@@ -59,9 +60,8 @@ function exampleCaption(){
     "Justice Jackson held that written employment contracts naming the employer ordinarily prevail.",
     "For anyone advising on group structures, that is the whole lesson.",
     "Get the employment contracts right before the group is under stress. Insolvency will test exactly who they name.",
-    "Brauer v Coburn Resources Pty Ltd [2026] FCA 1110.",
-    "General information, not legal advice."
-  ].join("\n\n");
+    "Brauer v Coburn Resources Pty Ltd [2026] FCA 1110."
+  ].concat(note ? [note] : []).join("\n\n");
 }
 
 var EXAMPLE_INTRO = "Hi. That is an example post, just so you can see the shape. Tell me what you want to post about and I will draft yours.";
@@ -451,7 +451,7 @@ function previewSlide(brand){
   return {dark:false, size:'lg', swipe:false, kicker:'Your series · today',
     statement:"This is what your posts will *look like.*",
     sub:"The statement carries the point, the detail sits under it, "+who+" in the corner.",
-    body:'', learn:'', cite:'General information, not legal advice.'};
+    body:'', learn:'', cite: brand.disclaimer || ''};
 }
 
 export function initStudio(){
@@ -1024,7 +1024,7 @@ export function initStudio(){
   }
   btnNewPost.addEventListener('click', startNewPost);
   btnSeeExample.addEventListener('click', function(){
-    state.slides = exampleSlides(); state.activeIndex = 0; state.caption = exampleCaption(); state.consented = false;
+    state.slides = exampleSlides(); state.activeIndex = 0; state.caption = exampleCaption(state.brand.disclaimer); state.consented = false;
     state.messages = [{role:'bot', text: EXAMPLE_INTRO}]; state.drafted = true;
     saveLocal(); renderAll(); showStep('review');
   });
@@ -1327,7 +1327,7 @@ export function initStudio(){
     if(typeof state.brand.field !== 'string') state.brand.field = '';
     if(typeof state.brand.role !== 'string') state.brand.role = '';
     if(typeof state.brand.audience !== 'string') state.brand.audience = '';
-    if(typeof state.brand.disclaimer !== 'string') state.brand.disclaimer = 'General information, not legal advice.';
+    if(typeof state.brand.disclaimer !== 'string') state.brand.disclaimer = '';
     state.setupDone = !!state.setupDone;
     state.sameAsLast = !!state.sameAsLast;
     if(!Array.isArray(state.lastPattern)) state.lastPattern = null;
