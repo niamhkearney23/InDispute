@@ -4,11 +4,16 @@ import { useEffect, useRef } from "react";
 import { initStudio } from "@/lib/studio";
 
 function Dots({ on }: { on: "you" | "look" | "voice" }) {
+  const steps = ["you", "look", "voice"] as const;
+  // bars alone look tidy but say nothing, so the count says it in words
   return (
-    <p className="stepdots" aria-hidden="true">
-      {(["you", "look", "voice"] as const).map((k) => (
-        <i key={k} className={k === on ? "on" : ""} />
+    <p className="stepdots">
+      {steps.map((k) => (
+        <i key={k} className={k === on ? "on" : ""} aria-hidden="true" />
       ))}
+      <b>
+        Step {steps.indexOf(on) + 1} of {steps.length}
+      </b>
     </p>
   );
 }
@@ -146,19 +151,18 @@ export default function Page() {
             <div className="brandlayout">
               <div>
                 <div className="field">
-                  <label>
-                    Colours
+                  <label>Colours</label>
+                  <div className="palettes" id="palettes"></div>
+                  <p className="randomrow">
                     <button type="button" className="randombtn" id="btnRandomise">
                       Surprise me
                     </button>
-                  </label>
-                  <div className="palettes" id="palettes"></div>
+                    <span className="hint">picks a colour and a layout for you</span>
+                  </p>
                 </div>
 
                 <div className="field">
-                  <label>
-                    Layout <span className="hint">how the words sit on the slide</span>
-                  </label>
+                  <label>Choose your slide layout.</label>
                   <div className="styles" id="styles"></div>
                 </div>
 

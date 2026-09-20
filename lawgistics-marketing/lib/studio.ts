@@ -185,10 +185,19 @@ var LAYOUTS = [
   {key:'sidebar',   name:'Stripe', desc:'A band of colour down the edge.'},
   {key:'pyramid',   name:'Pyramid', desc:'Tiers, narrow at the top. What sits on what.'},
   {key:'steps',     name:'Steps', desc:'A numbered sequence, in order.'},
-  {key:'compare',   name:'This vs that', desc:'Two columns, side by side.'}
+  {key:'compare',   name:'This vs that', desc:'Two columns, side by side.'},
+  {key:'band',      name:'Band', desc:'A stripe of colour across the middle, reversed out.'},
+  {key:'duo',       name:'Half and half', desc:'The frame cut down the middle into two fields.'},
+  {key:'frame',     name:'Framed', desc:'A ruled box, the label sitting on the rule.'},
+  {key:'numeral',   name:'Numeral', desc:'A number the height of the page, words on top.'},
+  {key:'edge',      name:'Edge', desc:'Type hard to the bottom corner, nothing above it.'}
 ];
 // these carve the canvas into zones rather than stacking everything down one page
-var ZONED = {split:1, twocol:1, sidebar:1};
+var ZONED = {split:1, twocol:1, sidebar:1, band:1, duo:1};
+// where the words sit in the frame. one carousel that runs top, floor, middle
+// reads as designed; six slides all vertically centred read as a template.
+var ANCHORS = ['top','mid','bottom'];
+function anchorOf(slide){ return ANCHORS.indexOf(slide.anchor)>=0 ? slide.anchor : 'mid'; }
 
 // Drawn geometry that sits behind the words. Kept to the accent colour and
 // off the centre of the frame so it never fights the type.
@@ -342,6 +351,23 @@ function slideInnerHtml(slide, brand){
     if(slide.sub) rest += '<div class="sub">'+mdInline(slide.sub)+'</div>';
     if(bodyParas.length) rest += '<div class="body">'+bodyParas.map(function(p){return '<p>'+mdInline(p)+'</p>';}).join('')+'</div>';
     if(slide.learn) rest += '<div class="learn"><b>Learn this:</b> '+mdInline(slide.learn)+'</div>';
+    if(layout==='band'){
+      // three horizontal fields: label, a full-bleed stripe carrying the line,
+      // then the detail. nothing about it reads as the standard page.
+      return photo + '<div class="page zoned">'+
+        '<div class="zA">'+head+'</div>'+
+        '<div class="zB">'+lede+'</div>'+
+        '<div class="zC"><div class="content">'+rest+'</div>'+foot+'</div>'+
+        '</div>';
+    }
+    if(layout==='duo'){
+      // the canvas cut vertically into two colour fields, the statement sitting
+      // on the floor of the first one
+      return photo + '<div class="page zoned">'+
+        '<div class="zA">'+head+'<div class="content">'+lede+'</div></div>'+
+        '<div class="zB"><div class="content">'+rest+'</div>'+foot+'</div>'+
+        '</div>';
+    }
     if(layout==='sidebar'){
       // the stripe carries the label, the page carries everything else
       return photo + '<div class="page zoned">'+
@@ -355,7 +381,12 @@ function slideInnerHtml(slide, brand){
       '</div>';
   }
 
-  return photo + '<div class="page">'+ head +
+  // drawn furniture that sits behind the page rather than inside the text flow
+  var deco = '';
+  if(layout==='numeral') deco = '<div class="bignum" aria-hidden="true">'+textEsc(slide.tag||'')+'</div>';
+  if(layout==='frame') deco = '<div class="ruleframe" aria-hidden="true"></div>';
+
+  return photo + deco + '<div class="page">'+ head +
     '<div class="content">'+inner+'</div>'+ foot +
     '</div>';
 }
@@ -364,7 +395,7 @@ function buildCanvasEl(slide, brand){
   var ground = groundOf(slide);
   var pm = (slide.photoMode==='plain' || slide.photoMode==='card') ? slide.photoMode : 'scrim';
   div.className = 'slide-canvas' + (ground==='dark' ? ' dark' : '') + (ground==='accent' ? ' onaccent' : '') +
-    ' lay-'+layoutOf(slide) + styleClass(brand) +
+    ' lay-'+layoutOf(slide) + ' anc-'+anchorOf(slide) + styleClass(brand) +
     (slide.photo ? ' has-photo photo-'+pm + (slide.photoKind==='design' ? ' has-design' : '') : '');
   div.innerHTML = slideInnerHtml(slide, brand);
   applyBrand(div, brand);
@@ -1043,11 +1074,43 @@ export function initStudio(){
     return {
       kicker: s0.kicker || '', cite: s0.cite || '', caption: state.caption || '',
       slides: state.slides.map(function(s){
-        return {layout:layoutOf(s), ground:groundOf(s), size:s.size||'md', swipe:!!s.swipe,
+        return {layout:layoutOf(s), ground:groundOf(s), anchor:anchorOf(s), tag:s.tag||'',
+          size:s.size||'md', swipe:!!s.swipe,
           statement:s.statement||'', sub:s.sub||'', body:s.body||'', learn:s.learn||''};
       })
     };
   }
+  // Left alone, a model reaches for the same composition six times and the
+  // carousel reads as a template. These are the compositions that render any
+  // statement/sub/body slide safely, so one can be swapped in for another
+  // without losing a word of what was written.
+  var SWAPPABLE = ['statement','essay','band','numeral','frame','edge','duo','split','twocol','impact','sidebar'];
+  function diversify(slides){
+    var lastGrounds = 0;
+    for(var i=0;i<slides.length;i++){
+      var s = slides[i];
+      var prev = i>0 ? slides[i-1] : null;
+      var prev2 = i>1 ? slides[i-2] : null;
+      // no two neighbours share a composition
+      if(prev && s.layout===prev.layout && SWAPPABLE.indexOf(s.layout)>=0){
+        for(var k=0;k<SWAPPABLE.length;k++){
+          var cand = SWAPPABLE[(i*3+k) % SWAPPABLE.length];
+          if(cand!==prev.layout && (!prev2 || cand!==prev2.layout)){ s.layout = cand; break; }
+        }
+      }
+      // and no three in a row on the same ground
+      if(prev && prev2 && s.ground===prev.ground && prev.ground===prev2.ground){
+        prev.ground = s.ground==='light' ? 'dark' : 'light';
+        prev.dark = prev.ground==='dark';
+      }
+      if(s.layout==='numeral' && !s.tag) s.tag = String(i+1);
+      // vary the vertical placement too, so even two statement slides sit
+      // differently in the frame
+      if(ANCHORS.indexOf(s.anchor)<0) s.anchor = ANCHORS[i % ANCHORS.length];
+    }
+    return slides;
+  }
+
   function applyDraft(result, keepPhotos){
     var kicker = result.kicker || '';
     var realCite = (result.cite || '').trim();
@@ -1058,12 +1121,15 @@ export function initStudio(){
       var slide = { layout: LAYOUT_KEYS.indexOf(s.layout)>=0 ? s.layout : 'statement',
         motif: MOTIF_KEYS.indexOf(s.motif)>=0 ? s.motif : 'none',
         ground: ground, dark: ground==='dark', size: s.size==='lg'?'lg':'md', swipe: !!s.swipe,
+        anchor: ANCHORS.indexOf(s.anchor)>=0 ? s.anchor : '',
+        tag: typeof s.tag==='string' ? s.tag.slice(0,3) : '',
         kicker: kicker, cite: cite, citeIsReal: !!realCite,
         statement: s.statement||'', sub: s.sub||'', body: s.body||'', learn: s.learn||'' };
       if(keepPhotos && old[i] && old[i].photo){ slide.photo = old[i].photo; slide.photoKind = old[i].photoKind; }
       return slide;
     });
     if(!slides.length) throw new Error('no slides came back');
+    diversify(slides);
     // remember the shape of this post so the next one can match it
     state.lastPattern = slides.map(function(s){ return {layout:s.layout, ground:s.ground}; });
     state.slides = slides; state.activeIndex = 0;

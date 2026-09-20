@@ -58,10 +58,17 @@ function buildPrompt(
         '- "sidebar": a narrow band of colour down the left edge carrying the label, with "statement", "sub" and "body" on the rest. A quieter way to break the rhythm.\n' +
         '- "pyramid": a tiered diagram. "body" is one tier per line, TOP tier first, each as "Label: what it covers", three or four tiers. Use it when things genuinely stack, where the top rests on the bottom (foundations under surface, or a small visible part over a large hidden one). Not for a plain list.\n' +
         '- "steps": a numbered sequence with a thread running down it. "body" is one step per line as "Step name: what happens". Use it for a process in real order, three to five steps.\n' +
-        '- "compare": two columns side by side. "body" is exactly TWO blocks separated by a blank line; in each block the first line is the column heading (e.g. "What clients think" / "What actually happens", or "Before" / "After") and the lines under it are its points, two to four each.\n\n' +
+        '- "compare": two columns side by side. "body" is exactly TWO blocks separated by a blank line; in each block the first line is the column heading (e.g. "What clients think" / "What actually happens", or "Before" / "After") and the lines under it are its points, two to four each.\n' +
+        '- "band": a full-width stripe of the brand colour straight across the middle of the frame carrying "statement" reversed out of it, with "sub" and "body" underneath. Use it when one line is the point of the slide.\n' +
+        '- "duo": the frame cut vertically into two colour fields. "statement" sits on the floor of the coloured half, "sub" and "body" fill the plain half.\n' +
+        '- "frame": a ruled box inset from the edges with the label sitting on the top rule and everything centred inside it. Formal, like a notice. Good for a closing line or a principle.\n' +
+        '- "numeral": a figure the height of the page sitting behind the words. Put the figure itself in "tag" (one or two characters, e.g. "3" or "01"), and the point in "statement". Use it when the slide really is the nth of something.\n' +
+        '- "edge": nothing in the top half, then "sub" and a very large "statement" hard down on the floor of the frame above a ruled line. Use it for a line with weight.\n\n' +
         "The three diagrams are worth reaching for when the content really has that structure: they are the slides people save and send on. Do not force one onto content that is just a list.\n\n" +
         '"ground" is "light", "dark" or "accent" (the brand colour as the background). Most slides are light. ' +
         "Put one or two on dark or accent for rhythm, usually the loudest slide and the last one. Never three in a row the same.\n\n" +
+        '"anchor" moves the block of words within the frame: "top", "mid" or "bottom". Change it from slide to slide. ' +
+        "Two slides that share a layout but sit at different heights still read as two different slides.\n\n" +
         "Build the set so the reader gets a different KIND of slide each time they swipe. Across six slides you " +
         "should hit most of these roles, in an order that suits the argument:\n" +
         "  1. an opening statement or title\n" +
@@ -70,7 +77,8 @@ function buildPrompt(
         "  4. something visual: a figure, a pyramid or a comparison\n" +
         "  5. a pull-out: a quote, an impact line or a wall of type\n" +
         "  6. a closing takeaway\n" +
-        "Reach for a divided composition (split, twocol, sidebar) at least once. Never use the same layout " +
+        "At least TWO slides must use a composition that carves up the canvas rather than stacking words down " +
+        "the middle of it: split, twocol, sidebar, band, duo, frame, numeral or edge. Never use the same layout " +
         "twice in a row, and never more than twice in the whole set. A carousel of six stacked statement " +
         "slides is the failure mode: it is what makes a post look generated rather than designed.";
   const isLawgistics = !brand.name || brand.name.toUpperCase() === "LAWGISTICS";
@@ -131,7 +139,7 @@ function buildPrompt(
     '{"layout":"essay","ground":"light","size":"md","statement":"...","body":"..."},' +
     '{"layout":"impact","ground":"accent","size":"lg","statement":"..."}]}\n' +
     "Use **text** for bold and *text* for italics inside statement/sub/body/learn. Each slide object needs " +
-    '"layout", "ground" and "statement", and may include "sub", "body", "learn" (the exam-usable principle, ' +
+    '"layout", "ground" and "statement", and may include "anchor", "tag", "sub", "body", "learn" (the exam-usable principle, ' +
     'one sentence, at most one slide in the set), "size" ("lg" or "md"), "swipe" (true only on slide 1), and ' +
     '"motif".\n\n' +
     '"motif" draws geometry in the brand colour behind the words: "none", "arc" (rings, lower right), ' +
