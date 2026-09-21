@@ -61,7 +61,7 @@ export function OnboardingForm({
 
       <Card>
         <fieldset>
-          <legend className="mb-1 text-lg">Which country are you training in?</legend>
+          <legend className="mb-1 text-lg">Which country do you plan to practice in?</legend>
           <p className="mb-4 text-sm text-slate">
             This one is not a preference. Australian and Malaysian law are different
             bodies of law, so it decides which questions you are ever shown.

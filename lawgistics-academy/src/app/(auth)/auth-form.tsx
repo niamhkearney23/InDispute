@@ -131,7 +131,7 @@ export function AuthForm({
         {isSignup ? (
           <fieldset>
             <legend className="mb-1.5 block text-sm font-medium">
-              Which country are you training in?
+              Which country do you plan to practice in?
             </legend>
             <div className="grid grid-cols-2 gap-2">
               {COUNTRIES.map((value) => (
