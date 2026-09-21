@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { requireCoach } from '@/lib/admin/guard';
 import { Wordmark } from '@/components/ui';
+import { NavLink } from '@/components/nav-link';
 
 /** Auth-gated and per-request. Never prerender anything under /admin. */
 export const dynamic = 'force-dynamic';
@@ -45,13 +46,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </div>
           <nav className="flex flex-wrap items-center gap-x-1 gap-y-0.5 text-sm">
             {links.map(([href, label]) => (
-              <Link
-                key={href}
-                href={href}
-                className="rounded-[5px] px-2.5 py-2 whitespace-nowrap text-slate hover:bg-paper hover:text-ink"
-              >
+              // /admin is the questions page and also the prefix of every other
+              // admin address, so it alone matches exactly.
+              <NavLink key={href} href={href} exact={href === '/admin'} className="hover:bg-paper">
                 {label}
-              </Link>
+              </NavLink>
             ))}
             <Link
               href="/dashboard"

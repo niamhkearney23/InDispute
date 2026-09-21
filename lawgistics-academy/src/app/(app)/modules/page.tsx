@@ -54,7 +54,7 @@ export default async function ModulesPage() {
           <div className="space-y-3">
             {firmModules.map((module) => (
               <Link key={module.id} href={`/modules/firm/${module.slug}`} className="block">
-                <Card className="transition-colors hover:bg-paper-sunk">
+                <Card className="transition-[box-shadow,border-color] hover:border-rule-strong hover:shadow-raised">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
@@ -86,7 +86,7 @@ export default async function ModulesPage() {
               href={`/modules/${entry.module.slug}`}
               className="block"
             >
-              <Card className="flex h-full flex-col justify-between transition-colors hover:bg-paper-sunk">
+              <Card className="flex h-full flex-col justify-between transition-[box-shadow,border-color] hover:border-rule-strong hover:shadow-raised">
                 <div>
                   {entry.module.required || entry.complete ? (
                     <div className="mb-2 flex flex-wrap items-center gap-1.5">

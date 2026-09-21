@@ -255,7 +255,7 @@ export default async function DashboardPage() {
       {/* Today's card knows whether today has started.
           Opening the app after a morning session and reading the same sentence
           as before you began is how a daily habit stops feeling counted. */}
-      <Card className="border-ink/15 bg-paper-raised">
+      <Card className="border-t-2 border-t-burgundy shadow-raised">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-5">
             <GoalRing done={overview.answeredToday} goal={questionCount} />
@@ -298,27 +298,38 @@ export default async function DashboardPage() {
 
       {fact ? <DailyBrief fact={fact} /> : null}
 
-      <section className="grid grid-cols-2 gap-5 sm:grid-cols-4">
-        <Stat
-          label="Current level"
-          value={level.level}
-          hint={`${level.name}, game level`}
-        />
-        <Stat
-          label="Streak"
-          value={overview.currentStreak}
-          hint={
-            overview.currentStreak > 0
-              ? `day${overview.currentStreak === 1 ? '' : 's'} in a row`
-              : 'train today to start one'
-          }
-        />
-        <Stat label="XP this week" value={overview.weeklyXp} hint={`${overview.totalXp} total`} />
-        <Stat
-          label="Due for review"
-          value={overview.dueCount}
-          hint={overview.dueCount === 0 ? 'nothing outstanding' : 'concepts'}
-        />
+      {/* A hairline grid: the 1px gap shows the rule colour through, which
+          draws the dividers in both the two-column and four-column layouts
+          without a border rule for each. */}
+      <section className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-rule bg-rule shadow-card sm:grid-cols-4">
+        <div className="bg-paper-raised px-5 py-4">
+          <Stat
+            label="Current level"
+            value={level.level}
+            hint={`${level.name}, game level`}
+          />
+        </div>
+        <div className="bg-paper-raised px-5 py-4">
+          <Stat
+            label="Streak"
+            value={overview.currentStreak}
+            hint={
+              overview.currentStreak > 0
+                ? `day${overview.currentStreak === 1 ? '' : 's'} in a row`
+                : 'train today to start one'
+            }
+          />
+        </div>
+        <div className="bg-paper-raised px-5 py-4">
+          <Stat label="XP this week" value={overview.weeklyXp} hint={`${overview.totalXp} total`} />
+        </div>
+        <div className="bg-paper-raised px-5 py-4">
+          <Stat
+            label="Due for review"
+            value={overview.dueCount}
+            hint={overview.dueCount === 0 ? 'nothing outstanding' : 'concepts'}
+          />
+        </div>
       </section>
 
       <section>

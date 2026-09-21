@@ -116,89 +116,91 @@ export function AuthForm({
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-5 py-12">
-      <Link href="/" className="mb-10 -mx-1 inline-block rounded-[5px] px-1 py-2">
+      <Link href="/" className="mb-6 -mx-1 inline-block self-start rounded-[5px] px-1 py-2">
         <Wordmark />
       </Link>
 
-      <h1 className="mb-2 text-3xl">{isSignup ? 'Create your account' : 'Welcome back'}</h1>
-      <p className="mb-8 text-slate">
-        {isSignup
-          ? 'Australian and Malaysian litigation. A few questions, then a diagnostic, and about fifteen minutes to a full skill map.'
-          : 'Pick up where you left off.'}
-      </p>
+      <div className="rounded-lg border border-rule bg-paper-raised p-6 shadow-raised sm:p-8">
+        <h1 className="mb-2 text-3xl">{isSignup ? 'Create your account' : 'Welcome back'}</h1>
+        <p className="mb-8 text-slate">
+          {isSignup
+            ? 'Australian and Malaysian litigation. A few questions, then a diagnostic, and about fifteen minutes to a full skill map.'
+            : 'Pick up where you left off.'}
+        </p>
 
-      <form onSubmit={onSubmit} className="space-y-4">
-        {isSignup ? (
-          <fieldset>
-            <legend className="mb-1.5 block text-sm font-medium">
-              Which country do you plan to practice in?
-            </legend>
-            <div className="grid grid-cols-2 gap-2">
-              {COUNTRIES.map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  aria-pressed={country === value}
-                  onClick={() => setCountry(value)}
-                  className={cn(
-                    'h-11 rounded-[5px] border text-[0.9375rem] transition-colors',
-                    country === value
-                      ? 'border-ink bg-paper-sunk font-medium'
-                      : 'border-rule-strong hover:bg-paper-sunk',
-                  )}
-                >
-                  {COUNTRY_LABELS[value]}
-                </button>
-              ))}
-            </div>
-            <p className="mt-1.5 text-xs text-muted">
-              Australian and Malaysian law are different. This decides which questions
-              you are shown, and you can change it later.
-            </p>
-          </fieldset>
-        ) : null}
+        <form onSubmit={onSubmit} className="space-y-4">
+          {isSignup ? (
+            <fieldset>
+              <legend className="mb-1.5 block text-sm font-medium">
+                Which country do you plan to practice in?
+              </legend>
+              <div className="grid grid-cols-2 gap-2">
+                {COUNTRIES.map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    aria-pressed={country === value}
+                    onClick={() => setCountry(value)}
+                    className={cn(
+                      'h-11 rounded-[5px] border text-[0.9375rem] transition-colors',
+                      country === value
+                        ? 'border-ink bg-paper-sunk font-medium'
+                        : 'border-rule-strong hover:bg-paper-sunk',
+                    )}
+                  >
+                    {COUNTRY_LABELS[value]}
+                  </button>
+                ))}
+              </div>
+              <p className="mt-1.5 text-xs text-muted">
+                Australian and Malaysian law are different. This decides which questions
+                you are shown, and you can change it later.
+              </p>
+            </fieldset>
+          ) : null}
 
-        {isSignup ? (
+          {isSignup ? (
+            <Field
+              label="Name"
+              id="displayName"
+              type="text"
+              value={displayName}
+              autoComplete="name"
+              onChange={setDisplayName}
+              placeholder="How should we greet you?"
+            />
+          ) : null}
+
           <Field
-            label="Name"
-            id="displayName"
-            type="text"
-            value={displayName}
-            autoComplete="name"
-            onChange={setDisplayName}
-            placeholder="How should we greet you?"
+            label="Email"
+            id="email"
+            type="email"
+            value={email}
+            autoComplete="email"
+            required
+            onChange={setEmail}
           />
-        ) : null}
 
-        <Field
-          label="Email"
-          id="email"
-          type="email"
-          value={email}
-          autoComplete="email"
-          required
-          onChange={setEmail}
-        />
+          <Field
+            label="Password"
+            id="password"
+            type="password"
+            value={password}
+            autoComplete={isSignup ? 'new-password' : 'current-password'}
+            required
+            minLength={8}
+            hint={isSignup ? 'At least 8 characters.' : undefined}
+            onChange={setPassword}
+          />
 
-        <Field
-          label="Password"
-          id="password"
-          type="password"
-          value={password}
-          autoComplete={isSignup ? 'new-password' : 'current-password'}
-          required
-          minLength={8}
-          hint={isSignup ? 'At least 8 characters.' : undefined}
-          onChange={setPassword}
-        />
+          {error ? <Notice tone="error">{error}</Notice> : null}
+          {notice ? <Notice tone="warn">{notice}</Notice> : null}
 
-        {error ? <Notice tone="error">{error}</Notice> : null}
-        {notice ? <Notice tone="warn">{notice}</Notice> : null}
-
-        <Button type="submit" size="lg" variant="accent" disabled={pending} className="w-full">
-          {pending ? 'One moment…' : isSignup ? 'Create account' : 'Sign in'}
-        </Button>
-      </form>
+          <Button type="submit" size="lg" variant="accent" disabled={pending} className="w-full">
+            {pending ? 'One moment…' : isSignup ? 'Create account' : 'Sign in'}
+          </Button>
+        </form>
+      </div>
 
       <p className="mt-6 text-sm text-slate">
         {isSignup ? 'Already have an account? ' : 'No account yet? '}
@@ -241,7 +243,7 @@ function Field({
         type={type}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper-raised px-3.5 text-base outline-none focus:border-burgundy"
+        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3.5 text-base shadow-[inset_0_1px_2px_rgba(20,17,15,0.04)] transition-[border-color,box-shadow] outline-none focus:border-burgundy focus:ring-4 focus:ring-burgundy/10"
         {...rest}
       />
       {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}

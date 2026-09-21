@@ -12,13 +12,14 @@ export function cn(...classes: Array<string | false | null | undefined>) {
 
 const BUTTON_BASE =
   'inline-flex items-center justify-center gap-2 rounded-[5px] font-medium ' +
-  'transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-45 ' +
+  'transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-45 ' +
   'select-none touch-manipulation';
 
 const BUTTON_VARIANTS = {
-  primary: 'bg-ink text-paper hover:bg-charcoal active:bg-charcoal',
-  accent: 'bg-burgundy text-paper hover:bg-burgundy-soft active:bg-burgundy-soft',
-  outline: 'border border-rule-strong bg-transparent text-ink hover:bg-paper-sunk',
+  primary: 'bg-ink text-paper shadow-button hover:bg-charcoal active:translate-y-px',
+  accent: 'bg-burgundy text-paper shadow-button hover:bg-burgundy-soft active:translate-y-px',
+  outline:
+    'border border-rule-strong bg-paper-raised text-ink shadow-button hover:bg-paper-sunk active:translate-y-px',
   ghost: 'text-slate hover:text-ink hover:bg-paper-sunk',
 } as const;
 
@@ -80,7 +81,7 @@ export function Card({
   return (
     <Tag
       className={cn(
-        'rounded-lg border border-rule bg-paper-raised p-5 sm:p-6',
+        'rounded-lg border border-rule bg-paper-raised p-5 shadow-card sm:p-6',
         className,
       )}
     >
@@ -191,7 +192,7 @@ export function ScoreBar({
         <span className="font-serif text-base tabular-nums">{score}</span>
       </div>
       <div
-        className="h-1.5 w-full overflow-hidden rounded-full bg-paper-sunk"
+        className="h-2 w-full overflow-hidden rounded-full bg-paper-sunk"
         role="meter"
         aria-valuenow={score}
         aria-valuemin={0}
@@ -276,8 +277,15 @@ export function Wordmark({ compact = false }: { compact?: boolean }) {
       <span className="font-serif text-lg leading-none font-semibold tracking-tight">
         {brand.name}
       </span>
-      {!compact && brand.suffix ? (
-        <span className="text-[0.6875rem] font-medium tracking-[0.16em] text-muted uppercase">
+      {brand.suffix ? (
+        <span
+          className={cn(
+            'text-[0.6875rem] font-medium tracking-[0.16em] text-muted uppercase',
+            // The header is tight on a phone (see the app layout), so the
+            // compact form drops the suffix there and keeps it where it fits.
+            compact && 'hidden sm:inline',
+          )}
+        >
           {brand.suffix}
         </span>
       ) : null}

@@ -4,6 +4,7 @@ import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { Wordmark } from '@/components/ui';
 import { Avatar } from '@/components/avatar';
+import { NavLink } from '@/components/nav-link';
 
 /**
  * Every page under this layout is per-learner and auth-gated. Say so explicitly
@@ -44,11 +45,23 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </Link>
 
           <nav className="flex flex-wrap items-center justify-end gap-0 text-[0.8125rem] sm:gap-1 sm:text-sm">
-            <NavLink href="/dashboard">Today</NavLink>
-            <NavLink href="/modules">Learn</NavLink>
-            <NavLink href="/skills">Skills</NavLink>
-            <NavLink href="/courts">Courts</NavLink>
-            {profile?.isAdmin ? <NavLink href="/admin">Admin</NavLink> : null}
+            <NavLink href="/dashboard" className="hover:bg-paper-sunk">
+              Today
+            </NavLink>
+            <NavLink href="/modules" className="hover:bg-paper-sunk">
+              Learn
+            </NavLink>
+            <NavLink href="/skills" className="hover:bg-paper-sunk">
+              Skills
+            </NavLink>
+            <NavLink href="/courts" className="hover:bg-paper-sunk">
+              Courts
+            </NavLink>
+            {profile?.isAdmin ? (
+              <NavLink href="/admin" className="hover:bg-paper-sunk">
+                Admin
+              </NavLink>
+            ) : null}
             {/* An icon-sized link rather than a fifth word: the nav is already
                 tight at 360px (see the note above on the wordmark), and a photo
                 or an initial takes less width than "Account" ever could. The
@@ -86,16 +99,5 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </p>
       </footer>
     </div>
-  );
-}
-
-function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
-  return (
-    <Link
-      href={href}
-      className="rounded-[5px] px-2 py-2 whitespace-nowrap text-slate hover:bg-paper-sunk hover:text-ink sm:px-2.5"
-    >
-      {children}
-    </Link>
   );
 }

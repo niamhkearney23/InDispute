@@ -212,7 +212,9 @@ export function SessionRunner({
                 className={cn(
                   'flex w-full items-start gap-3 rounded-md border px-4 py-3.5 text-left text-[0.9375rem] transition-colors',
                   !answered && isSelected && 'border-ink bg-paper-sunk',
-                  !answered && !isSelected && 'border-rule-strong hover:bg-paper-sunk',
+                  !answered &&
+                    !isSelected &&
+                    'border-rule-strong bg-paper-raised shadow-card hover:bg-paper-sunk',
                   answered &&
                     isCorrectOption &&
                     'border-verdict-correct bg-verdict-correct-wash',
