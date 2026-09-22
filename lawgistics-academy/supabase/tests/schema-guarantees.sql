@@ -458,6 +458,43 @@ select pg_temp.expect(
   'anything that is not exactly MY is narrowed to Australian rather than trusted');
 
 -- -----------------------------------------------------------------------------
+-- The litigation trainee programme
+-- -----------------------------------------------------------------------------
+-- A third choice at signup. Chosen the same untrusted way as country, narrowed
+-- the same way, and a trainee is Malaysian whatever the browser said.
+
+insert into auth.users (id, email, raw_user_meta_data)
+values ('aaaa1111-0000-0000-0000-000000000006', 'trainee@test',
+        '{"country":"AU","track":"litigation_trainee"}'::jsonb);
+
+select pg_temp.expect(
+  (select track = 'litigation_trainee' and country = 'MY'
+   from public.profiles where id = 'aaaa1111-0000-0000-0000-000000000006'),
+  'a signup as a litigation trainee is Malaysian even when the browser says otherwise');
+
+insert into auth.users (id, email, raw_user_meta_data)
+values ('aaaa1111-0000-0000-0000-000000000007', 'junktrack@test',
+        '{"country":"MY","track":"admin"}'::jsonb);
+
+select pg_temp.expect(
+  (select track from public.profiles where id = 'aaaa1111-0000-0000-0000-000000000007') = 'general',
+  'anything that is not exactly the trainee track is general rather than trusted');
+
+select pg_temp.expect(
+  (select track from public.profiles where id = 'aaaa1111-0000-0000-0000-000000000002') = 'general',
+  'a signup that says nothing about a track is general');
+
+select pg_temp.expect_failure(
+  $$update public.profiles set track = 'litigation_trainee'
+    where id = 'aaaa1111-0000-0000-0000-000000000002'$$,
+  'an Australian profile cannot be put on the trainee programme');
+
+select pg_temp.expect_failure(
+  $$update public.profiles set country = 'AU'
+    where id = 'aaaa1111-0000-0000-0000-000000000006'$$,
+  'a trainee cannot be moved to Australia while still on the programme');
+
+-- -----------------------------------------------------------------------------
 -- Firm modules: the compliance record
 -- -----------------------------------------------------------------------------
 -- This is the part a firm pays for, so these are the promises that have to
@@ -682,7 +719,342 @@ select pg_temp.expect_failure(
     where id = 'aaaa1111-0000-0000-0000-000000000001'$$,
   'a joiner cannot move their own start date, which would move their own deadline');
 
+-- Its last day is the same fact, held by the same person.
+select pg_temp.expect_failure(
+  $$update public.profiles set ends_on = current_date + 90
+    where id = 'aaaa1111-0000-0000-0000-000000000001'$$,
+  'a joiner cannot move their own end date either');
+
 reset role;
+
+
+-- -----------------------------------------------------------------------------
+-- Daily homework
+-- -----------------------------------------------------------------------------
+-- The promise: a person ticks off their own homework, nobody ticks it for
+-- them, and nobody, administrators included, can quietly change or remove
+-- what they said afterwards.
+
+insert into public.homework_declarations (user_id, day, task_slug)
+values ('aaaa1111-0000-0000-0000-000000000001', 1, 'find-your-way');
+
+select pg_temp.expect(
+  (select declared_at > now() - interval '1 minute'
+   from public.homework_declarations
+   where user_id = 'aaaa1111-0000-0000-0000-000000000001' and day = 1),
+  'homework is dated by the database, not by whoever sent the request');
+
+select pg_temp.expect_failure(
+  $$insert into public.homework_declarations (user_id, day, task_slug)
+    values ('aaaa1111-0000-0000-0000-000000000001', 0, 'find-your-way')$$,
+  'there is no day zero of a placement');
+
+select pg_temp.expect_failure(
+  $$insert into public.homework_declarations (user_id, day, task_slug)
+    values ('aaaa1111-0000-0000-0000-000000000001', 21, 'find-your-way')$$,
+  'a day past the end of the four weeks is not a day that can be ticked off');
+
+select pg_temp.expect_failure(
+  $$insert into public.homework_declarations (user_id, day, task_slug)
+    values ('aaaa1111-0000-0000-0000-000000000001', 1, 'find-your-way')$$,
+  'the same day cannot be ticked off twice');
+
+select pg_temp.expect(
+  not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'homework_declarations'
+      and cmd in ('UPDATE', 'DELETE', 'ALL')),
+  'no policy grants update or delete on a homework record, administrators included');
+
+-- Somebody else's homework, as somebody else.
+set local role authenticated;
+set local request.jwt.claim.sub = '22222222-2222-2222-2222-222222222222';
+
+select pg_temp.expect_failure(
+  $$insert into public.homework_declarations (user_id, day, task_slug)
+    values ('aaaa1111-0000-0000-0000-000000000001', 2, 'the-file-anatomy')$$,
+  'nobody can tick off somebody else''s homework');
+
+select pg_temp.expect(
+  (select count(*) from public.homework_declarations) = 0,
+  'and nobody can read it either');
+
+-- Their own, as themselves.
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000001';
+
+insert into public.homework_declarations (user_id, day, task_slug)
+values ('aaaa1111-0000-0000-0000-000000000001', 2, 'the-file-anatomy');
+
+select pg_temp.expect(
+  (select count(*) from public.homework_declarations) = 2,
+  'a person can tick off their own homework');
+
+-- No policy means a write matches no rows and reports success, so this is a
+-- survival check rather than an expected error, as with the decisions above.
+delete from public.homework_declarations where day = 1;
+update public.homework_declarations set day = 20 where day = 2;
+
+set local request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+delete from public.homework_declarations
+where user_id = 'aaaa1111-0000-0000-0000-000000000001';
+update public.homework_declarations set task_slug = 'handover'
+where user_id = 'aaaa1111-0000-0000-0000-000000000001';
+
+reset role;
+
+select pg_temp.expect(
+  (select count(*) from public.homework_declarations
+   where user_id = 'aaaa1111-0000-0000-0000-000000000001'
+     and day in (1, 2) and task_slug in ('find-your-way', 'the-file-anatomy')) = 2,
+  'neither the person nor an administrator can take back or rewrite what was said');
+
+
+-- -----------------------------------------------------------------------------
+-- The work board
+-- -----------------------------------------------------------------------------
+-- A coach posts work, the people it is for see it and nobody else does, one
+-- name wins on a post that is for one person, what is handed in cannot be
+-- taken back or rewritten by anybody, and marking is the only thing a coach
+-- can change on it. The coach fixture (44444444...) posts; the Malaysian
+-- trainee (aaaa1111-...-0006), the Malaysian general learner (...-0001) and
+-- the Australian learner (11111111...) are the three audiences.
+
+reset role;
+
+-- A second trainee, to test that the first name wins.
+insert into auth.users (id, email, raw_user_meta_data)
+values ('aaaa1111-0000-0000-0000-000000000008', 'trainee2@test',
+        '{"track":"litigation_trainee"}'::jsonb);
+
+set local role authenticated;
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+
+insert into public.work_posts (id, kind, title, scope, trainees_only, country, published, posted_by)
+values
+  ('bbbb0001-0000-0000-0000-000000000001', 'task', 'Draft the chronology', 'one', true, 'MY', true,
+   '44444444-4444-4444-4444-444444444444'),
+  ('bbbb0001-0000-0000-0000-000000000002', 'task', 'Read the engagement letter', 'everyone', false, 'MY', true,
+   '44444444-4444-4444-4444-444444444444'),
+  ('bbbb0001-0000-0000-0000-000000000003', 'material', 'Sample affidavit', 'one', false, 'MY', true,
+   '44444444-4444-4444-4444-444444444444'),
+  ('bbbb0001-0000-0000-0000-000000000004', 'task', 'Not yet published', 'one', true, 'MY', false,
+   '44444444-4444-4444-4444-444444444444');
+
+select pg_temp.expect(
+  (select count(*) from public.work_posts) = 4,
+  'a coach can post work, and sees drafts');
+
+select pg_temp.expect(
+  (select published_at is not null from public.work_posts
+   where id = 'bbbb0001-0000-0000-0000-000000000001'),
+  'publishing a post stamps when, from the database clock');
+
+select pg_temp.expect_failure(
+  $$insert into public.work_posts (title, link_url, posted_by)
+    values ('Elsewhere', 'https://dropbox.com/s/abc', '44444444-4444-4444-4444-444444444444')$$,
+  'a post cannot link anywhere but the hosts we chose');
+
+-- The Malaysian trainee: sees the trainees-only post, the widened one and the material.
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000006';
+
+select pg_temp.expect(
+  (select count(*) from public.work_posts) = 3,
+  'a trainee sees every published post for them, and no draft');
+
+-- The Malaysian general learner: the trainees-only post is not for them.
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000001';
+
+select pg_temp.expect(
+  (select count(*) from public.work_posts) = 2
+  and not exists (select 1 from public.work_posts where id = 'bbbb0001-0000-0000-0000-000000000001'),
+  'a general learner sees only the posts a coach widened to everyone');
+
+select pg_temp.expect_failure(
+  $$insert into public.work_claims (post_id, user_id)
+    values ('bbbb0001-0000-0000-0000-000000000001', 'aaaa1111-0000-0000-0000-000000000001')$$,
+  'nobody can put their name on a post they cannot see');
+
+-- The Australian learner: nothing here is for them.
+set local request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+
+select pg_temp.expect(
+  (select count(*) from public.work_posts) = 0,
+  'a post for one country is invisible in the other');
+
+-- The first trainee claims the one-person post and the everyone post.
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000006';
+
+insert into public.work_claims (post_id, user_id)
+values ('bbbb0001-0000-0000-0000-000000000001', 'aaaa1111-0000-0000-0000-000000000006'),
+       ('bbbb0001-0000-0000-0000-000000000002', 'aaaa1111-0000-0000-0000-000000000006');
+
+select pg_temp.expect(
+  (select count(*) from public.work_claims
+   where user_id = 'aaaa1111-0000-0000-0000-000000000006') = 2,
+  'a trainee can put their name on work that is for them');
+
+select pg_temp.expect_failure(
+  $$insert into public.work_claims (post_id, user_id)
+    values ('bbbb0001-0000-0000-0000-000000000003', 'aaaa1111-0000-0000-0000-000000000006')$$,
+  'a material is for reading, not for claiming');
+
+select pg_temp.expect_failure(
+  $$insert into public.work_claims (post_id, user_id)
+    values ('bbbb0001-0000-0000-0000-000000000002', 'aaaa1111-0000-0000-0000-000000000008')$$,
+  'nobody can put somebody else''s name on a piece of work');
+
+-- The second trainee: the one-person post is taken, the everyone post is not.
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000008';
+
+select pg_temp.expect_failure(
+  $$insert into public.work_claims (post_id, user_id)
+    values ('bbbb0001-0000-0000-0000-000000000001', 'aaaa1111-0000-0000-0000-000000000008')$$,
+  'on a post for one person, the first name wins');
+
+insert into public.work_claims (post_id, user_id)
+values ('bbbb0001-0000-0000-0000-000000000002', 'aaaa1111-0000-0000-0000-000000000008');
+
+select pg_temp.expect(
+  (select count(*) from public.work_claims
+   where post_id = 'bbbb0001-0000-0000-0000-000000000002') = 1,
+  'on a post for everyone each person sees their own name and nobody else''s');
+
+select pg_temp.expect(
+  (select claims from public.work_claim_counts
+   where post_id = 'bbbb0001-0000-0000-0000-000000000001') = 1
+  and (select count(*) from public.work_claims
+       where post_id = 'bbbb0001-0000-0000-0000-000000000001') = 0,
+  'an intern can see how many names a post has without seeing whose');
+
+select pg_temp.expect_failure(
+  $$insert into public.work_submissions (post_id, user_id, file_path, declared_clean)
+    values ('bbbb0001-0000-0000-0000-000000000001', 'aaaa1111-0000-0000-0000-000000000008',
+            'submissions/aaaa1111-0000-0000-0000-000000000008/x/1.pdf', true)$$,
+  'work cannot be handed in on something without your name on it');
+
+-- The first trainee hands work in.
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000006';
+
+select pg_temp.expect_failure(
+  $$insert into public.work_submissions (post_id, user_id, file_path, declared_clean)
+    values ('bbbb0001-0000-0000-0000-000000000001', 'aaaa1111-0000-0000-0000-000000000006',
+            'submissions/aaaa1111-0000-0000-0000-000000000006/x/1.pdf', false)$$,
+  'work that is not declared free of client-identifying information cannot be handed in');
+
+insert into public.work_submissions (id, post_id, user_id, file_path, declared_clean, submitted_at)
+values ('bbbb0002-0000-0000-0000-000000000001', 'bbbb0001-0000-0000-0000-000000000001',
+        'aaaa1111-0000-0000-0000-000000000006',
+        'submissions/aaaa1111-0000-0000-0000-000000000006/x/1.pdf', true,
+        timestamptz '2019-01-01 00:00:00+00');
+
+select pg_temp.expect(
+  (select submitted_at > now() - interval '1 minute' from public.work_submissions
+   where id = 'bbbb0002-0000-0000-0000-000000000001'),
+  'a submission is dated by the database, not by whoever sent the request');
+
+-- No update or delete policy for the intern means zero rows changed, not an
+-- error, so these are survival checks.
+update public.work_submissions set note = 'rewritten'
+where id = 'bbbb0002-0000-0000-0000-000000000001';
+delete from public.work_submissions where id = 'bbbb0002-0000-0000-0000-000000000001';
+delete from public.work_claims where user_id = 'aaaa1111-0000-0000-0000-000000000006';
+
+select pg_temp.expect(
+  (select count(*) from public.work_submissions
+   where id = 'bbbb0002-0000-0000-0000-000000000001' and note = '') = 1
+  and (select count(*) from public.work_claims
+       where user_id = 'aaaa1111-0000-0000-0000-000000000006') = 2,
+  'an intern cannot rewrite, take back or un-claim what they handed in');
+
+-- The other trainee cannot see it.
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000008';
+
+select pg_temp.expect(
+  (select count(*) from public.work_submissions) = 0,
+  'a trainee never sees another trainee''s work');
+
+-- The coach marks it.
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+
+update public.work_submissions
+set verdict = 'good', feedback = 'Clear and complete.', marked_by = '44444444-4444-4444-4444-444444444444'
+where id = 'bbbb0002-0000-0000-0000-000000000001';
+
+select pg_temp.expect(
+  (select verdict = 'good' and marked_at is not null from public.work_submissions
+   where id = 'bbbb0002-0000-0000-0000-000000000001'),
+  'a coach can mark a submission, and the mark is dated by the database');
+
+select pg_temp.expect_failure(
+  $$update public.work_submissions set file_path = 'submissions/elsewhere.pdf'
+    where id = 'bbbb0002-0000-0000-0000-000000000001'$$,
+  'marking cannot change what was handed in');
+
+-- Unpublishing stops new claims without hiding the post from its claimant.
+update public.work_posts set published = false
+where id = 'bbbb0001-0000-0000-0000-000000000001';
+
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000006';
+
+select pg_temp.expect(
+  (select count(*) from public.work_posts
+   where id = 'bbbb0001-0000-0000-0000-000000000001') = 1,
+  'somebody who put their name on a post keeps seeing it after it is unpublished');
+
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000008';
+
+select pg_temp.expect(
+  (select count(*) from public.work_posts
+   where id = 'bbbb0001-0000-0000-0000-000000000001') = 0,
+  'and somebody who did not, does not');
+
+-- The bucket. An intern writes under their own folder of submissions and
+-- nowhere else; a coach writes under posts; only a coach reads directly.
+insert into storage.objects (bucket_id, name, owner)
+values ('work', 'submissions/aaaa1111-0000-0000-0000-000000000008/p/1.pdf', auth.uid());
+
+select pg_temp.expect_failure(
+  $$insert into storage.objects (bucket_id, name, owner)
+    values ('work', 'submissions/aaaa1111-0000-0000-0000-000000000006/p/1.pdf', auth.uid())$$,
+  'an intern cannot upload into another intern''s folder');
+
+select pg_temp.expect_failure(
+  $$insert into storage.objects (bucket_id, name, owner)
+    values ('work', 'posts/bbbb0001-0000-0000-0000-000000000001/a.pdf', auth.uid())$$,
+  'an intern cannot upload where a coach''s files live');
+
+select pg_temp.expect(
+  (select count(*) from storage.objects where bucket_id = 'work') = 0,
+  'an intern cannot read the work bucket directly, their own file included');
+
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+
+insert into storage.objects (bucket_id, name, owner)
+values ('work', 'posts/bbbb0001-0000-0000-0000-000000000001/a.pdf', auth.uid());
+
+select pg_temp.expect(
+  (select count(*) from storage.objects where bucket_id = 'work') = 2,
+  'a coach can upload a post''s file and can read everything in the bucket');
+
+reset role;
+
+select pg_temp.expect_failure(
+  $$delete from public.work_posts where id = 'bbbb0001-0000-0000-0000-000000000001'$$,
+  'a post with a name on it cannot be deleted, by anybody');
+
+select pg_temp.expect(
+  not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'work_claims'
+      and cmd in ('UPDATE', 'DELETE', 'ALL')),
+  'no policy grants update or delete on a claim, administrators included');
+
+select pg_temp.expect(
+  not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'work_submissions'
+      and cmd in ('DELETE', 'ALL')),
+  'no policy grants delete on a submission, administrators included');
 
 
 -- -----------------------------------------------------------------------------

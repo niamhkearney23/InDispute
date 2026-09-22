@@ -134,6 +134,9 @@ export default async function OnboardingRosterPage() {
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <h3 className="text-lg">{person.displayName ?? 'Unnamed'}</h3>
+                        {person.track === 'litigation_trainee' ? (
+                          <Pill tone="accent">Litigation trainee</Pill>
+                        ) : null}
                         {person.cleared ? (
                           <Pill tone="correct">Cleared</Pill>
                         ) : person.outstandingCount === 0 ? (

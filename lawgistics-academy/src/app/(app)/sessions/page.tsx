@@ -4,6 +4,8 @@ import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { sessionsForLearner } from '@/lib/lessons/sessions';
 import { Card, EmptyState, Pill } from '@/components/ui';
+import { Materials } from '@/components/materials';
+import { postsForSessions } from '@/lib/work/service';
 
 export const metadata: Metadata = { title: 'Sessions' };
 export const dynamic = 'force-dynamic';
@@ -45,6 +47,7 @@ export default async function LearnerSessionsPage() {
     day: '2-digit',
   }).format(new Date());
   const sessions = all.filter((s) => !s.airsOn || s.airsOn <= today);
+  const materials = await postsForSessions();
 
   return (
     <div className="space-y-6">
@@ -89,6 +92,8 @@ export default async function LearnerSessionsPage() {
               className="size-full"
             />
           </div>
+
+          <Materials posts={materials.get(session.id) ?? []} />
         </Card>
       ))}
     </div>

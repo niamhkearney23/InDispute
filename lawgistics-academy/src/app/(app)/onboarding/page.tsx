@@ -44,6 +44,7 @@ export default async function OnboardingPage({
         // most of the people using this are. It is only which button starts
         // pressed: the question is asked, and the answer is theirs.
         defaultCountry={profile?.country ?? 'MY'}
+        defaultTrack={profile?.track ?? 'general'}
         defaultJurisdiction={profile?.homeJurisdiction ?? 'MY_GENERAL'}
       />
     </div>

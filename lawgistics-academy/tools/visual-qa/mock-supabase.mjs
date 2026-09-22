@@ -9,6 +9,12 @@ import http from 'node:http';
 
 const PORT = 54321;
 
+/** ISO date, days from now. Used for homework fixtures so the sweep always
+ *  lands mid-placement regardless of which calendar day it actually runs on. */
+function isoDateFromNow(days) {
+  return new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+}
+
 function b64url(obj) {
   return Buffer.from(JSON.stringify(obj))
     .toString('base64')
@@ -39,6 +45,18 @@ const NEW_USER = {
   user_metadata: {},
 };
 
+// Mid-placement, with a week's homework already behind them, so the "day"
+// state of the homework card renders: today's task with its button, and an
+// earlier day already ticked off. Dated relative to whenever the sweep
+// actually runs, rather than a fixed calendar date that would drift stale.
+const TRAINEE_USER_ID = '44444444-4444-4444-4444-444444444444';
+const TRAINEE_USER = {
+  ...USER,
+  id: TRAINEE_USER_ID,
+  email: 'trainee@lawgistics.test',
+  user_metadata: { display_name: 'Aisyah' },
+};
+
 const EXP = Math.floor(Date.now() / 1000) + 60 * 60 * 24;
 
 function tokenFor(user) {
@@ -66,7 +84,7 @@ function sessionFor(user) {
   };
 }
 
-const USERS = [USER, NEW_USER];
+const USERS = [USER, NEW_USER, TRAINEE_USER];
 
 /** Reads the subject out of an unsigned mock token. */
 function userFromToken(token) {
@@ -434,6 +452,7 @@ const TABLES = {
       home_jurisdiction: 'VIC',
       timezone: 'Australia/Melbourne',
       starts_on: '2099-03-02',
+      ends_on: '2099-05-25',
       onboarded_at: '2026-02-01T00:00:00Z',
       diagnostic_completed_at: '2026-02-01T00:20:00Z',
       is_admin: true,
@@ -455,6 +474,133 @@ const TABLES = {
       diagnostic_completed_at: null,
       is_admin: false,
     },
+    {
+      id: TRAINEE_USER_ID,
+      email: TRAINEE_USER.email,
+      display_name: 'Aisyah',
+      career_stage: 'plt_student',
+      improvement_goals: ['litigation_knowledge'],
+      daily_goal_minutes: 10,
+      country: 'MY',
+      track: 'litigation_trainee',
+      home_jurisdiction: 'MY_GENERAL',
+      timezone: 'Asia/Kuala_Lumpur',
+      starts_on: isoDateFromNow(-7),
+      ends_on: isoDateFromNow(21),
+      onboarded_at: '2026-02-01T00:00:00Z',
+      diagnostic_completed_at: '2026-02-01T00:20:00Z',
+      is_admin: false,
+    },
+  ],
+  homework_declarations: [
+    { user_id: TRAINEE_USER_ID, day: 1, declared_at: isoDateFromNow(-6) },
+  ],
+  /* The work board. One task taken by the trainee and handed in, one open
+     for everybody, one reading hung under the session above and one under
+     homework day 1, so every branch of the board is drawn somewhere. */
+  work_posts: [
+    {
+      id: 'eeee0001-0000-4000-8000-000000000001',
+      kind: 'task',
+      title: 'Draft the letter before action for the joinery dispute',
+      instructions:
+        'Two pages at most. Say what is owed, by when, and what happens if it is not paid. Use the facts in the file and nothing else.',
+      file_path: 'posts/eeee0001-0000-4000-8000-000000000001/brief.pdf',
+      file_name: 'Joinery dispute, de-identified brief.pdf',
+      link_url: null,
+      scope: 'one',
+      trainees_only: true,
+      country: 'MY',
+      due_on: isoDateFromNow(3),
+      session_id: null,
+      homework_day: null,
+      published: true,
+      published_at: isoDateFromNow(-2),
+      posted_by: USER_ID,
+      created_at: isoDateFromNow(-2),
+    },
+    {
+      id: 'eeee0001-0000-4000-8000-000000000002',
+      kind: 'task',
+      title: 'Chronology from the bundle',
+      instructions: 'A one-page chronology of the correspondence in the bundle, oldest first.',
+      file_path: null,
+      file_name: null,
+      link_url: 'https://drive.google.com/file/d/qa-only/view',
+      scope: 'everyone',
+      trainees_only: true,
+      country: null,
+      due_on: null,
+      session_id: null,
+      homework_day: null,
+      published: true,
+      published_at: isoDateFromNow(-1),
+      posted_by: USER_ID,
+      created_at: isoDateFromNow(-1),
+    },
+    {
+      id: 'eeee0001-0000-4000-8000-000000000003',
+      kind: 'material',
+      title: 'The two paragraphs, side by side',
+      instructions: 'The affidavit paragraphs from the session, before and after.',
+      file_path: 'posts/eeee0001-0000-4000-8000-000000000003/paragraphs.pdf',
+      file_name: 'Affidavit paragraphs.pdf',
+      link_url: null,
+      scope: 'one',
+      trainees_only: false,
+      country: null,
+      due_on: null,
+      session_id: 'ddddddd1-0000-4000-8000-000000000001',
+      homework_day: null,
+      published: true,
+      published_at: isoDateFromNow(-3),
+      posted_by: USER_ID,
+      created_at: isoDateFromNow(-3),
+    },
+    {
+      id: 'eeee0001-0000-4000-8000-000000000004',
+      kind: 'material',
+      title: 'How the court file is arranged',
+      instructions: '',
+      file_path: null,
+      file_name: null,
+      link_url: 'https://docs.google.com/document/d/qa-only/edit',
+      scope: 'one',
+      trainees_only: true,
+      country: 'MY',
+      due_on: null,
+      session_id: null,
+      homework_day: 1,
+      published: true,
+      published_at: isoDateFromNow(-7),
+      posted_by: USER_ID,
+      created_at: isoDateFromNow(-7),
+    },
+  ],
+  work_claims: [
+    {
+      id: 'eeee0002-0000-4000-8000-000000000001',
+      post_id: 'eeee0001-0000-4000-8000-000000000001',
+      user_id: TRAINEE_USER_ID,
+      claimed_at: isoDateFromNow(-2),
+    },
+  ],
+  work_claim_counts: [{ post_id: 'eeee0001-0000-4000-8000-000000000001', claims: 1 }],
+  work_submissions: [
+    {
+      id: 'eeee0003-0000-4000-8000-000000000001',
+      post_id: 'eeee0001-0000-4000-8000-000000000001',
+      user_id: TRAINEE_USER_ID,
+      file_path: `submissions/${TRAINEE_USER_ID}/eeee0001-0000-4000-8000-000000000001/1.pdf`,
+      file_name: 'Letter before action, draft 1.pdf',
+      note: 'I was not sure whether to mention the earlier quote.',
+      declared_clean: true,
+      submitted_at: isoDateFromNow(-1),
+      verdict: null,
+      feedback: '',
+      marked_by: null,
+      marked_at: null,
+    },
   ],
   xp_events: Array.from({ length: 43 }, () => ({ amount: 10 })),
   user_streaks: [{ user_id: USER_ID, current_streak: 6, longest_streak: 11 }],
@@ -472,6 +618,28 @@ const TABLES = {
   domains,
   daily_facts: [FACT, LAPSED_FACT],
   diagnostic_results: [
+    // Day one, before "most recent" below: used by the placement compare page
+    // to render two sittings side by side rather than its "not enough data
+    // yet" fallback, and the only one carrying an assigned essay topic.
+    {
+      id: 'dr0',
+      user_id: USER_ID,
+      session_id: SESSION_ID,
+      domain_scores: {
+        'court-system': 70,
+        'legal-reasoning': 60,
+        evidence: 45,
+        'civil-procedure': 30,
+        advocacy: 22,
+        drafting: 18,
+      },
+      skill_scores: { 'evidence-analysis': 50 },
+      priority_domains: ['drafting', 'advocacy', 'civil-procedure'],
+      essay_topic_slug: 'pleadings-au-my',
+      total_questions: 30,
+      total_correct: 12,
+      completed_at: '2026-01-15T09:00:00Z',
+    },
     {
       id: 'dr1',
       user_id: USER_ID,
@@ -686,6 +854,11 @@ const server = http.createServer((req, res) => {
     // persist an uploaded file either. What it proves is that the app's own
     // request succeeds and the UI reacts to that; it cannot prove the photo
     // survives a reload, and nothing here should be read as claiming it does.
+    if (url.pathname.startsWith('/storage/v1/object/sign/')) {
+      // A signed URL that goes nowhere: the sweep needs the link drawn, not
+      // the file behind it.
+      return send(200, { signedURL: url.pathname.replace('/storage/v1', '') + '?token=qa' });
+    }
     if (url.pathname.startsWith('/storage/v1/object/')) {
       if (req.method === 'DELETE') return send(200, []);
       return send(200, { Key: url.pathname.replace('/storage/v1/object/', '') });

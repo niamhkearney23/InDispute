@@ -168,25 +168,38 @@ export async function decide(_state: AdminState, formData: FormData): Promise<Ad
   };
 }
 
-const startDateSchema = z.object({
-  userId: z.string().uuid(),
-  // An empty string clears it. A person whose start date was entered wrongly
-  // should not have to be given a fictional one to get rid of it.
-  startsOn: z
-    .string()
-    .trim()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Use the date picker')
-    .optional()
-    .or(z.literal('')),
-});
+const dateField = z
+  .string()
+  .trim()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, 'Use the date picker')
+  .optional()
+  .or(z.literal(''));
 
-export async function setStartDate(_state: AdminState, formData: FormData): Promise<AdminState> {
+const placementDatesSchema = z
+  .object({
+    userId: z.string().uuid(),
+    // An empty string clears it. A person whose date was entered wrongly
+    // should not have to be given a fictional one to get rid of it.
+    startsOn: dateField,
+    endsOn: dateField,
+  })
+  .refine(
+    (v) => !v.startsOn || !v.endsOn || v.endsOn >= v.startsOn,
+    { message: 'The end date is before the start date.', path: ['endsOn'] },
+  );
+
+/** A placement's first and last day, e.g. for a fixed-length program. */
+export async function setPlacementDates(
+  _state: AdminState,
+  formData: FormData,
+): Promise<AdminState> {
   const adminId = await checkAdmin();
   if (!adminId) return { error: 'You are not signed in as an administrator.' };
 
-  const parsed = startDateSchema.safeParse({
+  const parsed = placementDatesSchema.safeParse({
     userId: formData.get('userId'),
     startsOn: formData.get('startsOn') ?? '',
+    endsOn: formData.get('endsOn') ?? '',
   });
 
   if (!parsed.success) {
@@ -196,14 +209,18 @@ export async function setStartDate(_state: AdminState, formData: FormData): Prom
   const db = createServiceClient();
   const { error } = await db
     .from('profiles')
-    .update({ starts_on: parsed.data.startsOn || null })
+    .update({
+      starts_on: parsed.data.startsOn || null,
+      ends_on: parsed.data.endsOn || null,
+    })
     .eq('id', parsed.data.userId);
 
   if (error) return { error: 'That could not be saved.' };
 
   revalidatePath(`/admin/onboarding/${parsed.data.userId}`);
   revalidatePath('/admin/onboarding');
-  return { error: null, ok: 'Start date saved.' };
+  revalidatePath('/dashboard');
+  return { error: null, ok: 'Dates saved.' };
 }
 
 // -----------------------------------------------------------------------------

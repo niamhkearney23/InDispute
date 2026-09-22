@@ -5,14 +5,16 @@ import { saveOnboarding, type OnboardingState } from '../actions';
 import { Button, Card, Notice, cn } from '@/components/ui';
 import {
   CAREER_STAGE_LABELS,
-  COUNTRIES,
-  COUNTRY_LABELS,
   DEFAULT_JURISDICTION,
   IMPROVEMENT_GOALS,
   JURISDICTION_LABELS,
+  PRACTICE_CHOICES,
+  practiceChoiceFor,
   type CareerStage,
   type Country,
   type Jurisdiction,
+  type LearnerTrack,
+  type PracticeChoice,
 } from '@/lib/types';
 
 const STAGES: CareerStage[] = ['law_student', 'plt_student', 'graduate', 'junior_lawyer'];
@@ -32,17 +34,22 @@ const initialState: OnboardingState = { error: null };
 export function OnboardingForm({
   defaultName,
   defaultCountry,
+  defaultTrack,
   defaultJurisdiction,
 }: {
   defaultName: string;
   defaultCountry: Country;
+  defaultTrack: LearnerTrack;
   defaultJurisdiction: Jurisdiction;
 }) {
   const [state, formAction, pending] = useActionState(saveOnboarding, initialState);
   const [stage, setStage] = useState<CareerStage>('law_student');
   const [goals, setGoals] = useState<string[]>(['litigation_knowledge']);
   const [minutes, setMinutes] = useState(10);
-  const [country, setCountry] = useState<Country>(defaultCountry);
+  const [choice, setChoice] = useState<PracticeChoice>(() =>
+    practiceChoiceFor(defaultCountry, defaultTrack),
+  );
+  const country = choice.country;
 
   function toggleGoal(slug: string) {
     setGoals((current) =>
@@ -54,6 +61,7 @@ export function OnboardingForm({
     <form action={formAction} className="space-y-5">
       <input type="hidden" name="careerStage" value={stage} />
       <input type="hidden" name="country" value={country} />
+      <input type="hidden" name="track" value={choice.track} />
       <input type="hidden" name="dailyGoalMinutes" value={minutes} />
       {goals.map((slug) => (
         <input key={slug} type="hidden" name="goals" value={slug} />
@@ -61,19 +69,20 @@ export function OnboardingForm({
 
       <Card>
         <fieldset>
-          <legend className="mb-1 text-lg">Which country are you training in?</legend>
+          <legend className="mb-1 text-lg">Which country do you plan to practice in?</legend>
           <p className="mb-4 text-sm text-slate">
             This one is not a preference. Australian and Malaysian law are different
-            bodies of law, so it decides which questions you are ever shown.
+            bodies of law, so it decides which questions you are ever shown. A litigation
+            trainee is on a Malaysian firm&rsquo;s programme.
           </p>
-          <div className="grid grid-cols-2 gap-2">
-            {COUNTRIES.map((value) => (
+          <div className="grid gap-2 sm:grid-cols-3">
+            {PRACTICE_CHOICES.map((option) => (
               <Choice
-                key={value}
-                selected={country === value}
-                onClick={() => setCountry(value)}
-                label={COUNTRY_LABELS[value]}
-                centered
+                key={option.key}
+                selected={choice.key === option.key}
+                onClick={() => setChoice(option)}
+                label={option.label}
+                detail={option.detail}
               />
             ))}
           </div>
@@ -197,11 +206,13 @@ function Choice({
   selected,
   onClick,
   label,
+  detail,
   centered = false,
 }: {
   selected: boolean;
   onClick: () => void;
   label: string;
+  detail?: string;
   centered?: boolean;
 }) {
   return (
@@ -218,6 +229,16 @@ function Choice({
       )}
     >
       {label}
+      {detail ? (
+        <span
+          className={cn(
+            'mt-0.5 block text-xs font-normal',
+            selected ? 'text-burgundy/80' : 'text-muted',
+          )}
+        >
+          {detail}
+        </span>
+      ) : null}
     </button>
   );
 }

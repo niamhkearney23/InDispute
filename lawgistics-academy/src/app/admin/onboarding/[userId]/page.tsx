@@ -5,7 +5,7 @@ import { getLearnerProfile } from '@/lib/learner-overview';
 import { onboardingForPerson, decisionHistory } from '@/lib/onboarding/service';
 import { longDate } from '@/lib/onboarding/rules';
 import { ButtonLink, Card, Notice, Pill, SectionHeading } from '@/components/ui';
-import { ConfirmButton, DecisionForm, StartDateForm } from './oversight-forms';
+import { ConfirmButton, DecisionForm, PlacementDatesForm } from './oversight-forms';
 
 export const metadata: Metadata = { title: 'Before they begin' };
 
@@ -34,7 +34,12 @@ export default async function PersonOnboardingPage({
     <div className="space-y-8">
       <section>
         <p className="eyebrow mb-2">Oversight</p>
-        <h1 className="text-3xl">{person.displayName ?? 'Unnamed'}</h1>
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="text-3xl">{person.displayName ?? 'Unnamed'}</h1>
+          {person.track === 'litigation_trainee' ? (
+            <Pill tone="accent">Litigation trainee</Pill>
+          ) : null}
+        </div>
         <p className="mt-2 text-slate">{person.email ?? 'No email'}</p>
       </section>
 
@@ -42,7 +47,9 @@ export default async function PersonOnboardingPage({
         {/* When somebody starts is a firm arrangement, not a supervisor's
             judgement, so the action refuses a coach and the form is not drawn
             for one. Confirming items and deciding readiness stay. */}
-        {isAdmin ? <StartDateForm userId={userId} startsOn={state.startsOn} /> : null}
+        {isAdmin ? (
+          <PlacementDatesForm userId={userId} startsOn={state.startsOn} endsOn={state.endsOn} />
+        ) : null}
         <p className="mt-3 text-xs text-muted">
           Only an administrator can set this. It is the firm’s fact about somebody, not a
           setting they get to move, and the database refuses the change if they try.

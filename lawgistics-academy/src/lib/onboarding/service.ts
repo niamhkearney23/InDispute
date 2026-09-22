@@ -3,7 +3,7 @@ import 'server-only';
 import { createServiceClient } from '@/lib/supabase/service';
 import { listFirmModulesForLearner } from '@/lib/firm/service';
 import { awaitingFirm, settles, type FirmStepKind } from '@/lib/onboarding/rules';
-import type { Country } from '@/lib/types';
+import { asTrack, type Country, type LearnerTrack } from '@/lib/types';
 
 /**
  * Before you begin.
@@ -65,6 +65,7 @@ export interface OnboardingDecision {
 
 export interface BeforeYouBegin {
   startsOn: string | null;
+  endsOn: string | null;
   steps: LearnerStep[];
   /** Required steps not yet done. What the whole page is counting down. */
   outstanding: LearnerStep[];
@@ -150,15 +151,23 @@ export async function beforeYouBegin(
       .eq('published', true)
       .or(`country.is.null,country.eq.${country}`)
       .order('position'),
-    db.from('profiles').select('starts_on').eq('id', userId).maybeSingle(),
+    db.from('profiles').select('starts_on, ends_on').eq('id', userId).maybeSingle(),
     decisionFor(userId),
   ]);
 
   const steps = (rows ?? []).map((r) => shape(r as StepRow));
   const startsOn = (profile?.starts_on as string | null) ?? null;
+  const endsOn = (profile?.ends_on as string | null) ?? null;
 
   if (steps.length === 0) {
-    return { startsOn, steps: [], outstanding: [], decision, cleared: decision?.decision === 'cleared' };
+    return {
+      startsOn,
+      endsOn,
+      steps: [],
+      outstanding: [],
+      decision,
+      cleared: decision?.decision === 'cleared',
+    };
   }
 
   const stepIds = steps.map((s) => s.id);
@@ -218,6 +227,7 @@ export async function beforeYouBegin(
 
   return {
     startsOn,
+    endsOn,
     steps: resolved,
     outstanding: resolved.filter((s) => s.required && !s.done),
     decision,
@@ -268,6 +278,7 @@ export interface RosterEntry {
   displayName: string | null;
   email: string | null;
   startsOn: string | null;
+  track: LearnerTrack;
   requiredCount: number;
   doneCount: number;
   outstandingCount: number;
@@ -289,7 +300,7 @@ export async function onboardingRoster(): Promise<RosterEntry[]> {
   const db = createServiceClient();
   const { data: profiles } = await db
     .from('profiles')
-    .select('id, display_name, email, starts_on, country')
+    .select('id, display_name, email, starts_on, country, track')
     .order('starts_on', { nullsFirst: false });
 
   const people = profiles ?? [];
@@ -306,6 +317,7 @@ export async function onboardingRoster(): Promise<RosterEntry[]> {
         displayName: (p.display_name as string | null) ?? null,
         email: (p.email as string | null) ?? null,
         startsOn: (p.starts_on as string | null) ?? null,
+        track: asTrack(p.track as string | null),
         requiredCount: required.length,
         doneCount: required.filter((s) => s.done).length,
         outstandingCount: state.outstanding.length,
@@ -330,12 +342,13 @@ export async function onboardingForPerson(userId: string): Promise<{
   displayName: string | null;
   email: string | null;
   country: Country;
+  track: LearnerTrack;
   state: BeforeYouBegin;
 } | null> {
   const db = createServiceClient();
   const { data } = await db
     .from('profiles')
-    .select('id, display_name, email, country')
+    .select('id, display_name, email, country, track')
     .eq('id', userId)
     .maybeSingle();
 
@@ -346,6 +359,7 @@ export async function onboardingForPerson(userId: string): Promise<{
     displayName: (data.display_name as string | null) ?? null,
     email: (data.email as string | null) ?? null,
     country,
+    track: asTrack(data.track as string | null),
     state: await beforeYouBegin(userId, country),
   };
 }

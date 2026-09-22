@@ -12,6 +12,10 @@ import {
   submitAnswer,
 } from '@/lib/training/service';
 import { moduleBySlug } from '@/content/seed/modules';
+import { HOMEWORK_DAYS, homeworkForDay } from '@/content/seed/homework';
+import { homeworkDay, lastArrivedDay } from '@/lib/homework/rules';
+import { getLearnerProfile } from '@/lib/learner-overview';
+import { WORK_FILE_TYPES, workFileProblem } from '@/lib/work/links';
 import {
   IMPROVEMENT_GOALS,
   JURISDICTION_COUNTRY,
@@ -27,6 +31,7 @@ const onboardingSchema = z.object({
   goals: z.array(z.string()).min(1).max(GOAL_SLUGS.length),
   dailyGoalMinutes: z.coerce.number().refine((n) => [5, 10, 15, 20].includes(n)),
   country: z.enum(['AU', 'MY']),
+  track: z.enum(['general', 'litigation_trainee']),
   homeJurisdiction: z.enum(JURISDICTION_VALUES),
 });
 
@@ -45,11 +50,18 @@ export async function saveOnboarding(
     goals: formData.getAll('goals').map(String),
     dailyGoalMinutes: formData.get('dailyGoalMinutes'),
     country: formData.get('country'),
+    track: formData.get('track') ?? 'general',
     homeJurisdiction: formData.get('homeJurisdiction'),
   });
 
   if (!parsed.success) {
     return { error: 'Please answer all five questions before continuing.' };
+  }
+
+  // The database refuses this pair too. Checked here so the person gets a
+  // sentence rather than a constraint name.
+  if (parsed.data.track === 'litigation_trainee' && parsed.data.country !== 'MY') {
+    return { error: 'The litigation trainee programme is a Malaysian one.' };
   }
 
   // The form keeps these in step, but the form is not the boundary: this action
@@ -76,6 +88,7 @@ export async function saveOnboarding(
       improvement_goals: goals,
       daily_goal_minutes: parsed.data.dailyGoalMinutes,
       country,
+      track: parsed.data.track,
       home_jurisdiction: parsed.data.homeJurisdiction,
       onboarded_at: new Date().toISOString(),
     })
@@ -205,4 +218,178 @@ export async function finishSession(sessionId: string) {
       ? `/diagnostic/results?session=${sessionId}`
       : `/train/${sessionId}/summary`,
   );
+}
+
+const homeworkSchema = z.object({
+  day: z.coerce.number().int().min(1).max(HOMEWORK_DAYS),
+});
+
+export type HomeworkState = { error: string | null };
+
+/**
+ * A person recording that they have done one of their homework tasks.
+ *
+ * The user comes from the session and the task comes from the day number, so
+ * the only thing the request decides is which of their own days it is
+ * talking about. It cannot tick somebody else's day, name the date, or tick
+ * a day that has not come round yet: a placement that looked, at the end,
+ * like twenty days done in one afternoon would be worth nothing to a firm
+ * reading it.
+ *
+ * A day already gone is fair game, weekend included: Friday's task is still
+ * real on Saturday, and a record that refused to admit that would just teach
+ * people to lie about which day it was.
+ */
+export async function declareHomework(
+  _prev: HomeworkState,
+  formData: FormData,
+): Promise<HomeworkState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: 'You are not signed in.' };
+
+  const parsed = homeworkSchema.safeParse({ day: formData.get('day') });
+  if (!parsed.success) return { error: 'That day could not be read.' };
+
+  const profile = await getLearnerProfile(user.id);
+  if (!profile) return { error: 'Your profile could not be found.' };
+
+  const arrived = lastArrivedDay(
+    homeworkDay(profile.startsOn, profile.endsOn, profile.timezone),
+  );
+  if (parsed.data.day > arrived) {
+    return { error: 'That day has not come round yet.' };
+  }
+
+  const task = homeworkForDay(parsed.data.day);
+  if (!task) return { error: 'That day could not be found.' };
+
+  // A learner recording their own homework needs no elevated privilege, go
+  // through RLS, exactly as saveOnboarding does above.
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from('homework_declarations')
+    .insert({ user_id: user.id, day: parsed.data.day, task_slug: task.slug });
+
+  // Already there is the outcome that was asked for.
+  if (error && error.code !== '23505') {
+    return { error: 'That could not be recorded. Please try again.' };
+  }
+
+  revalidatePath('/dashboard');
+  revalidatePath('/homework');
+  return { error: null };
+}
+
+export type WorkState = { error: string | null; ok?: string };
+
+const claimSchema = z.object({ postId: z.string().uuid() });
+
+/**
+ * Putting your name on a piece of work.
+ *
+ * The user comes from the session and everything else is decided by the
+ * database: whether this person may see the post, whether it is a task,
+ * whether somebody else got there first. This action only says which post,
+ * and reports what the database said back in plain words.
+ */
+export async function claimWork(_prev: WorkState, formData: FormData): Promise<WorkState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: 'You are not signed in.' };
+
+  const parsed = claimSchema.safeParse({ postId: formData.get('postId') });
+  if (!parsed.success) return { error: 'That piece of work could not be found.' };
+
+  // Their own name, through RLS, as saveOnboarding does.
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from('work_claims')
+    .insert({ post_id: parsed.data.postId, user_id: user.id });
+
+  if (error && error.code !== '23505') {
+    // P0001 is a message the trigger wrote in our own words; anything else is
+    // a policy saying no, which reads better as a sentence than as a code.
+    return {
+      error:
+        error.code === 'P0001'
+          ? error.message
+          : 'You cannot put your name on that piece of work.',
+    };
+  }
+
+  revalidatePath('/work');
+  revalidatePath(`/work/${parsed.data.postId}`);
+  revalidatePath('/dashboard');
+  revalidatePath('/admin/work');
+  revalidatePath(`/admin/work/${parsed.data.postId}`);
+  return { error: null, ok: 'Your name is on it.' };
+}
+
+const submitSchema = z.object({
+  postId: z.string().uuid(),
+  note: z.string().trim().max(2000),
+});
+
+/**
+ * Handing work in.
+ *
+ * The tick box is not decoration. Nothing that identifies a client may reach
+ * this platform, and the box is the person saying, on the record, that they
+ * took the names out. The database refuses a row without it, and this action
+ * refuses first so the person gets a sentence rather than a constraint.
+ *
+ * The upload goes through the person's own client, so the bucket policy
+ * (your own folder, nothing else) is what stands between one intern's work
+ * and another's. The path is built from the session here, never read from
+ * the form.
+ */
+export async function submitWork(_prev: WorkState, formData: FormData): Promise<WorkState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: 'You are not signed in.' };
+
+  const parsed = submitSchema.safeParse({
+    postId: formData.get('postId'),
+    note: formData.get('note') ?? '',
+  });
+  if (!parsed.success) return { error: 'That could not be read.' };
+
+  if (formData.get('declaredClean') !== 'on') {
+    return {
+      error:
+        'Tick the box to confirm there is nothing in the file that identifies a client. ' +
+        'If there is, take it out first.',
+    };
+  }
+
+  const file = formData.get('file');
+  if (!(file instanceof File)) return { error: 'Choose a file first.' };
+  const problem = workFileProblem(file);
+  if (problem) return { error: problem };
+
+  const supabase = await createSupabaseServerClient();
+  const path = `submissions/${user.id}/${parsed.data.postId}/${Date.now()}.${WORK_FILE_TYPES[file.type]}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('work')
+    .upload(path, file, { contentType: file.type });
+  if (uploadError) return { error: 'The file could not be uploaded. Please try again.' };
+
+  const { error } = await supabase.from('work_submissions').insert({
+    post_id: parsed.data.postId,
+    user_id: user.id,
+    file_path: path,
+    file_name: file.name.replace(/[\\/]/g, ' ').trim().slice(0, 200) || 'Handed in',
+    note: parsed.data.note,
+    declared_clean: true,
+  });
+
+  if (error) {
+    return { error: 'That could not be handed in. Put your name on the work first.' };
+  }
+
+  revalidatePath('/work');
+  revalidatePath(`/work/${parsed.data.postId}`);
+  revalidatePath('/dashboard');
+  revalidatePath('/admin/work');
+  revalidatePath(`/admin/work/${parsed.data.postId}`);
+  return { error: null, ok: 'Handed in.' };
 }

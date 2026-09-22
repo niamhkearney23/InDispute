@@ -1,17 +1,23 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { getCurrentUser } from '@/lib/supabase/server';
+import { getCurrentUser, createSupabaseServerClient } from '@/lib/supabase/server';
 import { getLearnerOverview } from '@/lib/learner-overview';
 import { masteryBand } from '@/lib/learning/mastery';
 import { outstandingRequired } from '@/lib/modules/service';
 import { outstandingFirmModules } from '@/lib/firm/service';
 import { beforeYouBegin } from '@/lib/onboarding/service';
 import { greeting, greetingName } from '@/lib/greeting';
+import { longDate } from '@/lib/onboarding/rules';
+import { essayTopic } from '@/content/seed/essay-topics';
+import { homeworkForDay } from '@/content/seed/homework';
+import { homeworkDay, lastArrivedDay } from '@/lib/homework/rules';
+import { HomeworkForm } from '../homework-form';
 import { QUESTIONS_PER_MINUTE_GOAL } from '@/lib/learning/config';
 import { TOP_LEVEL_NAME } from '@/lib/learning/progression';
 import { GoalRing } from '@/components/goal-ring';
 import { SessionCard } from '@/components/session-card';
 import { leadSession, sessionsForLearner } from '@/lib/lessons/sessions';
+import { postsForSession, workBoardFor } from '@/lib/work/service';
 import {
   ButtonLink,
   Card,
@@ -39,13 +45,48 @@ export default async function DashboardPage() {
   if (!overview.profile.diagnosticCompletedAt) redirect('/diagnostic');
 
   const { profile, level, skillMap } = overview;
-  const [fact, outstanding, firmOutstanding, joining, sessions] = await Promise.all([
-    getFactOfTheDay(profile.timezone, profile.country),
-    outstandingRequired(user.id, profile.country),
-    outstandingFirmModules(user.id, profile.country),
-    beforeYouBegin(user.id, profile.country),
-    sessionsForLearner(profile.country),
-  ]);
+  const hasPlacement = Boolean(profile.startsOn || profile.endsOn);
+  const supabase = await createSupabaseServerClient();
+  const [
+    fact,
+    outstanding,
+    firmOutstanding,
+    joining,
+    sessions,
+    work,
+    diagnosticSittings,
+    homeworkRows,
+  ] =
+    await Promise.all([
+      getFactOfTheDay(profile.timezone, profile.country),
+      outstandingRequired(user.id, profile.country),
+      outstandingFirmModules(user.id, profile.country),
+      beforeYouBegin(user.id, profile.country),
+      sessionsForLearner(profile.country),
+      workBoardFor(user.id),
+      hasPlacement
+        ? supabase
+            .from('diagnostic_results')
+            .select('essay_topic_slug, completed_at')
+            .eq('user_id', user.id)
+            .order('completed_at', { ascending: true })
+        : Promise.resolve({ data: null }),
+      profile.startsOn
+        ? supabase.from('homework_declarations').select('day').eq('user_id', user.id)
+        : Promise.resolve({ data: null }),
+    ]);
+
+  const sittingCount = diagnosticSittings.data?.length ?? 0;
+  const assignedTopicSlug = diagnosticSittings.data?.[0]?.essay_topic_slug as string | undefined;
+  const assignedTopic = assignedTopicSlug ? essayTopic(assignedTopicSlug) : undefined;
+
+  const homework = homeworkDay(profile.startsOn, profile.endsOn, profile.timezone);
+  const declaredDays = new Set((homeworkRows.data ?? []).map((r) => r.day as number));
+  // Today's own day is offered its own button below, not counted as "earlier".
+  const lastEarlierDay = homework.state === 'day' ? homework.day - 1 : lastArrivedDay(homework);
+  const missedDays = [...Array(lastEarlierDay).keys()]
+    .map((i) => i + 1)
+    .filter((d) => !declaredDays.has(d)).length;
 
   /* Today in the learner's own timezone, not the server's. A coach in Kuala
      Lumpur dating a session for Tuesday means Tuesday there, and a session
@@ -57,6 +98,17 @@ export default async function DashboardPage() {
     day: '2-digit',
   }).format(new Date());
   const lead = leadSession(sessions, today);
+  const leadMaterials = lead ? await postsForSession(lead.id) : [];
+
+  // The board, in three numbers. Only drawn when there is something on it
+  // for this person, so a learner nobody has posted work for never sees an
+  // empty card about it.
+  const workTasks = work.filter((w) => w.post.kind === 'task');
+  const workYours = workTasks.filter((w) => w.claimed && w.state !== 'good').length;
+  const workOpen = workTasks.filter(
+    (w) => !w.claimed && w.post.published && !(w.post.scope === 'one' && w.claims > 0),
+  ).length;
+  const workAgain = workTasks.filter((w) => w.state === 'again').length;
 
   // The pre-start checklist supersedes the bare "you have not read the policy"
   // notice, because a reading step is already one line on it. Showing both
@@ -136,10 +188,96 @@ export default async function DashboardPage() {
         <p className="mt-3 text-lg text-slate">Ready to train like a lawyer?</p>
       </section>
 
+      {hasPlacement ? (
+        <Card>
+          <p className="eyebrow mb-2">Your placement</p>
+          <p className="text-slate">
+            {profile.startsOn ? `Begins ${longDate(profile.startsOn)}.` : ''}
+            {profile.startsOn && profile.endsOn ? ' ' : ''}
+            {profile.endsOn ? `Ends ${longDate(profile.endsOn)}.` : ''}
+          </p>
+          {assignedTopic ? (
+            <p className="mt-3 text-sm text-slate">
+              <strong>Your comparison essay:</strong> {assignedTopic.prompt}
+            </p>
+          ) : null}
+          {sittingCount >= 2 ? (
+            <div className="mt-4">
+              <ButtonLink href="/diagnostic/compare" variant="outline" size="sm">
+                See your day one against your latest
+              </ButtonLink>
+            </div>
+          ) : null}
+        </Card>
+      ) : null}
+
+      {profile.startsOn ? (
+        <Card>
+          {homework.state === 'before' ? (
+            <>
+              <p className="eyebrow mb-2">Homework</p>
+              <p className="text-slate">
+                Your homework begins on {longDate(profile.startsOn)}. Twenty tasks, one for
+                each working day.
+              </p>
+            </>
+          ) : homework.state === 'weekend' ? (
+            <>
+              <p className="eyebrow mb-2">Homework</p>
+              <p className="text-slate">
+                No homework today. Day {homework.nextDay} picks up on Monday.
+              </p>
+            </>
+          ) : homework.state === 'finished' ? (
+            <>
+              <p className="eyebrow mb-2">Homework</p>
+              <p className="text-slate">You finished the four weeks.</p>
+              <p className="mt-2 text-sm text-slate">{declaredDays.size} of 20 recorded.</p>
+            </>
+          ) : homework.state === 'day' ? (
+            (() => {
+              const task = homeworkForDay(homework.day);
+              const done = declaredDays.has(homework.day);
+              return (
+                <>
+                  <p className="eyebrow mb-2">
+                    Homework, day {homework.day} of 20
+                  </p>
+                  {task ? (
+                    <>
+                      <p className="font-serif text-xl leading-snug">{task.title}</p>
+                      <p className="mt-2 text-slate">{task.task}</p>
+                      <p className="mt-2 text-sm text-muted">{task.why}</p>
+                    </>
+                  ) : null}
+                  {done ? (
+                    <div className="mt-4 flex items-center gap-2">
+                      <Pill tone="correct">Done</Pill>
+                    </div>
+                  ) : (
+                    <HomeworkForm day={homework.day} />
+                  )}
+                </>
+              );
+            })()
+          ) : null}
+          {missedDays > 0 ? (
+            <p className="mt-3 text-sm text-slate">
+              {missedDays} earlier {missedDays === 1 ? 'day is' : 'days are'} not ticked off.{' '}
+              <InlineLink href="/homework">Catch up</InlineLink>
+            </p>
+          ) : (
+            <p className="mt-3 text-sm text-muted">
+              <InlineLink href="/homework">See all twenty</InlineLink>
+            </p>
+          )}
+        </Card>
+      ) : null}
+
       {/* Today's card knows whether today has started.
           Opening the app after a morning session and reading the same sentence
           as before you began is how a daily habit stops feeling counted. */}
-      <Card className="border-ink/15 bg-paper-raised">
+      <Card className="border-t-2 border-t-burgundy shadow-raised">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-5">
             <GoalRing done={overview.answeredToday} goal={questionCount} />
@@ -178,31 +316,72 @@ export default async function DashboardPage() {
       {/* The coach's own session comes before the daily brief and before the
           stats. The training runs seven to eight and this is the thing with a
           time on it; the questions will still be there at nine. */}
-      {lead ? <SessionCard session={lead} more={sessions.length - 1} /> : null}
+      {lead ? (
+        <SessionCard session={lead} more={sessions.length - 1} materials={leadMaterials} />
+      ) : null}
+
+      {work.length > 0 ? (
+        <Card>
+          <p className="eyebrow mb-2">Work from your coach</p>
+          {workAgain > 0 ? (
+            <p className="text-slate">
+              {workAgain === 1 ? 'One piece' : `${workAgain} pieces`} of your work{' '}
+              {workAgain === 1 ? 'needs' : 'need'} another go. Your coach has said why.
+            </p>
+          ) : workYours > 0 ? (
+            <p className="text-slate">
+              {workYours === 1 ? 'One piece' : `${workYours} pieces`} of work with your name on{' '}
+              {workYours === 1 ? 'it' : 'them'}.
+              {workOpen > 0 ? ` ${workOpen} more open.` : ''}
+            </p>
+          ) : workOpen > 0 ? (
+            <p className="text-slate">
+              {workOpen === 1 ? 'One piece' : `${workOpen} pieces`} of work open. Put your name
+              on one.
+            </p>
+          ) : (
+            <p className="text-slate">Nothing waiting on you.</p>
+          )}
+          <p className="mt-3 text-sm text-muted">
+            <InlineLink href="/work">Open the board</InlineLink>
+          </p>
+        </Card>
+      ) : null}
 
       {fact ? <DailyBrief fact={fact} /> : null}
 
-      <section className="grid grid-cols-2 gap-5 sm:grid-cols-4">
-        <Stat
-          label="Current level"
-          value={level.level}
-          hint={`${level.name}, game level`}
-        />
-        <Stat
-          label="Streak"
-          value={overview.currentStreak}
-          hint={
-            overview.currentStreak > 0
-              ? `day${overview.currentStreak === 1 ? '' : 's'} in a row`
-              : 'train today to start one'
-          }
-        />
-        <Stat label="XP this week" value={overview.weeklyXp} hint={`${overview.totalXp} total`} />
-        <Stat
-          label="Due for review"
-          value={overview.dueCount}
-          hint={overview.dueCount === 0 ? 'nothing outstanding' : 'concepts'}
-        />
+      {/* A hairline grid: the 1px gap shows the rule colour through, which
+          draws the dividers in both the two-column and four-column layouts
+          without a border rule for each. */}
+      <section className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-rule bg-rule shadow-card sm:grid-cols-4">
+        <div className="bg-paper-raised px-5 py-4">
+          <Stat
+            label="Current level"
+            value={level.level}
+            hint={`${level.name}, game level`}
+          />
+        </div>
+        <div className="bg-paper-raised px-5 py-4">
+          <Stat
+            label="Streak"
+            value={overview.currentStreak}
+            hint={
+              overview.currentStreak > 0
+                ? `day${overview.currentStreak === 1 ? '' : 's'} in a row`
+                : 'train today to start one'
+            }
+          />
+        </div>
+        <div className="bg-paper-raised px-5 py-4">
+          <Stat label="XP this week" value={overview.weeklyXp} hint={`${overview.totalXp} total`} />
+        </div>
+        <div className="bg-paper-raised px-5 py-4">
+          <Stat
+            label="Due for review"
+            value={overview.dueCount}
+            hint={overview.dueCount === 0 ? 'nothing outstanding' : 'concepts'}
+          />
+        </div>
       </section>
 
       <section>

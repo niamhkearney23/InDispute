@@ -24,6 +24,7 @@ import {
   type PendingXpEvent,
 } from '@/lib/learning/progression';
 import { coachOnAnswer } from '@/lib/ai/legal-coach';
+import { pickEssayTopic } from '@/content/seed/essay-topics';
 import { asCountry, GOAL_TO_DOMAIN_SLUGS } from '@/lib/types';
 import type {
   AnswerFeedback,
@@ -947,6 +948,16 @@ async function recordDiagnosticResult(
     .slice(0, 3)
     .map(([slug]) => slug);
 
+  // The essay topic is set once, from the first diagnostic only. A retake
+  // nearer the end of a placement produces a second skill map to compare
+  // against the first; it does not hand out a second topic.
+  const { count: priorDiagnostics } = await db
+    .from('diagnostic_results')
+    .select('session_id', { count: 'exact', head: true })
+    .eq('user_id', userId);
+  const essayTopicSlug =
+    priorDiagnostics === 0 ? pickEssayTopic(priorityDomains).slug : null;
+
   await db.from('diagnostic_results').upsert(
     {
       user_id: userId,
@@ -957,6 +968,7 @@ async function recordDiagnosticResult(
       total_questions: attempts.length,
       total_correct: attempts.filter((a) => a.is_correct).length,
       completed_at: now.toISOString(),
+      essay_topic_slug: essayTopicSlug,
     },
     { onConflict: 'session_id' },
   );
