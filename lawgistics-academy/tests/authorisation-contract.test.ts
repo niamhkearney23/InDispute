@@ -111,6 +111,7 @@ test('the server actions were actually found', () => {
     'answerQuestion',
     'beginModule',
     'beginSession',
+    'claimWork',
     'completeSetup',
     'confirm',
     'createFact',
@@ -122,6 +123,7 @@ test('the server actions were actually found', () => {
     'invite',
     'join',
     'loadNewContent',
+    'markSubmission',
     'publishAllVerified',
     'recordReviewDecision',
     'removeAvatar',
@@ -134,8 +136,10 @@ test('the server actions were actually found', () => {
     'saveSession',
     'saveStep',
     'saveTrainee',
+    'saveWorkPost',
     'setPlacementDates',
     'setPublished',
+    'submitWork',
     'transitionFact',
     'transitionQuestion',
     'updateFact',
@@ -264,6 +268,15 @@ const COACH_ACTIONS = new Set([
   // superseded by a new row.
   'saveTrainee',
   'saveCertificationEntry',
+  // The work board: a lawyer handing their own juniors a piece of work and
+  // marking what comes back. The same reasoning as sessions. A post is not
+  // versioned, carries no answer key, is signed off by nobody and never
+  // reaches the training engine; it is supervision, under the coach's own
+  // name. Marking is the plainest "record a supervisor decision" there is,
+  // and a mark can be corrected in place because the thing marked, the
+  // submission, is append-only and cannot be touched by the marking at all.
+  'saveWorkPost',
+  'markSubmission',
 ]);
 
 test('every admin server action requires a staff role, never merely a session', () => {
@@ -282,7 +295,7 @@ test('every admin server action requires a staff role, never merely a session', 
   assert.deepEqual(weak, [], 'a signed-in learner is neither an administrator nor a coach');
 });
 
-test('nothing outside the named three settles for a coach', () => {
+test('nothing outside the named list settles for a coach', () => {
   // The other half of the same rule, and the half that matters. The test above
   // would pass if every action in the app quietly moved to checkCoach; this one
   // fails the moment one does, and names it.
@@ -379,6 +392,7 @@ test('privileged modules are marked server-only', () => {
     'src/lib/facts/service.ts',
     'src/lib/ai/provider.ts',
     'src/lib/ai/legal-coach.ts',
+    'src/lib/work/service.ts',
   ];
 
   for (const relative of mustBeServerOnly) {

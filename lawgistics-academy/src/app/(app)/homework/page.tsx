@@ -6,6 +6,8 @@ import { HOMEWORK_TASKS } from '@/content/seed/homework';
 import { homeworkDay, lastArrivedDay } from '@/lib/homework/rules';
 import { Card, Pill, SectionHeading } from '@/components/ui';
 import { HomeworkForm } from '../homework-form';
+import { Materials } from '@/components/materials';
+import { postsForHomeworkDays } from '@/lib/work/service';
 
 export const metadata: Metadata = { title: 'Homework' };
 
@@ -25,6 +27,7 @@ export default async function HomeworkPage() {
 
   const homework = homeworkDay(profile.startsOn, profile.endsOn, profile.timezone);
   const arrivedDay = lastArrivedDay(homework);
+  const materials = await postsForHomeworkDays();
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">
@@ -55,6 +58,7 @@ export default async function HomeworkPage() {
                     <p className="mt-2 text-slate">{t.task}</p>
                     <p className="mt-2 text-sm text-muted">{t.why}</p>
                     {!done ? <HomeworkForm day={t.day} /> : null}
+                    <Materials posts={materials.get(t.day) ?? []} />
                   </>
                 ) : (
                   <p className="mt-2 text-sm text-muted">Not due yet.</p>

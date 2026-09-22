@@ -17,6 +17,7 @@ import { TOP_LEVEL_NAME } from '@/lib/learning/progression';
 import { GoalRing } from '@/components/goal-ring';
 import { SessionCard } from '@/components/session-card';
 import { leadSession, sessionsForLearner } from '@/lib/lessons/sessions';
+import { postsForSession, workBoardFor } from '@/lib/work/service';
 import {
   ButtonLink,
   Card,
@@ -46,13 +47,23 @@ export default async function DashboardPage() {
   const { profile, level, skillMap } = overview;
   const hasPlacement = Boolean(profile.startsOn || profile.endsOn);
   const supabase = await createSupabaseServerClient();
-  const [fact, outstanding, firmOutstanding, joining, sessions, diagnosticSittings, homeworkRows] =
+  const [
+    fact,
+    outstanding,
+    firmOutstanding,
+    joining,
+    sessions,
+    work,
+    diagnosticSittings,
+    homeworkRows,
+  ] =
     await Promise.all([
       getFactOfTheDay(profile.timezone, profile.country),
       outstandingRequired(user.id, profile.country),
       outstandingFirmModules(user.id, profile.country),
       beforeYouBegin(user.id, profile.country),
       sessionsForLearner(profile.country),
+      workBoardFor(user.id),
       hasPlacement
         ? supabase
             .from('diagnostic_results')
@@ -87,6 +98,17 @@ export default async function DashboardPage() {
     day: '2-digit',
   }).format(new Date());
   const lead = leadSession(sessions, today);
+  const leadMaterials = lead ? await postsForSession(lead.id) : [];
+
+  // The board, in three numbers. Only drawn when there is something on it
+  // for this person, so a learner nobody has posted work for never sees an
+  // empty card about it.
+  const workTasks = work.filter((w) => w.post.kind === 'task');
+  const workYours = workTasks.filter((w) => w.claimed && w.state !== 'good').length;
+  const workOpen = workTasks.filter(
+    (w) => !w.claimed && w.post.published && !(w.post.scope === 'one' && w.claims > 0),
+  ).length;
+  const workAgain = workTasks.filter((w) => w.state === 'again').length;
 
   // The pre-start checklist supersedes the bare "you have not read the policy"
   // notice, because a reading step is already one line on it. Showing both
@@ -294,7 +316,37 @@ export default async function DashboardPage() {
       {/* The coach's own session comes before the daily brief and before the
           stats. The training runs seven to eight and this is the thing with a
           time on it; the questions will still be there at nine. */}
-      {lead ? <SessionCard session={lead} more={sessions.length - 1} /> : null}
+      {lead ? (
+        <SessionCard session={lead} more={sessions.length - 1} materials={leadMaterials} />
+      ) : null}
+
+      {work.length > 0 ? (
+        <Card>
+          <p className="eyebrow mb-2">Work from your coach</p>
+          {workAgain > 0 ? (
+            <p className="text-slate">
+              {workAgain === 1 ? 'One piece' : `${workAgain} pieces`} of your work{' '}
+              {workAgain === 1 ? 'needs' : 'need'} another go. Your coach has said why.
+            </p>
+          ) : workYours > 0 ? (
+            <p className="text-slate">
+              {workYours === 1 ? 'One piece' : `${workYours} pieces`} of work with your name on{' '}
+              {workYours === 1 ? 'it' : 'them'}.
+              {workOpen > 0 ? ` ${workOpen} more open.` : ''}
+            </p>
+          ) : workOpen > 0 ? (
+            <p className="text-slate">
+              {workOpen === 1 ? 'One piece' : `${workOpen} pieces`} of work open. Put your name
+              on one.
+            </p>
+          ) : (
+            <p className="text-slate">Nothing waiting on you.</p>
+          )}
+          <p className="mt-3 text-sm text-muted">
+            <InlineLink href="/work">Open the board</InlineLink>
+          </p>
+        </Card>
+      ) : null}
 
       {fact ? <DailyBrief fact={fact} /> : null}
 

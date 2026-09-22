@@ -15,6 +15,7 @@ import { moduleBySlug } from '@/content/seed/modules';
 import { HOMEWORK_DAYS, homeworkForDay } from '@/content/seed/homework';
 import { homeworkDay, lastArrivedDay } from '@/lib/homework/rules';
 import { getLearnerProfile } from '@/lib/learner-overview';
+import { WORK_FILE_TYPES, workFileProblem } from '@/lib/work/links';
 import {
   IMPROVEMENT_GOALS,
   JURISDICTION_COUNTRY,
@@ -277,4 +278,118 @@ export async function declareHomework(
   revalidatePath('/dashboard');
   revalidatePath('/homework');
   return { error: null };
+}
+
+export type WorkState = { error: string | null; ok?: string };
+
+const claimSchema = z.object({ postId: z.string().uuid() });
+
+/**
+ * Putting your name on a piece of work.
+ *
+ * The user comes from the session and everything else is decided by the
+ * database: whether this person may see the post, whether it is a task,
+ * whether somebody else got there first. This action only says which post,
+ * and reports what the database said back in plain words.
+ */
+export async function claimWork(_prev: WorkState, formData: FormData): Promise<WorkState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: 'You are not signed in.' };
+
+  const parsed = claimSchema.safeParse({ postId: formData.get('postId') });
+  if (!parsed.success) return { error: 'That piece of work could not be found.' };
+
+  // Their own name, through RLS, as saveOnboarding does.
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from('work_claims')
+    .insert({ post_id: parsed.data.postId, user_id: user.id });
+
+  if (error && error.code !== '23505') {
+    // P0001 is a message the trigger wrote in our own words; anything else is
+    // a policy saying no, which reads better as a sentence than as a code.
+    return {
+      error:
+        error.code === 'P0001'
+          ? error.message
+          : 'You cannot put your name on that piece of work.',
+    };
+  }
+
+  revalidatePath('/work');
+  revalidatePath(`/work/${parsed.data.postId}`);
+  revalidatePath('/dashboard');
+  revalidatePath('/admin/work');
+  revalidatePath(`/admin/work/${parsed.data.postId}`);
+  return { error: null, ok: 'Your name is on it.' };
+}
+
+const submitSchema = z.object({
+  postId: z.string().uuid(),
+  note: z.string().trim().max(2000),
+});
+
+/**
+ * Handing work in.
+ *
+ * The tick box is not decoration. Nothing that identifies a client may reach
+ * this platform, and the box is the person saying, on the record, that they
+ * took the names out. The database refuses a row without it, and this action
+ * refuses first so the person gets a sentence rather than a constraint.
+ *
+ * The upload goes through the person's own client, so the bucket policy
+ * (your own folder, nothing else) is what stands between one intern's work
+ * and another's. The path is built from the session here, never read from
+ * the form.
+ */
+export async function submitWork(_prev: WorkState, formData: FormData): Promise<WorkState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: 'You are not signed in.' };
+
+  const parsed = submitSchema.safeParse({
+    postId: formData.get('postId'),
+    note: formData.get('note') ?? '',
+  });
+  if (!parsed.success) return { error: 'That could not be read.' };
+
+  if (formData.get('declaredClean') !== 'on') {
+    return {
+      error:
+        'Tick the box to confirm there is nothing in the file that identifies a client. ' +
+        'If there is, take it out first.',
+    };
+  }
+
+  const file = formData.get('file');
+  if (!(file instanceof File)) return { error: 'Choose a file first.' };
+  const problem = workFileProblem(file);
+  if (problem) return { error: problem };
+
+  const supabase = await createSupabaseServerClient();
+  const path = `submissions/${user.id}/${parsed.data.postId}/${Date.now()}.${WORK_FILE_TYPES[file.type]}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('work')
+    .upload(path, file, { contentType: file.type });
+  if (uploadError) return { error: 'The file could not be uploaded. Please try again.' };
+
+  const { error } = await supabase.from('work_submissions').insert({
+    post_id: parsed.data.postId,
+    user_id: user.id,
+    file_path: path,
+    file_name: file.name.replace(/[\\/]/g, ' ').trim().slice(0, 200) || 'Handed in',
+    note: parsed.data.note,
+    declared_clean: true,
+  });
+
+  if (error) {
+    return { error: 'That could not be handed in. Put your name on the work first.' };
+  }
+
+  revalidatePath('/work');
+  revalidatePath(`/work/${parsed.data.postId}`);
+  revalidatePath('/dashboard');
+  revalidatePath('/admin/work');
+  revalidatePath(`/admin/work/${parsed.data.postId}`);
+  return { error: null, ok: 'Handed in.' };
 }

@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { Card, Pill } from '@/components/ui';
 import { Avatar } from '@/components/avatar';
 import type { CoachSession } from '@/lib/lessons/sessions';
+import { Materials } from '@/components/materials';
+import type { WorkPost } from '@/lib/work/service';
 
 /**
  * This morning's session, on the dashboard.
@@ -19,10 +21,13 @@ import type { CoachSession } from '@/lib/lessons/sessions';
 export function SessionCard({
   session,
   more,
+  materials = [],
 }: {
   session: CoachSession;
   /** How many others are up, so the link says whether it is worth pressing. */
   more: number;
+  /** What the coach hung under it: a reading, or a task that goes with it. */
+  materials?: WorkPost[];
 }) {
   return (
     <Card>
@@ -56,6 +61,8 @@ export function SessionCard({
       {/* A link somebody taps on a phone, so it is given a row to be tapped in.
           As bare text it was a 17px target, which is half what a thumb needs and
           is the sort of thing that reads as the app ignoring you. */}
+      <Materials posts={materials} />
+
       {more > 0 ? (
         <p className="mt-2">
           <Link

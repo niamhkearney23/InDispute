@@ -495,6 +495,113 @@ const TABLES = {
   homework_declarations: [
     { user_id: TRAINEE_USER_ID, day: 1, declared_at: isoDateFromNow(-6) },
   ],
+  /* The work board. One task taken by the trainee and handed in, one open
+     for everybody, one reading hung under the session above and one under
+     homework day 1, so every branch of the board is drawn somewhere. */
+  work_posts: [
+    {
+      id: 'eeee0001-0000-4000-8000-000000000001',
+      kind: 'task',
+      title: 'Draft the letter before action for the joinery dispute',
+      instructions:
+        'Two pages at most. Say what is owed, by when, and what happens if it is not paid. Use the facts in the file and nothing else.',
+      file_path: 'posts/eeee0001-0000-4000-8000-000000000001/brief.pdf',
+      file_name: 'Joinery dispute, de-identified brief.pdf',
+      link_url: null,
+      scope: 'one',
+      trainees_only: true,
+      country: 'MY',
+      due_on: isoDateFromNow(3),
+      session_id: null,
+      homework_day: null,
+      published: true,
+      published_at: isoDateFromNow(-2),
+      posted_by: USER_ID,
+      created_at: isoDateFromNow(-2),
+    },
+    {
+      id: 'eeee0001-0000-4000-8000-000000000002',
+      kind: 'task',
+      title: 'Chronology from the bundle',
+      instructions: 'A one-page chronology of the correspondence in the bundle, oldest first.',
+      file_path: null,
+      file_name: null,
+      link_url: 'https://drive.google.com/file/d/qa-only/view',
+      scope: 'everyone',
+      trainees_only: true,
+      country: null,
+      due_on: null,
+      session_id: null,
+      homework_day: null,
+      published: true,
+      published_at: isoDateFromNow(-1),
+      posted_by: USER_ID,
+      created_at: isoDateFromNow(-1),
+    },
+    {
+      id: 'eeee0001-0000-4000-8000-000000000003',
+      kind: 'material',
+      title: 'The two paragraphs, side by side',
+      instructions: 'The affidavit paragraphs from the session, before and after.',
+      file_path: 'posts/eeee0001-0000-4000-8000-000000000003/paragraphs.pdf',
+      file_name: 'Affidavit paragraphs.pdf',
+      link_url: null,
+      scope: 'one',
+      trainees_only: false,
+      country: null,
+      due_on: null,
+      session_id: 'ddddddd1-0000-4000-8000-000000000001',
+      homework_day: null,
+      published: true,
+      published_at: isoDateFromNow(-3),
+      posted_by: USER_ID,
+      created_at: isoDateFromNow(-3),
+    },
+    {
+      id: 'eeee0001-0000-4000-8000-000000000004',
+      kind: 'material',
+      title: 'How the court file is arranged',
+      instructions: '',
+      file_path: null,
+      file_name: null,
+      link_url: 'https://docs.google.com/document/d/qa-only/edit',
+      scope: 'one',
+      trainees_only: true,
+      country: 'MY',
+      due_on: null,
+      session_id: null,
+      homework_day: 1,
+      published: true,
+      published_at: isoDateFromNow(-7),
+      posted_by: USER_ID,
+      created_at: isoDateFromNow(-7),
+    },
+  ],
+  work_claims: [
+    {
+      id: 'eeee0002-0000-4000-8000-000000000001',
+      post_id: 'eeee0001-0000-4000-8000-000000000001',
+      user_id: TRAINEE_USER_ID,
+      claimed_at: isoDateFromNow(-2),
+    },
+  ],
+  work_claim_counts: [{ post_id: 'eeee0001-0000-4000-8000-000000000001', claims: 1 }],
+  work_submissions: [
+    {
+      id: 'eeee0003-0000-4000-8000-000000000001',
+      post_id: 'eeee0001-0000-4000-8000-000000000001',
+      user_id: TRAINEE_USER_ID,
+      file_path: `submissions/${TRAINEE_USER_ID}/eeee0001-0000-4000-8000-000000000001/1.pdf`,
+      file_name: 'Letter before action, draft 1.pdf',
+      note: 'I was not sure whether to mention the earlier quote.',
+      declared_clean: true,
+      submitted_at: isoDateFromNow(-1),
+      verdict: null,
+      feedback: '',
+      marked_by: null,
+      marked_at: null,
+    },
+  ],
   xp_events: Array.from({ length: 43 }, () => ({ amount: 10 })),
   user_streaks: [{ user_id: USER_ID, current_streak: 6, longest_streak: 11 }],
   user_concept_mastery: conceptMastery,
@@ -747,6 +854,11 @@ const server = http.createServer((req, res) => {
     // persist an uploaded file either. What it proves is that the app's own
     // request succeeds and the UI reacts to that; it cannot prove the photo
     // survives a reload, and nothing here should be read as claiming it does.
+    if (url.pathname.startsWith('/storage/v1/object/sign/')) {
+      // A signed URL that goes nowhere: the sweep needs the link drawn, not
+      // the file behind it.
+      return send(200, { signedURL: url.pathname.replace('/storage/v1', '') + '?token=qa' });
+    }
     if (url.pathname.startsWith('/storage/v1/object/')) {
       if (req.method === 'DELETE') return send(200, []);
       return send(200, { Key: url.pathname.replace('/storage/v1/object/', '') });
