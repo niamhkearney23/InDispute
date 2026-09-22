@@ -1,35 +1,35 @@
 {
-  "generatedDate": "2026-09-21",
+  "generatedDate": "2026-09-22",
   "jobs": [
-    {
-      "employer": "Allens",
-      "program": "Paralegal Program – February 2027 intake",
-      "jurisdiction": "National",
-      "opens": null,
-      "closes": null,
-      "notes": "Allens' official graduates site states applications for the February 2027 program open in September 2026 but gives no exact open or close date, so both are left null; clerkship applications for 2026/2027 are shown as closed.",
-      "url": "https://graduates.allens.com.au/",
-      "verifiedDate": "2026-09-21"
-    },
-    {
-      "employer": "Allens",
-      "program": "Paralegal Program – May 2027 intake",
-      "jurisdiction": "National",
-      "opens": null,
-      "closes": null,
-      "notes": "Confirmed future intake — the official site says applications open in March 2027, with no specific day published, so dates are null.",
-      "url": "https://graduates.allens.com.au/",
-      "verifiedDate": "2026-09-21"
-    },
     {
       "employer": "Clayton Utz",
       "program": "Seasonal Clerkship 2027/28",
-      "jurisdiction": "National",
+      "jurisdiction": "National (Sydney, Melbourne, Brisbane, Perth, Canberra, Darwin)",
       "opens": null,
       "closes": null,
-      "notes": "Firm's own early careers page states applications are currently closed and will open in June for the 2027/28 seasonal clerkship program, with a pre-registration option; no exact dates are published, so opens/closes are null.",
+      "notes": "Firm's own early careers page states applications are currently closed and will reopen in June 2027 for the 2027/28 seasonal clerkship intake, with a pre-registration option; the firm has not yet published an exact opening or closing date, so both are left null rather than guessed.",
       "url": "https://www.claytonutz.com/careers/early-careers/seasonal-clerkships",
-      "verifiedDate": "2026-09-21"
+      "verifiedDate": "2026-09-22"
+    },
+    {
+      "employer": "Queensland Law Society (scheme administrator for signatory firms incl. Allens, Ashurst, Clayton Utz, Corrs, DLA Piper, Gadens, HSF Kramer, Herbert Smith Freehills Kramer, HopgoodGanim, Norton Rose Fulbright)",
+      "program": "QLS Seasonal Clerkship and Graduate Recruitment — 2027 program cycle",
+      "jurisdiction": "QLD",
+      "opens": null,
+      "closes": null,
+      "notes": "The live QLS page carries a 'Key dates – 2027 program cycle' table and confirms the cycle runs clerkship recruitment in July/August with Summer One, Summer Two, Autumn and Winter placements, but the exact 2027-cycle open and close timestamps could not be read off the source at time of checking, so dates are null; each signatory firm still runs its own application process.",
+      "url": "https://www.qls.com.au/the-hub-early-career-lawyers/your-legal-career/seasonal-clerkship-and-graduate-recruitment",
+      "verifiedDate": "2026-09-22"
+    },
+    {
+      "employer": "The Law Society of New South Wales (scheme administrator for participating firms)",
+      "program": "Graduate and Clerkship Recruitment Program — next (2027) cycle",
+      "jurisdiction": "NSW",
+      "opens": null,
+      "closes": null,
+      "notes": "The Law Society sets NSW clerkship open/close/offer dates annually and only the 2026 cycle guidelines (applications opened and closed mid-2026, now past) could be confirmed as published; 2027-cycle dates were not confirmed on the live page at the time of checking, so both dates are null and applicants must be in penultimate or final year to be eligible.",
+      "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Clerkship-Recruitment-Program",
+      "verifiedDate": "2026-09-22"
     }
   ]
 }
