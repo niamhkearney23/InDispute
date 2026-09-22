@@ -458,6 +458,43 @@ select pg_temp.expect(
   'anything that is not exactly MY is narrowed to Australian rather than trusted');
 
 -- -----------------------------------------------------------------------------
+-- The litigation trainee programme
+-- -----------------------------------------------------------------------------
+-- A third choice at signup. Chosen the same untrusted way as country, narrowed
+-- the same way, and a trainee is Malaysian whatever the browser said.
+
+insert into auth.users (id, email, raw_user_meta_data)
+values ('aaaa1111-0000-0000-0000-000000000006', 'trainee@test',
+        '{"country":"AU","track":"litigation_trainee"}'::jsonb);
+
+select pg_temp.expect(
+  (select track = 'litigation_trainee' and country = 'MY'
+   from public.profiles where id = 'aaaa1111-0000-0000-0000-000000000006'),
+  'a signup as a litigation trainee is Malaysian even when the browser says otherwise');
+
+insert into auth.users (id, email, raw_user_meta_data)
+values ('aaaa1111-0000-0000-0000-000000000007', 'junktrack@test',
+        '{"country":"MY","track":"admin"}'::jsonb);
+
+select pg_temp.expect(
+  (select track from public.profiles where id = 'aaaa1111-0000-0000-0000-000000000007') = 'general',
+  'anything that is not exactly the trainee track is general rather than trusted');
+
+select pg_temp.expect(
+  (select track from public.profiles where id = 'aaaa1111-0000-0000-0000-000000000002') = 'general',
+  'a signup that says nothing about a track is general');
+
+select pg_temp.expect_failure(
+  $$update public.profiles set track = 'litigation_trainee'
+    where id = 'aaaa1111-0000-0000-0000-000000000002'$$,
+  'an Australian profile cannot be put on the trainee programme');
+
+select pg_temp.expect_failure(
+  $$update public.profiles set country = 'AU'
+    where id = 'aaaa1111-0000-0000-0000-000000000006'$$,
+  'a trainee cannot be moved to Australia while still on the programme');
+
+-- -----------------------------------------------------------------------------
 -- Firm modules: the compliance record
 -- -----------------------------------------------------------------------------
 -- This is the part a firm pays for, so these are the promises that have to

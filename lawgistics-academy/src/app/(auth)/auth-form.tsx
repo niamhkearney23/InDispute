@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Button, Notice, Wordmark, cn } from '@/components/ui';
-import { COUNTRIES, COUNTRY_LABELS, type Country } from '@/lib/types';
+import { PRACTICE_CHOICES, practiceChoiceFor, type Country, type PracticeChoice } from '@/lib/types';
 
 export function AuthForm({
   mode,
@@ -34,7 +34,9 @@ export function AuthForm({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [country, setCountry] = useState<Country>(defaultCountry);
+  const [choice, setChoice] = useState<PracticeChoice>(() =>
+    practiceChoiceFor(defaultCountry, 'general'),
+  );
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(problem ?? null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -72,10 +74,15 @@ export function AuthForm({
         email,
         password,
         options: {
-          // Read by the profile trigger, which narrows it: anything that is
-          // not exactly 'MY' becomes 'AU', because this value is written by the
-          // browser and is therefore whatever the browser felt like sending.
-          data: { display_name: displayName || email.split('@')[0], country },
+          // Read by the profile trigger, which narrows both: anything that is
+          // not exactly 'MY' becomes 'AU' and anything that is not exactly a
+          // trainee is general, because these values are written by the
+          // browser and are therefore whatever the browser felt like sending.
+          data: {
+            display_name: displayName || email.split('@')[0],
+            country: choice.country,
+            track: choice.track,
+          },
           emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
         },
       });
@@ -134,21 +141,22 @@ export function AuthForm({
               <legend className="mb-1.5 block text-sm font-medium">
                 Which country do you plan to practice in?
               </legend>
-              <div className="grid grid-cols-2 gap-2">
-                {COUNTRIES.map((value) => (
+              <div className="grid gap-2 sm:grid-cols-3">
+                {PRACTICE_CHOICES.map((option) => (
                   <button
-                    key={value}
+                    key={option.key}
                     type="button"
-                    aria-pressed={country === value}
-                    onClick={() => setCountry(value)}
+                    aria-pressed={choice.key === option.key}
+                    onClick={() => setChoice(option)}
                     className={cn(
-                      'h-11 rounded-[5px] border text-[0.9375rem] transition-colors',
-                      country === value
-                        ? 'border-ink bg-paper-sunk font-medium'
+                      'rounded-[5px] border px-3 py-2.5 text-left transition-colors',
+                      choice.key === option.key
+                        ? 'border-ink bg-paper-sunk'
                         : 'border-rule-strong hover:bg-paper-sunk',
                     )}
                   >
-                    {COUNTRY_LABELS[value]}
+                    <span className="block text-[0.9375rem] font-medium">{option.label}</span>
+                    <span className="mt-0.5 block text-xs text-muted">{option.detail}</span>
                   </button>
                 ))}
               </div>

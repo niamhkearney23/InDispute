@@ -30,6 +30,7 @@ const onboardingSchema = z.object({
   goals: z.array(z.string()).min(1).max(GOAL_SLUGS.length),
   dailyGoalMinutes: z.coerce.number().refine((n) => [5, 10, 15, 20].includes(n)),
   country: z.enum(['AU', 'MY']),
+  track: z.enum(['general', 'litigation_trainee']),
   homeJurisdiction: z.enum(JURISDICTION_VALUES),
 });
 
@@ -48,11 +49,18 @@ export async function saveOnboarding(
     goals: formData.getAll('goals').map(String),
     dailyGoalMinutes: formData.get('dailyGoalMinutes'),
     country: formData.get('country'),
+    track: formData.get('track') ?? 'general',
     homeJurisdiction: formData.get('homeJurisdiction'),
   });
 
   if (!parsed.success) {
     return { error: 'Please answer all five questions before continuing.' };
+  }
+
+  // The database refuses this pair too. Checked here so the person gets a
+  // sentence rather than a constraint name.
+  if (parsed.data.track === 'litigation_trainee' && parsed.data.country !== 'MY') {
+    return { error: 'The litigation trainee programme is a Malaysian one.' };
   }
 
   // The form keeps these in step, but the form is not the boundary: this action
@@ -79,6 +87,7 @@ export async function saveOnboarding(
       improvement_goals: goals,
       daily_goal_minutes: parsed.data.dailyGoalMinutes,
       country,
+      track: parsed.data.track,
       home_jurisdiction: parsed.data.homeJurisdiction,
       onboarded_at: new Date().toISOString(),
     })

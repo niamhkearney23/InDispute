@@ -15,6 +15,16 @@ export type CareerStage =
  */
 export type Country = 'AU' | 'MY';
 
+/**
+ * Which programme a learner is on.
+ *
+ * A litigation trainee is on a Malaysian firm's programme. It sits beside
+ * country rather than inside it, because "Malaysia" is a body of law and
+ * "trainee" is an arrangement with a firm; the database refuses a trainee
+ * whose country is not Malaysia.
+ */
+export type LearnerTrack = 'general' | 'litigation_trainee';
+
 export type Jurisdiction =
   | 'AU_GENERAL'
   | 'CTH'
@@ -205,6 +215,61 @@ export const JURISDICTION_VALUES = Object.keys(JURISDICTION_COUNTRY) as [
 
 export function asCountry(value: string | null | undefined): Country {
   return value === 'MY' ? 'MY' : 'AU';
+}
+
+export function asTrack(value: string | null | undefined): LearnerTrack {
+  return value === 'litigation_trainee' ? 'litigation_trainee' : 'general';
+}
+
+export const LEARNER_TRACK_LABELS: Record<LearnerTrack, string> = {
+  general: 'General',
+  litigation_trainee: 'Litigation trainee',
+};
+
+/**
+ * The one question signup and onboarding both ask, as three buttons.
+ *
+ * Two of them are countries and the third is a programme, so the question
+ * cannot be "which country" alone any more. Each choice settles both fields
+ * at once, and the pair is what the forms post.
+ */
+export interface PracticeChoice {
+  key: 'AU' | 'MY' | 'MY_TRAINEE';
+  country: Country;
+  track: LearnerTrack;
+  label: string;
+  detail: string;
+}
+
+export const PRACTICE_CHOICES: PracticeChoice[] = [
+  {
+    key: 'AU',
+    country: 'AU',
+    track: 'general',
+    label: 'Australia',
+    detail: 'Australian courts and procedure.',
+  },
+  {
+    key: 'MY',
+    country: 'MY',
+    track: 'general',
+    label: 'Malaysia',
+    detail: 'Malaysian courts and procedure.',
+  },
+  {
+    key: 'MY_TRAINEE',
+    country: 'MY',
+    track: 'litigation_trainee',
+    label: 'Litigation trainee',
+    detail: 'On a Malaysian firm’s programme.',
+  },
+];
+
+export function practiceChoiceFor(country: Country, track: LearnerTrack): PracticeChoice {
+  return (
+    PRACTICE_CHOICES.find((c) => c.country === country && c.track === track) ??
+    PRACTICE_CHOICES.find((c) => c.country === country && c.track === 'general')!
+  );
 }
 
 export const JURISDICTION_SHORT: Record<Jurisdiction, string> = {

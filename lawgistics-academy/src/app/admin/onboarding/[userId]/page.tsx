@@ -34,7 +34,12 @@ export default async function PersonOnboardingPage({
     <div className="space-y-8">
       <section>
         <p className="eyebrow mb-2">Oversight</p>
-        <h1 className="text-3xl">{person.displayName ?? 'Unnamed'}</h1>
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="text-3xl">{person.displayName ?? 'Unnamed'}</h1>
+          {person.track === 'litigation_trainee' ? (
+            <Pill tone="accent">Litigation trainee</Pill>
+          ) : null}
+        </div>
         <p className="mt-2 text-slate">{person.email ?? 'No email'}</p>
       </section>
 

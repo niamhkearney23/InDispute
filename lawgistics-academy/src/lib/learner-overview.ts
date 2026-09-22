@@ -4,8 +4,14 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { displayScore } from '@/lib/learning/mastery';
 import { levelForXp, localDateString, type LevelInfo } from '@/lib/learning/progression';
 import { MASTERY } from '@/lib/learning/config';
-import { asCountry } from '@/lib/types';
-import type { CareerStage, Country, Jurisdiction, SkillMapEntry } from '@/lib/types';
+import { asCountry, asTrack } from '@/lib/types';
+import type {
+  CareerStage,
+  Country,
+  Jurisdiction,
+  LearnerTrack,
+  SkillMapEntry,
+} from '@/lib/types';
 
 /**
  * Everything the dashboard needs, read through the learner's own session so
@@ -21,6 +27,8 @@ export interface LearnerProfile {
   improvementGoals: string[];
   dailyGoalMinutes: number;
   country: Country;
+  /** Which programme they are on. A litigation trainee is always Malaysian. */
+  track: LearnerTrack;
   homeJurisdiction: Jurisdiction;
   timezone: string;
   onboardedAt: string | null;
@@ -106,6 +114,7 @@ export async function getLearnerProfile(userId: string): Promise<LearnerProfile 
     improvementGoals: data.improvement_goals ?? [],
     dailyGoalMinutes: data.daily_goal_minutes,
     country: asCountry(data.country),
+    track: asTrack(data.track),
     homeJurisdiction: data.home_jurisdiction,
     timezone: data.timezone,
     onboardedAt: data.onboarded_at,
