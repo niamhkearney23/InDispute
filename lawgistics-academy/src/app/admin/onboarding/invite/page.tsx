@@ -19,7 +19,8 @@ export default async function InvitePage() {
         <p className="eyebrow mb-2">Joiners</p>
         <h1 className="text-3xl">Invite somebody to join</h1>
         <p className="mt-3 text-slate">
-          They get a link, set a password, and land straight on their list. Their name,
+          They get a link and set a password, or you make the account and hand them a
+          temporary one, and they land straight on their list. Their name,
           address and start date come from what you enter here, so there is nothing for
           them to fill in and nothing for them to get wrong.
         </p>

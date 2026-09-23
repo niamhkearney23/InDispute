@@ -1,6 +1,8 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
+import { z } from 'zod';
 import { createSupabaseServerClient, getCurrentUser } from '@/lib/supabase/server';
 
 export type AvatarState = { error: string | null };
@@ -87,4 +89,53 @@ export async function removeAvatar(_prev: AvatarState, _formData: FormData): Pro
   revalidatePath('/dashboard');
   revalidatePath('/account');
   return { error: null };
+}
+
+export type PasswordState = { error: string | null };
+
+const passwordSchema = z
+  .object({
+    password: z.string().min(8, 'Use at least eight characters.').max(200),
+    confirm: z.string(),
+  })
+  .refine((v) => v.password === v.confirm, { message: 'The two passwords do not match.' });
+
+/**
+ * Choosing your own password.
+ *
+ * Through the person's own session, so it can only ever be their own
+ * account. Clearing the first-password flag afterwards is theirs to do
+ * too: the flag is a convenience that keeps the choice in front of them,
+ * not a right, and nothing else in the app turns on it.
+ */
+export async function changePassword(
+  _prev: PasswordState,
+  formData: FormData,
+): Promise<PasswordState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: 'You are not signed in.' };
+
+  const parsed = passwordSchema.safeParse({
+    password: formData.get('password') ?? '',
+    confirm: formData.get('confirm') ?? '',
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? 'That password could not be used.' };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
+  if (error) {
+    return {
+      error: /same/i.test(error.message)
+        ? 'That is the password you already have. Choose a different one.'
+        : 'That password could not be saved. Please try again.',
+    };
+  }
+
+  await supabase.from('profiles').update({ must_change_password: false }).eq('id', user.id);
+
+  revalidatePath('/dashboard');
+  revalidatePath('/account');
+  redirect('/dashboard');
 }

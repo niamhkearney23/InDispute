@@ -829,15 +829,15 @@ values ('aaaa1111-0000-0000-0000-000000000008', 'trainee2@test',
 set local role authenticated;
 set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
 
-insert into public.work_posts (id, kind, title, scope, trainees_only, country, published, posted_by)
+insert into public.work_posts (id, kind, title, max_claims, trainees_only, country, published, posted_by)
 values
-  ('bbbb0001-0000-0000-0000-000000000001', 'task', 'Draft the chronology', 'one', true, 'MY', true,
+  ('bbbb0001-0000-0000-0000-000000000001', 'task', 'Draft the chronology', 1, true, 'MY', true,
    '44444444-4444-4444-4444-444444444444'),
-  ('bbbb0001-0000-0000-0000-000000000002', 'task', 'Read the engagement letter', 'everyone', false, 'MY', true,
+  ('bbbb0001-0000-0000-0000-000000000002', 'task', 'Read the engagement letter', null, false, 'MY', true,
    '44444444-4444-4444-4444-444444444444'),
-  ('bbbb0001-0000-0000-0000-000000000003', 'material', 'Sample affidavit', 'one', false, 'MY', true,
+  ('bbbb0001-0000-0000-0000-000000000003', 'material', 'Sample affidavit', 1, false, 'MY', true,
    '44444444-4444-4444-4444-444444444444'),
-  ('bbbb0001-0000-0000-0000-000000000004', 'task', 'Not yet published', 'one', true, 'MY', false,
+  ('bbbb0001-0000-0000-0000-000000000004', 'task', 'Not yet published', 1, true, 'MY', false,
    '44444444-4444-4444-4444-444444444444');
 
 select pg_temp.expect(
@@ -1057,6 +1057,141 @@ select pg_temp.expect(
   'no policy grants delete on a submission, administrators included');
 
 
+-- =============================================================================
+-- The work board, second pass: how many may take it, and the message thread
+-- =============================================================================
+-- Three interns this time. A post that two people may take: the first two
+-- names go on, the third is refused, and the refusal comes from the row
+-- lock in the trigger rather than from anything the app remembered.
+insert into auth.users (id, email, raw_user_meta_data)
+values ('aaaa1111-0000-0000-0000-000000000009', 'trainee3@test',
+        '{"track":"litigation_trainee"}'::jsonb);
+
+set local role authenticated;
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+
+insert into public.work_posts (id, kind, title, max_claims, trainees_only, country, published, posted_by,
+                               expected_minutes)
+values ('bbbb0001-0000-0000-0000-000000000005', 'task', 'Two of you', 2, true, 'MY', true,
+        '44444444-4444-4444-4444-444444444444', 90);
+
+select pg_temp.expect_failure(
+  $$update public.work_posts set expected_minutes = 0
+    where id = 'bbbb0001-0000-0000-0000-000000000005'$$,
+  'an estimate of no time at all is not an estimate');
+
+select pg_temp.expect_failure(
+  $$update public.work_posts set max_claims = 0
+    where id = 'bbbb0001-0000-0000-0000-000000000005'$$,
+  'a task nobody may take is not a task');
+
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000006';
+insert into public.work_claims (post_id, user_id)
+values ('bbbb0001-0000-0000-0000-000000000005', 'aaaa1111-0000-0000-0000-000000000006');
+
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000008';
+insert into public.work_claims (post_id, user_id)
+values ('bbbb0001-0000-0000-0000-000000000005', 'aaaa1111-0000-0000-0000-000000000008');
+
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000009';
+select pg_temp.expect_failure(
+  $$insert into public.work_claims (post_id, user_id)
+    values ('bbbb0001-0000-0000-0000-000000000005', 'aaaa1111-0000-0000-0000-000000000009')$$,
+  'on a post for two people, the third name is refused');
+
+select pg_temp.expect(
+  (select claims from public.work_claim_counts
+   where post_id = 'bbbb0001-0000-0000-0000-000000000005') = 2,
+  'the third person can see the post is full');
+
+-- The message thread. The third intern, with no name on the post, may still
+-- ask about it: the thread is for finding out whether to take something as
+-- much as for doing it.
+-- Sent with a date from years ago, which the database must overwrite.
+insert into public.work_messages (post_id, thread_user_id, sender_id, body, sent_at)
+values ('bbbb0001-0000-0000-0000-000000000005', 'aaaa1111-0000-0000-0000-000000000009',
+        'aaaa1111-0000-0000-0000-000000000009', 'Is there a third place?', '2001-01-01');
+
+select pg_temp.expect(
+  (select sent_at > now() - interval '1 minute' from public.work_messages
+   where body = 'Is there a third place?'),
+  'a message is dated by the database, not by whoever sent the request');
+
+select pg_temp.expect_failure(
+  $$insert into public.work_messages (post_id, thread_user_id, sender_id, body)
+    values ('bbbb0001-0000-0000-0000-000000000005', 'aaaa1111-0000-0000-0000-000000000006',
+            'aaaa1111-0000-0000-0000-000000000009', 'Hello')$$,
+  'an intern cannot write into another intern''s thread');
+
+select pg_temp.expect_failure(
+  $$insert into public.work_messages (post_id, thread_user_id, sender_id, body)
+    values ('bbbb0001-0000-0000-0000-000000000005', 'aaaa1111-0000-0000-0000-000000000009',
+            'aaaa1111-0000-0000-0000-000000000006', 'Hello')$$,
+  'an intern cannot send a message under somebody else''s name');
+
+select pg_temp.expect_failure(
+  $$insert into public.work_messages (post_id, thread_user_id, sender_id, body)
+    values ('bbbb0001-0000-0000-0000-000000000004', 'aaaa1111-0000-0000-0000-000000000009',
+            'aaaa1111-0000-0000-0000-000000000009', 'Hello')$$,
+  'an intern cannot message about a post they cannot see');
+
+select pg_temp.expect_failure(
+  $$insert into public.work_messages (post_id, thread_user_id, sender_id, body)
+    values ('bbbb0001-0000-0000-0000-000000000005', 'aaaa1111-0000-0000-0000-000000000009',
+            'aaaa1111-0000-0000-0000-000000000009', '')$$,
+  'an empty message is not a message');
+
+-- No update or delete policy, so these are zero rows changed rather than an
+-- error: the check is that the message survives.
+update public.work_messages set body = 'Changed' where body = 'Is there a third place?';
+select pg_temp.expect(
+  (select count(*) from public.work_messages where body = 'Is there a third place?') = 1,
+  'a message, once sent, cannot be reworded');
+
+delete from public.work_messages where body = 'Is there a third place?';
+select pg_temp.expect(
+  (select count(*) from public.work_messages where body = 'Is there a third place?') = 1,
+  'a message, once sent, cannot be withdrawn');
+
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000006';
+select pg_temp.expect(
+  (select count(*) from public.work_messages
+   where thread_user_id = 'aaaa1111-0000-0000-0000-000000000009') = 0,
+  'an intern cannot read another intern''s thread');
+
+-- The coach answers in the intern's thread, and reads every thread.
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+insert into public.work_messages (post_id, thread_user_id, sender_id, body)
+values ('bbbb0001-0000-0000-0000-000000000005', 'aaaa1111-0000-0000-0000-000000000009',
+        '44444444-4444-4444-4444-444444444444', 'No, but the chronology is still open.');
+
+select pg_temp.expect(
+  (select count(*) from public.work_messages
+   where thread_user_id = 'aaaa1111-0000-0000-0000-000000000009') = 2,
+  'a coach can reply in an intern''s thread and reads the whole of it');
+
+select pg_temp.expect_failure(
+  $$insert into public.work_messages (post_id, thread_user_id, sender_id, body)
+    values ('bbbb0001-0000-0000-0000-000000000005', 'aaaa1111-0000-0000-0000-000000000009',
+            'aaaa1111-0000-0000-0000-000000000009', 'Forged')$$,
+  'a coach cannot send a message under an intern''s name');
+
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000009';
+select pg_temp.expect(
+  (select count(*) from public.work_messages
+   where thread_user_id = 'aaaa1111-0000-0000-0000-000000000009') = 2,
+  'the intern reads the coach''s reply in their own thread');
+
+select pg_temp.expect(
+  not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'work_messages'
+      and cmd in ('UPDATE', 'DELETE')
+  ),
+  'no policy grants update or delete on a message, coaches included');
+
+reset role;
+
 -- -----------------------------------------------------------------------------
 -- Joining: the invitation is a credential
 -- -----------------------------------------------------------------------------
@@ -1087,6 +1222,29 @@ select pg_temp.expect_failure(
     values ('hash-of-a-token-cccc', 'joiner@example.test',
             '33333333-3333-3333-3333-333333333333')$$,
   'a second live invitation to the same person is refused, so calling one back closes the door');
+
+-- Which programme the invitation is for, with the same rule as profiles.
+select pg_temp.expect(
+  (select track = 'general' from public.joiner_invitations where email = 'joiner@example.test'),
+  'an invitation is for the general programme unless it says otherwise');
+
+insert into public.joiner_invitations (token_hash, email, invited_by, country, track)
+values ('hash-of-a-token-track', 'trainee-invite@example.test',
+        '33333333-3333-3333-3333-333333333333', 'MY', 'litigation_trainee');
+
+select pg_temp.expect_failure(
+  $$insert into public.joiner_invitations (token_hash, email, invited_by, country, track)
+    values ('hash-of-a-token-au-trainee', 'au-trainee@example.test',
+            '33333333-3333-3333-3333-333333333333', 'AU', 'litigation_trainee')$$,
+  'an invitation cannot put an Australian on the litigation trainee programme');
+
+-- An account the administrator made starts with a password they have seen,
+-- and the flag that says so is the person's own to clear once they have
+-- chosen their own.
+select pg_temp.expect(
+  (select not must_change_password from public.profiles
+   where id = 'aaaa1111-0000-0000-0000-000000000006'),
+  'a person who set their own password is not asked to change it');
 
 select pg_temp.expect(
   (select count(*) from public.joiner_invitations

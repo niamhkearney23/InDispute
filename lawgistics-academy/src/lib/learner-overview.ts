@@ -43,6 +43,8 @@ export interface LearnerProfile {
    * caller wants "may this person coach", never "is this person only a coach".
    */
   isCoach: boolean;
+  /** An administrator set this person's first password; they choose their own next. */
+  mustChangePassword: boolean;
 }
 
 export interface LearnerOverview {
@@ -123,6 +125,7 @@ export async function getLearnerProfile(userId: string): Promise<LearnerProfile 
     endsOn: data.ends_on,
     isAdmin: data.is_admin,
     isCoach: data.is_coach ?? false,
+    mustChangePassword: data.must_change_password ?? false,
   };
 }
 

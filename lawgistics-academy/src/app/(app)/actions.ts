@@ -393,3 +393,48 @@ export async function submitWork(_prev: WorkState, formData: FormData): Promise<
   revalidatePath(`/admin/work/${parsed.data.postId}`);
   return { error: null, ok: 'Handed in.' };
 }
+
+const messageSchema = z.object({
+  postId: z.string().uuid(),
+  threadUserId: z.string().uuid(),
+  body: z.string().trim().min(1, 'Write something first.').max(2000),
+});
+
+/**
+ * A message on a piece of work: an intern asking their coach for more, or a
+ * coach answering. One action for both, through the sender's own client,
+ * because the database already knows who may write into which thread: an
+ * intern into their own, a coach into any. The sender is always the person
+ * signed in. The thread is whichever the form names, and a name the policy
+ * does not allow is refused there, not here.
+ */
+export async function sendWorkMessage(_prev: WorkState, formData: FormData): Promise<WorkState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: 'You are not signed in.' };
+
+  const parsed = messageSchema.safeParse({
+    postId: formData.get('postId'),
+    threadUserId: formData.get('threadUserId') || user.id,
+    body: formData.get('body') ?? '',
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? 'That could not be sent.' };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.from('work_messages').insert({
+    post_id: parsed.data.postId,
+    thread_user_id: parsed.data.threadUserId,
+    sender_id: user.id,
+    body: parsed.data.body,
+  });
+
+  if (error) return { error: 'That could not be sent.' };
+
+  revalidatePath('/work');
+  revalidatePath(`/work/${parsed.data.postId}`);
+  revalidatePath('/dashboard');
+  revalidatePath('/admin/work');
+  revalidatePath(`/admin/work/${parsed.data.postId}`);
+  return { error: null, ok: 'Sent.' };
+}

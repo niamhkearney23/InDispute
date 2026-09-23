@@ -3,9 +3,9 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
-import { workBoardFor } from '@/lib/work/service';
+import { isFull, workBoardFor } from '@/lib/work/service';
 import type { WorkBoardItem } from '@/lib/work/service';
-import { isLate } from '@/lib/work/links';
+import { describeMinutes, isLate, slotsLabel } from '@/lib/work/links';
 import { Card, EmptyState, Pill } from '@/components/ui';
 
 export const metadata: Metadata = { title: 'Work' };
@@ -24,9 +24,9 @@ function shortDate(iso: string): string {
  * The work board, from the intern's side.
  *
  * Three piles: what has your name on it, what is open, what is finished.
- * Something to read sits in its own list. A post for one person that
- * somebody else took is shown as taken rather than hidden, so nobody
- * wonders where it went.
+ * Something to read sits in its own list. A post that has all the names it
+ * can take is shown as taken rather than hidden, so nobody wonders where
+ * it went.
  */
 export default async function WorkBoardPage() {
   const user = await getCurrentUser();
@@ -56,7 +56,8 @@ export default async function WorkBoardPage() {
         <h1 className="text-3xl">From your coach</h1>
         <p className="mt-3 max-w-2xl text-slate">
           Real pieces of work, set by the lawyer who supervises you. Put your name on one, do
-          it, hand it in, and they will tell you what they would have done differently.
+          it, hand it in, and they will tell you what they would have done differently. Not
+          sure about something? Every piece has a place to message them.
         </p>
       </section>
 
@@ -90,7 +91,7 @@ function Pile({ title, items, today }: { title: string; items: WorkBoardItem[]; 
 
 function WorkRow({ item, today }: { item: WorkBoardItem; today: string }) {
   const { post } = item;
-  const taken = post.kind === 'task' && post.scope === 'one' && !item.claimed && item.claims > 0;
+  const full = post.kind === 'task' && !item.claimed && isFull(post, item.claims);
   const late = item.claimed && item.state !== 'good' && isLate(post.dueOn, today);
 
   return (
@@ -107,16 +108,21 @@ function WorkRow({ item, today }: { item: WorkBoardItem; today: string }) {
             <Pill tone="accent">Handed in</Pill>
           ) : item.claimed ? (
             <Pill tone="accent">Yours</Pill>
-          ) : taken ? (
+          ) : full ? (
             <Pill>Taken</Pill>
           ) : (
-            <Pill>{post.scope === 'one' ? 'For one person' : 'For everyone'}</Pill>
+            <Pill>{slotsLabel(post.maxClaims)}</Pill>
           )}
+          {post.expectedMinutes && post.kind === 'task' ? (
+            <Pill>{describeMinutes(post.expectedMinutes)}</Pill>
+          ) : null}
           {post.dueOn && post.kind === 'task' ? (
             <Pill tone={late ? 'wrong' : 'neutral'}>
               {late ? 'Late, due' : 'Due'} {shortDate(post.dueOn)}
             </Pill>
           ) : null}
+          {post.hasMemo ? <Pill>Memo</Pill> : null}
+          {item.replyWaiting ? <Pill tone="warn">Reply from your coach</Pill> : null}
           {!post.published ? <Pill>Taken down</Pill> : null}
         </div>
         <h2 className="text-lg">{post.title}</h2>

@@ -2,7 +2,8 @@ import 'server-only';
 
 import { createHash, randomBytes } from 'node:crypto';
 import { createServiceClient } from '@/lib/supabase/service';
-import type { Country } from '@/lib/types';
+import { asTrack } from '@/lib/types';
+import type { Country, LearnerTrack } from '@/lib/types';
 
 /**
  * Inviting somebody to join the firm.
@@ -40,6 +41,7 @@ export interface Invitation {
   displayName: string;
   startsOn: string | null;
   country: Country;
+  track: LearnerTrack;
   invitedAt: string;
   expiresAt: string;
   acceptedAt: string | null;
@@ -56,7 +58,7 @@ export interface Invitation {
 export type InvitationProblem = 'not-found' | 'expired' | 'accepted' | 'revoked';
 
 const COLUMNS =
-  'id, email, display_name, starts_on, country, invited_by, invited_at, expires_at, accepted_at, accepted_by, revoked_at';
+  'id, email, display_name, starts_on, country, track, invited_by, invited_at, expires_at, accepted_at, accepted_by, revoked_at';
 
 interface Row {
   id: string;
@@ -64,6 +66,7 @@ interface Row {
   display_name: string;
   starts_on: string | null;
   country: Country;
+  track: string | null;
   invited_by: string;
   invited_at: string;
   expires_at: string;
@@ -79,6 +82,7 @@ function shape(row: Row, invitedByName: string | null): Invitation {
     displayName: row.display_name ?? '',
     startsOn: row.starts_on,
     country: row.country,
+    track: asTrack(row.track),
     invitedAt: row.invited_at,
     expiresAt: row.expires_at,
     acceptedAt: row.accepted_at,
@@ -99,6 +103,7 @@ export async function createInvitation(input: {
   displayName: string;
   startsOn: string | null;
   country: Country;
+  track: LearnerTrack;
 }): Promise<{ token: string; error: null } | { token: null; error: string }> {
   const db = createServiceClient();
   const token = newToken();
@@ -109,6 +114,7 @@ export async function createInvitation(input: {
     display_name: input.displayName.trim(),
     starts_on: input.startsOn,
     country: input.country,
+    track: input.track,
     invited_by: input.invitedBy,
   });
 
@@ -200,6 +206,7 @@ export async function acceptInvitation(
     user_metadata: {
       display_name: invitation.displayName || invitation.email.split('@')[0],
       country: invitation.country,
+      track: invitation.track,
     },
   });
 
@@ -222,6 +229,7 @@ export async function acceptInvitation(
     .update({
       display_name: invitation.displayName || null,
       country: invitation.country,
+      track: invitation.track,
       starts_on: invitation.startsOn,
     })
     .eq('id', userId);
@@ -254,6 +262,94 @@ export function problemMessage(problem: InvitationProblem): string {
     default:
       return 'This invitation link is not valid. Check you copied all of it.';
   }
+}
+
+/**
+ * A temporary password an administrator can read out or paste: twelve
+ * characters from an alphabet with no look-alikes, in three groups. From the
+ * system CSPRNG, as the token is.
+ */
+const PASSWORD_ALPHABET = 'abcdefghjkmnpqrstuvwxyz23456789';
+
+export function temporaryPassword(): string {
+  const bytes = randomBytes(12);
+  const chars = [...bytes].map((b) => PASSWORD_ALPHABET[b % PASSWORD_ALPHABET.length]);
+  return `${chars.slice(0, 4).join('')}-${chars.slice(4, 8).join('')}-${chars.slice(8).join('')}`;
+}
+
+/**
+ * Make the account outright, with a temporary password, for a firm that would
+ * rather hand a person their login than send them a link.
+ *
+ * Everything said of acceptInvitation holds here: the address, name, start
+ * date and programme are the firm's, and there is no path through this that
+ * touches privileges. Two things are different. The password is one the
+ * administrator has seen, so the account is marked as needing it changed and
+ * the app puts that choice in front of the person before anything else. And
+ * the invitation row is written already taken up, by this account, so the
+ * register shows who made it and when, the same as for a link.
+ */
+export async function createAccountDirectly(input: {
+  invitedBy: string;
+  email: string;
+  displayName: string;
+  startsOn: string | null;
+  country: Country;
+  track: LearnerTrack;
+}): Promise<{ password: string; error: null } | { password: null; error: string }> {
+  const db = createServiceClient();
+  const email = input.email.trim().toLowerCase();
+  const password = temporaryPassword();
+
+  const { data: created, error: createError } = await db.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: {
+      display_name: input.displayName.trim() || email.split('@')[0],
+      country: input.country,
+      track: input.track,
+    },
+  });
+
+  if (createError || !created?.user) {
+    const already = /already|exists|registered/i.test(createError?.message ?? '');
+    return {
+      password: null,
+      error: already
+        ? 'There is already an account for that address.'
+        : 'That account could not be created.',
+    };
+  }
+
+  const userId = created.user.id;
+
+  await db
+    .from('profiles')
+    .update({
+      display_name: input.displayName.trim() || null,
+      country: input.country,
+      track: input.track,
+      starts_on: input.startsOn,
+      must_change_password: true,
+    })
+    .eq('id', userId);
+
+  // The record. A token nobody will ever be given, hashed like the rest, so
+  // the row cannot be used as a link; it exists only to say who did this.
+  await db.from('joiner_invitations').insert({
+    token_hash: hashToken(newToken()),
+    email,
+    display_name: input.displayName.trim(),
+    starts_on: input.startsOn,
+    country: input.country,
+    track: input.track,
+    invited_by: input.invitedBy,
+    accepted_at: new Date().toISOString(),
+    accepted_by: userId,
+  });
+
+  return { password, error: null };
 }
 
 // -----------------------------------------------------------------------------

@@ -3,6 +3,7 @@ import test from 'node:test';
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { careerStageLabel } from '../src/lib/types';
 import { PRACTICE_CHOICES, asTrack, practiceChoiceFor } from '../src/lib/types';
 
 /**
@@ -44,4 +45,10 @@ test('a pair with no choice of its own falls back to that country in general', (
   // An Australian trainee cannot exist, so a profile that somehow says so
   // is shown as Australian rather than crashing the form.
   assert.equal(practiceChoiceFor('AU', 'litigation_trainee').key, 'AU');
+});
+
+test('the stage between the degree and admission is named in each country\'s own words', () => {
+  assert.equal(careerStageLabel('plt_student', 'AU'), 'PLT student');
+  assert.equal(careerStageLabel('plt_student', 'MY'), 'Pupil (in chambering)');
+  assert.equal(careerStageLabel('law_student', 'MY'), 'Law student');
 });

@@ -6,14 +6,14 @@ import { WORK_FILE_ACCEPT } from '@/lib/work/links';
 import { claimWork, submitWork } from '../actions';
 
 /** Putting your name on it. One button; the database decides the rest. */
-export function ClaimForm({ postId, scope }: { postId: string; scope: 'one' | 'everyone' }) {
+export function ClaimForm({ postId, everyone }: { postId: string; everyone: boolean }) {
   const [state, formAction, pending] = useActionState(claimWork, { error: null });
 
   return (
     <form action={formAction} className="mt-4">
       <input type="hidden" name="postId" value={postId} />
       <Button type="submit" variant="accent" disabled={pending}>
-        {pending ? 'Working…' : scope === 'one' ? 'Put my name on it' : 'I will do this one'}
+        {pending ? 'Working…' : everyone ? 'Yes, I will do this' : 'Put my name on it'}
       </Button>
       {state.error ? (
         <div className="mt-3">

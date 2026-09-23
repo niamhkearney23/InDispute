@@ -4,7 +4,7 @@ import { useActionState, useState } from 'react';
 import { saveOnboarding, type OnboardingState } from '../actions';
 import { Button, Card, Notice, cn } from '@/components/ui';
 import {
-  CAREER_STAGE_LABELS,
+  careerStageLabel,
   DEFAULT_JURISDICTION,
   IMPROVEMENT_GOALS,
   JURISDICTION_LABELS,
@@ -101,7 +101,7 @@ export function OnboardingForm({
                 key={value}
                 selected={stage === value}
                 onClick={() => setStage(value)}
-                label={CAREER_STAGE_LABELS[value]}
+                label={careerStageLabel(value, country)}
               />
             ))}
           </div>

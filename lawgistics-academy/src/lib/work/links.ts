@@ -64,3 +64,58 @@ export function submissionState(latest: { verdict: Verdict | null } | null): Sub
 export function isLate(dueOn: string | null, today: string): boolean {
   return dueOn !== null && dueOn < today;
 }
+
+/**
+ * What a browser records when a coach presses the button, plus what a phone
+ * hands over when they attach a recording made elsewhere. Chrome and Firefox
+ * produce WebM, Safari produces MP4; the rest are files, not recordings.
+ */
+export const WORK_MEMO_TYPES: Record<string, string> = {
+  'audio/webm': 'webm',
+  'audio/ogg': 'ogg',
+  'audio/mp4': 'm4a',
+  'audio/mpeg': 'mp3',
+  'audio/wav': 'wav',
+};
+
+export const WORK_MEMO_ACCEPT = Object.keys(WORK_MEMO_TYPES).join(',');
+
+/** Five minutes. Longer than that is a session, and sessions have a home. */
+export const WORK_MEMO_MAX_SECONDS = 300;
+
+/**
+ * A recorded type can carry a codec suffix ('audio/webm;codecs=opus'), which
+ * the bucket does not list. The bare type is what is checked and stored.
+ */
+export function bareMemoType(type: string): string {
+  return type.split(';')[0].trim().toLowerCase();
+}
+
+export function workMemoProblem(file: { type: string; size: number }): string | null {
+  if (file.size === 0) return 'The recording is empty. Try again.';
+  if (!WORK_MEMO_TYPES[bareMemoType(file.type)]) {
+    return 'That recording is in a format that cannot be played here.';
+  }
+  if (file.size > WORK_FILE_MAX_BYTES) {
+    return 'That recording is larger than 20MB. Keep it under five minutes.';
+  }
+  return null;
+}
+
+/** How many people may take a task, in words. Null is no limit. */
+export function slotsLabel(maxClaims: number | null): string {
+  if (maxClaims === null) return 'For everyone';
+  if (maxClaims === 1) return 'For one person';
+  return `For ${maxClaims} people`;
+}
+
+/** An expected time, in words: "about 45 minutes", "about 2 hours". */
+export function describeMinutes(minutes: number): string {
+  if (minutes < 60) return `about ${minutes} minute${minutes === 1 ? '' : 's'}`;
+  const hours = Math.round((minutes / 60) * 2) / 2;
+  if (hours >= 8) {
+    const days = Math.round((hours / 8) * 2) / 2;
+    return `about ${days} day${days === 1 ? '' : 's'}`;
+  }
+  return `about ${hours} hour${hours === 1 ? '' : 's'}`;
+}

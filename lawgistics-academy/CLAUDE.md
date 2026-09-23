@@ -61,8 +61,8 @@ These come from the owner and are not up for renegotiation.
   clears its sign-off, so an account that could edit and verify could sign its
   own rewrite with the audit trail showing an ordinary review. A coach who
   thinks an item is wrong flags it with a note; somebody else changes it.
-  Exactly nine actions accept a coach, named in `tests/authorisation-contract`,
-  and a test fails if a tenth quietly does. Two of the nine are the coach's
+  Exactly ten actions accept a coach, named in `tests/authorisation-contract`,
+  and a test fails if an eleventh quietly does. Two of the ten are the coach's
   own **sessions**: they record something, paste a YouTube or Vimeo link, and
   it leads the dashboard the morning it is for. That is not an exception to
   the rule, it is outside it: a session has no version chain, no answer key,
@@ -76,13 +76,17 @@ These come from the owner and are not up for renegotiation.
   the list for "record supervisor decisions": it is Malaysia-specific,
   entirely outside the question bank and the review queue, and a mis-graded
   entry is corrected in place, the same way a coach fixes a session they
-  already published. The last two are the **work board** under `/admin/work`:
-  a coach posts a piece of work or something to read, for their trainees or
-  for everyone in a country, an intern puts their name on it and hands a
-  file in, and the coach marks it with a verdict and a paragraph. What was
-  handed in is append-only and the marking trigger cannot touch it; every
-  upload carries the intern's own declaration that nothing in it identifies
-  a client, and the database refuses a row without that.
+  already published. The last three are the **work board** under `/admin/work`:
+  a coach posts a piece of work or something to read, typed or as a voice
+  memo recorded in the page, for their trainees or for everyone in a
+  country, says how many people may take it, an intern puts their name on
+  it and hands a file in, and the coach marks it with a verdict and a
+  paragraph. Each piece has a message thread between the intern and the
+  coaches. What was handed in is append-only and the marking trigger cannot
+  touch it; every upload carries the intern's own declaration that nothing
+  in it identifies a client, and the database refuses a row without that.
+  The third action asks the AI to suggest how long a task will take; it
+  saves nothing, and what an intern sees is the number the coach confirmed.
 - **AI never publishes legal content.** It may draft. A named person signs off,
   and that sign-off is a statement they are answerable for.
 - **Say what is true.** The product's whole value is a record a firm can rely
@@ -150,10 +154,10 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0019`. `supabase/UPDATE.sql` is the one-paste update for a
+- Migrations run to `0021`. `supabase/UPDATE.sql` is the one-paste update for a
   database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
-- 258 tests, 139 schema guarantees against a real Postgres, 230 page and device
+- 261 tests, 158 schema guarantees against a real Postgres, 233 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - The two marked exercises are checked by `npm run qa:marker`, which drives the
