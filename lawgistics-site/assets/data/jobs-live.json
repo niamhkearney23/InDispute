@@ -1,35 +1,75 @@
 {
-  "generatedDate": "2026-09-22",
+  "generatedDate": "2026-09-23",
   "jobs": [
     {
-      "employer": "Clayton Utz",
-      "program": "Seasonal Clerkship 2027/28",
-      "jurisdiction": "National (Sydney, Melbourne, Brisbane, Perth, Canberra, Darwin)",
+      "employer": "Allens",
+      "program": "February 2027 intake early-careers program (listed on Allens graduate programs page)",
+      "jurisdiction": "National",
       "opens": null,
       "closes": null,
-      "notes": "Firm's own early careers page states applications are currently closed and will reopen in June 2027 for the 2027/28 seasonal clerkship intake, with a pre-registration option; the firm has not yet published an exact opening or closing date, so both are left null rather than guessed.",
-      "url": "https://www.claytonutz.com/careers/early-careers/seasonal-clerkships",
-      "verifiedDate": "2026-09-22"
+      "notes": "Allens' programs page states applications for the February 2027 program open in September 2026, but gives only the month (no exact open/close date) and does not clearly label which of its programs the February intake belongs to, so dates are left null.",
+      "url": "https://graduates.allens.com.au/our-programs/",
+      "verifiedDate": "2026-09-23"
     },
     {
-      "employer": "Queensland Law Society (scheme administrator for signatory firms incl. Allens, Ashurst, Clayton Utz, Corrs, DLA Piper, Gadens, HSF Kramer, Herbert Smith Freehills Kramer, HopgoodGanim, Norton Rose Fulbright)",
-      "program": "QLS Seasonal Clerkship and Graduate Recruitment — 2027 program cycle",
+      "employer": "Allens",
+      "program": "May 2027 intake early-careers program (listed on Allens graduate programs page)",
+      "jurisdiction": "National",
+      "opens": null,
+      "closes": null,
+      "notes": "The same page confirms a future opening in March 2027 for the May 2027 program, but only a month is published, so no exact dates can be confirmed.",
+      "url": "https://graduates.allens.com.au/our-programs/",
+      "verifiedDate": "2026-09-23"
+    },
+    {
+      "employer": "Queensland Law Society",
+      "program": "Seasonal Clerkship & Graduate Recruitment — 2027 program cycle (signatory firms)",
       "jurisdiction": "QLD",
       "opens": null,
       "closes": null,
-      "notes": "The live QLS page carries a 'Key dates – 2027 program cycle' table and confirms the cycle runs clerkship recruitment in July/August with Summer One, Summer Two, Autumn and Winter placements, but the exact 2027-cycle open and close timestamps could not be read off the source at time of checking, so dates are null; each signatory firm still runs its own application process.",
+      "notes": "QLS states the cycle commences with clerkship recruitment in July/August with Summer One, Summer Two, Autumn and Winter programs and publishes 2027 cycle key dates on this page, but the exact open/close dates could not be read from the source, so they are left null.",
       "url": "https://www.qls.com.au/the-hub-early-career-lawyers/your-legal-career/seasonal-clerkship-and-graduate-recruitment",
-      "verifiedDate": "2026-09-22"
+      "verifiedDate": "2026-09-23"
     },
     {
-      "employer": "The Law Society of New South Wales (scheme administrator for participating firms)",
-      "program": "Graduate and Clerkship Recruitment Program — next (2027) cycle",
+      "employer": "The Law Society of New South Wales",
+      "program": "Clerkship Recruitment Program — next (2027) cycle",
       "jurisdiction": "NSW",
       "opens": null,
       "closes": null,
-      "notes": "The Law Society sets NSW clerkship open/close/offer dates annually and only the 2026 cycle guidelines (applications opened and closed mid-2026, now past) could be confirmed as published; 2027-cycle dates were not confirmed on the live page at the time of checking, so both dates are null and applicants must be in penultimate or final year to be eligible.",
+      "notes": "The Law Society page lists day-and-month key dates (applications opening in June, closing in July, offers in September) but the captured page does not state the year, and the current published guidelines PDF is the 2026 cycle, so no dates are asserted for the upcoming cycle.",
       "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Clerkship-Recruitment-Program",
-      "verifiedDate": "2026-09-22"
+      "verifiedDate": "2026-09-23"
+    },
+    {
+      "employer": "The Law Society of New South Wales",
+      "program": "Graduate Recruitment Program — next (2027) cycle",
+      "jurisdiction": "NSW",
+      "opens": null,
+      "closes": null,
+      "notes": "For final-year students; the page lists a February application opening, April closing and June offers, but without a stated year on the source, so the dates are not reported rather than guessed.",
+      "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Graduate-Recruitment-Program",
+      "verifiedDate": "2026-09-23"
+    },
+    {
+      "employer": "Law Institute of Victoria",
+      "program": "Seasonal Clerkship & Graduate Program Guidelines — signatory firm application window",
+      "jurisdiction": "VIC",
+      "opens": null,
+      "closes": null,
+      "notes": "The LIV guidelines page confirms clerkship applications open and close on the dates in Schedule 1 for signatory firms, but the most recent guidelines located cover the 2026 cycle and no 2027 schedule was confirmed, so dates are null.",
+      "url": "https://www.liv.asn.au/clerkshipgradguidelines",
+      "verifiedDate": "2026-09-23"
+    },
+    {
+      "employer": "The Law Society of Western Australia",
+      "program": "Grad-Match — vacation clerk and graduate recruitment dates",
+      "jurisdiction": "WA",
+      "opens": null,
+      "closes": null,
+      "notes": "The Society hosts recommended recruitment dates agreed by the Curtin, ECU, Murdoch, Notre Dame and UWA law schools, but the specific 2027-cycle dates could not be confirmed from the live page, so they are left null.",
+      "url": "https://www.lawsocietywa.asn.au/careers-in-law/grad-match/",
+      "verifiedDate": "2026-09-23"
     }
   ]
 }
