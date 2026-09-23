@@ -71,8 +71,8 @@ export default async function LandingPage() {
           </h1>
           <p className="mt-6 max-w-xl text-lg text-slate">
             {brand.fullName} works out what you don’t know, teaches it properly, and
-            remembers to test you again. Built for law students, PLT students, graduates
-            and junior lawyers.
+            remembers to test you again. Built for law students and junior lawyers, PLT
+            students in Australia, and pupils and interns in Malaysia.
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <ButtonLink href="/signup" size="lg" variant="accent">

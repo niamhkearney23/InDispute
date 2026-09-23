@@ -2,9 +2,10 @@
 
 # Litigation Academy
 
-Adaptive litigation training for Australian and Malaysian law students, PLT
-students, graduates and junior lawyers, plus the induction a firm puts in front
-of somebody before their first day.
+Adaptive litigation training for Australian and Malaysian law students,
+graduates and junior lawyers (PLT students in Australia, pupils and interns in
+Malaysia), plus the induction a firm puts in front of somebody before their
+first day. PLT is an Australian stage and is never offered to a Malaysian.
 
 Built by a lawyer, not a developer. Explain things in plain language, give
 click-by-click instructions for anything involving Supabase or Vercel, and never
