@@ -2,7 +2,9 @@
 
 import { useActionState, useState } from 'react';
 import { Button, Card, Notice } from '@/components/ui';
-import { WORK_FILE_ACCEPT, isTrustedWorkLink } from '@/lib/work/links';
+import { WORK_FILE_ACCEPT, describeMinutes, isTrustedWorkLink } from '@/lib/work/links';
+import { suggestWorkTime } from './actions';
+import { VoiceRecorder } from './voice-recorder';
 import type { AdminState } from '../actions';
 
 export interface WorkPostFormValues {
@@ -13,7 +15,10 @@ export interface WorkPostFormValues {
   /** What is attached already, so an edit does not look like it lost the file. */
   fileName: string | null;
   linkUrl: string;
-  scope: 'one' | 'everyone';
+  hasMemo: boolean;
+  /** How many may take it; null for no limit. */
+  maxClaims: number | null;
+  expectedMinutes: number | null;
   traineesOnly: boolean;
   country: 'ALL' | 'AU' | 'MY';
   dueOn: string;
@@ -46,6 +51,19 @@ export function WorkPostForm({
   const [state, formAction, pending] = useActionState(action, { error: null });
   const [kind, setKind] = useState(initial.kind);
   const [link, setLink] = useState(initial.linkUrl);
+  const [minutes, setMinutes] = useState(initial.expectedMinutes ?? 0);
+  const [suggestion, suggestAction, suggesting] = useActionState(suggestWorkTime, {
+    minutes: null,
+    error: null,
+  });
+
+  // A new suggestion lands in the box, where the coach can change it. Nothing
+  // is saved until they press Save, and what is saved is what the box says.
+  const [applied, setApplied] = useState<number | null>(null);
+  if (suggestion.minutes !== null && suggestion.minutes !== applied) {
+    setApplied(suggestion.minutes);
+    setMinutes(suggestion.minutes);
+  }
 
   const trimmed = link.trim();
   const trusted = trimmed ? isTrustedWorkLink(trimmed) : null;
@@ -167,40 +185,77 @@ export function WorkPostForm({
               </p>
             )}
           </div>
+
+          <VoiceRecorder existing={initial.hasMemo} />
         </div>
       </Card>
 
       {kind === 'task' ? (
         <Card>
           <h2 className="mb-4 text-lg">Who does it</h2>
-          <fieldset>
-            <legend className="sr-only">Scope</legend>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {(
-                [
-                  ['one', 'One person', 'The first intern to put their name on it gets it.'],
-                  ['everyone', 'Everyone', 'Each intern does their own and hands it in.'],
-                ] as const
-              ).map(([value, label, help]) => (
-                <label
-                  key={value}
-                  className="flex cursor-pointer items-start gap-2.5 rounded-[5px] border border-rule-strong bg-paper-raised p-3 text-sm has-[:checked]:border-burgundy"
-                >
-                  <input
-                    type="radio"
-                    name="scope"
-                    value={value}
-                    defaultChecked={initial.scope === value}
-                    className="mt-0.5 size-4"
-                  />
-                  <span>
-                    <strong className="font-medium">{label}</strong>
-                    <span className="mt-0.5 block text-xs text-slate">{help}</span>
-                  </span>
-                </label>
-              ))}
+          <div>
+            <label htmlFor="maxClaims" className="mb-1.5 block text-sm font-medium">
+              How many people can take it
+            </label>
+            <select
+              id="maxClaims"
+              name="maxClaims"
+              defaultValue={initial.maxClaims ?? 0}
+              className={INPUT}
+            >
+              <option value={1}>One person</option>
+              <option value={2}>Two people</option>
+              <option value={3}>Three people</option>
+              <option value={4}>Four people</option>
+              <option value={5}>Five people</option>
+              <option value={0}>Everyone</option>
+            </select>
+            <p className="mt-1 text-xs text-muted">
+              The first to put their name on it get it. Everyone means each intern does their
+              own and hands it in.
+            </p>
+          </div>
+
+          <div className="mt-4">
+            <label htmlFor="expectedMinutes" className="mb-1.5 block text-sm font-medium">
+              How long it should take (minutes)
+            </label>
+            <div className="flex flex-wrap items-center gap-2">
+              <input
+                id="expectedMinutes"
+                name="expectedMinutes"
+                type="number"
+                min={0}
+                max={6000}
+                step={5}
+                value={minutes || ''}
+                onChange={(e) => setMinutes(Number(e.target.value) || 0)}
+                placeholder="0"
+                className="h-11 w-32 rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10"
+              />
+              {minutes > 0 ? (
+                <span className="text-sm text-slate">{describeMinutes(minutes)}</span>
+              ) : null}
+              {/* Sends the form to the suggestion action instead of Save. */}
+              <Button
+                type="submit"
+                formAction={suggestAction}
+                variant="outline"
+                size="sm"
+                disabled={suggesting}
+              >
+                {suggesting ? 'Thinking…' : 'Suggest a time'}
+              </Button>
             </div>
-          </fieldset>
+            {suggestion.error ? (
+              <p className="mt-1.5 text-xs text-verdict-wrong">{suggestion.error}</p>
+            ) : (
+              <p className="mt-1 text-xs text-muted">
+                Shown to the intern as your estimate. The suggestion is a guess from the title
+                and instructions; change it if you know better, which you usually will.
+              </p>
+            )}
+          </div>
 
           <div className="mt-4">
             <label htmlFor="dueOn" className="mb-1.5 block text-sm font-medium">

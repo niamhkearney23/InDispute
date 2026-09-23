@@ -5,7 +5,15 @@ import { z } from 'zod';
 import { checkCoach } from '@/lib/admin/guard';
 import { createServiceClient } from '@/lib/supabase/service';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { WORK_FILE_TYPES, isTrustedWorkLink, workFileProblem } from '@/lib/work/links';
+import {
+  WORK_FILE_TYPES,
+  WORK_MEMO_TYPES,
+  bareMemoType,
+  isTrustedWorkLink,
+  workFileProblem,
+  workMemoProblem,
+} from '@/lib/work/links';
+import { estimateWorkMinutes } from '@/lib/ai/work-estimate';
 import type { AdminState } from '../actions';
 
 /**
@@ -33,7 +41,9 @@ const schema = z.object({
   title: z.string().trim().min(3, 'Give it a title.').max(200),
   instructions: z.string().trim().max(5000).optional().or(z.literal('')),
   linkUrl: z.string().trim().max(2000).optional().or(z.literal('')),
-  scope: z.enum(['one', 'everyone']),
+  // 0 is "no limit"; the column stores null for that.
+  maxClaims: z.coerce.number().int().min(0).max(100),
+  expectedMinutes: z.coerce.number().int().min(0).max(6000),
   traineesOnly: z.boolean(),
   country: z.enum(['ALL', 'AU', 'MY']),
   dueOn: z.string().trim().regex(DAY_RE, 'Use the date picker').optional().or(z.literal('')),
@@ -60,7 +70,8 @@ export async function saveWorkPost(
     title: formData.get('title'),
     instructions: formData.get('instructions') ?? '',
     linkUrl: formData.get('linkUrl') ?? '',
-    scope: formData.get('scope') ?? 'one',
+    maxClaims: formData.get('maxClaims') || 0,
+    expectedMinutes: formData.get('expectedMinutes') || 0,
     traineesOnly: formData.get('traineesOnly') === 'on',
     country: formData.get('country') ?? 'ALL',
     dueOn: formData.get('dueOn') ?? '',
@@ -103,6 +114,27 @@ export async function saveWorkPost(
     uploaded = { file_path: path, file_name: cleanFileName(file.name) };
   }
 
+  // The voice memo, the same way: the coach's own client, under the post.
+  const memo = formData.get('memo');
+  let recorded: { memo_path: string | null; memo_type: string | null } | null = null;
+
+  if (memo instanceof File && memo.size > 0) {
+    const problem = workMemoProblem(memo);
+    if (problem) return { error: problem };
+
+    const type = bareMemoType(memo.type);
+    const path = `posts/${id}/memo-${crypto.randomUUID()}.${WORK_MEMO_TYPES[type]}`;
+    const supabase = await createSupabaseServerClient();
+    const { error } = await supabase.storage
+      .from('work')
+      .upload(path, memo, { contentType: type });
+    if (error) return { error: 'The recording could not be uploaded. Please try again.' };
+
+    recorded = { memo_path: path, memo_type: type };
+  } else if (formData.get('removeMemo') === 'on') {
+    recorded = { memo_path: null, memo_type: null };
+  }
+
   const db = createServiceClient();
 
   // A material with nothing attached is nothing to read. A task may stand on
@@ -121,7 +153,8 @@ export async function saveWorkPost(
     title: values.title,
     instructions: values.instructions ?? '',
     link_url: values.linkUrl || null,
-    scope: values.scope,
+    max_claims: values.maxClaims || null,
+    expected_minutes: values.expectedMinutes || null,
     trainees_only: values.traineesOnly,
     country: values.country === 'ALL' ? null : values.country,
     due_on: values.dueOn || null,
@@ -129,6 +162,7 @@ export async function saveWorkPost(
     homework_day: values.homeworkDay || null,
     published: values.published,
     ...(uploaded ?? {}),
+    ...(recorded ?? {}),
   };
 
   if (values.id) {
@@ -203,4 +237,44 @@ export async function markSubmission(
   }
 
   return { error: null, ok: 'Marked.' };
+}
+
+const suggestSchema = z.object({
+  title: z.string().trim().min(3).max(200),
+  instructions: z.string().trim().max(5000),
+});
+
+export type SuggestState = { minutes: number | null; error: string | null };
+
+/**
+ * A suggested time for the task, from the AI, for the coach to confirm.
+ *
+ * Nothing is saved here. The number goes back into the form, where the coach
+ * can change it before pressing Save, and what an intern sees is whatever
+ * was saved. This is the one thing the AI does on the work board, and it is
+ * a draft in exactly the sense the standing rules mean.
+ */
+export async function suggestWorkTime(
+  _state: SuggestState,
+  formData: FormData,
+): Promise<SuggestState> {
+  const coachId = await checkCoach();
+  if (!coachId) return { minutes: null, error: 'You are not signed in as a coach or administrator.' };
+
+  const parsed = suggestSchema.safeParse({
+    title: formData.get('title') ?? '',
+    instructions: formData.get('instructions') ?? '',
+  });
+  if (!parsed.success) {
+    return { minutes: null, error: 'Give it a title and say what to do first, then ask again.' };
+  }
+
+  const minutes = await estimateWorkMinutes(parsed.data.title, parsed.data.instructions);
+  if (minutes === null) {
+    return {
+      minutes: null,
+      error: 'No suggestion this time. Either the AI is not set up on this deployment, or it did not answer. Put in your own estimate.',
+    };
+  }
+  return { minutes, error: null };
 }

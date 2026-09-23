@@ -3,10 +3,18 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
-import { signedUrlForPost, signedUrlForSubmission, workPostFor } from '@/lib/work/service';
-import { isLate } from '@/lib/work/links';
+import {
+  isFull,
+  signedUrlForMemo,
+  signedUrlForPost,
+  signedUrlForSubmission,
+  workPostFor,
+} from '@/lib/work/service';
+import { describeMinutes, isLate, slotsLabel } from '@/lib/work/links';
 import { Card, Notice, Pill } from '@/components/ui';
+import { MessageThread } from '@/components/message-thread';
 import { ClaimForm, SubmitForm } from '../work-forms';
+import { MessageForm } from '../message-form';
 
 export const metadata: Metadata = { title: 'Work' };
 export const dynamic = 'force-dynamic';
@@ -31,9 +39,9 @@ function when(iso: string): string {
 }
 
 /**
- * One piece of work: what to do, the file or link, and where this person
- * stands on it. The upload form, with the rule above the box, appears only
- * once their name is on it.
+ * One piece of work: what to do, the coach's memo, the file or link, where
+ * this person stands on it, and a thread to the coach. The upload form,
+ * with the rule above the box, appears only once their name is on it.
  */
 export default async function WorkPostPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
@@ -45,10 +53,11 @@ export default async function WorkPostPage({ params }: { params: Promise<{ id: s
 
   const found = await workPostFor(id, user.id);
   if (!found) notFound();
-  const { post, claimed, claims, state, submissions } = found;
+  const { post, claimed, claims, state, submissions, messages } = found;
 
-  const [fileUrl, ...submissionUrls] = await Promise.all([
+  const [fileUrl, memoUrl, ...submissionUrls] = await Promise.all([
     post.fileName ? signedUrlForPost(post.id) : Promise.resolve(null),
+    post.hasMemo ? signedUrlForMemo(post.id) : Promise.resolve(null),
     ...submissions.map((s) => signedUrlForSubmission(s.id)),
   ]);
 
@@ -59,9 +68,10 @@ export default async function WorkPostPage({ params }: { params: Promise<{ id: s
     day: '2-digit',
   }).format(new Date());
 
-  const taken = post.kind === 'task' && post.scope === 'one' && !claimed && claims > 0;
-  const canClaim = post.kind === 'task' && !claimed && !taken && post.published;
+  const full = post.kind === 'task' && !claimed && isFull(post, claims);
+  const canClaim = post.kind === 'task' && !claimed && !full && post.published;
   const canSubmit = post.kind === 'task' && claimed && state !== 'good';
+  const placesLeft = post.maxClaims !== null ? post.maxClaims - claims : null;
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -77,9 +87,8 @@ export default async function WorkPostPage({ params }: { params: Promise<{ id: s
       <section>
         <div className="mb-2 flex flex-wrap items-center gap-1.5">
           <p className="eyebrow">{post.kind === 'task' ? 'Work to do' : 'To read'}</p>
-          {post.kind === 'task' ? (
-            <Pill>{post.scope === 'one' ? 'For one person' : 'For everyone'}</Pill>
-          ) : null}
+          {post.kind === 'task' ? <Pill>{slotsLabel(post.maxClaims)}</Pill> : null}
+          {post.expectedMinutes ? <Pill>{describeMinutes(post.expectedMinutes)}</Pill> : null}
           {!post.published ? <Pill>Taken down</Pill> : null}
         </div>
         <h1 className="text-3xl">{post.title}</h1>
@@ -89,7 +98,20 @@ export default async function WorkPostPage({ params }: { params: Promise<{ id: s
             {isLate(post.dueOn, today) && state !== 'good' ? ', which has passed' : ''}.
           </p>
         ) : null}
+        {post.expectedMinutes ? (
+          <p className="mt-1 text-sm text-slate">
+            Your coach expects this to take {describeMinutes(post.expectedMinutes)}. If it is
+            taking a lot longer, say so below rather than pushing on.
+          </p>
+        ) : null}
       </section>
+
+      {memoUrl ? (
+        <Card>
+          <p className="eyebrow mb-2">Your coach, in their own words</p>
+          <audio controls src={memoUrl} className="w-full" />
+        </Card>
+      ) : null}
 
       {post.instructions ? (
         <Card>
@@ -160,22 +182,28 @@ export default async function WorkPostPage({ params }: { params: Promise<{ id: s
               <Pill tone="accent">Yours</Pill>
               <p className="mt-2 text-slate">Your name is on this. Hand it in when it is done.</p>
             </>
-          ) : taken ? (
+          ) : full ? (
             <>
               <Pill>Taken</Pill>
-              <p className="mt-2 text-slate">Somebody else put their name on this one first.</p>
+              <p className="mt-2 text-slate">
+                {post.maxClaims === 1
+                  ? 'Somebody else put their name on this one first.'
+                  : 'This one has all the names it can take.'}
+              </p>
             </>
           ) : !post.published ? (
             <p className="text-slate">This has been taken down.</p>
           ) : (
             <p className="text-slate">
-              {post.scope === 'one'
-                ? 'Nobody has this yet. Put your name on it and it is yours.'
-                : 'Everyone does their own. Say you will do it, and hand it in when it is done.'}
+              {placesLeft === null
+                ? 'Everyone does their own. Say you will do it, and hand it in when it is done.'
+                : placesLeft === 1 && claims === 0
+                  ? 'Nobody has this yet. Put your name on it and it is yours.'
+                  : `${placesLeft} place${placesLeft === 1 ? '' : 's'} left. Put your name on it if you want one.`}
             </p>
           )}
 
-          {canClaim ? <ClaimForm postId={post.id} scope={post.scope} /> : null}
+          {canClaim ? <ClaimForm postId={post.id} everyone={post.maxClaims === null} /> : null}
           {canSubmit ? <SubmitForm postId={post.id} again={state === 'again'} /> : null}
         </Card>
       ) : null}
@@ -221,6 +249,29 @@ export default async function WorkPostPage({ params }: { params: Promise<{ id: s
           </div>
         </section>
       ) : null}
+
+      <Card>
+        <p className="eyebrow mb-1">Message your coach</p>
+        <p className="mb-3 text-sm text-slate">
+          Not sure what is wanted, or whether to take it? Ask here. Only you and the coaches see
+          this.
+        </p>
+        <MessageThread
+          messages={messages.map((m) => ({
+            id: m.id,
+            body: m.body,
+            sentAt: m.sentAt,
+            mine: m.senderId === user.id,
+            from: m.senderId === user.id ? 'You' : 'Your coach',
+          }))}
+          empty="Nothing asked yet."
+        />
+        <MessageForm
+          postId={post.id}
+          threadUserId={user.id}
+          placeholder="Message your coach for more information"
+        />
+      </Card>
     </div>
   );
 }

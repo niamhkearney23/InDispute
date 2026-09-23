@@ -17,7 +17,7 @@ import { TOP_LEVEL_NAME } from '@/lib/learning/progression';
 import { GoalRing } from '@/components/goal-ring';
 import { SessionCard } from '@/components/session-card';
 import { leadSession, sessionsForLearner } from '@/lib/lessons/sessions';
-import { postsForSession, workBoardFor } from '@/lib/work/service';
+import { isFull, postsForSession, workBoardFor } from '@/lib/work/service';
 import {
   ButtonLink,
   Card,
@@ -106,9 +106,10 @@ export default async function DashboardPage() {
   const workTasks = work.filter((w) => w.post.kind === 'task');
   const workYours = workTasks.filter((w) => w.claimed && w.state !== 'good').length;
   const workOpen = workTasks.filter(
-    (w) => !w.claimed && w.post.published && !(w.post.scope === 'one' && w.claims > 0),
+    (w) => !w.claimed && w.post.published && !isFull(w.post, w.claims),
   ).length;
   const workAgain = workTasks.filter((w) => w.state === 'again').length;
+  const workReplies = work.filter((w) => w.replyWaiting).length;
 
   // The pre-start checklist supersedes the bare "you have not read the policy"
   // notice, because a reading step is already one line on it. Showing both
@@ -342,6 +343,12 @@ export default async function DashboardPage() {
           ) : (
             <p className="text-slate">Nothing waiting on you.</p>
           )}
+          {workReplies > 0 ? (
+            <p className="mt-2 text-sm text-slate">
+              Your coach has replied on {workReplies === 1 ? 'one piece' : `${workReplies} pieces`}{' '}
+              of work.
+            </p>
+          ) : null}
           <p className="mt-3 text-sm text-muted">
             <InlineLink href="/work">Open the board</InlineLink>
           </p>

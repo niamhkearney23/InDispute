@@ -25,7 +25,6 @@ import type { Country } from '@/lib/types';
  */
 
 export type WorkKind = 'task' | 'material';
-export type WorkScope = 'one' | 'everyone';
 
 export interface WorkPost {
   id: string;
@@ -35,7 +34,12 @@ export interface WorkPost {
   /** What the coach called the file, or null when there is no file. */
   fileName: string | null;
   linkUrl: string | null;
-  scope: WorkScope;
+  /** Whether the coach recorded a memo. The path itself stays on the server. */
+  hasMemo: boolean;
+  /** How many people may take it. Null is no limit. */
+  maxClaims: number | null;
+  /** The coach's own estimate of how long it takes, in minutes. */
+  expectedMinutes: number | null;
   traineesOnly: boolean;
   country: Country | null;
   dueOn: string | null;
@@ -58,14 +62,30 @@ export interface WorkSubmission {
   markedAt: string | null;
 }
 
+export interface WorkMessage {
+  id: string;
+  postId: string;
+  threadUserId: string;
+  senderId: string;
+  body: string;
+  sentAt: string;
+}
+
 /** A post as an intern sees it: the post, their standing, how many names. */
 export interface WorkBoardItem {
   post: WorkPost;
   claimed: boolean;
-  /** Names on it, counted. On a post for one person, 1 means taken. */
+  /** Names on it, counted. Full when it reaches the post's limit. */
   claims: number;
   latest: WorkSubmission | null;
   state: SubmissionState;
+  /** The last word in this person's thread was somebody else's. */
+  replyWaiting: boolean;
+}
+
+/** Whether a task has all the names it can take. */
+export function isFull(post: WorkPost, claims: number): boolean {
+  return post.maxClaims !== null && claims >= post.maxClaims;
 }
 
 interface PostRow {
@@ -76,7 +96,9 @@ interface PostRow {
   file_path: string | null;
   file_name: string | null;
   link_url: string | null;
-  scope: string;
+  memo_path: string | null;
+  max_claims: number | null;
+  expected_minutes: number | null;
   trainees_only: boolean;
   country: string | null;
   due_on: string | null;
@@ -99,9 +121,21 @@ interface SubmissionRow {
   marked_at: string | null;
 }
 
+interface MessageRow {
+  id: string;
+  post_id: string;
+  thread_user_id: string;
+  sender_id: string;
+  body: string;
+  sent_at: string;
+}
+
 const POST_SELECT =
-  'id, kind, title, instructions, file_path, file_name, link_url, scope, trainees_only, ' +
-  'country, due_on, session_id, homework_day, published, published_at, created_at';
+  'id, kind, title, instructions, file_path, file_name, link_url, memo_path, max_claims, ' +
+  'expected_minutes, trainees_only, country, due_on, session_id, homework_day, published, ' +
+  'published_at, created_at';
+
+const MESSAGE_SELECT = 'id, post_id, thread_user_id, sender_id, body, sent_at';
 
 const SUBMISSION_SELECT =
   'id, post_id, user_id, file_name, note, submitted_at, verdict, feedback, marked_at';
@@ -116,7 +150,9 @@ function toPost(row: PostRow): WorkPost {
     // The database constraint should make this impossible; this is the
     // second lock on the same door, as with session links.
     linkUrl: row.link_url && isTrustedWorkLink(row.link_url) ? row.link_url : null,
-    scope: row.scope === 'everyone' ? 'everyone' : 'one',
+    hasMemo: Boolean(row.memo_path),
+    maxClaims: row.max_claims ?? null,
+    expectedMinutes: row.expected_minutes ?? null,
     traineesOnly: row.trainees_only,
     country: (row.country as Country | null) ?? null,
     dueOn: row.due_on,
@@ -142,6 +178,28 @@ function toSubmission(row: SubmissionRow): WorkSubmission {
   };
 }
 
+function toMessage(row: MessageRow): WorkMessage {
+  return {
+    id: row.id,
+    postId: row.post_id,
+    threadUserId: row.thread_user_id,
+    senderId: row.sender_id,
+    body: row.body,
+    sentAt: row.sent_at,
+  };
+}
+
+/** The threads whose last word was not the thread owner's, keyed by post. */
+function replyWaitingByPost(messages: WorkMessage[], ownerId: string): Set<string> {
+  const last = new Map<string, WorkMessage>();
+  for (const m of messages) {
+    if (m.threadUserId !== ownerId) continue;
+    const held = last.get(m.postId);
+    if (!held || m.sentAt > held.sentAt) last.set(m.postId, m);
+  }
+  return new Set([...last.values()].filter((m) => m.senderId !== ownerId).map((m) => m.postId));
+}
+
 function latestPerPost(rows: WorkSubmission[]): Map<string, WorkSubmission> {
   const latest = new Map<string, WorkSubmission>();
   for (const s of rows) {
@@ -164,12 +222,17 @@ function latestPerPost(rows: WorkSubmission[]): Map<string, WorkSubmission> {
 export async function workBoardFor(userId: string): Promise<WorkBoardItem[]> {
   const db = await createSupabaseServerClient();
 
-  const [posts, claims, submissions, counts] = await Promise.all([
+  const [posts, claims, submissions, counts, messages] = await Promise.all([
     db.from('work_posts').select(POST_SELECT).order('created_at', { ascending: false }),
     db.from('work_claims').select('post_id').eq('user_id', userId),
     db.from('work_submissions').select(SUBMISSION_SELECT).eq('user_id', userId),
     db.from('work_claim_counts').select('post_id, claims'),
+    db.from('work_messages').select(MESSAGE_SELECT).eq('thread_user_id', userId),
   ]);
+  const replies = replyWaitingByPost(
+    ((messages.data ?? []) as unknown as MessageRow[]).map(toMessage),
+    userId,
+  );
 
   const mine = new Set(((claims.data ?? []) as Array<{ post_id: string }>).map((c) => c.post_id));
   const latest = latestPerPost(
@@ -190,6 +253,7 @@ export async function workBoardFor(userId: string): Promise<WorkBoardItem[]> {
       claims: claimCounts.get(post.id) ?? 0,
       latest: current,
       state: submissionState(current),
+      replyWaiting: replies.has(post.id),
     };
   });
 }
@@ -198,10 +262,10 @@ export async function workBoardFor(userId: string): Promise<WorkBoardItem[]> {
 export async function workPostFor(
   postId: string,
   userId: string,
-): Promise<(WorkBoardItem & { submissions: WorkSubmission[] }) | null> {
+): Promise<(WorkBoardItem & { submissions: WorkSubmission[]; messages: WorkMessage[] }) | null> {
   const db = await createSupabaseServerClient();
 
-  const [post, claim, submissions, count] = await Promise.all([
+  const [post, claim, submissions, count, messages] = await Promise.all([
     db.from('work_posts').select(POST_SELECT).eq('id', postId).maybeSingle(),
     db
       .from('work_claims')
@@ -216,12 +280,19 @@ export async function workPostFor(
       .eq('user_id', userId)
       .order('submitted_at', { ascending: false }),
     db.from('work_claim_counts').select('claims').eq('post_id', postId).maybeSingle(),
+    db
+      .from('work_messages')
+      .select(MESSAGE_SELECT)
+      .eq('post_id', postId)
+      .eq('thread_user_id', userId)
+      .order('sent_at', { ascending: true }),
   ]);
 
   if (!post.data) return null;
 
   const all = ((submissions.data ?? []) as unknown as SubmissionRow[]).map(toSubmission);
   const current = all[0] ?? null;
+  const thread = ((messages.data ?? []) as unknown as MessageRow[]).map(toMessage);
 
   return {
     post: toPost(post.data as unknown as PostRow),
@@ -229,7 +300,9 @@ export async function workPostFor(
     claims: (count.data as { claims: number } | null)?.claims ?? 0,
     latest: current,
     state: submissionState(current),
+    replyWaiting: replyWaitingByPost(thread, userId).has(postId),
     submissions: all,
+    messages: thread,
   };
 }
 
@@ -292,17 +365,33 @@ export interface WorkPostSummary {
   submissions: number;
   /** Handed in and nobody has looked yet. */
   waiting: number;
+  /** Threads where the last word was the intern's. */
+  unanswered: number;
 }
 
 /** Every post, drafts included, with how much sits under each. */
 export async function allWorkPosts(): Promise<WorkPostSummary[]> {
   const db = createServiceClient();
 
-  const [posts, claims, submissions] = await Promise.all([
+  const [posts, claims, submissions, messages] = await Promise.all([
     db.from('work_posts').select(POST_SELECT).order('created_at', { ascending: false }),
     db.from('work_claims').select('post_id'),
     db.from('work_submissions').select('post_id, user_id, submitted_at, verdict'),
+    db.from('work_messages').select(MESSAGE_SELECT),
   ]);
+
+  // A thread is unanswered when its last message is the intern's own.
+  const lastInThread = new Map<string, WorkMessage>();
+  for (const m of ((messages.data ?? []) as unknown as MessageRow[]).map(toMessage)) {
+    const key = `${m.postId}/${m.threadUserId}`;
+    const held = lastInThread.get(key);
+    if (!held || m.sentAt > held.sentAt) lastInThread.set(key, m);
+  }
+  const unanswered = new Map<string, number>();
+  for (const m of lastInThread.values()) {
+    if (m.senderId !== m.threadUserId) continue;
+    unanswered.set(m.postId, (unanswered.get(m.postId) ?? 0) + 1);
+  }
 
   const claimCount = new Map<string, number>();
   for (const c of (claims.data ?? []) as Array<{ post_id: string }>) {
@@ -336,6 +425,7 @@ export async function allWorkPosts(): Promise<WorkPostSummary[]> {
     claims: claimCount.get(post.id) ?? 0,
     submissions: submissionCount.get(post.id) ?? 0,
     waiting: waiting.get(post.id) ?? 0,
+    unanswered: unanswered.get(post.id) ?? 0,
   }));
 }
 
@@ -349,15 +439,25 @@ export interface NamedSubmission extends WorkSubmission {
   name: string;
 }
 
+export interface NamedMessage extends WorkMessage {
+  senderName: string;
+  /** Written by a coach rather than by the intern whose thread it is. */
+  fromCoach: boolean;
+}
+
 /** One post with every name on it and everything handed in, for marking. */
 export async function workPostForCoach(postId: string): Promise<{
   post: WorkPost;
   claims: NamedClaim[];
   submissions: NamedSubmission[];
+  /** Every thread on the post, keyed by the intern whose thread it is. */
+  threads: Map<string, NamedMessage[]>;
+  /** Names for everybody who appears anywhere above. */
+  names: Map<string, string>;
 } | null> {
   const db = createServiceClient();
 
-  const [post, claims, submissions] = await Promise.all([
+  const [post, claims, submissions, messages] = await Promise.all([
     db.from('work_posts').select(POST_SELECT).eq('id', postId).maybeSingle(),
     db
       .from('work_claims')
@@ -369,6 +469,11 @@ export async function workPostForCoach(postId: string): Promise<{
       .select(SUBMISSION_SELECT)
       .eq('post_id', postId)
       .order('submitted_at', { ascending: false }),
+    db
+      .from('work_messages')
+      .select(MESSAGE_SELECT)
+      .eq('post_id', postId)
+      .order('sent_at', { ascending: true }),
   ]);
 
   if (!post.data) return null;
@@ -377,8 +482,16 @@ export async function workPostForCoach(postId: string): Promise<{
   const submissionRows = ((submissions.data ?? []) as unknown as SubmissionRow[]).map(
     toSubmission,
   );
+  const messageRows = ((messages.data ?? []) as unknown as MessageRow[]).map(toMessage);
 
-  const ids = [...new Set([...claimRows.map((c) => c.user_id), ...submissionRows.map((s) => s.userId)])];
+  const ids = [
+    ...new Set([
+      ...claimRows.map((c) => c.user_id),
+      ...submissionRows.map((s) => s.userId),
+      ...messageRows.map((m) => m.threadUserId),
+      ...messageRows.map((m) => m.senderId),
+    ]),
+  ];
   const names = new Map<string, string>();
   if (ids.length > 0) {
     const { data } = await db.from('profiles').select('id, display_name, email').in('id', ids);
@@ -393,6 +506,16 @@ export async function workPostForCoach(postId: string): Promise<{
     }
   }
 
+  const threads = new Map<string, NamedMessage[]>();
+  for (const m of messageRows) {
+    const named: NamedMessage = {
+      ...m,
+      senderName: names.get(m.senderId) ?? 'Somebody',
+      fromCoach: m.senderId !== m.threadUserId,
+    };
+    threads.set(m.threadUserId, [...(threads.get(m.threadUserId) ?? []), named]);
+  }
+
   return {
     post: toPost(post.data as unknown as PostRow),
     claims: claimRows.map((c) => ({
@@ -401,6 +524,8 @@ export async function workPostForCoach(postId: string): Promise<{
       claimedAt: c.claimed_at,
     })),
     submissions: submissionRows.map((s) => ({ ...s, name: names.get(s.userId) ?? 'Somebody' })),
+    threads,
+    names,
   };
 }
 
@@ -408,8 +533,9 @@ export async function workPostForCoach(postId: string): Promise<{
 /* Files                                                                      */
 /* -------------------------------------------------------------------------- */
 
-/** Ten minutes: long enough to open, short enough that a copied link dies. */
-const SIGNED_URL_SECONDS = 600;
+/** An hour: a memo may be played long after the page loaded, and a copied
+ *  link still dies the same day. */
+const SIGNED_URL_SECONDS = 3600;
 
 async function sign(path: string): Promise<string | null> {
   const { data } = await createServiceClient()
@@ -430,6 +556,14 @@ export async function signedUrlForPost(postId: string): Promise<string | null> {
   const db = await createSupabaseServerClient();
   const { data } = await db.from('work_posts').select('file_path').eq('id', postId).maybeSingle();
   const path = (data as { file_path: string | null } | null)?.file_path;
+  return path ? sign(path) : null;
+}
+
+/** As above, for the coach's recording on a post. */
+export async function signedUrlForMemo(postId: string): Promise<string | null> {
+  const db = await createSupabaseServerClient();
+  const { data } = await db.from('work_posts').select('memo_path').eq('id', postId).maybeSingle();
+  const path = (data as { memo_path: string | null } | null)?.memo_path;
   return path ? sign(path) : null;
 }
 

@@ -6,10 +6,15 @@ import path from 'node:path';
 import {
   WORK_FILE_MAX_BYTES,
   WORK_FILE_TYPES,
+  WORK_MEMO_TYPES,
+  bareMemoType,
+  describeMinutes,
   isLate,
   isTrustedWorkLink,
+  slotsLabel,
   submissionState,
   workFileProblem,
+  workMemoProblem,
 } from '../src/lib/work/links';
 
 /**
@@ -64,14 +69,41 @@ test('every allowed type has an extension to be stored under', () => {
   }
 });
 
-test('the bucket accepts exactly the types the form does', () => {
+test('the bucket accepts exactly the types the forms do', () => {
+  // 0020 restates the bucket's allowed types in full, so it is the one
+  // that has to agree with both the document and the memo lists.
   const migration = fs.readFileSync(
-    path.join(__dirname, '..', 'supabase', 'migrations', '0019_work_board.sql'),
+    path.join(__dirname, '..', 'supabase', 'migrations', '0020_work_memos_messages_slots.sql'),
     'utf8',
   );
-  for (const type of Object.keys(WORK_FILE_TYPES)) {
+  for (const type of [...Object.keys(WORK_FILE_TYPES), ...Object.keys(WORK_MEMO_TYPES)]) {
     assert.ok(migration.includes(`'${type}'`), `${type} is not in the bucket's allowed types`);
   }
+});
+
+test('a recording is checked by its bare type, codec suffix and all', () => {
+  assert.equal(bareMemoType('audio/webm;codecs=opus'), 'audio/webm');
+  assert.equal(bareMemoType('AUDIO/MP4'), 'audio/mp4');
+  assert.equal(workMemoProblem({ type: 'audio/webm;codecs=opus', size: 2048 }), null);
+  assert.match(workMemoProblem({ type: 'video/mp4', size: 2048 }) ?? '', /cannot be played/);
+  assert.match(workMemoProblem({ type: 'audio/webm', size: 0 }) ?? '', /empty/);
+  assert.match(
+    workMemoProblem({ type: 'audio/webm', size: WORK_FILE_MAX_BYTES + 1 }) ?? '',
+    /20MB/,
+  );
+});
+
+test('how many may take it, and how long it takes, read as plain sentences', () => {
+  assert.equal(slotsLabel(null), 'For everyone');
+  assert.equal(slotsLabel(1), 'For one person');
+  assert.equal(slotsLabel(3), 'For 3 people');
+
+  assert.equal(describeMinutes(1), 'about 1 minute');
+  assert.equal(describeMinutes(45), 'about 45 minutes');
+  assert.equal(describeMinutes(60), 'about 1 hour');
+  assert.equal(describeMinutes(90), 'about 1.5 hours');
+  assert.equal(describeMinutes(480), 'about 1 day');
+  assert.equal(describeMinutes(720), 'about 1.5 days');
 });
 
 test('where a person stands follows their latest submission', () => {

@@ -138,6 +138,17 @@ export const CAREER_STAGE_LABELS: Record<CareerStage, string> = {
   other: 'Other',
 };
 
+/**
+ * The same stage, in each country's own words. Practical Legal Training is
+ * an Australian thing; the Malaysian year between the degree and admission
+ * is pupillage, and a Malaysian graduate asked whether they are a "PLT
+ * student" would rightly answer no and pick the wrong box.
+ */
+export function careerStageLabel(stage: CareerStage, country: Country): string {
+  if (stage === 'plt_student' && country === 'MY') return 'Pupil (in chambering)';
+  return CAREER_STAGE_LABELS[stage];
+}
+
 export const COUNTRY_LABELS: Record<Country, string> = {
   AU: 'Australia',
   MY: 'Malaysia',

@@ -137,9 +137,11 @@ test('the server actions were actually found', () => {
     'saveStep',
     'saveTrainee',
     'saveWorkPost',
+    'sendWorkMessage',
     'setPlacementDates',
     'setPublished',
     'submitWork',
+    'suggestWorkTime',
     'transitionFact',
     'transitionQuestion',
     'updateFact',
@@ -277,6 +279,12 @@ const COACH_ACTIONS = new Set([
   // submission, is append-only and cannot be touched by the marking at all.
   'saveWorkPost',
   'markSubmission',
+  // A suggested time for a task, from the AI, for the coach to confirm. It
+  // saves nothing: the number goes back into the form, and what an intern
+  // sees is whatever the coach then saved under their own name. A draft in
+  // exactly the sense the standing rules mean, and the only thing the AI
+  // does on the work board.
+  'suggestWorkTime',
 ]);
 
 test('every admin server action requires a staff role, never merely a session', () => {
