@@ -6,7 +6,13 @@ import { z } from 'zod';
 import { checkAdmin, checkCoach } from '@/lib/admin/guard';
 import { createServiceClient } from '@/lib/supabase/service';
 import { confirmStep, recordDecision } from '@/lib/onboarding/service';
-import { createInvitation, revokeInvitation } from '@/lib/onboarding/invitations';
+import {
+  createAccountDirectly,
+  createInvitation,
+  revokeInvitation,
+} from '@/lib/onboarding/invitations';
+import { practiceChoiceFor } from '@/lib/types';
+import type { LearnerTrack } from '@/lib/types';
 import { publicEnv } from '@/lib/env';
 import type { AdminState } from '../actions';
 
@@ -238,7 +244,7 @@ const inviteSchema = z.object({
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'Use the date picker')
     .optional()
     .or(z.literal('')),
-  country: z.enum(['AU', 'MY']),
+  choice: z.enum(['AU', 'MY', 'MY_TRAINEE']),
 });
 
 /**
@@ -257,19 +263,21 @@ export async function invite(_state: InviteState, formData: FormData): Promise<I
     email: formData.get('email'),
     displayName: formData.get('displayName') ?? '',
     startsOn: formData.get('startsOn') ?? '',
-    country: formData.get('country'),
+    choice: formData.get('choice') ?? 'AU',
   });
 
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? 'Something in the form is not valid.' };
   }
 
+  const { country, track } = choiceToProgramme(parsed.data.choice);
   const result = await createInvitation({
     invitedBy: adminId,
     email: parsed.data.email,
     displayName: parsed.data.displayName ?? '',
     startsOn: parsed.data.startsOn || null,
-    country: parsed.data.country,
+    country,
+    track,
   });
 
   if (result.error) return { error: result.error };
@@ -282,6 +290,63 @@ export async function invite(_state: InviteState, formData: FormData): Promise<I
     // slash in a link somebody is about to paste into an email.
     link: `${publicEnv.siteUrl.replace(/\/+$/, '')}/join/${result.token}`,
   };
+}
+
+/** The three-way choice on the form, as a country and a programme. */
+function choiceToProgramme(choice: 'AU' | 'MY' | 'MY_TRAINEE'): {
+  country: 'AU' | 'MY';
+  track: LearnerTrack;
+} {
+  const found = practiceChoiceFor(
+    choice === 'AU' ? 'AU' : 'MY',
+    choice === 'MY_TRAINEE' ? 'litigation_trainee' : 'general',
+  );
+  return { country: found.country, track: found.track };
+}
+
+export type AccountState = { error: string | null; email?: string; password?: string };
+
+/**
+ * Making the account outright, with a temporary password to hand over.
+ *
+ * The other way in for a firm that would rather not send a link. The
+ * password is shown once, here, and the person is made to choose their own
+ * the first time they sign in, so the one the administrator saw stops
+ * working at that moment. Administrator only, like inviting: this decides
+ * who is a member of the firm's deployment.
+ */
+export async function createAccount(
+  _state: AccountState,
+  formData: FormData,
+): Promise<AccountState> {
+  const adminId = await checkAdmin();
+  if (!adminId) return { error: 'You are not signed in as an administrator.' };
+
+  const parsed = inviteSchema.safeParse({
+    email: formData.get('email'),
+    displayName: formData.get('displayName') ?? '',
+    startsOn: formData.get('startsOn') ?? '',
+    choice: formData.get('choice') ?? 'AU',
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? 'Something in the form is not valid.' };
+  }
+
+  const { country, track } = choiceToProgramme(parsed.data.choice);
+  const result = await createAccountDirectly({
+    invitedBy: adminId,
+    email: parsed.data.email,
+    displayName: parsed.data.displayName ?? '',
+    startsOn: parsed.data.startsOn || null,
+    country,
+    track,
+  });
+
+  if (result.password === null) return { error: result.error };
+
+  revalidatePath('/admin/onboarding');
+  return { error: null, email: parsed.data.email, password: result.password };
 }
 
 export async function revoke(_state: AdminState, formData: FormData): Promise<AdminState> {

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
-import { Card } from '@/components/ui';
+import { Card, InlineLink } from '@/components/ui';
 import { AvatarForm } from './avatar-form';
 
 export const metadata: Metadata = { title: 'Your account' };
@@ -26,6 +26,14 @@ export default async function AccountPage() {
 
       <Card>
         <AvatarForm displayName={profile.displayName} avatarUrl={profile.avatarUrl} />
+      </Card>
+
+      <Card>
+        <p className="eyebrow mb-2">Password</p>
+        <p className="text-sm text-slate">
+          Signed in as {profile.email ?? 'you'}.{' '}
+          <InlineLink href="/account/password">Change your password</InlineLink>
+        </p>
       </Card>
     </div>
   );

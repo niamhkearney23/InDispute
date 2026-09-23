@@ -1223,6 +1223,29 @@ select pg_temp.expect_failure(
             '33333333-3333-3333-3333-333333333333')$$,
   'a second live invitation to the same person is refused, so calling one back closes the door');
 
+-- Which programme the invitation is for, with the same rule as profiles.
+select pg_temp.expect(
+  (select track = 'general' from public.joiner_invitations where email = 'joiner@example.test'),
+  'an invitation is for the general programme unless it says otherwise');
+
+insert into public.joiner_invitations (token_hash, email, invited_by, country, track)
+values ('hash-of-a-token-track', 'trainee-invite@example.test',
+        '33333333-3333-3333-3333-333333333333', 'MY', 'litigation_trainee');
+
+select pg_temp.expect_failure(
+  $$insert into public.joiner_invitations (token_hash, email, invited_by, country, track)
+    values ('hash-of-a-token-au-trainee', 'au-trainee@example.test',
+            '33333333-3333-3333-3333-333333333333', 'AU', 'litigation_trainee')$$,
+  'an invitation cannot put an Australian on the litigation trainee programme');
+
+-- An account the administrator made starts with a password they have seen,
+-- and the flag that says so is the person's own to clear once they have
+-- chosen their own.
+select pg_temp.expect(
+  (select not must_change_password from public.profiles
+   where id = 'aaaa1111-0000-0000-0000-000000000006'),
+  'a person who set their own password is not asked to change it');
+
 select pg_temp.expect(
   (select count(*) from public.joiner_invitations
    where lower(email) = 'joiner@example.test') = 1,

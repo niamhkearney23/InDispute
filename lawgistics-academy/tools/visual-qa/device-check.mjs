@@ -68,6 +68,7 @@ const PAGES = [
   { name: 'skills', path: '/skills', auth: true },
   { name: 'courts', path: '/courts', auth: true },
   { name: 'account', path: '/account', auth: true },
+  { name: 'account-password', path: '/account/password', auth: true },
   { name: 'modules', path: '/modules', auth: true },
   { name: 'module', path: '/modules/ai-ethics-au', auth: true },
   { name: 'firm-module', path: '/modules/firm/ai-policy', auth: true },

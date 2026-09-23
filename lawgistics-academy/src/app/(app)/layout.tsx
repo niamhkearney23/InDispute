@@ -5,6 +5,7 @@ import { getLearnerProfile } from '@/lib/learner-overview';
 import { Wordmark } from '@/components/ui';
 import { Avatar } from '@/components/avatar';
 import { NavLink } from '@/components/nav-link';
+import { FirstPassword } from './account/password-form';
 
 /**
  * Every page under this layout is per-learner and auth-gated. Say so explicitly
@@ -19,6 +20,19 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!user) redirect('/login');
 
   const profile = await getLearnerProfile(user.id);
+
+  // An account an administrator made, with a password they have seen. The
+  // choice of a new one comes before anything else, whatever page was asked
+  // for, and the moment it is made the old one stops working.
+  if (profile?.mustChangePassword) {
+    return (
+      <div className="flex min-h-dvh flex-col">
+        <main className="mx-auto w-full max-w-md flex-1 px-4 py-10 sm:px-8">
+          <FirstPassword />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-dvh flex-col">
