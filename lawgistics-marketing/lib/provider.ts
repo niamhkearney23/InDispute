@@ -20,8 +20,10 @@ export function pickProvider(asked?: string | null): Provider | null {
   const pinned = (process.env.DRAFT_PROVIDER || "").toLowerCase();
   if (pinned === "openai") return hasKey("openai") ? "openai" : null;
   if (pinned === "anthropic") return hasKey("anthropic") ? "anthropic" : null;
-  if (hasKey("anthropic")) return "anthropic";
+  // OpenAI first by default: Niamh wants ChatGPT choosing the compositions.
+  // Anthropic stays as the fallback and as a choice in the app.
   if (hasKey("openai")) return "openai";
+  if (hasKey("anthropic")) return "anthropic";
   return null;
 }
 

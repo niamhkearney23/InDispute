@@ -629,7 +629,7 @@ export function initStudio(){
   // stay on the server. The control appears at all only when the server says
   // both are available, so it is never a dead switch.
   var modelPick = $('modelPick');
-  function providerChoice(){ return state.provider==='openai' ? 'openai' : 'anthropic'; }
+  function providerChoice(){ return state.provider==='anthropic' ? 'anthropic' : 'openai'; }
   function renderModelPick(){
     if(!modelPick || !state.bothModels) return;
     modelPick.hidden = false;
@@ -1472,7 +1472,10 @@ export function initStudio(){
     state.sameAsLast = !!state.sameAsLast;
     if(!Array.isArray(state.lastPattern)) state.lastPattern = null;
     if(!Array.isArray(state.approved)) state.approved = [];
-    if(state.provider!=='openai' && state.provider!=='anthropic') state.provider = 'anthropic';
+    // ChatGPT is the default now. Anyone whose saved state predates that gets
+    // moved across once, rather than silently staying on the old default.
+    if(state.provider!=='openai' && state.provider!=='anthropic') state.provider = 'openai';
+    if(!state.providerDefaultV2){ state.provider = 'openai'; state.providerDefaultV2 = 1; }
     if(typeof state.caption !== 'string') state.caption = '';
     state.consented = !!state.consented;
     state.drafted = !!state.drafted;
