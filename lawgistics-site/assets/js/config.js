@@ -13,7 +13,7 @@ window.LG_CONFIG = {
   // and marks advocacy; the questions live in the app, where they are scored on
   // the server and the result is kept. Leave it blank and every link into the
   // app disappears rather than pointing at nothing.
-  appUrl: 'https://in-dispute.vercel.app',
+  appUrl: 'https://litigation-training.vercel.app',
 
   /* Which country's question bank is actually open to learners.
    *
