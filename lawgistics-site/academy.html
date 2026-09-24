@@ -67,7 +67,7 @@
         </div>
         <div class="facts__item">
           <dt>Who it is for</dt>
-          <dd>Law students, PLT students, pupils, paralegals and junior lawyers</dd>
+          <dd data-facts-audience>Law students, pupils and interns, paralegals and junior lawyers</dd>
         </div>
         <div class="facts__item">
           <dt>Assessment</dt>
@@ -345,6 +345,15 @@ window.pageInit = function () {
      answer and the tap is near the top of the page. */
   var COUNTRIES = { MY: 'Malaysia', AU: 'Australia' };
 
+  /* Who it is for, in each country's own words. Practical Legal Training is
+     an Australian stage: a Malaysian graduate reads "PLT" as somebody else's
+     programme. The Malaysian year before admission is chambering, and the
+     people in it are pupils and interns. */
+  var AUDIENCE = {
+    MY: 'Law students, pupils in chambering, interns, paralegals and junior lawyers',
+    AU: 'Law students, PLT students, graduates, paralegals and junior lawyers'
+  };
+
   /* One country, on its own address, with no way back to the other one.
      ?c=au sets the country and leaves the switch on the page, which is right
      for somebody who landed on the Malaysian page by default and needs to
@@ -525,6 +534,9 @@ window.pageInit = function () {
      so the page can never be half Malaysian and half Australian. */
   function paint() {
     paintLevels();
+
+    var audience = document.querySelector('[data-facts-audience]');
+    if (audience && AUDIENCE[country]) audience.textContent = AUDIENCE[country];
 
     // The links into the app carry the country, so they are rewritten too, and
     // they are only shown where there is something on the other end.

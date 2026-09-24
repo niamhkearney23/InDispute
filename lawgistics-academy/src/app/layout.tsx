@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     template: `%s · ${brand.fullName}`,
   },
   description:
-    'Adaptive litigation training for Australian law students, PLT students, graduates and junior lawyers. Train like a lawyer.',
+    'Adaptive litigation training for law students and junior lawyers: PLT students in Australia, pupils and interns in Malaysia. Train like a lawyer.',
 };
 
 export const viewport: Viewport = {
