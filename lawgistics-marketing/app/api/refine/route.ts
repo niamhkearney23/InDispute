@@ -19,7 +19,7 @@ const FIELD_RULES: Record<string, string> = {
 };
 
 export async function POST(req: Request) {
-  const provider = pickProvider();
+  const provider = pickProvider(null);
   if (!provider) {
     return NextResponse.json(
       { error: "No drafting key is set on the server. Add ANTHROPIC_API_KEY or OPENAI_API_KEY." },

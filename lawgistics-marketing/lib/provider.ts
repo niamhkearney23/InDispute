@@ -4,12 +4,24 @@ export type Provider = "openai" | "anthropic";
 
 // Either provider can write. DRAFT_PROVIDER pins one; otherwise whichever key
 // is present wins, so the app works with just one of them set.
-export function pickProvider(): Provider | null {
+export function hasKey(p: Provider): boolean {
+  return p === "openai" ? !!process.env.OPENAI_API_KEY : !!process.env.ANTHROPIC_API_KEY;
+}
+
+// `asked` is the choice made in the app for this one request. It only ever
+// names a provider, never carries a key, and it is ignored unless that
+// provider's key is actually on the server. DRAFT_PROVIDER still pins a
+// default for anyone who would rather set it once in the dashboard.
+export function pickProvider(asked?: string | null): Provider | null {
+  const want = (asked || "").toLowerCase();
+  if (want === "openai" && hasKey("openai")) return "openai";
+  if (want === "anthropic" && hasKey("anthropic")) return "anthropic";
+
   const pinned = (process.env.DRAFT_PROVIDER || "").toLowerCase();
-  if (pinned === "openai") return process.env.OPENAI_API_KEY ? "openai" : null;
-  if (pinned === "anthropic") return process.env.ANTHROPIC_API_KEY ? "anthropic" : null;
-  if (process.env.ANTHROPIC_API_KEY) return "anthropic";
-  if (process.env.OPENAI_API_KEY) return "openai";
+  if (pinned === "openai") return hasKey("openai") ? "openai" : null;
+  if (pinned === "anthropic") return hasKey("anthropic") ? "anthropic" : null;
+  if (hasKey("anthropic")) return "anthropic";
+  if (hasKey("openai")) return "openai";
   return null;
 }
 

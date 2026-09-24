@@ -238,15 +238,7 @@ const ART_DIRECTION =
   "not whether a choice is unusual. It is whether it was a choice.";
 
 export async function POST(req: Request) {
-  const provider = pickProvider();
-  if (!provider) {
-    return NextResponse.json(
-      { error: "No drafting key is set on the server. Add ANTHROPIC_API_KEY or OPENAI_API_KEY." },
-      { status: 500 },
-    );
-  }
-
-  let body: { topic?: unknown; voiceSample?: unknown; current?: unknown; brand?: unknown; format?: unknown; pattern?: unknown; approved?: unknown };
+  let body: { topic?: unknown; voiceSample?: unknown; current?: unknown; brand?: unknown; format?: unknown; pattern?: unknown; approved?: unknown; provider?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -299,6 +291,14 @@ export async function POST(req: Request) {
         .map((p) => ({ layout: String(p.layout).slice(0, 20), ground: String(p.ground || "light").slice(0, 10) }))
     : undefined;
 
+  const provider = pickProvider(typeof body?.provider === "string" ? body.provider : null);
+  if (!provider) {
+    return NextResponse.json(
+      { error: "No drafting key is set on the server. Add ANTHROPIC_API_KEY or OPENAI_API_KEY." },
+      { status: 500 },
+    );
+  }
+
   const str = (v: unknown, n: number) => (typeof v === "string" ? v.slice(0, n) : "");
   const strs = (v: unknown, n: number) =>
     Array.isArray(v) ? v.filter((x) => typeof x === "string").slice(0, 10).map((x) => String(x).slice(0, 20)) : [];
@@ -326,7 +326,7 @@ export async function POST(req: Request) {
 
   try {
     const draft = extractJson(text);
-    return NextResponse.json({ draft });
+    return NextResponse.json({ draft, provider });
   } catch {
     return NextResponse.json(
       { error: "The draft came back in an unexpected shape. Try again or rephrase the topic." },
