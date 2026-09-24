@@ -273,6 +273,18 @@ export default function Page() {
                 <input type="checkbox" id="sameAsLast" />
                 <span>Same shapes as last time</span>
               </label>
+              {/* only appears when both keys are on the server */}
+              <div className="modelpick" id="modelPick" hidden>
+                <span className="hint">Written by</span>
+                <div className="segmented">
+                  <button type="button" data-provider="anthropic">
+                    Claude
+                  </button>
+                  <button type="button" data-provider="openai">
+                    ChatGPT
+                  </button>
+                </div>
+              </div>
             </div>
             <div className="brandbar" id="brandBar"></div>
             <textarea

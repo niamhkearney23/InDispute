@@ -574,7 +574,7 @@ export function initStudio(){
     if(name==='save'){ captionOut.value = state.caption || ''; rememberApproved(); if(state.consented) prepareBlobs(); }
     if(name==='look') setTimeout(renderBrandPreview, 0);
     if(name==='you') setTimeout(function(){ brandName.focus(); }, 0);
-    if(name==='ask'){ renderBrandBar(); renderSameRow(); setTimeout(function(){ askInput.focus(); }, 0); }
+    if(name==='ask'){ renderBrandBar(); renderSameRow(); renderModelPick(); setTimeout(function(){ askInput.focus(); }, 0); }
     saveLocal();
     window.scrollTo(0,0);
   }
@@ -625,6 +625,35 @@ export function initStudio(){
       '<span class="sep">/</span><span>'+textEsc(styleName)+'</span>'+
       '<button type="button" class="linkbtn edit" data-go="look">Change</button>';
   }
+  // Which model writes the post. The browser only ever names one; the keys
+  // stay on the server. The control appears at all only when the server says
+  // both are available, so it is never a dead switch.
+  var modelPick = $('modelPick');
+  function providerChoice(){ return state.provider==='openai' ? 'openai' : 'anthropic'; }
+  function renderModelPick(){
+    if(!modelPick || !state.bothModels) return;
+    modelPick.hidden = false;
+    modelPick.querySelectorAll('[data-provider]').forEach(function(b){
+      b.classList.toggle('active', b.dataset.provider===providerChoice());
+    });
+  }
+  async function loadServerSetup(){
+    try{
+      var r = await fetch('/api/setup');
+      var d = await r.json();
+      state.bothModels = !!(d && d.keys && d.keys.anthropic && d.keys.openai);
+      if(!state.bothModels && d && d.writingWith && d.writingWith!=='nothing') state.provider = d.writingWith;
+      renderModelPick();
+    }catch(e){ /* the control just stays hidden */ }
+  }
+  if(modelPick) modelPick.addEventListener('click', function(e){
+    var b = e.target.closest('[data-provider]');
+    if(!b) return;
+    state.provider = b.dataset.provider;
+    saveLocal(); renderModelPick();
+    showToast(state.provider==='openai' ? 'ChatGPT will write the next one' : 'Claude will write the next one');
+  });
+
   function renderSameRow(){
     var has = !!(state.lastPattern && state.lastPattern.length);
     sameRow.hidden = !has;
@@ -1264,6 +1293,7 @@ export function initStudio(){
       if(revising) payload.current = currentDraft();
       if(fromAsk && state.sameAsLast && state.lastPattern && state.lastPattern.length) payload.pattern = state.lastPattern;
       if(Array.isArray(state.approved) && state.approved.length) payload.approved = state.approved.slice(-6);
+      if(state.bothModels) payload.provider = providerChoice();
       var res = await fetch('/api/draft', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
       var data = await res.json();
       if(!res.ok) throw new Error(data && data.error ? data.error : 'request failed');
@@ -1442,6 +1472,7 @@ export function initStudio(){
     state.sameAsLast = !!state.sameAsLast;
     if(!Array.isArray(state.lastPattern)) state.lastPattern = null;
     if(!Array.isArray(state.approved)) state.approved = [];
+    if(state.provider!=='openai' && state.provider!=='anthropic') state.provider = 'anthropic';
     if(typeof state.caption !== 'string') state.caption = '';
     state.consented = !!state.consented;
     state.drafted = !!state.drafted;
@@ -1450,7 +1481,7 @@ export function initStudio(){
     if(state.format!=='poster') state.format = 'carousel';
     if(STEP_KEYS.indexOf(state.step)<0) state.step = state.setupDone ? 'ask' : 'you';
   } else {
-    state = {slides: exampleSlides(), activeIndex: 0, brand: defaultBrand(), caption: exampleCaption(), consented: false,
+    state = {slides: exampleSlides(), activeIndex: 0, brand: defaultBrand(), caption: exampleCaption(''), consented: false,
       step: 'you', messages: [{role:'bot', text: EXAMPLE_INTRO}], drafted: false, format: 'carousel', setupDone: false};
   }
   ensureGoogleFont(state.brand.serif);
@@ -1458,5 +1489,6 @@ export function initStudio(){
   syncFormat();
   renderAll();
   showStep(state.step);
+  loadServerSetup();
   window.addEventListener('resize', function(){ if(state.step==='brand') renderBrandPreview(); });
 }
