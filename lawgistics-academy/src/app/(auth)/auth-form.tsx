@@ -93,13 +93,15 @@ export function AuthForm({
         return;
       }
 
-      // With email confirmation switched on, there is no session yet.
+      // With "Confirm email" switched off in Supabase there is a session
+      // already, and the person goes straight in below. With it switched on
+      // there is not, and they are told the one thing they can do about it.
+      // What an administrator can do when the email never arrives lives in
+      // the setup notes, not here: somebody signing up cannot act on it.
       if (!data.session) {
         setNotice(
-          'Check your email to confirm your address, then sign in. If the email never ' +
-            'arrives, or the link in it fails, an administrator can confirm the account ' +
-            'directly in Supabase under Authentication → Users, or switch off "Confirm ' +
-            'email" under Authentication → Sign In / Providers → Email.',
+          'Nearly there. We have sent you an email: open it and press the link to finish ' +
+            'signing up. If it has not arrived in a few minutes, check your junk folder.',
         );
         setPending(false);
         return;
