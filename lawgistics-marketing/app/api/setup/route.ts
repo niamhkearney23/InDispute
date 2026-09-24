@@ -19,8 +19,9 @@ export async function GET() {
   }
   if (hasAnthropic && hasOpenAI && !pinned) {
     notes.push(
-      "Both keys are set and neither is pinned, so Anthropic does the writing. " +
-        "To make OpenAI write instead, add DRAFT_PROVIDER=openai.",
+      "Both keys are set, so the Written by switch on the topic screen chooses per post. " +
+        "Anthropic is the default when nothing is chosen. DRAFT_PROVIDER is not needed, " +
+        "though setting it would change that default.",
     );
   }
   if (pinned === "openai" && !hasOpenAI) {
