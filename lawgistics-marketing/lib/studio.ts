@@ -162,8 +162,17 @@ function smartQuotes(s){
 // A designer does not leave a full stop stranded on its own line, a space
 // floating before a comma, or an empty emphasis pair. None of this is taste,
 // it is the mechanical stuff that makes a graphic read as machine output.
+// Models sometimes double-escape their own JSON, so a line break arrives as
+// the two characters backslash-n and gets printed literally. Repair it rather
+// than asking the model not to do it.
+function unescapeBreaks(s){
+  return String(s==null?'':s)
+    .replace(/\\r\\n/g, '\n')
+    .replace(/\\n/g, '\n')
+    .replace(/\\t/g, ' ');
+}
 function typeset(s){
-  var t = String(s==null?'':s);
+  var t = unescapeBreaks(s);
   t = t.replace(/\*\*\s*\*\*|\*\s*\*/g, '');   // emphasis wrapped around nothing
   t = t.replace(/[ \t]+/g, ' ');
   t = t.replace(/ +([,.;:!?%)\]])/g, '$1');      // no space before punctuation
@@ -1159,6 +1168,21 @@ export function initStudio(){
   var DEAD_LABELS = /^(why it matters|learn this|the bottom line|key takeaway|takeaway|the point|in short|tl;?dr|the truth is|let that sink in|here is the thing|what this means|the lesson)\b[:.]?$/i;
   function isDeadLabel(t){ return DEAD_LABELS.test(String(t||'').trim()); }
 
+  // The caption gets the same treatment as a slide: a disclaimer the author
+  // never set is the model deciding a professional post "should" carry one.
+  var INVENTED_NOTE = /^(general information|this is not legal advice|not legal advice|nothing (here|in this post)|no legal advice|for informational purposes|this post does not)/i;
+  function tidyCaption(text){
+    var note = (state.brand.disclaimer||'').trim();
+    var lines = String(text||'').split('\n');
+    while(lines.length){
+      var last = lines[lines.length-1].trim();
+      if(!last){ lines.pop(); continue; }
+      if(!note && INVENTED_NOTE.test(last)){ lines.pop(); continue; }
+      break;
+    }
+    return lines.join('\n').trim();
+  }
+
   // ---- the art director pass ----
   // Everything here removes what a human designer would not have left in. It
   // never adds, never invents and never flattens a deliberate choice: an
@@ -1244,7 +1268,7 @@ export function initStudio(){
     // remember the shape of this post so the next one can match it
     state.lastPattern = slides.map(function(s){ return {layout:s.layout, ground:s.ground}; });
     state.slides = slides; state.activeIndex = 0;
-    state.caption = typeof result.caption==='string' ? result.caption : '';
+    state.caption = typeof result.caption==='string' ? tidyCaption(unescapeBreaks(result.caption)) : '';
     state.consented = false;
     state.drafted = true;
     return slides.length;

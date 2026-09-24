@@ -160,7 +160,16 @@ function buildPrompt(
     "a language model default-writes.\n\n" +
     "Where the author has given you their own words, KEEP THEM. Shorten a line when the design needs it, but " +
     "do not translate an ordinary human sentence into thought-leadership language, and do not make a plain " +
-    "point sound profound. If their sentence already works, use their sentence." +
+    "point sound profound. If their sentence already works, use their sentence.\n\n" +
+    "MATCH THE REGISTER OF WHAT THEY GAVE YOU. A light, funny or personal note stays light, funny and " +
+    "personal for the whole post. Do not pivot from it into a lesson about authenticity, identity, passion, " +
+    "purpose or being your true self. There is no rule that a post must end up meaning something bigger: " +
+    "sometimes a person just likes chocolate.\n\n" +
+    "Never write a sentence of this kind: \"this is about more than just X\", \"it is about recognising " +
+    "that\", \"our identities are multifaceted\", \"embrace all aspects of who you are\", \"why limit " +
+    "yourself\", \"for the curious souls\", \"keep seeking\", \"being genuine is essential\", or any " +
+    "closing line that tells the reader how to live. If you find yourself explaining what something really " +
+    "means, delete that line and say the concrete thing instead." +
     speciality + audience + voice + dna + revision +
     (current
       ? ""
@@ -179,9 +188,14 @@ function buildPrompt(
     '",' +
     '"caption":"the post caption, written and spaced the way a strong LinkedIn post is: ' +
     "line 1 is a hook that stands on its own and earns the click on 'see more', then one idea per line, " +
-    "a blank line between every line (use \\\\n\\\\n), most lines under 12 words, no line longer than two " +
+    "a real blank line between every line, most lines under 12 words, no line longer than two " +
     "sentences, a plain-spoken point of view in the middle, the takeaway near the end as its own line, " +
-    'then a one-line general-information disclaimer, no hashtags, no emoji, no em dashes, 120 to 220 words",' +
+    "no hashtags, no emoji, no em dashes, 120 to 220 words. Break lines with real newline characters in " +
+    "the JSON string. Never type a backslash followed by the letter n" +
+    (brand.hasDisclaimer
+      ? ". End with the author's own footer note, which they have set separately"
+      : ". Do NOT end with a disclaimer, a legal notice or any line the author did not ask for") +
+    '",' +
     '"slides":[{"layout":"title","ground":"light","size":"lg","swipe":true,"statement":"...","sub":"..."},' +
     '{"layout":"essay","ground":"light","size":"md","statement":"...","body":"..."},' +
     '{"layout":"impact","ground":"accent","size":"lg","statement":"..."}]}\n' +
