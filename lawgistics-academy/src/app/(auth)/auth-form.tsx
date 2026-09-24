@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Button, Notice, Wordmark, cn } from '@/components/ui';
 import { brand } from '@/lib/brand';
+import { AccentSurface } from '@/components/accent-surface';
+import { ArrowIcon, CheckIcon } from '@/components/icons';
 import { PRACTICE_CHOICES, practiceChoiceFor, type Country, type PracticeChoice } from '@/lib/types';
 
 export function AuthForm({
@@ -13,8 +15,15 @@ export function AuthForm({
   next,
   problem,
   defaultCountry = 'MY',
+  trainee = false,
 }: {
   mode: 'login' | 'signup';
+  /**
+   * The litigation trainees' own sign-up. No country question, because the
+   * programme is Malaysian and the database would refuse anything else, and
+   * a panel that speaks to a trainee rather than to every learner.
+   */
+  trainee?: boolean;
   next: string;
   /** Something that went wrong before this page loaded, such as a dead confirmation link. */
   problem?: string;
@@ -36,7 +45,7 @@ export function AuthForm({
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [choice, setChoice] = useState<PracticeChoice>(() =>
-    practiceChoiceFor(defaultCountry, 'general'),
+    practiceChoiceFor(trainee ? 'MY' : defaultCountry, trainee ? 'litigation_trainee' : 'general'),
   );
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(problem ?? null);
@@ -126,27 +135,29 @@ export function AuthForm({
 
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
-      <BrandPanel isSignup={isSignup} />
+      <BrandPanel isSignup={isSignup} trainee={trainee} />
 
       <main className="flex items-start justify-center px-5 pt-8 pb-12 sm:px-10 lg:items-center lg:py-16">
         <div className="rise-in w-full max-w-md">
           <h2 className="mb-2 text-3xl sm:text-4xl">
-            {isSignup ? 'Create your account' : 'Sign in'}
+            {trainee ? 'Join as a trainee' : isSignup ? 'Create your account' : 'Sign in'}
           </h2>
           <p className="mb-8 text-slate">
-            {isSignup
-              ? 'A few questions, then a diagnostic, and about fifteen minutes to a full skill map.'
-              : 'Pick up where you left off.'}
+            {trainee
+              ? 'Your name, your email and a password. Your programme is set up from there.'
+              : isSignup
+                ? 'A few questions, then a diagnostic, and about fifteen minutes to a full skill map.'
+                : 'Pick up where you left off.'}
           </p>
 
           <form onSubmit={onSubmit} className="space-y-5">
-            {isSignup ? (
+            {isSignup && !trainee ? (
               <fieldset>
                 <legend className="mb-2 block text-sm font-semibold">
                   Which country do you plan to practice in?
                 </legend>
-                <div className="grid gap-2.5 sm:grid-cols-3">
-                  {PRACTICE_CHOICES.map((option) => {
+                <div className="grid grid-cols-2 gap-2.5">
+                  {PRACTICE_CHOICES.filter((c) => c.track === 'general').map((option) => {
                     const on = choice.key === option.key;
                     return (
                       <button
@@ -180,6 +191,15 @@ export function AuthForm({
                 </div>
                 <p className="mt-2 text-xs text-muted">
                   This decides which law you are trained on. You can change it later.
+                </p>
+                <p className="mt-3 rounded-lg bg-burgundy-wash px-3.5 py-2.5 text-sm">
+                  On a firm&apos;s litigation trainee programme?{' '}
+                  <Link
+                    href={`/trainee${next && next !== '/onboarding' ? `?next=${encodeURIComponent(next)}` : ''}`}
+                    className="-my-2 inline-block py-2 font-semibold text-burgundy underline underline-offset-4"
+                  >
+                    Sign up here instead
+                  </Link>
                 </p>
               </fieldset>
             ) : null}
@@ -234,6 +254,18 @@ export function AuthForm({
             </Button>
           </form>
 
+          {trainee ? (
+            <p className="mt-6 text-sm text-slate">
+              Not a trainee?{' '}
+              <Link
+                href="/signup"
+                className="-my-2 inline-block rounded-[5px] px-1 py-2 font-semibold text-burgundy underline underline-offset-4"
+              >
+                Sign up as a law student or junior lawyer
+              </Link>
+            </p>
+          ) : null}
+
           <p className="mt-8 border-t border-rule pt-6 text-sm text-slate">
             {isSignup ? 'Already have an account? ' : 'No account yet? '}
             <Link
@@ -261,23 +293,21 @@ export function AuthForm({
  * the questions are verified, because the review queue has not been through
  * a lawyer yet, and a sign-up page is the worst place to overstate that.
  */
-function BrandPanel({ isSignup }: { isSignup: boolean }) {
-  return (
-    <aside className="relative isolate overflow-hidden bg-burgundy text-paper">
-      {/* Two soft lights and a faint grid: depth without a stock photograph. */}
-      <div
-        aria-hidden
-        className="absolute -top-32 -right-24 -z-10 size-[28rem] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.18),transparent_65%)]"
-      />
-      <div
-        aria-hidden
-        className="absolute -bottom-40 -left-24 -z-10 size-[30rem] rounded-full bg-[radial-gradient(circle,rgba(0,0,0,0.28),transparent_65%)]"
-      />
-      <div
-        aria-hidden
-        className="absolute inset-0 -z-10 opacity-[0.07] [background-image:linear-gradient(to_right,white_1px,transparent_1px),linear-gradient(to_bottom,white_1px,transparent_1px)] [background-size:44px_44px]"
-      />
+function BrandPanel({ isSignup, trainee }: { isSignup: boolean; trainee: boolean }) {
+  const points: Array<[string, string]> = trainee
+    ? [
+        ['A task every working day', 'Twenty days of homework that walk you through how the firm works.'],
+        ['Work from your supervisor', 'Real pieces of work to put your name on, marked with notes.'],
+        ['Mornings with your coach', 'Short sessions your coach records, waiting when you open the app.'],
+      ]
+    : [
+        ['Know where you stand', 'A short diagnostic maps what you know, then training fills the gaps.'],
+        ['Your country’s law', 'Australian and Malaysian procedure, kept strictly apart.'],
+        ['Real work, real feedback', 'Tasks set by the lawyers who supervise you, marked with notes.'],
+      ];
 
+  return (
+    <AccentSurface as="aside">
       <div className="flex h-full flex-col px-5 pt-6 pb-8 sm:px-10 lg:justify-between lg:p-14">
         <Link href="/" className="-mx-1 inline-block self-start rounded-[5px] px-1 py-2">
           <Wordmark light />
@@ -285,27 +315,18 @@ function BrandPanel({ isSignup }: { isSignup: boolean }) {
 
         <div className="mt-6 lg:mt-0">
           <p className="mb-3 text-[0.6875rem] font-semibold tracking-[0.16em] text-paper/70 uppercase">
-            {isSignup ? 'Start here' : 'Welcome back'}
+            {trainee ? 'Litigation trainee programme' : isSignup ? 'Start here' : 'Welcome back'}
           </p>
           <h1 className="max-w-md text-[2.25rem] leading-[1.05] sm:text-5xl lg:text-6xl">
-            {isSignup ? 'Train like a litigator.' : 'Good to see you again.'}
+            {trainee
+              ? 'Your traineeship starts here.'
+              : isSignup
+                ? 'Train like a litigator.'
+                : 'Good to see you again.'}
           </h1>
 
           <ul className="mt-10 hidden max-w-md space-y-5 lg:block">
-            {[
-              [
-                'Know where you stand',
-                'A short diagnostic maps what you know, then training fills the gaps.',
-              ],
-              [
-                'Your country’s law',
-                'Australian and Malaysian procedure, kept strictly apart.',
-              ],
-              [
-                'Real work, real feedback',
-                'Tasks set by the lawyers who supervise you, marked with notes.',
-              ],
-            ].map(([title, body]) => (
+            {points.map(([title, body]) => (
               <li key={title} className="flex gap-3.5">
                 <span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-full bg-paper/15 ring-1 ring-paper/25">
                   <CheckIcon className="size-3.5" />
@@ -321,35 +342,7 @@ function BrandPanel({ isSignup }: { isSignup: boolean }) {
 
         <p className="mt-10 hidden text-sm text-paper/60 lg:block">{brand.tagline}</p>
       </div>
-    </aside>
-  );
-}
-
-function CheckIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 16 16" fill="none" aria-hidden className={className}>
-      <path
-        d="M3.5 8.5l3 3 6-7"
-        stroke="currentColor"
-        strokeWidth="2.25"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function ArrowIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 16 16" fill="none" aria-hidden className={className}>
-      <path
-        d="M3 8h9.5M8.5 4l4 4-4 4"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    </AccentSurface>
   );
 }
 

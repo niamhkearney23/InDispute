@@ -12,7 +12,7 @@ export function BeginSessionButton({
 }: {
   kind: SessionKind;
   label: string;
-  variant?: 'accent' | 'primary' | 'outline';
+  variant?: 'accent' | 'primary' | 'outline' | 'light';
 }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);

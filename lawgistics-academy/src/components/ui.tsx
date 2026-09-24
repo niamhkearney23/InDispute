@@ -21,6 +21,8 @@ const BUTTON_VARIANTS = {
   outline:
     'border border-rule-strong bg-paper-raised text-ink shadow-button hover:bg-paper-sunk active:translate-y-px',
   ghost: 'text-slate hover:text-ink hover:bg-paper-sunk',
+  // On an accent-coloured surface, where the accent button would vanish.
+  light: 'bg-paper text-burgundy shadow-button hover:bg-white active:translate-y-px',
 } as const;
 
 const BUTTON_SIZES = {
