@@ -271,7 +271,14 @@ export function Notice({
 /* Brand                                                                      */
 /* -------------------------------------------------------------------------- */
 
-export function Wordmark({ compact = false }: { compact?: boolean }) {
+export function Wordmark({
+  compact = false,
+  light = false,
+}: {
+  compact?: boolean;
+  /** On a dark or accent-coloured surface: the suffix goes pale rather than muted. */
+  light?: boolean;
+}) {
   return (
     <span className="inline-flex items-baseline gap-2">
       <span className="font-serif text-lg leading-none font-semibold tracking-tight">
@@ -280,7 +287,8 @@ export function Wordmark({ compact = false }: { compact?: boolean }) {
       {brand.suffix ? (
         <span
           className={cn(
-            'text-[0.6875rem] font-medium tracking-[0.16em] text-muted uppercase',
+            'text-[0.6875rem] font-medium tracking-[0.16em] uppercase',
+            light ? 'text-paper/70' : 'text-muted',
             // The header is tight on a phone (see the app layout), so the
             // compact form drops the suffix there and keeps it where it fits.
             compact && 'hidden sm:inline',

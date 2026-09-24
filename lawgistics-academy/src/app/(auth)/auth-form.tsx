@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Button, Notice, Wordmark, cn } from '@/components/ui';
+import { brand } from '@/lib/brand';
 import { PRACTICE_CHOICES, practiceChoiceFor, type Country, type PracticeChoice } from '@/lib/types';
 
 export function AuthForm({
@@ -124,106 +125,231 @@ export function AuthForm({
   }
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-5 py-12">
-      <Link href="/" className="mb-6 -mx-1 inline-block self-start rounded-[5px] px-1 py-2">
-        <Wordmark />
-      </Link>
+    <div className="min-h-dvh lg:grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+      <BrandPanel isSignup={isSignup} />
 
-      <div className="rounded-lg border border-rule bg-paper-raised p-6 shadow-raised sm:p-8">
-        <h1 className="mb-2 text-3xl">{isSignup ? 'Create your account' : 'Welcome back'}</h1>
-        <p className="mb-8 text-slate">
-          {isSignup
-            ? 'Australian and Malaysian litigation. A few questions, then a diagnostic, and about fifteen minutes to a full skill map.'
-            : 'Pick up where you left off.'}
-        </p>
+      <main className="flex items-start justify-center px-5 pt-8 pb-12 sm:px-10 lg:items-center lg:py-16">
+        <div className="rise-in w-full max-w-md">
+          <h2 className="mb-2 text-3xl sm:text-4xl">
+            {isSignup ? 'Create your account' : 'Sign in'}
+          </h2>
+          <p className="mb-8 text-slate">
+            {isSignup
+              ? 'A few questions, then a diagnostic, and about fifteen minutes to a full skill map.'
+              : 'Pick up where you left off.'}
+          </p>
 
-        <form onSubmit={onSubmit} className="space-y-4">
-          {isSignup ? (
-            <fieldset>
-              <legend className="mb-1.5 block text-sm font-medium">
-                Which country do you plan to practice in?
-              </legend>
-              <div className="grid gap-2 sm:grid-cols-3">
-                {PRACTICE_CHOICES.map((option) => (
-                  <button
-                    key={option.key}
-                    type="button"
-                    aria-pressed={choice.key === option.key}
-                    onClick={() => setChoice(option)}
-                    className={cn(
-                      'rounded-[5px] border px-3 py-2.5 text-left transition-colors',
-                      choice.key === option.key
-                        ? 'border-ink bg-paper-sunk'
-                        : 'border-rule-strong hover:bg-paper-sunk',
-                    )}
-                  >
-                    <span className="block text-[0.9375rem] font-medium">{option.label}</span>
-                    <span className="mt-0.5 block text-xs text-muted">{option.detail}</span>
-                  </button>
-                ))}
-              </div>
-              <p className="mt-1.5 text-xs text-muted">
-                Australian and Malaysian law are different. This decides which questions
-                you are shown, and you can change it later.
-              </p>
-            </fieldset>
-          ) : null}
+          <form onSubmit={onSubmit} className="space-y-5">
+            {isSignup ? (
+              <fieldset>
+                <legend className="mb-2 block text-sm font-semibold">
+                  Which country do you plan to practice in?
+                </legend>
+                <div className="grid gap-2.5 sm:grid-cols-3">
+                  {PRACTICE_CHOICES.map((option) => {
+                    const on = choice.key === option.key;
+                    return (
+                      <button
+                        key={option.key}
+                        type="button"
+                        aria-pressed={on}
+                        onClick={() => setChoice(option)}
+                        className={cn(
+                          'relative rounded-lg border-2 px-3.5 py-3 text-left transition-all duration-150',
+                          on
+                            ? 'border-burgundy bg-burgundy-wash shadow-card'
+                            : 'border-rule bg-paper-raised hover:-translate-y-px hover:border-rule-strong hover:shadow-card',
+                        )}
+                      >
+                        <span
+                          aria-hidden
+                          className={cn(
+                            'absolute top-2.5 right-2.5 grid size-5 place-items-center rounded-full border-2 transition-colors',
+                            on ? 'border-burgundy bg-burgundy text-paper' : 'border-rule-strong',
+                          )}
+                        >
+                          {on ? <CheckIcon className="size-3" /> : null}
+                        </span>
+                        <span className="block pr-6 text-[0.9375rem] font-semibold">
+                          {option.label}
+                        </span>
+                        <span className="mt-0.5 block text-xs text-slate">{option.detail}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="mt-2 text-xs text-muted">
+                  This decides which law you are trained on. You can change it later.
+                </p>
+              </fieldset>
+            ) : null}
 
-          {isSignup ? (
+            {isSignup ? (
+              <Field
+                label="Name"
+                id="displayName"
+                type="text"
+                value={displayName}
+                autoComplete="name"
+                onChange={setDisplayName}
+                placeholder="How should we greet you?"
+              />
+            ) : null}
+
             <Field
-              label="Name"
-              id="displayName"
-              type="text"
-              value={displayName}
-              autoComplete="name"
-              onChange={setDisplayName}
-              placeholder="How should we greet you?"
+              label="Email"
+              id="email"
+              type="email"
+              value={email}
+              autoComplete="email"
+              required
+              onChange={setEmail}
+              placeholder="you@example.com"
             />
-          ) : null}
 
-          <Field
-            label="Email"
-            id="email"
-            type="email"
-            value={email}
-            autoComplete="email"
-            required
-            onChange={setEmail}
-          />
+            <Field
+              label="Password"
+              id="password"
+              type="password"
+              value={password}
+              autoComplete={isSignup ? 'new-password' : 'current-password'}
+              required
+              minLength={8}
+              hint={isSignup ? 'At least 8 characters.' : undefined}
+              onChange={setPassword}
+            />
 
-          <Field
-            label="Password"
-            id="password"
-            type="password"
-            value={password}
-            autoComplete={isSignup ? 'new-password' : 'current-password'}
-            required
-            minLength={8}
-            hint={isSignup ? 'At least 8 characters.' : undefined}
-            onChange={setPassword}
-          />
+            {error ? <Notice tone="error">{error}</Notice> : null}
+            {notice ? <Notice tone="warn">{notice}</Notice> : null}
 
-          {error ? <Notice tone="error">{error}</Notice> : null}
-          {notice ? <Notice tone="warn">{notice}</Notice> : null}
+            <Button
+              type="submit"
+              size="lg"
+              variant="accent"
+              disabled={pending}
+              className="h-14 w-full rounded-lg text-[1.0625rem] sm:w-full"
+            >
+              {pending ? 'One moment…' : isSignup ? 'Create account' : 'Sign in'}
+              {pending ? null : <ArrowIcon className="size-4" />}
+            </Button>
+          </form>
 
-          <Button type="submit" size="lg" variant="accent" disabled={pending} className="w-full">
-            {pending ? 'One moment…' : isSignup ? 'Create account' : 'Sign in'}
-          </Button>
-        </form>
-      </div>
-
-      <p className="mt-6 text-sm text-slate">
-        {isSignup ? 'Already have an account? ' : 'No account yet? '}
-        <Link
-          href={isSignup ? '/login' : '/signup'}
-          // Negative margin keeps the sentence on one line while the padding
-          // grows the tap target to something a thumb can actually hit.
-          className="-my-2 inline-block rounded-[5px] px-1 py-2 font-medium text-burgundy underline underline-offset-4"
-        >
-          {isSignup ? 'Sign in' : 'Create one'}
-        </Link>
-      </p>
+          <p className="mt-8 border-t border-rule pt-6 text-sm text-slate">
+            {isSignup ? 'Already have an account? ' : 'No account yet? '}
+            <Link
+              href={isSignup ? '/login' : '/signup'}
+              // Negative margin keeps the sentence on one line while the padding
+              // grows the tap target to something a thumb can actually hit.
+              className="-my-2 inline-block rounded-[5px] px-1 py-2 font-semibold text-burgundy underline underline-offset-4"
+            >
+              {isSignup ? 'Sign in' : 'Create one'}
+            </Link>
+          </p>
+        </div>
+      </main>
     </div>
+  );
+}
+
+/**
+ * The coloured half. On a wide screen it stands beside the form and says, in
+ * three lines, what somebody is signing up to; on a phone it shrinks to a
+ * band above the form with the name and the headline, so the form is still
+ * the first thing a thumb reaches.
+ *
+ * Every line in it is something the product does today. Nothing here says
+ * the questions are verified, because the review queue has not been through
+ * a lawyer yet, and a sign-up page is the worst place to overstate that.
+ */
+function BrandPanel({ isSignup }: { isSignup: boolean }) {
+  return (
+    <aside className="relative isolate overflow-hidden bg-burgundy text-paper">
+      {/* Two soft lights and a faint grid: depth without a stock photograph. */}
+      <div
+        aria-hidden
+        className="absolute -top-32 -right-24 -z-10 size-[28rem] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.18),transparent_65%)]"
+      />
+      <div
+        aria-hidden
+        className="absolute -bottom-40 -left-24 -z-10 size-[30rem] rounded-full bg-[radial-gradient(circle,rgba(0,0,0,0.28),transparent_65%)]"
+      />
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-10 opacity-[0.07] [background-image:linear-gradient(to_right,white_1px,transparent_1px),linear-gradient(to_bottom,white_1px,transparent_1px)] [background-size:44px_44px]"
+      />
+
+      <div className="flex h-full flex-col px-5 pt-6 pb-8 sm:px-10 lg:justify-between lg:p-14">
+        <Link href="/" className="-mx-1 inline-block self-start rounded-[5px] px-1 py-2">
+          <Wordmark light />
+        </Link>
+
+        <div className="mt-6 lg:mt-0">
+          <p className="mb-3 text-[0.6875rem] font-semibold tracking-[0.16em] text-paper/70 uppercase">
+            {isSignup ? 'Start here' : 'Welcome back'}
+          </p>
+          <h1 className="max-w-md text-[2.25rem] leading-[1.05] sm:text-5xl lg:text-6xl">
+            {isSignup ? 'Train like a litigator.' : 'Good to see you again.'}
+          </h1>
+
+          <ul className="mt-10 hidden max-w-md space-y-5 lg:block">
+            {[
+              [
+                'Know where you stand',
+                'A short diagnostic maps what you know, then training fills the gaps.',
+              ],
+              [
+                'Your country’s law',
+                'Australian and Malaysian procedure, kept strictly apart.',
+              ],
+              [
+                'Real work, real feedback',
+                'Tasks set by the lawyers who supervise you, marked with notes.',
+              ],
+            ].map(([title, body]) => (
+              <li key={title} className="flex gap-3.5">
+                <span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-full bg-paper/15 ring-1 ring-paper/25">
+                  <CheckIcon className="size-3.5" />
+                </span>
+                <span>
+                  <span className="block font-semibold">{title}</span>
+                  <span className="block text-sm text-paper/75">{body}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <p className="mt-10 hidden text-sm text-paper/60 lg:block">{brand.tagline}</p>
+      </div>
+    </aside>
+  );
+}
+
+function CheckIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden className={className}>
+      <path
+        d="M3.5 8.5l3 3 6-7"
+        stroke="currentColor"
+        strokeWidth="2.25"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function ArrowIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden className={className}>
+      <path
+        d="M3 8h9.5M8.5 4l4 4-4 4"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
 
@@ -245,7 +371,7 @@ function Field({
 } & Omit<React.ComponentProps<'input'>, 'onChange' | 'value' | 'type' | 'id'>) {
   return (
     <div>
-      <label htmlFor={id} className="mb-1.5 block text-sm font-medium">
+      <label htmlFor={id} className="mb-1.5 block text-sm font-semibold">
         {label}
       </label>
       <input
@@ -253,7 +379,7 @@ function Field({
         type={type}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3.5 text-base shadow-[inset_0_1px_2px_rgba(20,17,15,0.04)] transition-[border-color,box-shadow] outline-none focus:border-burgundy focus:ring-4 focus:ring-burgundy/10"
+        className="h-13 w-full rounded-lg border-2 border-rule bg-paper-raised px-4 text-base transition-[border-color,box-shadow] outline-none placeholder:text-muted/70 hover:border-rule-strong focus:border-burgundy focus:ring-4 focus:ring-burgundy/15"
         {...rest}
       />
       {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
