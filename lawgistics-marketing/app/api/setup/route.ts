@@ -19,9 +19,9 @@ export async function GET() {
   }
   if (hasAnthropic && hasOpenAI && !pinned) {
     notes.push(
-      "Both keys are set, so the Written by switch on the topic screen chooses per post. " +
-        "Anthropic is the default when nothing is chosen. DRAFT_PROVIDER is not needed, " +
-        "though setting it would change that default.",
+      "Both keys are set. OpenAI is the default, and the Written by switch on the topic " +
+        "screen can send a single post to Anthropic instead. DRAFT_PROVIDER is not needed, " +
+        "though setting it would change the default.",
     );
   }
   if (pinned === "openai" && !hasOpenAI) {
