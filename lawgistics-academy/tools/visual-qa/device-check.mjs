@@ -56,6 +56,7 @@ const PAGES = [
   { name: 'landing', path: '/', auth: false },
   { name: 'login', path: '/login', auth: false },
   { name: 'signup', path: '/signup', auth: false },
+  { name: 'signup-trainee', path: '/trainee', auth: false },
   // Signed out on purpose: this is the one page in the app a person reaches
   // before they have an account, so rendering it as a signed-in user would
   // check the wrong thing entirely.

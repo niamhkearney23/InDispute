@@ -16,7 +16,7 @@ type CookiesToSet = Array<{ name: string; value: string; options: CookieOptions 
 // route at a time. It carries its own bearer token and returns 404 unless one
 // is configured; putting the whole of /api here would make every future route
 // public by default, which is the wrong way round.
-const PUBLIC_PATHS = ['/', '/login', '/signup', '/auth', '/setup', '/join', '/api/digest'];
+const PUBLIC_PATHS = ['/', '/login', '/signup', '/trainee', '/auth', '/setup', '/join', '/api/digest'];
 
 function isPublic(pathname: string) {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
@@ -61,7 +61,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (user && (pathname === '/login' || pathname === '/signup')) {
+  if (user && (pathname === '/login' || pathname === '/signup' || pathname === '/trainee')) {
     const url = request.nextUrl.clone();
     url.pathname = '/dashboard';
     url.search = '';

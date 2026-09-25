@@ -15,6 +15,16 @@ import { HomeworkForm } from '../homework-form';
 import { QUESTIONS_PER_MINUTE_GOAL } from '@/lib/learning/config';
 import { TOP_LEVEL_NAME } from '@/lib/learning/progression';
 import { GoalRing } from '@/components/goal-ring';
+import { AccentSurface } from '@/components/accent-surface';
+import {
+  BookIcon,
+  BriefcaseIcon,
+  CalendarIcon,
+  FlameIcon,
+  LevelIcon,
+  RepeatIcon,
+  SparkIcon,
+} from '@/components/icons';
 import { SessionCard } from '@/components/session-card';
 import { leadSession, sessionsForLearner } from '@/lib/lessons/sessions';
 import { isFull, postsForSession, workBoardFor } from '@/lib/work/service';
@@ -26,7 +36,6 @@ import {
   ScoreBar,
   SectionHeading,
   InlineLink,
-  Stat,
 } from '@/components/ui';
 import { BeginSessionButton } from '../begin-session-button';
 import { DailyBrief } from '@/components/daily-brief';
@@ -177,21 +186,62 @@ export default async function DashboardPage() {
         </Notice>
       ) : null}
 
-      {/* The greeting leads, rather than sitting above the heading in small
-          capitals as a label. This is the page somebody opens every morning,
-          and being spoken to by name is most of what makes it feel like
-          somewhere they are expected. */}
-      <section>
-        <h1 className="text-3xl sm:text-4xl">
-          {greeting(new Date(), profile.timezone)}
-          {greetingName(profile.displayName) ? `, ${greetingName(profile.displayName)}` : ''}.
-        </h1>
-        <p className="mt-3 text-lg text-slate">Ready to train like a lawyer?</p>
-      </section>
+      {/* The greeting and today's training, together, on the accent: the
+          one thing on the page with a time on it, spoken to by name. Being
+          greeted is most of what makes this feel like somewhere somebody is
+          expected, and the button is where their thumb should go next. */}
+      <AccentSurface as="section" className="rounded-xl shadow-raised">
+        <div className="px-6 py-7 sm:px-9 sm:py-9">
+          <h1 className="text-[2rem] leading-tight sm:text-5xl">
+            {greeting(new Date(), profile.timezone)}
+            {greetingName(profile.displayName) ? `, ${greetingName(profile.displayName)}` : ''}.
+          </h1>
+          <p className="mt-2 text-lg text-paper/80">Ready to train like a lawyer?</p>
+
+          <div className="mt-7 flex flex-col gap-5 rounded-lg bg-black/15 p-4 ring-1 ring-white/10 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+            <div className="flex items-center gap-5">
+              <GoalRing done={overview.answeredToday} goal={questionCount} light />
+              <div>
+                <p className="mb-1.5 text-[0.6875rem] font-semibold tracking-[0.16em] text-paper/70 uppercase">
+                  Today’s training
+                </p>
+                <p className="font-serif text-3xl leading-none">
+                  {goalMet
+                    ? 'Done for today'
+                    : overview.answeredToday > 0
+                      ? `${Math.max(questionCount - overview.answeredToday, 0)} to go`
+                      : `${questionCount} questions`}
+                </p>
+                <p className="mt-2 text-sm text-paper/75">
+                  {goalMet
+                    ? 'Anything more today is a bonus, and it still counts.'
+                    : `About ${profile.dailyGoalMinutes} minutes`}
+                  {focusAreas.length > 0 && !goalMet
+                    ? ` · Focus: ${focusAreas.map((f) => f.name).join(', ')}`
+                    : ''}
+                </p>
+              </div>
+            </div>
+            <BeginSessionButton
+              kind="daily"
+              variant="light"
+              label={
+                goalMet
+                  ? 'Train again'
+                  : overview.answeredToday > 0
+                    ? 'Keep going'
+                    : 'Begin training'
+              }
+            />
+          </div>
+        </div>
+      </AccentSurface>
 
       {hasPlacement ? (
         <Card>
-          <p className="eyebrow mb-2">Your placement</p>
+          <CardLabel icon={<CalendarIcon className="size-4" />} tone="slate">
+            Your placement
+          </CardLabel>
           <p className="text-slate">
             {profile.startsOn ? `Begins ${longDate(profile.startsOn)}.` : ''}
             {profile.startsOn && profile.endsOn ? ' ' : ''}
@@ -216,7 +266,7 @@ export default async function DashboardPage() {
         <Card>
           {homework.state === 'before' ? (
             <>
-              <p className="eyebrow mb-2">Homework</p>
+              <CardLabel icon={<BookIcon className="size-4" />}>Homework</CardLabel>
               <p className="text-slate">
                 Your homework begins on {longDate(profile.startsOn)}. Twenty tasks, one for
                 each working day.
@@ -224,14 +274,14 @@ export default async function DashboardPage() {
             </>
           ) : homework.state === 'weekend' ? (
             <>
-              <p className="eyebrow mb-2">Homework</p>
+              <CardLabel icon={<BookIcon className="size-4" />}>Homework</CardLabel>
               <p className="text-slate">
                 No homework today. Day {homework.nextDay} picks up on Monday.
               </p>
             </>
           ) : homework.state === 'finished' ? (
             <>
-              <p className="eyebrow mb-2">Homework</p>
+              <CardLabel icon={<BookIcon className="size-4" />}>Homework</CardLabel>
               <p className="text-slate">You finished the four weeks.</p>
               <p className="mt-2 text-sm text-slate">{declaredDays.size} of 20 recorded.</p>
             </>
@@ -241,9 +291,9 @@ export default async function DashboardPage() {
               const done = declaredDays.has(homework.day);
               return (
                 <>
-                  <p className="eyebrow mb-2">
+                  <CardLabel icon={<BookIcon className="size-4" />}>
                     Homework, day {homework.day} of 20
-                  </p>
+                  </CardLabel>
                   {task ? (
                     <>
                       <p className="font-serif text-xl leading-snug">{task.title}</p>
@@ -275,45 +325,6 @@ export default async function DashboardPage() {
         </Card>
       ) : null}
 
-      {/* Today's card knows whether today has started.
-          Opening the app after a morning session and reading the same sentence
-          as before you began is how a daily habit stops feeling counted. */}
-      <Card className="border-t-2 border-t-burgundy shadow-raised">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-5">
-            <GoalRing done={overview.answeredToday} goal={questionCount} />
-            <div>
-              <p className="eyebrow mb-2">Today’s training</p>
-              <p className="font-serif text-3xl leading-none">
-                {goalMet
-                  ? 'Done for today'
-                  : overview.answeredToday > 0
-                    ? `${Math.max(questionCount - overview.answeredToday, 0)} to go`
-                    : `${questionCount} questions`}
-              </p>
-              <p className="mt-2 text-sm text-slate">
-                {goalMet
-                  ? 'Anything more today is a bonus, and it still counts.'
-                  : `About ${profile.dailyGoalMinutes} minutes`}
-                {focusAreas.length > 0 && !goalMet
-                  ? ` · Focus: ${focusAreas.map((f) => f.name).join(', ')}`
-                  : ''}
-              </p>
-            </div>
-          </div>
-          <BeginSessionButton
-            kind="daily"
-            label={
-              goalMet
-                ? 'Train again'
-                : overview.answeredToday > 0
-                  ? 'Keep going'
-                  : 'Begin training'
-            }
-          />
-        </div>
-      </Card>
-
       {/* The coach's own session comes before the daily brief and before the
           stats. The training runs seven to eight and this is the thing with a
           time on it; the questions will still be there at nine. */}
@@ -323,7 +334,9 @@ export default async function DashboardPage() {
 
       {work.length > 0 ? (
         <Card>
-          <p className="eyebrow mb-2">Work from your coach</p>
+          <CardLabel icon={<BriefcaseIcon className="size-4" />} tone="green">
+            Work from your coach
+          </CardLabel>
           {workAgain > 0 ? (
             <p className="text-slate">
               {workAgain === 1 ? 'One piece' : `${workAgain} pieces`} of your work{' '}
@@ -357,42 +370,43 @@ export default async function DashboardPage() {
 
       {fact ? <DailyBrief fact={fact} /> : null}
 
-      {/* A hairline grid: the 1px gap shows the rule colour through, which
-          draws the dividers in both the two-column and four-column layouts
-          without a border rule for each. */}
-      <section className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-rule bg-rule shadow-card sm:grid-cols-4">
-        <div className="bg-paper-raised px-5 py-4">
-          <Stat
-            label="Current level"
-            value={level.level}
-            hint={`${level.name}, game level`}
-          />
-        </div>
-        <div className="bg-paper-raised px-5 py-4">
-          <Stat
-            label="Streak"
-            value={overview.currentStreak}
-            hint={
-              overview.currentStreak > 0
-                ? `day${overview.currentStreak === 1 ? '' : 's'} in a row`
-                : 'train today to start one'
-            }
-          />
-        </div>
-        <div className="bg-paper-raised px-5 py-4">
-          <Stat label="XP this week" value={overview.weeklyXp} hint={`${overview.totalXp} total`} />
-        </div>
-        <div className="bg-paper-raised px-5 py-4">
-          <Stat
-            label="Due for review"
-            value={overview.dueCount}
-            hint={overview.dueCount === 0 ? 'nothing outstanding' : 'concepts'}
-          />
-        </div>
+      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatTile
+          icon={<LevelIcon className="size-5" />}
+          tone="burgundy"
+          label="Current level"
+          value={level.level}
+          hint={`${level.name}, game level`}
+        />
+        <StatTile
+          icon={<FlameIcon className="size-5" />}
+          tone="amber"
+          label="Streak"
+          value={overview.currentStreak}
+          hint={
+            overview.currentStreak > 0
+              ? `day${overview.currentStreak === 1 ? '' : 's'} in a row`
+              : 'train today to start one'
+          }
+        />
+        <StatTile
+          icon={<SparkIcon className="size-5" />}
+          tone="green"
+          label="XP this week"
+          value={overview.weeklyXp}
+          hint={`${overview.totalXp} total`}
+        />
+        <StatTile
+          icon={<RepeatIcon className="size-5" />}
+          tone="slate"
+          label="Due for review"
+          value={overview.dueCount}
+          hint={overview.dueCount === 0 ? 'nothing outstanding' : 'concepts'}
+        />
       </section>
 
-      <section>
-        <div className="mb-2 flex items-baseline justify-between">
+      <section className="rounded-lg border border-rule bg-paper-raised p-5 shadow-card">
+        <div className="mb-2.5 flex items-baseline justify-between gap-3">
           <p className="eyebrow">Progress to {level.nextLevelName ?? 'the top'}</p>
           <p className="text-xs text-muted">
             {level.xpForNextLevel !== null
@@ -401,7 +415,7 @@ export default async function DashboardPage() {
           </p>
         </div>
         <div
-          className="h-2 w-full overflow-hidden rounded-full bg-paper-sunk"
+          className="h-3 w-full overflow-hidden rounded-full bg-paper-sunk"
           role="meter"
           aria-valuenow={level.progressPercent}
           aria-valuemin={0}
@@ -409,7 +423,7 @@ export default async function DashboardPage() {
           aria-label={`Progress within level ${level.level}`}
         >
           <div
-            className="h-full rounded-full bg-burgundy transition-all duration-500"
+            className="h-full rounded-full bg-gradient-to-r from-burgundy to-burgundy-soft transition-all duration-500"
             style={{ width: `${Math.max(level.progressPercent, 2)}%` }}
           />
         </div>
@@ -486,6 +500,55 @@ export default async function DashboardPage() {
           </div>
         </Card>
       </section>
+    </div>
+  );
+}
+
+const TONES = {
+  burgundy: 'bg-burgundy-wash text-burgundy',
+  amber: 'bg-amber-50 text-amber-700',
+  green: 'bg-verdict-correct-wash text-verdict-correct',
+  slate: 'bg-paper-sunk text-slate',
+} as const;
+
+/** A card's label, with a small coloured badge so each card reads at a glance. */
+function CardLabel({
+  icon,
+  tone = 'burgundy',
+  children,
+}: {
+  icon: React.ReactNode;
+  tone?: keyof typeof TONES;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="mb-3 flex items-center gap-2.5">
+      <span className={`grid size-8 place-items-center rounded-lg ${TONES[tone]}`}>{icon}</span>
+      <p className="eyebrow">{children}</p>
+    </div>
+  );
+}
+
+/** One number, with its icon, its name and a line of context. */
+function StatTile({
+  icon,
+  tone,
+  label,
+  value,
+  hint,
+}: {
+  icon: React.ReactNode;
+  tone: keyof typeof TONES;
+  label: string;
+  value: number | string;
+  hint: string;
+}) {
+  return (
+    <div className="rounded-lg border border-rule bg-paper-raised p-4 shadow-card transition-transform hover:-translate-y-px">
+      <span className={`mb-3 grid size-9 place-items-center rounded-lg ${TONES[tone]}`}>{icon}</span>
+      <p className="eyebrow">{label}</p>
+      <p className="mt-1 font-serif text-3xl leading-none tabular-nums">{value}</p>
+      <p className="mt-1.5 text-xs text-muted">{hint}</p>
     </div>
   );
 }

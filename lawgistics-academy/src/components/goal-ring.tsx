@@ -18,10 +18,13 @@ export function GoalRing({
   done,
   goal,
   size = 92,
+  light = false,
 }: {
   done: number;
   goal: number;
   size?: number;
+  /** On an accent-coloured surface: pale track, white arc. */
+  light?: boolean;
 }) {
   const target = Math.max(goal, 1);
   const fraction = Math.min(done / target, 1);
@@ -52,7 +55,7 @@ export function GoalRing({
           r={radius}
           fill="none"
           strokeWidth={stroke}
-          className="stroke-paper-sunk"
+          className={light ? 'stroke-paper/20' : 'stroke-paper-sunk'}
         />
         <circle
           cx={size / 2}
@@ -62,13 +65,15 @@ export function GoalRing({
           strokeWidth={stroke}
           strokeLinecap={dash > 0 ? 'round' : 'butt'}
           strokeDasharray={`${dash} ${circumference}`}
-          className={complete ? 'stroke-verdict-correct' : 'stroke-burgundy'}
+          className={light ? 'stroke-paper' : complete ? 'stroke-verdict-correct' : 'stroke-burgundy'}
         />
       </svg>
 
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="font-serif text-xl leading-none tabular-nums">{done}</span>
-        <span className="mt-0.5 text-[0.65rem] uppercase tracking-wider text-muted">
+        <span
+          className={`mt-0.5 text-[0.65rem] uppercase tracking-wider ${light ? 'text-paper/70' : 'text-muted'}`}
+        >
           of {target}
         </span>
       </div>
