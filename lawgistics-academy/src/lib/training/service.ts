@@ -29,6 +29,7 @@ import { asCountry, GOAL_TO_DOMAIN_SLUGS } from '@/lib/types';
 import type {
   AnswerFeedback,
   ConfidenceLevel,
+  Country,
   DeliveredQuestion,
   QuestionOption,
   SessionKind,
@@ -139,6 +140,29 @@ export async function startSession(
   }
 
   return { sessionId: session.id as string };
+}
+
+/**
+ * Whether there is anything to train on, for one country.
+ *
+ * Asked before a training button is drawn rather than after it is pressed.
+ * The Malaysian bank never publishes itself (see seedContent), so until a
+ * person signs questions off and publishes them there is nothing to serve a
+ * Malaysian, and a button that always answers "there are no questions" reads
+ * as the app being broken. It also decides whether a new learner is sent to
+ * the diagnostic, which would otherwise hold them on a page they cannot get
+ * past.
+ */
+export async function trainingOpen(country: Country): Promise<boolean> {
+  const db = createServiceClient();
+  const { count, error } = await db
+    .from('v_question_delivery')
+    .select('question_version_id', { count: 'exact', head: true })
+    .eq('country', country);
+  // A failed count is not evidence the bank is empty. Say it is open and let
+  // pressing the button report the real problem, as it did before this check.
+  if (error) return true;
+  return (count ?? 0) > 0;
 }
 
 /**

@@ -5,6 +5,7 @@ import { getLearnerProfile } from '@/lib/learner-overview';
 import { DIAGNOSTIC_QUESTION_COUNT } from '@/lib/learning/config';
 import { ButtonLink, Card } from '@/components/ui';
 import { BeginSessionButton } from '../begin-session-button';
+import { trainingOpen } from '@/lib/training/service';
 
 export const metadata: Metadata = { title: 'Diagnostic' };
 
@@ -17,6 +18,7 @@ export default async function DiagnosticPage() {
   if (!profile.onboardedAt) redirect('/onboarding');
 
   const retaking = Boolean(profile.diagnosticCompletedAt);
+  const open = await trainingOpen(profile.country);
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">
@@ -47,17 +49,36 @@ export default async function DiagnosticPage() {
         </ul>
       </Card>
 
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <BeginSessionButton
-          kind="diagnostic"
-          label={retaking ? 'Start a new diagnostic' : 'Begin the diagnostic'}
-        />
-        {retaking ? (
-          <ButtonLink href="/dashboard" size="lg" variant="outline">
-            Back to today
-          </ButtonLink>
-        ) : null}
-      </div>
+      {open ? (
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <BeginSessionButton
+            kind="diagnostic"
+            label={retaking ? 'Start a new diagnostic' : 'Begin the diagnostic'}
+          />
+          {retaking ? (
+            <ButtonLink href="/dashboard" size="lg" variant="outline">
+              Back to today
+            </ButtonLink>
+          ) : null}
+        </div>
+      ) : (
+        // The Malaysian bank publishes only when a person publishes it, so
+        // until then there is nothing to sit this with. Said plainly, with a
+        // way on, rather than a button that can only fail.
+        <Card>
+          <p className="font-medium">The questions are not open yet.</p>
+          <p className="mt-1 text-sm text-slate">
+            Every question is checked by a lawyer before anyone is trained on it, and they
+            have not been published yet. You can take the diagnostic as soon as they are.
+            Everything else is ready for you now.
+          </p>
+          <div className="mt-4">
+            <ButtonLink href="/dashboard" size="lg" variant="accent">
+              Go to your dashboard
+            </ButtonLink>
+          </div>
+        </Card>
+      )}
     </div>
   );
 }
