@@ -25,7 +25,7 @@ import {
 } from '@/lib/learning/progression';
 import { coachOnAnswer } from '@/lib/ai/legal-coach';
 import { pickEssayTopic } from '@/content/seed/essay-topics';
-import { asCountry, GOAL_TO_DOMAIN_SLUGS } from '@/lib/types';
+import { asCountry, GOAL_TO_DOMAIN_SLUGS, learnerTimezone } from '@/lib/types';
 import type {
   AnswerFeedback,
   ConfidenceLevel,
@@ -193,10 +193,10 @@ export async function resumeOrStartSession(
 
   const { data: profile } = await db
     .from('profiles')
-    .select('timezone')
+    .select('timezone, country')
     .eq('id', userId)
     .maybeSingle();
-  const timezone = profile?.timezone ?? 'Australia/Melbourne';
+  const timezone = learnerTimezone(profile?.timezone, asCountry(profile?.country));
 
   const { data: existing } = await db
     .from('training_sessions')
@@ -812,11 +812,14 @@ export async function completeSession(
 
   const { data: profile } = await db
     .from('profiles')
-    .select('timezone')
+    .select('timezone, country')
     .eq('id', userId)
     .single();
 
-  const today = localDateString(profile?.timezone ?? 'Australia/Melbourne', now);
+  const today = localDateString(
+    learnerTimezone(profile?.timezone, asCountry(profile?.country)),
+    now,
+  );
 
   const { data: streakRow } = await db
     .from('user_streaks')

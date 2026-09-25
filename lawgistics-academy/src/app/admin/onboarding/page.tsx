@@ -6,6 +6,7 @@ import { daysUntil, shortDate } from '@/lib/onboarding/rules';
 import { pendingInvitations } from '@/lib/onboarding/invitations';
 import { PendingInvitations } from './pending-invitations';
 import { ButtonLink, Card, EmptyState, InlineLink, Pill, SectionHeading } from '@/components/ui';
+import { DEFAULT_TIMEZONE } from '@/lib/types';
 
 export const metadata: Metadata = { title: 'Before they begin' };
 
@@ -13,7 +14,7 @@ export default async function OnboardingRosterPage() {
   const { userId: adminId, isAdmin } = await requireCoach();
   const me = await getLearnerProfile(adminId);
   // The supervisor's own clock, so "starts soon" means soon where they are.
-  const timezone = me?.timezone ?? 'Australia/Melbourne';
+  const timezone = me?.timezone ?? DEFAULT_TIMEZONE;
 
   const [roster, steps, invitations] = await Promise.all([
     onboardingRoster(),

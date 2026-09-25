@@ -4,7 +4,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { displayScore } from '@/lib/learning/mastery';
 import { levelForXp, localDateString, type LevelInfo } from '@/lib/learning/progression';
 import { MASTERY } from '@/lib/learning/config';
-import { asCountry, asTrack } from '@/lib/types';
+import { asCountry, asTrack, learnerTimezone } from '@/lib/types';
 import type {
   CareerStage,
   Country,
@@ -119,7 +119,7 @@ export async function getLearnerProfile(userId: string): Promise<LearnerProfile 
     country: asCountry(data.country),
     track: asTrack(data.track),
     homeJurisdiction: data.home_jurisdiction,
-    timezone: data.timezone,
+    timezone: learnerTimezone(data.timezone, asCountry(data.country)),
     onboardedAt: data.onboarded_at,
     diagnosticCompletedAt: data.diagnostic_completed_at,
     startsOn: data.starts_on,
