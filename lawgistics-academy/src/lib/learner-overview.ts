@@ -4,7 +4,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { displayScore } from '@/lib/learning/mastery';
 import { levelForXp, localDateString, type LevelInfo } from '@/lib/learning/progression';
 import { MASTERY } from '@/lib/learning/config';
-import { asCountry, asTrack } from '@/lib/types';
+import { asCountry, asTrack, learnerTimezone } from '@/lib/types';
 import type {
   CareerStage,
   Country,
@@ -54,7 +54,8 @@ export interface LearnerOverview {
   level: LevelInfo;
   currentStreak: number;
   longestStreak: number;
-  /** Questions answered since midnight where the learner is, not where the server is. */
+  /** Training questions answered since midnight where the learner is, not where the
+   *  server is. The diagnostic's answers are left out: it is not the daily goal. */
   answeredToday: number;
   /** Sessions finished today. One means the session just finished was the first. */
   sessionsToday: number;
@@ -118,7 +119,7 @@ export async function getLearnerProfile(userId: string): Promise<LearnerProfile 
     country: asCountry(data.country),
     track: asTrack(data.track),
     homeJurisdiction: data.home_jurisdiction,
-    timezone: data.timezone,
+    timezone: learnerTimezone(data.timezone, asCountry(data.country)),
     onboardedAt: data.onboarded_at,
     diagnosticCompletedAt: data.diagnostic_completed_at,
     startsOn: data.starts_on,
@@ -158,6 +159,7 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
     domains,
     answeredToday,
     sessionsToday,
+    diagnostics,
   ] = await Promise.all([
       supabase.from('xp_events').select('amount').eq('user_id', userId),
       supabase
@@ -187,7 +189,7 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
       supabase.from('domains').select('id, slug, name, sort_order').order('sort_order'),
       supabase
         .from('user_question_attempts')
-        .select('id', { count: 'exact', head: true })
+        .select('session_id')
         .eq('user_id', userId)
         .gte('answered_at', dayStart),
       supabase
@@ -196,7 +198,21 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
         .eq('user_id', userId)
         .not('completed_at', 'is', null)
         .gte('completed_at', dayStart),
+      supabase
+        .from('training_sessions')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('kind', 'diagnostic'),
     ]);
+
+  /* Today's training is the daily goal, and the diagnostic is not part of it.
+     Counted together, somebody who had just taken the diagnostic on the day
+     they joined came back to the dashboard to be told they were done for
+     the day, before they had trained at all. */
+  const diagnosticIds = new Set((diagnostics.data ?? []).map((row) => row.id as string));
+  const trainedToday = (answeredToday.data ?? []).filter(
+    (row) => !row.session_id || !diagnosticIds.has(row.session_id as string),
+  ).length;
 
   const sum = (rows: Array<{ amount: number }> | null) =>
     (rows ?? []).reduce((total, row) => total + row.amount, 0);
@@ -269,7 +285,7 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
   return {
     profile,
     totalXp,
-    answeredToday: answeredToday.count ?? 0,
+    answeredToday: trainedToday,
     sessionsToday: sessionsToday.count ?? 0,
     weeklyXp: sum(xpWeek.data),
     level: levelForXp(totalXp),

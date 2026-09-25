@@ -228,6 +228,30 @@ export function asCountry(value: string | null | undefined): Country {
   return value === 'MY' ? 'MY' : 'AU';
 }
 
+/** What `profiles.timezone` holds when nobody has ever set it. */
+export const DEFAULT_TIMEZONE = 'Australia/Melbourne';
+
+/**
+ * The clock a learner's day runs on.
+ *
+ * Nothing in the app sets `profiles.timezone`, so every account carries the
+ * column default, Melbourne. For a Malaysian that is two or three hours
+ * ahead, which is enough to be wrong where it shows: an evening's training
+ * in Kuala Lumpur landed on the next day's goal, so the learner opened the
+ * app in the morning to be told they were done for the day. Malaysia keeps
+ * one time for the whole country, so a Malaysian still on the untouched
+ * default is on Kuala Lumpur time. A zone somebody did set is left alone.
+ */
+export function learnerTimezone(
+  stored: string | null | undefined,
+  country: Country,
+): string {
+  if (!stored || stored === DEFAULT_TIMEZONE) {
+    return country === 'MY' ? 'Asia/Kuala_Lumpur' : DEFAULT_TIMEZONE;
+  }
+  return stored;
+}
+
 export function asTrack(value: string | null | undefined): LearnerTrack {
   return value === 'litigation_trainee' ? 'litigation_trainee' : 'general';
 }

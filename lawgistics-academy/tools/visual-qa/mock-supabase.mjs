@@ -695,6 +695,9 @@ const TABLES = {
       user_id: USER_ID,
       kind: 'daily',
       status: 'in_progress',
+      // The real column is not null with a default; without it here the
+      // resume check read an undefined date and failed as "Invalid time value".
+      started_at: '2026-08-06T09:00:00Z',
       total_answered: 10,
       correct_count: 8,
       xp_awarded: 135,
@@ -910,6 +913,17 @@ const server = http.createServer((req, res) => {
         if (RESERVED.has(key) || !value.startsWith('eq.')) continue;
         const want = value.slice(3);
         rows = rows.filter((r) => String(r[key]) === want);
+      }
+
+      // A count asked for with { head: true } arrives as HEAD. Answered as a
+      // write it came back as one row whatever the table held, so "are there
+      // any Malaysian questions" always said yes.
+      if (req.method === 'HEAD') {
+        res.writeHead(200, {
+          'access-control-allow-origin': '*',
+          'content-range': rows.length ? `0-${rows.length - 1}/${rows.length}` : '*/0',
+        });
+        return res.end();
       }
 
       if (req.method !== 'GET') {
