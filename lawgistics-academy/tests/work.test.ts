@@ -7,6 +7,8 @@ import {
   WORK_FILE_MAX_BYTES,
   WORK_FILE_TYPES,
   WORK_MEMO_TYPES,
+  WORK_UPLOAD_MAX_BYTES,
+  uploadTooLarge,
   bareMemoType,
   describeMinutes,
   isLate,
@@ -44,7 +46,7 @@ test('the link allowlist and the database constraint agree', () => {
   assert.match(migration, /link_url ~ '\^https:\/\/\(drive\|docs\)\\\.google\\\.com\/'/);
 });
 
-test('an upload is a PDF, a Word document or an image, under 20MB', () => {
+test('an upload is a PDF, a Word document or an image, under 4MB', () => {
   assert.equal(workFileProblem({ type: 'application/pdf', size: 1024 }), null);
   assert.equal(
     workFileProblem({
@@ -59,7 +61,20 @@ test('an upload is a PDF, a Word document or an image, under 20MB', () => {
   assert.match(workFileProblem({ type: 'text/html', size: 10 }) ?? '', /PDF/);
   assert.match(
     workFileProblem({ type: 'application/pdf', size: WORK_FILE_MAX_BYTES + 1 }) ?? '',
-    /20MB/,
+    /4MB/,
+  );
+});
+
+test('what one form sends has to fit through the host in one request', () => {
+  // Vercel refuses a request over about 4.5MB with a blank page, so the forms
+  // check the total before sending, file and memo together.
+  assert.equal(uploadTooLarge([WORK_FILE_MAX_BYTES]), null);
+  assert.equal(uploadTooLarge([0, 0]), null);
+  assert.ok(WORK_UPLOAD_MAX_BYTES < 4.5 * 1024 * 1024);
+  assert.match(uploadTooLarge([WORK_UPLOAD_MAX_BYTES + 1]) ?? '', /4MB/);
+  assert.match(
+    uploadTooLarge([WORK_FILE_MAX_BYTES, 1024 * 1024]) ?? '',
+    /file and the voice memo together/,
   );
 });
 
@@ -89,7 +104,7 @@ test('a recording is checked by its bare type, codec suffix and all', () => {
   assert.match(workMemoProblem({ type: 'audio/webm', size: 0 }) ?? '', /empty/);
   assert.match(
     workMemoProblem({ type: 'audio/webm', size: WORK_FILE_MAX_BYTES + 1 }) ?? '',
-    /20MB/,
+    /4MB/,
   );
 });
 

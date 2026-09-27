@@ -1,8 +1,8 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { Button, Notice } from '@/components/ui';
-import { WORK_FILE_ACCEPT } from '@/lib/work/links';
+import { WORK_FILE_ACCEPT, uploadTooLarge } from '@/lib/work/links';
 import { claimWork, submitWork } from '../actions';
 
 /** Putting your name on it. One button; the database decides the rest. */
@@ -33,9 +33,22 @@ export function ClaimForm({ postId, everyone }: { postId: string; everyone: bool
  */
 export function SubmitForm({ postId, again }: { postId: string; again: boolean }) {
   const [state, formAction, pending] = useActionState(submitWork, { error: null });
+  // Checked here, before anything is sent: a file over the limit is refused
+  // by the host with a blank error page, not by the app with a sentence.
+  const [tooLarge, setTooLarge] = useState<string | null>(null);
 
   return (
-    <form action={formAction} className="mt-4 space-y-4">
+    <form
+      action={formAction}
+      onSubmit={(event) => {
+        const file = (event.currentTarget.elements.namedItem('file') as HTMLInputElement | null)
+          ?.files?.[0];
+        const problem = file ? uploadTooLarge([file.size]) : null;
+        setTooLarge(problem);
+        if (problem) event.preventDefault();
+      }}
+      className="mt-4 space-y-4"
+    >
       <input type="hidden" name="postId" value={postId} />
 
       <div>
@@ -50,7 +63,10 @@ export function SubmitForm({ postId, again }: { postId: string; again: boolean }
           accept={WORK_FILE_ACCEPT}
           className="block w-full text-base file:mr-3 file:rounded-[5px] file:border file:border-rule-strong file:bg-paper-raised file:px-3 file:py-2 file:text-sm file:text-ink"
         />
-        <p className="mt-1 text-xs text-muted">A PDF, a Word document, or an image, up to 20MB.</p>
+        <p className="mt-1 text-xs text-muted">
+          A PDF, a Word document, or an image, up to 4MB. Anything bigger, share it as a Google
+          Drive link in the note.
+        </p>
       </div>
 
       <div>
@@ -82,7 +98,7 @@ export function SubmitForm({ postId, again }: { postId: string; again: boolean }
         </label>
       </div>
 
-      {state.error ? <Notice tone="warn">{state.error}</Notice> : null}
+      {tooLarge ?? state.error ? <Notice tone="warn">{tooLarge ?? state.error}</Notice> : null}
       {state.ok ? <Notice tone="good">{state.ok}</Notice> : null}
 
       <Button type="submit" disabled={pending}>

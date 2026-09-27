@@ -5,6 +5,7 @@ import { getLearnerProfile } from '@/lib/learner-overview';
 import { COURT_HIERARCHIES } from '@/content/seed/court-hierarchies';
 import { CourtMap } from '@/components/court-map';
 import { moduleBySlug } from '@/content/seed/modules';
+import { getModuleProgress } from '@/lib/modules/service';
 
 export const metadata: Metadata = { title: 'Court map' };
 
@@ -24,7 +25,13 @@ export default async function CourtsPage() {
 
   const hierarchy = COURT_HIERARCHIES[profile.country];
   const quizSlug = QUIZ_MODULE[profile.country];
-  const quizHref = quizSlug && moduleBySlug(quizSlug) ? `/modules/${quizSlug}` : null;
+  // Only offered when the module has something in it. The Malaysian one is
+  // unpublished until a person publishes it, and "Test yourself" leading to
+  // a page that says there is nothing to test was a dead end.
+  const progress = quizSlug ? await getModuleProgress(user.id, profile.country) : [];
+  const quizReady = progress.some((p) => p.module.slug === quizSlug && p.total > 0);
+  const quizHref =
+    quizSlug && moduleBySlug(quizSlug) && quizReady ? `/modules/${quizSlug}` : null;
 
   return (
     <div className="space-y-6">

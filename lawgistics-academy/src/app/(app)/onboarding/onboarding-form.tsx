@@ -36,16 +36,30 @@ export function OnboardingForm({
   defaultCountry,
   defaultTrack,
   defaultJurisdiction,
+  defaultStage,
+  defaultGoals,
+  defaultMinutes,
+  editing = false,
 }: {
   defaultName: string;
   defaultCountry: Country;
   defaultTrack: LearnerTrack;
   defaultJurisdiction: Jurisdiction;
+  defaultStage?: CareerStage;
+  defaultGoals?: string[];
+  defaultMinutes?: number;
+  editing?: boolean;
 }) {
   const [state, formAction, pending] = useActionState(saveOnboarding, initialState);
-  const [stage, setStage] = useState<CareerStage>('law_student');
-  const [goals, setGoals] = useState<string[]>(['litigation_knowledge']);
-  const [minutes, setMinutes] = useState(10);
+  const [stage, setStage] = useState<CareerStage>(
+    defaultStage && STAGES.includes(defaultStage) ? defaultStage : 'law_student',
+  );
+  const [goals, setGoals] = useState<string[]>(
+    defaultGoals && defaultGoals.length > 0 ? defaultGoals : ['litigation_knowledge'],
+  );
+  const [minutes, setMinutes] = useState(
+    defaultMinutes && MINUTES.includes(defaultMinutes) ? defaultMinutes : 10,
+  );
   const [choice, setChoice] = useState<PracticeChoice>(() =>
     practiceChoiceFor(defaultCountry, defaultTrack),
   );
@@ -63,6 +77,7 @@ export function OnboardingForm({
       <input type="hidden" name="country" value={country} />
       <input type="hidden" name="track" value={choice.track} />
       <input type="hidden" name="dailyGoalMinutes" value={minutes} />
+      {editing ? <input type="hidden" name="editing" value="1" /> : null}
       {goals.map((slug) => (
         <input key={slug} type="hidden" name="goals" value={slug} />
       ))}

@@ -129,6 +129,9 @@ export async function confirm(_state: AdminState, formData: FormData): Promise<A
   const userId = String(formData.get('userId') ?? '');
   const stepId = String(formData.get('stepId') ?? '');
   if (!userId || !stepId) return { error: 'That item could not be found.' };
+  // The firm's side of the record is somebody else vouching. Vouching for
+  // yourself is the declaration you already made, recorded twice.
+  if (userId === adminId) return { error: 'Somebody else has to confirm your own items.' };
 
   const result = await confirmStep(adminId, userId, stepId);
   if (result.error) return { error: result.error };
@@ -158,6 +161,9 @@ export async function decide(_state: AdminState, formData: FormData): Promise<Ad
   const note = String(formData.get('note') ?? '');
 
   if (!userId) return { error: 'That person could not be found.' };
+  if (userId === adminId) {
+    return { error: 'Somebody else has to decide whether you are ready to begin.' };
+  }
   if (decision !== 'cleared' && decision !== 'withdrawn') {
     return { error: 'That is not a decision this records.' };
   }

@@ -409,8 +409,8 @@ window.LG_SCHEMA = {
       columns: [
         { key: 'name', label: 'Name', link: true },
         { key: 'channel', label: 'Channel', badge: { email: 'blue', whatsapp: 'green' } },
-        { key: 'email', label: 'Email', empty: '—' },
-        { key: 'phone', label: 'Phone', empty: '—' },
+        { key: 'email', label: 'Email', empty: '-' },
+        { key: 'phone', label: 'Phone', empty: '-' },
         { key: 'consent', label: 'Consent', badge: { yes: 'green', no: 'red' } },
         { key: 'status', label: 'Status', badge: { subscribed: 'green', unsubscribed: 'grey' } },
         { key: 'date', label: 'Joined', type: 'date' }

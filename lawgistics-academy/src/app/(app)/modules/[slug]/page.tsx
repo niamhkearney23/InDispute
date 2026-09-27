@@ -44,8 +44,8 @@ export default async function ModulePage({
 
       {entry.total === 0 ? (
         <Notice tone="warn">
-          None of this module has been published yet. Its questions are still waiting to be
-          verified, and nothing unverified is served to learners.
+          None of this module has been published yet. Its questions are still waiting for a
+          person to check them and publish them.
         </Notice>
       ) : (
         <Card>

@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import { requireCoach } from '@/lib/admin/guard';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
+import { localDateString } from '@/lib/learning/progression';
+import { DEFAULT_TIMEZONE } from '@/lib/types';
 import {
   bestGradePerBox,
   computeCertificationStatus,
@@ -48,6 +50,10 @@ export default async function TraineeDetailPage({
 
   const coachProfile = user ? await getLearnerProfile(user.id) : null;
   const coachName = coachProfile?.displayName ?? 'the supervising coach';
+  // The coach's date, not the server's: before eight in the morning in Kuala
+  // Lumpur the server's date is still yesterday, and a certificate signed
+  // today must not say otherwise.
+  const today = localDateString(coachProfile?.timezone ?? DEFAULT_TIMEZONE);
 
   return (
     <div className="space-y-8">
@@ -74,7 +80,7 @@ export default async function TraineeDetailPage({
             readOnly
             rows={4}
             className="w-full rounded-md border border-verdict-correct/25 bg-paper p-3 text-sm text-ink"
-            value={`I certify that ${trainee.fullName} has, on live matters in the Magistrates'/Sessions Court, independently produced the 10 work products ticked above at filing-ready standard, including the fact-investigation, law-investigation and chronology spine and at least one advocacy product.\n\n${coachName}\n${longDate(new Date().toISOString().slice(0, 10))}`}
+            value={`I certify that ${trainee.fullName} has, on live matters in the Magistrates'/Sessions Court, independently produced the 10 work products ticked above at filing-ready standard, including the fact-investigation, law-investigation and chronology spine and at least one advocacy product.\n\n${coachName}\n${longDate(today)}`}
           />
         </Notice>
       ) : (
@@ -173,7 +179,7 @@ export default async function TraineeDetailPage({
             caseNo: '',
             courtFileRef: '',
             caseTypeStage: '',
-            dateIn: new Date().toISOString().slice(0, 10),
+            dateIn: today,
             draftBack: '',
             grade: '',
             screeningConfirmed: false,

@@ -15,22 +15,28 @@ export interface ThreadMessage {
   from: string;
 }
 
-function when(iso: string): string {
+/** A moment, on the reader's own clock. It was shown in UTC, eight hours
+ *  out for Kuala Lumpur and unlabelled, so a message sent at nine in the
+ *  morning read as one o'clock at night. */
+function when(iso: string, timeZone: string): string {
   return new Date(iso).toLocaleString('en-GB', {
     day: 'numeric',
     month: 'short',
     hour: '2-digit',
     minute: '2-digit',
-    timeZone: 'UTC',
+    timeZone,
   });
 }
 
 export function MessageThread({
   messages,
   empty,
+  timeZone,
 }: {
   messages: ThreadMessage[];
   empty: string;
+  /** The reader's time zone. */
+  timeZone: string;
 }) {
   if (messages.length === 0) {
     return <p className="text-sm text-muted">{empty}</p>;
@@ -48,7 +54,7 @@ export function MessageThread({
           }
         >
           <p className="mb-0.5 text-xs text-muted">
-            {m.from}, {when(m.sentAt)}
+            {m.from}, {when(m.sentAt, timeZone)}
           </p>
           <p className="whitespace-pre-line">{m.body}</p>
         </li>

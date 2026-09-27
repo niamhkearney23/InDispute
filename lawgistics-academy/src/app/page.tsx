@@ -106,8 +106,10 @@ export default async function LandingPage() {
               <p className="text-slate">
                 A Victorian procedural rule is never served as though it were an ACT rule.
                 Each question records the jurisdiction it belongs to, the court where
-                relevant, its source, and when that source was last checked. No
-                question reaches a learner until a person has verified it.
+                relevant, its source, and when that source was last checked. Starter
+                questions go live unchecked so a new installation is not empty, and the
+                review queue shows every one of them until a person has signed it off.
+                Malaysian questions go live only once somebody has.
               </p>
             </div>
             <div>

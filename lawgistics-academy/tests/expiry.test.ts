@@ -132,6 +132,7 @@ function item(over: Partial<ReviewItem>): ReviewItem {
     sourceUrl: null,
     sourceCheckedOn: null,
     status: 'published',
+    withdrawnByPerson: false,
     verificationStatus: 'human_verified',
     reviewFlagged: false,
     reviewNote: null,
@@ -234,12 +235,26 @@ test('a withdrawn item counts as withdrawn, and a flagged one does not', () => {
   // accident to undo; flagged is a person saying the item is wrong.
   const stats = summarise([
     item({ slug: 'live', status: 'published' }),
-    item({ slug: 'pulled', status: 'requires_review' }),
-    item({ slug: 'wrong', status: 'requires_review', reviewFlagged: true }),
+    item({ slug: 'pulled', status: 'requires_review', withdrawnByPerson: true }),
+    item({
+      slug: 'wrong',
+      status: 'requires_review',
+      withdrawnByPerson: true,
+      reviewFlagged: true,
+    }),
   ]);
 
   assert.equal(stats.withdrawn, 1, 'only the one taken off in bulk can be put back');
   assert.equal(stats.flagged, 1);
+});
+
+test('content that was never published is not "withdrawn", so it cannot be put back', () => {
+  // The whole Malaysian bank arrives unpublished. Counted as withdrawn, the
+  // restore button offered to publish all of it, unread, on a new install.
+  const stats = summarise([
+    item({ slug: 'never-live', status: 'requires_review', verificationStatus: 'requires_review' }),
+  ]);
+  assert.equal(stats.withdrawn, 0);
 });
 
 test('restoring puts content back without claiming anybody checked it', () => {
@@ -262,6 +277,24 @@ test('restoring puts content back without claiming anybody checked it', () => {
   }
 
   assert.ok(body.includes('checkAdmin('), 'and it is still an administrator-only action');
+});
+
+test('restoring only puts back what a person withdrew, never what was never published', () => {
+  const source = fs.readFileSync(
+    path.join(ROOT, 'src/app/admin/review/actions.ts'),
+    'utf8',
+  );
+  const body = source.slice(source.indexOf('export async function restoreAllWithdrawn'));
+  assert.match(
+    body,
+    /from\('questions'\)[\s\S]*?\.not\('withdrawn_at', 'is', null\)/,
+    'questions must be limited to the ones a person withdrew',
+  );
+  assert.match(
+    body,
+    /from\('daily_facts'\)[\s\S]*?\.not\('withdrawn_at', 'is', null\)/,
+    'facts must be limited to the ones a person withdrew',
+  );
 });
 
 test('restoring never resurrects something a person flagged as wrong', () => {
@@ -290,5 +323,22 @@ test('restoring never resurrects something a person flagged as wrong', () => {
     body,
     /\.not\('id', 'in', `\(\$\{flaggedIds\.join\(','\)\}\)`\)/,
     'and excluded from the update',
+  );
+});
+
+test('loading content again never resets what a person decided about a fact', () => {
+  // It once upserted every fact on each load, which wiped every sign-off and
+  // republished facts somebody had withdrawn. A fact already there is updated
+  // only where its wording changed.
+  const source = fs.readFileSync(path.join(ROOT, 'src/lib/setup/seed-content.ts'), 'utf8');
+  assert.ok(
+    !/from\('daily_facts'\)\s*\.upsert/.test(source),
+    'facts must not be upserted wholesale on every load',
+  );
+  const actions = fs.readFileSync(path.join(ROOT, 'src/app/admin/actions.ts'), 'utf8');
+  assert.match(
+    actions,
+    /seedContent\(createServiceClient\(\), \{ publish: false \}\)/,
+    'content loaded after the first run arrives unpublished',
   );
 });

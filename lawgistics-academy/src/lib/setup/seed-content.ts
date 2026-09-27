@@ -243,26 +243,76 @@ export async function seedContent(
 
   /* --- daily facts ------------------------------------------------------- */
   // Facts are not versioned: nothing a learner does is recorded against one, so
-  // correcting a fact just corrects it.
-  const { error: factError } = await db.from('daily_facts').upsert(
-    FACTS.map((fact, index) => ({
-      slug: fact.slug,
+  // correcting a fact just corrects it. What must survive a second load is
+  // everything a person decided about one. This used to upsert every fact on
+  // each load, which put every sign-off back to "requires review", published
+  // again any Australian fact somebody had withdrawn or flagged, and withdrew
+  // any Malaysian fact somebody had published. Now a fact already here is left
+  // exactly as it is unless its wording changed, and a changed wording needs
+  // signing off again, because the sign-off was a statement about the old one.
+  const { data: existingFacts, error: existingFactError } = await db
+    .from('daily_facts')
+    .select(
+      'slug, title, body, why_it_matters, jurisdiction, court, source_reference, source_url, status',
+    );
+  if (existingFactError) throw existingFactError;
+  const factBySlug = new Map((existingFacts ?? []).map((f) => [f.slug as string, f]));
+
+  for (const [index, fact] of FACTS.entries()) {
+    const country = JURISDICTION_COUNTRY[fact.jurisdiction];
+    const content = {
       title: fact.title,
       body: fact.body,
       why_it_matters: fact.whyItMatters ?? null,
       jurisdiction: fact.jurisdiction,
-      country: JURISDICTION_COUNTRY[fact.jurisdiction],
       court: fact.court ?? null,
-      domain_id: fact.domain ? domainIdBySlug.get(fact.domain) : null,
       source_reference: fact.sourceReference ?? null,
       source_url: fact.sourceUrl ?? null,
-      status: statusFor(JURISDICTION_COUNTRY[fact.jurisdiction]),
-      verification_status: 'requires_review',
+    };
+    const placement = {
+      country,
+      domain_id: fact.domain ? domainIdBySlug.get(fact.domain) : null,
       sort_order: index,
-    })),
-    { onConflict: 'slug' },
-  );
-  if (factError) throw factError;
+    };
+    const here = factBySlug.get(fact.slug);
+
+    if (!here) {
+      const { error } = await db.from('daily_facts').insert({
+        slug: fact.slug,
+        ...content,
+        ...placement,
+        status: statusFor(country),
+        verification_status: 'requires_review',
+      });
+      if (error) throw error;
+      continue;
+    }
+
+    const changed = (Object.keys(content) as Array<keyof typeof content>).some(
+      (key) => (here[key] ?? null) !== content[key],
+    );
+    const { error } = await db
+      .from('daily_facts')
+      .update(
+        changed
+          ? {
+              ...content,
+              ...placement,
+              verification_status: 'requires_review',
+              verified_by: null,
+              verified_at: null,
+              review_due_on: null,
+              // A Malaysian fact is never live unchecked, and a new wording
+              // is unchecked.
+              ...(country === 'MY' && here.status === 'published'
+                ? { status: 'requires_review' }
+                : {}),
+            }
+          : placement,
+      )
+      .eq('slug', fact.slug);
+    if (error) throw error;
+  }
 
   const { count } = await db
     .from('question_versions')

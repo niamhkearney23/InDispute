@@ -75,6 +75,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               <NavLink href="/admin" className="hover:bg-paper-sunk">
                 Admin
               </NavLink>
+            ) : profile?.isCoach ? (
+              // A coach's way in. Without it the work to mark was reachable only
+              // by typing the address. The admin index is administrators' only,
+              // so a coach lands on the work board, which is most of their week.
+              <NavLink href="/admin/work" className="hover:bg-paper-sunk">
+                Coach
+              </NavLink>
             ) : null}
             {/* An icon-sized link rather than a fifth word: the nav is already
                 tight at 360px (see the note above on the wordmark), and a photo

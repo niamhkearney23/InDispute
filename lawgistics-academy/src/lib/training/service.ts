@@ -345,7 +345,8 @@ export async function submitAnswer(args: {
   // three depends on the answer to another, and asking for them one at a time
   // costs three network hops before any work begins. The checks that follow are
   // unchanged, and still happen before anything is written.
-  const [{ data: session }, { data: slot }, { data: version }] = await Promise.all([
+  const [{ data: session }, { data: slot }, { data: version }, { data: learner }] =
+    await Promise.all([
     db
       .from('training_sessions')
       .select('id, user_id, kind, status, total_answered, correct_count')
@@ -364,7 +365,10 @@ export async function submitAnswer(args: {
       )
       .eq('id', args.questionVersionId)
       .maybeSingle(),
+    // Where the learner is, so a review due "tomorrow" is due tomorrow there.
+    db.from('profiles').select('timezone, country').eq('id', args.userId).maybeSingle(),
   ]);
+  const learnerZone = learnerTimezone(learner?.timezone, asCountry(learner?.country));
 
   if (!session || session.user_id !== args.userId) {
     return { error: 'Session not found.' };
@@ -566,6 +570,7 @@ export async function submitAnswer(args: {
       priorReview,
       { isCorrect, confidence: args.confidence, mastery: nextState.mastery },
       now,
+      learnerZone,
     );
 
     scheduleUpserts.push({
@@ -707,7 +712,7 @@ export async function getCoachNote(
     db.from('training_sessions').select('id, user_id').eq('id', sessionId).maybeSingle(),
     db
       .from('training_session_questions')
-      .select('id, answered_at')
+      .select('id, answered_at, coach_note, coach_note_at')
       .eq('session_id', sessionId)
       .eq('question_version_id', questionVersionId)
       .maybeSingle(),
@@ -715,6 +720,19 @@ export async function getCoachNote(
 
   if (!session || session.user_id !== userId) return { error: 'Session not found.' };
   if (!slot || !slot.answered_at) return { error: 'That question has not been answered yet.' };
+
+  // One note per answer, kept and handed back. Each request used to be a
+  // fresh paid call to the model, so anybody who could sign up could run up
+  // the firm's AI bill by asking for the same note in a loop. The slot is
+  // claimed before the call, so two requests at once cannot both pay.
+  if (slot.coach_note_at) return { coachNote: (slot.coach_note as string | null) ?? null };
+  const { data: claimed } = await db
+    .from('training_session_questions')
+    .update({ coach_note_at: new Date().toISOString() })
+    .eq('id', slot.id)
+    .is('coach_note_at', null)
+    .select('id');
+  if (!claimed || claimed.length === 0) return { coachNote: null };
 
   const [{ data: attempt }, { data: version }] = await Promise.all([
     db
@@ -758,6 +776,8 @@ export async function getCoachNote(
       return Array.isArray(concept) ? concept.map((c) => c.name) : [concept.name];
     }),
   });
+
+  await db.from('training_session_questions').update({ coach_note: coachNote }).eq('id', slot.id);
 
   return { coachNote };
 }

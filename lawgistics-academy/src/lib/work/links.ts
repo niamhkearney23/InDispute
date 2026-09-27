@@ -30,7 +30,24 @@ export const WORK_FILE_TYPES: Record<string, string> = {
   'image/png': 'png',
 };
 
-export const WORK_FILE_MAX_BYTES = 20 * 1024 * 1024;
+/**
+ * Four megabytes, and the reason is where the app runs rather than the bucket.
+ * A file goes up inside the form, and Vercel refuses any request over about
+ * 4.5MB before the app ever sees it, so a larger file failed with a bare
+ * error page while the form promised 20MB. Everything sent in one go (a file
+ * and a voice memo on the same post) has to fit under the same ceiling.
+ */
+export const WORK_FILE_MAX_BYTES = 4 * 1024 * 1024;
+export const WORK_UPLOAD_MAX_BYTES = Math.floor(4.4 * 1024 * 1024);
+
+/** Why the files chosen in one form cannot be sent together, or null. */
+export function uploadTooLarge(sizes: number[]): string | null {
+  const total = sizes.reduce((sum, size) => sum + size, 0);
+  if (total <= WORK_UPLOAD_MAX_BYTES) return null;
+  return sizes.filter((size) => size > 0).length > 1
+    ? 'The file and the voice memo together are more than 4MB. Use a smaller file, or a Google Drive link for it.'
+    : 'That file is larger than 4MB. Save it as a smaller PDF, or share it as a Google Drive link instead.';
+}
 
 export const WORK_FILE_ACCEPT = Object.keys(WORK_FILE_TYPES).join(',');
 
@@ -45,7 +62,7 @@ export function workFileProblem(file: { type: string; size: number }): string | 
     return 'That needs to be a PDF, a Word document, or a JPEG or PNG image.';
   }
   if (file.size > WORK_FILE_MAX_BYTES) {
-    return 'That file is larger than 20MB. Try a smaller one.';
+    return 'That file is larger than 4MB. Save it as a smaller PDF, or share it as a Google Drive link instead.';
   }
   return null;
 }
@@ -97,7 +114,7 @@ export function workMemoProblem(file: { type: string; size: number }): string | 
     return 'That recording is in a format that cannot be played here.';
   }
   if (file.size > WORK_FILE_MAX_BYTES) {
-    return 'That recording is larger than 20MB. Keep it under five minutes.';
+    return 'That recording is larger than 4MB. Keep it shorter, or record it again.';
   }
   return null;
 }

@@ -1,8 +1,8 @@
 import 'server-only';
 
 import { getProvider, isAiEnabled } from './provider';
-import type { Jurisdiction, QuestionOption } from '@/lib/types';
-import { JURISDICTION_LABELS } from '@/lib/types';
+import type { Country, Jurisdiction, QuestionOption } from '@/lib/types';
+import { JURISDICTION_COUNTRY, JURISDICTION_LABELS } from '@/lib/types';
 
 /**
  * The AI coach.
@@ -22,7 +22,19 @@ import { JURISDICTION_LABELS } from '@/lib/types';
  * of them must produce drafts for human verification, never published content.
  */
 
-const SUPERVISOR_SYSTEM = `You are a senior Australian litigation solicitor supervising a junior.
+/**
+ * Who the coach is, by country. It was an Australian solicitor with
+ * Australian spelling for everybody, which is the wrong supervisor for a
+ * Malaysian pupil on a question about the Rules of Court 2012, and the kind
+ * of mismatch this product exists to stop.
+ */
+function supervisorSystem(country: Country): string {
+  const who =
+    country === 'MY'
+      ? 'You are a senior Malaysian advocate and solicitor supervising a pupil.'
+      : 'You are a senior Australian litigation solicitor supervising a junior.';
+  const spelling = country === 'MY' ? 'British spelling.' : 'Australian spelling.';
+  return `${who}
 
 Rules you must follow:
 - Only use the legal content supplied to you. Never introduce a rule, section
@@ -31,7 +43,8 @@ Rules you must follow:
 - If the supplied material does not answer something, say nothing about it.
 - Be direct, warm and practical. No praise padding, no talking down.
 - Two or three sentences. Plain English.
-- Australian spelling.`;
+- ${spelling}`;
+}
 
 const TIMEOUT_MS = 6000;
 
@@ -94,7 +107,11 @@ export async function coachOnAnswer(context: CoachContext): Promise<string | nul
 
   try {
     const text = await withTimeout(
-      provider.complete({ system: SUPERVISOR_SYSTEM, prompt, maxTokens: 220 }),
+      provider.complete({
+        system: supervisorSystem(JURISDICTION_COUNTRY[context.jurisdiction]),
+        prompt,
+        maxTokens: 220,
+      }),
       TIMEOUT_MS,
     );
     return text.length > 0 ? text : null;
@@ -110,6 +127,7 @@ export async function coachOnAnswer(context: CoachContext): Promise<string | nul
  */
 export async function summariseSkillMap(
   entries: Array<{ name: string; score: number }>,
+  country: Country = 'AU',
 ): Promise<string | null> {
   const provider = getProvider();
   if (!provider || entries.length === 0) return null;
@@ -123,7 +141,7 @@ export async function summariseSkillMap(
 
   try {
     const text = await withTimeout(
-      provider.complete({ system: SUPERVISOR_SYSTEM, prompt, maxTokens: 180 }),
+      provider.complete({ system: supervisorSystem(country), prompt, maxTokens: 180 }),
       TIMEOUT_MS,
     );
     return text.length > 0 ? text : null;

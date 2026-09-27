@@ -95,7 +95,8 @@ export type PasswordState = { error: string | null };
 
 const passwordSchema = z
   .object({
-    password: z.string().min(8, 'Use at least eight characters.').max(200),
+    // Ten, the same as joining by invitation: one rule for one firm's system.
+    password: z.string().min(10, 'Use at least 10 characters.').max(200),
     confirm: z.string(),
   })
   .refine((v) => v.password === v.confirm, { message: 'The two passwords do not match.' });
@@ -133,7 +134,18 @@ export async function changePassword(
     };
   }
 
-  await supabase.from('profiles').update({ must_change_password: false }).eq('id', user.id);
+  const { error: flagError } = await supabase
+    .from('profiles')
+    .update({ must_change_password: false })
+    .eq('id', user.id);
+  // Left unchecked, a failure here put the same "choose your password" screen
+  // back in front of somebody who had just done it, with no reason given.
+  if (flagError) {
+    return {
+      error:
+        'Your new password is saved, but the app could not record it. Reload the page and sign in with the new one.',
+    };
+  }
 
   revalidatePath('/dashboard');
   revalidatePath('/account');

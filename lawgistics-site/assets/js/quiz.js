@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Lawgistics — question of the day
+   Lawgistics: question of the day
    The same question for everyone on a given day, chosen deterministically
    from the date so the site and the morning WhatsApp/email message always
    agree. Answering once a day earns XP into the Academy ladder.

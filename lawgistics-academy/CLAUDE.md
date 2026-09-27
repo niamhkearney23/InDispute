@@ -155,12 +155,23 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0021`. `supabase/UPDATE.sql` is the one-paste update for a
+- Migrations run to `0022`. `supabase/UPDATE.sql` is the one-paste update for a
   database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
-- 265 tests, 158 schema guarantees against a real Postgres, 233 page and device
+- `0022` came out of an audit of what the database allowed against what the
+  app does. Learners now only read their own training record (the server
+  writes it), work is handed in unmarked and a mark carries whoever made it,
+  a firm policy version's words are frozen, the firm-half records refuse
+  updates for everybody, nobody can sign off a version they wrote, and "put
+  everything back" only restores what a person withdrew (`withdrawn_at`), so it
+  can never publish the Malaysian bank. Keep new learner-owned tables
+  select-only for learners unless a page genuinely writes through RLS.
+- 273 tests, 185 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
+- Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB
+  before the app sees it; the forms check before sending. Larger files would
+  need uploading from the browser straight to Storage.
 - The two marked exercises are checked by `npm run qa:marker`, which drives the
   real pages with `/claude` stubbed. It exists because the drafting exercise
   returned a bare 504 on a good letter and nothing caught it: rendering a page

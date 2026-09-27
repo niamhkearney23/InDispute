@@ -50,6 +50,41 @@ test('a wrong answer always comes back tomorrow, however well established the co
   assert.ok(next.ease < mature.ease, 'a lapse should reduce ease');
 });
 
+test('wrong at seven in the morning in Kuala Lumpur comes back tomorrow there, not an hour later', () => {
+  // 07:00 on 11 March in KL is 23:00 on 10 March in UTC. Started from UTC
+  // midnight, "tomorrow" was 08:00 the same morning.
+  const sevenAm = new Date('2026-03-10T23:00:00Z');
+  const next = scheduleNextReview(
+    initialReviewState(sevenAm),
+    { isCorrect: false, confidence: 'guess', mastery: 20 },
+    sevenAm,
+    'Asia/Kuala_Lumpur',
+  );
+  assert.equal(next.nextReviewAt.toISOString(), '2026-03-11T16:00:00.000Z', 'midnight on 12 March, KL');
+  assert.equal(localDateString('Asia/Kuala_Lumpur', next.nextReviewAt), '2026-03-12');
+});
+
+test('a review in Melbourne lands at Melbourne midnight, clock changes included', () => {
+  // Daylight saving ends in Melbourne on 5 April 2026.
+  const evening = new Date('2026-04-04T09:00:00Z'); // 20:00 AEDT on the 4th
+  const next = scheduleNextReview(
+    initialReviewState(evening),
+    { isCorrect: false, confidence: 'guess', mastery: 20 },
+    evening,
+    'Australia/Melbourne',
+  );
+  // The clocks go back at 3am, so midnight on the 5th is still daylight time.
+  assert.equal(next.nextReviewAt.toISOString(), '2026-04-04T13:00:00.000Z', 'midnight AEDT on the 5th');
+  const later = scheduleNextReview(
+    initialReviewState(evening),
+    { isCorrect: true, confidence: 'certain', mastery: 90 },
+    evening,
+    'Australia/Melbourne',
+  );
+  // Any day after the change starts at 00:00 AEST, which is 14:00 UTC.
+  assert.match(later.nextReviewAt.toISOString(), /T14:00:00\.000Z$/);
+});
+
 test('a first correct answer schedules the first interval, not tomorrow', () => {
   const next = scheduleNextReview(
     initialReviewState(NOW),
