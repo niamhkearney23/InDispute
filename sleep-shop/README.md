@@ -93,8 +93,6 @@ security headers; on Vercel, set the project root to `sleep-shop` and use no bui
 
 Before going live:
 
-- Replace the placeholder host `https://sleepshop.example` in `robots.txt` and `sitemap.xml`,
-  and the placeholder contact details in `assets/js/data.js`.
 - There is no `og:image` — Open Graph images need an absolute URL, which depends on the
   domain. The obvious candidate is the hero box shot on powder.
 - Fonts load from Google Fonts. If you licence Canela Deck as the plan suggests, swap

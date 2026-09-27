@@ -3,5 +3,4 @@ User-agent: *
 Allow: /
 Disallow: /cart.html
 
-# Replace the host below with the real one before going live.
-Sitemap: https://sleepshop.example/sitemap.xml
+Sitemap: https://sleepshop.online/sitemap.xml

@@ -18,7 +18,7 @@
     expressFee: 12,
     giftMessageLimit: 250,
     promoCodes: { FIRSTRUN: 0.1 },
-    email: 'hello@sleepshop.example',
+    email: 'hello@sleepshop.online',
     phone: '(03) 9000 0000',
     address: 'By appointment, Fitzroy VIC 3065',
     abn: '92 947 050 246'
