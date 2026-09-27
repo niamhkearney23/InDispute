@@ -149,6 +149,14 @@ export default async function DashboardPage() {
           the count below it. An unread firm policy is not one more module
           outstanding, it is the firm's own rules not yet in front of the person
           they apply to. */}
+      {profile.track === 'litigation_trainee' && !profile.traineeConfirmed ? (
+        <Notice>
+          <strong>Waiting for your supervisor.</strong> They need to confirm you are on the
+          trainee programme before the work posted for trainees appears. Everything else here
+          works now.
+        </Notice>
+      ) : null}
+
       {hasChecklist ? (
         joining.outstanding.length > 0 ? (
           <Notice tone="warn">

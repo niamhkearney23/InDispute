@@ -477,3 +477,68 @@ export async function getStepForAdmin(id: string): Promise<FirmStep | null> {
   const { data } = await db.from('firm_steps').select(STEP_COLUMNS).eq('id', id).maybeSingle();
   return data ? shape(data as StepRow) : null;
 }
+
+// -----------------------------------------------------------------------------
+// Trainees waiting to be confirmed
+// -----------------------------------------------------------------------------
+
+export interface PendingTrainee {
+  id: string;
+  displayName: string | null;
+  email: string | null;
+  joinedAt: string | null;
+}
+
+/**
+ * People who said they are on the trainee programme and whom nobody at the
+ * firm has confirmed yet. Until somebody does, the work coaches post for
+ * trainees stays out of their sight (0023). Callers are staff pages, behind
+ * requireCoach, which is why this may read every profile.
+ */
+export async function traineesAwaitingConfirmation(): Promise<PendingTrainee[]> {
+  const db = createServiceClient();
+  const { data } = await db
+    .from('profiles')
+    .select('id, display_name, email, onboarded_at, created_at')
+    .eq('track', 'litigation_trainee')
+    .is('trainee_approved_at', null)
+    .order('created_at', { ascending: true });
+  return (data ?? []).map((row) => ({
+    id: row.id as string,
+    displayName: (row.display_name as string | null) ?? null,
+    email: (row.email as string | null) ?? null,
+    joinedAt: ((row.onboarded_at ?? row.created_at) as string | null) ?? null,
+  }));
+}
+
+/**
+ * A coach's answer: yes, they are on the programme, or no, they are not.
+ * "No" moves them to the ordinary track rather than deleting anything: they
+ * keep their account and their training, and lose only what the programme
+ * opened.
+ */
+export async function settleTrainee(
+  coachId: string,
+  userId: string,
+  decision: 'confirm' | 'decline',
+): Promise<{ error: string | null }> {
+  const db = createServiceClient();
+  const { data: person } = await db
+    .from('profiles')
+    .select('track')
+    .eq('id', userId)
+    .maybeSingle();
+  if (!person || person.track !== 'litigation_trainee') {
+    return { error: 'That person is not waiting to join the trainee programme.' };
+  }
+
+  const { error } =
+    decision === 'confirm'
+      ? await db
+          .from('profiles')
+          .update({ trainee_approved_at: new Date().toISOString(), trainee_approved_by: coachId })
+          .eq('id', userId)
+      : await db.from('profiles').update({ track: 'general' }).eq('id', userId);
+
+  return { error: error ? 'That could not be saved. Please try again.' : null };
+}

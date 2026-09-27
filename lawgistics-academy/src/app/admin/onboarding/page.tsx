@@ -1,10 +1,15 @@
 import type { Metadata } from 'next';
 import { requireCoach } from '@/lib/admin/guard';
 import { getLearnerProfile } from '@/lib/learner-overview';
-import { onboardingRoster, listStepsForAdmin } from '@/lib/onboarding/service';
+import {
+  onboardingRoster,
+  listStepsForAdmin,
+  traineesAwaitingConfirmation,
+} from '@/lib/onboarding/service';
 import { daysUntil, shortDate } from '@/lib/onboarding/rules';
 import { pendingInvitations } from '@/lib/onboarding/invitations';
 import { PendingInvitations } from './pending-invitations';
+import { TraineeConfirmations } from './trainee-confirmations';
 import { ButtonLink, Card, EmptyState, InlineLink, Pill, SectionHeading } from '@/components/ui';
 import { DEFAULT_TIMEZONE } from '@/lib/types';
 
@@ -16,10 +21,11 @@ export default async function OnboardingRosterPage() {
   // The supervisor's own clock, so "starts soon" means soon where they are.
   const timezone = me?.timezone ?? DEFAULT_TIMEZONE;
 
-  const [roster, steps, invitations] = await Promise.all([
+  const [roster, steps, invitations, pendingTrainees] = await Promise.all([
     onboardingRoster(),
     listStepsForAdmin(),
     pendingInvitations(),
+    traineesAwaitingConfirmation(),
   ]);
   const published = steps.filter((s) => s.published);
 
@@ -59,6 +65,17 @@ export default async function OnboardingRosterPage() {
           name goes on it.
         </p>
       </section>
+
+      {/* Above the checklist, and shown whether or not there is one: this is
+          a decision waiting on the person reading the page. */}
+      <TraineeConfirmations
+        rows={pendingTrainees.map((t) => ({
+          id: t.id,
+          name: t.displayName ?? t.email ?? 'Unnamed',
+          email: t.email,
+          joinedOn: t.joinedAt ? shortDate(t.joinedAt.slice(0, 10)) : null,
+        }))}
+      />
 
       {published.length === 0 ? (
         <EmptyState

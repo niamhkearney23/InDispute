@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { checkAdmin, checkCoach } from '@/lib/admin/guard';
 import { createServiceClient } from '@/lib/supabase/service';
-import { confirmStep, recordDecision } from '@/lib/onboarding/service';
+import { confirmStep, recordDecision, settleTrainee } from '@/lib/onboarding/service';
 import {
   createAccountDirectly,
   createInvitation,
@@ -367,4 +367,42 @@ export async function revoke(_state: AdminState, formData: FormData): Promise<Ad
 
   revalidatePath('/admin/onboarding');
   return { error: null, ok: 'Invitation called back.' };
+}
+
+/**
+ * Confirming that somebody is on the trainee programme, or that they are not.
+ *
+ * The trainee sign-up page is public, so saying you are a trainee costs
+ * nothing. What it opens (the work coaches post for trainees and the places
+ * on it) waits for this: a supervisor's decision about a person, recorded
+ * with their name and the date.
+ */
+export async function confirmTrainee(
+  _state: AdminState,
+  formData: FormData,
+): Promise<AdminState> {
+  const coachId = await checkCoach();
+  if (!coachId) return { error: 'You are not signed in as a coach or administrator.' };
+
+  const userId = String(formData.get('userId') ?? '');
+  const decision = String(formData.get('decision') ?? '');
+  if (!z.string().uuid().safeParse(userId).success) {
+    return { error: 'That person could not be found.' };
+  }
+  if (decision !== 'confirm' && decision !== 'decline') {
+    return { error: 'That is not a decision this records.' };
+  }
+  if (userId === coachId) return { error: 'Somebody else has to confirm you.' };
+
+  const result = await settleTrainee(coachId, userId, decision);
+  if (result.error) return { error: result.error };
+
+  revalidatePath('/admin/onboarding');
+  revalidatePath('/admin/work');
+  revalidatePath('/work');
+  revalidatePath('/dashboard');
+  return {
+    error: null,
+    ok: decision === 'confirm' ? 'Confirmed as a trainee.' : 'Moved to the ordinary track.',
+  };
 }

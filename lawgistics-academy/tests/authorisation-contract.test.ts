@@ -115,6 +115,7 @@ test('the server actions were actually found', () => {
     'claimWork',
     'completeSetup',
     'confirm',
+    'confirmTrainee',
     'createAccount',
     'createFact',
     'createQuestion',
@@ -254,6 +255,11 @@ const COACH_ACTIONS = new Set([
   'recordReviewDecision',
   'confirm',
   'decide',
+  // Confirming that somebody who signed themselves up is on the trainee
+  // programme, or moving them off it. A decision about a person, recorded
+  // under the coach's name, which is what the role is for; it touches no
+  // content and nothing in the question bank.
+  'confirmTrainee',
   // The coach's own sessions. A coach writing these does not break the rule
   // that a coach may not write content: that rule is about the question bank,
   // which is versioned, immutable, carries an answer key and a sign-off

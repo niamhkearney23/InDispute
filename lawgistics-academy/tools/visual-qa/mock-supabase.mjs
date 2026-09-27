@@ -483,6 +483,7 @@ const TABLES = {
       daily_goal_minutes: 10,
       country: 'MY',
       track: 'litigation_trainee',
+      trainee_approved_at: '2026-08-01T00:00:00Z',
       home_jurisdiction: 'MY_GENERAL',
       timezone: 'Asia/Kuala_Lumpur',
       starts_on: isoDateFromNow(-7),

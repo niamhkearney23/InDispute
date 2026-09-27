@@ -144,7 +144,7 @@ export function AuthForm({
           </h2>
           <p className="mb-8 text-slate">
             {trainee
-              ? 'Your name, your email and a password. Your programme is set up from there.'
+              ? 'Your name, your email and a password. Your supervisor then confirms you are on the programme, and the work they post for trainees opens up.'
               : isSignup
                 ? 'A few questions, then a diagnostic, and about fifteen minutes to a full skill map.'
                 : 'Pick up where you left off.'}

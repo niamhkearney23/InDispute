@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { requireCoach } from '@/lib/admin/guard';
 import { allWorkPosts } from '@/lib/work/service';
+import { traineesAwaitingConfirmation } from '@/lib/onboarding/service';
 import { describeMinutes, slotsLabel } from '@/lib/work/links';
 import { ButtonLink, Card, EmptyState, Pill } from '@/components/ui';
 import { COUNTRY_LABELS } from '@/lib/types';
@@ -19,7 +20,10 @@ function shortDate(iso: string): string {
 
 export default async function WorkBoardAdminPage() {
   await requireCoach();
-  const posts = await allWorkPosts();
+  const [posts, pendingTrainees] = await Promise.all([
+    allWorkPosts(),
+    traineesAwaitingConfirmation(),
+  ]);
 
   const waiting = posts.reduce((n, p) => n + p.waiting, 0);
   const unanswered = posts.reduce((n, p) => n + p.unanswered, 0);
@@ -42,6 +46,20 @@ export default async function WorkBoardAdminPage() {
           and you mark it: good, or needs another go, and why. Nothing with a client&apos;s
           name in it, on either side.
         </p>
+        {pendingTrainees.length > 0 ? (
+          <p className="mt-2 text-sm text-burgundy">
+            {pendingTrainees.length === 1
+              ? '1 person says they are a trainee and is waiting for you to confirm it, '
+              : `${pendingTrainees.length} people say they are trainees and are waiting for you to confirm it, `}
+            and cannot see trainee work until you do.{' '}
+            <Link
+              href="/admin/onboarding"
+              className="-my-2 inline-block py-2 font-medium underline underline-offset-4"
+            >
+              Confirm them
+            </Link>
+          </p>
+        ) : null}
         {waiting > 0 || unanswered > 0 ? (
           <p className="mt-2 text-sm text-burgundy">
             {waiting > 0

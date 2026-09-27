@@ -843,6 +843,11 @@ insert into auth.users (id, email, raw_user_meta_data)
 values ('aaaa1111-0000-0000-0000-000000000008', 'trainee2@test',
         '{"track":"litigation_trainee"}'::jsonb);
 
+-- Both confirmed on the programme, as a coach would (0023). An unconfirmed
+-- trainee is checked separately below.
+update public.profiles set trainee_approved_at = now()
+where id in ('aaaa1111-0000-0000-0000-000000000006', 'aaaa1111-0000-0000-0000-000000000008');
+
 set local role authenticated;
 set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
 
@@ -1092,6 +1097,8 @@ select pg_temp.expect(
 insert into auth.users (id, email, raw_user_meta_data)
 values ('aaaa1111-0000-0000-0000-000000000009', 'trainee3@test',
         '{"track":"litigation_trainee"}'::jsonb);
+update public.profiles set trainee_approved_at = now()
+where id = 'aaaa1111-0000-0000-0000-000000000009';
 
 set local role authenticated;
 set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
@@ -1641,6 +1648,76 @@ select pg_temp.expect_failure(
            'human_verified'
     from public.question_versions where id = 'dddddddd-0000-0000-0000-000000000001'$$,
   'nobody can be recorded as signing off a version they wrote');
+
+
+-- -----------------------------------------------------------------------------
+-- Trainees are confirmed by the firm (0023)
+-- -----------------------------------------------------------------------------
+-- The promise: saying you are a trainee does not open the firm's trainee
+-- work. A coach or administrator confirming it does, and nobody confirms
+-- themselves.
+insert into auth.users (id, email, raw_user_meta_data)
+values ('aaaa1111-0000-0000-0000-000000000010', 'selfsigned@test',
+        '{"track":"litigation_trainee"}'::jsonb);
+
+insert into public.work_posts (id, kind, title, max_claims, trainees_only, country, published, posted_by)
+values ('bbbb0001-0000-0000-0000-000000000010', 'task', 'For trainees only', null, true, 'MY', true,
+        '44444444-4444-4444-4444-444444444444');
+
+select pg_temp.expect(
+  (select trainee_approved_at is null from public.profiles
+   where id = 'aaaa1111-0000-0000-0000-000000000010'),
+  'a trainee who signed themselves up starts unconfirmed');
+
+set local role authenticated;
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000010';
+
+select pg_temp.expect(
+  (select count(*) from public.work_posts
+   where id = 'bbbb0001-0000-0000-0000-000000000010') = 0,
+  'an unconfirmed trainee does not see work posted for trainees');
+
+select pg_temp.expect(
+  (select count(*) from public.work_posts
+   where id = 'bbbb0001-0000-0000-0000-000000000002') = 1,
+  'an unconfirmed trainee still sees work posted for everyone in their country');
+
+select pg_temp.expect_failure(
+  $$insert into public.work_claims (post_id, user_id)
+    values ('bbbb0001-0000-0000-0000-000000000010', 'aaaa1111-0000-0000-0000-000000000010')$$,
+  'an unconfirmed trainee cannot take a place on trainee work');
+
+update public.profiles set trainee_approved_at = now(),
+  trainee_approved_by = 'aaaa1111-0000-0000-0000-000000000010'
+where id = 'aaaa1111-0000-0000-0000-000000000010';
+reset role;
+
+select pg_temp.expect(
+  (select trainee_approved_at is null from public.profiles
+   where id = 'aaaa1111-0000-0000-0000-000000000010'),
+  'nobody can confirm themselves as a trainee');
+
+update public.profiles set trainee_approved_at = now(),
+  trainee_approved_by = '44444444-4444-4444-4444-444444444444'
+where id = 'aaaa1111-0000-0000-0000-000000000010';
+
+set local role authenticated;
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000010';
+select pg_temp.expect(
+  (select count(*) from public.work_posts
+   where id = 'bbbb0001-0000-0000-0000-000000000010') = 1,
+  'once the firm confirms them, a trainee sees the trainee work');
+
+update public.profiles set track = 'general'
+where id = 'aaaa1111-0000-0000-0000-000000000010';
+update public.profiles set track = 'litigation_trainee'
+where id = 'aaaa1111-0000-0000-0000-000000000010';
+reset role;
+
+select pg_temp.expect(
+  (select trainee_approved_at is null from public.profiles
+   where id = 'aaaa1111-0000-0000-0000-000000000010'),
+  'leaving the programme and saying you are back on it needs confirming again');
 
 
 \echo ''

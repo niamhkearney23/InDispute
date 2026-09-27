@@ -6,7 +6,7 @@ import { getLearnerProfile } from '@/lib/learner-overview';
 import { isFull, workBoardFor } from '@/lib/work/service';
 import type { WorkBoardItem } from '@/lib/work/service';
 import { describeMinutes, isLate, slotsLabel } from '@/lib/work/links';
-import { Card, EmptyState, Pill } from '@/components/ui';
+import { Card, EmptyState, Notice, Pill } from '@/components/ui';
 
 export const metadata: Metadata = { title: 'Work' };
 export const dynamic = 'force-dynamic';
@@ -60,6 +60,15 @@ export default async function WorkBoardPage() {
           sure about something? Every piece has a place to message them.
         </p>
       </section>
+
+      {/* Said here, because otherwise a trainee who signed themselves up sees
+          an empty board and has no way to know why. */}
+      {profile.track === 'litigation_trainee' && !profile.traineeConfirmed ? (
+        <Notice>
+          Your supervisor has not confirmed you on the trainee programme yet. Once they do,
+          the work posted for trainees appears here.
+        </Notice>
+      ) : null}
 
       {items.length === 0 ? (
         <EmptyState
