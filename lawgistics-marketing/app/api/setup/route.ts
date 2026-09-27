@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { pickProvider } from "@/lib/provider";
+import { pickProvider, resolveOpenAIModel } from "@/lib/provider";
 
 export const runtime = "nodejs";
 
@@ -12,6 +12,7 @@ export async function GET() {
   const hasOpenAI = !!process.env.OPENAI_API_KEY;
   const pinned = (process.env.DRAFT_PROVIDER || "").toLowerCase();
   const writing = pickProvider();
+  const openaiModel = hasOpenAI ? await resolveOpenAIModel().catch(() => "(could not ask OpenAI)") : "(no key)";
 
   const notes: string[] = [];
   if (!hasAnthropic && !hasOpenAI) {
@@ -42,6 +43,7 @@ export async function GET() {
       draftProvider: pinned || "(not pinned)",
       writingWith: writing || "nothing",
       imagesAvailable: hasOpenAI,
+      openaiModel,
       notes,
       deployedCommit: (process.env.VERCEL_GIT_COMMIT_SHA || "").slice(0, 7) || "(unknown)",
       deployedBranch: process.env.VERCEL_GIT_COMMIT_REF || "(unknown)",
