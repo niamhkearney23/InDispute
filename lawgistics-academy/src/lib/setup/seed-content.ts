@@ -237,6 +237,20 @@ export async function seedContent(
     });
     if (versionError) throw versionError;
 
+    // A new wording is unchecked, whatever the old one was. Editing a question
+    // on its page already takes it out of training until somebody signs it
+    // off; loading a release with new wording has to do the same, or a
+    // Malaysian question a lawyer signed and published would go on being
+    // served in words nobody has read.
+    if (nextVersion > 1) {
+      const { error: withdrawError } = await db
+        .from('questions')
+        .update({ status: 'requires_review' })
+        .eq('id', questionId)
+        .eq('status', 'published');
+      if (withdrawError) throw withdrawError;
+    }
+
     if (nextVersion === 1) created += 1;
     else reversioned += 1;
   }

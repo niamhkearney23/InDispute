@@ -85,7 +85,10 @@ export async function getSetupStatus(): Promise<SetupStatus> {
     contentLoaded: (questions.count ?? 0) > 0,
     publishedQuestions: questions.count ?? 0,
     publishedFacts: facts.count ?? 0,
-    adminExists: (admins.count ?? 0) > 0,
+    // Fails closed. If the count could not be read, assume an administrator
+    // exists: the alternative is handing administrator rights to whoever
+    // happens to be signed in while the database is having a bad moment.
+    adminExists: Boolean(admins.error) || (admins.count ?? 0) > 0,
     userCount: probe.count ?? 0,
     reviewOutstanding: review.count ?? 0,
   };

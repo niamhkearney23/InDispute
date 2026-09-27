@@ -61,7 +61,7 @@ export async function join(_state: JoinState, formData: FormData): Promise<JoinS
     // The account exists and is fine; only the sign-in failed. Sending them to
     // the login page is honest and recoverable, and losing the password they
     // just chose is not a thing that happens here.
-    redirect('/login?joined=1');
+    redirect('/login?joined=1&next=/start');
   }
 
   redirect('/start');

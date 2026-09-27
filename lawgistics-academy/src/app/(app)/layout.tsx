@@ -29,6 +29,16 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <div className="flex min-h-dvh flex-col">
         <main className="mx-auto w-full max-w-md flex-1 px-4 py-10 sm:px-8">
           <FirstPassword />
+          {/* A way out that is not choosing a password: somebody on a
+              shared computer who opened this by mistake. */}
+          <form action="/auth/sign-out" method="post" className="mt-6 text-center">
+            <button
+              type="submit"
+              className="rounded-[5px] px-3 py-2.5 text-sm text-slate underline underline-offset-4 hover:text-ink"
+            >
+              Sign out
+            </button>
+          </form>
         </main>
       </div>
     );

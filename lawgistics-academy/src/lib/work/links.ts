@@ -46,7 +46,7 @@ export function uploadTooLarge(sizes: number[]): string | null {
   if (total <= WORK_UPLOAD_MAX_BYTES) return null;
   return sizes.filter((size) => size > 0).length > 1
     ? 'The file and the voice memo together are more than 4MB. Use a smaller file, or a Google Drive link for it.'
-    : 'That file is larger than 4MB. Save it as a smaller PDF, or share it as a Google Drive link instead.';
+    : 'That file is larger than 4MB. Save it again as a PDF, which is usually much smaller, and try again.';
 }
 
 export const WORK_FILE_ACCEPT = Object.keys(WORK_FILE_TYPES).join(',');
@@ -62,7 +62,7 @@ export function workFileProblem(file: { type: string; size: number }): string | 
     return 'That needs to be a PDF, a Word document, or a JPEG or PNG image.';
   }
   if (file.size > WORK_FILE_MAX_BYTES) {
-    return 'That file is larger than 4MB. Save it as a smaller PDF, or share it as a Google Drive link instead.';
+    return 'That file is larger than 4MB. Save it again as a PDF, which is usually much smaller, and try again.';
   }
   return null;
 }

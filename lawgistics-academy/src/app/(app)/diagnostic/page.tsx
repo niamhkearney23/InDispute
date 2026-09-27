@@ -68,9 +68,11 @@ export default async function DiagnosticPage() {
         <Card>
           <p className="font-medium">The questions are not open yet.</p>
           <p className="mt-1 text-sm text-slate">
-            Every question is checked by a lawyer before anyone is trained on it, and they
-            have not been published yet. You can take the diagnostic as soon as they are.
-            Everything else is ready for you now.
+            {profile.country === 'MY'
+              ? 'Malaysian questions are published only once a lawyer has signed them off, and none have been yet.'
+              : 'No questions have been published yet.'}{' '}
+            You can take the diagnostic as soon as they are. Your dashboard works in the
+            meantime.
           </p>
           <div className="mt-4">
             <ButtonLink href="/dashboard" size="lg" variant="accent">

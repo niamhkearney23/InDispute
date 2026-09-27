@@ -45,6 +45,8 @@ export interface LearnerProfile {
   isCoach: boolean;
   /** An administrator set this person's first password; they choose their own next. */
   mustChangePassword: boolean;
+  /** On the trainee programme and confirmed by somebody at the firm (0023). */
+  traineeConfirmed: boolean;
 }
 
 export interface LearnerOverview {
@@ -127,6 +129,7 @@ export async function getLearnerProfile(userId: string): Promise<LearnerProfile 
     isAdmin: data.is_admin,
     isCoach: data.is_coach ?? false,
     mustChangePassword: data.must_change_password ?? false,
+    traineeConfirmed: Boolean(data.trainee_approved_at),
   };
 }
 

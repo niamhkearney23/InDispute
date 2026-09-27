@@ -172,7 +172,9 @@ export async function updateQuestion(
 
   const { data: current } = await db
     .from('question_versions')
-    .select('id, version, question_type, scenario, stem, options, correct_option_ids, jurisdiction')
+    .select(
+      'id, version, question_type, scenario, stem, options, correct_option_ids, jurisdiction, explanation, why_it_matters, common_misconception, memory_trick, verification_status',
+    )
     .eq('question_id', questionId)
     .eq('is_current', true)
     .maybeSingle();
@@ -218,6 +220,37 @@ export async function updateQuestion(
       .eq('id', current.id);
 
     if (error) return { error: error.message };
+
+    // The explanation is what a learner reads after answering: legal content
+    // as much as the question is. A sign-off covered the words that were
+    // there, so changing them sends the question back for checking.
+    const explanationChanged =
+      (current.explanation ?? '') !== data.explanation ||
+      (current.why_it_matters ?? '') !== (empty(data.whyItMatters) ?? '') ||
+      (current.common_misconception ?? '') !== (empty(data.commonMisconception) ?? '') ||
+      (current.memory_trick ?? '') !== (empty(data.memoryTrick) ?? '');
+    if (explanationChanged && current.verification_status === 'human_verified') {
+      await db
+        .from('question_versions')
+        .update({
+          verification_status: 'requires_review',
+          verified_by: null,
+          verified_at: null,
+          review_due_on: null,
+        })
+        .eq('id', current.id);
+      await db
+        .from('questions')
+        .update({ status: 'requires_review' })
+        .eq('id', questionId)
+        .eq('status', 'published');
+      revalidatePath(`/admin/questions/${questionId}`);
+      revalidatePath('/admin/review');
+      return {
+        error: null,
+        ok: 'Saved. The explanation changed, so the question needs verifying again before it goes back in front of learners.',
+      };
+    }
 
     revalidatePath(`/admin/questions/${questionId}`);
     return { error: null, ok: 'Saved. The question text was unchanged, so no new version was needed.' };
@@ -353,15 +386,26 @@ export async function transitionQuestion(formData: FormData): Promise<void> {
       // Verification is a statement by a person that the legal content is
       // correct. It is recorded against the version, not the question, so a
       // later rewrite cannot inherit someone else's sign-off.
-      await db
+      const { data: version } = await db
+        .from('question_versions')
+        .select('id, created_by')
+        .eq('question_id', questionId)
+        .eq('is_current', true)
+        .maybeSingle();
+      // Nobody signs off their own writing; the database refuses it too.
+      // Said here, rather than marking the question verified over a refusal.
+      if (!version || version.created_by === adminId) {
+        redirect(`/admin/questions/${questionId}?error=own_version`);
+      }
+      const { error: verifyError } = await db
         .from('question_versions')
         .update({
           verification_status: 'human_verified',
           verified_by: adminId,
           verified_at: new Date().toISOString(),
         })
-        .eq('question_id', questionId)
-        .eq('is_current', true);
+        .eq('id', version.id);
+      if (verifyError) redirect(`/admin/questions/${questionId}?error=not_saved`);
 
       await db.from('questions').update({ status: 'verified' }).eq('id', questionId);
       break;

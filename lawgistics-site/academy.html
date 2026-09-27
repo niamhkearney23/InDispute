@@ -9,7 +9,7 @@
 <meta name="description" content="The Litigation Academy. Practise analysing cases, making submissions and explaining legal problems out loud, and get structured feedback on your reasoning, advocacy and presentation.">
 <meta property="og:title" content="Litigation Academy, Lawgistics">
 <meta property="og:image" content="https://lawgistics.my/assets/img/og.png">
-<meta property="og:description" content="Practical legal training for interns, pupils, and paralegals in Malaysia.">
+<meta property="og:description" content="Litigation training for interns, pupils and paralegals in Malaysia.">
 <link rel="canonical" href="https://lawgistics.my/academy.html">
 <link rel="stylesheet" href="assets/css/site.css">
 </head>
@@ -49,6 +49,10 @@
         <a class="btn btn--ghost" href="advocacy.html" data-adv-link>Or practise advocacy →</a>
       </div>
       <p class="mast__note" data-questions-shut hidden></p>
+      <!-- The trainee programme (homework, work from a supervisor, sessions)
+           works without any questions published, so its door does not wait
+           on questionsOpen. Malaysian only: the programme is Malaysian. -->
+      <p class="mast__note" data-trainee-join hidden>On a firm’s litigation trainee programme? <a data-trainee-link href="#">Join as a trainee →</a></p>
       <p class="mast__note" data-reveal="80">Free while Lawgistics is in beta.</p>
       <hr class="rule-orn" data-reveal="100">
       <p class="lede lede--wide" data-reveal="100">Built for the skills law school doesn’t give you enough chances to practise.</p>
@@ -439,7 +443,7 @@ window.pageInit = function () {
      and explaining Malaysian statutes to an Australian who has not asked. */
   var LEVEL_NOTE = {
     MY: '',
-    AU: 'Malaysia has two further strands, on drafting and on litigation support, with no Australian version yet. They are built on the Rules of Court 2012 and the Copyright Act 1987, so putting an Australian label on them would be a lie rather than a translation.'
+    AU: 'Malaysia has two further strands, on drafting and on litigation support, built on the Rules of Court 2012 and the Copyright Act 1987, so putting an Australian label on them would be a lie rather than a translation. Australia has its own litigation support module in the app instead, "Running a file", on Australian procedure, evidence and drafting: you will find it under Learn once you are signed in.'
   };
 
   // Prospectus numbering. A label, not a claim.
@@ -549,6 +553,17 @@ window.pageInit = function () {
         links[i].removeAttribute('hidden');
       } else {
         links[i].setAttribute('hidden', '');
+      }
+    }
+
+    var traineeJoin = document.querySelector('[data-trainee-join]');
+    if (traineeJoin) {
+      var traineeLink = traineeJoin.querySelector('[data-trainee-link]');
+      if (country === 'MY' && APP_URL && traineeLink) {
+        traineeLink.setAttribute('href', APP_URL + '/trainee');
+        traineeJoin.removeAttribute('hidden');
+      } else {
+        traineeJoin.setAttribute('hidden', '');
       }
     }
 

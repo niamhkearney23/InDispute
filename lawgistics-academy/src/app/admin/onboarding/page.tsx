@@ -1,10 +1,15 @@
 import type { Metadata } from 'next';
 import { requireCoach } from '@/lib/admin/guard';
 import { getLearnerProfile } from '@/lib/learner-overview';
-import { onboardingRoster, listStepsForAdmin } from '@/lib/onboarding/service';
+import {
+  onboardingRoster,
+  listStepsForAdmin,
+  traineesAwaitingConfirmation,
+} from '@/lib/onboarding/service';
 import { daysUntil, shortDate } from '@/lib/onboarding/rules';
 import { pendingInvitations } from '@/lib/onboarding/invitations';
 import { PendingInvitations } from './pending-invitations';
+import { TraineeConfirmations } from './trainee-confirmations';
 import { ButtonLink, Card, EmptyState, InlineLink, Pill, SectionHeading } from '@/components/ui';
 import { DEFAULT_TIMEZONE } from '@/lib/types';
 
@@ -16,10 +21,11 @@ export default async function OnboardingRosterPage() {
   // The supervisor's own clock, so "starts soon" means soon where they are.
   const timezone = me?.timezone ?? DEFAULT_TIMEZONE;
 
-  const [roster, steps, invitations] = await Promise.all([
+  const [roster, steps, invitations, pendingTrainees] = await Promise.all([
     onboardingRoster(),
     listStepsForAdmin(),
     pendingInvitations(),
+    traineesAwaitingConfirmation(),
   ]);
   const published = steps.filter((s) => s.published);
 
@@ -60,123 +66,137 @@ export default async function OnboardingRosterPage() {
         </p>
       </section>
 
+      {/* Above the checklist, and shown whether or not there is one: this is
+          a decision waiting on the person reading the page. */}
+      <TraineeConfirmations
+        rows={pendingTrainees.map((t) => ({
+          id: t.id,
+          name: t.displayName ?? t.email ?? 'Unnamed',
+          email: t.email,
+          joinedOn: t.joinedAt ? shortDate(t.joinedAt.slice(0, 10)) : null,
+        }))}
+      />
+
+      {/* An empty checklist says so, but it no longer hides the people: the
+          invitations, and each person's page where their start date is set,
+          are needed whether or not the firm has a checklist. */}
       {published.length === 0 ? (
         <EmptyState
           title="The checklist is empty"
-          description="Add what a new joiner has to have read, signed or set up before their first day. Until something is published here, this page has nothing to check."
+          description="Add what a new joiner has to have read, signed or set up before their first day. Until something is published here there is nothing to check off, but the people below are still here."
           action={
-            <ButtonLink href="/admin/onboarding/steps/new" variant="accent">
-              Add the first item
-            </ButtonLink>
+            isAdmin ? (
+              <ButtonLink href="/admin/onboarding/steps/new" variant="accent">
+                Add the first item
+              </ButtonLink>
+            ) : undefined
           }
         />
-      ) : (
-        <>
-          <PendingInvitations
-            rows={invitations.map((i) => ({
-              id: i.id,
-              email: i.email,
-              displayName: i.displayName,
-              startsOn: i.startsOn ? shortDate(i.startsOn) : null,
-              invitedByName: i.invitedByName,
-              invitedOn: shortDate(i.invitedAt),
-              expiresOn: shortDate(i.expiresAt),
-              daysLeft: i.daysLeft,
-            }))}
-          />
+      ) : null}
 
-          {urgent.length > 0 ? (
-            <Card className="border-burgundy/30 bg-burgundy-wash">
-              <h2 className="text-lg">
-                {urgent.length === 1
-                  ? '1 person starts soon and is not ready'
-                  : `${urgent.length} people start soon and are not ready`}
-              </h2>
-              <ul className="mt-2 space-y-1 text-slate">
-                {urgent.map((p) => (
-                  <li key={p.userId}>
-                    <InlineLink href={`/admin/onboarding/${p.userId}`}>
-                      {p.displayName ?? p.email ?? 'Unnamed'}
-                    </InlineLink>{' '}
-                    starts {shortDate(p.startsOn as string)}, {p.outstandingCount} outstanding
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          ) : null}
+      <PendingInvitations
+        rows={invitations.map((i) => ({
+          id: i.id,
+          email: i.email,
+          displayName: i.displayName,
+          startsOn: i.startsOn ? shortDate(i.startsOn) : null,
+          invitedByName: i.invitedByName,
+          invitedOn: shortDate(i.invitedAt),
+          expiresOn: shortDate(i.expiresAt),
+          daysLeft: i.daysLeft,
+        }))}
+      />
 
-          {waitingOnUs.length > 0 ? (
-            <Card>
-              <h2 className="text-lg">Waiting on the firm</h2>
-              <p className="mt-1 text-sm text-slate">
-                These people have said they have done something that somebody here has to
-                confirm. Until that happens it stays outstanding on their list, and they
-                cannot do anything about it.
-              </p>
-              <ul className="mt-3 space-y-1 text-slate">
-                {waitingOnUs.map((p) => (
-                  <li key={p.userId}>
-                    <InlineLink href={`/admin/onboarding/${p.userId}`}>
-                      {p.displayName ?? p.email ?? 'Unnamed'}
-                    </InlineLink>{' '}
-                    · {p.awaitingFirmCount} to confirm
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          ) : null}
+      {urgent.length > 0 ? (
+        <Card className="border-burgundy/30 bg-burgundy-wash">
+          <h2 className="text-lg">
+            {urgent.length === 1
+              ? '1 person starts soon and is not ready'
+              : `${urgent.length} people start soon and are not ready`}
+          </h2>
+          <ul className="mt-2 space-y-1 text-slate">
+            {urgent.map((p) => (
+              <li key={p.userId}>
+                <InlineLink href={`/admin/onboarding/${p.userId}`}>
+                  {p.displayName ?? p.email ?? 'Unnamed'}
+                </InlineLink>{' '}
+                starts {shortDate(p.startsOn as string)}, {p.outstandingCount} outstanding
+              </li>
+            ))}
+          </ul>
+        </Card>
+      ) : null}
 
-          <section>
-            <SectionHeading title="Everyone" />
-            <div className="space-y-3">
-              {roster.map((person) => (
-                <Card key={person.userId}>
-                  <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="text-lg">{person.displayName ?? 'Unnamed'}</h3>
-                        {person.track === 'litigation_trainee' ? (
-                          <Pill tone="accent">Litigation trainee</Pill>
-                        ) : null}
-                        {person.cleared ? (
-                          <Pill tone="correct">Cleared</Pill>
-                        ) : person.outstandingCount === 0 ? (
-                          <Pill tone="warn">Ready, not cleared</Pill>
-                        ) : (
-                          <Pill tone="accent">{person.outstandingCount} outstanding</Pill>
-                        )}
-                        {person.awaitingFirmCount > 0 ? (
-                          <Pill tone="warn">{person.awaitingFirmCount} to confirm</Pill>
-                        ) : null}
-                      </div>
-                      <p className="mt-1 text-sm text-slate">{person.email ?? 'No email'}</p>
-                      <p className="mt-2 text-xs text-muted">
-                        {person.startsOn
-                          ? `Begins ${shortDate(person.startsOn)}`
-                          : 'No start date set'}
-                        {' · '}
-                        {person.doneCount} of {person.requiredCount} done
-                        {person.decision && person.decision.decision === 'cleared' && person.decision.outstandingCount > 0
-                          ? ` · cleared with ${person.decision.outstandingCount} outstanding`
-                          : ''}
-                      </p>
-                    </div>
-                    <div className="shrink-0">
-                      <ButtonLink
-                        href={`/admin/onboarding/${person.userId}`}
-                        variant="outline"
-                        size="sm"
-                      >
-                        Open
-                      </ButtonLink>
-                    </div>
+      {waitingOnUs.length > 0 ? (
+        <Card>
+          <h2 className="text-lg">Waiting on the firm</h2>
+          <p className="mt-1 text-sm text-slate">
+            These people have said they have done something that somebody here has to
+            confirm. Until that happens it stays outstanding on their list, and they
+            cannot do anything about it.
+          </p>
+          <ul className="mt-3 space-y-1 text-slate">
+            {waitingOnUs.map((p) => (
+              <li key={p.userId}>
+                <InlineLink href={`/admin/onboarding/${p.userId}`}>
+                  {p.displayName ?? p.email ?? 'Unnamed'}
+                </InlineLink>{' '}
+                · {p.awaitingFirmCount} to confirm
+              </li>
+            ))}
+          </ul>
+        </Card>
+      ) : null}
+
+      <section>
+        <SectionHeading title="Everyone" />
+        <div className="space-y-3">
+          {roster.map((person) => (
+            <Card key={person.userId}>
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="text-lg">{person.displayName ?? 'Unnamed'}</h3>
+                    {person.track === 'litigation_trainee' ? (
+                      <Pill tone="accent">Litigation trainee</Pill>
+                    ) : null}
+                    {person.cleared ? (
+                      <Pill tone="correct">Cleared</Pill>
+                    ) : person.outstandingCount === 0 ? (
+                      <Pill tone="warn">Ready, not cleared</Pill>
+                    ) : (
+                      <Pill tone="accent">{person.outstandingCount} outstanding</Pill>
+                    )}
+                    {person.awaitingFirmCount > 0 ? (
+                      <Pill tone="warn">{person.awaitingFirmCount} to confirm</Pill>
+                    ) : null}
                   </div>
-                </Card>
-              ))}
-            </div>
-          </section>
-        </>
-      )}
+                  <p className="mt-1 text-sm text-slate">{person.email ?? 'No email'}</p>
+                  <p className="mt-2 text-xs text-muted">
+                    {person.startsOn
+                      ? `Begins ${shortDate(person.startsOn)}`
+                      : 'No start date set'}
+                    {' · '}
+                    {person.doneCount} of {person.requiredCount} done
+                    {person.decision && person.decision.decision === 'cleared' && person.decision.outstandingCount > 0
+                      ? ` · cleared with ${person.decision.outstandingCount} outstanding`
+                      : ''}
+                  </p>
+                </div>
+                <div className="shrink-0">
+                  <ButtonLink
+                    href={`/admin/onboarding/${person.userId}`}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Open
+                  </ButtonLink>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

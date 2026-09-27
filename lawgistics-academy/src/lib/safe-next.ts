@@ -15,7 +15,10 @@ export function safeNext(next: string | null | undefined, fallback: string): str
     const base = 'https://this-site.invalid';
     const resolved = new URL(next, base);
     if (resolved.origin !== base) return fallback;
-    return resolved.pathname + resolved.search + resolved.hash;
+    const out = resolved.pathname + resolved.search + resolved.hash;
+    // "/.//evil.com" tidies to "//evil.com", which is another site again.
+    if (out.startsWith('//')) return fallback;
+    return out;
   } catch {
     return fallback;
   }

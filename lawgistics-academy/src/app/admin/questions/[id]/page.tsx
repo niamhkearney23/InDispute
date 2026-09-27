@@ -74,6 +74,15 @@ export default async function EditQuestionPage({
       </div>
 
       {created ? <Notice tone="neutral">Draft created.</Notice> : null}
+      {error === 'own_version' ? (
+        <Notice tone="error">
+          You wrote this version, so somebody else has to verify it. That is the point of a
+          sign-off: a second person has read it.
+        </Notice>
+      ) : null}
+      {error === 'not_saved' ? (
+        <Notice tone="error">The sign-off could not be saved. Please try again.</Notice>
+      ) : null}
       {error === 'verify_first' ? (
         <Notice tone="error">
           This question cannot be published until it has been verified. Verification is a

@@ -62,8 +62,8 @@ These come from the owner and are not up for renegotiation.
   clears its sign-off, so an account that could edit and verify could sign its
   own rewrite with the audit trail showing an ordinary review. A coach who
   thinks an item is wrong flags it with a note; somebody else changes it.
-  Exactly ten actions accept a coach, named in `tests/authorisation-contract`,
-  and a test fails if an eleventh quietly does. Two of the ten are the coach's
+  Exactly eleven actions accept a coach, named in `tests/authorisation-contract`,
+  and a test fails if a twelfth quietly does. Two of the eleven are the coach's
   own **sessions**: they record something, paste a YouTube or Vimeo link, and
   it leads the dashboard the morning it is for. That is not an exception to
   the rule, it is outside it: a session has no version chain, no answer key,
@@ -88,6 +88,10 @@ These come from the owner and are not up for renegotiation.
   in it identifies a client, and the database refuses a row without that.
   The third action asks the AI to suggest how long a task will take; it
   saves nothing, and what an intern sees is the number the coach confirmed.
+  The eleventh is **confirming a trainee**: the trainee sign-up page is public,
+  so saying you are a trainee opens nothing until a coach or administrator
+  confirms it (`trainee_approved_at`, 0023), a decision about a person under
+  their name. Joining by invitation is confirmed on the way in.
 - **AI never publishes legal content.** It may draft. A named person signs off,
   and that sign-off is a statement they are answerable for.
 - **Say what is true.** The product's whole value is a record a firm can rely
@@ -143,8 +147,12 @@ Three things about it are load-bearing:
   Australian one drops the daily question and the two notes explaining the
   Malaysian bank, because none of the three offers an Australian anything.
   Anything new that mentions the other country needs hiding there too.
-- Australia deliberately shows fewer strands than Malaysia, because only three
-  app modules have Australian questions. Do not pad it.
+- Australia deliberately shows fewer strands than Malaysia. Four app modules
+  have Australian questions; the fourth, "Running a file", is pointed to from
+  the Australian note rather than given a strand of its own. Do not pad it.
+- The Malaysian page has a "Join as a trainee" link to `/trainee` that does
+  not wait on `questionsOpen`, because the trainee programme works without
+  published questions.
 - Advocacy is the one strand marked on the site rather than here, and its coach
   prompt is told the learner's country so a correct Australian citation is not
   read as an error.
@@ -155,7 +163,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0022`. `supabase/UPDATE.sql` is the one-paste update for a
+- Migrations run to `0024`. `supabase/UPDATE.sql` is the one-paste update for a
   database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -166,7 +174,15 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   everything back" only restores what a person withdrew (`withdrawn_at`), so it
   can never publish the Malaysian bank. Keep new learner-owned tables
   select-only for learners unless a page genuinely writes through RLS.
-- 273 tests, 185 schema guarantees against a real Postgres, 240 page and device
+- `0024` is the second audit. A "not valid" check is re-checked on every update
+  of an old row, so 0022's no-self-sign-off rule froze self-signed items solid;
+  those sign-offs are cleared and the rule validated. Never add a constraint
+  "not valid" to a table whose old rows must still be editable. It also stops
+  learners changing `profiles.email` (staff identify people by it; the
+  make-coach and make-admin scripts now look people up through auth, not
+  profiles), keeps publish names and dates fixed, and requires a confirmed
+  trainee to keep seeing trainee work they took.
+- 273 tests, 200 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB

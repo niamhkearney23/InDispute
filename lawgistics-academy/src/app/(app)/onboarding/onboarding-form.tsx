@@ -211,7 +211,7 @@ export function OnboardingForm({
       {state.error ? <Notice tone="error">{state.error}</Notice> : null}
 
       <Button type="submit" size="lg" variant="accent" disabled={pending}>
-        {pending ? 'Saving…' : 'Continue to the diagnostic'}
+        {pending ? 'Saving…' : editing ? 'Save changes' : 'Continue'}
       </Button>
     </form>
   );

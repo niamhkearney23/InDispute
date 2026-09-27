@@ -11,6 +11,7 @@
 
 import { config } from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
+import { findAccountId } from './lib/find-account';
 
 config({ path: '.env.local' });
 config({ path: '.env' });
@@ -35,10 +36,16 @@ const db = createClient(url, serviceKey, {
 });
 
 async function main() {
+  const accountId = await findAccountId(db, email);
+  if (!accountId) {
+    console.error(`No account signs in as ${email}. They must sign up first, then run this again.`);
+    process.exit(1);
+  }
+
   const { data, error } = await db
     .from('profiles')
     .update({ is_admin: true })
-    .eq('email', email)
+    .eq('id', accountId)
     .select('id, email');
 
   if (error) throw error;

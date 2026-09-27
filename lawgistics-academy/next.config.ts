@@ -12,6 +12,20 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '5mb',
     },
   },
+  // Nothing else may show these pages inside a frame of its own. A framed
+  // staff page is how somebody gets a coach to press "Confirm" or "Verify"
+  // without knowing it; nothing legitimate embeds the app anywhere.
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          { key: 'Content-Security-Policy', value: "frame-ancestors 'none'" },
+          { key: 'X-Frame-Options', value: 'DENY' },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

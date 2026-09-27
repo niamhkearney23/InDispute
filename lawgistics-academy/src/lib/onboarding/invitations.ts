@@ -46,6 +46,7 @@ export interface Invitation {
   expiresAt: string;
   acceptedAt: string | null;
   revokedAt: string | null;
+  invitedBy: string;
   invitedByName: string | null;
   /**
    * Whole days until the link stops working, computed here rather than in the
@@ -87,6 +88,7 @@ function shape(row: Row, invitedByName: string | null): Invitation {
     expiresAt: row.expires_at,
     acceptedAt: row.accepted_at,
     revokedAt: row.revoked_at,
+    invitedBy: row.invited_by,
     invitedByName,
   };
 }
@@ -231,6 +233,14 @@ export async function acceptInvitation(
       country: invitation.country,
       track: invitation.track,
       starts_on: invitation.startsOn,
+      // The firm chose the programme when it invited them, so a trainee who
+      // joins by invitation is confirmed already, by whoever invited them.
+      ...(invitation.track === 'litigation_trainee'
+        ? {
+            trainee_approved_at: new Date().toISOString(),
+            trainee_approved_by: invitation.invitedBy,
+          }
+        : {}),
     })
     .eq('id', userId);
 
@@ -332,6 +342,9 @@ export async function createAccountDirectly(input: {
       track: input.track,
       starts_on: input.startsOn,
       must_change_password: true,
+      ...(input.track === 'litigation_trainee'
+        ? { trainee_approved_at: new Date().toISOString(), trainee_approved_by: input.invitedBy }
+        : {}),
     })
     .eq('id', userId);
 
