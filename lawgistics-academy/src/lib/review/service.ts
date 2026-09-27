@@ -50,6 +50,9 @@ export interface ReviewItem {
   sourceCheckedOn: string | null;
 
   status: string;
+  /** Taken out of training by a person pressing "withdraw", as opposed to
+   *  never having been published. Only these go back on "put them back". */
+  withdrawnByPerson: boolean;
   verificationStatus: string;
   reviewFlagged: boolean;
   reviewNote: string | null;
@@ -113,13 +116,18 @@ export async function getReviewItems(order: ReviewOrder = 'riskiest'): Promise<R
       .from('question_versions')
       // `*` rather than an explicit column list: the review card shows the whole
       // item, and a list this long defeats supabase-js's select-string types.
-      .select('*, questions(slug, status, domains(name))')
+      .select('*, questions(slug, status, withdrawn_at, domains(name))')
       .eq('is_current', true),
     db.from('daily_facts').select('*, domains(name)'),
   ]);
 
   const questions: ReviewItem[] = (questionRows ?? []).flatMap((row) => {
-    const question = first<{ slug: string; status: string; domains: unknown }>(row.questions);
+    const question = first<{
+      slug: string;
+      status: string;
+      withdrawn_at: string | null;
+      domains: unknown;
+    }>(row.questions);
     if (!question) return [];
 
     const explanation = row.explanation as string;
@@ -149,6 +157,7 @@ export async function getReviewItems(order: ReviewOrder = 'riskiest'): Promise<R
         sourceUrl: row.source_url,
         sourceCheckedOn: row.source_checked_on,
         status: question.status,
+        withdrawnByPerson: Boolean(question.withdrawn_at),
         verificationStatus: row.verification_status as string,
         reviewFlagged: row.review_flagged as boolean,
         reviewNote: row.review_note,
@@ -188,6 +197,7 @@ export async function getReviewItems(order: ReviewOrder = 'riskiest'): Promise<R
     sourceUrl: row.source_url,
     sourceCheckedOn: row.source_checked_on,
     status: row.status as string,
+    withdrawnByPerson: Boolean(row.withdrawn_at),
     verificationStatus: row.verification_status as string,
     reviewFlagged: row.review_flagged as boolean,
     reviewNote: row.review_note,
@@ -255,6 +265,12 @@ export function summarise(items: ReviewItem[]): ReviewStats {
     liveUnverified: items.filter((i) => i.liveToLearners).length,
     lapsed: items.filter((i) => i.lapsed).length,
     dueSoon: items.filter((i) => i.dueSoon).length,
-    withdrawn: items.filter((i) => i.status === 'requires_review' && !i.reviewFlagged).length,
+    // Only what a person took out. Content that has never been published,
+    // the whole Malaysian bank on a new install, is not "withdrawn", and
+    // counting it here once put a button in front of an administrator that
+    // would have published all of it unread.
+    withdrawn: items.filter(
+      (i) => i.status === 'requires_review' && i.withdrawnByPerson && !i.reviewFlagged,
+    ).length,
   };
 }

@@ -554,19 +554,23 @@ select pg_temp.expect(
   'no policy grants update or delete on an acknowledgement, to anyone including an administrator');
 
 -- The catalog check above says no policy exists. This one says what that means
--- in practice, and it has to be written as a survival check rather than an
--- expected error: with no policy to permit it, a delete matches no rows and
--- reports success. Silently doing nothing is the correct outcome here and the
--- easiest kind of protection to believe you have when you do not.
+-- in practice. Since 0022 the table rights are withdrawn as well, so both are
+-- refused outright; before that, with no policy to permit them, they matched
+-- no rows and reported success, which is the easiest kind of protection to
+-- believe you have when you do not. The survival check below holds either way.
 set local role authenticated;
 set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000001';
 
-delete from public.firm_module_acknowledgements
-where user_id = 'aaaa1111-0000-0000-0000-000000000001';
+select pg_temp.expect_failure(
+  $$delete from public.firm_module_acknowledgements
+    where user_id = 'aaaa1111-0000-0000-0000-000000000001'$$,
+  'a learner cannot delete their acknowledgement');
 
-update public.firm_module_acknowledgements
-set acknowledged_at = timestamptz '2019-01-01 00:00:00+00'
-where user_id = 'aaaa1111-0000-0000-0000-000000000001';
+select pg_temp.expect_failure(
+  $$update public.firm_module_acknowledgements
+    set acknowledged_at = timestamptz '2019-01-01 00:00:00+00'
+    where user_id = 'aaaa1111-0000-0000-0000-000000000001'$$,
+  'a learner cannot backdate their acknowledgement');
 
 reset role;
 
@@ -682,20 +686,25 @@ select pg_temp.expect(
       and cmd in ('UPDATE', 'DELETE', 'ALL')),
   'no policy grants update or delete on any of the three records, administrators included');
 
--- As with acknowledgements: no policy means a write matches no rows and reports
--- success, so this has to be written as a survival check rather than an
--- expected error.
+-- As with acknowledgements: refused outright since 0022, and the survival
+-- check below holds either way.
 set local role authenticated;
 set local request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
 
-delete from public.onboarding_decisions
-where user_id = 'aaaa1111-0000-0000-0000-000000000001';
+select pg_temp.expect_failure(
+  $$delete from public.onboarding_decisions
+    where user_id = 'aaaa1111-0000-0000-0000-000000000001'$$,
+  'an administrator cannot delete a decision');
 
-update public.onboarding_decisions set outstanding_count = 0
-where user_id = 'aaaa1111-0000-0000-0000-000000000001';
+select pg_temp.expect_failure(
+  $$update public.onboarding_decisions set outstanding_count = 0
+    where user_id = 'aaaa1111-0000-0000-0000-000000000001'$$,
+  'an administrator cannot edit a decision');
 
-delete from public.firm_step_declarations
-where user_id = 'aaaa1111-0000-0000-0000-000000000001';
+select pg_temp.expect_failure(
+  $$delete from public.firm_step_declarations
+    where user_id = 'aaaa1111-0000-0000-0000-000000000001'$$,
+  'an administrator cannot delete a declaration');
 
 reset role;
 
@@ -789,16 +798,24 @@ select pg_temp.expect(
   (select count(*) from public.homework_declarations) = 2,
   'a person can tick off their own homework');
 
--- No policy means a write matches no rows and reports success, so this is a
--- survival check rather than an expected error, as with the decisions above.
-delete from public.homework_declarations where day = 1;
-update public.homework_declarations set day = 20 where day = 2;
+-- Refused outright since 0022, as with the decisions above; the survival
+-- check below holds either way.
+select pg_temp.expect_failure(
+  $$delete from public.homework_declarations where day = 1$$,
+  'a person cannot untick their own homework');
+select pg_temp.expect_failure(
+  $$update public.homework_declarations set day = 20 where day = 2$$,
+  'a person cannot move their own homework to another day');
 
 set local request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
-delete from public.homework_declarations
-where user_id = 'aaaa1111-0000-0000-0000-000000000001';
-update public.homework_declarations set task_slug = 'handover'
-where user_id = 'aaaa1111-0000-0000-0000-000000000001';
+select pg_temp.expect_failure(
+  $$delete from public.homework_declarations
+    where user_id = 'aaaa1111-0000-0000-0000-000000000001'$$,
+  'an administrator cannot delete somebody''s homework record');
+select pg_temp.expect_failure(
+  $$update public.homework_declarations set task_slug = 'handover'
+    where user_id = 'aaaa1111-0000-0000-0000-000000000001'$$,
+  'an administrator cannot edit somebody''s homework record');
 
 reset role;
 
@@ -929,7 +946,7 @@ select pg_temp.expect(
 select pg_temp.expect_failure(
   $$insert into public.work_submissions (post_id, user_id, file_path, declared_clean)
     values ('bbbb0001-0000-0000-0000-000000000001', 'aaaa1111-0000-0000-0000-000000000008',
-            'submissions/aaaa1111-0000-0000-0000-000000000008/x/1.pdf', true)$$,
+            'submissions/aaaa1111-0000-0000-0000-000000000008/bbbb0001-0000-0000-0000-000000000001/1.pdf', true)$$,
   'work cannot be handed in on something without your name on it');
 
 -- The first trainee hands work in.
@@ -938,13 +955,13 @@ set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000006';
 select pg_temp.expect_failure(
   $$insert into public.work_submissions (post_id, user_id, file_path, declared_clean)
     values ('bbbb0001-0000-0000-0000-000000000001', 'aaaa1111-0000-0000-0000-000000000006',
-            'submissions/aaaa1111-0000-0000-0000-000000000006/x/1.pdf', false)$$,
+            'submissions/aaaa1111-0000-0000-0000-000000000006/bbbb0001-0000-0000-0000-000000000001/1.pdf', false)$$,
   'work that is not declared free of client-identifying information cannot be handed in');
 
 insert into public.work_submissions (id, post_id, user_id, file_path, declared_clean, submitted_at)
 values ('bbbb0002-0000-0000-0000-000000000001', 'bbbb0001-0000-0000-0000-000000000001',
         'aaaa1111-0000-0000-0000-000000000006',
-        'submissions/aaaa1111-0000-0000-0000-000000000006/x/1.pdf', true,
+        'submissions/aaaa1111-0000-0000-0000-000000000006/bbbb0001-0000-0000-0000-000000000001/1.pdf', true,
         timestamptz '2019-01-01 00:00:00+00');
 
 select pg_temp.expect(
@@ -952,12 +969,16 @@ select pg_temp.expect(
    where id = 'bbbb0002-0000-0000-0000-000000000001'),
   'a submission is dated by the database, not by whoever sent the request');
 
--- No update or delete policy for the intern means zero rows changed, not an
--- error, so these are survival checks.
+-- No update policy for the intern means zero rows changed, not an error, so
+-- the first is a survival check. Deleting is refused outright since 0022.
 update public.work_submissions set note = 'rewritten'
 where id = 'bbbb0002-0000-0000-0000-000000000001';
-delete from public.work_submissions where id = 'bbbb0002-0000-0000-0000-000000000001';
-delete from public.work_claims where user_id = 'aaaa1111-0000-0000-0000-000000000006';
+select pg_temp.expect_failure(
+  $$delete from public.work_submissions where id = 'bbbb0002-0000-0000-0000-000000000001'$$,
+  'an intern cannot withdraw what they handed in');
+select pg_temp.expect_failure(
+  $$delete from public.work_claims where user_id = 'aaaa1111-0000-0000-0000-000000000006'$$,
+  'an intern cannot take their name off a piece of work');
 
 select pg_temp.expect(
   (select count(*) from public.work_submissions
@@ -1011,7 +1032,12 @@ select pg_temp.expect(
 -- The bucket. An intern writes under their own folder of submissions and
 -- nowhere else; a coach writes under posts; only a coach reads directly.
 insert into storage.objects (bucket_id, name, owner)
-values ('work', 'submissions/aaaa1111-0000-0000-0000-000000000008/p/1.pdf', auth.uid());
+values ('work', 'submissions/aaaa1111-0000-0000-0000-000000000008/bbbb0001-0000-0000-0000-000000000002/1.pdf', auth.uid());
+
+select pg_temp.expect_failure(
+  $$insert into storage.objects (bucket_id, name, owner)
+    values ('work', 'submissions/aaaa1111-0000-0000-0000-000000000008/bbbb0001-0000-0000-0000-000000000001/1.pdf', auth.uid())$$,
+  'an intern cannot store a file for work they have not put their name on');
 
 select pg_temp.expect_failure(
   $$insert into storage.objects (bucket_id, name, owner)
@@ -1141,14 +1167,17 @@ select pg_temp.expect_failure(
             'aaaa1111-0000-0000-0000-000000000009', '')$$,
   'an empty message is not a message');
 
--- No update or delete policy, so these are zero rows changed rather than an
--- error: the check is that the message survives.
-update public.work_messages set body = 'Changed' where body = 'Is there a third place?';
+-- Refused outright since 0022; the check is that the message survives.
+select pg_temp.expect_failure(
+  $$update public.work_messages set body = 'Changed' where body = 'Is there a third place?'$$,
+  'a message cannot be edited');
 select pg_temp.expect(
   (select count(*) from public.work_messages where body = 'Is there a third place?') = 1,
   'a message, once sent, cannot be reworded');
 
-delete from public.work_messages where body = 'Is there a third place?';
+select pg_temp.expect_failure(
+  $$delete from public.work_messages where body = 'Is there a third place?'$$,
+  'a message cannot be deleted');
 select pg_temp.expect(
   (select count(*) from public.work_messages where body = 'Is there a third place?') = 1,
   'a message, once sent, cannot be withdrawn');
@@ -1493,6 +1522,125 @@ select pg_temp.expect_failure(
   'a learner cannot add themselves to the certification register');
 
 reset role;
+
+
+-- -----------------------------------------------------------------------------
+-- Doors the app never uses (0022)
+-- -----------------------------------------------------------------------------
+-- The promise being defended: a learner's training record, a mark on their
+-- work and the words of a policy they acknowledged are written by the server
+-- or by the right person, never by whoever holds a sign-in token and calls
+-- the API directly.
+set local role authenticated;
+set local request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+
+select pg_temp.expect_failure(
+  $$insert into public.user_question_attempts
+      (user_id, question_id, question_version_id, selected_option_ids, is_correct)
+    values ('11111111-1111-1111-1111-111111111111',
+            'cccccccc-0000-0000-0000-000000000001',
+            'dddddddd-0000-0000-0000-000000000001', array['a'], true)$$,
+  'a learner cannot record their own answer as correct');
+
+select pg_temp.expect_failure(
+  $$insert into public.training_sessions (user_id, kind, planned_question_count)
+    values ('11111111-1111-1111-1111-111111111111', 'daily', 1)$$,
+  'a learner cannot make their own training session');
+
+select pg_temp.expect_failure(
+  $$insert into public.user_concept_mastery (user_id, concept_id, mastery, attempts)
+    values ('11111111-1111-1111-1111-111111111111',
+            'bbbbbbbb-0000-0000-0000-000000000001', 1, 50)$$,
+  'a learner cannot set their own mastery');
+
+update public.user_streaks set current_streak = 365
+where user_id = '11111111-1111-1111-1111-111111111111';
+reset role;
+select pg_temp.expect(
+  (select current_streak from public.user_streaks
+   where user_id = '11111111-1111-1111-1111-111111111111') < 365,
+  'a learner cannot give themselves a streak');
+
+select pg_temp.expect_failure(
+  $$update public.firm_module_versions set body = 'Something nobody acknowledged'
+    where id = 'bbbb2222-0000-0000-0000-000000000011'$$,
+  'the words of a policy version cannot change, even for the database owner');
+
+update public.firm_module_versions set is_current = is_current
+where id = 'bbbb2222-0000-0000-0000-000000000011';
+select pg_temp.expect(true, 'a policy version can still be marked current or superseded');
+
+select pg_temp.expect_failure(
+  $$update public.onboarding_decisions set outstanding_count = 0$$,
+  'a supervisor decision cannot be edited, even with the service role');
+
+-- A submission arrives unmarked, whatever the request said.
+set local role authenticated;
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000006';
+
+insert into public.work_submissions
+  (id, post_id, user_id, file_path, declared_clean, verdict, feedback, marked_by, marked_at)
+values ('bbbb0002-0000-0000-0000-000000000099', 'bbbb0001-0000-0000-0000-000000000001',
+        'aaaa1111-0000-0000-0000-000000000006',
+        'submissions/aaaa1111-0000-0000-0000-000000000006/bbbb0001-0000-0000-0000-000000000001/9.pdf',
+        true, 'good', 'Excellent, signed the coach', '44444444-4444-4444-4444-444444444444', now());
+
+select pg_temp.expect_failure(
+  $$insert into public.work_submissions (post_id, user_id, file_path, declared_clean)
+    values ('bbbb0001-0000-0000-0000-000000000001', 'aaaa1111-0000-0000-0000-000000000006',
+            'submissions/aaaa1111-0000-0000-0000-000000000008/bbbb0001-0000-0000-0000-000000000001/1.pdf',
+            true)$$,
+  'a submission cannot name a file in somebody else''s folder');
+reset role;
+
+select pg_temp.expect(
+  (select verdict is null and feedback = '' and marked_by is null and marked_at is null
+   from public.work_submissions where id = 'bbbb0002-0000-0000-0000-000000000099'),
+  'work cannot be handed in already marked');
+
+-- A mark carries the name of whoever made it.
+set local role authenticated;
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+update public.work_submissions
+set verdict = 'good', feedback = 'Well done', marked_by = '33333333-3333-3333-3333-333333333333'
+where id = 'bbbb0002-0000-0000-0000-000000000099';
+update public.work_submissions
+set marked_at = timestamptz '2001-01-01 00:00:00+00'
+where id = 'bbbb0002-0000-0000-0000-000000000099';
+reset role;
+
+select pg_temp.expect(
+  (select marked_by = '44444444-4444-4444-4444-444444444444'
+          and marked_at > now() - interval '1 minute'
+   from public.work_submissions where id = 'bbbb0002-0000-0000-0000-000000000099'),
+  'a mark is in the name of the coach who made it, dated when they made it');
+
+set local role authenticated;
+set local request.jwt.claim.sub = '22222222-2222-2222-2222-222222222222';
+select pg_temp.expect_failure(
+  $$insert into public.profiles (id, is_admin) values ('22222222-2222-2222-2222-222222222222', true)
+    on conflict do nothing$$,
+  'nobody can make their own profile with administrator rights');
+reset role;
+
+set local role anon;
+select pg_temp.expect_failure(
+  $$select * from public.work_claim_counts$$,
+  'the count of names on work is not readable without signing in');
+reset role;
+
+
+select pg_temp.expect_failure(
+  $$insert into public.question_versions
+      (question_id, version, question_type, stem, options, correct_option_ids,
+       explanation, difficulty, jurisdiction, is_current, created_by, verified_by,
+       verification_status)
+    select question_id, 99, question_type, stem, options, correct_option_ids,
+           explanation, difficulty, jurisdiction, false,
+           '33333333-3333-3333-3333-333333333333', '33333333-3333-3333-3333-333333333333',
+           'human_verified'
+    from public.question_versions where id = 'dddddddd-0000-0000-0000-000000000001'$$,
+  'nobody can be recorded as signing off a version they wrote');
 
 
 \echo ''

@@ -508,6 +508,7 @@ function ReviewCard({
       const result = await recordReviewDecision({
         kind: item.kind,
         id: item.id,
+        versionId: item.versionId ?? undefined,
         decision,
         note: note.trim() || undefined,
         holdsForMonths: decision === 'verify' ? holds : undefined,

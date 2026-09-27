@@ -17,6 +17,13 @@ import { HOLD_CHOICES, dueDateFrom, type HoldMonths } from '@/lib/review/expiry'
 const decisionSchema = z.object({
   kind: z.enum(['question', 'fact']),
   id: z.string().uuid(),
+  /**
+   * The version the reviewer was shown. A sign-off is a statement about the
+   * words somebody read, so it lands on that version or not at all: if the
+   * question was edited while the card was open, the current version is one
+   * they never saw.
+   */
+  versionId: z.string().uuid().optional(),
   decision: z.enum(['verify', 'flag', 'retire']),
   note: z.string().trim().max(2000).optional(),
   /**
@@ -45,7 +52,7 @@ export async function recordReviewDecision(
   const parsed = decisionSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: 'That decision could not be read.' };
 
-  const { kind, id, decision, note, holdsForMonths } = parsed.data;
+  const { kind, id, versionId, decision, note, holdsForMonths } = parsed.data;
 
   if (decision === 'flag' && !note) {
     return { ok: false, error: 'Say what is wrong with it, a flag without a note is a dead end.' };
@@ -67,6 +74,30 @@ export async function recordReviewDecision(
   };
 
   if (kind === 'question') {
+    const { data: current } = await db
+      .from('question_versions')
+      .select('id, created_by')
+      .eq('question_id', id)
+      .eq('is_current', true)
+      .maybeSingle();
+    if (!current) return { ok: false, error: 'That question could not be found.' };
+    if (versionId && current.id !== versionId) {
+      return {
+        ok: false,
+        error:
+          'This question was changed while you had it open. Reload the page to read the new wording before deciding.',
+      };
+    }
+    // The role split exists so that nobody signs off their own rewrite with
+    // the record showing an ordinary review. An administrator is a coach too,
+    // so this is checked here rather than assumed from the role.
+    if (decision === 'verify' && current.created_by === adminId) {
+      return {
+        ok: false,
+        error: 'You wrote this version, so somebody else has to sign it off.',
+      };
+    }
+
     const patch =
       decision === 'verify'
         ? {
@@ -81,7 +112,7 @@ export async function recordReviewDecision(
     const { error } = await db
       .from('question_versions')
       .update(patch)
-      .eq('question_id', id)
+      .eq('id', current.id)
       .eq('is_current', true);
 
     if (error) return { ok: false, error: error.message };
@@ -102,6 +133,19 @@ export async function recordReviewDecision(
     }
     // Flagging withdraws a published question automatically, by database trigger.
   } else {
+    if (decision === 'verify') {
+      const { data: fact } = await db
+        .from('daily_facts')
+        .select('created_by')
+        .eq('id', id)
+        .maybeSingle();
+      if (fact?.created_by && fact.created_by === adminId) {
+        return {
+          ok: false,
+          error: 'You wrote this brief, so somebody else has to sign it off.',
+        };
+      }
+    }
     const patch =
       decision === 'verify'
         ? {
@@ -192,7 +236,7 @@ export async function withdrawAllUnverified(): Promise<ReviewResult> {
   if (ids.length > 0) {
     const { error } = await db
       .from('questions')
-      .update({ status: 'requires_review' })
+      .update({ status: 'requires_review', withdrawn_at: new Date().toISOString() })
       .in('id', ids)
       .eq('status', 'published');
     if (error) return { ok: false, error: error.message };
@@ -200,7 +244,7 @@ export async function withdrawAllUnverified(): Promise<ReviewResult> {
 
   const { error: factError } = await db
     .from('daily_facts')
-    .update({ status: 'requires_review' })
+    .update({ status: 'requires_review', withdrawn_at: new Date().toISOString() })
     .neq('verification_status', 'human_verified')
     .eq('status', 'published');
 
@@ -250,10 +294,14 @@ export async function restoreAllWithdrawn(): Promise<ReviewResult> {
 
   const flaggedIds = (flagged ?? []).map((v) => v.question_id as string);
 
+  // Only what a person withdrew. Content that was never published, the
+  // Malaysian bank above all, never publishes itself, and must not be swept
+  // up by a button whose job is undoing an accident.
   let restoreQuestions = db
     .from('questions')
-    .update({ status: 'published' })
-    .eq('status', 'requires_review');
+    .update({ status: 'published', withdrawn_at: null })
+    .eq('status', 'requires_review')
+    .not('withdrawn_at', 'is', null);
 
   if (flaggedIds.length > 0) {
     restoreQuestions = restoreQuestions.not('id', 'in', `(${flaggedIds.join(',')})`);
@@ -264,8 +312,9 @@ export async function restoreAllWithdrawn(): Promise<ReviewResult> {
 
   const { error: factError } = await db
     .from('daily_facts')
-    .update({ status: 'published' })
+    .update({ status: 'published', withdrawn_at: null })
     .eq('status', 'requires_review')
+    .not('withdrawn_at', 'is', null)
     .eq('review_flagged', false);
 
   if (factError) return { ok: false, error: factError.message };
