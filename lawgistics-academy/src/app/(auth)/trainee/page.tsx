@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { AuthForm } from '../auth-form';
+import { safeNext } from '@/lib/safe-next';
 
 export const metadata: Metadata = { title: 'Join as a litigation trainee' };
 
@@ -15,10 +16,6 @@ export default async function TraineeSignupPage({
   searchParams: Promise<{ next?: string }>;
 }) {
   const { next } = await searchParams;
-  return <AuthForm mode="signup" trainee next={safeNext(next)} />;
+  return <AuthForm mode="signup" trainee next={safeNext(next, '/onboarding')} />;
 }
 
-function safeNext(next: string | undefined): string {
-  if (!next || !next.startsWith('/') || next.startsWith('//')) return '/onboarding';
-  return next;
-}

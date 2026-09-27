@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Lawgistics — the hero document fills itself in
+   Lawgistics: the hero document fills itself in
    The headline promises "you just fill it in", so the hero performs it:
    a real Malaysian clause with the blanks typed in, one at a time, then the
    page turns to the next document. Pauses when off-screen or on a hidden tab,
@@ -165,8 +165,8 @@
       return;
     }
 
-    // Default to a FINISHED document. If the animation never runs — no
-    // IntersectionObserver, a background tab, a JS failure — the hero still
+    // Default to a FINISHED document. If the animation never runs (no
+    // IntersectionObserver, a background tab, a JS failure), the hero still
     // reads as a completed contract rather than a page of empty blanks.
     layout(DOCS[0], true);
 

@@ -3,7 +3,9 @@ import Link from 'next/link';
 import { requireCoach } from '@/lib/admin/guard';
 import { allSessions } from '@/lib/lessons/sessions';
 import { ButtonLink, Card, EmptyState, Pill } from '@/components/ui';
-import { COUNTRY_LABELS } from '@/lib/types';
+import { COUNTRY_LABELS, DEFAULT_TIMEZONE } from '@/lib/types';
+import { getLearnerProfile } from '@/lib/learner-overview';
+import { localDateString } from '@/lib/learning/progression';
 import { PublishToggle } from './publish-toggle';
 
 export const metadata: Metadata = { title: 'Sessions' };
@@ -20,10 +22,11 @@ function longDate(iso: string): string {
 }
 
 export default async function SessionsPage() {
-  await requireCoach();
-  const sessions = await allSessions();
+  const { userId } = await requireCoach();
+  const [sessions, me] = await Promise.all([allSessions(), getLearnerProfile(userId)]);
 
-  const today = new Date().toISOString().slice(0, 10);
+  // The coach's date: a session learners can already see is not "upcoming".
+  const today = localDateString(me?.timezone ?? DEFAULT_TIMEZONE);
   const upcoming = sessions.filter((s) => s.airsOn && s.airsOn > today);
   const rest = sessions.filter((s) => !s.airsOn || s.airsOn <= today);
 

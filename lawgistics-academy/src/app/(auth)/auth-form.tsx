@@ -234,8 +234,11 @@ export function AuthForm({
               value={password}
               autoComplete={isSignup ? 'new-password' : 'current-password'}
               required
-              minLength={8}
-              hint={isSignup ? 'At least 8 characters.' : undefined}
+              // Ten for a new password, the same rule as joining by invitation.
+              // Not on sign-in, where it would lock out anybody whose older
+              // password is shorter.
+              minLength={isSignup ? 10 : undefined}
+              hint={isSignup ? 'At least 10 characters.' : undefined}
               onChange={setPassword}
             />
 
@@ -296,7 +299,7 @@ export function AuthForm({
 function BrandPanel({ isSignup, trainee }: { isSignup: boolean; trainee: boolean }) {
   const points: Array<[string, string]> = trainee
     ? [
-        ['A task every working day', 'Twenty days of homework that walk you through how the firm works.'],
+        ['A task every working day', 'Twenty days of homework on how the firm works, from the start date your supervisor sets.'],
         ['Work from your supervisor', 'Real pieces of work to put your name on, marked with notes.'],
         ['Mornings with your coach', 'Short sessions your coach records, waiting when you open the app.'],
       ]

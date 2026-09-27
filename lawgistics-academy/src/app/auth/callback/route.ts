@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { safeNext } from '@/lib/safe-next';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { classifyLinkFailure, type LinkFailure } from '@/lib/auth/link-failures';
 
@@ -22,10 +23,7 @@ import { classifyLinkFailure, type LinkFailure } from '@/lib/auth/link-failures'
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
   const nextParam = searchParams.get('next');
-  const next =
-    nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//')
-      ? nextParam
-      : '/onboarding';
+  const next = safeNext(nextParam, '/onboarding');
 
   const fail = (reason: LinkFailure) =>
     NextResponse.redirect(`${origin}/login?failed=${reason}`);

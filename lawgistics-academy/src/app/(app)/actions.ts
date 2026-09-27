@@ -44,6 +44,8 @@ export async function saveOnboarding(
   const user = await getCurrentUser();
   if (!user) return { error: 'You are not signed in.' };
 
+  const editing = formData.get('editing') === '1';
+
   const parsed = onboardingSchema.safeParse({
     displayName: formData.get('displayName') || undefined,
     careerStage: formData.get('careerStage'),
@@ -90,14 +92,18 @@ export async function saveOnboarding(
       country,
       track: parsed.data.track,
       home_jurisdiction: parsed.data.homeJurisdiction,
-      onboarded_at: new Date().toISOString(),
+      // Changing settings is not joining again: the date they started stays.
+      ...(editing ? {} : { onboarded_at: new Date().toISOString() }),
     })
     .eq('id', user.id);
 
   if (error) return { error: error.message };
 
   revalidatePath('/dashboard');
-  redirect('/diagnostic');
+  // Somebody changing their settings goes back to their day, not into a
+  // fresh diagnostic they did not ask for. The dashboard sends anyone who
+  // has not sat one to it anyway, when there is one to sit.
+  redirect(editing ? '/dashboard' : '/diagnostic');
 }
 
 const SESSION_KINDS: SessionKind[] = ['diagnostic', 'daily', 'review', 'practice'];
@@ -366,6 +372,17 @@ export async function submitWork(_prev: WorkState, formData: FormData): Promise<
   if (problem) return { error: problem };
 
   const supabase = await createSupabaseServerClient();
+
+  // Asked before the upload, not left to the insert after it: a file stored
+  // for work the person never took is a file nobody will ever look at.
+  const { data: claim } = await supabase
+    .from('work_claims')
+    .select('id')
+    .eq('post_id', parsed.data.postId)
+    .eq('user_id', user.id)
+    .maybeSingle();
+  if (!claim) return { error: 'Put your name on the work before handing it in.' };
+
   const path = `submissions/${user.id}/${parsed.data.postId}/${Date.now()}.${WORK_FILE_TYPES[file.type]}`;
 
   const { error: uploadError } = await supabase.storage

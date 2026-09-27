@@ -47,19 +47,72 @@ function capForMastery(mastery: number): number {
   return REVIEW.maxIntervalDays;
 }
 
-function addDays(from: Date, days: number): Date {
-  const next = new Date(from.getTime());
-  next.setUTCDate(next.getUTCDate() + Math.round(days));
-  // Reviews land at the start of the day so "due tomorrow" means tomorrow
-  // morning, not 11pm tomorrow night.
-  next.setUTCHours(0, 0, 0, 0);
-  return next;
+/** Minutes the zone is ahead of UTC at a moment. */
+function offsetMinutes(timeZone: string, at: Date): number {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone,
+    hour12: false,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }).formatToParts(at);
+  const get = (type: string) => Number(parts.find((p) => p.type === type)?.value ?? '0');
+  const asUtc = Date.UTC(
+    get('year'),
+    get('month') - 1,
+    get('day'),
+    get('hour') === 24 ? 0 : get('hour'),
+    get('minute'),
+    get('second'),
+  );
+  return Math.round((asUtc - at.getTime()) / 60_000);
+}
+
+/**
+ * The start of the day, `days` from now, where the learner is.
+ *
+ * Reviews land at the start of a day so "due tomorrow" means tomorrow
+ * morning, not 11pm tomorrow night. It was the start of the day in UTC, which
+ * is eight in the morning in Kuala Lumpur: a question got wrong at seven
+ * came back an hour later, the same morning, while the summary said
+ * "tomorrow". Without a zone it keeps the old UTC behaviour.
+ */
+function addDays(from: Date, days: number, timeZone?: string): Date {
+  if (!timeZone) {
+    const next = new Date(from.getTime());
+    next.setUTCDate(next.getUTCDate() + Math.round(days));
+    next.setUTCHours(0, 0, 0, 0);
+    return next;
+  }
+  try {
+    const [y, m, d] = new Intl.DateTimeFormat('en-CA', {
+      timeZone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    })
+      .format(from)
+      .split('-')
+      .map(Number);
+    const midnightAsUtc = Date.UTC(y, m - 1, d + Math.round(days));
+    // Twice, so a clock change between the guess and the answer is caught.
+    let instant = midnightAsUtc - offsetMinutes(timeZone, new Date(midnightAsUtc)) * 60_000;
+    instant = midnightAsUtc - offsetMinutes(timeZone, new Date(instant)) * 60_000;
+    return new Date(instant);
+  } catch {
+    return addDays(from, days);
+  }
 }
 
 export function scheduleNextReview(
   state: ReviewState,
   outcome: ReviewOutcome,
   now: Date = new Date(),
+  /** The learner's time zone, so a day starts where they are. */
+  timeZone?: string,
 ): ReviewState {
   const reviewCount = state.reviewCount + 1;
 
@@ -71,7 +124,7 @@ export function scheduleNextReview(
       ease: clamp(state.ease + REVIEW.easeOnIncorrect, REVIEW.minEase, REVIEW.maxEase),
       reviewCount,
       lapses: state.lapses + 1,
-      nextReviewAt: addDays(now, REVIEW.lapseIntervalDays),
+      nextReviewAt: addDays(now, REVIEW.lapseIntervalDays, timeZone),
     };
   }
 
@@ -100,7 +153,7 @@ export function scheduleNextReview(
     ease,
     reviewCount,
     lapses: state.lapses,
-    nextReviewAt: addDays(now, intervalDays),
+    nextReviewAt: addDays(now, intervalDays, timeZone),
   };
 }
 

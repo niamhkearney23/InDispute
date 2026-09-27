@@ -2,7 +2,12 @@
 
 import { useActionState, useState } from 'react';
 import { Button, Card, Notice } from '@/components/ui';
-import { WORK_FILE_ACCEPT, describeMinutes, isTrustedWorkLink } from '@/lib/work/links';
+import {
+  WORK_FILE_ACCEPT,
+  describeMinutes,
+  isTrustedWorkLink,
+  uploadTooLarge,
+} from '@/lib/work/links';
 import { suggestWorkTime } from './actions';
 import { VoiceRecorder } from './voice-recorder';
 import type { AdminState } from '../actions';
@@ -65,11 +70,26 @@ export function WorkPostForm({
     setMinutes(suggestion.minutes);
   }
 
+  const [tooLarge, setTooLarge] = useState<string | null>(null);
+
   const trimmed = link.trim();
   const trusted = trimmed ? isTrustedWorkLink(trimmed) : null;
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form
+      action={formAction}
+      onSubmit={(event) => {
+        // The file and the memo travel in one request, and the host refuses
+        // one over about 4.5MB with a blank page. Said here instead.
+        const form = event.currentTarget;
+        const size = (name: string) =>
+          (form.elements.namedItem(name) as HTMLInputElement | null)?.files?.[0]?.size ?? 0;
+        const problem = uploadTooLarge([size('file'), size('memo')]);
+        setTooLarge(problem);
+        if (problem) event.preventDefault();
+      }}
+      className="space-y-5"
+    >
       {initial.id ? <input type="hidden" name="id" value={initial.id} /> : null}
 
       <Card>
@@ -154,8 +174,8 @@ export function WorkPostForm({
               className="block w-full text-base file:mr-3 file:rounded-[5px] file:border file:border-rule-strong file:bg-paper-raised file:px-3 file:py-2 file:text-sm file:text-ink"
             />
             <p className="mt-1 text-xs text-muted">
-              A PDF, a Word document, or an image, up to 20MB. Nothing that identifies a
-              client: take the names out first.
+              A PDF, a Word document, or an image, up to 4MB. Bigger than that, use a Google
+              Drive link below. Nothing that identifies a client: take the names out first.
             </p>
           </div>
 
@@ -352,7 +372,7 @@ export function WorkPostForm({
         </div>
       </Card>
 
-      {state.error ? <Notice tone="error">{state.error}</Notice> : null}
+      {tooLarge ?? state.error ? <Notice tone="error">{tooLarge ?? state.error}</Notice> : null}
       {state.ok ? <Notice tone="good">{state.ok}</Notice> : null}
 
       <Button type="submit" disabled={pending}>

@@ -23,10 +23,10 @@ export function PasswordForm({ submitLabel }: { submitLabel: string }) {
           type="password"
           autoComplete="new-password"
           required
-          minLength={8}
+          minLength={10}
           className={INPUT}
         />
-        <p className="mt-1 text-xs text-muted">At least eight characters.</p>
+        <p className="mt-1 text-xs text-muted">At least 10 characters.</p>
       </div>
       <div>
         <label htmlFor="confirm" className="mb-1.5 block text-sm font-medium">
@@ -38,7 +38,7 @@ export function PasswordForm({ submitLabel }: { submitLabel: string }) {
           type="password"
           autoComplete="new-password"
           required
-          minLength={8}
+          minLength={10}
           className={INPUT}
         />
       </div>

@@ -5,6 +5,7 @@ import { getLearnerOverview } from '@/lib/learner-overview';
 import { displayScore, masteryBand } from '@/lib/learning/mastery';
 import { getFactOfTheDay } from '@/lib/facts/service';
 import { getModuleProgress } from '@/lib/modules/service';
+import { trainingOpen } from '@/lib/training/service';
 import { greeting, greetingName } from '@/lib/greeting';
 import { COUNTRY_LABELS } from '@/lib/types';
 import Link from 'next/link';
@@ -32,9 +33,10 @@ export default async function SkillsPage() {
   const { profile, level } = overview;
 
   // A different fact from the one the dashboard is showing today.
-  const [fact, modules] = await Promise.all([
+  const [fact, modules, open] = await Promise.all([
     getFactOfTheDay(profile.timezone, profile.country, new Date(), 1),
     getModuleProgress(user.id, profile.country),
+    trainingOpen(profile.country),
   ]);
 
   const [{ data: conceptRows }, { data: domains }, { data: schedule }] = await Promise.all([
@@ -171,11 +173,17 @@ export default async function SkillsPage() {
       {!hasData ? (
         <EmptyState
           title="Nothing measured yet"
-          description="Complete the diagnostic and your first few sessions, and this page fills in."
+          description={
+            open
+              ? 'Complete the diagnostic and your first few sessions, and this page fills in.'
+              : 'This fills in once the questions are open and you have trained on them.'
+          }
           action={
-            <ButtonLink href="/diagnostic" variant="accent">
-              Take the diagnostic
-            </ButtonLink>
+            open ? (
+              <ButtonLink href="/diagnostic" variant="accent">
+                Take the diagnostic
+              </ButtonLink>
+            ) : undefined
           }
         />
       ) : null}

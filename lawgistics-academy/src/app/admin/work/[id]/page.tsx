@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { requireCoach } from '@/lib/admin/guard';
+import { getLearnerProfile } from '@/lib/learner-overview';
+import { localDateString } from '@/lib/learning/progression';
+import { DEFAULT_TIMEZONE } from '@/lib/types';
 import { allSessions } from '@/lib/lessons/sessions';
 import {
   signedUrlForMemo,
@@ -21,13 +24,13 @@ import { CopyLink } from '../copy-link';
 export const metadata: Metadata = { title: 'Work' };
 export const dynamic = 'force-dynamic';
 
-function when(iso: string): string {
+function when(iso: string, timeZone: string): string {
   return new Date(iso).toLocaleString('en-GB', {
     day: 'numeric',
     month: 'short',
     hour: '2-digit',
     minute: '2-digit',
-    timeZone: 'UTC',
+    timeZone,
   });
 }
 
@@ -43,6 +46,9 @@ export default async function WorkPostAdminPage({
 }) {
   const { userId } = await requireCoach();
   const { id } = await params;
+  // The coach's own clock, for every time on the page and for "late".
+  const me = await getLearnerProfile(userId);
+  const timeZone = me?.timezone ?? DEFAULT_TIMEZONE;
 
   const found = await workPostForCoach(id);
   if (!found) notFound();
@@ -131,7 +137,7 @@ export default async function WorkPostAdminPage({
                     ) : (
                       <Pill>Asked about it</Pill>
                     )}
-                    {current && isLate(post.dueOn, current.submittedAt.slice(0, 10)) ? (
+                    {current && isLate(post.dueOn, localDateString(timeZone, new Date(current.submittedAt))) ? (
                       <Pill tone="wrong">Late</Pill>
                     ) : null}
                   </div>
@@ -139,7 +145,7 @@ export default async function WorkPostAdminPage({
                   {current ? (
                     <>
                       <p className="mt-2 text-sm text-slate">
-                        Handed in {when(current.submittedAt)}.{' '}
+                        Handed in {when(current.submittedAt, timeZone)}.{' '}
                         {urlFor.get(current.id) ? (
                           <a
                             href={urlFor.get(current.id) ?? '#'}
@@ -173,7 +179,7 @@ export default async function WorkPostAdminPage({
                           <ul className="mt-2 space-y-1.5 text-slate">
                             {earlier.map((s) => (
                               <li key={s.id}>
-                                {when(s.submittedAt)}:{' '}
+                                {when(s.submittedAt, timeZone)}:{' '}
                                 {s.verdict === 'good'
                                   ? 'good'
                                   : s.verdict === 'again'
@@ -193,6 +199,7 @@ export default async function WorkPostAdminPage({
                   <div className="mt-4 border-t border-rule pt-3">
                     <p className="eyebrow mb-2">Messages</p>
                     <MessageThread
+                      timeZone={timeZone}
                       messages={thread.map((m) => ({
                         id: m.id,
                         body: m.body,

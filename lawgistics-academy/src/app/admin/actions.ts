@@ -429,7 +429,9 @@ export async function loadNewContent(): Promise<
   if (!adminId) return { ok: false, error: 'Only an administrator can load content.' };
 
   try {
-    const summary = await seedContent(createServiceClient());
+    // Unpublished: content added after the first run arrives awaiting a
+    // sign-off, which is what this action has always said it does.
+    const summary = await seedContent(createServiceClient(), { publish: false });
     const parts = [
       `${summary.questionsCreated} new question${summary.questionsCreated === 1 ? '' : 's'}`,
       `${summary.questionsReversioned} updated`,

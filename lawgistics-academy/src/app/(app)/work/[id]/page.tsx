@@ -28,13 +28,13 @@ function longDate(iso: string): string {
   });
 }
 
-function when(iso: string): string {
+function when(iso: string, timeZone: string): string {
   return new Date(iso).toLocaleString('en-GB', {
     day: 'numeric',
     month: 'short',
     hour: '2-digit',
     minute: '2-digit',
-    timeZone: 'UTC',
+    timeZone,
   });
 }
 
@@ -215,7 +215,7 @@ export default async function WorkPostPage({ params }: { params: Promise<{ id: s
             {submissions.map((s, i) => (
               <Card key={s.id}>
                 <div className="flex flex-wrap items-center gap-2 text-sm text-slate">
-                  <span>{when(s.submittedAt)}</span>
+                  <span>{when(s.submittedAt, profile.timezone)}</span>
                   {submissionUrls[i] ? (
                     <a
                       href={submissionUrls[i] ?? '#'}
@@ -257,6 +257,7 @@ export default async function WorkPostPage({ params }: { params: Promise<{ id: s
           this.
         </p>
         <MessageThread
+          timeZone={profile.timezone}
           messages={messages.map((m) => ({
             id: m.id,
             body: m.body,

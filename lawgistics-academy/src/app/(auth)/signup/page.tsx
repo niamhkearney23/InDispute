@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { AuthForm } from '../auth-form';
 import { COUNTRIES, type Country } from '@/lib/types';
+import { safeNext } from '@/lib/safe-next';
 
 export const metadata: Metadata = { title: 'Create your account' };
 
@@ -10,12 +11,7 @@ export default async function SignupPage({
   searchParams: Promise<{ next?: string; country?: string }>;
 }) {
   const { next, country } = await searchParams;
-  return <AuthForm mode="signup" next={safeNext(next)} defaultCountry={safeCountry(country)} />;
-}
-
-function safeNext(next: string | undefined): string {
-  if (!next || !next.startsWith('/') || next.startsWith('//')) return '/onboarding';
-  return next;
+  return <AuthForm mode="signup" next={safeNext(next, '/onboarding')} defaultCountry={safeCountry(country)} />;
 }
 
 /**

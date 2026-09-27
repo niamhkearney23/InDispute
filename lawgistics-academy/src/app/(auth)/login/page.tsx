@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { AuthForm } from '../auth-form';
 import { AuthFragmentHandler } from '../auth-fragment-handler';
 import { asLinkFailure, LINK_FAILURES } from '@/lib/auth/link-failures';
+import { safeNext } from '@/lib/safe-next';
 
 export const metadata: Metadata = { title: 'Sign in' };
 
@@ -11,7 +12,7 @@ export default async function LoginPage({
   searchParams: Promise<{ next?: string; failed?: string }>;
 }) {
   const { next, failed } = await searchParams;
-  const target = safeNext(next);
+  const target = safeNext(next, '/dashboard');
   const reason = asLinkFailure(failed);
 
   return (
@@ -27,7 +28,3 @@ export default async function LoginPage({
 }
 
 /** Only ever redirect within this app, never to an attacker-supplied origin. */
-function safeNext(next: string | undefined): string {
-  if (!next || !next.startsWith('/') || next.startsWith('//')) return '/dashboard';
-  return next;
-}

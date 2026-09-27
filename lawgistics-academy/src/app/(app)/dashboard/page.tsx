@@ -220,7 +220,11 @@ export default async function DashboardPage() {
                   ? `Nothing reaches a learner until a lawyer has signed it off and it has been published. Sign off the questions you are sure of, then press “Publish everything signed off”, and daily training opens for everyone in ${countryName}.`
                   : profile.isCoach
                     ? `Nothing reaches a learner until a lawyer has signed it off and an administrator has published it. Sign off the questions you are sure of, and training opens for everyone in ${countryName} once they are published.`
-                    : 'Every question is checked by a lawyer before anyone is trained on it, and they have not been published yet. Your homework, work and sessions below are all ready.'}
+                    : `Every question is checked by a lawyer before anyone is trained on it, and they have not been published yet.${
+                        profile.startsOn
+                          ? ' Your homework and anything your coach has posted are below.'
+                          : ' Anything your coach posts for you will appear below, and your homework starts once your supervisor sets your start date.'
+                      }`}
               </p>
               {staff ? (
                 <div className="mt-4">
@@ -472,8 +476,9 @@ export default async function DashboardPage() {
           <SectionHeading title="Needs review" />
           {overview.needsReview.length === 0 ? (
             <p className="text-sm text-slate">
-              Nothing is due right now. New concepts will keep appearing in your daily
-              training.
+              {open
+                ? 'Nothing is due right now. New concepts will keep appearing in your daily training.'
+                : 'Nothing is due right now.'}
             </p>
           ) : (
             <ul className="space-y-2">
