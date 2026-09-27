@@ -1720,6 +1720,88 @@ select pg_temp.expect(
   'leaving the programme and saying you are back on it needs confirming again');
 
 
+-- -----------------------------------------------------------------------------
+-- What the second audit found (0024)
+-- -----------------------------------------------------------------------------
+-- A hand-in path cannot climb out of its folder.
+set local role authenticated;
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000006';
+select pg_temp.expect_failure(
+  $$insert into public.work_submissions (post_id, user_id, file_path, declared_clean)
+    values ('bbbb0001-0000-0000-0000-000000000001', 'aaaa1111-0000-0000-0000-000000000006',
+            'submissions/aaaa1111-0000-0000-0000-000000000006/bbbb0001-0000-0000-0000-000000000001/../../../posts/x/1.pdf',
+            true)$$,
+  'a hand-in path cannot climb out of its folder');
+
+-- Nobody changes the email staff know them by.
+update public.profiles set email = 'partner@firm.test'
+where id = 'aaaa1111-0000-0000-0000-000000000006';
+reset role;
+select pg_temp.expect(
+  (select email from public.profiles where id = 'aaaa1111-0000-0000-0000-000000000006')
+    is distinct from 'partner@firm.test',
+  'a learner cannot change the email address staff identify them by');
+
+-- A published session keeps the name and date it was published under.
+set local role authenticated;
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+insert into public.coach_sessions (id, title, url, published, published_by)
+values ('dddd4444-0000-0000-0000-000000000001', 'Morning', 'https://www.youtube.com/watch?v=aqz-KE-bpKQ', true,
+        '33333333-3333-3333-3333-333333333333');
+update public.coach_sessions
+set published_by = '33333333-3333-3333-3333-333333333333',
+    published_at = timestamptz '2001-01-01 00:00:00+00'
+where id = 'dddd4444-0000-0000-0000-000000000001';
+reset role;
+select pg_temp.expect(
+  (select published_by = '44444444-4444-4444-4444-444444444444'
+          and published_at > now() - interval '1 minute'
+   from public.coach_sessions where id = 'dddd4444-0000-0000-0000-000000000001'),
+  'a published session carries the coach who published it and when, whatever is sent later');
+
+-- An acknowledgement is of the policy in force.
+insert into public.firm_module_versions (id, firm_module_id, version, body, is_current)
+values ('bbbb2222-0000-0000-0000-000000000019',
+        'bbbb2222-0000-0000-0000-000000000001', 19, 'An old wording.', false);
+set local role authenticated;
+set local request.jwt.claim.sub = '22222222-2222-2222-2222-222222222222';
+select pg_temp.expect_failure(
+  $$insert into public.firm_module_acknowledgements (user_id, firm_module_version_id)
+    values ('22222222-2222-2222-2222-222222222222', 'bbbb2222-0000-0000-0000-000000000019')$$,
+  'nobody can acknowledge a version of a policy that is not the one in force');
+
+-- An administrator cannot confirm or clear themselves.
+set local request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+select pg_temp.expect_failure(
+  $$insert into public.firm_step_confirmations (user_id, step_id, confirmed_by)
+    values ('33333333-3333-3333-3333-333333333333', 'cccc3333-0000-0000-0000-000000000001',
+            '33333333-3333-3333-3333-333333333333')$$,
+  'an administrator cannot confirm their own checklist item');
+select pg_temp.expect_failure(
+  $$insert into public.onboarding_decisions (user_id, decision, decided_by)
+    values ('33333333-3333-3333-3333-333333333333', 'cleared',
+            '33333333-3333-3333-3333-333333333333')$$,
+  'an administrator cannot clear themselves to begin');
+reset role;
+
+-- Somebody moved off the programme loses trainee work they had taken.
+update public.profiles set track = 'general'
+where id = 'aaaa1111-0000-0000-0000-000000000006';
+set local role authenticated;
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000006';
+select pg_temp.expect(
+  (select count(*) from public.work_posts
+   where id = 'bbbb0001-0000-0000-0000-000000000001') = 0,
+  'somebody moved off the programme no longer sees trainee work they had taken');
+reset role;
+
+-- A sign-off on your own writing cannot exist, and the rule is checked.
+select pg_temp.expect(
+  (select convalidated from pg_constraint where conname = 'question_versions_not_self_verified')
+  and (select convalidated from pg_constraint where conname = 'daily_facts_not_self_verified'),
+  'the no-self-sign-off rule has been checked against every existing row');
+
+
 \echo ''
 \echo 'All schema guarantees hold.'
 

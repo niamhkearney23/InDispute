@@ -50,6 +50,9 @@ export interface SessionPlan {
   resumeIndex: number;
 }
 
+/** The most AI coach notes one person is given in a day. */
+const COACH_NOTES_PER_DAY = 60;
+
 function questionCountForGoal(minutes: number): number {
   return QUESTIONS_PER_MINUTE_GOAL[minutes] ?? QUESTIONS_PER_MINUTE_GOAL[10];
 }
@@ -726,6 +729,26 @@ export async function getCoachNote(
   // the firm's AI bill by asking for the same note in a loop. The slot is
   // claimed before the call, so two requests at once cannot both pay.
   if (slot.coach_note_at) return { coachNote: (slot.coach_note as string | null) ?? null };
+
+  // And a ceiling per person per day, because sessions themselves are
+  // unlimited and anybody can sign up. Well above what an honest day of
+  // training asks for; a loop hits it in minutes.
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const { data: recentSessions } = await db
+    .from('training_sessions')
+    .select('id')
+    .eq('user_id', userId)
+    .gte('started_at', new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString());
+  const recentIds = (recentSessions ?? []).map((r) => r.id as string);
+  if (recentIds.length > 0) {
+    const { count } = await db
+      .from('training_session_questions')
+      .select('id', { count: 'exact', head: true })
+      .in('session_id', recentIds)
+      .gte('coach_note_at', since);
+    if ((count ?? 0) >= COACH_NOTES_PER_DAY) return { coachNote: null };
+  }
+
   const { data: claimed } = await db
     .from('training_session_questions')
     .update({ coach_note_at: new Date().toISOString() })

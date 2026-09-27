@@ -100,10 +100,11 @@ export async function saveOnboarding(
   if (error) return { error: error.message };
 
   revalidatePath('/dashboard');
-  // Somebody changing their settings goes back to their day, not into a
-  // fresh diagnostic they did not ask for. The dashboard sends anyone who
-  // has not sat one to it anyway, when there is one to sit.
-  redirect(editing ? '/dashboard' : '/diagnostic');
+  // To the dashboard either way. It sends somebody who has not sat the
+  // diagnostic on to it when there are questions to sit it with, and keeps
+  // them on their day when there are not; somebody changing their settings
+  // goes back to their day rather than into a diagnostic they did not ask for.
+  redirect('/dashboard');
 }
 
 const SESSION_KINDS: SessionKind[] = ['diagnostic', 'daily', 'review', 'practice'];

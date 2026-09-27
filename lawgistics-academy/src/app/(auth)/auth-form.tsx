@@ -14,6 +14,7 @@ export function AuthForm({
   mode,
   next,
   problem,
+  welcome,
   defaultCountry = 'MY',
   trainee = false,
 }: {
@@ -27,6 +28,8 @@ export function AuthForm({
   next: string;
   /** Something that went wrong before this page loaded, such as a dead confirmation link. */
   problem?: string;
+  /** A message to show on arrival that is not a problem. */
+  welcome?: string;
   /**
    * Which country to start on. The marketing site knows the answer already,
    * because it asks before it sends anyone here, so it passes it rather than
@@ -49,7 +52,7 @@ export function AuthForm({
   );
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(problem ?? null);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(welcome ?? null);
 
   const isSignup = mode === 'signup';
 

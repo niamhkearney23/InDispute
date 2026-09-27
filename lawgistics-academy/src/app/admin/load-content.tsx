@@ -39,8 +39,8 @@ export function LoadContent({ missing }: { missing: number }) {
         the deployment unused. Loading it again brings those across. A question already
         here is left exactly as it is, sign-off included. One whose wording has changed
         gets a new version, and the old version is kept because past attempts point at
-        what the learner actually saw. Nothing is published into training that a person
-        has not verified.
+        what the learner actually saw. New questions, and reworded ones, wait for a
+        person to sign them off and publish them before any learner sees them.
       </p>
 
       {result ? (

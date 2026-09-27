@@ -225,10 +225,10 @@ export default async function DashboardPage() {
               </p>
               <p className="mt-2 text-sm text-paper/80">
                 {profile.isAdmin
-                  ? `Nothing reaches a learner until a lawyer has signed it off and it has been published. Sign off the questions you are sure of, then press “Publish everything signed off”, and daily training opens for everyone in ${countryName}.`
+                  ? `No ${countryName === 'Malaysia' ? 'Malaysian' : 'Australian'} questions are published yet. Sign off the ones you are sure of, then press “Publish everything signed off”, and daily training opens for everyone in ${countryName}.`
                   : profile.isCoach
-                    ? `Nothing reaches a learner until a lawyer has signed it off and an administrator has published it. Sign off the questions you are sure of, and training opens for everyone in ${countryName} once they are published.`
-                    : `Every question is checked by a lawyer before anyone is trained on it, and they have not been published yet.${
+                    ? `No ${countryName === 'Malaysia' ? 'Malaysian' : 'Australian'} questions are published yet. Sign off the ones you are sure of, and training opens for everyone in ${countryName} once an administrator publishes them.`
+                    : `${profile.country === 'MY' ? 'Malaysian questions are published only once a lawyer has signed them off, and none have been yet.' : 'No questions have been published yet.'}${
                         profile.startsOn
                           ? ' Your homework and anything your coach has posted are below.'
                           : ' Anything your coach posts for you will appear below, and your homework starts once your supervisor sets your start date.'

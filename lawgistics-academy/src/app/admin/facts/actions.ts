@@ -123,11 +123,19 @@ export async function updateFact(
   const { error } = await db.from('daily_facts').update(toRow(parsed.data)).eq('id', factId);
   if (error) return { error: error.message };
 
-  // Rewriting the substance means the sign-off no longer covers what is there.
-  if (substantiveChange && current?.status === 'published') {
+  // Rewriting the substance means the sign-off no longer covers what is there,
+  // whether or not it had been published yet: a fact signed off and then
+  // reworded before publishing would otherwise go out under the old sign-off.
+  if (substantiveChange) {
     await db
       .from('daily_facts')
-      .update({ status: 'requires_review', verification_status: 'requires_review' })
+      .update({
+        verification_status: 'requires_review',
+        verified_by: null,
+        verified_at: null,
+        review_due_on: null,
+        ...(current?.status === 'published' ? { status: 'requires_review' } : {}),
+      })
       .eq('id', factId);
   }
 
@@ -137,9 +145,11 @@ export async function updateFact(
 
   return {
     error: null,
-    ok: substantiveChange && current?.status === 'published'
-      ? 'Saved. The wording changed, so this fact has been unpublished and needs verifying again.'
-      : 'Saved.',
+    ok: !substantiveChange
+      ? 'Saved.'
+      : current?.status === 'published'
+        ? 'Saved. The wording changed, so this fact has been unpublished and needs verifying again.'
+        : 'Saved. The wording changed, so it needs verifying again.',
   };
 }
 
@@ -162,8 +172,16 @@ export async function transitionFact(formData: FormData): Promise<void> {
   const { factId, action } = parsed.data;
 
   switch (action) {
-    case 'verify':
-      await db
+    case 'verify': {
+      const { data: fact } = await db
+        .from('daily_facts')
+        .select('created_by')
+        .eq('id', factId)
+        .maybeSingle();
+      if (fact?.created_by && fact.created_by === adminId) {
+        redirect(`/admin/facts/${factId}?error=own_version`);
+      }
+      const { error: verifyError } = await db
         .from('daily_facts')
         .update({
           verification_status: 'human_verified',
@@ -172,7 +190,9 @@ export async function transitionFact(formData: FormData): Promise<void> {
           status: 'verified',
         })
         .eq('id', factId);
+      if (verifyError) redirect(`/admin/facts/${factId}?error=not_saved`);
       break;
+    }
 
     case 'publish': {
       const { data: fact } = await db

@@ -64,8 +64,8 @@ export function SubmitForm({ postId, again }: { postId: string; again: boolean }
           className="block w-full text-base file:mr-3 file:rounded-[5px] file:border file:border-rule-strong file:bg-paper-raised file:px-3 file:py-2 file:text-sm file:text-ink"
         />
         <p className="mt-1 text-xs text-muted">
-          A PDF, a Word document, or an image, up to 4MB. Anything bigger, share it as a Google
-          Drive link in the note.
+          A PDF, a Word document, or an image, up to 4MB. If yours is bigger, save it as a PDF,
+          which is usually much smaller.
         </p>
       </div>
 
