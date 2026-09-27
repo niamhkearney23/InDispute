@@ -27,8 +27,50 @@ export function pickProvider(asked?: string | null): Provider | null {
   return null;
 }
 
+// Which OpenAI model to use. Rather than hardcoding a name that goes stale, or
+// guessing at one that may not exist on this account, ask the account what it
+// has and take the best of it. Ranked by family, newest first, preferring the
+// full model over its mini and nano cut-downs, which are the ones that write
+// like a language model.
+const FAMILY_RANK = ["gpt-5", "gpt-4.1", "gpt-4o", "o3", "gpt-4-turbo", "gpt-4"];
+const NOT_CHAT = /embedding|tts|whisper|audio|realtime|moderation|dall-e|image|transcribe|search|codex/i;
+
+function scoreModel(id: string): number {
+  if (NOT_CHAT.test(id)) return -1;
+  const family = FAMILY_RANK.findIndex((f) => id.startsWith(f));
+  if (family < 0) return -1;
+  let score = (FAMILY_RANK.length - family) * 100;
+  if (/-(mini|nano)\b/.test(id)) score -= 40;      // cheaper, and it shows in the writing
+  if (/-\d{4}-\d{2}-\d{2}$/.test(id)) score -= 5; // prefer the rolling alias to a dated snapshot
+  if (/preview/.test(id)) score -= 10;
+  return score;
+}
+
+let cachedModel: string | null = null;
+export async function resolveOpenAIModel(): Promise<string> {
+  const pinned = process.env.OPENAI_DRAFT_MODEL;
+  if (pinned) return pinned;
+  if (cachedModel) return cachedModel;
+  try {
+    const res = await fetch("https://api.openai.com/v1/models", {
+      headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+    });
+    const data = (await res.json()) as { data?: { id?: string }[] };
+    const best = (data.data || [])
+      .map((m) => String(m.id || ""))
+      .filter(Boolean)
+      .map((id) => ({ id, score: scoreModel(id) }))
+      .filter((m) => m.score > 0)
+      .sort((a, b) => b.score - a.score || a.id.length - b.id.length)[0];
+    cachedModel = best ? best.id : "gpt-4o";
+  } catch {
+    cachedModel = "gpt-4o";
+  }
+  return cachedModel;
+}
+
 async function withOpenAI(prompt: string, maxTokens: number, json: boolean): Promise<string> {
-  const model = process.env.OPENAI_DRAFT_MODEL || "gpt-4o";
+  const model = await resolveOpenAIModel();
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, "Content-Type": "application/json" },

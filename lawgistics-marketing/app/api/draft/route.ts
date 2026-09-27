@@ -249,7 +249,19 @@ const ART_DIRECTION =
   "\"Unlock\", \"The truth is\", \"Let that sink in\".\n\n" +
   "None of this is a reason to play safe. A designer uses a single dot, a hard rule, brutal scale, deep " +
   "asymmetry or a strange composition on purpose, and that is exactly what you should be doing. The test is " +
-  "not whether a choice is unusual. It is whether it was a choice.";
+  "not whether a choice is unusual. It is whether it was a choice.\n\n" +
+  "Here is the difference, on a real example. The author wrote: \"I'm a lawyer and I like chocolate.\"\n\n" +
+  "WRONG, and this is a genuine output that had to be thrown away:\n" +
+  "  Yes, I like chocolate too. Why limit passion to one field?\n" +
+  "  This is about more than just my tastes.\n" +
+  "  It is about recognizing that our identities are multifaceted.\n" +
+  "  Whether it's law or chocolate, being genuine is essential.\n" +
+  "  Embrace all aspects of who you are.\n" +
+  "It takes a small human remark and inflates it into a lesson nobody asked for. Every line is a claim " +
+  "about identity. None of it is about chocolate. That is the failure to avoid.\n\n" +
+  "RIGHT: stay on the actual subject, stay funny if it was funny, and be specific. Name the chocolate. " +
+  "Say when you eat it. Say what the client said when they saw it on your desk. Concrete beats profound " +
+  "every single time, and a post that is just about chocolate is allowed to be just about chocolate.";
 
 export async function POST(req: Request) {
   let body: { topic?: unknown; voiceSample?: unknown; current?: unknown; brand?: unknown; format?: unknown; pattern?: unknown; approved?: unknown; provider?: unknown };
