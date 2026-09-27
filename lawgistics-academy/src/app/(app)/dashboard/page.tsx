@@ -38,6 +38,7 @@ import {
   InlineLink,
 } from '@/components/ui';
 import { BeginSessionButton } from '../begin-session-button';
+import { trainingOpen } from '@/lib/training/service';
 import { DailyBrief } from '@/components/daily-brief';
 import { getFactOfTheDay } from '@/lib/facts/service';
 
@@ -51,7 +52,15 @@ export default async function DashboardPage() {
   const overview = await getLearnerOverview(user.id);
   if (!overview) redirect('/login');
   if (!overview.profile.onboardedAt) redirect('/onboarding');
-  if (!overview.profile.diagnosticCompletedAt) redirect('/diagnostic');
+
+  // Only sent to the diagnostic when there are questions to sit it with.
+  // Without them it cannot be finished, and redirecting there would hold a
+  // new learner on a page they cannot get past, with their homework, work
+  // and coach's sessions all waiting on the other side of it.
+  const open = await trainingOpen(overview.profile.country);
+  if (open && !overview.profile.diagnosticCompletedAt) redirect('/diagnostic');
+  const staff = overview.profile.isAdmin || overview.profile.isCoach;
+  const countryName = overview.profile.country === 'MY' ? 'Malaysia' : 'Australia';
 
   const { profile, level, skillMap } = overview;
   const hasPlacement = Boolean(profile.startsOn || profile.endsOn);
@@ -198,42 +207,67 @@ export default async function DashboardPage() {
           </h1>
           <p className="mt-2 text-lg text-paper/80">Ready to train like a lawyer?</p>
 
-          <div className="mt-7 flex flex-col gap-5 rounded-lg bg-black/15 p-4 ring-1 ring-white/10 sm:flex-row sm:items-center sm:justify-between sm:p-5">
-            <div className="flex items-center gap-5">
-              <GoalRing done={overview.answeredToday} goal={questionCount} light />
-              <div>
-                <p className="mb-1.5 text-[0.6875rem] font-semibold tracking-[0.16em] text-paper/70 uppercase">
-                  Today’s training
-                </p>
-                <p className="font-serif text-3xl leading-none">
-                  {goalMet
-                    ? 'Done for today'
-                    : overview.answeredToday > 0
-                      ? `${Math.max(questionCount - overview.answeredToday, 0)} to go`
-                      : `${questionCount} questions`}
-                </p>
-                <p className="mt-2 text-sm text-paper/75">
-                  {goalMet
-                    ? 'Anything more today is a bonus, and it still counts.'
-                    : `About ${profile.dailyGoalMinutes} minutes`}
-                  {focusAreas.length > 0 && !goalMet
-                    ? ` · Focus: ${focusAreas.map((f) => f.name).join(', ')}`
-                    : ''}
-                </p>
-              </div>
+          {!open ? (
+            <div className="mt-7 rounded-lg bg-black/15 p-4 ring-1 ring-white/10 sm:p-5">
+              <p className="mb-1.5 text-[0.6875rem] font-semibold tracking-[0.16em] text-paper/70 uppercase">
+                Today’s training
+              </p>
+              <p className="font-serif text-2xl leading-snug sm:text-3xl">
+                The questions are not open yet.
+              </p>
+              <p className="mt-2 text-sm text-paper/80">
+                {profile.isAdmin
+                  ? `Nothing reaches a learner until a lawyer has signed it off and it has been published. Sign off the questions you are sure of, then press “Publish everything signed off”, and daily training opens for everyone in ${countryName}.`
+                  : profile.isCoach
+                    ? `Nothing reaches a learner until a lawyer has signed it off and an administrator has published it. Sign off the questions you are sure of, and training opens for everyone in ${countryName} once they are published.`
+                    : 'Every question is checked by a lawyer before anyone is trained on it, and they have not been published yet. Your homework, work and sessions below are all ready.'}
+              </p>
+              {staff ? (
+                <div className="mt-4">
+                  <ButtonLink href="/admin/review" variant="light" size="lg">
+                    Check the questions
+                  </ButtonLink>
+                </div>
+              ) : null}
             </div>
-            <BeginSessionButton
-              kind="daily"
-              variant="light"
-              label={
-                goalMet
-                  ? 'Train again'
-                  : overview.answeredToday > 0
-                    ? 'Keep going'
-                    : 'Begin training'
-              }
-            />
-          </div>
+          ) : (
+            <div className="mt-7 flex flex-col gap-5 rounded-lg bg-black/15 p-4 ring-1 ring-white/10 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+              <div className="flex items-center gap-5">
+                <GoalRing done={overview.answeredToday} goal={questionCount} light />
+                <div>
+                  <p className="mb-1.5 text-[0.6875rem] font-semibold tracking-[0.16em] text-paper/70 uppercase">
+                    Today’s training
+                  </p>
+                  <p className="font-serif text-3xl leading-none">
+                    {goalMet
+                      ? 'Done for today'
+                      : overview.answeredToday > 0
+                        ? `${Math.max(questionCount - overview.answeredToday, 0)} to go`
+                        : `${questionCount} questions`}
+                  </p>
+                  <p className="mt-2 text-sm text-paper/75">
+                    {goalMet
+                      ? 'Anything more today is a bonus, and it still counts.'
+                      : `About ${profile.dailyGoalMinutes} minutes`}
+                    {focusAreas.length > 0 && !goalMet
+                      ? ` · Focus: ${focusAreas.map((f) => f.name).join(', ')}`
+                      : ''}
+                  </p>
+                </div>
+              </div>
+              <BeginSessionButton
+                kind="daily"
+                variant="light"
+                label={
+                  goalMet
+                    ? 'Train again'
+                    : overview.answeredToday > 0
+                      ? 'Keep going'
+                      : 'Begin training'
+                }
+              />
+            </div>
+          )}
         </div>
       </AccentSurface>
 
