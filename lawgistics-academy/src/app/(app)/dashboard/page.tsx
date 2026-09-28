@@ -43,6 +43,9 @@ import { DailyBrief } from '@/components/daily-brief';
 import { getFactOfTheDay } from '@/lib/facts/service';
 import { brand } from '@/lib/brand';
 import { PROGRAMME } from '@/content/programme';
+import { StreakCalendar } from '@/components/streak-calendar';
+import { LeaderboardCard } from '@/components/leaderboard-card';
+import { weeklyLeaderboard } from '@/lib/leaderboard';
 
 export const metadata: Metadata = { title: 'Today' };
 
@@ -74,6 +77,7 @@ export default async function DashboardPage() {
     joining,
     sessions,
     work,
+    leaderboard,
     diagnosticSittings,
     homeworkRows,
   ] =
@@ -84,6 +88,7 @@ export default async function DashboardPage() {
       beforeYouBegin(user.id, profile.country),
       sessionsForLearner(profile.country),
       workBoardFor(user.id),
+      weeklyLeaderboard(),
       hasPlacement
         ? supabase
             .from('diagnostic_results')
@@ -224,14 +229,23 @@ export default async function DashboardPage() {
         </Notice>
       ) : null}
 
+      {/* With the number, always. "You have not finished it" to somebody who
+          answered the module yesterday reads as the app losing their work;
+          "6 of 8" says what is actually left. */}
       {outstanding.length > 0 ? (
         <Notice tone="warn">
           <strong>
             {outstanding.length === 1
-              ? `"${outstanding[0].module.name}" is required and you have not finished it.`
-              : `${outstanding.length} required modules are outstanding.`}
+              ? `"${outstanding[0].module.name}" is required: ${outstanding[0].correctOnce} of ${outstanding[0].total} answered correctly so far.`
+              : `${outstanding.length} required modules are not yet complete.`}
           </strong>{' '}
-          <InlineLink href="/modules">Open modules</InlineLink>
+          {outstanding.length === 1 ? (
+            <InlineLink href={`/modules/${outstanding[0].module.slug}`}>
+              {outstanding[0].correctOnce > 0 ? 'Finish it' : 'Start it'}
+            </InlineLink>
+          ) : (
+            <InlineLink href="/modules">Open modules</InlineLink>
+          )}
         </Notice>
       ) : null}
 
@@ -297,6 +311,15 @@ export default async function DashboardPage() {
                       ? ` · Focus: ${focusAreas.map((f) => f.name).join(', ')}`
                       : ''}
                   </p>
+                  {/* A target that moves with them. Yesterday's count is the
+                      one number they already beat once, so it reads as a
+                      dare rather than a demand. */}
+                  {!goalMet && overview.answeredYesterday > 0 ? (
+                    <p className="mt-2 inline-block rounded-full bg-paper/15 px-2.5 py-1 text-xs font-semibold text-paper ring-1 ring-paper/25">
+                      Beat yesterday: {overview.answeredYesterday} answered
+                      {overview.answeredToday > 0 ? `, ${overview.answeredToday} so far` : ''}
+                    </p>
+                  ) : null}
                 </div>
               </div>
               <BeginSessionButton
@@ -448,6 +471,19 @@ export default async function DashboardPage() {
 
       {fact ? <DailyBrief fact={fact} /> : null}
 
+      <Card>
+        <CardLabel icon={<FlameIcon className="size-4" />} tone="amber">
+          Your streak
+        </CardLabel>
+        <StreakCalendar
+          trainedDays={overview.trainedDays}
+          timezone={profile.timezone}
+          streak={overview.currentStreak}
+        />
+      </Card>
+
+      {leaderboard ? <LeaderboardCard rows={leaderboard} /> : null}
+
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatTile
           icon={<LevelIcon className="size-5" />}
@@ -459,13 +495,9 @@ export default async function DashboardPage() {
         <StatTile
           icon={<FlameIcon className="size-5" />}
           tone="amber"
-          label="Streak"
-          value={overview.currentStreak}
-          hint={
-            overview.currentStreak > 0
-              ? `day${overview.currentStreak === 1 ? '' : 's'} in a row`
-              : 'train today to start one'
-          }
+          label="Longest streak"
+          value={overview.longestStreak}
+          hint={overview.longestStreak > 0 ? 'days, your record' : 'no chain yet'}
         />
         <StatTile
           icon={<SparkIcon className="size-5" />}

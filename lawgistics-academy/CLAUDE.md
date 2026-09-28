@@ -163,7 +163,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0024`. `supabase/UPDATE.sql` is the one-paste update for a
+- Migrations run to `0025`. `supabase/UPDATE.sql` is the one-paste update for a
   database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -182,7 +182,13 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   make-coach and make-admin scripts now look people up through auth, not
   profiles), keeps publish names and dates fixed, and requires a confirmed
   trainee to keep seeing trainee work they took.
-- 273 tests, 200 schema guarantees against a real Postgres, 240 page and device
+- `0025` is the firm's weekly leaderboard: off until an administrator turns it
+  on (`firm_settings`, one row), first names and XP only, read through one
+  security definer function that gives nothing back while the setting is off
+  and leaves staff and anyone who opted out (`profiles.leaderboard_opt_out`)
+  off it. Module completion is still every question right at least once; the
+  summary and the dashboard now say the number rather than "not finished".
+- 275 tests, 206 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB

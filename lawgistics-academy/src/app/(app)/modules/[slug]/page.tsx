@@ -7,6 +7,7 @@ import { ButtonLink, Card, Notice, Pill, ScoreBar, SectionHeading } from '@/comp
 import { StartModuleButton } from '../start-module-button';
 import { LessonPlayer } from './lesson-player';
 import { lessonForModule } from '@/content/seed/lessons';
+import { ModuleArt, artFor } from '@/components/module-art';
 
 export const metadata: Metadata = { title: 'Module' };
 
@@ -32,14 +33,20 @@ export default async function ModulePage({
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">
-      <section>
-        <div className="mb-2 flex flex-wrap items-center gap-2">
-          <p className="eyebrow">Module</p>
-          {definition.required ? <Pill tone="accent">Required</Pill> : null}
-          {entry.complete ? <Pill tone="correct">Complete</Pill> : null}
+      <section className="flex items-start gap-5">
+        <div className="min-w-0 flex-1">
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <p className="eyebrow">Module</p>
+            {definition.required ? <Pill tone="accent">Required</Pill> : null}
+            {entry.complete ? <Pill tone="correct">Complete</Pill> : null}
+          </div>
+          <h1 className="text-3xl sm:text-4xl">{definition.name}</h1>
+          <p className="mt-3 text-slate">{definition.rationale}</p>
         </div>
-        <h1 className="text-3xl sm:text-4xl">{definition.name}</h1>
-        <p className="mt-3 text-slate">{definition.rationale}</p>
+        <ModuleArt
+          kind={artFor(definition.slug)}
+          className="hidden h-24 w-32 shrink-0 rounded-lg sm:flex"
+        />
       </section>
 
       {entry.total === 0 ? (

@@ -20,19 +20,18 @@ const STAGES: CareerStage[] = ['law_student', 'plt_student', 'graduate', 'junior
 const MINUTES = [5, 10, 15, 20];
 
 /**
- * Ordered as a person would expect to find their own, with the general option
- * first for anyone who does not want to commit to one.
+ * Only places a person can actually work. "Australia, general principle" and
+ * "Commonwealth" are tags on questions whose rule applies everywhere; offered
+ * here as somewhere to be, they only confused people, the same as "general"
+ * and "federal" did for Malaysia. Ordered by how many lawyers are in each.
  */
 const JURISDICTIONS: Record<Country, Jurisdiction[]> = {
-  AU: ['AU_GENERAL', 'VIC', 'NSW', 'QLD', 'WA', 'SA', 'TAS', 'ACT', 'NT', 'CTH'],
-  // Only the two places a person can actually be. "General" and "federal"
-  // are tags on questions whose rule applies everywhere in Malaysia; offered
-  // here as somewhere to work, they only confused people.
+  AU: ['NSW', 'VIC', 'QLD', 'WA', 'SA', 'TAS', 'ACT', 'NT'],
   MY: ['MY_MALAYA', 'MY_SABAH_SARAWAK'],
 };
 
 /** Where the form starts when nothing has been chosen yet. */
-const HOME_DEFAULT: Record<Country, Jurisdiction> = { AU: 'AU_GENERAL', MY: 'MY_MALAYA' };
+const HOME_DEFAULT: Record<Country, Jurisdiction> = { AU: 'NSW', MY: 'MY_MALAYA' };
 
 const MALAYSIA_HOMES: Array<{ value: Jurisdiction; label: string; detail: string }> = [
   {
@@ -245,29 +244,24 @@ export function OnboardingForm({
               </div>
             </fieldset>
           ) : (
-            <div>
-              <label htmlFor="homeJurisdiction" className="mb-1 block text-lg">
-                Which State or Territory do you work in?
-              </label>
-              <p className="mb-2 text-sm text-slate">
+            <fieldset>
+              <legend className="mb-1 text-lg">Which State or Territory do you work in?</legend>
+              <p className="mb-3 text-sm text-slate">
                 Every question is tagged with the jurisdiction its rule belongs to. This
-                tells us which one is home; you will still see the others, clearly
-                labelled.
+                says which one is home; you still see the others, clearly labelled.
               </p>
-              <select
-                id="homeJurisdiction"
-                name="homeJurisdiction"
-                value={home}
-                onChange={(event) => setHome(event.target.value as Jurisdiction)}
-                className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy"
-              >
+              <input type="hidden" name="homeJurisdiction" value={home} />
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {JURISDICTIONS[country].map((value) => (
-                  <option key={value} value={value}>
-                    {JURISDICTION_LABELS[value]}
-                  </option>
+                  <Choice
+                    key={value}
+                    selected={home === value}
+                    onClick={() => setHome(value)}
+                    label={JURISDICTION_LABELS[value]}
+                  />
                 ))}
-              </select>
-            </div>
+              </div>
+            </fieldset>
           )}
         </div>
       </Card>

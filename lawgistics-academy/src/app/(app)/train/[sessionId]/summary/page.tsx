@@ -6,6 +6,7 @@ import { ButtonLink, Card, Stat } from '@/components/ui';
 import { levelForXp } from '@/lib/learning/progression';
 import { STREAK_MILESTONES, streakMilestoneLine } from '@/lib/learning/milestones';
 import { LevelUp } from '../level-up';
+import { moduleForSession } from '@/lib/modules/service';
 
 export const metadata: Metadata = { title: 'Session complete' };
 
@@ -29,6 +30,9 @@ export default async function SummaryPage({
   if (!session) redirect('/dashboard');
 
   const overview = await getLearnerOverview(user.id);
+  const moduleEntry = overview
+    ? await moduleForSession(user.id, overview.profile.country, sessionId)
+    : null;
   const accuracy =
     session.total_answered > 0
       ? Math.round((session.correct_count / session.total_answered) * 100)
@@ -71,16 +75,48 @@ export default async function SummaryPage({
             ? 'A clean sheet.'
             : accuracy >= 70
               ? 'Solid work.'
-              : 'That is the useful kind of session.'}
+              : 'Work still to do.'}
         </h1>
         <p className="mt-3 text-slate">
           {perfect
             ? 'Every answer correct. The concepts you got right today will come back later, spaced out, not forgotten.'
             : accuracy >= 70
               ? 'The concepts you missed are already scheduled to come back tomorrow.'
-              : 'Everything you got wrong has been scheduled to return tomorrow. That is exactly how this is meant to work.'}
+              : 'Each question you got wrong is scheduled to return tomorrow. Meeting it again, at an interval, is how it becomes something you know rather than something you read.'}
         </p>
       </section>
+
+      {/* A module session says where the module now stands, in numbers. The
+          module is finished when every question in it has been answered
+          correctly once, so "8 of 8" and "6 of 8, two to go" are the two
+          things a person needs to hear here, and neither is a verdict on the
+          session they just did. */}
+      {moduleEntry ? (
+        <Card
+          className={
+            moduleEntry.complete ? 'border-verdict-correct/25 bg-verdict-correct-wash' : undefined
+          }
+        >
+          <p className="eyebrow mb-2">{moduleEntry.module.name}</p>
+          {moduleEntry.complete ? (
+            <p className="text-sm">
+              <strong>Module complete.</strong> Every question in it has now been answered
+              correctly at least once, and the date is recorded.
+            </p>
+          ) : (
+            <p className="text-sm">
+              <strong>
+                {moduleEntry.correctOnce} of {moduleEntry.total} answered correctly.
+              </strong>{' '}
+              The module is complete when all {moduleEntry.total} have been.{' '}
+              {moduleEntry.total - moduleEntry.correctOnce === 1
+                ? 'One'
+                : moduleEntry.total - moduleEntry.correctOnce}{' '}
+              still to go, and the next run through the module asks those first.
+            </p>
+          )}
+        </Card>
+      ) : null}
 
       {milestone ? (
         <Card className="border-verdict-correct/25 bg-verdict-correct-wash">
@@ -154,12 +190,23 @@ export default async function SummaryPage({
       ) : null}
 
       <div className="flex flex-col gap-3 sm:flex-row">
-        <ButtonLink href="/dashboard" size="lg" variant="accent">
+        {moduleEntry && !moduleEntry.complete ? (
+          <ButtonLink href={`/modules/${moduleEntry.module.slug}`} size="lg" variant="accent">
+            Finish the module
+          </ButtonLink>
+        ) : null}
+        <ButtonLink
+          href="/dashboard"
+          size="lg"
+          variant={moduleEntry && !moduleEntry.complete ? 'outline' : 'accent'}
+        >
           Back to today
         </ButtonLink>
-        <ButtonLink href="/skills" size="lg" variant="outline">
-          See your skill map
-        </ButtonLink>
+        {moduleEntry && !moduleEntry.complete ? null : (
+          <ButtonLink href="/skills" size="lg" variant="outline">
+            See your skill map
+          </ButtonLink>
+        )}
       </div>
     </div>
   );

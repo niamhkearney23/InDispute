@@ -108,6 +108,7 @@ const PAGES = [
   { name: 'train', path: `/train/${SESSION_ID}`, auth: true },
   { name: 'train-answered', path: `/train/${SESSION_ID}`, auth: true, answer: true },
   { name: 'summary', path: `/train/${SESSION_ID}/summary`, auth: true },
+  { name: 'summary-module', path: '/train/99999999-9999-9999-9999-999999999998/summary', auth: true },
   { name: 'admin', path: '/admin', auth: true },
   { name: 'admin-facts', path: '/admin/facts', auth: true },
   { name: 'admin-review', path: '/admin/review', auth: true },

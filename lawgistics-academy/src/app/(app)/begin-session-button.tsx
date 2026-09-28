@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { beginSession } from './actions';
 import { Button, Notice } from '@/components/ui';
+import { isRedirect } from '@/lib/is-redirect';
 import type { SessionKind } from '@/lib/types';
 
 export function BeginSessionButton({
@@ -25,6 +26,8 @@ export function BeginSessionButton({
         // A successful start redirects, so reaching here at all means it did not.
         if (result?.error) setError(result.error);
       } catch (caught) {
+        // A successful start arrives here too, as the redirect signal.
+        if (isRedirect(caught)) throw caught;
         setError(
           caught instanceof Error
             ? caught.message

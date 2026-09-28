@@ -47,6 +47,8 @@ export interface LearnerProfile {
   mustChangePassword: boolean;
   /** On the trainee programme and confirmed by somebody at the firm (0023). */
   traineeConfirmed: boolean;
+  /** Asked to be left off the firm's leaderboard. */
+  leaderboardOptOut: boolean;
 }
 
 export interface LearnerOverview {
@@ -66,6 +68,10 @@ export interface LearnerOverview {
   needsReview: string[];
   recentlyMastered: string[];
   dueCount: number;
+  /** Local dates (YYYY-MM-DD) in the last five weeks on which a session was finished. */
+  trainedDays: string[];
+  /** Training questions answered yesterday, where the learner is. */
+  answeredYesterday: number;
 }
 
 
@@ -130,6 +136,7 @@ export async function getLearnerProfile(userId: string): Promise<LearnerProfile 
     isCoach: data.is_coach ?? false,
     mustChangePassword: data.must_change_password ?? false,
     traineeConfirmed: Boolean(data.trainee_approved_at),
+    leaderboardOptOut: Boolean(data.leaderboard_opt_out),
   };
 }
 
@@ -163,6 +170,8 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
     answeredToday,
     sessionsToday,
     diagnostics,
+    finishedRecently,
+    answeredYesterdayRows,
   ] = await Promise.all([
       supabase.from('xp_events').select('amount').eq('user_id', userId),
       supabase
@@ -206,6 +215,20 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
         .select('id')
         .eq('user_id', userId)
         .eq('kind', 'diagnostic'),
+      // Five weeks of finished sessions, for the calendar of days trained.
+      supabase
+        .from('training_sessions')
+        .select('completed_at')
+        .eq('user_id', userId)
+        .not('completed_at', 'is', null)
+        .gte('completed_at', new Date(Date.now() - 36 * 24 * 60 * 60 * 1000).toISOString()),
+      // Yesterday's answers, for "beat yesterday".
+      supabase
+        .from('user_question_attempts')
+        .select('session_id')
+        .eq('user_id', userId)
+        .gte('answered_at', new Date(new Date(dayStart).getTime() - 24 * 60 * 60 * 1000).toISOString())
+        .lt('answered_at', dayStart),
     ]);
 
   /* Today's training is the daily goal, and the diagnostic is not part of it.
@@ -216,6 +239,16 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
   const trainedToday = (answeredToday.data ?? []).filter(
     (row) => !row.session_id || !diagnosticIds.has(row.session_id as string),
   ).length;
+  const answeredYesterday = (answeredYesterdayRows.data ?? []).filter(
+    (row) => !row.session_id || !diagnosticIds.has(row.session_id as string),
+  ).length;
+  const trainedDays = [
+    ...new Set(
+      (finishedRecently.data ?? []).map((row) =>
+        localDateString(profile.timezone, new Date(row.completed_at as string)),
+      ),
+    ),
+  ].sort();
 
   const sum = (rows: Array<{ amount: number }> | null) =>
     (rows ?? []).reduce((total, row) => total + row.amount, 0);
@@ -289,6 +322,8 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
     profile,
     totalXp,
     answeredToday: trainedToday,
+    trainedDays,
+    answeredYesterday,
     sessionsToday: sessionsToday.count ?? 0,
     weeklyXp: sum(xpWeek.data),
     level: levelForXp(totalXp),

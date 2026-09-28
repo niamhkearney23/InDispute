@@ -35,11 +35,23 @@ export interface CourtHierarchy {
   country: Country;
   name: string;
   courts: Court[];
+  /**
+   * What each drawn row is, in two or three words, beside the row. Only for
+   * reading the picture: the label says what kind of court sits on that rung,
+   * never that the courts on it are interchangeable.
+   */
+  tierLabels: Record<number, string>;
 }
 
 const AUSTRALIA: CourtHierarchy = {
   country: 'AU',
   name: 'Australian courts',
+  tierLabels: {
+    0: 'Apex court',
+    1: 'Superior courts, two parallel ladders',
+    2: 'Intermediate courts',
+    3: 'Courts of summary jurisdiction',
+  },
   courts: [
     {
       slug: 'hca',
@@ -95,6 +107,13 @@ const AUSTRALIA: CourtHierarchy = {
 const MALAYSIA: CourtHierarchy = {
   country: 'MY',
   name: 'Malaysian courts',
+  tierLabels: {
+    0: 'Apex court',
+    1: 'Intermediate appellate court',
+    2: 'Superior courts of first instance',
+    3: 'Subordinate courts',
+    4: 'Subordinate courts',
+  },
   courts: [
     {
       slug: 'federal-court',

@@ -26,25 +26,22 @@ export default async function DiagnosticPage() {
         <p className="eyebrow mb-2">{retaking ? 'Retake' : 'Step two'}</p>
         <h1 className="text-3xl sm:text-4xl">The diagnostic</h1>
         <p className="mt-3 text-slate">
-          About {DIAGNOSTIC_QUESTION_COUNT} questions spread evenly across the six
-          foundation areas. It is not a test you pass; it produces the map your daily
-          training is built from.
+          About {DIAGNOSTIC_QUESTION_COUNT} questions across the six foundation areas. There
+          is no pass mark. The result sets what your daily training covers.
         </p>
       </section>
 
       <Card>
         <ul className="space-y-4 text-[0.9375rem]">
           <Point title="Answer honestly, including the confidence question.">
-            Marking an answer as a guess costs you nothing. It makes the map accurate,
-            which is the entire point.
+            A guess marked as a guess is not penalised. It is what makes the result accurate.
           </Point>
-          <Point title="Expect to get things wrong.">
-            The questions span everything from court hierarchy to statutory
-            interpretation. Nobody starting out knows all of it.
+          <Point title="You will get some wrong.">
+            The questions run from court hierarchy to statutory interpretation. That is
+            expected.
           </Point>
-          <Point title="It takes about fifteen minutes.">
-            You can leave partway through; your place is kept and you can pick it up
-            later.
+          <Point title="About fifteen minutes.">
+            You can stop partway through and pick it up later. Your place is kept.
           </Point>
         </ul>
       </Card>

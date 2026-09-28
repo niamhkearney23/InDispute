@@ -125,3 +125,29 @@ export async function saveFirmModule(
   revalidatePath('/modules');
   redirect('/admin/firm');
 }
+
+/**
+ * Switching the weekly leaderboard on or off, for the whole firm.
+ *
+ * An administrator's decision, because it changes what every learner sees
+ * of every other learner. Off is the default and the safe side.
+ */
+export async function setLeaderboardEnabled(
+  _state: AdminState,
+  formData: FormData,
+): Promise<AdminState> {
+  const adminId = await checkAdmin();
+  if (!adminId) return { error: 'Not authorised.' };
+
+  const enabled = formData.get('enabled') === 'on';
+  const db = createServiceClient();
+  const { error } = await db
+    .from('firm_settings')
+    .update({ leaderboard_enabled: enabled, updated_by: adminId })
+    .eq('id', true);
+  if (error) return { error: 'That could not be saved. Please try again.' };
+
+  revalidatePath('/admin/firm');
+  revalidatePath('/dashboard');
+  return { error: null, ok: enabled ? 'The leaderboard is on.' : 'The leaderboard is off.' };
+}
