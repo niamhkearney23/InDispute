@@ -293,14 +293,6 @@ export default async function SkillsPage() {
         </>
       ) : null}
 
-      <Card className="border-dashed">
-        <p className="eyebrow mb-2">Not yet built</p>
-        <p className="text-sm text-slate">
-          Once there are hundreds of answers behind a profile, this same data can suggest
-          areas of practice you might enjoy exploring, framed as exactly that, and never
-          as a determination about your career. It is deliberately not in this version.
-        </p>
-      </Card>
     </div>
   );
 }

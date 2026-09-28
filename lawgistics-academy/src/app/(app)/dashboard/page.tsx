@@ -41,6 +41,8 @@ import { BeginSessionButton } from '../begin-session-button';
 import { trainingOpen } from '@/lib/training/service';
 import { DailyBrief } from '@/components/daily-brief';
 import { getFactOfTheDay } from '@/lib/facts/service';
+import { brand } from '@/lib/brand';
+import { PROGRAMME } from '@/content/programme';
 
 export const metadata: Metadata = { title: 'Today' };
 
@@ -149,6 +151,36 @@ export default async function DashboardPage() {
           the count below it. An unread firm policy is not one more module
           outstanding, it is the firm's own rules not yet in front of the person
           they apply to. */}
+      {/* The programme, in one line, for the people on it: what the month is
+          and where each of its four parts lives. Trainees arrive from a
+          front door that promised these four things, and this is the same
+          list with the doors on it. */}
+      {profile.track === 'litigation_trainee' ? (
+        <Card className="border-burgundy/20 bg-burgundy-wash">
+          <p className="eyebrow mb-1">Your programme · {brand.firm}</p>
+          <p className="text-slate">
+            {PROGRAMME.length}, {PROGRAMME.days}. Learned by doing, with the training that
+            goes with it here.
+          </p>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {(
+              [
+                ['Daily questions', '/dashboard'],
+                ['Homework', '/homework'],
+                ['Work from your supervisors', '/work'],
+                ['Sessions from your coach', '/sessions'],
+              ] as const
+            ).map(([label, href]) => (
+              <li key={href}>
+                <ButtonLink href={href} variant="outline" size="sm">
+                  {label}
+                </ButtonLink>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      ) : null}
+
       {profile.track === 'litigation_trainee' && !profile.traineeConfirmed ? (
         <Notice>
           <strong>Waiting for your supervisor.</strong> They need to confirm you are on the

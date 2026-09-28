@@ -29,6 +29,11 @@ export interface Brand {
   /** One line, under the heading on the landing page. */
   tagline: string;
   /**
+   * The firm running the litigation trainee programme, as its name appears
+   * on the programme's own front page. The owner's firm by default.
+   */
+  firm: string;
+  /**
    * The accent, as a CSS colour. Burgundy by default. Applied as a variable so
    * a firm's colour reaches everything the accent touches rather than the one
    * button somebody remembered.
@@ -91,6 +96,7 @@ export const brand: Brand = {
     process.env.NEXT_PUBLIC_BRAND_TAGLINE,
     'Australian and Malaysian litigation training.',
   ),
+  firm: clean(process.env.NEXT_PUBLIC_BRAND_FIRM, 'Thomas Philip'),
   accent: safeAccent(process.env.NEXT_PUBLIC_BRAND_ACCENT),
   initial: safeInitial(name),
 };
