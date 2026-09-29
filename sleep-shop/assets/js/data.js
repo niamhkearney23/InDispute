@@ -31,7 +31,7 @@
       'silk-sleep-mask': '',
       'silk-pillowcase': '',
       'am-pm-journal': '',
-      'lavender-sleep-wrap': ''
+      'lavender-sleep-wrap': 'https://buy.stripe.com/bJedR2gav0dQ7Rq43Ta7C03'
     }
   };
 
