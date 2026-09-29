@@ -27,7 +27,7 @@
        unclickable rather than pointing nowhere. Fill in, do not remove keys. */
     preorderShipsFrom: '1 December',
     preorderLinks: {
-      'gift-of-sleep-box': '',
+      'gift-of-sleep-box': 'https://buy.stripe.com/aFa7sE3nJ0dQ1t22ZPa7C08',
       'silk-sleep-mask': 'https://buy.stripe.com/aFa4gs0bx2lY8Vubwla7C07',
       'silk-pillowcase': 'https://buy.stripe.com/dRmaEQf6r5ya2x657Xa7C06',
       'am-pm-journal': 'https://buy.stripe.com/7sY3co3nJ8Km7RqgQFa7C05',
