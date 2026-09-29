@@ -28,7 +28,7 @@
     preorderShipsFrom: '1 December',
     preorderLinks: {
       'gift-of-sleep-box': '',
-      'silk-sleep-mask': '',
+      'silk-sleep-mask': 'https://buy.stripe.com/aFa4gs0bx2lY8Vubwla7C07',
       'silk-pillowcase': 'https://buy.stripe.com/dRmaEQf6r5ya2x657Xa7C06',
       'am-pm-journal': 'https://buy.stripe.com/7sY3co3nJ8Km7RqgQFa7C05',
       'lavender-sleep-wrap': 'https://buy.stripe.com/3cI5kwe2n0dQefO6c1a7C04'
