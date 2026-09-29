@@ -77,6 +77,7 @@
           '<span data-total>' + Store.money(BOX.price * qty) + '</span></button>' +
         '<a class="btn btn--ghost btn--lg" href="gifting.html">How gifting works</a>' +
       '</div>' +
+      '<div class="buy-row mt-1">' + UI.preorderCta(BOX.id, BOX.price) + '</div>' +
       '<p class="callout mt-1">Free delivery Australia-wide. Ordered before 2pm on a weekday, it ' +
         'leaves Melbourne the same afternoon.</p>');
 

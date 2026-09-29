@@ -318,6 +318,23 @@
     }, 2600);
   }
 
+  /* ----------------------------------------------------------- pre-order */
+
+  /* A real purchase path, separate from the demonstration cart: an external
+     link to a Stripe Payment Link, or a disabled placeholder until one
+     exists. Never routes through Store — no fake payment can look like a
+     real pre-order, and no real charge can be mistaken for a demo. */
+  function preorderCta(productId, price) {
+    var link = (CONFIG.preorderLinks || {})[productId];
+    if (link) {
+      return '<a class="btn btn--lg" href="' + escapeHtml(link) + '" target="_blank" rel="noopener">' +
+          'Pre-order &middot; ' + Store.money(price) + '</a>' +
+        '<p class="tiny muted">Ships from ' + escapeHtml(CONFIG.preorderShipsFrom) +
+          '. Card processed securely by Stripe, off this site.</p>';
+    }
+    return '<button class="btn btn--lg" type="button" disabled>Pre-order, opening soon</button>';
+  }
+
   /* ------------------------------------------------------------- pieces */
 
   function pieceCard(piece) {
@@ -345,6 +362,7 @@
           '<button class="btn btn--quiet" type="button" data-shop-add="' +
             escapeHtml(product.id) + '">Add to cart</button>' +
         '</div>' +
+        '<div class="piece__preorder">' + preorderCta(product.id, product.price) + '</div>' +
       '</div>' +
     '</article>';
   }
@@ -476,6 +494,7 @@
     init: init,
     pieceCard: pieceCard,
     productCard: productCard,
+    preorderCta: preorderCta,
     lineAttrs: lineAttrs,
     groundForRibbon: groundForRibbon,
     ribbonSwatch: ribbonSwatch,

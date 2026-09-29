@@ -21,7 +21,18 @@
     email: 'hello@sleepshop.online',
     phone: '(03) 9000 0000',
     address: 'By appointment, Fitzroy VIC 3065',
-    abn: '92 947 050 246'
+    abn: '92 947 050 246',
+    /* Real pre-order links, one Stripe Payment Link per item. Empty until
+       Stripe is verified — the button reads "opening soon" and stays
+       unclickable rather than pointing nowhere. Fill in, do not remove keys. */
+    preorderShipsFrom: '1 December',
+    preorderLinks: {
+      'gift-of-sleep-box': '',
+      'silk-sleep-mask': '',
+      'silk-pillowcase': '',
+      'am-pm-journal': '',
+      'lavender-sleep-wrap': ''
+    }
   };
 
   /* The five grounds, locked as palette B. Cream and linen dominate the site
