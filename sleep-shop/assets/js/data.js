@@ -30,7 +30,7 @@
       'gift-of-sleep-box': '',
       'silk-sleep-mask': '',
       'silk-pillowcase': '',
-      'am-pm-journal': '',
+      'am-pm-journal': 'https://buy.stripe.com/7sY3co3nJ8Km7RqgQFa7C05',
       'lavender-sleep-wrap': 'https://buy.stripe.com/3cI5kwe2n0dQefO6c1a7C04'
     }
   };
