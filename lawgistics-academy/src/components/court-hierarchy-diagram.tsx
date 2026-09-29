@@ -38,9 +38,14 @@ export function CourtHierarchyDiagram({
 
   const lit = new Set<string>();
   if (answered && correctOptionIds?.length === 1) {
-    for (let slug: string | null = correctOptionIds[0]; slug; ) {
+    const queue = [correctOptionIds[0]];
+    while (queue.length > 0) {
+      const slug = queue.shift()!;
+      if (lit.has(slug)) continue;
       lit.add(slug);
-      slug = bySlug.get(slug)?.appealsTo ?? null;
+      const court = bySlug.get(slug);
+      if (court?.appealsTo) queue.push(court.appealsTo);
+      if (court?.alsoAppealsTo) queue.push(court.alsoAppealsTo);
     }
   }
 
@@ -107,6 +112,9 @@ function CourtBox({
   const body = (
     <>
       <span className="font-serif text-[0.9375rem] leading-snug">{label}</span>
+      {answered && offered && (isCorrect || wrongChoice) ? (
+        <span className="sr-only">{isCorrect ? 'Correct answer.' : 'Your answer.'}</span>
+      ) : null}
       {answered && offered && court.note ? (
         <span className="mt-1 text-[0.6875rem] leading-snug text-slate">{court.note}</span>
       ) : null}

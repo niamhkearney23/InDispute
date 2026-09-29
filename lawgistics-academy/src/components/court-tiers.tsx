@@ -91,9 +91,12 @@ function Routes({
 
   const routes = lower.flatMap((court) => {
     const from = centre(lower, court.slug);
-    const to = court.appealsTo ? centre(upper, court.appealsTo) : null;
-    if (from === null || to === null) return [];
-    return [{ from, to, isLit: lit.has(court.slug) && lit.has(court.appealsTo!) }];
+    if (from === null) return [];
+    return [court.appealsTo, court.alsoAppealsTo].flatMap((parent) => {
+      const to = parent ? centre(upper, parent) : null;
+      if (to === null) return [];
+      return [{ from, to, isLit: lit.has(court.slug) && lit.has(parent!) }];
+    });
   });
 
   // One arrowhead per court that receives appeals, lit if any route into it is.

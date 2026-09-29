@@ -434,7 +434,7 @@ it as a secret.
 ## Testing
 
 ```bash
-npm run test        # 166 tests: engine, content, triage, and the contract tests below
+npm run test        # 283 tests: engine, content, triage, and the contract tests below
 npm run typecheck
 npm run lint
 npm run build
@@ -468,7 +468,7 @@ tap targets under 32px, inputs under 16px (below which iOS Safari zooms the page
 focus), and console errors. It signs in through the real login form, so the auth flow is
 exercised too. See `tools/visual-qa/README.md`.
 
-Current result: 135 page/device combinations, no horizontal scrolling, no overflow, no
+Current result: 240 page/device combinations, no horizontal scrolling, no overflow, no
 render errors, and no outstanding issues on any phone viewport.
 
 The schema's own guarantees are tested against a real Postgres:
@@ -477,7 +477,7 @@ The schema's own guarantees are tested against a real Postgres:
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/schema-guarantees.sql
 ```
 
-77 checks, run inside a transaction that rolls itself back. Among them: a learner cannot
+208 checks, run inside a transaction that rolls itself back. Among them: a learner cannot
 make themselves an administrator; cannot read another learner's attempts; cannot read the
 question versions table where the answers live; cannot forge XP; cannot write to the daily
 brief; cannot see unpublished facts. And: question content cannot be rewritten in place,
@@ -563,7 +563,7 @@ src/
     admin/guard.ts         server-side authorisation
   content/seed/            the question bank and daily facts, as reviewable TypeScript
 supabase/
-  migrations/            0001_init … 0010_verification_expires
+  migrations/            0001_init to 0025_leaderboard
   SETUP.sql              every migration, for a new database
   UPDATE.sql             0004 onward, re-runnable, for a database that exists
   tests/schema-guarantees.sql

@@ -156,13 +156,12 @@ export function SessionRunner({
           aria-valuemax={100}
           aria-label="Session progress"
         >
-          <div
-            // Keyed on the value so the sweep of light runs again each time
-            // the bar grows, not once on mount.
-            key={progress}
-            className="session-bar h-full rounded-full"
-            style={{ width: `${progress}%` }}
-          />
+          <div className="session-bar h-full rounded-full" style={{ width: `${progress}%` }}>
+            {/* Keyed on the value so the sweep of light runs again each time
+                the bar grows, not once on mount. The bar itself is not keyed,
+                so its width still glides rather than jumping. */}
+            <span key={progress} aria-hidden className="session-bar-shine" />
+          </div>
         </div>
       </div>
 
@@ -325,7 +324,7 @@ export function SessionRunner({
 
 /** What a run of right answers is called. Three words, and no more of them. */
 function comboWord(combo: number): string | null {
-  if (combo >= 10) return 'Ten in a row. Unstoppable.';
+  if (combo >= 10) return `${combo} in a row. Unstoppable.`;
   if (combo >= 5) return `${combo} in a row. On a roll.`;
   if (combo >= 3) return `${combo} in a row.`;
   return null;

@@ -169,14 +169,15 @@ export async function moduleForSession(
   const { data: delivered } = await db
     .from('v_question_delivery')
     .select('domain_slug')
+    .eq('country', country)
     .in('question_id', ids);
   const domains = new Set((delivered ?? []).map((r) => r.domain_slug as string));
   if (domains.size === 0) return null;
 
   const progress = await getModuleProgress(userId, country);
-  return (
-    progress.find((p) => [...domains].every((d) => p.module.domains.includes(d))) ?? null
-  );
+  const match = progress.find((p) => [...domains].every((d) => p.module.domains.includes(d)));
+  // A module with nothing published in it has no numbers worth saying.
+  return match && match.total > 0 ? match : null;
 }
 
 /** Required modules the learner has not finished, for the dashboard prompt. */

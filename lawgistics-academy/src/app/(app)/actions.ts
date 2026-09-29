@@ -20,6 +20,7 @@ import {
   IMPROVEMENT_GOALS,
   JURISDICTION_COUNTRY,
   JURISDICTION_VALUES,
+  HOME_JURISDICTIONS,
 } from '@/lib/types';
 import type { AnswerFeedback, SessionKind } from '@/lib/types';
 
@@ -74,6 +75,11 @@ export async function saveOnboarding(
   const { country } = parsed.data;
   if (JURISDICTION_COUNTRY[parsed.data.homeJurisdiction] !== country) {
     return { error: 'That jurisdiction does not belong to the country you chose.' };
+  }
+  // And it has to be a place, not one of the country-wide tags the form no
+  // longer offers as a home.
+  if (!HOME_JURISDICTIONS[country].includes(parsed.data.homeJurisdiction)) {
+    return { error: 'Choose the State, Territory or region you are in.' };
   }
 
   const goals = parsed.data.goals.filter((slug) => GOAL_SLUGS.includes(slug as never));

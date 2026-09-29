@@ -28,6 +28,12 @@ export interface Court {
   tier: number;
   /** Where an appeal from this court ordinarily goes. Null at the apex. */
   appealsTo: string | null;
+  /**
+   * A second court its appeals go to, depending on where it sits. The
+   * Malaysian Sessions Court appeals to whichever High Court has its
+   * territory, and drawing only one of them taught the wrong thing.
+   */
+  alsoAppealsTo?: string;
   note?: string;
 }
 
@@ -50,7 +56,7 @@ const AUSTRALIA: CourtHierarchy = {
     0: 'Apex court',
     1: 'Superior courts, two parallel ladders',
     2: 'Intermediate courts',
-    3: 'Courts of summary jurisdiction',
+    3: 'Magistrates and Local Courts',
   },
   courts: [
     {
@@ -75,7 +81,7 @@ const AUSTRALIA: CourtHierarchy = {
       short: 'Supreme Court',
       tier: 1,
       appealsTo: 'hca',
-      note: 'Unlimited civil jurisdiction within its State or Territory. Its Court of Appeal hears appeals from the courts below it.',
+      note: 'Unlimited civil jurisdiction within its State or Territory. Its Court of Appeal, or Full Court, hears appeals from the courts below it.',
     },
     {
       slug: 'fcfcoa',
@@ -83,7 +89,7 @@ const AUSTRALIA: CourtHierarchy = {
       short: 'FCFCOA',
       tier: 2,
       appealsTo: 'fca',
-      note: 'Commenced 1 September 2021, in two divisions.',
+      note: 'Commenced 1 September 2021, in two divisions. General federal law appeals go to the Federal Court; family law appeals are heard within Division 1.',
     },
     {
       slug: 'intermediate',
@@ -110,9 +116,9 @@ const MALAYSIA: CourtHierarchy = {
   tierLabels: {
     0: 'Apex court',
     1: 'Intermediate appellate court',
-    2: 'Superior courts of first instance',
+    2: 'Superior courts: the High Courts',
     3: 'Subordinate courts',
-    4: 'Subordinate courts',
+    4: 'Subordinate courts, lowest',
   },
   courts: [
     {
@@ -150,7 +156,8 @@ const MALAYSIA: CourtHierarchy = {
       name: 'Sessions Court',
       tier: 3,
       appealsTo: 'high-court-malaya',
-      note: 'The higher of the two subordinate courts, with a monetary limit on its civil jurisdiction.',
+      alsoAppealsTo: 'high-court-sabah-sarawak',
+      note: 'The higher of the two subordinate courts, with a monetary limit on its civil jurisdiction. Appeals go to the High Court for the place it sits: the High Court in Malaya on the peninsula, the High Court in Sabah and Sarawak there.',
     },
     {
       slug: 'magistrates-court',

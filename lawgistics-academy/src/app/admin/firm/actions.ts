@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { checkAdmin } from '@/lib/admin/guard';
 import { createServiceClient } from '@/lib/supabase/service';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 import type { AdminState } from '../actions';
 
 /**
@@ -140,12 +141,23 @@ export async function setLeaderboardEnabled(
   if (!adminId) return { error: 'Not authorised.' };
 
   const enabled = formData.get('enabled') === 'on';
-  const db = createServiceClient();
-  const { error } = await db
+  // Through the administrator's own session: the firm_settings policy
+  // admits exactly this write, and the stamp trigger records who made it
+  // from the session, which a service-role write would leave blank. The
+  // row is read back because an update of nothing is not an error, and
+  // "the leaderboard is on" over a missing row would be a lie.
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
     .from('firm_settings')
-    .update({ leaderboard_enabled: enabled, updated_by: adminId })
-    .eq('id', true);
-  if (error) return { error: 'That could not be saved. Please try again.' };
+    .update({ leaderboard_enabled: enabled })
+    .eq('id', true)
+    .select('leaderboard_enabled')
+    .maybeSingle();
+  if (error || !data) {
+    return {
+      error: 'That could not be saved. If the database has not had the latest update applied, run UPDATE.sql first.',
+    };
+  }
 
   revalidatePath('/admin/firm');
   revalidatePath('/dashboard');

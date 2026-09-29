@@ -34,9 +34,14 @@ export function CourtMap({
   // The chain from the open court up to the apex, so it can be drawn as one
   // continuous trail rather than the learner having to trace it by eye.
   const path = new Set<string>();
-  for (let slug = open; slug; ) {
+  const queue = open ? [open] : [];
+  while (queue.length > 0) {
+    const slug = queue.shift()!;
+    if (path.has(slug)) continue;
     path.add(slug);
-    slug = bySlug.get(slug)?.appealsTo ?? null;
+    const court = bySlug.get(slug);
+    if (court?.appealsTo) queue.push(court.appealsTo);
+    if (court?.alsoAppealsTo) queue.push(court.alsoAppealsTo);
   }
 
   return (
@@ -44,12 +49,16 @@ export function CourtMap({
       <CourtTiers
         hierarchy={hierarchy}
         lit={path}
-        label={`${hierarchy.name}, tap a court to open it`}
+        label={`${hierarchy.name}. Choose a court to see what it does.`}
         renderCourt={(court) => (
           <CourtNode
             court={court}
-            appealsTo={court.appealsTo ? (bySlug.get(court.appealsTo) ?? null) : null}
-            hearsFrom={hierarchy.courts.filter((c) => c.appealsTo === court.slug)}
+            appealsTo={[court.appealsTo, court.alsoAppealsTo]
+              .map((slug) => (slug ? bySlug.get(slug) : undefined))
+              .filter((c): c is Court => Boolean(c))}
+            hearsFrom={hierarchy.courts.filter(
+              (c) => c.appealsTo === court.slug || c.alsoAppealsTo === court.slug,
+            )}
             isOpen={open === court.slug}
             onPath={path.has(court.slug)}
             onToggle={() => setOpen((current) => (current === court.slug ? null : court.slug))}
@@ -59,7 +68,7 @@ export function CourtMap({
 
       <p className="mt-4 text-xs text-muted">
         Lines are appeal routes and run upwards. Courts drawn side by side are of equal
-        standing, not one above the other. Tap a court to see what it does.
+        standing, not one above the other. Choose a court to see what it does.
       </p>
 
       {quizHref ? (
@@ -83,7 +92,7 @@ function CourtNode({
   onToggle,
 }: {
   court: Court;
-  appealsTo: Court | null;
+  appealsTo: Court[];
   hearsFrom: Court[];
   isOpen: boolean;
   /** Whether this court sits on the traced route from the open court to the apex. */
@@ -105,7 +114,7 @@ function CourtNode({
         type="button"
         aria-expanded={isOpen}
         onClick={onToggle}
-        className="flex min-h-14 w-full flex-col justify-center px-3 py-2.5 text-center"
+        className="flex min-h-14 w-full flex-col justify-center px-3 py-2.5 text-center focus-visible:outline-offset-[-3px]"
       >
         <span
           className={cn(
@@ -121,6 +130,8 @@ function CourtNode({
           appears reads as the layout jumping, and jumping content under a
           thumb is how a tap lands somewhere the person did not mean. */}
       <div
+        aria-hidden={!isOpen}
+        inert={!isOpen}
         className={cn(
           'grid transition-[grid-template-rows] duration-200 ease-out',
           isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
@@ -135,7 +146,11 @@ function CourtNode({
             <dl className="mt-2.5 space-y-1 border-t border-burgundy/15 pt-2.5 text-xs">
               <div className="flex gap-2">
                 <dt className="shrink-0 text-muted">Appeals go to</dt>
-                <dd className="text-ink">{appealsTo ? (appealsTo.short ?? appealsTo.name) : 'Nowhere. This is the top.'}</dd>
+                <dd className="text-ink">
+                  {appealsTo.length === 0
+                    ? 'Nowhere. This is the top.'
+                    : appealsTo.map((c) => c.short ?? c.name).join(', or ')}
+                </dd>
               </div>
               {hearsFrom.length > 0 ? (
                 <div className="flex gap-2">

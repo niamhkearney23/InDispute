@@ -2876,6 +2876,11 @@ insert into public.firm_settings (id) values (true) on conflict (id) do nothing;
 
 alter table public.firm_settings enable row level security;
 
+-- Everyone signed in may read the flag, and only the flag: who switched it
+-- and when is the firm's business, not every learner's.
+revoke select on public.firm_settings from anon, authenticated;
+grant select (id, leaderboard_enabled) on public.firm_settings to authenticated;
+
 drop policy if exists firm_settings_read on public.firm_settings;
 create policy firm_settings_read on public.firm_settings
   for select to authenticated using (true);
@@ -2911,7 +2916,15 @@ as $$
   with totals as (
     select
       p.id,
-      split_part(coalesce(nullif(trim(p.display_name), ''), 'Someone'), ' ', 1) as first_name,
+      -- A first name, or "Someone". A display name that is really the
+      -- email's local part (what sign-up fills in when no name is given)
+      -- is not a first name and would put the email on every dashboard.
+      case
+        when nullif(trim(p.display_name), '') is null then 'Someone'
+        when p.display_name like '%@%' then 'Someone'
+        when lower(trim(p.display_name)) = lower(split_part(coalesce(p.email, ''), '@', 1)) then 'Someone'
+        else split_part(trim(p.display_name), ' ', 1)
+      end as first_name,
       coalesce(sum(x.amount), 0)::integer as xp
     from public.profiles p
     left join public.xp_events x

@@ -36,6 +36,7 @@ export function StreakCalendar({
   const start = shiftDate(end, -34);
   const days = Array.from({ length: 35 }, (_, i) => shiftDate(start, i));
   const trainedToday = trained.has(today);
+  const shownCount = days.filter((day) => trained.has(day)).length;
 
   return (
     <div>
@@ -65,13 +66,17 @@ export function StreakCalendar({
             {streak === 0
               ? 'Finish a session today to start a chain.'
               : trainedToday
-                ? 'Today is in. The chain holds until tomorrow.'
+                ? 'Today counts. Train again tomorrow to keep the chain.'
                 : 'Not trained yet today. One session keeps the chain.'}
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-1.5" role="img" aria-label={`${trainedDays.length} days trained in the last five weeks`}>
+      <div
+        className="grid grid-cols-7 gap-1.5"
+        role="img"
+        aria-label={`${shownCount} ${shownCount === 1 ? 'day' : 'days'} trained in the last five weeks`}
+      >
         {DAY_LETTERS.map((letter, i) => (
           <span key={i} className="text-center text-[0.625rem] font-semibold text-muted">
             {letter}

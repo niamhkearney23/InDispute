@@ -5,6 +5,7 @@ import { saveOnboarding, type OnboardingState } from '../actions';
 import { Button, Card, Notice, cn } from '@/components/ui';
 import {
   careerStageLabel,
+  HOME_JURISDICTIONS,
   IMPROVEMENT_GOALS,
   JURISDICTION_LABELS,
   PRACTICE_CHOICES,
@@ -25,10 +26,7 @@ const MINUTES = [5, 10, 15, 20];
  * here as somewhere to be, they only confused people, the same as "general"
  * and "federal" did for Malaysia. Ordered by how many lawyers are in each.
  */
-const JURISDICTIONS: Record<Country, Jurisdiction[]> = {
-  AU: ['NSW', 'VIC', 'QLD', 'WA', 'SA', 'TAS', 'ACT', 'NT'],
-  MY: ['MY_MALAYA', 'MY_SABAH_SARAWAK'],
-};
+const JURISDICTIONS = HOME_JURISDICTIONS;
 
 /** Where the form starts when nothing has been chosen yet. */
 const HOME_DEFAULT: Record<Country, Jurisdiction> = { AU: 'NSW', MY: 'MY_MALAYA' };
@@ -89,6 +87,10 @@ export function OnboardingForm({
       ? defaultJurisdiction
       : HOME_DEFAULT[defaultCountry],
   );
+  // Somebody who chose "Australia, general principle" before it stopped being
+  // offered is started on the first tile, and told, so they do not save a
+  // State they never picked without noticing.
+  const remapped = editing && !JURISDICTIONS[defaultCountry].includes(defaultJurisdiction);
   const pickChoice = (option: PracticeChoice) => {
     setChoice(option);
     if (option.country !== country) setHome(HOME_DEFAULT[option.country]);
@@ -122,13 +124,14 @@ export function OnboardingForm({
           <p className="text-lg">Litigation trainee, Malaysia</p>
           <p className="mt-1 text-sm text-slate">
             You are on a Malaysian firm&rsquo;s programme, so you are trained on Malaysian
-            law. Your supervisor confirms you once you are in.
+            law. Your supervisor confirms your place after you sign up. Until then the
+            work posted for trainees stays hidden; everything else works now.
           </p>
         </Card>
       ) : (
         <Card>
           <fieldset>
-            <legend className="mb-1 text-lg">Which country do you plan to practice in?</legend>
+            <legend className="mb-1 text-lg">Which country do you plan to practise in?</legend>
             <p className="mb-4 text-sm text-slate">
               This one is not a preference. Australian and Malaysian law are different
               bodies of law, so it decides which questions you are ever shown.
@@ -245,10 +248,13 @@ export function OnboardingForm({
             </fieldset>
           ) : (
             <fieldset>
-              <legend className="mb-1 text-lg">Which State or Territory do you work in?</legend>
+              <legend className="mb-1 text-lg">Which State or Territory are you in?</legend>
               <p className="mb-3 text-sm text-slate">
                 Every question is tagged with the jurisdiction its rule belongs to. This
                 says which one is home; you still see the others, clearly labelled.
+                {remapped && country === 'AU'
+                  ? ' We have started you on New South Wales. Change it if that is not where you are.'
+                  : ''}
               </p>
               <input type="hidden" name="homeJurisdiction" value={home} />
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">

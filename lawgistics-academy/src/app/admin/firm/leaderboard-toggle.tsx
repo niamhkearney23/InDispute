@@ -12,9 +12,9 @@ export function LeaderboardToggle({ enabled }: { enabled: boolean }) {
 
   return (
     <Card>
-      <p className="eyebrow mb-2">Weekly leaderboard</p>
+      <p className="eyebrow mb-2">Leaderboard</p>
       <p className="text-sm text-slate">
-        A table of XP earned this week, shown on every learner&rsquo;s dashboard. First
+        A table of XP earned in the last seven days, shown on every learner&rsquo;s dashboard. First
         names only, staff never on it, and any learner can take themselves off. It is off
         until you turn it on: some firms want the race and some trainees do not.
       </p>

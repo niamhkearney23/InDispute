@@ -164,8 +164,8 @@ export default async function DashboardPage() {
         <Card className="border-burgundy/20 bg-burgundy-wash">
           <p className="eyebrow mb-1">Your programme · {brand.firm}</p>
           <p className="text-slate">
-            {PROGRAMME.length}, {PROGRAMME.days}. Learned by doing, with the training that
-            goes with it here.
+            {PROGRAMME.length}, {PROGRAMME.days}, learned by doing. The training that goes
+            with the work lives here.
           </p>
           <ul className="mt-3 flex flex-wrap gap-2">
             {(
@@ -314,7 +314,9 @@ export default async function DashboardPage() {
                   {/* A target that moves with them. Yesterday's count is the
                       one number they already beat once, so it reads as a
                       dare rather than a demand. */}
-                  {!goalMet && overview.answeredYesterday > 0 ? (
+                  {!goalMet &&
+                  overview.answeredYesterday > 0 &&
+                  overview.answeredToday <= overview.answeredYesterday ? (
                     <p className="mt-2 inline-block rounded-full bg-paper/15 px-2.5 py-1 text-xs font-semibold text-paper ring-1 ring-paper/25">
                       Beat yesterday: {overview.answeredYesterday} answered
                       {overview.answeredToday > 0 ? `, ${overview.answeredToday} so far` : ''}

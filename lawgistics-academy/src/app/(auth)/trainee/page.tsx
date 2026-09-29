@@ -6,6 +6,7 @@ import { ArrowIcon, BookIcon, BriefcaseIcon, CheckIcon, SparkIcon } from '@/comp
 import { getCurrentUser } from '@/lib/supabase/server';
 import { brand } from '@/lib/brand';
 import { PROGRAMME } from '@/content/programme';
+import { trainingOpen } from '@/lib/training/service';
 
 export const metadata: Metadata = { title: 'The litigation trainee programme' };
 
@@ -18,18 +19,22 @@ export const metadata: Metadata = { title: 'The litigation trainee programme' };
  * supervisors hand them, and the sessions their coach records. This page
  * says exactly that, in that order, and then offers the sign-up.
  */
-const PARTS = [
+const partsFor = (questionsOpen: boolean) => [
   {
     icon: CheckIcon,
     when: 'Day one',
-    title: 'A short quiz',
-    body: 'About thirty questions across the court system, procedure, evidence, advocacy and drafting. It is not a test you pass. It shows what you already know, and everything after it is built from that.',
+    title: 'A short diagnostic quiz',
+    body: questionsOpen
+      ? 'About thirty questions across the court system, procedure, evidence, advocacy and drafting. It is not a test you pass. It shows what you already know, and everything after it is built from that.'
+      : 'About thirty questions across the court system, procedure, evidence, advocacy and drafting, once the firm’s lawyers have signed them off. It is not a test you pass. It shows what you already know, and everything after it is built from that.',
   },
   {
     icon: SparkIcon,
     when: 'Every day',
     title: 'Questions in your spare time',
-    body: 'Five to twenty minutes on Malaysian procedure, evidence and drafting. Anything you get wrong comes back until it stops being wrong. Alongside it, one piece of homework for each working day on how the firm runs a file.',
+    body: questionsOpen
+      ? 'Five to twenty minutes on Malaysian procedure, evidence and drafting. Anything you get wrong comes back until it stops being wrong. Alongside it, one piece of homework for each working day on how the firm runs a file.'
+      : 'Five to twenty minutes a day on Malaysian procedure, evidence and drafting, once the questions are signed off. Anything you get wrong comes back until it stops being wrong. From day one, one piece of homework for each working day on how the firm runs a file.',
   },
   {
     icon: BriefcaseIcon,
@@ -48,6 +53,13 @@ const PARTS = [
 export default async function TraineeProgrammePage() {
   const user = await getCurrentUser();
   if (user) redirect('/dashboard');
+
+  // The Malaysian questions publish only when a lawyer signs them off. Until
+  // then this page must not promise a quiz on day one and questions every
+  // day, because the person who signs up on the strength of that arrives to
+  // a dashboard saying none have been published yet.
+  const questionsOpen = await trainingOpen('MY');
+  const PARTS = partsFor(questionsOpen);
 
   return (
     <div className="min-h-dvh">
@@ -95,8 +107,8 @@ export default async function TraineeProgrammePage() {
             </ButtonLink>
           </div>
           <p className="rise-up delay-4 mt-5 text-sm text-paper/70">
-            Free for trainees on the programme. Your supervisor confirms you once you have
-            signed up, and the work opens from there.
+            Your supervisor confirms you once you have signed up, and the work opens from
+            there.
           </p>
         </div>
       </section>
@@ -155,7 +167,9 @@ export default async function TraineeProgrammePage() {
             <div>
               <h2 className="text-2xl sm:text-3xl">Starting in {PROGRAMME.nextIntake}?</h2>
               <p className="mt-2 text-slate">
-                Sign up now, sit the quiz on your first day, and everything else follows.
+                {questionsOpen
+                  ? 'Sign up now, sit the diagnostic quiz on your first day, and everything else follows.'
+                  : 'Sign up now. Your supervisor confirms you, and the work and sessions open from there.'}
               </p>
             </div>
             <ButtonLink href="/trainee/signup" size="lg" variant="accent">

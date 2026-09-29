@@ -83,6 +83,7 @@
     *::before,
     *::after {
       animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
     }
   }
@@ -365,8 +366,7 @@
   background: linear-gradient(90deg, var(--color-burgundy), #a3454f);
   transition: width 500ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
-.session-bar::after {
-  content: '';
+.session-bar-shine {
   position: absolute;
   inset: 0;
   width: 40%;

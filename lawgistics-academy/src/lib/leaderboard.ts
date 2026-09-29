@@ -23,7 +23,13 @@ export async function weeklyLeaderboard(): Promise<LeaderboardRow[] | null> {
     supabase.from('firm_settings').select('leaderboard_enabled').eq('id', true).maybeSingle(),
     supabase.rpc('weekly_leaderboard'),
   ]);
-  if (!settings?.leaderboard_enabled || error) return null;
+  if (!settings?.leaderboard_enabled) return null;
+  if (error) {
+    // Off and broken look the same on the page, so the difference goes to
+    // the log: usually 0025 has not been applied yet.
+    console.error('weekly_leaderboard failed:', error.message);
+    return null;
+  }
   return ((rows as Array<Record<string, unknown>> | null) ?? []).map((row) => ({
     position: Number(row.place),
     firstName: String(row.first_name ?? 'Someone'),

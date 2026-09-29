@@ -1838,10 +1838,18 @@ select pg_temp.expect(
 
 set local role authenticated;
 set local request.jwt.claim.sub = '22222222-2222-2222-2222-222222222222';
+-- Learner B's display name is the local part of their email, which is what
+-- sign-up fills in when nobody types a name. That is not a first name.
 select pg_temp.expect(
   (select string_agg(first_name || ':' || xp || ':' || is_me::text, ',' order by place)
-   from public.weekly_leaderboard()) = 'Amira:50:false,learner-b:30:true',
+   from public.weekly_leaderboard()) = 'Amira:50:false,Someone:30:true',
   'the leaderboard is first names and numbers, staff left out, the reader marked');
+select pg_temp.expect(
+  not exists (select 1 from public.weekly_leaderboard() where first_name like '%@%' or first_name = 'learner-b'),
+  'an email, or a name that is really an email, never reaches the leaderboard');
+select pg_temp.expect_failure(
+  $$select updated_by from public.firm_settings$$,
+  'a learner cannot read who switched the leaderboard on');
 
 update public.profiles set leaderboard_opt_out = true
 where id = '22222222-2222-2222-2222-222222222222';

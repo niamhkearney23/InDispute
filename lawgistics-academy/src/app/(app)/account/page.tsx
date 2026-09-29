@@ -32,7 +32,7 @@ export default async function AccountPage() {
       <Card>
         <p className="eyebrow mb-2">Leaderboard</p>
         <p className="mb-2 text-sm text-slate">
-          If the firm shows a weekly leaderboard, your first name and XP appear on it.
+          If the firm shows a leaderboard, your first name and your XP for the last seven days appear on it.
           You can stay off it.
         </p>
         <LeaderboardForm optedOut={profile.leaderboardOptOut} />

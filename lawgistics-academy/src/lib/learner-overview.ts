@@ -5,6 +5,7 @@ import { displayScore } from '@/lib/learning/mastery';
 import { levelForXp, localDateString, type LevelInfo } from '@/lib/learning/progression';
 import { MASTERY } from '@/lib/learning/config';
 import { asCountry, asTrack, learnerTimezone } from '@/lib/types';
+import { liveStreak, localMidnight, shiftLocalDate } from '@/lib/local-day';
 import type {
   CareerStage,
   Country,
@@ -75,42 +76,6 @@ export interface LearnerOverview {
 }
 
 
-/**
- * How far a timezone is from UTC at a given instant, in minutes.
- *
- * Needed because a date string is not an instant: "2026-08-25" is a different
- * moment in Kuala Lumpur than in Melbourne, and the daily goal has to reset
- * where the learner is rather than where the server is. Derived from the zone
- * itself rather than stored, so it stays right across daylight saving without
- * anybody remembering to change a number twice a year.
- */
-function zoneOffsetMinutes(timezone: string, at: Date): number {
-  try {
-    const parts = new Intl.DateTimeFormat('en-GB', {
-      timeZone: timezone,
-      hour12: false,
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    }).formatToParts(at);
-    const get = (type: string) => Number(parts.find((p) => p.type === type)?.value ?? '0');
-    const asUtc = Date.UTC(
-      get('year'),
-      get('month') - 1,
-      get('day'),
-      get('hour') === 24 ? 0 : get('hour'),
-      get('minute'),
-      get('second'),
-    );
-    return Math.round((asUtc - at.getTime()) / 60_000);
-  } catch {
-    return 0;
-  }
-}
-
 export async function getLearnerProfile(userId: string): Promise<LearnerProfile | null> {
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
@@ -155,9 +120,9 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
    * not sitting next to the server: somebody in Kuala Lumpur would watch their
    * day reset at eight in the morning. localDateString already knows how to ask
    * what day it is somewhere, and this turns that back into an instant. */
-  const startOfDay = new Date(`${localDateString(profile.timezone)}T00:00:00`);
-  const offsetMinutes = zoneOffsetMinutes(profile.timezone, startOfDay);
-  const dayStart = new Date(startOfDay.getTime() - offsetMinutes * 60_000).toISOString();
+  const today = localDateString(profile.timezone);
+  const dayStart = localMidnight(profile.timezone, today).toISOString();
+  const yesterdayStart = localMidnight(profile.timezone, shiftLocalDate(today, -1)).toISOString();
 
   const [
     xpAll,
@@ -181,7 +146,7 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
         .gte('created_at', weekAgo),
       supabase
         .from('user_streaks')
-        .select('current_streak, longest_streak')
+        .select('current_streak, longest_streak, last_trained_on')
         .eq('user_id', userId)
         .maybeSingle(),
       supabase
@@ -227,7 +192,7 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
         .from('user_question_attempts')
         .select('session_id')
         .eq('user_id', userId)
-        .gte('answered_at', new Date(new Date(dayStart).getTime() - 24 * 60 * 60 * 1000).toISOString())
+        .gte('answered_at', yesterdayStart)
         .lt('answered_at', dayStart),
     ]);
 
@@ -327,7 +292,11 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
     sessionsToday: sessionsToday.count ?? 0,
     weeklyXp: sum(xpWeek.data),
     level: levelForXp(totalXp),
-    currentStreak: (streak.data?.current_streak as number) ?? 0,
+    currentStreak: liveStreak(
+      (streak.data?.current_streak as number) ?? 0,
+      (streak.data?.last_trained_on as string | null) ?? null,
+      today,
+    ),
     longestStreak: (streak.data?.longest_streak as number) ?? 0,
     skillMap,
     skillProfile,

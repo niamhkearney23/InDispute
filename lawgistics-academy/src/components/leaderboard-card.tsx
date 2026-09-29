@@ -20,12 +20,12 @@ export function LeaderboardCard({ rows }: { rows: LeaderboardRow[] }) {
         <span className="grid size-8 place-items-center rounded-lg bg-burgundy-wash text-burgundy">
           <LevelIcon className="size-4" />
         </span>
-        <p className="eyebrow">This week at the firm</p>
+        <p className="eyebrow">Last seven days at the firm</p>
       </div>
 
       {top.length === 0 ? (
         <p className="text-sm text-slate">
-          Nobody has trained yet this week. The first session puts a name here.
+          Nobody has trained in the last seven days. The first session puts a name here.
         </p>
       ) : (
         <ol className="divide-y divide-rule">

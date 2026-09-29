@@ -69,6 +69,7 @@ const PAGES = [
   { name: 'dashboard', path: '/dashboard', auth: true },
   { name: 'skills', path: '/skills', auth: true },
   { name: 'courts', path: '/courts', auth: true },
+  { name: 'courts-my', path: '/courts', auth: true, as: 'trainee@lawgistics.test' },
   { name: 'account', path: '/account', auth: true },
   { name: 'account-password', path: '/account/password', auth: true },
   { name: 'modules', path: '/modules', auth: true },

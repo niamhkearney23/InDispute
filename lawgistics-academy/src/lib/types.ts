@@ -204,6 +204,15 @@ export const JURISDICTIONS_BY_COUNTRY: Record<Country, Jurisdiction[]> = {
   ),
 };
 
+/**
+ * The homes the onboarding form offers: only places a person can be. The
+ * country-wide tags stay as labels on questions and are never a home.
+ */
+export const HOME_JURISDICTIONS: Record<Country, Jurisdiction[]> = {
+  AU: ['NSW', 'VIC', 'QLD', 'WA', 'SA', 'TAS', 'ACT', 'NT'],
+  MY: ['MY_MALAYA', 'MY_SABAH_SARAWAK'],
+};
+
 /** The jurisdiction a learner is given before they say anything more specific. */
 export const DEFAULT_JURISDICTION: Record<Country, Jurisdiction> = {
   AU: 'AU_GENERAL',

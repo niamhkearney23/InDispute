@@ -10,7 +10,7 @@ export const PROGRAMME = {
   /** How long it runs. */
   length: 'One month',
   /** When the next one starts, in words. */
-  nextIntake: 'October',
+  nextIntake: 'October 2026',
   /** The working pattern. */
   days: 'Monday to Friday',
 } as const;
