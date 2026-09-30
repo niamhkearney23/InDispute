@@ -188,7 +188,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   and leaves staff and anyone who opted out (`profiles.leaderboard_opt_out`)
   off it. Module completion is still every question right at least once; the
   summary and the dashboard now say the number rather than "not finished".
-- 288 tests, 208 schema guarantees against a real Postgres, 240 page and device
+- 293 tests, 208 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB

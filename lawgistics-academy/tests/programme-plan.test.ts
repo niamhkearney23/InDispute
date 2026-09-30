@@ -53,5 +53,5 @@ test('the spine is finished by the end of week two', () => {
 
 test('no em dashes in the plan', () => {
   const text = JSON.stringify(PROGRAMME_WEEKS);
-  assert.ok(!/[–—]/.test(text));
+  assert.ok(!/[\u2013\u2014]/.test(text));
 });

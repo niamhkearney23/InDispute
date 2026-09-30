@@ -44,6 +44,7 @@ import { getFactOfTheDay } from '@/lib/facts/service';
 import { brand } from '@/lib/brand';
 import { PROGRAMME } from '@/content/programme';
 import { PROGRAMME_WEEKS, weekOfDay } from '@/content/programme-plan';
+import { programmeDay } from '@/content/programme-days';
 import { StreakCalendar } from '@/components/streak-calendar';
 import { LeaderboardCard } from '@/components/leaderboard-card';
 import { weeklyLeaderboard } from '@/lib/leaderboard';
@@ -107,6 +108,8 @@ export default async function DashboardPage() {
   const assignedTopic = assignedTopicSlug ? essayTopic(assignedTopicSlug) : undefined;
 
   const homework = homeworkDay(profile.startsOn, profile.endsOn, profile.timezone);
+  // Today's entry in the day plan, for the programme strip. Null outside a working day.
+  const todayPlan = homework.state === 'day' ? programmeDay(homework.day) : null;
   // Which week of the month it is, for the programme strip. Null outside it.
   const programmeWeek =
     homework.state === 'day'
@@ -178,10 +181,29 @@ export default async function DashboardPage() {
               ? ` Week ${programmeWeek} of 4: ${PROGRAMME_WEEKS[programmeWeek - 1].title.toLowerCase()}.`
               : ''}
           </p>
+          {todayPlan ? (
+            <div className="mt-3 rounded-md border border-burgundy/15 bg-paper px-4 py-3">
+              <p className="eyebrow">
+                Day {todayPlan.day} of 20 · {todayPlan.title}
+              </p>
+              <p className="mt-1 text-sm">
+                <span className="text-muted">Morning:</span> {todayPlan.morning}
+              </p>
+              <p className="text-sm">
+                <span className="text-muted">Afternoon:</span> {todayPlan.afternoon}
+              </p>
+              {todayPlan.due.length > 0 ? (
+                <p className="mt-1 text-sm font-medium">
+                  Due today: {todayPlan.due.map((n) => `box ${n}`).join(' and ')}. Hand it in on the work board.
+                </p>
+              ) : null}
+            </div>
+          ) : null}
           <ul className="mt-3 flex flex-wrap gap-2">
             {(
               [
                 ['The month, week by week', '/programme'],
+                ['The training file', '/programme/file'],
                 ['Daily questions', '/dashboard'],
                 ['Homework', '/homework'],
                 ['Work from your supervisors', '/work'],

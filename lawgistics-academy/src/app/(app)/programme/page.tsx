@@ -6,6 +6,8 @@ import { homeworkDay } from '@/lib/homework/rules';
 import { HOMEWORK_TASKS } from '@/content/seed/homework';
 import { PROGRAMME } from '@/content/programme';
 import { PROGRAMME_WEEKS, boxesForWeek, weekOfDay } from '@/content/programme-plan';
+import { daysOfWeek } from '@/content/programme-days';
+import { TRAINING_FILE } from '@/content/training-file';
 import { brand } from '@/lib/brand';
 import { ButtonLink, Card, Pill, cn } from '@/components/ui';
 
@@ -45,6 +47,11 @@ export default async function ProgrammePage() {
           {PROGRAMME.length}, {PROGRAMME.days}, on one file that you carry from the first
           interview to the courtroom. Each week produces the pieces of work your supervisor
           grades for certification. Your supervisor may vary this; what they say goes.
+        </p>
+        <p className="mt-3 text-sm">
+          <ButtonLink href="/programme/file" variant="outline" size="sm">
+            {TRAINING_FILE.shortName}: the matter you work on
+          </ButtonLink>
         </p>
         {homework.state === 'before' ? (
           <p className="mt-2 text-sm text-muted">
@@ -122,8 +129,44 @@ export default async function ProgrammePage() {
                 </div>
 
                 <div className="mt-4 border-t border-rule pt-4">
-                  <p className="eyebrow mb-2">Homework, days {days[0]?.day} to {days.at(-1)?.day}</p>
-                  <p className="text-sm text-slate">{days.map((t) => t.title).join(' · ')}</p>
+                  <p className="eyebrow mb-2">Day by day</p>
+                  <ol className="divide-y divide-rule">
+                    {daysOfWeek(week.number).map((d) => {
+                      const isToday = homework.state === 'day' && homework.day === d.day;
+                      const homeworkTitle = days.find((t) => t.day === d.day)?.title;
+                      return (
+                        <li
+                          key={d.day}
+                          className={cn('py-2.5', isToday && '-mx-2 rounded-md bg-paper px-2')}
+                        >
+                          <div className="flex flex-wrap items-baseline gap-x-2">
+                            <span className="font-serif text-sm text-muted tabular-nums">Day {d.day}</span>
+                            <span className="font-medium">{d.title}</span>
+                            {isToday ? <Pill tone="accent">Today</Pill> : null}
+                            {d.due.length > 0 ? (
+                              <span className="text-xs text-muted">
+                                Due: {d.due.map((n) => `${n}`).join(', ')}
+                              </span>
+                            ) : null}
+                          </div>
+                          <p className="mt-1 text-sm text-slate">
+                            <span className="text-muted">Morning:</span> {d.morning}
+                          </p>
+                          <p className="text-sm text-slate">
+                            <span className="text-muted">Afternoon:</span> {d.afternoon}
+                          </p>
+                          <p className="text-sm text-slate">
+                            <span className="text-muted">Video:</span> {d.video}
+                          </p>
+                          {homeworkTitle ? (
+                            <p className="text-sm text-slate">
+                              <span className="text-muted">Homework:</span> {homeworkTitle}
+                            </p>
+                          ) : null}
+                        </li>
+                      );
+                    })}
+                  </ol>
                 </div>
               </Card>
             </li>
