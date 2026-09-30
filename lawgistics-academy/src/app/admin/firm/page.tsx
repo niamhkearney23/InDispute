@@ -1,13 +1,15 @@
 import type { Metadata } from 'next';
 import { requireAdmin } from '@/lib/admin/guard';
 import { listFirmModulesForAdmin } from '@/lib/firm/service';
+import { leaderboardEnabled } from '@/lib/leaderboard';
+import { LeaderboardToggle } from './leaderboard-toggle';
 import { ButtonLink, Card, EmptyState, InlineLink, Pill, SectionHeading } from '@/components/ui';
 
 export const metadata: Metadata = { title: 'Firm induction' };
 
 export default async function FirmModulesPage() {
   await requireAdmin();
-  const modules = await listFirmModulesForAdmin();
+  const [modules, leaderboard] = await Promise.all([listFirmModulesForAdmin(), leaderboardEnabled()]);
 
   return (
     <div className="space-y-8">
@@ -27,6 +29,8 @@ export default async function FirmModulesPage() {
           for statements of law we are answerable for, and none of it enters daily training.
         </p>
       </section>
+
+      <LeaderboardToggle enabled={leaderboard} />
 
       <section>
         <SectionHeading title="Modules" />

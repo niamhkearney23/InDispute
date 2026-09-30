@@ -5,7 +5,7 @@ import { saveOnboarding, type OnboardingState } from '../actions';
 import { Button, Card, Notice, cn } from '@/components/ui';
 import {
   careerStageLabel,
-  DEFAULT_JURISDICTION,
+  HOME_JURISDICTIONS,
   IMPROVEMENT_GOALS,
   JURISDICTION_LABELS,
   PRACTICE_CHOICES,
@@ -21,13 +21,28 @@ const STAGES: CareerStage[] = ['law_student', 'plt_student', 'graduate', 'junior
 const MINUTES = [5, 10, 15, 20];
 
 /**
- * Ordered as a person would expect to find their own, with the general option
- * first for anyone who does not want to commit to one.
+ * Only places a person can actually work. "Australia, general principle" and
+ * "Commonwealth" are tags on questions whose rule applies everywhere; offered
+ * here as somewhere to be, they only confused people, the same as "general"
+ * and "federal" did for Malaysia. Ordered by how many lawyers are in each.
  */
-const JURISDICTIONS: Record<Country, Jurisdiction[]> = {
-  AU: ['AU_GENERAL', 'VIC', 'NSW', 'QLD', 'WA', 'SA', 'TAS', 'ACT', 'NT', 'CTH'],
-  MY: ['MY_GENERAL', 'MY_FEDERAL', 'MY_MALAYA', 'MY_SABAH_SARAWAK'],
-};
+const JURISDICTIONS = HOME_JURISDICTIONS;
+
+/** Where the form starts when nothing has been chosen yet. */
+const HOME_DEFAULT: Record<Country, Jurisdiction> = { AU: 'NSW', MY: 'MY_MALAYA' };
+
+const MALAYSIA_HOMES: Array<{ value: Jurisdiction; label: string; detail: string }> = [
+  {
+    value: 'MY_MALAYA',
+    label: 'Peninsular Malaysia',
+    detail: 'The High Court in Malaya: Kuala Lumpur, Selangor, Penang, Johor and the rest of the peninsula.',
+  },
+  {
+    value: 'MY_SABAH_SARAWAK',
+    label: 'Sabah and Sarawak',
+    detail: 'The High Court in Sabah and Sarawak, with its own rules on land and the native courts.',
+  },
+];
 
 const initialState: OnboardingState = { error: null };
 
@@ -64,6 +79,22 @@ export function OnboardingForm({
     practiceChoiceFor(defaultCountry, defaultTrack),
   );
   const country = choice.country;
+  // Where they work, kept in step with the country: choosing Malaysia must not
+  // leave a Victorian home behind, and a Malaysian home that is one of the
+  // old country-wide tags starts them on the peninsula.
+  const [home, setHome] = useState<Jurisdiction>(() =>
+    JURISDICTIONS[defaultCountry].includes(defaultJurisdiction)
+      ? defaultJurisdiction
+      : HOME_DEFAULT[defaultCountry],
+  );
+  // Somebody who chose "Australia, general principle" before it stopped being
+  // offered is started on the first tile, and told, so they do not save a
+  // State they never picked without noticing.
+  const remapped = editing && !JURISDICTIONS[defaultCountry].includes(defaultJurisdiction);
+  const pickChoice = (option: PracticeChoice) => {
+    setChoice(option);
+    if (option.country !== country) setHome(HOME_DEFAULT[option.country]);
+  };
 
   function toggleGoal(slug: string) {
     setGoals((current) =>
@@ -82,27 +113,43 @@ export function OnboardingForm({
         <input key={slug} type="hidden" name="goals" value={slug} />
       ))}
 
-      <Card>
-        <fieldset>
-          <legend className="mb-1 text-lg">Which country do you plan to practice in?</legend>
-          <p className="mb-4 text-sm text-slate">
-            This one is not a preference. Australian and Malaysian law are different
-            bodies of law, so it decides which questions you are ever shown. A litigation
-            trainee is on a Malaysian firm&rsquo;s programme.
+      {/* A trainee is on a Malaysian firm's programme, which settled the
+          country when they signed up on the trainee page. Offering Australia
+          here as well only confused them: they are told where they are, not
+          asked. Everyone else chooses between the two countries; the way on
+          to the programme is the trainee page, not a third tile here. */}
+      {choice.track === 'litigation_trainee' ? (
+        <Card>
+          <p className="eyebrow mb-2">Your programme</p>
+          <p className="text-lg">Litigation trainee, Malaysia</p>
+          <p className="mt-1 text-sm text-slate">
+            You are on a Malaysian firm&rsquo;s programme, so you are trained on Malaysian
+            law. Your supervisor confirms your place after you sign up. Until then the
+            work posted for trainees stays hidden; everything else works now.
           </p>
-          <div className="grid gap-2 sm:grid-cols-3">
-            {PRACTICE_CHOICES.map((option) => (
-              <Choice
-                key={option.key}
-                selected={choice.key === option.key}
-                onClick={() => setChoice(option)}
-                label={option.label}
-                detail={option.detail}
-              />
-            ))}
-          </div>
-        </fieldset>
-      </Card>
+        </Card>
+      ) : (
+        <Card>
+          <fieldset>
+            <legend className="mb-1 text-lg">Which country do you plan to practise in?</legend>
+            <p className="mb-4 text-sm text-slate">
+              This one is not a preference. Australian and Malaysian law are different
+              bodies of law, so it decides which questions you are ever shown.
+            </p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {PRACTICE_CHOICES.filter((option) => option.track === 'general').map((option) => (
+                <Choice
+                  key={option.key}
+                  selected={choice.key === option.key}
+                  onClick={() => pickChoice(option)}
+                  label={option.label}
+                  detail={option.detail}
+                />
+              ))}
+            </div>
+          </fieldset>
+        </Card>
+      )}
 
       <Card>
         <fieldset>
@@ -178,33 +225,50 @@ export function OnboardingForm({
             />
           </div>
 
-          <div>
-            <label htmlFor="homeJurisdiction" className="mb-1 block text-lg">
-              Which jurisdiction do you work in?
-            </label>
-            <p className="mb-2 text-sm text-slate">
-              Every question is tagged with the jurisdiction its rule belongs to. This
-              tells us which one is home; you will still see the others, clearly
-              labelled.
-            </p>
-            <select
-              id="homeJurisdiction"
-              name="homeJurisdiction"
-              // Keyed on country so switching country resets the selection
-              // rather than leaving a Victorian learner in Malaysia.
-              key={country}
-              defaultValue={
-                country === defaultCountry ? defaultJurisdiction : DEFAULT_JURISDICTION[country]
-              }
-              className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy"
-            >
-              {JURISDICTIONS[country].map((value) => (
-                <option key={value} value={value}>
-                  {JURISDICTION_LABELS[value]}
-                </option>
-              ))}
-            </select>
-          </div>
+          {country === 'MY' ? (
+            <fieldset>
+              <legend className="mb-1 text-lg">Where in Malaysia?</legend>
+              <p className="mb-3 text-sm text-slate">
+                Most rules are the same across the country and you see all of them. A few
+                differ between the peninsula and Sabah and Sarawak, and those are labelled
+                so you know which is yours.
+              </p>
+              <input type="hidden" name="homeJurisdiction" value={home} />
+              <div className="grid gap-2 sm:grid-cols-2">
+                {MALAYSIA_HOMES.map((option) => (
+                  <Choice
+                    key={option.value}
+                    selected={home === option.value}
+                    onClick={() => setHome(option.value)}
+                    label={option.label}
+                    detail={option.detail}
+                  />
+                ))}
+              </div>
+            </fieldset>
+          ) : (
+            <fieldset>
+              <legend className="mb-1 text-lg">Which State or Territory are you in?</legend>
+              <p className="mb-3 text-sm text-slate">
+                Every question is tagged with the jurisdiction its rule belongs to. This
+                says which one is home; you still see the others, clearly labelled.
+                {remapped && country === 'AU'
+                  ? ' We have started you on New South Wales. Change it if that is not where you are.'
+                  : ''}
+              </p>
+              <input type="hidden" name="homeJurisdiction" value={home} />
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {JURISDICTIONS[country].map((value) => (
+                  <Choice
+                    key={value}
+                    selected={home === value}
+                    onClick={() => setHome(value)}
+                    label={JURISDICTION_LABELS[value]}
+                  />
+                ))}
+              </div>
+            </fieldset>
+          )}
         </div>
       </Card>
 

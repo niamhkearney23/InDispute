@@ -187,6 +187,7 @@ const LAPSED_FACT = {
 };
 
 const SESSION_ID = '99999999-9999-9999-9999-999999999999';
+const MODULE_SESSION_ID = '99999999-9999-9999-9999-999999999998';
 
 /** By slug rather than by index: position was silently load-bearing. */
 const bySlug = (slug) => {
@@ -635,6 +636,13 @@ const TABLES = {
   ],
   xp_events: Array.from({ length: 43 }, () => ({ amount: 10 })),
   user_streaks: [{ user_id: USER_ID, current_streak: 6, longest_streak: 11 }],
+  firm_settings: [{ id: true, leaderboard_enabled: true }],
+  'rpc/weekly_leaderboard': [
+    { place: 1, first_name: 'Aisyah', xp: 640, is_me: false },
+    { place: 2, first_name: 'Niamh', xp: 480, is_me: true },
+    { place: 3, first_name: 'Wei', xp: 310, is_me: false },
+    { place: 4, first_name: 'Priya', xp: 120, is_me: false },
+  ],
   user_concept_mastery: conceptMastery,
   user_skill_mastery: skillMastery,
   review_schedule: [
@@ -704,15 +712,40 @@ const TABLES = {
       xp_awarded: 135,
       completed_at: '2026-08-06T09:10:00Z',
     },
+    {
+      id: MODULE_SESSION_ID,
+      user_id: USER_ID,
+      kind: 'practice',
+      status: 'completed',
+      started_at: '2026-08-06T09:00:00Z',
+      total_answered: 2,
+      correct_count: 1,
+      xp_awarded: 20,
+      completed_at: '2026-08-06T09:10:00Z',
+    },
   ],
-  training_session_questions: deliveryQuestions.map((q, i) => ({
-    id: `tsq${i}`,
-    session_id: SESSION_ID,
-    question_id: q.question_id,
-    question_version_id: q.question_version_id,
-    position: i,
-    answered_at: null,
-  })),
+  training_session_questions: [
+    ...deliveryQuestions.map((q, i) => ({
+      id: `tsq${i}`,
+      session_id: SESSION_ID,
+      question_id: q.question_id,
+      question_version_id: q.question_version_id,
+      position: i,
+      answered_at: null,
+    })),
+    // The module session asked only court questions, so the summary can
+    // work out which module it was and say where that module stands.
+    ...deliveryQuestions
+      .filter((q) => q.domain_slug === 'court-system')
+      .map((q, i) => ({
+        id: `mtsq${i}`,
+        session_id: MODULE_SESSION_ID,
+        question_id: q.question_id,
+        question_version_id: q.question_version_id,
+        position: i,
+        answered_at: '2026-08-06T09:05:00Z',
+      })),
+  ],
   v_question_delivery: deliveryQuestions,
   concepts: conceptMastery.map((c) => c.concepts),
   skills: skillMastery.map((s) => ({ id: s.skills.slug, ...s.skills })),
@@ -911,9 +944,22 @@ const server = http.createServer((req, res) => {
       // "not found" -- a mock artefact that looks exactly like an app bug.
       const RESERVED = new Set(['select', 'order', 'limit', 'offset', 'on_conflict', 'columns']);
       for (const [key, value] of url.searchParams) {
-        if (RESERVED.has(key) || !value.startsWith('eq.')) continue;
-        const want = value.slice(3);
-        rows = rows.filter((r) => String(r[key]) === want);
+        if (RESERVED.has(key)) continue;
+        if (value.startsWith('eq.')) {
+          const want = value.slice(3);
+          rows = rows.filter((r) => String(r[key]) === want);
+        } else if (value.startsWith('in.(') && value.endsWith(')')) {
+          // in.(a,b,c), as the client sends .in(). Without it every "which of
+          // these" read came back with everything, and the summary page could
+          // not tell which module a session was drawn from.
+          const wanted = new Set(
+            value
+              .slice(4, -1)
+              .split(',')
+              .map((v) => v.replace(/^"|"$/g, '')),
+          );
+          rows = rows.filter((r) => wanted.has(String(r[key])));
+        }
       }
 
       // A count asked for with { head: true } arrives as HEAD. Answered as a
@@ -926,6 +972,10 @@ const server = http.createServer((req, res) => {
         });
         return res.end();
       }
+
+      // A function call. The app's only one is the leaderboard, which reads;
+      // answered from the fixtures rather than as a write.
+      if (table.startsWith('rpc/')) return send(200, TABLES[table] ?? []);
 
       if (req.method !== 'GET') {
         const written = { id: 'cccccccc-0000-4000-8000-00000000000' + (writeSeq++ % 10), ...(rows[0] ?? {}) };

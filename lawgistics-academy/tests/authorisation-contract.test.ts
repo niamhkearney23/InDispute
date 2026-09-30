@@ -141,6 +141,8 @@ test('the server actions were actually found', () => {
     'saveTrainee',
     'saveWorkPost',
     'sendWorkMessage',
+    'setLeaderboardEnabled',
+    'setLeaderboardOptOut',
     'setPlacementDates',
     'setPublished',
     'submitWork',
@@ -409,6 +411,7 @@ test('privileged modules are marked server-only', () => {
     'src/lib/ai/provider.ts',
     'src/lib/ai/legal-coach.ts',
     'src/lib/work/service.ts',
+    'src/lib/leaderboard.ts',
   ];
 
   for (const relative of mustBeServerOnly) {

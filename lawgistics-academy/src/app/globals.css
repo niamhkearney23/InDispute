@@ -83,6 +83,7 @@
     *::before,
     *::after {
       animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
     }
   }
@@ -299,4 +300,97 @@
 .landing-stripe {
   height: 6px;
   background: var(--stripe);
+}
+
+/* =============================================================================
+   Answering a question
+   The moment the verdict lands is the loop's whole reward, and it used to
+   arrive as a colour change. Now the right option swells and settles with a
+   ring that spreads out from it, a wrong choice shakes once, the XP counts
+   up, and a run of correct answers earns a badge that pops in. Small, quick,
+   and gone before it is annoying. The reduced-motion rule stops all of it.
+   ========================================================================== */
+
+@keyframes answer-correct {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.025); }
+  100% { transform: scale(1); }
+}
+@keyframes answer-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(47, 93, 79, 0.45); }
+  100% { box-shadow: 0 0 0 14px rgba(47, 93, 79, 0); }
+}
+@keyframes answer-wrong {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-6px); }
+  40%      { transform: translateX(5px); }
+  60%      { transform: translateX(-3px); }
+  80%      { transform: translateX(2px); }
+}
+@keyframes badge-pop {
+  0%   { transform: scale(0.6) rotate(-6deg); opacity: 0; }
+  60%  { transform: scale(1.12) rotate(2deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+@keyframes bar-shine {
+  from { transform: translateX(-120%); }
+  to   { transform: translateX(320%); }
+}
+@keyframes tick-in {
+  0%   { transform: scale(0.4); opacity: 0; }
+  70%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.answer-correct {
+  animation:
+    answer-correct 480ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    answer-ring 700ms ease-out;
+}
+.answer-wrong {
+  animation: answer-wrong 420ms ease-in-out;
+}
+.badge-pop {
+  animation: badge-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.tick-in {
+  display: inline-block;
+  animation: tick-in 360ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* The session bar: a gradient, and a light that sweeps along it each time
+   it grows. */
+.session-bar {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(90deg, var(--color-burgundy), #a3454f);
+  transition: width 500ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.session-bar-shine {
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  animation: bar-shine 900ms ease-out;
+}
+
+/* The flame on the dashboard grows with the streak. */
+@keyframes flame-flicker {
+  0%, 100% { transform: scale(1) rotate(-1deg); }
+  50%      { transform: scale(1.08) rotate(1.5deg); }
+}
+.flame-live {
+  transform-origin: 50% 90%;
+  animation: flame-flicker 1.8s ease-in-out infinite;
+}
+
+/* The court diagrams. The apex court carries a burgundy rule along its top
+   so the eye starts there, and the appeal routes change colour smoothly when
+   a court is opened rather than snapping. */
+.court-box-apex {
+  border-top-width: 3px;
+  border-top-color: var(--color-burgundy);
+}
+.court-route {
+  transition: stroke 200ms ease-out;
 }

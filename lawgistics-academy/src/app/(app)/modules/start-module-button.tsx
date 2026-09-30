@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { beginModule } from '../actions';
 import { Button, Notice } from '@/components/ui';
+import { isRedirect } from '@/lib/is-redirect';
 
 export function StartModuleButton({ slug, label }: { slug: string; label: string }) {
   const [pending, startTransition] = useTransition();
@@ -21,6 +22,7 @@ export function StartModuleButton({ slug, label }: { slug: string; label: string
               const result = await beginModule(slug);
               if (result?.error) setError(result.error);
             } catch (caught) {
+              if (isRedirect(caught)) throw caught;
               setError(
                 caught instanceof Error ? caught.message : 'Could not start the module.',
               );

@@ -157,7 +157,7 @@ export function AuthForm({
             {isSignup && !trainee ? (
               <fieldset>
                 <legend className="mb-2 block text-sm font-semibold">
-                  Which country do you plan to practice in?
+                  Which country do you plan to practise in?
                 </legend>
                 <div className="grid grid-cols-2 gap-2.5">
                   {PRACTICE_CHOICES.filter((c) => c.track === 'general').map((option) => {

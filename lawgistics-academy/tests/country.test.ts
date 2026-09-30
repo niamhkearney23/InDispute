@@ -358,6 +358,14 @@ test('each hierarchy is a single tree that reaches its apex', () => {
         parent.tier < court.tier,
         `${court.slug} appeals to ${parent.slug}, which is drawn below it`,
       );
+      // A second route is held to the same rules, and must be on the same
+      // row as the first: two High Courts, not a High Court and the apex.
+      if (court.alsoAppealsTo) {
+        const other = bySlug.get(court.alsoAppealsTo);
+        assert.ok(other, `${court.slug} also appeals to "${court.alsoAppealsTo}", which does not exist`);
+        assert.equal(other.tier, parent.tier, `${court.slug}'s two appeal routes land on different rows`);
+        assert.notEqual(other.slug, parent.slug, `${court.slug} names the same court twice`);
+      }
 
       // Walk to the top, so a cycle fails here rather than hanging the browser.
       let cursor = parent;

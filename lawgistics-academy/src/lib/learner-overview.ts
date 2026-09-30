@@ -5,6 +5,7 @@ import { displayScore } from '@/lib/learning/mastery';
 import { levelForXp, localDateString, type LevelInfo } from '@/lib/learning/progression';
 import { MASTERY } from '@/lib/learning/config';
 import { asCountry, asTrack, learnerTimezone } from '@/lib/types';
+import { liveStreak, localMidnight, shiftLocalDate } from '@/lib/local-day';
 import type {
   CareerStage,
   Country,
@@ -47,6 +48,8 @@ export interface LearnerProfile {
   mustChangePassword: boolean;
   /** On the trainee programme and confirmed by somebody at the firm (0023). */
   traineeConfirmed: boolean;
+  /** Asked to be left off the firm's leaderboard. */
+  leaderboardOptOut: boolean;
 }
 
 export interface LearnerOverview {
@@ -66,44 +69,12 @@ export interface LearnerOverview {
   needsReview: string[];
   recentlyMastered: string[];
   dueCount: number;
+  /** Local dates (YYYY-MM-DD) in the last five weeks on which a session was finished. */
+  trainedDays: string[];
+  /** Training questions answered yesterday, where the learner is. */
+  answeredYesterday: number;
 }
 
-
-/**
- * How far a timezone is from UTC at a given instant, in minutes.
- *
- * Needed because a date string is not an instant: "2026-08-25" is a different
- * moment in Kuala Lumpur than in Melbourne, and the daily goal has to reset
- * where the learner is rather than where the server is. Derived from the zone
- * itself rather than stored, so it stays right across daylight saving without
- * anybody remembering to change a number twice a year.
- */
-function zoneOffsetMinutes(timezone: string, at: Date): number {
-  try {
-    const parts = new Intl.DateTimeFormat('en-GB', {
-      timeZone: timezone,
-      hour12: false,
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    }).formatToParts(at);
-    const get = (type: string) => Number(parts.find((p) => p.type === type)?.value ?? '0');
-    const asUtc = Date.UTC(
-      get('year'),
-      get('month') - 1,
-      get('day'),
-      get('hour') === 24 ? 0 : get('hour'),
-      get('minute'),
-      get('second'),
-    );
-    return Math.round((asUtc - at.getTime()) / 60_000);
-  } catch {
-    return 0;
-  }
-}
 
 export async function getLearnerProfile(userId: string): Promise<LearnerProfile | null> {
   const supabase = await createSupabaseServerClient();
@@ -130,6 +101,7 @@ export async function getLearnerProfile(userId: string): Promise<LearnerProfile 
     isCoach: data.is_coach ?? false,
     mustChangePassword: data.must_change_password ?? false,
     traineeConfirmed: Boolean(data.trainee_approved_at),
+    leaderboardOptOut: Boolean(data.leaderboard_opt_out),
   };
 }
 
@@ -148,9 +120,9 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
    * not sitting next to the server: somebody in Kuala Lumpur would watch their
    * day reset at eight in the morning. localDateString already knows how to ask
    * what day it is somewhere, and this turns that back into an instant. */
-  const startOfDay = new Date(`${localDateString(profile.timezone)}T00:00:00`);
-  const offsetMinutes = zoneOffsetMinutes(profile.timezone, startOfDay);
-  const dayStart = new Date(startOfDay.getTime() - offsetMinutes * 60_000).toISOString();
+  const today = localDateString(profile.timezone);
+  const dayStart = localMidnight(profile.timezone, today).toISOString();
+  const yesterdayStart = localMidnight(profile.timezone, shiftLocalDate(today, -1)).toISOString();
 
   const [
     xpAll,
@@ -163,6 +135,8 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
     answeredToday,
     sessionsToday,
     diagnostics,
+    finishedRecently,
+    answeredYesterdayRows,
   ] = await Promise.all([
       supabase.from('xp_events').select('amount').eq('user_id', userId),
       supabase
@@ -172,7 +146,7 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
         .gte('created_at', weekAgo),
       supabase
         .from('user_streaks')
-        .select('current_streak, longest_streak')
+        .select('current_streak, longest_streak, last_trained_on')
         .eq('user_id', userId)
         .maybeSingle(),
       supabase
@@ -206,6 +180,20 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
         .select('id')
         .eq('user_id', userId)
         .eq('kind', 'diagnostic'),
+      // Five weeks of finished sessions, for the calendar of days trained.
+      supabase
+        .from('training_sessions')
+        .select('completed_at')
+        .eq('user_id', userId)
+        .not('completed_at', 'is', null)
+        .gte('completed_at', new Date(Date.now() - 36 * 24 * 60 * 60 * 1000).toISOString()),
+      // Yesterday's answers, for "beat yesterday".
+      supabase
+        .from('user_question_attempts')
+        .select('session_id')
+        .eq('user_id', userId)
+        .gte('answered_at', yesterdayStart)
+        .lt('answered_at', dayStart),
     ]);
 
   /* Today's training is the daily goal, and the diagnostic is not part of it.
@@ -216,6 +204,16 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
   const trainedToday = (answeredToday.data ?? []).filter(
     (row) => !row.session_id || !diagnosticIds.has(row.session_id as string),
   ).length;
+  const answeredYesterday = (answeredYesterdayRows.data ?? []).filter(
+    (row) => !row.session_id || !diagnosticIds.has(row.session_id as string),
+  ).length;
+  const trainedDays = [
+    ...new Set(
+      (finishedRecently.data ?? []).map((row) =>
+        localDateString(profile.timezone, new Date(row.completed_at as string)),
+      ),
+    ),
+  ].sort();
 
   const sum = (rows: Array<{ amount: number }> | null) =>
     (rows ?? []).reduce((total, row) => total + row.amount, 0);
@@ -289,10 +287,16 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
     profile,
     totalXp,
     answeredToday: trainedToday,
+    trainedDays,
+    answeredYesterday,
     sessionsToday: sessionsToday.count ?? 0,
     weeklyXp: sum(xpWeek.data),
     level: levelForXp(totalXp),
-    currentStreak: (streak.data?.current_streak as number) ?? 0,
+    currentStreak: liveStreak(
+      (streak.data?.current_streak as number) ?? 0,
+      (streak.data?.last_trained_on as string | null) ?? null,
+      today,
+    ),
     longestStreak: (streak.data?.longest_streak as number) ?? 0,
     skillMap,
     skillProfile,

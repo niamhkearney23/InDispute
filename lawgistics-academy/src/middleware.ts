@@ -61,7 +61,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (user && (pathname === '/login' || pathname === '/signup' || pathname === '/trainee')) {
+  if (
+    user &&
+    (pathname === '/login' ||
+      pathname === '/signup' ||
+      pathname === '/trainee' ||
+      pathname === '/trainee/signup')
+  ) {
     const url = request.nextUrl.clone();
     url.pathname = '/dashboard';
     url.search = '';

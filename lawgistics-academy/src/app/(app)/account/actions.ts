@@ -151,3 +151,32 @@ export async function changePassword(
   revalidatePath('/account');
   redirect('/dashboard');
 }
+
+export type LeaderboardState = { error: string | null; ok?: string };
+
+/**
+ * Taking yourself off the firm's leaderboard, or putting yourself back.
+ * Your own row, through your own session, and nobody else's business.
+ */
+export async function setLeaderboardOptOut(
+  _prev: LeaderboardState,
+  formData: FormData,
+): Promise<LeaderboardState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: 'You are not signed in.' };
+
+  const optOut = formData.get('optOut') === 'on';
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from('profiles')
+    .update({ leaderboard_opt_out: optOut })
+    .eq('id', user.id);
+  if (error) return { error: 'That could not be saved. Please try again.' };
+
+  revalidatePath('/account');
+  revalidatePath('/dashboard');
+  return {
+    error: null,
+    ok: optOut ? 'You are off the leaderboard.' : 'You are back on the leaderboard.',
+  };
+}

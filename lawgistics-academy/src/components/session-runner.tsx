@@ -5,6 +5,7 @@ import { answerQuestion, finishSession, requestCoachNote } from '@/app/(app)/act
 import { CourtHierarchyDiagram } from '@/components/court-hierarchy-diagram';
 import { JURISDICTION_COUNTRY } from '@/lib/types';
 import { Button, Notice, Pill, cn } from '@/components/ui';
+import { CountUp } from '@/components/count-up';
 import {
   CONFIDENCE_LABELS,
   JURISDICTION_LABELS,
@@ -39,6 +40,10 @@ export function SessionRunner({
   // deriving the tally from the question index would report it wrong.
   const [correctSoFar, setCorrectSoFar] = useState(0);
   const [answeredThisSitting, setAnsweredThisSitting] = useState(0);
+  // Correct answers in a row, this sitting. The badge that celebrates it is
+  // the cheapest part of the loop to make rewarding, and it resets to zero
+  // without comment: a run ending is not a failure worth naming.
+  const [combo, setCombo] = useState(0);
 
   // Set on mount and on every question change by the effect below, reading the
   // clock during render would be impure.
@@ -84,6 +89,7 @@ export function SessionRunner({
         setFeedback(result);
         setAnsweredThisSitting((n) => n + 1);
         if (result.isCorrect) setCorrectSoFar((n) => n + 1);
+        setCombo((n) => (result.isCorrect ? n + 1 : 0));
 
         // Fetched separately, deliberately outside this transition: the
         // explanation above is everything the learner needs, already in hand,
@@ -143,17 +149,19 @@ export function SessionRunner({
           </span>
         </div>
         <div
-          className="h-1 w-full overflow-hidden rounded-full bg-paper-sunk"
+          className="h-1.5 w-full overflow-hidden rounded-full bg-paper-sunk"
           role="progressbar"
           aria-valuenow={progress}
           aria-valuemin={0}
           aria-valuemax={100}
           aria-label="Session progress"
         >
-          <div
-            className="h-full rounded-full bg-ink transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          />
+          <div className="session-bar h-full rounded-full" style={{ width: `${progress}%` }}>
+            {/* Keyed on the value so the sweep of light runs again each time
+                the bar grows, not once on mount. The bar itself is not keyed,
+                so its width still glides rather than jumping. */}
+            <span key={progress} aria-hidden className="session-bar-shine" />
+          </div>
         </div>
       </div>
 
@@ -172,7 +180,7 @@ export function SessionRunner({
         </div>
 
         {question.scenario ? (
-          <div className="mb-5 border-l-2 border-rule-strong pl-4 text-[0.9375rem] text-slate">
+          <div className="mb-5 border-l-2 border-rule-strong pl-4 text-base leading-relaxed text-slate sm:text-lg">
             {question.scenario}
           </div>
         ) : null}
@@ -180,7 +188,7 @@ export function SessionRunner({
         <h1
           ref={headingRef}
           tabIndex={-1}
-          className="mb-6 text-xl leading-snug outline-none sm:text-2xl"
+          className="mb-7 text-2xl leading-snug outline-none sm:text-[2rem] sm:leading-[1.25]"
         >
           {question.stem}
         </h1>
@@ -210,22 +218,22 @@ export function SessionRunner({
                 aria-pressed={isSelected}
                 onClick={() => setSelected([option.id])}
                 className={cn(
-                  'flex w-full items-start gap-3 rounded-md border px-4 py-3.5 text-left text-[0.9375rem] transition-colors',
+                  'flex w-full items-start gap-3.5 rounded-md border px-4 py-4 text-left text-base leading-relaxed transition-colors sm:px-5 sm:text-lg',
                   !answered && isSelected && 'border-ink bg-paper-sunk',
                   !answered &&
                     !isSelected &&
                     'border-rule-strong bg-paper-raised shadow-card hover:bg-paper-sunk',
                   answered &&
                     isCorrectOption &&
-                    'border-verdict-correct bg-verdict-correct-wash',
-                  isWrongChoice && 'border-verdict-wrong bg-verdict-wrong-wash',
+                    'answer-correct border-verdict-correct bg-verdict-correct-wash',
+                  isWrongChoice && 'answer-wrong border-verdict-wrong bg-verdict-wrong-wash',
                   answered && !isCorrectOption && !isWrongChoice && 'border-rule opacity-55',
                   'disabled:cursor-default',
                 )}
               >
                 <span
                   className={cn(
-                    'mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border text-[0.6875rem] font-semibold',
+                    'mt-1 flex size-6 shrink-0 items-center justify-center rounded-full border text-xs font-semibold',
                     !answered && isSelected && 'border-ink bg-ink text-paper',
                     !answered && !isSelected && 'border-rule-strong text-muted',
                     answered &&
@@ -236,7 +244,13 @@ export function SessionRunner({
                   )}
                   aria-hidden
                 >
-                  {option.id.length === 1 ? option.id.toUpperCase() : ''}
+                  {answered && isCorrectOption ? (
+                    <span className="tick-in">✓</span>
+                  ) : option.id.length === 1 ? (
+                    option.id.toUpperCase()
+                  ) : (
+                    ''
+                  )}
                 </span>
                 <span>{option.text}</span>
               </button>
@@ -248,7 +262,7 @@ export function SessionRunner({
         {/* Confidence, asked before the verdict, deliberately ----------- */}
         {!answered && selected.length > 0 ? (
           <div className="mt-7 rise-in">
-            <p className="mb-3 text-sm font-medium">How sure are you?</p>
+            <p className="mb-3 text-base font-medium">How sure are you?</p>
             <div className="grid grid-cols-3 gap-2">
               {CONFIDENCE_ORDER.map((level) => (
                 <button
@@ -256,7 +270,7 @@ export function SessionRunner({
                   type="button"
                   disabled={pending}
                   onClick={() => submit(level)}
-                  className="rounded-md border border-rule-strong px-3 py-3 text-sm transition-colors hover:border-burgundy hover:bg-burgundy-wash disabled:opacity-50"
+                  className="rounded-md border border-rule-strong px-3 py-3.5 text-base transition-colors hover:border-burgundy hover:bg-burgundy-wash disabled:opacity-50"
                 >
                   {CONFIDENCE_LABELS[level]}
                 </button>
@@ -277,7 +291,7 @@ export function SessionRunner({
 
         {/* Feedback ------------------------------------------------------ */}
         {feedback ? (
-          <FeedbackPanel feedback={feedback} coachNoteLoading={coachNoteLoading} />
+          <FeedbackPanel feedback={feedback} coachNoteLoading={coachNoteLoading} combo={combo} />
         ) : null}
       </article>
 
@@ -288,8 +302,15 @@ export function SessionRunner({
       {answered ? (
         <div className="sticky bottom-0 z-30 -mx-5 mt-8 border-t border-rule bg-paper/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm sm:-mx-8">
           <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
-            <p className="text-sm text-slate tabular-nums">
-              {correctSoFar} of {answeredThisSitting} correct
+            <p className="flex items-center gap-2.5 text-sm text-slate tabular-nums">
+              <span>
+                {correctSoFar} of {answeredThisSitting} correct
+              </span>
+              {combo >= 2 ? (
+                <span className="rounded-full bg-verdict-correct-wash px-2 py-0.5 text-xs font-semibold text-verdict-correct">
+                  {combo} in a row
+                </span>
+              ) : null}
             </p>
             <Button onClick={next} variant="accent" disabled={finishing}>
               {finishing ? 'Finishing…' : isLast ? 'Finish session' : 'Next question'}
@@ -301,13 +322,24 @@ export function SessionRunner({
   );
 }
 
+/** What a run of right answers is called. Three words, and no more of them. */
+function comboWord(combo: number): string | null {
+  if (combo >= 10) return `${combo} in a row. Unstoppable.`;
+  if (combo >= 5) return `${combo} in a row. On a roll.`;
+  if (combo >= 3) return `${combo} in a row.`;
+  return null;
+}
+
 function FeedbackPanel({
   feedback,
   coachNoteLoading,
+  combo,
 }: {
   feedback: AnswerFeedback;
   coachNoteLoading: boolean;
+  combo: number;
 }) {
+  const run = feedback.isCorrect ? comboWord(combo) : null;
   return (
     <section
       className="mt-7 rise-in"
@@ -332,13 +364,24 @@ function FeedbackPanel({
             {feedback.isCorrect ? 'Correct.' : 'Not quite.'}
           </h2>
           {feedback.xpAwarded > 0 ? (
-            <span className="font-serif text-sm tabular-nums">
-              +{feedback.xpAwarded} XP
-            </span>
+            <CountUp
+              value={feedback.xpAwarded}
+              prefix="+"
+              suffix=" XP"
+              className="badge-pop rounded-full bg-verdict-correct px-2.5 py-1 font-serif text-sm text-paper tabular-nums"
+            />
           ) : null}
         </div>
+        {run ? (
+          <p
+            key={combo}
+            className="badge-pop -mt-2 mb-4 inline-block rounded-full border border-verdict-correct/30 bg-paper px-3 py-1 text-xs font-semibold tracking-wide text-verdict-correct uppercase"
+          >
+            {run}
+          </p>
+        ) : null}
 
-        <div className="space-y-5 text-[0.9375rem] leading-relaxed">
+        <div className="space-y-5 text-base leading-relaxed sm:text-[1.0625rem]">
           <p>{feedback.explanation}</p>
 
           {!feedback.isCorrect && feedback.commonMisconception ? (

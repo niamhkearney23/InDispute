@@ -6,6 +6,7 @@ import { getLearnerProfile } from '@/lib/learner-overview';
 import { getModuleProgress } from '@/lib/modules/service';
 import { listFirmModulesForLearner } from '@/lib/firm/service';
 import { ButtonLink, Card, Pill, SectionHeading } from '@/components/ui';
+import { ModuleArt, artFor } from '@/components/module-art';
 
 export const metadata: Metadata = { title: 'Modules' };
 
@@ -56,7 +57,8 @@ export default async function ModulesPage() {
               <Link key={module.id} href={`/modules/firm/${module.slug}`} className="block">
                 <Card className="transition-[box-shadow,border-color] hover:border-rule-strong hover:shadow-raised">
                   <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="min-w-0">
+                    <ModuleArt kind="firm" className="h-16 w-20 shrink-0 rounded-md" />
+                    <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <h3 className="text-lg">{module.name}</h3>
                         {module.required ? <Pill tone="accent">Required</Pill> : null}
@@ -86,8 +88,10 @@ export default async function ModulesPage() {
               href={`/modules/${entry.module.slug}`}
               className="block"
             >
-              <Card className="flex h-full flex-col justify-between transition-[box-shadow,border-color] hover:border-rule-strong hover:shadow-raised">
+              <div className="flex h-full flex-col justify-between overflow-hidden rounded-lg border border-rule bg-paper-raised shadow-card transition-[box-shadow,border-color] hover:border-rule-strong hover:shadow-raised">
                 <div>
+                  <ModuleArt kind={artFor(entry.module.slug)} className="h-24 w-full sm:h-28" />
+                  <div className="px-4 pt-4 sm:px-5">
                   {entry.module.required || entry.complete ? (
                     <div className="mb-2 flex flex-wrap items-center gap-1.5">
                       {entry.module.required ? <Pill tone="accent">Required</Pill> : null}
@@ -96,13 +100,14 @@ export default async function ModulesPage() {
                   ) : null}
                   <h3 className="text-base leading-snug sm:text-lg">{entry.module.name}</h3>
                   <p className="mt-1.5 text-sm text-slate">{entry.module.summary}</p>
+                  </div>
                 </div>
-                <p className="mt-3 text-sm tabular-nums text-muted">
+                <p className="px-4 pb-4 pt-3 text-sm tabular-nums text-muted sm:px-5 sm:pb-5">
                   {entry.total === 0
                     ? 'Not published yet'
                     : `${entry.correctOnce} of ${entry.total}`}
                 </p>
-              </Card>
+              </div>
             </Link>
           ))}
         </div>

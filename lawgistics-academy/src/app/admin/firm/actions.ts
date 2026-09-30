@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { checkAdmin } from '@/lib/admin/guard';
 import { createServiceClient } from '@/lib/supabase/service';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 import type { AdminState } from '../actions';
 
 /**
@@ -124,4 +125,41 @@ export async function saveFirmModule(
   revalidatePath('/admin/firm');
   revalidatePath('/modules');
   redirect('/admin/firm');
+}
+
+/**
+ * Switching the weekly leaderboard on or off, for the whole firm.
+ *
+ * An administrator's decision, because it changes what every learner sees
+ * of every other learner. Off is the default and the safe side.
+ */
+export async function setLeaderboardEnabled(
+  _state: AdminState,
+  formData: FormData,
+): Promise<AdminState> {
+  const adminId = await checkAdmin();
+  if (!adminId) return { error: 'Not authorised.' };
+
+  const enabled = formData.get('enabled') === 'on';
+  // Through the administrator's own session: the firm_settings policy
+  // admits exactly this write, and the stamp trigger records who made it
+  // from the session, which a service-role write would leave blank. The
+  // row is read back because an update of nothing is not an error, and
+  // "the leaderboard is on" over a missing row would be a lie.
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from('firm_settings')
+    .update({ leaderboard_enabled: enabled })
+    .eq('id', true)
+    .select('leaderboard_enabled')
+    .maybeSingle();
+  if (error || !data) {
+    return {
+      error: 'That could not be saved. If the database has not had the latest update applied, run UPDATE.sql first.',
+    };
+  }
+
+  revalidatePath('/admin/firm');
+  revalidatePath('/dashboard');
+  return { error: null, ok: enabled ? 'The leaderboard is on.' : 'The leaderboard is off.' };
 }

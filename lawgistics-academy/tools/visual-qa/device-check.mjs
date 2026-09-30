@@ -56,7 +56,8 @@ const PAGES = [
   { name: 'landing', path: '/', auth: false },
   { name: 'login', path: '/login', auth: false },
   { name: 'signup', path: '/signup', auth: false },
-  { name: 'signup-trainee', path: '/trainee', auth: false },
+  { name: 'trainee', path: '/trainee', auth: false },
+  { name: 'signup-trainee', path: '/trainee/signup', auth: false },
   // Signed out on purpose: this is the one page in the app a person reaches
   // before they have an account, so rendering it as a signed-in user would
   // check the wrong thing entirely.
@@ -68,6 +69,7 @@ const PAGES = [
   { name: 'dashboard', path: '/dashboard', auth: true },
   { name: 'skills', path: '/skills', auth: true },
   { name: 'courts', path: '/courts', auth: true },
+  { name: 'courts-my', path: '/courts', auth: true, as: 'trainee@lawgistics.test' },
   { name: 'account', path: '/account', auth: true },
   { name: 'account-password', path: '/account/password', auth: true },
   { name: 'modules', path: '/modules', auth: true },
@@ -81,6 +83,9 @@ const PAGES = [
   // than "before it begins" (the default fixture's placement is in 2099).
   { name: 'dashboard-homework', path: '/dashboard', auth: true, as: 'trainee@lawgistics.test' },
   { name: 'homework', path: '/homework', auth: true, as: 'trainee@lawgistics.test' },
+  { name: 'programme', path: '/programme', auth: true, as: 'trainee@lawgistics.test' },
+  { name: 'programme-file', path: '/programme/file', auth: true, as: 'trainee@lawgistics.test' },
+  { name: 'programme-file-coach', path: '/programme/file', auth: true },
   // The work board from both sides: the trainee with a piece handed in, and
   // the coach's page with the marking form and the post form on it, which is
   // the longest form in the app.
@@ -107,6 +112,7 @@ const PAGES = [
   { name: 'train', path: `/train/${SESSION_ID}`, auth: true },
   { name: 'train-answered', path: `/train/${SESSION_ID}`, auth: true, answer: true },
   { name: 'summary', path: `/train/${SESSION_ID}/summary`, auth: true },
+  { name: 'summary-module', path: '/train/99999999-9999-9999-9999-999999999998/summary', auth: true },
   { name: 'admin', path: '/admin', auth: true },
   { name: 'admin-facts', path: '/admin/facts', auth: true },
   { name: 'admin-review', path: '/admin/review', auth: true },

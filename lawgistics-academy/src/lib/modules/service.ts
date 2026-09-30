@@ -131,6 +131,55 @@ export async function getModule(
   return all.find((p) => p.module.slug === slug) ?? null;
 }
 
+/**
+ * The module a finished session belonged to, if it was a module session.
+ *
+ * Module sessions are the only kind marked `practice`, and each draws only
+ * from its module's domains, so the module is the one whose domains cover
+ * every question asked. Worked out from the questions rather than stored on
+ * the session, for the same reason completion is worked out from attempts:
+ * there is no second record to fall out of step with the first.
+ *
+ * This exists because a person who has just answered a module's questions
+ * and is then told on the dashboard that they "have not finished it" reads
+ * that as a fault. What they have not done is get every question right, and
+ * the summary is where that has to be said, with the number.
+ */
+export async function moduleForSession(
+  userId: string,
+  country: Country,
+  sessionId: string,
+): Promise<ModuleProgress | null> {
+  const db = createServiceClient();
+  const { data: session } = await db
+    .from('training_sessions')
+    .select('kind')
+    .eq('id', sessionId)
+    .eq('user_id', userId)
+    .maybeSingle();
+  if (session?.kind !== 'practice') return null;
+
+  const { data: rows } = await db
+    .from('training_session_questions')
+    .select('question_id')
+    .eq('session_id', sessionId);
+  const ids = (rows ?? []).map((r) => r.question_id as string);
+  if (ids.length === 0) return null;
+
+  const { data: delivered } = await db
+    .from('v_question_delivery')
+    .select('domain_slug')
+    .eq('country', country)
+    .in('question_id', ids);
+  const domains = new Set((delivered ?? []).map((r) => r.domain_slug as string));
+  if (domains.size === 0) return null;
+
+  const progress = await getModuleProgress(userId, country);
+  const match = progress.find((p) => [...domains].every((d) => p.module.domains.includes(d)));
+  // A module with nothing published in it has no numbers worth saying.
+  return match && match.total > 0 ? match : null;
+}
+
 /** Required modules the learner has not finished, for the dashboard prompt. */
 export async function outstandingRequired(
   userId: string,

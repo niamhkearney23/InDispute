@@ -4,6 +4,7 @@ import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { Card, InlineLink } from '@/components/ui';
 import { AvatarForm } from './avatar-form';
+import { LeaderboardForm } from './leaderboard-form';
 
 export const metadata: Metadata = { title: 'Your account' };
 
@@ -26,6 +27,15 @@ export default async function AccountPage() {
 
       <Card>
         <AvatarForm displayName={profile.displayName} avatarUrl={profile.avatarUrl} />
+      </Card>
+
+      <Card>
+        <p className="eyebrow mb-2">Leaderboard</p>
+        <p className="mb-2 text-sm text-slate">
+          If the firm shows a leaderboard, your first name and your XP for the last seven days appear on it.
+          You can stay off it.
+        </p>
+        <LeaderboardForm optedOut={profile.leaderboardOptOut} />
       </Card>
 
       <Card>

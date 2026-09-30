@@ -45,7 +45,7 @@ export default async function OnboardingPage({
         // pressed: the question is asked, and the answer is theirs.
         defaultCountry={profile?.country ?? 'MY'}
         defaultTrack={profile?.track ?? 'general'}
-        defaultJurisdiction={profile?.homeJurisdiction ?? 'MY_GENERAL'}
+        defaultJurisdiction={profile?.homeJurisdiction ?? 'MY_MALAYA'}
         // What they chose last time, when they are changing it. These were
         // fixed values, so changing country quietly reset the rest.
         defaultStage={editing ? (profile?.careerStage ?? undefined) : undefined}

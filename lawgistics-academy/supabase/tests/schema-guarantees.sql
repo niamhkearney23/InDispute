@@ -1802,6 +1802,69 @@ select pg_temp.expect(
   'the no-self-sign-off rule has been checked against every existing row');
 
 
+-- -----------------------------------------------------------------------------
+-- The weekly leaderboard (0025)
+-- -----------------------------------------------------------------------------
+-- The promise: nothing shows until the firm turns it on; then first names and
+-- numbers, nobody who opted out, no staff, and never to somebody signed out.
+insert into public.xp_events (user_id, kind, amount) values
+  ('11111111-1111-1111-1111-111111111111', 'correct_answer', 50),
+  ('22222222-2222-2222-2222-222222222222', 'correct_answer', 30),
+  ('33333333-3333-3333-3333-333333333333', 'correct_answer', 999),
+  ('44444444-4444-4444-4444-444444444444', 'correct_answer', 999);
+update public.profiles set display_name = 'Amira Binti Hassan'
+where id = '11111111-1111-1111-1111-111111111111';
+
+set local role authenticated;
+set local request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+select pg_temp.expect(
+  (select count(*) from public.weekly_leaderboard()) = 0,
+  'the leaderboard shows nothing while the firm has it off');
+
+update public.firm_settings set leaderboard_enabled = true where id;
+reset role;
+select pg_temp.expect(
+  (select leaderboard_enabled from public.firm_settings where id) = false,
+  'a learner cannot switch the leaderboard on');
+
+set local role authenticated;
+set local request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+update public.firm_settings set leaderboard_enabled = true where id;
+reset role;
+select pg_temp.expect(
+  (select leaderboard_enabled and updated_by = '33333333-3333-3333-3333-333333333333'
+   from public.firm_settings where id),
+  'an administrator switches the leaderboard on, and the record says who');
+
+set local role authenticated;
+set local request.jwt.claim.sub = '22222222-2222-2222-2222-222222222222';
+-- Learner B's display name is the local part of their email, which is what
+-- sign-up fills in when nobody types a name. That is not a first name.
+select pg_temp.expect(
+  (select string_agg(first_name || ':' || xp || ':' || is_me::text, ',' order by place)
+   from public.weekly_leaderboard()) = 'Amira:50:false,Someone:30:true',
+  'the leaderboard is first names and numbers, staff left out, the reader marked');
+select pg_temp.expect(
+  not exists (select 1 from public.weekly_leaderboard() where first_name like '%@%' or first_name = 'learner-b'),
+  'an email, or a name that is really an email, never reaches the leaderboard');
+select pg_temp.expect_failure(
+  $$select updated_by from public.firm_settings$$,
+  'a learner cannot read who switched the leaderboard on');
+
+update public.profiles set leaderboard_opt_out = true
+where id = '22222222-2222-2222-2222-222222222222';
+select pg_temp.expect(
+  (select count(*) from public.weekly_leaderboard() where is_me) = 0,
+  'somebody who opts out is off the leaderboard, for themselves too');
+reset role;
+
+set local role anon;
+select pg_temp.expect_failure(
+  $$select * from public.weekly_leaderboard()$$,
+  'the leaderboard is not readable signed out');
+reset role;
+
+
 \echo ''
 \echo 'All schema guarantees hold.'
 
