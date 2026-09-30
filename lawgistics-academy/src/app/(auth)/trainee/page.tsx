@@ -7,6 +7,7 @@ import { getCurrentUser } from '@/lib/supabase/server';
 import { brand } from '@/lib/brand';
 import { PROGRAMME } from '@/content/programme';
 import { trainingOpen } from '@/lib/training/service';
+import { PROGRAMME_WEEKS, boxesForWeek } from '@/content/programme-plan';
 
 export const metadata: Metadata = { title: 'The litigation trainee programme' };
 
@@ -135,6 +136,38 @@ export default async function TraineeProgrammePage() {
                 </div>
                 <h3 className="text-xl">{part.title}</h3>
                 <p className="mt-2 text-slate">{part.body}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section className="border-t border-rule py-12 sm:py-16">
+          <p className="eyebrow mb-3">The month, week by week</p>
+          <h2 className="mb-3 max-w-2xl text-2xl sm:text-3xl">
+            One file, from the first interview to the courtroom.
+          </h2>
+          <p className="mb-8 max-w-2xl text-slate">
+            Each week produces pieces of real work on that file, and your supervisor grades
+            them. Ten at the top grade, including the six required ones, is certification.
+            Your supervisor may vary the plan.
+          </p>
+          <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {PROGRAMME_WEEKS.map((week) => (
+              <li
+                key={week.number}
+                className="rounded-xl border border-rule bg-paper-raised p-5 shadow-card"
+              >
+                <p className="eyebrow">Week {week.number}</p>
+                <h3 className="mt-1 text-xl">{week.title}</h3>
+                <p className="mt-2 text-sm text-slate">{week.theme}</p>
+                <p className="mt-3 text-xs font-semibold tracking-wide text-muted uppercase">
+                  Produces
+                </p>
+                <ul className="mt-1 space-y-1 text-sm">
+                  {boxesForWeek(week).map((box) => (
+                    <li key={box.number}>{box.workProduct.split(' (')[0].split(' / ')[0]}</li>
+                  ))}
+                </ul>
               </li>
             ))}
           </ol>

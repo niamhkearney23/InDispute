@@ -43,6 +43,7 @@ import { DailyBrief } from '@/components/daily-brief';
 import { getFactOfTheDay } from '@/lib/facts/service';
 import { brand } from '@/lib/brand';
 import { PROGRAMME } from '@/content/programme';
+import { PROGRAMME_WEEKS, weekOfDay } from '@/content/programme-plan';
 import { StreakCalendar } from '@/components/streak-calendar';
 import { LeaderboardCard } from '@/components/leaderboard-card';
 import { weeklyLeaderboard } from '@/lib/leaderboard';
@@ -106,6 +107,13 @@ export default async function DashboardPage() {
   const assignedTopic = assignedTopicSlug ? essayTopic(assignedTopicSlug) : undefined;
 
   const homework = homeworkDay(profile.startsOn, profile.endsOn, profile.timezone);
+  // Which week of the month it is, for the programme strip. Null outside it.
+  const programmeWeek =
+    homework.state === 'day'
+      ? weekOfDay(homework.day)
+      : homework.state === 'weekend'
+        ? weekOfDay(homework.nextDay)
+        : null;
   const declaredDays = new Set((homeworkRows.data ?? []).map((r) => r.day as number));
   // Today's own day is offered its own button below, not counted as "earlier".
   const lastEarlierDay = homework.state === 'day' ? homework.day - 1 : lastArrivedDay(homework);
@@ -166,10 +174,14 @@ export default async function DashboardPage() {
           <p className="text-slate">
             {PROGRAMME.length}, {PROGRAMME.days}, learned by doing. The training that goes
             with the work lives here.
+            {programmeWeek
+              ? ` Week ${programmeWeek} of 4: ${PROGRAMME_WEEKS[programmeWeek - 1].title.toLowerCase()}.`
+              : ''}
           </p>
           <ul className="mt-3 flex flex-wrap gap-2">
             {(
               [
+                ['The month, week by week', '/programme'],
                 ['Daily questions', '/dashboard'],
                 ['Homework', '/homework'],
                 ['Work from your supervisors', '/work'],

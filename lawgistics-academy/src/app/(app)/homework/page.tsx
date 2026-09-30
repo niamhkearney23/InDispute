@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentUser, createSupabaseServerClient } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { HOMEWORK_TASKS } from '@/content/seed/homework';
+import { PROGRAMME_WEEKS, weekOfDay } from '@/content/programme-plan';
 import { homeworkDay, lastArrivedDay } from '@/lib/homework/rules';
 import { Card, Pill, SectionHeading } from '@/components/ui';
 import { HomeworkForm } from '../homework-form';
@@ -40,10 +41,11 @@ export default async function HomeworkPage() {
         </p>
       </section>
 
-      <section>
-        <SectionHeading title="All twenty days" />
+      {PROGRAMME_WEEKS.map((week) => (
+      <section key={week.number}>
+        <SectionHeading eyebrow={`Week ${week.number}`} title={week.title} />
         <div className="space-y-3">
-          {HOMEWORK_TASKS.map((t) => {
+          {HOMEWORK_TASKS.filter((t) => weekOfDay(t.day) === week.number).map((t) => {
             const arrived = t.day <= arrivedDay;
             const done = declaredDays.has(t.day);
             return (
@@ -68,6 +70,7 @@ export default async function HomeworkPage() {
           })}
         </div>
       </section>
+      ))}
     </div>
   );
 }
