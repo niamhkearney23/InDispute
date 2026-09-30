@@ -1,6 +1,5 @@
 # Sleep Shop
 User-agent: *
 Allow: /
-Disallow: /cart.html
 
 Sitemap: https://sleepshop.online/sitemap.xml

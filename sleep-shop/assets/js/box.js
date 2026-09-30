@@ -1,4 +1,4 @@
-/* The box page: ribbon, quantity, gift message, add to cart. */
+/* The box page: ribbon, a preview of the gift message, and the pre-order. */
 (function (global) {
   'use strict';
 
@@ -15,7 +15,6 @@
   var SHOTS = BOX.shots;
 
   var ribbon = Store.defaultRibbon();
-  var qty = 1;
   var shot = 0;
 
   function fill(selector, html) {
@@ -61,23 +60,13 @@
         '<textarea id="gift-message" data-message maxlength="' + LIMIT + '" ' +
           'placeholder="Happy birthday. Go to bed early for once. — R"></textarea>' +
         '<span class="msg-count" data-message-count></span>' +
-      '</div>' +
-
-      '<div class="field-group">' +
-        '<span class="label">Quantity</span>' +
-        '<div class="qty">' +
-          '<button type="button" data-qty-dec aria-label="Decrease quantity">&minus;</button>' +
-          '<span data-qty>' + qty + '</span>' +
-          '<button type="button" data-qty-inc aria-label="Increase quantity">+</button>' +
-        '</div>' +
+        '<p class="tiny muted mt-1">A preview to draft it. You will enter it again at checkout.</p>' +
       '</div>' +
 
       '<div class="buy-row">' +
-        '<button class="btn btn--lg" type="button" data-add>Add to cart &middot; ' +
-          '<span data-total>' + Store.money(BOX.price * qty) + '</span></button>' +
-        '<a class="btn btn--ghost btn--lg" href="gifting.html">How gifting works</a>' +
+        UI.preorderCta(BOX.id, BOX.price) +
       '</div>' +
-      '<div class="buy-row mt-1">' + UI.preorderCta(BOX.id, BOX.price) + '</div>' +
+      '<p class="mt-1"><a class="link-quiet" href="gifting.html">How gifting works</a></p>' +
       '<p class="callout mt-1">Free delivery Australia-wide. Ordered before 2pm on a weekday, it ' +
         'leaves Melbourne the same afternoon.</p>');
 
@@ -117,7 +106,7 @@
 
   function bind() {
     doc.addEventListener('click', function (event) {
-      var el = event.target.closest('[data-ribbon-pick], [data-shot], [data-qty-inc], [data-qty-dec], [data-add]');
+      var el = event.target.closest('[data-ribbon-pick], [data-shot]');
       if (!el) return;
 
       if (el.hasAttribute('data-ribbon-pick')) {
@@ -130,24 +119,6 @@
       if (el.hasAttribute('data-shot')) {
         shot = Number(el.getAttribute('data-shot'));
         return renderMedia();
-      }
-      if (el.hasAttribute('data-qty-inc') || el.hasAttribute('data-qty-dec')) {
-        qty = el.hasAttribute('data-qty-inc') ? Math.min(20, qty + 1) : Math.max(1, qty - 1);
-        doc.querySelector('[data-qty]').textContent = qty;
-        doc.querySelector('[data-total]').textContent = Store.money(BOX.price * qty);
-        return;
-      }
-      if (el.hasAttribute('data-add')) {
-        var message = doc.querySelector('[data-message]').value;
-        Store.add(BOX.id, ribbon, message, qty);
-        UI.toast(qty > 1 ? qty + ' boxes added' : 'Box added to cart');
-        UI.openCart();
-        /* Reset the message so the next box does not inherit the last one's. */
-        doc.querySelector('[data-message]').value = '';
-        qty = 1;
-        doc.querySelector('[data-qty]').textContent = qty;
-        doc.querySelector('[data-total]').textContent = Store.money(BOX.price);
-        renderCount();
       }
     });
 

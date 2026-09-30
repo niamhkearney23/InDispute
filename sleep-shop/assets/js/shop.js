@@ -1,5 +1,4 @@
-/* Shop page: the four pieces with prices. Adding to cart is handled by the
-   shared [data-shop-add] handler in ui.js. */
+/* Shop page: the four pieces, each with a price and a pre-order link. */
 (function (global) {
   'use strict';
 

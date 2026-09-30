@@ -27,7 +27,6 @@ const ROUTES = [
   { id: 'gifting', file: 'gifting.html', label: 'Gifting' },
   { id: 'about', file: 'about.html', label: 'About' },
   { id: 'contact', file: 'contact.html', label: 'Contact' },
-  { id: 'cart', file: 'cart.html', label: 'Cart' },
   { id: '404', file: '404.html', label: 'Not found' }
 ];
 
