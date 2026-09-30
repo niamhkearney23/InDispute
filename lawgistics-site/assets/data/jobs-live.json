@@ -1,35 +1,4 @@
 {
-  "generatedDate": "2026-09-29",
-  "jobs": [
-    {
-      "employer": "The Law Society of New South Wales",
-      "program": "NSW Summer Clerkship Recruitment Program — next (2027) cycle",
-      "jurisdiction": "NSW",
-      "opens": null,
-      "closes": null,
-      "notes": "Scheme page lists key dates as day-and-month only (open Wed 9 June, close Sun 4 or Sun 11 July, offers Wed 8 September) without an explicit year in the text retrieved, so the year could not be confirmed; eligibility is penultimate-year students and the 2026 cycle (10 June – 12 July 2026) has already closed.",
-      "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Clerkship-Recruitment-Program",
-      "verifiedDate": "2026-09-29"
-    },
-    {
-      "employer": "Queensland Law Society",
-      "program": "QLS Seasonal Clerkship and Graduate Recruitment scheme — next (2027) cycle",
-      "jurisdiction": "QLD",
-      "opens": null,
-      "closes": null,
-      "notes": "QLS describes the annual cycle as beginning with clerkship recruitment in July/August with priority graduate decisions in early August, but no dated schedule for the next cycle is published on the page, and the 2026 cycle (13 July – 7 August 2026, offers 7 October 2026) has closed.",
-      "url": "https://www.qls.com.au/the-hub-early-career-lawyers/your-legal-career/seasonal-clerkship-and-graduate-recruitment",
-      "verifiedDate": "2026-09-29"
-    },
-    {
-      "employer": "Allens",
-      "program": "February 2027 intake program (program type not specified on the page)",
-      "jurisdiction": "National",
-      "opens": null,
-      "closes": null,
-      "notes": "Allens' own graduate site states applications for its February 2027 program will open in September 2026 but gives no exact open/close dates, and its 2026/2027 clerkship applications are shown as closed.",
-      "url": "https://graduates.allens.com.au/our-programs/",
-      "verifiedDate": "2026-09-29"
-    }
-  ]
+  "generatedDate": "2026-09-30",
+  "jobs": []
 }
