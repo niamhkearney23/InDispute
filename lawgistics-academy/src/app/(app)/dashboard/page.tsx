@@ -47,6 +47,8 @@ import { PROGRAMME_WEEKS, weekOfDay } from '@/content/programme-plan';
 import { programmeDay } from '@/content/programme-days';
 import { conceptForDay } from '@/content/programme-concepts';
 import { StreakCalendar } from '@/components/streak-calendar';
+import { QuestCard } from '@/components/quest-card';
+import { CountUp } from '@/components/count-up';
 import { LeaderboardCard } from '@/components/leaderboard-card';
 import { weeklyLeaderboard } from '@/lib/leaderboard';
 
@@ -269,20 +271,23 @@ export default async function DashboardPage() {
           answered the module yesterday reads as the app losing their work;
           "6 of 8" says what is actually left. */}
       {outstanding.length > 0 ? (
-        <Notice tone="warn">
-          <strong>
-            {outstanding.length === 1
-              ? `"${outstanding[0].module.name}" is required: ${outstanding[0].correctOnce} of ${outstanding[0].total} answered correctly so far.`
-              : `${outstanding.length} required modules are not yet complete.`}
-          </strong>{' '}
-          {outstanding.length === 1 ? (
-            <InlineLink href={`/modules/${outstanding[0].module.slug}`}>
-              {outstanding[0].correctOnce > 0 ? 'Finish it' : 'Start it'}
-            </InlineLink>
-          ) : (
-            <InlineLink href="/modules">Open modules</InlineLink>
-          )}
-        </Notice>
+        <div className="space-y-3">
+          {outstanding.slice(0, 2).map((entry) => (
+            <QuestCard
+              key={entry.module.slug}
+              slug={entry.module.slug}
+              name={entry.module.name}
+              correctOnce={entry.correctOnce}
+              total={entry.total}
+            />
+          ))}
+          {outstanding.length > 2 ? (
+            <p className="text-sm text-slate">
+              And {outstanding.length - 2} more.{' '}
+              <InlineLink href="/modules">Open modules</InlineLink>
+            </p>
+          ) : null}
+        </div>
       ) : null}
 
       {/* The greeting and today's training, together, on the accent: the
@@ -295,7 +300,66 @@ export default async function DashboardPage() {
             {greeting(new Date(), profile.timezone)}
             {greetingName(profile.displayName) ? `, ${greetingName(profile.displayName)}` : ''}.
           </h1>
-          <p className="mt-2 text-lg text-paper/80">Ready to train like a lawyer?</p>
+          <p className="mt-2 text-lg text-paper/80">
+            {overview.currentStreak > 0 && !goalMet
+              ? `${overview.currentStreak} ${overview.currentStreak === 1 ? 'day' : 'days'} in a row. Today keeps it alive.`
+              : goalMet
+                ? 'Done for today. The chain holds.'
+                : 'Ready to train like a lawyer?'}
+          </p>
+
+          {/* The stakes, beside the button that answers them: the chain, the
+              level and how close the next one is, and what this week has
+              earned. Everything here is also further down the page; up here
+              it is the reason to press Begin. */}
+          <ul className="mt-6 grid grid-cols-3 gap-2 sm:gap-3">
+            <li className="rise-in rounded-lg bg-black/15 px-3 py-3 ring-1 ring-white/10 sm:px-4">
+              <p className="flex items-center gap-1.5 text-[0.625rem] font-semibold tracking-[0.14em] text-paper/70 uppercase">
+                <FlameIcon className={overview.currentStreak > 0 ? 'flame-live size-3.5 text-amber-300' : 'size-3.5 opacity-60'} />
+                Streak
+              </p>
+              <p className="mt-1 font-serif text-2xl leading-none tabular-nums sm:text-3xl">
+                <CountUp value={overview.currentStreak} />
+                <span className="ml-1 font-sans text-xs text-paper/70">
+                  {overview.currentStreak === 1 ? 'day' : 'days'}
+                </span>
+              </p>
+            </li>
+            <li className="rise-in rounded-lg bg-black/15 px-3 py-3 ring-1 ring-white/10 [animation-delay:60ms] sm:px-4">
+              <p className="flex items-center gap-1.5 text-[0.625rem] font-semibold tracking-[0.14em] text-paper/70 uppercase">
+                <LevelIcon className="size-3.5 text-amber-300" />
+                Level
+              </p>
+              <p className="mt-1 flex items-baseline gap-2 font-serif leading-none">
+                <span className="text-2xl tabular-nums sm:text-3xl">{level.level}</span>
+                <span className="hidden truncate text-sm text-paper/80 sm:inline">{level.name}</span>
+              </p>
+              <div
+                className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/15"
+                role="meter"
+                aria-valuenow={level.progressPercent}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label={`${level.progressPercent}% of the way to ${level.nextLevelName ?? 'the top'}`}
+              >
+                <div
+                  className="bar-grow h-full rounded-full bg-amber-300"
+                  style={{ width: `${Math.max(level.progressPercent, 3)}%` }}
+                />
+              </div>
+            </li>
+            <li className="rise-in rounded-lg bg-black/15 px-3 py-3 ring-1 ring-white/10 [animation-delay:120ms] sm:px-4">
+              <p className="flex items-center gap-1.5 text-[0.625rem] font-semibold tracking-[0.14em] text-paper/70 uppercase">
+                <SparkIcon className="size-3.5 text-amber-300" />
+                <span className="sm:hidden">Week</span>
+                <span className="hidden sm:inline">This week</span>
+              </p>
+              <p className="mt-1 font-serif text-2xl leading-none tabular-nums sm:text-3xl">
+                <CountUp value={overview.weeklyXp} />
+                <span className="ml-1 font-sans text-xs text-paper/70">XP</span>
+              </p>
+            </li>
+          </ul>
 
           {!open ? (
             <div className="mt-7 rounded-lg bg-black/15 p-4 ring-1 ring-white/10 sm:p-5">
@@ -342,11 +406,24 @@ export default async function DashboardPage() {
                   <p className="mt-2 text-sm text-paper/75">
                     {goalMet
                       ? 'Anything more today is a bonus, and it still counts.'
-                      : `About ${profile.dailyGoalMinutes} minutes`}
-                    {focusAreas.length > 0 && !goalMet
-                      ? ` · Focus: ${focusAreas.map((f) => f.name).join(', ')}`
-                      : ''}
+                      : `About ${profile.dailyGoalMinutes} minutes${
+                          level.xpForNextLevel !== null
+                            ? `, ${level.xpForNextLevel} XP to ${level.nextLevelName}`
+                            : ''
+                        }`}
                   </p>
+                  {focusAreas.length > 0 && !goalMet ? (
+                    <ul className="mt-2 flex flex-wrap gap-1.5" aria-label="Today's focus">
+                      {focusAreas.map((f) => (
+                        <li
+                          key={f.slug}
+                          className="rounded-full bg-paper/12 px-2.5 py-0.5 text-xs font-medium text-paper ring-1 ring-paper/20"
+                        >
+                          {f.name}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
                   {/* A target that moves with them. Yesterday's count is the
                       one number they already beat once, so it reads as a
                       dare rather than a demand. */}

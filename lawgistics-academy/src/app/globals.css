@@ -394,3 +394,23 @@
 .court-route {
   transition: stroke 200ms ease-out;
 }
+
+/* Bars that fill when the page arrives, so progress is seen moving rather
+   than read as a number. Grows from the left to the width set inline. */
+@keyframes bar-grow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+.bar-grow {
+  transform-origin: left center;
+  animation: bar-grow 900ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+/* The daily brief opens rather than appears. */
+@keyframes brief-open {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.brief[open] .brief-body {
+  animation: brief-open 260ms ease-out;
+}

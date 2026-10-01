@@ -73,7 +73,7 @@ export function StreakCalendar({
       </div>
 
       <div
-        className="grid grid-cols-7 gap-1.5"
+        className="grid max-w-[18rem] grid-cols-7 gap-1.5"
         role="img"
         aria-label={`${shownCount} ${shownCount === 1 ? 'day' : 'days'} trained in the last five weeks`}
       >
