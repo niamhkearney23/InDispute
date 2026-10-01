@@ -14,6 +14,7 @@ import {
 import { practiceChoiceFor } from '@/lib/types';
 import type { LearnerTrack } from '@/lib/types';
 import { publicEnv } from '@/lib/env';
+import { PROGRAMME } from '@/content/programme';
 import type { AdminState } from '../actions';
 
 /**
@@ -404,5 +405,51 @@ export async function confirmTrainee(
   return {
     error: null,
     ok: decision === 'confirm' ? 'Confirmed as a trainee.' : 'Moved to the ordinary track.',
+  };
+}
+
+/**
+ * Giving every confirmed trainee the current intake's dates in one go.
+ *
+ * Setting a start date stays with an administrator, as it does person by
+ * person on the joiner page: this is the same decision made for the whole
+ * intake at once. It only fills in trainees who have no start date yet, so
+ * a person whose supervisor gave them different dates keeps them, and it
+ * can be pressed again on Monday morning for anyone confirmed since.
+ */
+export async function setIntakeDates(
+  _state: AdminState,
+  formData: FormData,
+): Promise<AdminState> {
+  const adminId = await checkAdmin();
+  if (!adminId) return { error: 'You are not signed in as an administrator.' };
+  // The button names the intake it is for, so a page left open from an
+  // earlier intake cannot apply this one's dates by accident.
+  if (formData.get('intake') !== PROGRAMME.intakeStartsOn) {
+    return { error: 'The intake has changed since this page was opened. Reload it and try again.' };
+  }
+
+  const db = createServiceClient();
+  const { data, error } = await db
+    .from('profiles')
+    .update({ starts_on: PROGRAMME.intakeStartsOn, ends_on: PROGRAMME.intakeEndsOn })
+    .eq('track', 'litigation_trainee')
+    .not('trainee_approved_at', 'is', null)
+    .is('starts_on', null)
+    .select('id');
+  if (error) return { error: 'That could not be saved. Please try again.' };
+
+  revalidatePath('/admin/intake');
+  revalidatePath('/admin/onboarding');
+  revalidatePath('/dashboard');
+  revalidatePath('/programme');
+  revalidatePath('/homework');
+  const n = data?.length ?? 0;
+  return {
+    error: null,
+    ok:
+      n === 0
+        ? 'Every confirmed trainee already has dates.'
+        : `${n} ${n === 1 ? 'trainee' : 'trainees'} given the intake dates.`,
   };
 }

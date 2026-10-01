@@ -33,6 +33,23 @@ function isoWeekday(isoDate: string): number {
  * which day it starts on, so only the leftover few days at the end need
  * counting one at a time; the rest is whole weeks times five.
  */
+/**
+ * The calendar date working day `day` of a placement falls on, counting
+ * the start date as day one when it is a weekday. The inverse of
+ * workingDaysElapsed, for drawing a schedule: day 6 of a placement that
+ * starts on a Monday is the following Monday.
+ */
+export function dateOfWorkingDay(startsOn: string, day: number): string {
+  const d = new Date(`${startsOn}T00:00:00Z`);
+  let counted = isoWeekday(startsOn) <= 5 ? 1 : 0;
+  while (counted < day) {
+    d.setUTCDate(d.getUTCDate() + 1);
+    const weekday = d.getUTCDay();
+    if (weekday !== 0 && weekday !== 6) counted++;
+  }
+  return d.toISOString().slice(0, 10);
+}
+
 export function workingDaysElapsed(startsOn: string, calendarDaysElapsed: number): number {
   if (calendarDaysElapsed < 0) return 0;
 

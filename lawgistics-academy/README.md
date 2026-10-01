@@ -434,7 +434,7 @@ it as a secret.
 ## Testing
 
 ```bash
-npm run test        # 293 tests: engine, content, triage, and the contract tests below
+npm run test        # 299 tests: engine, content, triage, and the contract tests below
 npm run typecheck
 npm run lint
 npm run build

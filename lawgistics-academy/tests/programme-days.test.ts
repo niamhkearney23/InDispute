@@ -48,3 +48,25 @@ test('the file is facts, not law: it names no Act, Order or section', () => {
   assert.ok(!/\bO\.?\s?\d+\s?r\.?\s?\d+/i.test(text), 'cites a rule');
   assert.ok(!/\bsection\s+\d+/i.test(text), 'cites a section');
 });
+
+test('every day teaches one concept, with an outline and a line to remember', async () => {
+  const { DAY_CONCEPTS, conceptForDay } = await import('../src/content/programme-concepts');
+  assert.equal(DAY_CONCEPTS.length, 20);
+  for (let day = 1; day <= 20; day++) {
+    const c = conceptForDay(day);
+    assert.ok(c, `day ${day} has no concept`);
+    assert.ok(c.concept.length > 0 && c.remember.length > 0, `day ${day} is missing a part`);
+    assert.ok(c.talkingPoints.length >= 3, `day ${day} has too short an outline`);
+  }
+  const names = DAY_CONCEPTS.map((c) => c.concept);
+  assert.equal(new Set(names).size, 20, 'two days teach the same concept');
+});
+
+test('the video outlines are prompts, not law: they cite no Act, Order or section', async () => {
+  const { DAY_CONCEPTS } = await import('../src/content/programme-concepts');
+  const text = JSON.stringify(DAY_CONCEPTS);
+  assert.ok(!/\bAct\s+\d{4}\b/.test(text), 'names a statute');
+  assert.ok(!/\bO\.?\s?\d+\s?r\.?\s?\d+/i.test(text), 'cites a rule');
+  assert.ok(!/\bsection\s+\d+/i.test(text), 'cites a section');
+  assert.ok(!/[\u2013\u2014]/.test(text));
+});

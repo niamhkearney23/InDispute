@@ -103,6 +103,8 @@ const PAGES = [
     as: 'trainee@lawgistics.test',
   },
   { name: 'admin-work', path: '/admin/work', auth: true },
+  { name: 'admin-intake', path: '/admin/intake', auth: true },
+  { name: 'admin-session-prefill', path: '/admin/sessions/new?title=Day%201%3A%20Arrive&summary=How%20a%20matter%20arrives&airsOn=2026-10-05&country=MY', auth: true },
   { name: 'admin-work-new', path: '/admin/work/new', auth: true },
   {
     name: 'admin-work-detail',
