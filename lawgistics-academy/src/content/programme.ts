@@ -13,4 +13,12 @@ export const PROGRAMME = {
   nextIntake: 'October 2026',
   /** The working pattern. */
   days: 'Monday to Friday',
+  /**
+   * The current intake's first and last working day. An administrator
+   * applies these to confirmed trainees from the intake page; nothing reads
+   * them as a person's dates until that has been done, because a start date
+   * is the firm's decision about a person, not a default.
+   */
+  intakeStartsOn: '2026-10-05',
+  intakeEndsOn: '2026-10-30',
 } as const;

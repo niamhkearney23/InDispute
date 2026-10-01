@@ -18,6 +18,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const links: Array<[string, string]> = isAdmin
     ? [
         ['/admin', 'Questions'],
+        ['/admin/intake', 'Intake'],
         ['/admin/review', 'Verify'],
         ['/admin/sessions', 'Sessions'],
         ['/admin/work', 'Work'],
@@ -27,6 +28,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         ['/admin/onboarding', 'Joiners'],
       ]
     : [
+        ['/admin/intake', 'Intake'],
         ['/admin/review', 'Verify'],
         ['/admin/sessions', 'Sessions'],
         ['/admin/work', 'Work'],

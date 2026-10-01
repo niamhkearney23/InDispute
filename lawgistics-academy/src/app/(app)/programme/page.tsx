@@ -7,6 +7,7 @@ import { HOMEWORK_TASKS } from '@/content/seed/homework';
 import { PROGRAMME } from '@/content/programme';
 import { PROGRAMME_WEEKS, boxesForWeek, weekOfDay } from '@/content/programme-plan';
 import { daysOfWeek } from '@/content/programme-days';
+import { conceptForDay } from '@/content/programme-concepts';
 import { TRAINING_FILE } from '@/content/training-file';
 import { brand } from '@/lib/brand';
 import { ButtonLink, Card, Pill, cn } from '@/components/ui';
@@ -141,7 +142,7 @@ export default async function ProgrammePage() {
                         >
                           <div className="flex flex-wrap items-baseline gap-x-2">
                             <span className="font-serif text-sm text-muted tabular-nums">Day {d.day}</span>
-                            <span className="font-medium">{d.title}</span>
+                            <span className="font-medium">{conceptForDay(d.day)?.concept ?? d.title}</span>
                             {isToday ? <Pill tone="accent">Today</Pill> : null}
                             {d.due.length > 0 ? (
                               <span className="text-xs text-muted">
@@ -149,6 +150,11 @@ export default async function ProgrammePage() {
                               </span>
                             ) : null}
                           </div>
+                          {conceptForDay(d.day)?.remember ? (
+                            <p className="mt-1 font-serif text-[0.9375rem] text-burgundy">
+                              &ldquo;{conceptForDay(d.day)?.remember}&rdquo;
+                            </p>
+                          ) : null}
                           <p className="mt-1 text-sm text-slate">
                             <span className="text-muted">Morning:</span> {d.morning}
                           </p>

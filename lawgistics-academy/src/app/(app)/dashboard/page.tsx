@@ -45,6 +45,7 @@ import { brand } from '@/lib/brand';
 import { PROGRAMME } from '@/content/programme';
 import { PROGRAMME_WEEKS, weekOfDay } from '@/content/programme-plan';
 import { programmeDay } from '@/content/programme-days';
+import { conceptForDay } from '@/content/programme-concepts';
 import { StreakCalendar } from '@/components/streak-calendar';
 import { LeaderboardCard } from '@/components/leaderboard-card';
 import { weeklyLeaderboard } from '@/lib/leaderboard';
@@ -183,8 +184,9 @@ export default async function DashboardPage() {
           </p>
           {todayPlan ? (
             <div className="mt-3 rounded-md border border-burgundy/15 bg-paper px-4 py-3">
-              <p className="eyebrow">
-                Day {todayPlan.day} of 20 · {todayPlan.title}
+              <p className="eyebrow">Day {todayPlan.day} of 20 · Today&rsquo;s concept</p>
+              <p className="mt-0.5 font-serif text-lg leading-snug">
+                {conceptForDay(todayPlan.day)?.concept ?? todayPlan.title}
               </p>
               <p className="mt-1 text-sm">
                 <span className="text-muted">Morning:</span> {todayPlan.morning}
