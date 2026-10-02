@@ -4,28 +4,48 @@ import { ArrowIcon } from '@/components/icons';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { publicEnv } from '@/lib/env';
 import { brand } from '@/lib/brand';
+import { PROGRAMME } from '@/content/programme';
 import { redirect } from 'next/navigation';
 
 /**
- * The front door opens on one question: which country. Australian and
- * Malaysian law are different bodies of law, and the answer decides every
- * question a person is ever shown, so it is asked before anything else, on
- * a page that is otherwise the answer to "what is this".
+ * The front door opens on one question: which way in. Three doors, because
+ * there are three different people arriving. A Malaysian intern or pupil
+ * and an Australian student each choose their country, which decides every
+ * question they are ever shown. A trainee on the firm's programme is not
+ * choosing a country or a course at all; they are joining a month at a
+ * firm, so they get a door of their own that leads to the programme's page
+ * rather than a line of small print under the other two.
  */
-const COUNTRIES = [
+const DOORS = [
   {
-    code: 'AU',
-    name: 'Australia',
-    stripe: 'linear-gradient(90deg, #00247d 0 50%, #cf142b 50% 100%)',
-    who: 'Law students, PLT students, graduates and junior lawyers.',
-    covers: ['Court hierarchy and procedure', 'Evidence and drafting', 'Legal research and AI ethics'],
-  },
-  {
-    code: 'MY',
+    key: 'MY',
+    href: '/signup?country=MY',
+    eyebrow: 'Interns, pupils and students',
     name: 'Malaysia',
     stripe: 'linear-gradient(90deg, #010066 0 33%, #cc0001 33% 66%, #ffcc00 66% 100%)',
     who: 'Law students, pupils in chambering, interns and paralegals.',
     covers: ['Rules of Court 2012 and procedure', 'Litigation support and drafting', 'Legal research and AI ethics'],
+    featured: false,
+  },
+  {
+    key: 'TRAINEE',
+    href: '/trainee',
+    eyebrow: 'Litigation trainee programme',
+    name: 'Trainees',
+    stripe: 'linear-gradient(90deg, #6b1f2a, #a3454f)',
+    who: `${PROGRAMME.length} at ${brand.firm}, ${PROGRAMME.days}. The next intake starts in ${PROGRAMME.nextIntake}.`,
+    covers: ['Live files with our lawyers', 'A video from your coach each day', 'Practice questions and homework'],
+    featured: true,
+  },
+  {
+    key: 'AU',
+    href: '/signup?country=AU',
+    eyebrow: 'Students and junior lawyers',
+    name: 'Australia',
+    stripe: 'linear-gradient(90deg, #00247d 0 50%, #cf142b 50% 100%)',
+    who: 'Law students, PLT students, graduates and junior lawyers.',
+    covers: ['Court hierarchy and procedure', 'Evidence and drafting', 'Legal research and AI ethics'],
+    featured: false,
   },
 ] as const;
 
@@ -94,33 +114,37 @@ export default async function LandingPage() {
             {brand.tagline}
           </p>
           <h1 className="rise-up delay-1 max-w-3xl text-[2.75rem] leading-[1.02] sm:text-6xl lg:text-7xl">
-            Where are you training?
+            Where are you starting?
           </h1>
           <p className="rise-up delay-2 mt-5 max-w-xl text-lg text-paper/80 sm:text-xl">
-            Australian and Malaysian law are kept strictly apart here. Choose yours, and
-            every question you are shown belongs to it.
+            Three ways in. Malaysian and Australian law are kept strictly apart, and the
+            trainee programme has a door of its own.
           </p>
 
-          <div className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-2 sm:gap-6">
-            {COUNTRIES.map((country, index) => (
+          <div className="mt-10 grid gap-4 sm:mt-14 sm:gap-6 lg:grid-cols-3">
+            {DOORS.map((door, index) => (
               <Link
-                key={country.code}
-                href={`/signup?country=${country.code}`}
-                className={`landing-tile rise-up ${index === 0 ? 'delay-3' : 'delay-4'}`}
-                style={{ '--stripe': country.stripe } as React.CSSProperties}
+                key={door.key}
+                href={door.href}
+                className={`landing-tile rise-up ${['delay-3', 'delay-4', 'delay-5'][index]} ${
+                  door.featured ? 'ring-2 ring-paper/60' : ''
+                }`}
+                style={{ '--stripe': door.stripe } as React.CSSProperties}
               >
                 <div aria-hidden className="landing-stripe" />
-                <div className="p-6 sm:p-8">
-                  <p className="eyebrow mb-3">Train in</p>
+                <div className="flex h-full flex-col p-6 sm:p-8">
+                  <p className={`eyebrow mb-3 ${door.featured ? 'text-burgundy' : ''}`}>
+                    {door.eyebrow}
+                  </p>
                   <div className="flex items-end justify-between gap-4">
-                    <h2 className="text-4xl leading-none sm:text-5xl">{country.name}</h2>
+                    <h2 className="text-4xl leading-none sm:text-5xl">{door.name}</h2>
                     <span className="landing-arrow grid size-11 shrink-0 place-items-center rounded-full bg-burgundy text-paper">
                       <ArrowIcon className="size-5" />
                     </span>
                   </div>
-                  <p className="mt-4 text-slate">{country.who}</p>
+                  <p className="mt-4 text-slate">{door.who}</p>
                   <ul className="mt-5 space-y-1.5 text-sm text-slate">
-                    {country.covers.map((line) => (
+                    {door.covers.map((line) => (
                       <li key={line} className="flex gap-2.5">
                         <span aria-hidden className="mt-[0.55em] size-1.5 shrink-0 rounded-full bg-burgundy" />
                         {line}
@@ -131,16 +155,6 @@ export default async function LandingPage() {
               </Link>
             ))}
           </div>
-
-          <p className="rise-up delay-5 mt-8 text-sm text-paper/75">
-            On a Malaysian firm&apos;s litigation trainee programme?{' '}
-            <Link
-              href="/trainee"
-              className="-my-2 inline-block py-2 font-semibold text-paper underline underline-offset-4"
-            >
-              Join as a trainee
-            </Link>
-          </p>
         </div>
       </section>
 

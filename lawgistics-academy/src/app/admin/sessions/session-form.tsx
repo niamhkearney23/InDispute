@@ -13,6 +13,7 @@ export interface SessionFormValues {
   country: 'ALL' | 'AU' | 'MY';
   airsOn: string;
   published: boolean;
+  traineesOnly: boolean;
 }
 
 /**
@@ -164,6 +165,23 @@ export function SessionForm({
               Everybody, unless it turns on the law of one place. Craft usually travels.
             </p>
           </div>
+
+          <label className="flex items-start gap-2.5 py-2 text-sm">
+            <input
+              type="checkbox"
+              name="traineesOnly"
+              defaultChecked={initial.traineesOnly}
+              className="mt-0.5 size-5"
+            />
+            <span>
+              <strong className="font-medium">Trainees only.</strong>{' '}
+              <span className="text-slate">
+                Only confirmed litigation trainees, and staff, can see it. Interns and
+                students on the rest of the academy will not. Tick this for the daily
+                programme videos.
+              </span>
+            </span>
+          </label>
 
           <div>
             <label htmlFor="airsOn" className="mb-1.5 block text-sm font-medium">

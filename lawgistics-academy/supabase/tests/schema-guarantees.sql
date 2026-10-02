@@ -1865,6 +1865,175 @@ select pg_temp.expect_failure(
 reset role;
 
 
+-- -----------------------------------------------------------------------------
+-- Trainee-only videos, and comments on the work board (0026)
+-- -----------------------------------------------------------------------------
+-- The promise: a video marked for trainees reaches confirmed trainees and
+-- staff and nobody else. Everybody who can see a post sees who is on it, by
+-- first name, and can comment under it as themselves; nobody else can, and
+-- nobody edits or deletes a comment.
+set local request.jwt.claim.sub = '';
+insert into auth.users (id, email, raw_user_meta_data)
+values
+  ('cccc0026-0000-0000-0000-000000000001', 'wei@example.test',
+   '{"country":"MY","track":"litigation_trainee","display_name":"Wei Ling Tan"}'::jsonb),
+  ('cccc0026-0000-0000-0000-000000000002', 'hafiz@example.test',
+   '{"country":"MY","display_name":"Hafiz Rahman"}'::jsonb),
+  ('cccc0026-0000-0000-0000-000000000003', 'pending@example.test',
+   '{"country":"MY","track":"litigation_trainee","display_name":"pending"}'::jsonb),
+  ('cccc0026-0000-0000-0000-000000000004', 'sam@example.test',
+   '{"country":"AU","display_name":"Sam Jones"}'::jsonb);
+update public.profiles set trainee_approved_at = now()
+where id = 'cccc0026-0000-0000-0000-000000000001';
+update public.profiles set display_name = 'Priya Nair'
+where id = '44444444-4444-4444-4444-444444444444';
+
+set local role authenticated;
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+insert into public.coach_sessions (id, title, url, country, published, trainees_only)
+values
+  ('dddd0026-0000-0000-0000-000000000001', 'Day 1: How a file is organised',
+   'https://www.youtube.com/watch?v=aqz-KE-bpKQ', 'MY', true, true),
+  ('dddd0026-0000-0000-0000-000000000002', 'For everyone',
+   'https://www.youtube.com/watch?v=aqz-KE-bpKQ', 'MY', true, false),
+  ('dddd0026-0000-0000-0000-000000000003', 'Day 2, not up yet',
+   'https://www.youtube.com/watch?v=aqz-KE-bpKQ', 'MY', false, true);
+select pg_temp.expect(
+  (select count(*) from public.coach_sessions where id::text like 'dddd0026%') = 3,
+  'a coach sees every session, trainee-only and drafts included');
+
+insert into public.work_posts (id, kind, title, max_claims, trainees_only, country, published, posted_by)
+values
+  ('eeee0026-0000-0000-0000-000000000001', 'task', 'Everyone: summarise a judgment', null, false,
+   'MY', true, '44444444-4444-4444-4444-444444444444'),
+  ('eeee0026-0000-0000-0000-000000000002', 'task', 'Trainees: chronology', null, true,
+   'MY', true, '44444444-4444-4444-4444-444444444444'),
+  ('eeee0026-0000-0000-0000-000000000003', 'task', 'Draft, not up yet', null, false,
+   'MY', false, '44444444-4444-4444-4444-444444444444');
+
+set local request.jwt.claim.sub = 'cccc0026-0000-0000-0000-000000000001';
+select pg_temp.expect(
+  (select count(*) from public.coach_sessions where id::text like 'dddd0026%') = 2,
+  'a confirmed trainee sees the trainee-only video and the one for everyone, not the draft');
+insert into public.work_claims (post_id, user_id) values
+  ('eeee0026-0000-0000-0000-000000000001', 'cccc0026-0000-0000-0000-000000000001'),
+  ('eeee0026-0000-0000-0000-000000000002', 'cccc0026-0000-0000-0000-000000000001');
+
+set local request.jwt.claim.sub = 'cccc0026-0000-0000-0000-000000000003';
+select pg_temp.expect(
+  (select string_agg(title, ',') from public.coach_sessions where id::text like 'dddd0026%') = 'For everyone',
+  'saying you are a trainee is not enough to see trainee-only videos; a coach has to confirm you');
+insert into public.work_claims (post_id, user_id)
+values ('eeee0026-0000-0000-0000-000000000001', 'cccc0026-0000-0000-0000-000000000003');
+
+set local request.jwt.claim.sub = 'cccc0026-0000-0000-0000-000000000002';
+select pg_temp.expect(
+  (select string_agg(title, ',') from public.coach_sessions where id::text like 'dddd0026%') = 'For everyone',
+  'an intern who is not a trainee does not see trainee-only videos');
+update public.coach_sessions set trainees_only = false
+where id = 'dddd0026-0000-0000-0000-000000000001';
+insert into public.work_claims (post_id, user_id)
+values ('eeee0026-0000-0000-0000-000000000001', 'cccc0026-0000-0000-0000-000000000002');
+
+-- Who is on it: first names, the reader marked, "Someone" for a name that
+-- is really the email's local part.
+select pg_temp.expect(
+  (select string_agg(first_name || ':' || is_me::text, ',' order by first_name)
+   from public.work_board_people()
+   where post_id = 'eeee0026-0000-0000-0000-000000000001') = 'Hafiz:true,Someone:false,Wei:false',
+  'everybody who can see a post sees who is on it, by first name, never an email');
+select pg_temp.expect(
+  not exists (select 1 from public.work_board_people()
+              where post_id = 'eeee0026-0000-0000-0000-000000000002'),
+  'nobody sees who is on a post they cannot see');
+
+-- Comments.
+insert into public.work_comments (post_id, author_id, body, created_at)
+values ('eeee0026-0000-0000-0000-000000000001', 'cccc0026-0000-0000-0000-000000000002',
+        'Is this the Federal Court one?', timestamptz '2001-01-01 00:00:00+00');
+select pg_temp.expect(
+  (select created_at > timestamptz '2020-01-01' from public.work_comments
+   where body = 'Is this the Federal Court one?'),
+  'a comment carries the time it was actually written, not one the request supplied');
+select pg_temp.expect_failure(
+  $$insert into public.work_comments (post_id, author_id, body)
+    values ('eeee0026-0000-0000-0000-000000000002', 'cccc0026-0000-0000-0000-000000000002', 'Hello')$$,
+  'nobody comments on a post they cannot see');
+select pg_temp.expect_failure(
+  $$insert into public.work_comments (post_id, author_id, body)
+    values ('eeee0026-0000-0000-0000-000000000001', 'cccc0026-0000-0000-0000-000000000001', 'Not me')$$,
+  'nobody comments under somebody else''s name');
+select pg_temp.expect_failure(
+  $$insert into public.work_comments (post_id, author_id, body)
+    values ('eeee0026-0000-0000-0000-000000000003', 'cccc0026-0000-0000-0000-000000000002', 'Early')$$,
+  'a learner cannot comment on a post that is not up yet');
+select pg_temp.expect_failure(
+  $$insert into public.work_comments (post_id, author_id, body)
+    values ('eeee0026-0000-0000-0000-000000000001', 'cccc0026-0000-0000-0000-000000000002', '   ')$$,
+  'an empty comment is refused');
+update public.work_comments set body = 'Something else'
+where body = 'Is this the Federal Court one?';
+delete from public.work_comments where body = 'Is this the Federal Court one?';
+select pg_temp.expect(
+  (select count(*) from public.work_comments where body = 'Is this the Federal Court one?') = 1,
+  'a comment is not edited or deleted afterwards, even by the person who wrote it');
+select pg_temp.expect(
+  (select count(*) from public.work_post_comments('eeee0026-0000-0000-0000-000000000002')) = 0,
+  'the comments under a post nobody showed you come back empty');
+
+set local request.jwt.claim.sub = 'cccc0026-0000-0000-0000-000000000003';
+select pg_temp.expect_failure(
+  $$insert into public.work_comments (post_id, author_id, body)
+    values ('eeee0026-0000-0000-0000-000000000002', 'cccc0026-0000-0000-0000-000000000003', 'Me too')$$,
+  'an unconfirmed trainee cannot comment on trainee-only work');
+
+set local request.jwt.claim.sub = 'cccc0026-0000-0000-0000-000000000004';
+select pg_temp.expect_failure(
+  $$insert into public.work_comments (post_id, author_id, body)
+    values ('eeee0026-0000-0000-0000-000000000001', 'cccc0026-0000-0000-0000-000000000004', 'G''day')$$,
+  'a learner in the other country cannot comment on a Malaysian post');
+select pg_temp.expect(
+  not exists (select 1 from public.work_board_people()
+              where post_id = 'eeee0026-0000-0000-0000-000000000001')
+  and not exists (select 1 from public.work_comments
+                  where post_id = 'eeee0026-0000-0000-0000-000000000001'),
+  'a learner in the other country sees neither the names nor the comments');
+
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+insert into public.work_comments (post_id, author_id, body) values
+  ('eeee0026-0000-0000-0000-000000000001', '44444444-4444-4444-4444-444444444444', 'Yes, that one.'),
+  ('eeee0026-0000-0000-0000-000000000003', '44444444-4444-4444-4444-444444444444', 'Note to self');
+select pg_temp.expect(
+  (select count(*) from public.work_comments where post_id = 'eeee0026-0000-0000-0000-000000000003') = 1,
+  'a coach can leave a note on a draft before it goes up');
+
+set local request.jwt.claim.sub = 'cccc0026-0000-0000-0000-000000000001';
+insert into public.work_comments (post_id, author_id, body)
+values ('eeee0026-0000-0000-0000-000000000002', 'cccc0026-0000-0000-0000-000000000001', 'Done mine.');
+select pg_temp.expect(
+  (select string_agg(first_name || ':' || is_me::text || ':' || is_staff::text, ',' order by first_name)
+   from public.work_post_comments('eeee0026-0000-0000-0000-000000000001'))
+    = 'Hafiz:false:false,Priya:false:true',
+  'everybody who can see a post reads its comments, with first names and the lawyer marked');
+select pg_temp.expect(
+  (select count(*) from public.work_post_comments('eeee0026-0000-0000-0000-000000000003')) = 0,
+  'a staff note on a draft is not shown to learners');
+reset role;
+
+select pg_temp.expect(
+  (select trainees_only from public.coach_sessions where id = 'dddd0026-0000-0000-0000-000000000001'),
+  'a learner cannot take the trainees-only mark off a video');
+
+set local role anon;
+select pg_temp.expect_failure(
+  $$select * from public.work_post_comments('eeee0026-0000-0000-0000-000000000001')$$,
+  'comments are not readable signed out');
+select pg_temp.expect_failure(
+  $$select * from public.work_board_people()$$,
+  'who is on a post is not readable signed out');
+reset role;
+
+
 \echo ''
 \echo 'All schema guarantees hold.'
 

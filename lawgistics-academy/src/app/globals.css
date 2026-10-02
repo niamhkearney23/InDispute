@@ -414,3 +414,13 @@
 .brief[open] .brief-body {
   animation: brief-open 260ms ease-out;
 }
+
+/* A name bubble arriving on a post: a small pop, staggered along the row. */
+@keyframes bubble-pop {
+  0%   { opacity: 0; transform: scale(0.6); }
+  70%  { opacity: 1; transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.bubble-pop {
+  animation: bubble-pop 360ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}

@@ -17,7 +17,11 @@ import {
   submissionState,
   workFileProblem,
   workMemoProblem,
+  whoIsOn,
+  initialOf,
 } from '../src/lib/work/links';
+
+const ROOT = path.join(import.meta.dirname, '..');
 
 /**
  * The work board's rules: where a coach may link to, what may be uploaded,
@@ -133,4 +137,37 @@ test('late is strictly after the due date, and never without one', () => {
   assert.equal(isLate('2026-09-21', '2026-09-21'), false);
   assert.equal(isLate('2026-09-22', '2026-09-21'), false);
   assert.equal(isLate(null, '2026-09-21'), false);
+});
+
+test('who is on a post reads naturally, reader first, and fits on a phone', () => {
+  const me = { firstName: 'Aisyah', isMe: true };
+  const wei = { firstName: 'Wei', isMe: false };
+  const hafiz = { firstName: 'Hafiz', isMe: false };
+  const priya = { firstName: 'Priya', isMe: false };
+  const sam = { firstName: 'Sam', isMe: false };
+  assert.equal(whoIsOn([]), 'Nobody on this yet. Be the first.');
+  assert.equal(whoIsOn([me]), 'You are on this');
+  assert.equal(whoIsOn([wei]), 'Wei is on this');
+  assert.equal(whoIsOn([wei, me]), 'You and Wei are on this');
+  assert.equal(whoIsOn([wei, hafiz, me]), 'You, Wei and Hafiz are on this');
+  assert.equal(whoIsOn([wei, hafiz, priya, sam]), 'Wei, Hafiz, Priya and 1 other are on this');
+  assert.equal(whoIsOn([me, wei, hafiz, priya, sam]), 'You, Wei, Hafiz and 2 others are on this');
+});
+
+test('a bubble shows a first letter, and a question mark for somebody unnamed', () => {
+  assert.equal(initialOf('wei'), 'W');
+  assert.equal(initialOf('Someone'), '?');
+  assert.equal(initialOf(''), '?');
+});
+
+test('comments have no edit or delete anywhere, and their author is the session', () => {
+  const sql = fs.readFileSync(
+    path.join(ROOT, 'supabase/migrations/0026_trainee_videos_and_comments.sql'),
+    'utf8',
+  );
+  assert.doesNotMatch(sql, /on public\.work_comments\s+for (update|delete|all)/);
+  const actions = fs.readFileSync(path.join(ROOT, 'src/app/(app)/actions.ts'), 'utf8');
+  const body = actions.slice(actions.indexOf('export async function postComment'));
+  assert.match(body, /author_id: user\.id/);
+  assert.doesNotMatch(body, /createServiceClient/);
 });

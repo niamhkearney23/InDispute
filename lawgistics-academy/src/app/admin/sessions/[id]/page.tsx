@@ -42,6 +42,7 @@ export default async function EditSessionPage({
           country: session.country ?? 'ALL',
           airsOn: session.airsOn ?? '',
           published: session.published,
+          traineesOnly: session.traineesOnly,
         }}
       />
     </div>

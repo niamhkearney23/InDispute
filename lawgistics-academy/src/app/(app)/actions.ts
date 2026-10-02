@@ -15,7 +15,7 @@ import { moduleBySlug } from '@/content/seed/modules';
 import { HOMEWORK_DAYS, homeworkForDay } from '@/content/seed/homework';
 import { homeworkDay, lastArrivedDay } from '@/lib/homework/rules';
 import { getLearnerProfile } from '@/lib/learner-overview';
-import { WORK_FILE_TYPES, workFileProblem } from '@/lib/work/links';
+import { COMMENT_MAX_LENGTH, WORK_FILE_TYPES, workFileProblem } from '@/lib/work/links';
 import {
   IMPROVEMENT_GOALS,
   JURISDICTION_COUNTRY,
@@ -461,4 +461,45 @@ export async function sendWorkMessage(_prev: WorkState, formData: FormData): Pro
   revalidatePath('/admin/work');
   revalidatePath(`/admin/work/${parsed.data.postId}`);
   return { error: null, ok: 'Sent.' };
+}
+
+const commentSchema = z.object({
+  postId: z.string().uuid(),
+  body: z.string().trim().min(1, 'Write something first.').max(COMMENT_MAX_LENGTH),
+});
+
+/**
+ * A comment under a piece of work, for everybody who can see the post.
+ *
+ * Through the commenter's own client, because the database already decides
+ * who may say something where (0026): anybody who can see a published post,
+ * as themselves, and staff on a draft too. The author is always the person
+ * signed in. There is no edit and no delete, here or in the database.
+ */
+export async function postComment(_prev: WorkState, formData: FormData): Promise<WorkState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: 'You are not signed in.' };
+
+  const parsed = commentSchema.safeParse({
+    postId: formData.get('postId'),
+    body: formData.get('body') ?? '',
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? 'That could not be posted.' };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.from('work_comments').insert({
+    post_id: parsed.data.postId,
+    author_id: user.id,
+    body: parsed.data.body,
+  });
+
+  if (error) return { error: 'That could not be posted.' };
+
+  revalidatePath('/work');
+  revalidatePath(`/work/${parsed.data.postId}`);
+  revalidatePath('/admin/work');
+  revalidatePath(`/admin/work/${parsed.data.postId}`);
+  return { error: null, ok: 'Posted.' };
 }

@@ -26,6 +26,8 @@ export interface CoachSession {
   country: Country | null;
   airsOn: string | null;
   published: boolean;
+  /** For confirmed litigation trainees (and staff) only. */
+  traineesOnly: boolean;
   publishedByName: string | null;
   publishedByAvatarUrl: string | null;
   publishedAt: string | null;
@@ -40,6 +42,7 @@ interface Row {
   country: string | null;
   airs_on: string | null;
   published: boolean;
+  trainees_only: boolean | null;
   published_at: string | null;
   position: number;
   publisher?: { display_name: string | null; email: string; avatar_url: string | null } | null;
@@ -62,6 +65,7 @@ function toSession(row: Row): CoachSession {
     country: (row.country as Country | null) ?? null,
     airsOn: row.airs_on,
     published: row.published,
+    traineesOnly: Boolean(row.trainees_only),
     // The name if they gave one, otherwise nothing. Falling back to an email
     // address would put somebody's inbox on a page their whole cohort reads.
     publishedByName: publisher?.display_name ?? null,
@@ -72,25 +76,51 @@ function toSession(row: Row): CoachSession {
 }
 
 const SELECT =
-  'id, title, summary, url, country, airs_on, published, published_at, position, ' +
+  'id, title, summary, url, country, airs_on, published, trainees_only, published_at, position, ' +
   'publisher:profiles!coach_sessions_published_by_fkey(display_name, email, avatar_url)';
+
+/**
+ * Whether this person may watch a trainee-only video: a litigation trainee a
+ * coach has confirmed, or staff. The same question `is_confirmed_trainee()`
+ * and `is_coach()` answer in the read policy (0026); it is asked again here
+ * because these reads go through the service client.
+ */
+export function seesTraineeVideos(profile: {
+  track: string;
+  traineeConfirmed: boolean;
+  isCoach: boolean;
+  isAdmin: boolean;
+}): boolean {
+  return (
+    profile.isCoach ||
+    profile.isAdmin ||
+    (profile.track === 'litigation_trainee' && profile.traineeConfirmed)
+  );
+}
 
 /**
  * What this learner may watch, newest morning first.
  *
- * Two filters, and both matter. Unpublished is never returned, because the
+ * Three filters, and all matter. A trainee-only video goes to nobody else:
+ * the daily programme video is for the cohort, not for every intern on the
+ * academy. Unpublished is never returned, because the
  * service client would happily hand over a draft. And a session tagged to the
  * other country is left out, because a Malaysian junior opening the app at
  * seven should not be shown a session about Australian practice; a session
  * tagged to neither country is for everybody and is always included.
  */
-export async function sessionsForLearner(country: Country): Promise<CoachSession[]> {
+export async function sessionsForLearner(
+  country: Country,
+  traineeVideos: boolean,
+): Promise<CoachSession[]> {
   const db = createServiceClient();
-  const { data } = await db
+  let query = db
     .from('coach_sessions')
     .select(SELECT)
     .eq('published', true)
-    .or(`country.is.null,country.eq.${country}`)
+    .or(`country.is.null,country.eq.${country}`);
+  if (!traineeVideos) query = query.eq('trainees_only', false);
+  const { data } = await query
     .order('airs_on', { ascending: false, nullsFirst: false })
     .order('position', { ascending: true })
     .order('created_at', { ascending: false });
@@ -100,7 +130,10 @@ export async function sessionsForLearner(country: Country): Promise<CoachSession
     // A row whose host is not one we chose cannot be framed, and is dropped
     // rather than rendered as a broken player. The database constraint should
     // make this impossible; this is the second lock on the same door.
-    .filter((s) => isEmbeddable(s.url));
+    .filter((s) => isEmbeddable(s.url))
+    // And the trainee rule again, on the rows themselves, so a change to the
+    // query above cannot quietly show the cohort's video to everybody.
+    .filter((s) => traineeVideos || !s.traineesOnly);
 }
 
 /** Everything, drafts included. For the coach's own page only. */

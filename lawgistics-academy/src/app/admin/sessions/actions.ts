@@ -36,6 +36,7 @@ const schema = z.object({
     .optional()
     .or(z.literal('')),
   published: z.coerce.boolean(),
+  traineesOnly: z.coerce.boolean(),
 });
 
 export async function saveSession(
@@ -53,6 +54,7 @@ export async function saveSession(
     country: formData.get('country'),
     airsOn: formData.get('airsOn') ?? '',
     published: formData.get('published') === 'on',
+    traineesOnly: formData.get('traineesOnly') === 'on',
   });
 
   if (!parsed.success) {
@@ -76,6 +78,9 @@ export async function saveSession(
     country: values.country === 'ALL' ? null : values.country,
     airs_on: values.airsOn || null,
     published: values.published,
+    // Who may watch it is decided by the database's read policy (0026); this
+    // only records which audience the coach chose.
+    trainees_only: values.traineesOnly,
     // Taken from the session, never from the form. Whose teaching this is is the
     // one thing on the row that has to be true.
     published_by: values.published ? coachId : null,

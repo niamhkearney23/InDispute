@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
-import { sessionsForLearner } from '@/lib/lessons/sessions';
+import { seesTraineeVideos, sessionsForLearner } from '@/lib/lessons/sessions';
 import { Card, EmptyState, Pill } from '@/components/ui';
 import { Materials } from '@/components/materials';
 import { postsForSessions } from '@/lib/work/service';
@@ -38,7 +38,7 @@ export default async function LearnerSessionsPage() {
   const profile = await getLearnerProfile(user.id);
   if (!profile) redirect('/login');
 
-  const all = await sessionsForLearner(profile.country);
+  const all = await sessionsForLearner(profile.country, seesTraineeVideos(profile));
 
   const today = new Intl.DateTimeFormat('en-CA', {
     timeZone: profile.timezone,
@@ -71,6 +71,7 @@ export default async function LearnerSessionsPage() {
         <Card key={session.id}>
           <div className="mb-2.5 flex flex-wrap items-center gap-2">
             {session.airsOn ? <Pill>{longDate(session.airsOn)}</Pill> : null}
+            {session.traineesOnly ? <Pill>Trainees only</Pill> : null}
             {session.publishedByName ? (
               <span className="text-xs text-muted">from {session.publishedByName}</span>
             ) : null}

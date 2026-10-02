@@ -26,7 +26,7 @@ import {
   SparkIcon,
 } from '@/components/icons';
 import { SessionCard } from '@/components/session-card';
-import { leadSession, sessionsForLearner } from '@/lib/lessons/sessions';
+import { leadSession, seesTraineeVideos, sessionsForLearner } from '@/lib/lessons/sessions';
 import { isFull, postsForSession, workBoardFor } from '@/lib/work/service';
 import {
   ButtonLink,
@@ -91,7 +91,7 @@ export default async function DashboardPage() {
       outstandingRequired(user.id, profile.country),
       outstandingFirmModules(user.id, profile.country),
       beforeYouBegin(user.id, profile.country),
-      sessionsForLearner(profile.country),
+      sessionsForLearner(profile.country, seesTraineeVideos(profile)),
       workBoardFor(user.id),
       weeklyLeaderboard(),
       hasPlacement

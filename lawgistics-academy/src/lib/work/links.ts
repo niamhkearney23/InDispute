@@ -136,3 +136,38 @@ export function describeMinutes(minutes: number): string {
   }
   return `about ${hours} hour${hours === 1 ? '' : 's'}`;
 }
+
+/** Somebody with their name on a post, as everyone who can see it sees them. */
+export interface PostPerson {
+  firstName: string;
+  isMe: boolean;
+}
+
+/**
+ * One line saying who is on a piece of work, reader first. "You, Wei and
+ * Hafiz are on this", or "Wei and 3 others are on this". Names past the
+ * third are counted rather than listed, so the line fits on a phone.
+ */
+export function whoIsOn(people: PostPerson[]): string {
+  if (people.length === 0) return 'Nobody on this yet. Be the first.';
+  const me = people.some((p) => p.isMe);
+  const others = people.filter((p) => !p.isMe).map((p) => p.firstName);
+  const named = [...(me ? ['You'] : []), ...others];
+  const shown = named.slice(0, 3);
+  const rest = named.length - shown.length;
+  const verb = named.length === 1 && !me ? 'is' : 'are';
+  if (rest > 0) {
+    return `${shown.join(', ')} and ${rest} other${rest === 1 ? '' : 's'} ${verb} on this`;
+  }
+  if (shown.length === 1) return `${shown[0]} ${verb} on this`;
+  return `${shown.slice(0, -1).join(', ')} and ${shown[shown.length - 1]} ${verb} on this`;
+}
+
+/** The letter in somebody's bubble. "Someone" gets a question mark. */
+export function initialOf(firstName: string): string {
+  if (!firstName || firstName === 'Someone') return '?';
+  return firstName.trim().charAt(0).toUpperCase() || '?';
+}
+
+/** The longest comment the database takes (work_comments, 0026). */
+export const COMMENT_MAX_LENGTH = 1000;
