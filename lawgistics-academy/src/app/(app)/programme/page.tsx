@@ -3,9 +3,8 @@ import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { homeworkDay } from '@/lib/homework/rules';
-import { HOMEWORK_TASKS } from '@/content/seed/homework';
 import { PROGRAMME } from '@/content/programme';
-import { PROGRAMME_WEEKS, boxesForWeek, weekOfDay } from '@/content/programme-plan';
+import { PROGRAMME_WEEKS, weekOfDay } from '@/content/programme-plan';
 import { daysOfWeek } from '@/content/programme-days';
 import { conceptForDay } from '@/content/programme-concepts';
 import { TRAINING_FILE } from '@/content/training-file';
@@ -17,8 +16,9 @@ export const metadata: Metadata = { title: 'The month' };
 /**
  * The month, week by week, for the people on it.
  *
- * The same plan the front door shows, with the week they are in marked and
- * each week's homework days and work products listed. Nothing here is
+ * Short on purpose: each week's title and its twenty days, one line each,
+ * with the week and the day they are on marked. The detail of each day is on
+ * the dashboard, on the day. Nothing here is
  * recorded: the homework page records days, the work board records what
  * was handed in, and the register records the supervisor's decision. This
  * is the map those three sit on.
@@ -45,9 +45,7 @@ export default async function ProgrammePage() {
         <p className="eyebrow mb-2">Your programme · {brand.firm}</p>
         <h1 className="text-3xl sm:text-4xl">The month, week by week</h1>
         <p className="mt-3 text-slate">
-          {PROGRAMME.length}, {PROGRAMME.days}, on one file that you carry from the first
-          interview to the courtroom. Each week produces the pieces of work your supervisor
-          grades for certification. Your supervisor may vary this; what they say goes.
+          {PROGRAMME.length}, {PROGRAMME.days}, on one file.
         </p>
         <p className="mt-3 text-sm">
           <ButtonLink href="/programme/file" variant="outline" size="sm">
@@ -71,8 +69,6 @@ export default async function ProgrammePage() {
         {PROGRAMME_WEEKS.map((week) => {
           const isNow = currentWeek === week.number;
           const isPast = currentWeek !== null && currentWeek > week.number;
-          const days = HOMEWORK_TASKS.filter((t) => weekOfDay(t.day) === week.number);
-          const boxes = boxesForWeek(week);
           return (
             <li key={week.number}>
               <Card
@@ -87,104 +83,27 @@ export default async function ProgrammePage() {
                   {isPast ? <Pill>Done</Pill> : null}
                 </div>
                 <h2 className="mt-1 text-2xl">{week.title}</h2>
-                <p className="mt-1.5 text-slate">{week.theme}</p>
-
-                <div className="mt-4 grid gap-5 sm:grid-cols-2">
-                  <div>
-                    <p className="eyebrow mb-2">What you do</p>
-                    <ol className="list-decimal space-y-1.5 pl-5 text-sm">
-                      {week.trainee.map((line) => (
-                        <li key={line}>{line}</li>
-                      ))}
-                    </ol>
-                  </div>
-                  <div>
-                    <p className="eyebrow mb-2">From your coach</p>
-                    <ul className="space-y-1.5 text-sm text-slate">
-                      {week.coach.map((line) => (
-                        <li key={line}>{line}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="mt-4 border-t border-rule pt-4">
-                  <p className="eyebrow mb-2">What it produces</p>
-                  <ul className="space-y-1 text-sm">
-                    {boxes.map((box) => (
-                      <li key={box.number} className="flex gap-2">
-                        <span className="shrink-0 font-serif tabular-nums text-muted">
-                          {box.number}.
+                <ol className="mt-3 space-y-1.5">
+                  {daysOfWeek(week.number).map((d) => {
+                    const isToday = homework.state === 'day' && homework.day === d.day;
+                    return (
+                      <li key={d.day} className="flex flex-wrap items-baseline gap-x-2.5">
+                        <span className="w-12 shrink-0 font-serif text-sm text-muted tabular-nums">
+                          Day {d.day}
                         </span>
-                        <span>
-                          {box.workProduct}
-                          {box.isSpine ? (
-                            <span className="text-muted"> (required)</span>
-                          ) : box.isAdvocacy ? (
-                            <span className="text-muted"> (advocacy)</span>
-                          ) : null}
+                        <span className={cn(isToday && 'font-medium')}>
+                          {conceptForDay(d.day)?.concept ?? d.title}
                         </span>
+                        {isToday ? <Pill tone="accent">Today</Pill> : null}
                       </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="mt-4 border-t border-rule pt-4">
-                  <p className="eyebrow mb-2">Day by day</p>
-                  <ol className="divide-y divide-rule">
-                    {daysOfWeek(week.number).map((d) => {
-                      const isToday = homework.state === 'day' && homework.day === d.day;
-                      const homeworkTitle = days.find((t) => t.day === d.day)?.title;
-                      return (
-                        <li
-                          key={d.day}
-                          className={cn('py-2.5', isToday && '-mx-2 rounded-md bg-paper px-2')}
-                        >
-                          <div className="flex flex-wrap items-baseline gap-x-2">
-                            <span className="font-serif text-sm text-muted tabular-nums">Day {d.day}</span>
-                            <span className="font-medium">{conceptForDay(d.day)?.concept ?? d.title}</span>
-                            {isToday ? <Pill tone="accent">Today</Pill> : null}
-                            {d.due.length > 0 ? (
-                              <span className="text-xs text-muted">
-                                Due: {d.due.map((n) => `${n}`).join(', ')}
-                              </span>
-                            ) : null}
-                          </div>
-                          {conceptForDay(d.day)?.remember ? (
-                            <p className="mt-1 font-serif text-[0.9375rem] text-burgundy">
-                              &ldquo;{conceptForDay(d.day)?.remember}&rdquo;
-                            </p>
-                          ) : null}
-                          <p className="mt-1 text-sm text-slate">
-                            <span className="text-muted">Morning:</span> {d.morning}
-                          </p>
-                          <p className="text-sm text-slate">
-                            <span className="text-muted">Afternoon:</span> {d.afternoon}
-                          </p>
-                          <p className="text-sm text-slate">
-                            <span className="text-muted">Video:</span> {d.video}
-                          </p>
-                          {homeworkTitle ? (
-                            <p className="text-sm text-slate">
-                              <span className="text-muted">Homework:</span> {homeworkTitle}
-                            </p>
-                          ) : null}
-                        </li>
-                      );
-                    })}
-                  </ol>
-                </div>
+                    );
+                  })}
+                </ol>
               </Card>
             </li>
           );
         })}
       </ol>
-
-      <p className="text-sm text-muted">
-        Certification is ten pieces at the top grade, including all six marked required and
-        at least one marked advocacy. Your supervisor grades them; nothing here is ticked by
-        you.
-      </p>
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <ButtonLink href="/homework" size="lg" variant="accent">
