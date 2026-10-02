@@ -8,6 +8,32 @@ import { cn } from '@/components/ui';
 import type { Country } from '@/lib/types';
 
 /**
+ * A picture of a building for each court, so the map reads as a place rather
+ * than a spreadsheet. Generated once as illustrations of invented buildings,
+ * one per kind of court, and kept in public/courts. They carry no text and
+ * no fact: every name, rung and appeal line is still drawn by the code from
+ * court-hierarchies.ts, so a picture can be wrong only about how a building
+ * looks, never about where an appeal goes. Courts of the same kind share one.
+ * A court with no entry here simply shows no picture.
+ */
+const COURT_PICTURES: Record<string, string> = {
+  // Malaysia
+  'federal-court': 'apex-domed',
+  'court-of-appeal': 'appellate',
+  'high-court-malaya': 'high-court',
+  'high-court-sabah-sarawak': 'high-court',
+  'sessions-court': 'intermediate',
+  'magistrates-court': 'local',
+  // Australia
+  hca: 'apex-monumental',
+  fca: 'federal',
+  'supreme-court': 'supreme-court',
+  fcfcoa: 'federal',
+  intermediate: 'intermediate',
+  magistrates: 'local',
+};
+
+/**
  * The court hierarchy, as something to explore rather than a wall to read.
  *
  * The quiz version of this diagram (court-hierarchy-diagram.tsx) exists to be
@@ -46,27 +72,44 @@ export function CourtMap({
 
   return (
     <div>
-      <CourtTiers
-        hierarchy={hierarchy}
-        lit={path}
-        label={`${hierarchy.name}. Choose a court to see what it does.`}
-        renderCourt={(court) => (
-          <CourtNode
-            court={court}
-            appealsTo={[court.appealsTo, court.alsoAppealsTo]
-              .map((slug) => (slug ? bySlug.get(slug) : undefined))
-              .filter((c): c is Court => Boolean(c))}
-            hearsFrom={hierarchy.courts.filter(
-              (c) => c.appealsTo === court.slug || c.alsoAppealsTo === court.slug,
-            )}
-            isOpen={open === court.slug}
-            onPath={path.has(court.slug)}
-            onToggle={() => setOpen((current) => (current === court.slug ? null : court.slug))}
-          />
-        )}
-      />
+      {/* A faint skyline behind the whole map. Decorative only: the cards
+          sit on solid paper, and at this opacity the row labels still pass
+          AA (about 5:1) over the darkest pixel of the skyline. */}
+      <div className="relative isolate overflow-hidden rounded-xl border border-rule bg-paper px-3 pb-4 pt-3 sm:px-5 sm:pb-6 sm:pt-5">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/courts/backdrop.webp"
+          alt=""
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-72 w-full object-cover object-bottom opacity-40 [mask-image:linear-gradient(to_bottom,black_75%,transparent)] sm:h-96"
+        />
+        <CourtTiers
+          hierarchy={hierarchy}
+          lit={path}
+          label={`${hierarchy.name}. Choose a court to see what it does.`}
+          renderCourt={(court) => (
+            // Capped and centred so a court alone on its row is a building,
+            // not a banner. The appeal lines meet the centre of the cell,
+            // which is still the centre of the card.
+            <div className="mx-auto max-w-[20rem]">
+              <CourtNode
+                court={court}
+                appealsTo={[court.appealsTo, court.alsoAppealsTo]
+                  .map((slug) => (slug ? bySlug.get(slug) : undefined))
+                  .filter((c): c is Court => Boolean(c))}
+                hearsFrom={hierarchy.courts.filter(
+                  (c) => c.appealsTo === court.slug || c.alsoAppealsTo === court.slug,
+                )}
+                isOpen={open === court.slug}
+                onPath={path.has(court.slug)}
+                onToggle={() => setOpen((current) => (current === court.slug ? null : court.slug))}
+              />
+            </div>
+          )}
+        />
+      </div>
 
-      <p className="mt-4 text-xs text-muted">
+      <p className="mt-4 text-xs text-slate">
         Lines are appeal routes and run upwards. Courts drawn side by side are of equal
         standing, not one above the other. Choose a court to see what it does.
       </p>
@@ -100,6 +143,7 @@ function CourtNode({
   onToggle: () => void;
 }) {
   const apex = court.tier === 0;
+  const picture = COURT_PICTURES[court.slug];
   return (
     <div
       className={cn(
@@ -114,11 +158,27 @@ function CourtNode({
         type="button"
         aria-expanded={isOpen}
         onClick={onToggle}
-        className="flex min-h-14 w-full flex-col justify-center px-3 py-2.5 text-center focus-visible:outline-offset-[-3px]"
+        className="flex min-h-14 w-full flex-col justify-center text-center focus-visible:outline-offset-[-3px]"
       >
+        {picture ? (
+          // Decorative: the button is named by the court's name below it.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={`/courts/${picture}.webp`}
+            alt=""
+            width={720}
+            height={480}
+            loading="lazy"
+            decoding="async"
+            className={cn(
+              'block aspect-[2/1] w-full border-b object-cover object-[50%_75%] transition-opacity',
+              isOpen || onPath ? 'border-burgundy/20' : 'border-rule',
+            )}
+          />
+        ) : null}
         <span
           className={cn(
-            'font-serif text-[0.9375rem] leading-snug',
+            'block px-3 py-2.5 font-serif text-[0.9375rem] leading-snug',
             isOpen || onPath ? 'text-burgundy' : 'text-ink',
           )}
         >
