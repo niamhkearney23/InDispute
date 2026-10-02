@@ -2,7 +2,7 @@ import 'server-only';
 import { redirect } from 'next/navigation';
 import { createServiceClient } from '@/lib/supabase/service';
 import { getCurrentUser } from '@/lib/supabase/server';
-import { accessReason, subscriptionLive, type AccessReason } from './rules';
+import { accessReason, subscriptionLive, type AccessFacts, type AccessReason } from './rules';
 
 /**
  * Whether people are asked to pay. Off unless the deployment says PAYMENTS=on
@@ -15,6 +15,11 @@ export function paymentsOn(): boolean {
 
 export interface AccessState {
   reason: AccessReason | null;
+  /**
+   * Why they would be in if payments were on: what the plan page tells a
+   * trainee or a confirmed firm person even while nobody is charged.
+   */
+  standing: AccessReason | null;
   /** The code they entered, if any, and what has been decided about it. */
   request: { label: string; decision: 'confirmed' | 'declined' | null; codeActive: boolean } | null;
   subscription: {
@@ -54,21 +59,24 @@ export async function accessFor(userId: string): Promise<AccessState> {
   const code = (grant?.access_codes ?? null) as { label: string; active: boolean } | null;
   const decision = (grant?.decision ?? null) as 'confirmed' | 'declined' | null;
 
+  const facts: AccessFacts = {
+    paymentsOn: paymentsOn(),
+    isStaff: Boolean(profile?.is_admin || profile?.is_coach),
+    traineeConfirmed: Boolean(profile?.trainee_approved_at),
+    joinedByInvitation: Boolean(invitation),
+    // Turning a code off ends it for everybody on it, not only new people:
+    // that is what a firm leaving looks like.
+    firmConfirmed: decision === 'confirmed' && Boolean(code?.active),
+    paid: subscriptionLive(
+      (sub?.status as string | null) ?? null,
+      (sub?.current_period_end as string | null) ?? null,
+      new Date(),
+    ),
+  };
+
   return {
-    reason: accessReason({
-      paymentsOn: paymentsOn(),
-      isStaff: Boolean(profile?.is_admin || profile?.is_coach),
-      traineeConfirmed: Boolean(profile?.trainee_approved_at),
-      joinedByInvitation: Boolean(invitation),
-      // Turning a code off ends it for everybody on it, not only new people:
-      // that is what a firm leaving looks like.
-      firmConfirmed: decision === 'confirmed' && Boolean(code?.active),
-      paid: subscriptionLive(
-        (sub?.status as string | null) ?? null,
-        (sub?.current_period_end as string | null) ?? null,
-        new Date(),
-      ),
-    }),
+    reason: accessReason(facts),
+    standing: accessReason({ ...facts, paymentsOn: true }),
     request: grant && code ? { label: code.label, decision, codeActive: code.active } : null,
     subscription: sub
       ? {

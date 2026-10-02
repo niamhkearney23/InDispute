@@ -9,6 +9,7 @@ import {
   formatPrice,
   normaliseCode,
   subscriptionLive,
+  traineeValue,
   type AccessFacts,
 } from '../src/lib/access/rules';
 
@@ -110,4 +111,16 @@ test('starting training and asking the AI check access on the server too', () =>
     const body = source.slice(start, next === -1 ? undefined : next);
     assert.ok(body.includes('hasAccess(user.id)'), `${name} must check hasAccess(user.id)`);
   }
+});
+
+test('a trainee is told the real price their free place would cost, and no other number', () => {
+  assert.equal(
+    traineeValue(true).line,
+    'Students on their own pay RM 390 a year for the Academy. For trainees it is included free.',
+  );
+  assert.equal(
+    traineeValue(false).line,
+    'Students on their own will pay RM 390 a year for the Academy. For trainees it is included free.',
+  );
+  assert.equal(traineeValue(true).price, formatPrice(PRICES.MY.year));
 });

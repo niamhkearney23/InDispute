@@ -4,7 +4,7 @@ import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { brand } from '@/lib/brand';
 import { Button, Card, Notice, Pill } from '@/components/ui';
-import { PRICES, formatPrice } from '@/lib/access/rules';
+import { PRICES, formatPrice, traineeValue } from '@/lib/access/rules';
 import { accessFor, paymentsOn } from '@/lib/access/service';
 import { openBilling, startCheckout } from './actions';
 import { CodeForm } from './code-form';
@@ -36,7 +36,7 @@ export default async function PricingPage({
 
   const freeBecause: Record<string, string> = {
     staff: 'You are staff here, so there is nothing to pay.',
-    trainee: `You are a confirmed trainee with ${brand.firm}, so there is nothing to pay.`,
+    trainee: `You are a confirmed trainee with ${brand.firm}. ${traineeValue(on).line}`,
     invited: 'You joined through your firm, so there is nothing to pay.',
     firm: `${state.request?.label ?? 'Your firm'} has confirmed you, so there is nothing to pay.`,
   };
@@ -50,17 +50,19 @@ export default async function PricingPage({
     : null;
 
   const request = state.request;
-  const showCode =
-    state.reason !== 'staff' && state.reason !== 'trainee' && state.reason !== 'invited';
+  // Why they are free, if they are, whether or not anybody is charged yet.
+  const free =
+    state.standing && state.standing !== 'paid' && state.standing !== 'payments-off'
+      ? state.standing
+      : null;
+  const showCode = free !== 'staff' && free !== 'trainee' && free !== 'invited';
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <section>
         <p className="eyebrow mb-2">Your plan</p>
         <h1 className="text-3xl sm:text-4xl">
-          {state.reason && state.reason !== 'payments-off'
-            ? 'You are all set'
-            : 'Choose how to train'}
+          {free || state.reason === 'paid' ? 'You are all set' : 'Choose how to train'}
         </h1>
       </section>
 
@@ -71,7 +73,12 @@ export default async function PricingPage({
         </Notice>
       ) : null}
 
-      {!on ? (
+      {free ? (
+        <Card>
+          <p className="font-semibold">Free</p>
+          <p className="mt-1 text-sm text-slate">{freeBecause[free]}</p>
+        </Card>
+      ) : !on ? (
         <Card>
           <p className="font-semibold">Free for now</p>
           <p className="mt-1 text-sm text-slate">
@@ -95,11 +102,6 @@ export default async function PricingPage({
               Change card or cancel
             </Button>
           </form>
-        </Card>
-      ) : state.reason ? (
-        <Card>
-          <p className="font-semibold">Free</p>
-          <p className="mt-1 text-sm text-slate">{freeBecause[state.reason]}</p>
         </Card>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">

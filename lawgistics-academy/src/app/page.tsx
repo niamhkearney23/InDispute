@@ -10,7 +10,7 @@ import { publicEnv } from '@/lib/env';
 import { brand } from '@/lib/brand';
 import { PROGRAMME } from '@/content/programme';
 import { paymentsOn } from '@/lib/access/service';
-import { PRICES, formatPrice } from '@/lib/access/rules';
+import { PRICES, formatPrice, traineeValue } from '@/lib/access/rules';
 
 /**
  * The front door: navy and cream, product first.
@@ -376,6 +376,7 @@ export default async function LandingPage() {
               <p className="mt-8 text-lg text-cream/90">
                 One month. Realistic matters. Lawyer feedback.
               </p>
+              <p className="mt-2 text-sm text-mist">{traineeValue(payments).line}</p>
               <ul className="mt-5 flex flex-wrap gap-2 text-sm">
                 {['Research', 'Drafting', 'Procedure', 'Oral advocacy'].map((s) => (
                   <li

@@ -87,3 +87,17 @@ export function accessReason(f: AccessFacts): AccessReason | null {
   if (f.paid) return 'paid';
   return null;
 }
+
+/**
+ * What a trainee's free place is worth, said truthfully: the real yearly
+ * price somebody training on their own pays, and no other number. While
+ * payments are off nobody pays it yet, so it says "will pay"; a price that
+ * nobody has ever been charged is not described as what the training costs.
+ */
+export function traineeValue(paymentsOn: boolean): { price: string; line: string } {
+  const price = formatPrice(PRICES.MY.year);
+  return {
+    price,
+    line: `Students on their own ${paymentsOn ? 'pay' : 'will pay'} ${price} a year for the Academy. For trainees it is included free.`,
+  };
+}
