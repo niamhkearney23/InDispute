@@ -17,16 +17,22 @@ export interface Price {
   currency: 'myr' | 'aud';
 }
 
-/** The owner's prices. Malaysia in ringgit, Australia in dollars. */
+/**
+ * The owner's prices, set like a practical course rather than an app.
+ * Malaysia in ringgit, Australia in dollars.
+ */
 export const PRICES: Record<Country, Record<Plan, Price>> = {
-  MY: { month: { amount: 4900, currency: 'myr' }, year: { amount: 39000, currency: 'myr' } },
-  AU: { month: { amount: 2900, currency: 'aud' }, year: { amount: 24900, currency: 'aud' } },
+  MY: { month: { amount: 34900, currency: 'myr' }, year: { amount: 299000, currency: 'myr' } },
+  AU: { month: { amount: 20900, currency: 'aud' }, year: { amount: 179000, currency: 'aud' } },
 };
 
-/** "RM 49" or "A$249". Whole units, because none of the prices have cents. */
+/** "RM 2,990" or "A$209". Whole units, because none of the prices have cents. */
 export function formatPrice(price: Price): string {
   const units = price.amount / 100;
-  const shown = Number.isInteger(units) ? String(units) : units.toFixed(2);
+  const shown = units.toLocaleString('en-US', {
+    minimumFractionDigits: Number.isInteger(units) ? 0 : 2,
+    maximumFractionDigits: 2,
+  });
   return price.currency === 'myr' ? `RM ${shown}` : `A$${shown}`;
 }
 

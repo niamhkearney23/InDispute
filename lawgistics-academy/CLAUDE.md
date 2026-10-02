@@ -223,8 +223,10 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   answers every sender the same. The AI tidies the email into a post and adds
   nothing; one draft per message id; the page reminds the lawyer to take
   client names out before publishing.
-- `0030` is **who pays**. Somebody on their own pays (RM 49 a month or RM 390
-  a year in Malaysia, A$29 or A$249 in Australia, in `src/lib/access/rules.ts`).
+- `0030` is **who pays**. Somebody on their own pays (RM 349 a month or RM 2,990
+  a year in Malaysia, A$209 or A$1,790 in Australia, in `src/lib/access/rules.ts`),
+  priced as a practical course rather than an app. Trainees are shown that
+  real yearly price beside "Free", and never any other figure.
   Staff, confirmed trainees and anyone who joined by a firm's invitation are
   free. Anyone else from a firm or university enters its code and is free once
   a coach confirms them, because codes get passed around; switching a code off

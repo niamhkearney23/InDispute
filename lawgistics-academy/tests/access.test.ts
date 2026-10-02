@@ -41,10 +41,11 @@ test('people reached through a firm are in without paying', () => {
 });
 
 test('the prices are the ones the owner chose', () => {
-  assert.equal(formatPrice(PRICES.MY.month), 'RM 49');
-  assert.equal(formatPrice(PRICES.MY.year), 'RM 390');
-  assert.equal(formatPrice(PRICES.AU.month), 'A$29');
-  assert.equal(formatPrice(PRICES.AU.year), 'A$249');
+  assert.equal(formatPrice(PRICES.MY.month), 'RM 349');
+  assert.equal(formatPrice(PRICES.MY.year), 'RM 2,990');
+  assert.equal(formatPrice(PRICES.AU.month), 'A$209');
+  assert.equal(formatPrice(PRICES.AU.year), 'A$1,790');
+  assert.equal(formatPrice({ amount: 4950, currency: 'myr' }), 'RM 49.50');
 });
 
 test('a code is read the way a person would type it', () => {
@@ -116,11 +117,11 @@ test('starting training and asking the AI check access on the server too', () =>
 test('a trainee is told the real price their free place would cost, and no other number', () => {
   assert.equal(
     traineeValue(true).line,
-    'Students on their own pay RM 390 a year for the Academy. For trainees it is included free.',
+    'Students on their own pay RM 2,990 a year for the Academy. For trainees it is included free.',
   );
   assert.equal(
     traineeValue(false).line,
-    'Students on their own will pay RM 390 a year for the Academy. For trainees it is included free.',
+    'Students on their own will pay RM 2,990 a year for the Academy. For trainees it is included free.',
   );
   assert.equal(traineeValue(true).price, formatPrice(PRICES.MY.year));
 });
