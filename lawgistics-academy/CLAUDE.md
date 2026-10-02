@@ -168,7 +168,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0028`. `supabase/UPDATE.sql` is the one-paste update for a
+- Migrations run to `0029`. `supabase/UPDATE.sql` is the one-paste update for a
   database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -213,7 +213,14 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   when every required module is finished and five matters are marked Good.
   `0028` loads five AI-drafted Malaysian matters, unpublished, unsigned and
   with no author, for a lawyer to correct and sign off.
-- 315 tests, 256 schema guarantees against a real Postgres, 240 page and device
+- `0029` is **work by email**: a lawyer emails the inbound address,
+  `/api/inbound/work` (off unless `INBOUND_EMAIL_TOKEN` is set, Basic auth,
+  constant-time compare) turns it into an **unpublished draft** under their
+  name, only if the sender's address matches a coach or administrator, and
+  answers every sender the same. The AI tidies the email into a post and adds
+  nothing; one draft per message id; the page reminds the lawyer to take
+  client names out before publishing.
+- 322 tests, 260 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB

@@ -2203,6 +2203,32 @@ select pg_temp.expect_failure(
 reset role;
 
 
+
+-- -----------------------------------------------------------------------------
+-- Work that arrives by email (0029)
+-- -----------------------------------------------------------------------------
+-- The promise: an email makes one draft however many times it is delivered,
+-- and the draft is not published by arriving.
+reset role;
+set local request.jwt.claim.sub = '';
+insert into public.work_posts (id, kind, title, country, posted_by, source, inbound_message_id, inbound_from, inbound_verified)
+values ('eeee0029-0000-0000-0000-000000000001', 'task', 'From email', 'MY',
+        '44444444-4444-4444-4444-444444444444', 'email', 'msg-1', 'coach@example.test', true);
+select pg_temp.expect(
+  (select not published and source = 'email' from public.work_posts
+   where id = 'eeee0029-0000-0000-0000-000000000001'),
+  'a post made from an email starts as an unpublished draft');
+select pg_temp.expect_failure(
+  $$insert into public.work_posts (kind, title, country, source, inbound_message_id)
+    values ('task', 'Same email again', 'MY', 'email', 'msg-1')$$,
+  'the same email delivered twice makes one draft');
+select pg_temp.expect_failure(
+  $$insert into public.work_posts (kind, title, country, source) values ('task', 'Odd', 'MY', 'fax')$$,
+  'a post says where it came from, from a known list');
+select pg_temp.expect(
+  (select source = 'form' from public.work_posts where id = 'bbbb0001-0000-0000-0000-000000000001'),
+  'posts written in the form are marked as such');
+
 \echo ''
 \echo 'All schema guarantees hold.'
 
