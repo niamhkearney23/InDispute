@@ -3,6 +3,7 @@
 import { useActionState, useState } from 'react';
 import { saveOnboarding, type OnboardingState } from '../actions';
 import { Button, Card, Notice, cn } from '@/components/ui';
+import { ArrowIcon, CheckIcon } from '@/components/icons';
 import {
   careerStageLabel,
   HOME_JURISDICTIONS,
@@ -19,6 +20,14 @@ import {
 
 const STAGES: CareerStage[] = ['law_student', 'plt_student', 'graduate', 'junior_lawyer'];
 const MINUTES = [5, 10, 15, 20];
+
+/** What each daily length feels like, so the choice is about a day, not a number. */
+const MINUTE_FEEL: Record<number, string> = {
+  5: 'A coffee',
+  10: 'A commute',
+  15: 'A lunch break',
+  20: 'Serious',
+};
 
 /**
  * Only places a person can actually work. "Australia, general principle" and
@@ -120,8 +129,13 @@ export function OnboardingForm({
           to the programme is the trainee page, not a third tile here. */}
       {choice.track === 'litigation_trainee' ? (
         <Card>
-          <p className="eyebrow mb-2">Your programme</p>
-          <p className="text-lg">Litigation trainee, Malaysia</p>
+          <div className="flex items-center gap-3">
+            <StepNumber n={1} done />
+            <div>
+              <p className="eyebrow">Your programme</p>
+              <p className="text-lg">Litigation trainee, Malaysia</p>
+            </div>
+          </div>
           <p className="mt-1 text-sm text-slate">
             You are on a Malaysian firm&rsquo;s programme, so you are trained on Malaysian
             law. Your supervisor confirms your place after you sign up. Until then the
@@ -131,7 +145,10 @@ export function OnboardingForm({
       ) : (
         <Card>
           <fieldset>
-            <legend className="mb-1 text-lg">Which country do you plan to practise in?</legend>
+            <legend className="mb-1 flex items-center gap-3 text-lg">
+              <StepNumber n={1} />
+              Which country do you plan to practise in?
+            </legend>
             <p className="mb-4 text-sm text-slate">
               This one is not a preference. Australian and Malaysian law are different
               bodies of law, so it decides which questions you are ever shown.
@@ -153,7 +170,10 @@ export function OnboardingForm({
 
       <Card>
         <fieldset>
-          <legend className="mb-1 text-lg">Where are you in your legal career?</legend>
+<legend className="mb-1 flex items-center gap-3 text-lg">
+            <StepNumber n={2} />
+            Where are you in your legal career?
+          </legend>
           <p className="mb-4 text-sm text-slate">
             This shapes the tone of explanations, not the difficulty.
           </p>
@@ -172,7 +192,10 @@ export function OnboardingForm({
 
       <Card>
         <fieldset>
-          <legend className="mb-1 text-lg">What do you want to improve?</legend>
+<legend className="mb-1 flex items-center gap-3 text-lg">
+            <StepNumber n={3} />
+            What do you want to improve?
+          </legend>
           <p className="mb-4 text-sm text-slate">
             Choose as many as you like. Your diagnostic still covers everything; this
             only nudges what comes up in daily training.
@@ -192,17 +215,21 @@ export function OnboardingForm({
 
       <Card>
         <fieldset>
-          <legend className="mb-1 text-lg">How long do you want to train daily?</legend>
+<legend className="mb-1 flex items-center gap-3 text-lg">
+            <StepNumber n={4} />
+            How long do you want to train each day?
+          </legend>
           <p className="mb-4 text-sm text-slate">
             Pick something you will actually do on a bad day. You can change it later.
           </p>
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {MINUTES.map((value) => (
               <Choice
                 key={value}
                 selected={minutes === value}
                 onClick={() => setMinutes(value)}
                 label={`${value} min`}
+                detail={MINUTE_FEEL[value]}
                 centered
               />
             ))}
@@ -213,7 +240,8 @@ export function OnboardingForm({
       <Card>
         <div className="space-y-4">
           <div>
-            <label htmlFor="displayName" className="mb-1 block text-lg">
+            <label htmlFor="displayName" className="mb-1 flex items-center gap-3 text-lg">
+              <StepNumber n={5} />
               What should we call you?
             </label>
             <input
@@ -274,8 +302,17 @@ export function OnboardingForm({
 
       {state.error ? <Notice tone="error">{state.error}</Notice> : null}
 
-      <Button type="submit" size="lg" variant="accent" disabled={pending}>
-        {pending ? 'Saving…' : editing ? 'Save changes' : 'Continue'}
+      <Button
+        type="submit"
+        size="lg"
+        variant="accent"
+        disabled={pending}
+        className="group h-14 w-full rounded-lg text-[1.0625rem] sm:w-auto sm:px-10"
+      >
+        {pending ? 'Saving…' : editing ? 'Save changes' : 'Start my diagnostic'}
+        {pending ? null : (
+          <ArrowIcon className="size-4 transition-transform group-hover:translate-x-0.5" />
+        )}
       </Button>
     </form>
   );
@@ -300,13 +337,21 @@ function Choice({
       onClick={onClick}
       aria-pressed={selected}
       className={cn(
-        'rounded-md border px-4 py-3 text-[0.9375rem] transition-colors',
-        centered ? 'text-center' : 'text-left',
+        'relative rounded-lg border-2 px-4 py-3 text-[0.9375rem] transition-[border-color,background-color,transform,box-shadow] duration-150 active:scale-[0.98]',
+        centered ? 'text-center' : 'pr-9 text-left',
         selected
-          ? 'border-burgundy bg-burgundy-wash font-medium text-burgundy'
-          : 'border-rule-strong hover:bg-paper-sunk',
+          ? 'border-burgundy bg-burgundy-wash font-medium text-burgundy shadow-card'
+          : 'border-rule hover:-translate-y-px hover:border-rule-strong hover:bg-paper-raised',
       )}
     >
+      {selected && !centered ? (
+        <span
+          aria-hidden
+          className="bubble-pop absolute top-3 right-3 grid size-5 place-items-center rounded-full bg-burgundy text-paper"
+        >
+          <CheckIcon className="size-3" />
+        </span>
+      ) : null}
       {label}
       {detail ? (
         <span
@@ -319,5 +364,20 @@ function Choice({
         </span>
       ) : null}
     </button>
+  );
+}
+
+/** The number beside each question, ticked once it is settled. */
+function StepNumber({ n, done = false }: { n: number; done?: boolean }) {
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        'grid size-8 shrink-0 place-items-center rounded-full font-serif text-base',
+        done ? 'bg-burgundy text-paper' : 'bg-burgundy-wash text-burgundy',
+      )}
+    >
+      {done ? <CheckIcon className="size-4" /> : n}
+    </span>
   );
 }

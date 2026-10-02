@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Button, Notice, Wordmark, cn } from '@/components/ui';
 import { brand } from '@/lib/brand';
-import { AccentSurface } from '@/components/accent-surface';
+import { RotatingMaxim } from '@/components/rotating-maxim';
 import { ArrowIcon, CheckIcon } from '@/components/icons';
 import { PRACTICE_CHOICES, practiceChoiceFor, type Country, type PracticeChoice } from '@/lib/types';
 
@@ -137,10 +137,10 @@ export function AuthForm({
   }
 
   return (
-    <div className="min-h-dvh lg:grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+    <div className="min-h-dvh md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
       <BrandPanel isSignup={isSignup} trainee={trainee} />
 
-      <main className="flex items-start justify-center px-5 pt-8 pb-12 sm:px-10 lg:items-center lg:py-16">
+      <main className="flex items-start justify-center px-5 pt-8 pb-12 sm:px-10 md:items-center md:py-16">
         <div className="rise-in w-full max-w-md">
           <h2 className="mb-2 text-3xl sm:text-4xl">
             {trainee ? 'Join as a trainee' : isSignup ? 'Create your account' : 'Sign in'}
@@ -253,10 +253,16 @@ export function AuthForm({
               size="lg"
               variant="accent"
               disabled={pending}
-              className="h-14 w-full rounded-lg text-[1.0625rem] sm:w-full"
+              className="group h-14 w-full rounded-lg text-[1.0625rem] sm:w-full"
             >
-              {pending ? 'One moment…' : isSignup ? 'Create account' : 'Sign in'}
-              {pending ? null : <ArrowIcon className="size-4" />}
+              {pending ? (
+                <span
+                  aria-hidden
+                  className="size-4 animate-spin rounded-full border-2 border-paper/40 border-t-paper"
+                />
+              ) : null}
+              {pending ? (isSignup ? 'Creating your account…' : 'Signing you in…') : isSignup ? 'Create account' : 'Sign in'}
+              {pending ? null : <ArrowIcon className="size-4 transition-transform group-hover:translate-x-0.5" />}
             </Button>
           </form>
 
@@ -301,17 +307,23 @@ function BrandPanel({ isSignup, trainee }: { isSignup: boolean; trainee: boolean
       ];
 
   return (
-    <AccentSurface as="aside">
-      <div className="flex h-full flex-col px-5 pt-6 pb-8 sm:px-10 lg:justify-between lg:p-14">
+    <aside className="landing-hero">
+      <div aria-hidden className="landing-light landing-light--a" />
+      <div aria-hidden className="landing-light landing-light--b" />
+      <div aria-hidden className="landing-light landing-light--c" />
+      <div aria-hidden className="landing-grid" />
+      <div aria-hidden className="landing-grain" />
+
+      <div className="flex h-full flex-col px-5 pt-6 pb-8 sm:px-10 md:min-h-dvh md:justify-between md:p-12 lg:p-14">
         <Link href="/" className="-mx-1 inline-block self-start rounded-[5px] px-1 py-2">
           <Wordmark light />
         </Link>
 
-        <div className="mt-6 lg:mt-0">
-          <p className="mb-3 text-[0.6875rem] font-semibold tracking-[0.16em] text-paper/70 uppercase">
+        <div className="mt-6 md:mt-0">
+          <p className="rise-up mb-3 text-[0.6875rem] font-semibold tracking-[0.16em] text-paper/70 uppercase">
             {trainee ? 'Litigation trainee programme' : isSignup ? 'Start here' : 'Welcome back'}
           </p>
-          <h1 className="max-w-md text-[2.25rem] leading-[1.05] sm:text-5xl lg:text-6xl">
+          <h1 className="rise-up delay-1 max-w-md text-[2.25rem] leading-[1.05] sm:text-5xl lg:text-6xl">
             {trainee
               ? 'Your traineeship starts here.'
               : isSignup
@@ -319,24 +331,28 @@ function BrandPanel({ isSignup, trainee }: { isSignup: boolean; trainee: boolean
                 : 'Good to see you again.'}
           </h1>
 
-          <ul className="mt-10 hidden max-w-md space-y-5 lg:block">
-            {points.map(([title, body]) => (
-              <li key={title} className="flex gap-3.5">
-                <span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-full bg-paper/15 ring-1 ring-paper/25">
-                  <CheckIcon className="size-3.5" />
-                </span>
-                <span>
-                  <span className="block font-semibold">{title}</span>
-                  <span className="block text-sm text-paper/75">{body}</span>
-                </span>
-              </li>
-            ))}
-          </ul>
+          {isSignup ? (
+            <ul className="rise-up delay-2 mt-10 hidden max-w-md space-y-5 md:block">
+              {points.map(([title, body]) => (
+                <li key={title} className="flex gap-3.5">
+                  <span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-full bg-paper/15 ring-1 ring-paper/25">
+                    <CheckIcon className="size-3.5" />
+                  </span>
+                  <span>
+                    <span className="block font-semibold">{title}</span>
+                    <span className="block text-sm text-paper/75">{body}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <RotatingMaxim className="rise-up delay-2 mt-10 hidden max-w-md md:block" />
+          )}
         </div>
 
-        <p className="mt-10 hidden text-sm text-paper/60 lg:block">{brand.tagline}</p>
+        <p className="mt-10 hidden text-sm text-paper/60 md:block">{brand.tagline}</p>
       </div>
-    </AccentSurface>
+    </aside>
   );
 }
 

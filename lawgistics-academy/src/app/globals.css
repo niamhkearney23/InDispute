@@ -424,3 +424,36 @@
 .bubble-pop {
   animation: bubble-pop 360ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
+
+/* A rule turning over on the sign-in panel. */
+@keyframes maxim-in {
+  from { opacity: 0; transform: translateY(8px); filter: blur(2px); }
+  to   { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+.maxim-in {
+  animation: maxim-in 600ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+/* The trainee door: the one the firm is running now, so it stands out. */
+.landing-tile--featured {
+  background:
+    radial-gradient(120% 80% at 100% 0%, rgba(255, 214, 190, 0.16), transparent 55%),
+    linear-gradient(160deg, #2a0c12 0%, #1a0a0d 100%);
+  color: var(--color-paper);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.18),
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 40px 70px -28px rgba(0, 0, 0, 0.75);
+}
+.landing-tile--featured::after {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 55%);
+}
+
+/* A tile that holds links rather than being one: no lift of its own. */
+.landing-tile--static:hover,
+.landing-tile--static:focus-within {
+  transform: none;
+}
+.landing-tile--static::after {
+  display: none;
+}
