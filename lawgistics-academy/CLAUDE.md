@@ -1,6 +1,6 @@
 @AGENTS.md
 
-# Litigation Academy
+# Lawgistics Academy
 
 Adaptive litigation training for Australian and Malaysian law students,
 graduates and junior lawyers (PLT students in Australia, pupils and interns in
@@ -14,11 +14,12 @@ assume a terminal is available.
 ## Scope
 
 **The academy, and the firm induction that goes with it.** That is the product.
-It is called the **Litigation Academy**, set as the default brand in
-`src/lib/brand.ts` (renamed from "Lawgistics" once the owner settled on the
-name that actually describes it, and that everyone already called it in
-conversation). White labelling still works exactly as before: a firm's own
-name overrides the default per deployment, the default just changed.
+It is called the **Lawgistics Academy**, set as the default brand in
+`src/lib/brand.ts`, and the part that belongs to the firm's trainee programme
+is the **Litigation Trainee Academy** (`brand.traineeAcademy`). The owner
+named both; it was briefly called the Litigation Academy before that. White
+labelling still works exactly as before: a firm's own name overrides the
+default per deployment, the default just changed.
 
 **The end goal, in the owner's words: a law firm buys this to teach their
 interns and paralegals everything.** The individual learner is real and matters,
@@ -63,7 +64,7 @@ These come from the owner and are not up for renegotiation.
   own rewrite with the audit trail showing an ordinary review. A coach who
   thinks an item is wrong flags it with a note; somebody else changes it.
   Exactly thirteen actions accept a coach, named in `tests/authorisation-contract`,
-  and a test fails if a fourteenth quietly does. Two of the eleven are the coach's
+  and a test fails if a fourteenth quietly does. Two of the thirteen are the coach's
   own **sessions**: they record something, paste a YouTube or Vimeo link, and
   it leads the dashboard the morning it is for. That is not an exception to
   the rule, it is outside it: a session has no version chain, no answer key,

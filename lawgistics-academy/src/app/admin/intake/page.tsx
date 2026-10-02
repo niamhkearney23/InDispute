@@ -108,7 +108,7 @@ export default async function IntakePage() {
   return (
     <div className="space-y-10">
       <section>
-        <p className="eyebrow mb-2">Litigation trainee programme · {brand.firm}</p>
+        <p className="eyebrow mb-2">{brand.traineeAcademy} · {brand.firm}</p>
         <h1 className="text-3xl sm:text-4xl">The {PROGRAMME.nextIntake} intake</h1>
         <p className="mt-3 max-w-2xl text-slate">
           {shortDate(PROGRAMME.intakeStartsOn)} to {shortDate(PROGRAMME.intakeEndsOn)},{' '}

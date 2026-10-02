@@ -34,6 +34,11 @@ export interface Brand {
    */
   firm: string;
   /**
+   * The name of the trainee side: the part of the academy that belongs to
+   * the firm's litigation trainee programme.
+   */
+  traineeAcademy: string;
+  /**
    * The accent, as a CSS colour. Burgundy by default. Applied as a variable so
    * a firm's colour reaches everything the accent touches rather than the one
    * button somebody remembered.
@@ -47,7 +52,7 @@ export interface Brand {
   initial: string;
 }
 
-const DEFAULT_NAME = 'Litigation';
+const DEFAULT_NAME = 'Lawgistics';
 const DEFAULT_SUFFIX = 'Academy';
 
 /** The burgundy the stylesheet ships with, for anywhere the variable cannot reach. */
@@ -97,6 +102,7 @@ export const brand: Brand = {
     'Australian and Malaysian litigation training.',
   ),
   firm: clean(process.env.NEXT_PUBLIC_BRAND_FIRM, 'Thomas Philip'),
+  traineeAcademy: clean(process.env.NEXT_PUBLIC_BRAND_TRAINEE_ACADEMY, 'Litigation Trainee Academy'),
   accent: safeAccent(process.env.NEXT_PUBLIC_BRAND_ACCENT),
   initial: safeInitial(name),
 };

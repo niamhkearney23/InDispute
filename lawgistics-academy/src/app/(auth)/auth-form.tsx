@@ -321,7 +321,7 @@ function BrandPanel({ isSignup, trainee }: { isSignup: boolean; trainee: boolean
 
         <div className="mt-6 md:mt-0">
           <p className="rise-up mb-3 text-[0.6875rem] font-semibold tracking-[0.16em] text-paper/70 uppercase">
-            {trainee ? 'Litigation trainee programme' : isSignup ? 'Start here' : 'Welcome back'}
+            {trainee ? brand.traineeAcademy : isSignup ? 'Start here' : 'Welcome back'}
           </p>
           <h1 className="rise-up delay-1 max-w-md text-[2.25rem] leading-[1.05] sm:text-5xl lg:text-6xl">
             {trainee
