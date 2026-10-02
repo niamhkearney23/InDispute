@@ -39,6 +39,7 @@ test('the pre-filled forms carry the date and the box, and never a link', () => 
   const session = new URLSearchParams(sessionPrefill(day));
   assert.equal(session.get('airsOn'), day.date);
   assert.equal(session.get('country'), 'MY');
+  assert.equal(session.get('traineesOnly'), '1', 'the daily programme video is for the cohort');
   assert.equal(session.get('url'), null, 'the coach pastes the video link themselves');
 
   const work = new URLSearchParams(workPrefill(1, day.date, day.day));

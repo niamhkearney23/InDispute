@@ -7,6 +7,7 @@ import { isFull, workBoardFor } from '@/lib/work/service';
 import type { WorkBoardItem } from '@/lib/work/service';
 import { describeMinutes, isLate, slotsLabel } from '@/lib/work/links';
 import { Card, EmptyState, Notice, Pill } from '@/components/ui';
+import { PeopleOnPost } from '@/components/people-on-post';
 
 export const metadata: Metadata = { title: 'Work' };
 export const dynamic = 'force-dynamic';
@@ -55,9 +56,9 @@ export default async function WorkBoardPage() {
         <p className="eyebrow mb-2">Work</p>
         <h1 className="text-3xl">From your coach</h1>
         <p className="mt-3 max-w-2xl text-slate">
-          Real pieces of work, set by the lawyer who supervises you. Put your name on one, do
-          it, hand it in, and they will tell you what they would have done differently. Not
-          sure about something? Every piece has a place to message them.
+          Real pieces of work, set by our lawyers. Put your name on one, do it, hand it in,
+          and they will tell you what they would have done differently. See who else is on
+          it, and ask questions in the comments, or message the lawyer privately.
         </p>
       </section>
 
@@ -137,6 +138,20 @@ function WorkRow({ item, today }: { item: WorkBoardItem; today: string }) {
         <h2 className="text-lg">{post.title}</h2>
         {post.instructions ? (
           <p className="mt-1 line-clamp-2 max-w-2xl text-sm text-slate">{post.instructions}</p>
+        ) : null}
+        {item.people.length > 0 || item.comments > 0 ? (
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+            {post.kind === 'task' && item.people.length > 0 ? (
+              <PeopleOnPost people={item.people} size="sm" max={5} />
+            ) : (
+              <span />
+            )}
+            {item.comments > 0 ? (
+              <span className="text-xs text-muted">
+                {item.comments} comment{item.comments === 1 ? '' : 's'}
+              </span>
+            ) : null}
+          </div>
         ) : null}
       </Card>
     </Link>

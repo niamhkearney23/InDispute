@@ -17,7 +17,13 @@ const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
 export default async function NewSessionPage({
   searchParams,
 }: {
-  searchParams: Promise<{ title?: string; summary?: string; airsOn?: string; country?: string }>;
+  searchParams: Promise<{
+    title?: string;
+    summary?: string;
+    airsOn?: string;
+    country?: string;
+    traineesOnly?: string;
+  }>;
 }) {
   await requireCoach();
   const q = await searchParams;
@@ -42,6 +48,7 @@ export default async function NewSessionPage({
           // A video pre-filled from the plan is meant to go out on its day,
           // so it starts ticked; it still only shows from that morning.
           published: Boolean(q.title),
+          traineesOnly: q.traineesOnly === '1',
         }}
       />
     </div>

@@ -3,7 +3,7 @@ import 'server-only';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/service';
 import { isTrustedWorkLink, submissionState } from './links';
-import type { SubmissionState, Verdict } from './links';
+import type { PostPerson, SubmissionState, Verdict } from './links';
 import type { Country } from '@/lib/types';
 
 /**
@@ -81,6 +81,21 @@ export interface WorkBoardItem {
   state: SubmissionState;
   /** The last word in this person's thread was somebody else's. */
   replyWaiting: boolean;
+  /** Who has their name on it, by first name, in the order they joined. */
+  people: PostPerson[];
+  /** How many comments are under it. */
+  comments: number;
+}
+
+/** A comment under a post, as everybody who can see the post sees it. */
+export interface PostComment {
+  id: string;
+  body: string;
+  createdAt: string;
+  firstName: string;
+  isMe: boolean;
+  /** Written by a lawyer (a coach or administrator). */
+  isStaff: boolean;
 }
 
 /** Whether a task has all the names it can take. */
@@ -209,6 +224,66 @@ function latestPerPost(rows: WorkSubmission[]): Map<string, WorkSubmission> {
   return latest;
 }
 
+interface PersonRow {
+  post_id: string;
+  first_name: string | null;
+  is_me: boolean | null;
+}
+
+/**
+ * Who is on what, for every post this person can see. Names come from a
+ * security definer function (0026) that returns first names and nothing
+ * else, because profiles are not readable across learners.
+ */
+function peopleByPost(rows: PersonRow[]): Map<string, PostPerson[]> {
+  const byPost = new Map<string, PostPerson[]>();
+  for (const row of rows) {
+    const list = byPost.get(row.post_id) ?? [];
+    list.push({ firstName: row.first_name || 'Someone', isMe: Boolean(row.is_me) });
+    byPost.set(row.post_id, list);
+  }
+  return byPost;
+}
+
+function countByPost(rows: Array<{ post_id: string }>): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const row of rows) counts.set(row.post_id, (counts.get(row.post_id) ?? 0) + 1);
+  return counts;
+}
+
+/**
+ * The comments under one post, oldest first. Through the caller's own
+ * client: the function gives back nothing for a post they cannot see.
+ */
+export async function commentsForPost(postId: string): Promise<PostComment[]> {
+  const db = await createSupabaseServerClient();
+  const { data } = await db.rpc('work_post_comments', { post: postId });
+  return (
+    (data ?? []) as Array<{
+      id: string;
+      body: string;
+      created_at: string;
+      first_name: string | null;
+      is_me: boolean | null;
+      is_staff: boolean | null;
+    }>
+  ).map((row) => ({
+    id: row.id,
+    body: row.body,
+    createdAt: row.created_at,
+    firstName: row.first_name || 'Someone',
+    isMe: Boolean(row.is_me),
+    isStaff: Boolean(row.is_staff),
+  }));
+}
+
+/** Who is on one post. */
+export async function peopleOnPost(postId: string): Promise<PostPerson[]> {
+  const db = await createSupabaseServerClient();
+  const { data } = await db.rpc('work_board_people').eq('post_id', postId);
+  return peopleByPost((data ?? []) as PersonRow[]).get(postId) ?? [];
+}
+
 /* -------------------------------------------------------------------------- */
 /* The intern's side                                                          */
 /* -------------------------------------------------------------------------- */
@@ -222,13 +297,17 @@ function latestPerPost(rows: WorkSubmission[]): Map<string, WorkSubmission> {
 export async function workBoardFor(userId: string): Promise<WorkBoardItem[]> {
   const db = await createSupabaseServerClient();
 
-  const [posts, claims, submissions, counts, messages] = await Promise.all([
+  const [posts, claims, submissions, counts, messages, people, comments] = await Promise.all([
     db.from('work_posts').select(POST_SELECT).order('created_at', { ascending: false }),
     db.from('work_claims').select('post_id').eq('user_id', userId),
     db.from('work_submissions').select(SUBMISSION_SELECT).eq('user_id', userId),
     db.from('work_claim_counts').select('post_id, claims'),
     db.from('work_messages').select(MESSAGE_SELECT).eq('thread_user_id', userId),
+    db.rpc('work_board_people'),
+    db.from('work_comments').select('post_id'),
   ]);
+  const names = peopleByPost((people.data ?? []) as PersonRow[]);
+  const commentCounts = countByPost((comments.data ?? []) as Array<{ post_id: string }>);
   const replies = replyWaitingByPost(
     ((messages.data ?? []) as unknown as MessageRow[]).map(toMessage),
     userId,
@@ -254,6 +333,8 @@ export async function workBoardFor(userId: string): Promise<WorkBoardItem[]> {
       latest: current,
       state: submissionState(current),
       replyWaiting: replies.has(post.id),
+      people: names.get(post.id) ?? [],
+      comments: commentCounts.get(post.id) ?? 0,
     };
   });
 }
@@ -262,10 +343,17 @@ export async function workBoardFor(userId: string): Promise<WorkBoardItem[]> {
 export async function workPostFor(
   postId: string,
   userId: string,
-): Promise<(WorkBoardItem & { submissions: WorkSubmission[]; messages: WorkMessage[] }) | null> {
+): Promise<
+  | (WorkBoardItem & {
+      submissions: WorkSubmission[];
+      messages: WorkMessage[];
+      commentList: PostComment[];
+    })
+  | null
+> {
   const db = await createSupabaseServerClient();
 
-  const [post, claim, submissions, count, messages] = await Promise.all([
+  const [post, claim, submissions, count, messages, people, commentList] = await Promise.all([
     db.from('work_posts').select(POST_SELECT).eq('id', postId).maybeSingle(),
     db
       .from('work_claims')
@@ -286,6 +374,8 @@ export async function workPostFor(
       .eq('post_id', postId)
       .eq('thread_user_id', userId)
       .order('sent_at', { ascending: true }),
+    peopleOnPost(postId),
+    commentsForPost(postId),
   ]);
 
   if (!post.data) return null;
@@ -301,8 +391,11 @@ export async function workPostFor(
     latest: current,
     state: submissionState(current),
     replyWaiting: replyWaitingByPost(thread, userId).has(postId),
+    people,
+    comments: commentList.length,
     submissions: all,
     messages: thread,
+    commentList,
   };
 }
 

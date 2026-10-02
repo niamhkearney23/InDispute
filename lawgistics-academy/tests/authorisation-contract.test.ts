@@ -127,6 +127,7 @@ test('the server actions were actually found', () => {
     'join',
     'loadNewContent',
     'markSubmission',
+    'postComment',
     'publishAllVerified',
     'recordReviewDecision',
     'removeAvatar',

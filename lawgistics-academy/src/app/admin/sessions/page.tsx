@@ -99,6 +99,7 @@ function SessionRow({
               {session.published ? 'Up' : 'Draft'}
             </Pill>
             <Pill>{session.country ? COUNTRY_LABELS[session.country] : 'Everybody'}</Pill>
+            {session.traineesOnly ? <Pill tone="accent">Trainees only</Pill> : null}
             {session.airsOn ? <Pill>{longDate(session.airsOn)}</Pill> : null}
           </div>
           <h2 className="text-lg">{session.title}</h2>

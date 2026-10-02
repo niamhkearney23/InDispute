@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { isEmbeddable } from '../src/lib/lessons/embed';
-import { leadSession } from '../src/lib/lessons/sessions';
+import { leadSession, seesTraineeVideos } from '../src/lib/lessons/sessions';
 import type { CoachSession } from '../src/lib/lessons/sessions';
 
 /**
@@ -27,6 +27,7 @@ function session(over: Partial<CoachSession> = {}): CoachSession {
     country: null,
     airsOn: over.airsOn ?? null,
     published: true,
+    traineesOnly: false,
     publishedByName: null,
     publishedByAvatarUrl: null,
     publishedAt: null,
@@ -58,6 +59,34 @@ test('an undated session is always available to lead', () => {
 
 test('nothing at all is a null, not a crash', () => {
   assert.equal(leadSession([], '2026-08-30'), null);
+});
+
+test('a trainee-only video is for confirmed trainees and staff, nobody else', () => {
+  const base = { track: 'general', traineeConfirmed: false, isCoach: false, isAdmin: false };
+  assert.equal(seesTraineeVideos(base), false, 'an intern on the general academy');
+  assert.equal(
+    seesTraineeVideos({ ...base, track: 'litigation_trainee' }),
+    false,
+    'somebody who said they were a trainee, before a coach confirmed it',
+  );
+  assert.equal(
+    seesTraineeVideos({ ...base, track: 'litigation_trainee', traineeConfirmed: true }),
+    true,
+    'a confirmed trainee',
+  );
+  assert.equal(seesTraineeVideos({ ...base, isCoach: true }), true, 'a coach');
+  assert.equal(seesTraineeVideos({ ...base, isAdmin: true }), true, 'an administrator');
+});
+
+test('the learner reader filters trainee-only videos twice, and the policy decides it too', () => {
+  const reader = fs.readFileSync(path.join(ROOT, 'src/lib/lessons/sessions.ts'), 'utf8');
+  assert.match(reader, /\.eq\('trainees_only', false\)/, 'the query leaves them out');
+  assert.match(reader, /traineeVideos \|\| !s\.traineesOnly/, 'and so do the rows');
+  const sql = fs.readFileSync(
+    path.join(ROOT, 'supabase/migrations/0026_trainee_videos_and_comments.sql'),
+    'utf8',
+  );
+  assert.match(sql, /not trainees_only or public\.is_confirmed_trainee\(\)/);
 });
 
 test('a watch link is refused, an embed link is accepted', () => {

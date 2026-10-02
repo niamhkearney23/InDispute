@@ -13,8 +13,11 @@ import {
 import { describeMinutes, isLate, slotsLabel } from '@/lib/work/links';
 import { Card, Notice, Pill } from '@/components/ui';
 import { MessageThread } from '@/components/message-thread';
+import { PeopleOnPost } from '@/components/people-on-post';
+import { PostComments } from '@/components/post-comments';
 import { ClaimForm, SubmitForm } from '../work-forms';
 import { MessageForm } from '../message-form';
+import { CommentForm } from '../comment-form';
 
 export const metadata: Metadata = { title: 'Work' };
 export const dynamic = 'force-dynamic';
@@ -53,7 +56,7 @@ export default async function WorkPostPage({ params }: { params: Promise<{ id: s
 
   const found = await workPostFor(id, user.id);
   if (!found) notFound();
-  const { post, claimed, claims, state, submissions, messages } = found;
+  const { post, claimed, claims, state, submissions, messages, people, commentList } = found;
 
   const [fileUrl, memoUrl, ...submissionUrls] = await Promise.all([
     post.fileName ? signedUrlForPost(post.id) : Promise.resolve(null),
@@ -103,6 +106,11 @@ export default async function WorkPostPage({ params }: { params: Promise<{ id: s
             Your coach expects this to take {describeMinutes(post.expectedMinutes)}. If it is
             taking a lot longer, say so below rather than pushing on.
           </p>
+        ) : null}
+        {post.kind === 'task' ? (
+          <div className="mt-4">
+            <PeopleOnPost people={people} />
+          </div>
         ) : null}
       </section>
 
@@ -251,7 +259,18 @@ export default async function WorkPostPage({ params }: { params: Promise<{ id: s
       ) : null}
 
       <Card>
-        <p className="eyebrow mb-1">Message your coach</p>
+        <div className="mb-3 flex items-baseline justify-between gap-3">
+          <p className="eyebrow">Comments</p>
+          {commentList.length > 0 ? (
+            <span className="text-xs text-muted tabular-nums">{commentList.length}</span>
+          ) : null}
+        </div>
+        <PostComments comments={commentList} timeZone={profile.timezone} />
+        {post.published ? <CommentForm postId={post.id} /> : null}
+      </Card>
+
+      <Card>
+        <p className="eyebrow mb-1">Message your coach privately</p>
         <p className="mb-3 text-sm text-slate">
           Not sure what is wanted, or whether to take it? Ask here. Only you and the coaches see
           this.

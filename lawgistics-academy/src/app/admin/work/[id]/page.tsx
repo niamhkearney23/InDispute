@@ -6,6 +6,7 @@ import { localDateString } from '@/lib/learning/progression';
 import { DEFAULT_TIMEZONE } from '@/lib/types';
 import { allSessions } from '@/lib/lessons/sessions';
 import {
+  commentsForPost,
   signedUrlForMemo,
   signedUrlForPost,
   signedUrlForSubmission,
@@ -16,6 +17,8 @@ import { describeMinutes, isLate, slotsLabel } from '@/lib/work/links';
 import { Card, Pill, SectionHeading } from '@/components/ui';
 import { MessageThread } from '@/components/message-thread';
 import { MessageForm } from '@/app/(app)/work/message-form';
+import { CommentForm } from '@/app/(app)/work/comment-form';
+import { PostComments } from '@/components/post-comments';
 import { saveWorkPost } from '../actions';
 import { WorkPostForm } from '../work-post-form';
 import { MarkForm } from '../mark-form';
@@ -54,8 +57,9 @@ export default async function WorkPostAdminPage({
   if (!found) notFound();
   const { post, claims, submissions, threads, names } = found;
 
-  const [sessions, fileUrl, memoUrl, ...submissionUrls] = await Promise.all([
+  const [sessions, comments, fileUrl, memoUrl, ...submissionUrls] = await Promise.all([
     allSessions(),
+    commentsForPost(id),
     post.fileName ? signedUrlForPost(post.id) : Promise.resolve(null),
     post.hasMemo ? signedUrlForMemo(post.id) : Promise.resolve(null),
     ...submissions.map((s) => signedUrlForSubmission(s.id)),
@@ -221,6 +225,18 @@ export default async function WorkPostAdminPage({
           </div>
         </section>
       ) : null}
+
+      <section>
+        <SectionHeading title="Comments" />
+        <p className="mb-4 max-w-2xl text-sm text-slate">
+          Everybody who can see this post reads these, and your replies are marked as from a
+          lawyer. For something just between you and one intern, use their thread above.
+        </p>
+        <Card>
+          <PostComments comments={comments} timeZone={timeZone} />
+          <CommentForm postId={post.id} staff />
+        </Card>
+      </section>
 
       <section>
         <SectionHeading title="Edit the post" />

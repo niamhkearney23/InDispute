@@ -33,6 +33,7 @@ export function SessionCard({
     <Card>
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <Pill tone="accent">This morning</Pill>
+        {session.traineesOnly ? <Pill>Trainees only</Pill> : null}
         {session.publishedByName ? (
           <span className="flex items-center gap-1.5 text-xs text-muted">
             <Avatar url={session.publishedByAvatarUrl} name={session.publishedByName} size={18} />

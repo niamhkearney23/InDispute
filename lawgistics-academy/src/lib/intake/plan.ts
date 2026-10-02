@@ -59,6 +59,8 @@ export function sessionPrefill(day: ScheduledDay): string {
     summary: day.remember ? `${day.video} ${day.remember}` : day.video,
     airsOn: day.date,
     country: 'MY',
+    // The daily programme video is for the cohort, not the whole academy.
+    traineesOnly: '1',
   }).toString();
 }
 
