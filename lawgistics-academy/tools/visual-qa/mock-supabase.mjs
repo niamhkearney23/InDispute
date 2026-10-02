@@ -672,7 +672,7 @@ const TABLES = {
     },
     {
       id: 'eeee0005-0000-4000-8000-000000000003',
-      body: 'Handed mine in ✅',
+      body: 'Handed mine in.',
       created_at: isoDateFromNow(0),
       first_name: 'Niamh',
       is_me: true,
