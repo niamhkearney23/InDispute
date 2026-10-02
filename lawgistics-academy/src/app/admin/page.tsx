@@ -118,7 +118,7 @@ export default async function AdminHome({
           list below and verify each one before real learners use this.{' '}
           <Link
             href="/admin/review"
-            className="font-medium underline underline-offset-2"
+            className="-my-2 inline-block py-2 font-medium underline underline-offset-2"
           >
             Work through them in the verification queue
           </Link>
