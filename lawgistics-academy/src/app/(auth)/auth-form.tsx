@@ -277,6 +277,7 @@ export function AuthForm({
               {isSignup ? 'Sign in' : 'Create one'}
             </Link>
           </p>
+          {brand.parentLine ? <p className="mt-6 text-xs text-muted">{brand.parentLine}</p> : null}
         </div>
       </main>
     </div>

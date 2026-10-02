@@ -151,6 +151,7 @@ export default async function LandingPage() {
           {brand.fullName} is a training tool. It is not legal advice. Its levels and its
           certificate are training records, not professional qualifications or titles.
         </p>
+        {brand.parentLine ? <p className="mt-2 text-xs text-muted">{brand.parentLine}</p> : null}
       </footer>
     </div>
   );

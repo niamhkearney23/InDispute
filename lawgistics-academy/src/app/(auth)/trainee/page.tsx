@@ -225,6 +225,7 @@ export default async function TraineeProgrammePage() {
           {brand.fullName} is a training tool. It is not legal advice, and progression
           levels within it are game levels, not professional qualifications or titles.
         </p>
+        {brand.parentLine ? <p className="mt-2 text-xs text-muted">{brand.parentLine}</p> : null}
       </footer>
     </div>
   );

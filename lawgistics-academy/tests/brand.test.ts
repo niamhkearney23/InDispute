@@ -42,6 +42,7 @@ test('the default brand is Lawgistics Academy, and it is complete', () => {
   assert.equal(brand.suffix, 'Academy');
   assert.equal(brand.fullName, 'Lawgistics Academy');
   assert.equal(brand.traineeAcademy, 'Litigation Trainee Academy');
+  assert.match(brand.parentLine, /business development and operations for lawyers and law firms/);
   assert.ok(brand.tagline.length > 10);
   assert.equal(brand.accent, null, 'no accent set means the built-in burgundy');
   assert.equal(brand.initial, 'L');

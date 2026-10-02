@@ -39,6 +39,12 @@ export interface Brand {
    */
   traineeAcademy: string;
   /**
+   * One line about the company behind the academy, for the foot of every
+   * page. Lawgistics by default; empty for a deployment under another name
+   * unless it sets its own, so a firm's academy never claims to be ours.
+   */
+  parentLine: string;
+  /**
    * The accent, as a CSS colour. Burgundy by default. Applied as a variable so
    * a firm's colour reaches everything the accent touches rather than the one
    * button somebody remembered.
@@ -91,6 +97,8 @@ export function safeInitial(value: string): string {
 }
 
 const name = clean(process.env.NEXT_PUBLIC_BRAND_NAME, DEFAULT_NAME);
+const DEFAULT_PARENT_LINE =
+  'Lawgistics Academy is part of Lawgistics: business development and operations for lawyers and law firms.';
 const suffix = clean(process.env.NEXT_PUBLIC_BRAND_SUFFIX, DEFAULT_SUFFIX);
 
 export const brand: Brand = {
@@ -103,6 +111,10 @@ export const brand: Brand = {
   ),
   firm: clean(process.env.NEXT_PUBLIC_BRAND_FIRM, 'Thomas Philip'),
   traineeAcademy: clean(process.env.NEXT_PUBLIC_BRAND_TRAINEE_ACADEMY, 'Litigation Trainee Academy'),
+  parentLine: clean(
+    process.env.NEXT_PUBLIC_BRAND_PARENT_LINE,
+    name === DEFAULT_NAME ? DEFAULT_PARENT_LINE : '',
+  ),
   accent: safeAccent(process.env.NEXT_PUBLIC_BRAND_ACCENT),
   initial: safeInitial(name),
 };

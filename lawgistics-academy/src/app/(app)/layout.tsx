@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { Wordmark } from '@/components/ui';
+import { brand } from '@/lib/brand';
 import { Avatar } from '@/components/avatar';
 import { NavLink } from '@/components/nav-link';
 import { FirstPassword } from './account/password-form';
@@ -128,6 +129,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           professional titles or qualifications. Always check the current rules of the
           relevant court before acting on a point of procedure.
         </p>
+        {brand.parentLine ? <p className="mt-2 text-xs text-muted">{brand.parentLine}</p> : null}
       </footer>
     </div>
   );
