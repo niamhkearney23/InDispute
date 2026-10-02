@@ -5,8 +5,10 @@ import { cn } from '@/components/ui';
  * A picture for each module.
  *
  * Five illustrations, one per kind, generated once with OpenAI's image model
- * in one house style (burgundy, warm paper and ink, no text, no faces, no
- * gavels) and saved as files in `public/modules/`. The app never calls
+ * in one house style (warm paper and ink, no text, no faces, no
+ * gavels) and saved as files in `public/modules/`. They were drawn in
+ * burgundy and recoloured to the app's navy afterwards, the drawing itself
+ * untouched; the court pictures in `public/courts/` were done the same way. The app never calls
  * OpenAI for them: they are ordinary static pictures. A module added in code
  * picks up whichever of the five its slug maps to.
  *
