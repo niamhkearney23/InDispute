@@ -106,7 +106,7 @@ export default async function WorkPostAdminPage({
               href={fileUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-11 items-center text-burgundy underline underline-offset-2"
+              className="inline-flex min-h-11 items-center text-accent underline underline-offset-2"
             >
               Open {post.fileName}
             </a>
@@ -168,7 +168,7 @@ export default async function WorkPostAdminPage({
                             href={urlFor.get(current.id) ?? '#'}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex min-h-11 items-center text-burgundy underline underline-offset-2"
+                            className="inline-flex min-h-11 items-center text-accent underline underline-offset-2"
                           >
                             Open {current.fileName}
                           </a>

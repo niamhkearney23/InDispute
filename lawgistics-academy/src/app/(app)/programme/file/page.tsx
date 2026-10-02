@@ -103,7 +103,7 @@ export default async function TrainingFilePage() {
       {staff ? (
         <section>
           <SectionHeading eyebrow="For the coach" title="What the file is built to test" />
-          <Card className="border-burgundy/20 bg-burgundy-wash">
+          <Card className="border-accent/20 bg-accent-wash">
             <ul className="space-y-2 text-sm">
               {file.coachNotes.map((note) => (
                 <li key={note.slice(0, 30)}>{note}</li>

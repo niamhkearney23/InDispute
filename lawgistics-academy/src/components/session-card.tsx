@@ -68,7 +68,7 @@ export function SessionCard({
         <p className="mt-2">
           <Link
             href="/sessions"
-            className="-mx-1 inline-flex min-h-11 items-center rounded-[5px] px-1 text-sm text-burgundy underline underline-offset-2 hover:bg-paper-sunk"
+            className="-mx-1 inline-flex min-h-11 items-center rounded-[5px] px-1 text-sm text-accent underline underline-offset-2 hover:bg-paper-sunk"
           >
             {more} earlier session{more === 1 ? '' : 's'}
           </Link>

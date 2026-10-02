@@ -92,9 +92,9 @@ export function StreakCalendar({
               title={day}
               className={cn(
                 'aspect-square rounded-[4px] transition-colors',
-                done && 'bg-burgundy',
+                done && 'bg-accent',
                 !done && !future && !isToday && 'bg-paper-sunk',
-                !done && isToday && 'border-2 border-dashed border-burgundy/60 bg-burgundy-wash',
+                !done && isToday && 'border-2 border-dashed border-accent/60 bg-accent-wash',
                 future && 'bg-transparent',
               )}
             />

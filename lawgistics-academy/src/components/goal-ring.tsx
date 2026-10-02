@@ -65,7 +65,7 @@ export function GoalRing({
           strokeWidth={stroke}
           strokeLinecap={dash > 0 ? 'round' : 'butt'}
           strokeDasharray={`${dash} ${circumference}`}
-          className={light ? 'stroke-paper' : complete ? 'stroke-verdict-correct' : 'stroke-burgundy'}
+          className={light ? 'stroke-paper' : complete ? 'stroke-verdict-correct' : 'stroke-accent'}
         />
       </svg>
 

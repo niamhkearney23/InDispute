@@ -76,7 +76,7 @@ export function StepForm({
               maxLength={2000}
               defaultValue={initial.detail}
               placeholder="Where to find it, who to send it to, what happens next. An item with no instructions turns into a question for somebody’s supervisor, which is the cost this list exists to remove."
-              className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2 text-base leading-relaxed outline-none focus:border-burgundy"
+              className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2 text-base leading-relaxed outline-none focus:border-accent"
             />
           </div>
 
@@ -183,7 +183,7 @@ function Text({
       </label>
       <input
         id={props.name}
-        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10"
+        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10"
         {...props}
       />
       {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
@@ -203,7 +203,7 @@ function Select({
       </label>
       <select
         id={props.name}
-        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10"
+        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10"
         {...props}
       >
         {children}
@@ -222,7 +222,7 @@ function Check({
       <label className="flex items-start gap-3 text-[0.9375rem]">
         <input
           type="checkbox"
-          className="mt-0.5 size-8 shrink-0 rounded-[4px] border-rule-strong accent-burgundy"
+          className="mt-0.5 size-8 shrink-0 rounded-[4px] border-rule-strong accent-accent"
           {...props}
         />
         <span>{label}</span>

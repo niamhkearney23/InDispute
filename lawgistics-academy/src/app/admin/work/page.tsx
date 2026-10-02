@@ -48,7 +48,7 @@ export default async function WorkBoardAdminPage() {
           name in it, on either side.
         </p>
         {pendingTrainees.length > 0 ? (
-          <p className="mt-2 text-sm text-burgundy">
+          <p className="mt-2 text-sm text-accent">
             {pendingTrainees.length === 1
               ? '1 person says they are a trainee and is waiting for you to confirm it, '
               : `${pendingTrainees.length} people say they are trainees and are waiting for you to confirm it, `}
@@ -62,7 +62,7 @@ export default async function WorkBoardAdminPage() {
           </p>
         ) : null}
         {waiting > 0 || unanswered > 0 ? (
-          <p className="mt-2 text-sm text-burgundy">
+          <p className="mt-2 text-sm text-accent">
             {waiting > 0
               ? `${waiting} piece${waiting === 1 ? '' : 's'} of work waiting to be marked. `
               : ''}

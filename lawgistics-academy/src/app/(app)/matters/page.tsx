@@ -99,15 +99,15 @@ function MatterCard({ item, now, index }: { item: MatterListItem; now: Date; ind
     <li className="rise-in" style={{ animationDelay: `${index * 60}ms` }}>
       <Link
         href={`/matters/${matter.id}`}
-        className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-rule bg-paper-raised p-5 shadow-card transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-burgundy/40 hover:shadow-raised sm:p-6"
+        className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-rule bg-paper-raised p-5 shadow-card transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-raised sm:p-6"
       >
         {/* A file tab, so the card reads as a file rather than a tile. */}
         <span
           aria-hidden
-          className="absolute top-0 right-6 h-2 w-16 rounded-b-md bg-burgundy/80"
+          className="absolute top-0 right-6 h-2 w-16 rounded-b-md bg-accent/80"
         />
         <div className="mb-3 flex flex-wrap items-center gap-1.5">
-          <span className="font-mono text-xs font-semibold tracking-wider text-burgundy">
+          <span className="font-mono text-xs font-semibold tracking-wider text-accent">
             {matterLabel(matter.number)}
           </span>
           {matter.area ? <Pill>{matter.area}</Pill> : null}
@@ -128,7 +128,7 @@ function MatterCard({ item, now, index }: { item: MatterListItem; now: Date; ind
           ) : (
             <span className="text-sm text-slate">Not started</span>
           )}
-          <span className="grid size-9 place-items-center rounded-full bg-burgundy text-paper transition-transform duration-200 group-hover:translate-x-1">
+          <span className="grid size-9 place-items-center rounded-full bg-accent text-paper transition-transform duration-200 group-hover:translate-x-1">
             <ArrowIcon className="size-4" />
           </span>
         </div>

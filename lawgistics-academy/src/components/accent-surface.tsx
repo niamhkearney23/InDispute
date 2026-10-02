@@ -16,7 +16,7 @@ export function AccentSurface({
   as?: 'div' | 'aside' | 'section';
 }) {
   return (
-    <Tag className={cn('relative isolate overflow-hidden bg-burgundy text-paper', className)}>
+    <Tag className={cn('relative isolate overflow-hidden bg-accent text-paper', className)}>
       <div
         aria-hidden
         className="absolute -top-32 -right-24 -z-10 size-[28rem] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.18),transparent_65%)]"

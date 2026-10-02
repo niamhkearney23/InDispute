@@ -177,7 +177,7 @@ export default async function IntakePage() {
             eyebrow={`Today · Day ${todayEntry.day} of 20 · Week ${weekOfDay(todayEntry.day)}`}
             title={todayEntry.concept}
           />
-          <Card className="border-burgundy/30 bg-burgundy-wash">
+          <Card className="border-accent/30 bg-accent-wash">
             <p className="text-sm">
               <span className="text-muted">Video:</span> {todayEntry.video}{' '}
               {overview.sessionsByDate.has(todayEntry.date) ? (
@@ -185,7 +185,7 @@ export default async function IntakePage() {
               ) : (
                 <Link
                   href={`/admin/sessions/new?${sessionPrefill(todayEntry)}`}
-                  className="font-medium text-burgundy underline underline-offset-2"
+                  className="font-medium text-accent underline underline-offset-2"
                 >
                   Add today&rsquo;s video
                 </Link>
@@ -219,7 +219,7 @@ export default async function IntakePage() {
                       return (
                         <li
                           key={d.day}
-                          className={cn('px-4 py-3 sm:px-5', isToday && 'bg-burgundy-wash')}
+                          className={cn('px-4 py-3 sm:px-5', isToday && 'bg-accent-wash')}
                         >
                           <div className="flex flex-wrap items-baseline gap-x-2">
                             <span className="font-serif text-sm text-muted tabular-nums">
@@ -248,7 +248,7 @@ export default async function IntakePage() {
                             ) : (
                               <Link
                                 href={`/admin/sessions/new?${sessionPrefill(d)}`}
-                                className="-my-2 inline-block py-2 font-medium text-burgundy underline underline-offset-2"
+                                className="-my-2 inline-block py-2 font-medium text-accent underline underline-offset-2"
                               >
                                 Add this day&rsquo;s video
                               </Link>
@@ -276,14 +276,14 @@ export default async function IntakePage() {
                                 ) : posted ? (
                                   <Link
                                     href={`/admin/work/${posted.post.id}`}
-                                    className="-my-2 inline-block py-2 font-medium text-burgundy underline underline-offset-2"
+                                    className="-my-2 inline-block py-2 font-medium text-accent underline underline-offset-2"
                                   >
                                     Draft saved, publish it
                                   </Link>
                                 ) : (
                                   <Link
                                     href={`/admin/work/new?${workPrefill(n, dateOfBoxDue.get(n)?.date ?? d.date, d.day)}`}
-                                    className="-my-2 inline-block py-2 font-medium text-burgundy underline underline-offset-2"
+                                    className="-my-2 inline-block py-2 font-medium text-accent underline underline-offset-2"
                                   >
                                     Post this piece of work
                                   </Link>

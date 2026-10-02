@@ -78,7 +78,7 @@ export function SubmitForm({ postId, again }: { postId: string; again: boolean }
           name="note"
           rows={3}
           maxLength={2000}
-          className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2.5 text-base outline-none focus:border-burgundy"
+          className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2.5 text-base outline-none focus:border-accent"
         />
         <p className="mt-1 text-xs text-muted">
           What you were unsure about is more useful to them than what you were sure of.

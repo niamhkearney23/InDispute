@@ -135,7 +135,7 @@ export default async function TraineeProgrammePage() {
                 className="rounded-xl border border-rule bg-paper-raised p-6 shadow-card sm:p-7"
               >
                 <div className="mb-4 flex items-center gap-3">
-                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-burgundy-wash text-burgundy">
+                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-accent-wash text-accent">
                     <part.icon className="size-5" />
                   </span>
                   <span className="eyebrow">
@@ -203,7 +203,7 @@ export default async function TraineeProgrammePage() {
         </section>
 
         <section className="border-t border-rule py-12 sm:py-16">
-          <div className="flex flex-col items-start gap-5 rounded-xl bg-burgundy-wash p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+          <div className="flex flex-col items-start gap-5 rounded-xl bg-accent-wash p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
             <div>
               <h2 className="text-2xl sm:text-3xl">Joining us in {PROGRAMME.nextIntake}?</h2>
               <p className="mt-2 text-slate">

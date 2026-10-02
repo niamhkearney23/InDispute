@@ -148,8 +148,8 @@ function CourtNode({
     <div
       className={cn(
         'court-box overflow-hidden rounded-lg border bg-paper transition-[border-color,box-shadow,background-color]',
-        isOpen && 'border-burgundy bg-burgundy-wash shadow-raised',
-        !isOpen && onPath && 'border-burgundy/50 bg-burgundy-wash/40',
+        isOpen && 'border-accent bg-accent-wash shadow-raised',
+        !isOpen && onPath && 'border-accent/50 bg-accent-wash/40',
         !isOpen && !onPath && 'border-rule-strong shadow-sm hover:border-ink/40',
         apex && 'court-box-apex',
       )}
@@ -172,14 +172,14 @@ function CourtNode({
             decoding="async"
             className={cn(
               'block aspect-[2/1] w-full border-b object-cover object-[50%_75%] transition-opacity',
-              isOpen || onPath ? 'border-burgundy/20' : 'border-rule',
+              isOpen || onPath ? 'border-accent/20' : 'border-rule',
             )}
           />
         ) : null}
         <span
           className={cn(
             'block px-3 py-2.5 font-serif text-[0.9375rem] leading-snug',
-            isOpen || onPath ? 'text-burgundy' : 'text-ink',
+            isOpen || onPath ? 'text-accent' : 'text-ink',
           )}
         >
           {court.short ?? court.name}
@@ -198,12 +198,12 @@ function CourtNode({
         )}
       >
         <div className="overflow-hidden">
-          <div className="border-t border-burgundy/15 px-3 pb-3 pt-2.5 text-left text-[0.8125rem] leading-relaxed text-slate">
+          <div className="border-t border-accent/15 px-3 pb-3 pt-2.5 text-left text-[0.8125rem] leading-relaxed text-slate">
             {court.name !== court.short ? (
               <p className="font-medium text-ink">{court.name}</p>
             ) : null}
             {court.note ? <p className="mt-1">{court.note}</p> : null}
-            <dl className="mt-2.5 space-y-1 border-t border-burgundy/15 pt-2.5 text-xs">
+            <dl className="mt-2.5 space-y-1 border-t border-accent/15 pt-2.5 text-xs">
               <div className="flex gap-2">
                 <dt className="shrink-0 text-muted">Appeals go to</dt>
                 <dd className="text-ink">

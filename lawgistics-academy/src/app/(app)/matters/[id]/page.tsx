@@ -100,7 +100,7 @@ export default async function MatterPage({ params }: { params: Promise<{ id: str
       {back}
       <section className="rise-in">
         <div className="mb-3 flex flex-wrap items-center gap-1.5">
-          <span className="font-mono text-xs font-semibold tracking-wider text-burgundy">
+          <span className="font-mono text-xs font-semibold tracking-wider text-accent">
             {matterLabel(matter.number)}
           </span>
           {matter.area ? <Pill>{matter.area}</Pill> : null}
@@ -117,7 +117,7 @@ export default async function MatterPage({ params }: { params: Promise<{ id: str
         <ol className="space-y-4">
           {TASKS.map(([title, body], i) => (
             <li key={title} className="flex gap-3.5">
-              <span className="grid size-8 shrink-0 place-items-center rounded-full bg-burgundy-wash font-serif text-burgundy">
+              <span className="grid size-8 shrink-0 place-items-center rounded-full bg-accent-wash font-serif text-accent">
                 {i + 1}
               </span>
               <span>
@@ -164,7 +164,7 @@ function HandedIn({
     <>
       <section className="rise-in">
         <div className="mb-3 flex flex-wrap items-center gap-1.5">
-          <span className="font-mono text-xs font-semibold tracking-wider text-burgundy">
+          <span className="font-mono text-xs font-semibold tracking-wider text-accent">
             {matterLabel(attempt.snapshot.number)}
           </span>
           {attempt.stage === 'good' ? (
@@ -189,8 +189,8 @@ function HandedIn({
         </Notice>
       ) : null}
 
-      <section className="brief-open rounded-2xl border-2 border-burgundy/30 bg-burgundy-wash p-5 sm:p-7">
-        <p className="eyebrow mb-1 text-burgundy">How a lawyer would approach it</p>
+      <section className="brief-open rounded-2xl border-2 border-accent/30 bg-accent-wash p-5 sm:p-7">
+        <p className="eyebrow mb-1 text-accent">How a lawyer would approach it</p>
         <p className="mb-4 text-xs text-slate">
           Compare it with yours. There is more than one good answer; look for what you missed,
           not for the same words.
@@ -198,7 +198,7 @@ function HandedIn({
         <div className="text-[0.9375rem] leading-relaxed whitespace-pre-line text-ink">
           {modelAnswer || 'The lawyer’s approach could not be loaded just now.'}
         </div>
-        {sources ? <p className="mt-4 border-t border-burgundy/20 pt-3 text-xs text-slate">{sources}</p> : null}
+        {sources ? <p className="mt-4 border-t border-accent/20 pt-3 text-xs text-slate">{sources}</p> : null}
       </section>
 
       <CaseFile snapshot={attempt.snapshot} collapsible />

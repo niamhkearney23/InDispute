@@ -168,7 +168,7 @@ export default async function SummaryPage({
             aria-label={`Progress towards ${overview.level.nextLevelName}`}
           >
             <div
-              className="h-full rounded-full bg-burgundy"
+              className="h-full rounded-full bg-accent"
               style={{ width: `${Math.max(overview.level.progressPercent, 2)}%` }}
             />
           </div>

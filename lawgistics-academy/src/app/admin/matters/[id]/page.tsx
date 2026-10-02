@@ -50,7 +50,7 @@ export default async function AdminMatterPage({ params }: { params: Promise<{ id
 
       <div>
         <div className="mb-2 flex flex-wrap items-center gap-1.5">
-          <span className="font-mono text-xs font-semibold text-burgundy">{matterLabel(matter.number)}</span>
+          <span className="font-mono text-xs font-semibold text-accent">{matterLabel(matter.number)}</span>
           <Pill>{matter.country === 'MY' ? 'Malaysia' : 'Australia'}</Pill>
           {matter.area ? <Pill>{matter.area}</Pill> : null}
           <Pill>{describeLimit(matter.timeLimitMinutes)}</Pill>
@@ -115,9 +115,9 @@ export default async function AdminMatterPage({ params }: { params: Promise<{ id
 
       <section>
         <SectionHeading title="How a lawyer would approach it" />
-        <Card className="border-burgundy/30 bg-burgundy-wash">
+        <Card className="border-accent/30 bg-accent-wash">
           <p className="text-[0.9375rem] leading-relaxed whitespace-pre-line">{matter.modelAnswer}</p>
-          {matter.sources ? <p className="mt-4 border-t border-burgundy/20 pt-3 text-xs text-slate">{matter.sources}</p> : null}
+          {matter.sources ? <p className="mt-4 border-t border-accent/20 pt-3 text-xs text-slate">{matter.sources}</p> : null}
         </Card>
       </section>
 
@@ -136,7 +136,7 @@ export default async function AdminMatterPage({ params }: { params: Promise<{ id
                   {a.verdict === 'good' ? <Pill tone="correct">Good</Pill> : a.verdict === 'again' ? <Pill tone="warn">Needs another go</Pill> : <Pill tone="accent">To mark</Pill>}
                 </div>
                 <details>
-                  <summary className="cursor-pointer text-sm font-medium text-burgundy">Read their work</summary>
+                  <summary className="cursor-pointer text-sm font-medium text-accent">Read their work</summary>
                   <div className="mt-3 space-y-3 text-sm">
                     <div>
                       <p className="font-medium">Procedure</p>

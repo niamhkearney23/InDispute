@@ -227,7 +227,7 @@ export function QuestionForm({
                     onChange={(event) => updateOption(index, event.target.value)}
                     readOnly={questionType === 'true_false'}
                     placeholder={`Option ${option.id.toUpperCase()}`}
-                    className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10 read-only:bg-paper-sunk read-only:text-muted"
+                    className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10 read-only:bg-paper-sunk read-only:text-muted"
                   />
                 </div>
               ))}
@@ -241,7 +241,7 @@ export function QuestionForm({
                     { id: String.fromCharCode(97 + current.length), text: '' },
                   ])
                 }
-                className="mt-2 inline-block py-2 text-xs text-burgundy underline underline-offset-2"
+                className="mt-2 inline-block py-2 text-xs text-accent underline underline-offset-2"
                 disabled={options.length >= 8}
               >
                 Add another option
@@ -376,7 +376,7 @@ function CheckGrid({
             name={name}
             value={item.id}
             defaultChecked={defaultChecked.includes(item.id)}
-            className="mt-0.5 size-6 shrink-0 accent-[#6b1f2a] sm:mt-1 sm:size-4"
+            className="mt-0.5 size-6 shrink-0 accent-accent sm:mt-1 sm:size-4"
           />
           <span>{item.name}</span>
         </label>
@@ -397,7 +397,7 @@ function Text({
       </label>
       <input
         id={props.name}
-        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10"
+        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10"
         {...props}
       />
       {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
@@ -417,7 +417,7 @@ function TextArea({
       </label>
       <textarea
         id={props.name}
-        className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2 text-base outline-none focus:border-burgundy"
+        className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2 text-base outline-none focus:border-accent"
         {...props}
       />
       {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
@@ -438,7 +438,7 @@ function Select({
       </label>
       <select
         id={props.name}
-        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-2.5 text-base outline-none focus:border-burgundy sm:h-10"
+        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-2.5 text-base outline-none focus:border-accent sm:h-10"
         {...props}
       >
         {children}

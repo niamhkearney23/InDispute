@@ -47,7 +47,7 @@ export function LessonPlayer({
           aria-label="Lesson progress"
         >
           <div
-            className="h-full rounded-full bg-burgundy transition-[width] duration-300"
+            className="h-full rounded-full bg-accent transition-[width] duration-300"
             style={{ width: `${((index + 1) / lesson.steps.length) * 100}%` }}
           />
         </div>
@@ -60,7 +60,7 @@ export function LessonPlayer({
         {/* Keyed on the index so each screen animates in rather than swapping
             in place, which is what makes it read as a sequence. */}
         <div key={index} className="rise-in">
-          <p className="eyebrow mb-2 text-burgundy">{step.heading}</p>
+          <p className="eyebrow mb-2 text-accent">{step.heading}</p>
           <p className="text-[1.0625rem] leading-relaxed sm:text-lg">{step.body}</p>
 
           {step.video && isEmbeddable(step.video.url) ? (
@@ -99,7 +99,7 @@ export function LessonPlayer({
           {step.takeaway ? (
             <p
               className={cn(
-                'mt-5 border-l-2 border-burgundy pl-4 font-serif text-lg leading-snug',
+                'mt-5 border-l-2 border-accent pl-4 font-serif text-lg leading-snug',
                 step.diagram && 'mt-6',
               )}
             >

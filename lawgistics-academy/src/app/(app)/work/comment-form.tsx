@@ -38,7 +38,7 @@ export function CommentForm({ postId, staff = false }: { postId: string; staff?:
                 box.focus();
                 box.setSelectionRange(starter.length, starter.length);
               }}
-              className="min-h-9 rounded-full border border-rule-strong bg-paper px-3 text-sm text-slate transition hover:border-burgundy/50 hover:bg-burgundy-wash hover:text-ink"
+              className="min-h-9 rounded-full border border-rule-strong bg-paper px-3 text-sm text-slate transition hover:border-accent/50 hover:bg-accent-wash hover:text-ink"
             >
               {starter.trim()}
             </button>
@@ -56,7 +56,7 @@ export function CommentForm({ postId, staff = false }: { postId: string; staff?:
         required
         maxLength={COMMENT_MAX_LENGTH}
         placeholder={staff ? 'Reply to everyone on this post' : 'Say something to everyone on this'}
-        className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2.5 text-base outline-none focus:border-burgundy"
+        className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2.5 text-base outline-none focus:border-accent"
       />
       {state.error ? <Notice tone="warn">{state.error}</Notice> : null}
       <div className="flex flex-wrap items-center gap-3">

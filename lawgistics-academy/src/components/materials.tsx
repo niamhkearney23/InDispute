@@ -24,7 +24,7 @@ export function Materials({ posts }: { posts: WorkPost[] }) {
               <Pill tone={post.kind === 'task' ? 'accent' : 'neutral'}>
                 {post.kind === 'task' ? 'Task' : post.fileName ? 'File' : 'Link'}
               </Pill>
-              <span className="text-burgundy underline underline-offset-2">{post.title}</span>
+              <span className="text-accent underline underline-offset-2">{post.title}</span>
             </Link>
           </li>
         ))}

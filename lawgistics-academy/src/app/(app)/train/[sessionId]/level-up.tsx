@@ -40,14 +40,14 @@ export function LevelUp({
   return (
     <section
       aria-live="polite"
-      className={`rounded-lg border border-burgundy/25 bg-burgundy-wash px-6 py-7 text-center transition-all duration-700 ease-out motion-reduce:transition-none ${
+      className={`rounded-lg border border-accent/25 bg-accent-wash px-6 py-7 text-center transition-all duration-700 ease-out motion-reduce:transition-none ${
         shown ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'
       }`}
     >
-      <p className="eyebrow mb-3 text-burgundy">Level up</p>
+      <p className="eyebrow mb-3 text-accent">Level up</p>
 
       <div
-        className={`mx-auto mb-4 flex size-16 items-center justify-center rounded-full border border-burgundy/30 bg-paper font-serif text-2xl text-burgundy transition-transform duration-700 ease-out motion-reduce:transition-none ${
+        className={`mx-auto mb-4 flex size-16 items-center justify-center rounded-full border border-accent/30 bg-paper font-serif text-2xl text-accent transition-transform duration-700 ease-out motion-reduce:transition-none ${
           shown ? 'scale-100' : 'scale-90'
         }`}
       >

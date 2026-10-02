@@ -180,7 +180,7 @@ export default async function DashboardPage() {
           front door that promised these four things, and this is the same
           list with the doors on it. */}
       {profile.track === 'litigation_trainee' ? (
-        <Card className="border-burgundy/20 bg-burgundy-wash">
+        <Card className="border-accent/20 bg-accent-wash">
           <p className="eyebrow mb-1">Your programme · {brand.firm}</p>
           <p className="text-slate">
             {PROGRAMME.length}, {PROGRAMME.days}, learned by doing. The training that goes
@@ -190,7 +190,7 @@ export default async function DashboardPage() {
               : ''}
           </p>
           {todayPlan ? (
-            <div className="mt-3 rounded-md border border-burgundy/15 bg-paper px-4 py-3">
+            <div className="mt-3 rounded-md border border-accent/15 bg-paper px-4 py-3">
               <p className="eyebrow">Day {todayPlan.day} of 20 · Today&rsquo;s concept</p>
               <p className="mt-0.5 font-serif text-lg leading-snug">
                 {conceptForDay(todayPlan.day)?.concept ?? todayPlan.title}
@@ -469,7 +469,7 @@ export default async function DashboardPage() {
               <div className="min-w-0">
                 {next ? (
                   <>
-                    <p className="font-mono text-xs font-semibold text-burgundy">
+                    <p className="font-mono text-xs font-semibold text-accent">
                       {matterLabel(next.matter.number)}
                     </p>
                     <p className="font-serif text-2xl leading-snug">{next.matter.title}</p>
@@ -482,7 +482,7 @@ export default async function DashboardPage() {
                 )}
                 <p className="mt-3 text-xs text-muted">
                   {good} of {MATTERS_FOR_CERTIFICATE} marked Good towards your{' '}
-                  <Link href="/certificate" className="-my-2 inline-block py-2 text-burgundy underline underline-offset-2">
+                  <Link href="/certificate" className="-my-2 inline-block py-2 text-accent underline underline-offset-2">
                     certificate
                   </Link>
                   .
@@ -645,7 +645,7 @@ export default async function DashboardPage() {
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatTile
           icon={<LevelIcon className="size-5" />}
-          tone="burgundy"
+          tone="accent"
           label="Current level"
           value={level.level}
           hint={`${level.name}, game level`}
@@ -691,7 +691,7 @@ export default async function DashboardPage() {
           aria-label={`Progress within level ${level.level}`}
         >
           <div
-            className="h-full rounded-full bg-gradient-to-r from-burgundy to-burgundy-soft transition-all duration-500"
+            className="h-full rounded-full bg-gradient-to-r from-accent to-accent-soft transition-all duration-500"
             style={{ width: `${Math.max(level.progressPercent, 2)}%` }}
           />
         </div>
@@ -774,7 +774,7 @@ export default async function DashboardPage() {
 }
 
 const TONES = {
-  burgundy: 'bg-burgundy-wash text-burgundy',
+  accent: 'bg-accent-wash text-accent',
   amber: 'bg-amber-50 text-amber-700',
   green: 'bg-verdict-correct-wash text-verdict-correct',
   slate: 'bg-paper-sunk text-slate',
@@ -783,7 +783,7 @@ const TONES = {
 /** A card's label, with a small coloured badge so each card reads at a glance. */
 function CardLabel({
   icon,
-  tone = 'burgundy',
+  tone = 'accent',
   children,
 }: {
   icon: React.ReactNode;

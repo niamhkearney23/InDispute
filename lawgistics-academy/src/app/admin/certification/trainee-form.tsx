@@ -38,7 +38,7 @@ export function TraineeForm({
               defaultValue={initial.fullName}
               required
               maxLength={200}
-              className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10"
+              className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10"
             />
           </div>
 
@@ -52,7 +52,7 @@ export function TraineeForm({
               defaultValue={initial.firmName}
               required
               maxLength={200}
-              className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10"
+              className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10"
             />
           </div>
 
@@ -66,7 +66,7 @@ export function TraineeForm({
               defaultValue={initial.notes}
               rows={3}
               maxLength={2000}
-              className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2.5 text-base outline-none focus:border-burgundy"
+              className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2.5 text-base outline-none focus:border-accent"
             />
           </div>
         </div>

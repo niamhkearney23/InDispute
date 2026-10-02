@@ -73,7 +73,7 @@ export default async function ProgrammePage() {
             <li key={week.number}>
               <Card
                 className={cn(
-                  isNow && 'border-burgundy/40 bg-burgundy-wash',
+                  isNow && 'border-accent/40 bg-accent-wash',
                   isPast && 'opacity-80',
                 )}
               >

@@ -24,7 +24,7 @@ export function CaseFile({
 
   const header = (
     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-rule bg-paper-sunk px-5 py-3 sm:px-8">
-      <span className="font-mono text-xs font-semibold tracking-wider text-burgundy">
+      <span className="font-mono text-xs font-semibold tracking-wider text-accent">
         {matterLabel(snapshot.number)}
         {snapshot.area ? ` · ${snapshot.area}` : ''}
       </span>
@@ -39,7 +39,7 @@ export function CaseFile({
       <details className="group overflow-hidden rounded-xl border border-rule bg-paper-raised shadow-card">
         <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
           {header}
-          <p className="px-5 py-3 text-sm font-medium text-burgundy sm:px-8">
+          <p className="px-5 py-3 text-sm font-medium text-accent sm:px-8">
             <span className="group-open:hidden">Read the facts again</span>
             <span className="hidden group-open:inline">Hide the facts</span>
           </p>

@@ -64,7 +64,7 @@ function Group({ title, items }: { title: string; items: StaffMatterSummary[] })
               href={`/admin/matters/${matter.id}`}
               className="flex flex-wrap items-center gap-x-3 gap-y-1.5 px-4 py-3.5 hover:bg-paper-sunk sm:px-5"
             >
-              <span className="font-mono text-xs font-semibold text-burgundy">{matterLabel(matter.number)}</span>
+              <span className="font-mono text-xs font-semibold text-accent">{matterLabel(matter.number)}</span>
               <span className="min-w-0 flex-1 font-medium">{matter.title}</span>
               <Pill>{matter.country === 'MY' ? 'Malaysia' : 'Australia'}</Pill>
               <Pill>{describeLimit(matter.timeLimitMinutes)}</Pill>

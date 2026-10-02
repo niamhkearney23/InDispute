@@ -5,7 +5,7 @@ import { Button, Card, Notice, Wordmark } from '@/components/ui';
 import { changePassword } from './actions';
 
 const INPUT =
-  'h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10';
+  'h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10';
 
 /** The two boxes and the button, on their own. */
 export function PasswordForm({ submitLabel }: { submitLabel: string }) {

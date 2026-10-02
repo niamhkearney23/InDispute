@@ -17,7 +17,7 @@ export function LeaderboardCard({ rows }: { rows: LeaderboardRow[] }) {
   return (
     <Card>
       <div className="mb-3 flex items-center gap-2.5">
-        <span className="grid size-8 place-items-center rounded-lg bg-burgundy-wash text-burgundy">
+        <span className="grid size-8 place-items-center rounded-lg bg-accent-wash text-accent">
           <LevelIcon className="size-4" />
         </span>
         <p className="eyebrow">Last seven days at the firm</p>
@@ -34,7 +34,7 @@ export function LeaderboardCard({ rows }: { rows: LeaderboardRow[] }) {
               key={row.position + row.firstName}
               className={cn(
                 'flex items-center gap-3 py-2 text-sm',
-                row.isMe && '-mx-2 rounded-md bg-burgundy-wash px-2 font-medium',
+                row.isMe && '-mx-2 rounded-md bg-accent-wash px-2 font-medium',
               )}
             >
               <span
@@ -57,7 +57,7 @@ export function LeaderboardCard({ rows }: { rows: LeaderboardRow[] }) {
             </li>
           ))}
           {meOutside ? (
-            <li className="-mx-2 mt-1 flex items-center gap-3 rounded-md bg-burgundy-wash px-2 py-2 text-sm font-medium">
+            <li className="-mx-2 mt-1 flex items-center gap-3 rounded-md bg-accent-wash px-2 py-2 text-sm font-medium">
               <span className="grid size-7 shrink-0 place-items-center rounded-full font-serif text-sm text-muted tabular-nums">
                 {meOutside.position}
               </span>

@@ -42,7 +42,7 @@ export function JoinForm({ token, email }: { token: string; email: string }) {
           required
           minLength={10}
           autoComplete="new-password"
-          className="h-12 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy"
+          className="h-12 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent"
         />
         <p className="mt-1 text-xs text-muted">At least 10 characters.</p>
       </div>

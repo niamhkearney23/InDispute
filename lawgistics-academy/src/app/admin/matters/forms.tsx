@@ -5,7 +5,7 @@ import { Button, Card, Notice, cn } from '@/components/ui';
 import { decideMatter, markMatterAttempt, saveMatter, setMatterPublished } from './actions';
 
 const FIELD =
-  'w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2.5 text-base outline-none focus:border-burgundy';
+  'w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2.5 text-base outline-none focus:border-accent';
 
 export interface MatterFormValues {
   id?: string;

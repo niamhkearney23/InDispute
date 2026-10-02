@@ -33,7 +33,7 @@ export interface WorkPostFormValues {
 }
 
 const INPUT =
-  'h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10';
+  'h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10';
 
 /**
  * Posting a piece of work, or something to read.
@@ -106,7 +106,7 @@ export function WorkPostForm({
             ).map(([value, label, help]) => (
               <label
                 key={value}
-                className="flex cursor-pointer items-start gap-2.5 rounded-[5px] border border-rule-strong bg-paper-raised p-3 text-sm has-[:checked]:border-burgundy"
+                className="flex cursor-pointer items-start gap-2.5 rounded-[5px] border border-rule-strong bg-paper-raised p-3 text-sm has-[:checked]:border-accent"
               >
                 <input
                   type="radio"
@@ -150,7 +150,7 @@ export function WorkPostForm({
               defaultValue={initial.instructions}
               rows={5}
               maxLength={5000}
-              className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2.5 text-base outline-none focus:border-burgundy"
+              className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2.5 text-base outline-none focus:border-accent"
             />
             <p className="mt-1 text-xs text-muted">
               {kind === 'task'
@@ -251,7 +251,7 @@ export function WorkPostForm({
                 value={minutes || ''}
                 onChange={(e) => setMinutes(Number(e.target.value) || 0)}
                 placeholder="0"
-                className="h-11 w-32 rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10"
+                className="h-11 w-32 rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10"
               />
               {minutes > 0 ? (
                 <span className="text-sm text-slate">{describeMinutes(minutes)}</span>

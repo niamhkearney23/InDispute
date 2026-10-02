@@ -57,7 +57,7 @@ export function MatterWorkspace({
             rows={4}
             maxLength={PROCEDURE_MAX}
             aria-label="The procedure"
-            className="w-full rounded-lg border-2 border-rule bg-paper px-3.5 py-3 text-base outline-none focus:border-burgundy"
+            className="w-full rounded-lg border-2 border-rule bg-paper px-3.5 py-3 text-base outline-none focus:border-accent"
           />
         </Task>
 
@@ -69,7 +69,7 @@ export function MatterWorkspace({
             rows={10}
             maxLength={DRAFT_MAX}
             aria-label="Your advice"
-            className="w-full rounded-lg border-2 border-rule bg-paper px-3.5 py-3 font-serif text-[1.0625rem] leading-relaxed outline-none focus:border-burgundy"
+            className="w-full rounded-lg border-2 border-rule bg-paper px-3.5 py-3 font-serif text-[1.0625rem] leading-relaxed outline-none focus:border-accent"
           />
           <p className="mt-1 text-right text-xs text-muted tabular-nums">
             {draft.trim() ? draft.trim().split(/\s+/).length : 0} words
@@ -143,7 +143,7 @@ export function MatterWorkspace({
                     defaultValue={attempt.followUpAnswers[i] ?? ''}
                     rows={3}
                     maxLength={FOLLOW_UP_ANSWER_MAX}
-                    className="w-full rounded-lg border-2 border-rule bg-paper px-3.5 py-2.5 text-base outline-none focus:border-burgundy"
+                    className="w-full rounded-lg border-2 border-rule bg-paper px-3.5 py-2.5 text-base outline-none focus:border-accent"
                   />
                 </li>
               ))}
@@ -196,7 +196,7 @@ function Task({
         <span
           className={cn(
             'grid size-9 shrink-0 place-items-center rounded-full font-serif text-lg transition-colors',
-            done ? 'bg-burgundy text-paper' : 'bg-burgundy-wash text-burgundy',
+            done ? 'bg-accent text-paper' : 'bg-accent-wash text-accent',
           )}
           aria-hidden
         >
@@ -254,7 +254,7 @@ function Clock({ deadlineAt, startedAt }: { deadlineAt: string; startedAt: strin
         </p>
         <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-paper-sunk">
           <div
-            className={cn('h-full rounded-full transition-[width] duration-1000', over ? 'bg-verdict-wrong' : urgent ? 'bg-amber-500' : 'bg-burgundy')}
+            className={cn('h-full rounded-full transition-[width] duration-1000', over ? 'bg-verdict-wrong' : urgent ? 'bg-amber-500' : 'bg-accent')}
             style={{ width: `${over ? 100 : Math.max(0, Math.min(100, (left / total) * 100))}%` }}
           />
         </div>
@@ -376,7 +376,7 @@ function SpeakRecorder({
             <button
               type="button"
               onClick={start}
-              className="inline-flex h-11 items-center gap-2.5 rounded-full border-2 border-burgundy px-5 font-medium text-burgundy hover:bg-burgundy-wash"
+              className="inline-flex h-11 items-center gap-2.5 rounded-full border-2 border-accent px-5 font-medium text-accent hover:bg-accent-wash"
             >
               <span aria-hidden className="size-2.5 rounded-full bg-verdict-wrong" />
               {preview || existingUrl ? 'Record again' : 'Start recording'}

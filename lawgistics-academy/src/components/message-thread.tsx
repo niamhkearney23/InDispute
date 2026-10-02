@@ -49,7 +49,7 @@ export function MessageThread({
           key={m.id}
           className={
             m.mine
-              ? 'ml-6 rounded-md border border-burgundy/20 bg-burgundy-wash px-3 py-2 text-sm'
+              ? 'ml-6 rounded-md border border-accent/20 bg-accent-wash px-3 py-2 text-sm'
               : 'mr-6 rounded-md border border-rule bg-paper-sunk px-3 py-2 text-sm'
           }
         >

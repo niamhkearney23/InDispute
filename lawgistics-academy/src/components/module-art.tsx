@@ -34,7 +34,7 @@ export function ModuleArt({
     <div
       aria-hidden
       className={cn(
-        'module-art relative flex items-center justify-center overflow-hidden rounded-t-[inherit] bg-burgundy-wash',
+        'module-art relative flex items-center justify-center overflow-hidden rounded-t-[inherit] bg-accent-wash',
         className,
       )}
     >

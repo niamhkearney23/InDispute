@@ -294,7 +294,7 @@ export function ReviewQueue({ items }: { items: ReviewItem[] }) {
               className={cn(
                 'rounded-full border px-3 py-2',
                 scope === value
-                  ? 'border-burgundy bg-burgundy text-paper'
+                  ? 'border-accent bg-accent text-paper'
                   : 'border-rule-strong text-slate hover:bg-paper',
               )}
             >
@@ -326,7 +326,7 @@ export function ReviewQueue({ items }: { items: ReviewItem[] }) {
               className={cn(
                 'rounded-full border px-3 py-2',
                 pile === value
-                  ? 'border-burgundy bg-burgundy text-paper'
+                  ? 'border-accent bg-accent text-paper'
                   : 'border-rule-strong text-slate hover:bg-paper',
               )}
             >
@@ -378,7 +378,7 @@ export function ReviewQueue({ items }: { items: ReviewItem[] }) {
           onClick={() => setShowKeys((s) => !s)}
           // py-2 rather than py-1.5: at text-xs the line box is 16px, so 6px of
           // padding either side lands on 28 and misses a thumb. 8px makes 32.
-          className="rounded-[5px] px-2 py-2 text-xs font-medium text-burgundy underline underline-offset-2"
+          className="rounded-[5px] px-2 py-2 text-xs font-medium text-accent underline underline-offset-2"
         >
           {showKeys ? 'Hide shortcuts' : 'Shortcuts'}
         </button>
@@ -562,7 +562,7 @@ function ReviewCard({
     <div ref={registerRef} onMouseDown={onFocus} className="scroll-mt-32">
     <Card
       className={cn(
-        isFocused && !outcome && 'ring-2 ring-burgundy/40',
+        isFocused && !outcome && 'ring-2 ring-accent/40',
         outcome === 'verify' && 'border-verdict-correct/40 bg-verdict-correct-wash',
         outcome === 'flag' && 'border-verdict-wrong/40 bg-verdict-wrong-wash',
         outcome === 'retire' && 'opacity-55',
@@ -665,7 +665,7 @@ function ReviewCard({
               onChange={(event) => setNote(event.target.value)}
               rows={2}
               placeholder="What is wrong with it? e.g. “rule number is 19.7, not 19.6”"
-              className="mt-4 w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2 text-base outline-none focus:border-burgundy"
+              className="mt-4 w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2 text-base outline-none focus:border-accent"
             />
           ) : null}
 

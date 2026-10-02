@@ -58,7 +58,7 @@ export function PlacementDatesForm({
           name="startsOn"
           type="date"
           defaultValue={startsOn ?? ''}
-          className="h-11 rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy"
+          className="h-11 rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent"
         />
       </div>
       <div>
@@ -70,7 +70,7 @@ export function PlacementDatesForm({
           name="endsOn"
           type="date"
           defaultValue={endsOn ?? ''}
-          className="h-11 rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy"
+          className="h-11 rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent"
         />
       </div>
       <Button type="submit" variant="outline" disabled={pending}>
@@ -129,7 +129,7 @@ export function DecisionForm({
               ? 'Worth saying why, since something is still outstanding.'
               : 'Anything worth recording alongside this.'
         }
-        className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2 text-base leading-relaxed outline-none focus:border-burgundy"
+        className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2 text-base leading-relaxed outline-none focus:border-accent"
       />
 
       {clearingEarly ? (
@@ -138,7 +138,7 @@ export function DecisionForm({
             type="checkbox"
             checked={acknowledged}
             onChange={(event) => setAcknowledged(event.target.checked)}
-            className="mt-0.5 size-8 shrink-0 rounded-[4px] border-rule-strong accent-burgundy"
+            className="mt-0.5 size-8 shrink-0 rounded-[4px] border-rule-strong accent-accent"
           />
           <span>
             I am clearing this person with {outstandingCount}{' '}

@@ -59,11 +59,11 @@ export default async function CertificatePage() {
             {Array.from({ length: status.mattersNeeded }, (_, i) => (
               <span
                 key={i}
-                className={`h-2.5 flex-1 rounded-full ${i < matterSteps ? 'bg-burgundy' : 'bg-paper-sunk'}`}
+                className={`h-2.5 flex-1 rounded-full ${i < matterSteps ? 'bg-accent' : 'bg-paper-sunk'}`}
               />
             ))}
           </div>
-          <Link href="/matters" className="mt-2 inline-flex min-h-11 items-center text-sm font-medium text-burgundy underline underline-offset-2">
+          <Link href="/matters" className="mt-2 inline-flex min-h-11 items-center text-sm font-medium text-accent underline underline-offset-2">
             Go to the matters
           </Link>
         </Card>
@@ -88,7 +88,7 @@ export default async function CertificatePage() {
               ))}
             </ul>
           )}
-          <Link href="/modules" className="mt-2 inline-flex min-h-11 items-center text-sm font-medium text-burgundy underline underline-offset-2">
+          <Link href="/modules" className="mt-2 inline-flex min-h-11 items-center text-sm font-medium text-accent underline underline-offset-2">
             Go to the modules
           </Link>
         </Card>
@@ -103,9 +103,9 @@ export default async function CertificatePage() {
         <PrintButton />
       </div>
 
-      <article className="certificate relative overflow-hidden rounded-2xl border-[10px] border-double border-burgundy/70 bg-[#fffdf8] px-6 py-12 text-center shadow-raised sm:px-14 sm:py-16">
-        <span aria-hidden className="absolute inset-3 rounded-xl border border-burgundy/20" />
-        <p className="text-[0.6875rem] font-semibold tracking-[0.3em] text-burgundy uppercase">
+      <article className="certificate relative overflow-hidden rounded-2xl border-[10px] border-double border-accent/70 bg-[#fffdf8] px-6 py-12 text-center shadow-raised sm:px-14 sm:py-16">
+        <span aria-hidden className="absolute inset-3 rounded-xl border border-accent/20" />
+        <p className="text-[0.6875rem] font-semibold tracking-[0.3em] text-accent uppercase">
           {brand.fullName}
         </p>
         <h1 className="mt-6 text-4xl sm:text-5xl">Certificate of completion</h1>
@@ -118,7 +118,7 @@ export default async function CertificatePage() {
         </p>
         <div className="mx-auto mt-8 flex max-w-md flex-wrap justify-center gap-2">
           {status.requiredModules.map((m) => (
-            <span key={m.name} className="inline-flex items-center gap-1.5 rounded-full bg-burgundy-wash px-3 py-1 text-xs text-burgundy">
+            <span key={m.name} className="inline-flex items-center gap-1.5 rounded-full bg-accent-wash px-3 py-1 text-xs text-accent">
               <CheckIcon className="size-3" />
               {m.name}
             </span>

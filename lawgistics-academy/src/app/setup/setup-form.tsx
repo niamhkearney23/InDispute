@@ -67,7 +67,7 @@ export function SetupForm({
               name="token"
               type="password"
               required
-              className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3.5 text-base outline-none focus:border-burgundy"
+              className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3.5 text-base outline-none focus:border-accent"
             />
             <p className="mt-1 text-xs text-muted">
               The value of your SETUP_TOKEN environment variable.
@@ -80,7 +80,7 @@ export function SetupForm({
             type="checkbox"
             name="publish"
             value="no"
-            className="mt-1 size-5 shrink-0 accent-[#6b1f2a]"
+            className="mt-1 size-5 shrink-0 accent-accent"
           />
           <span>
             Hold everything back until I have verified it.

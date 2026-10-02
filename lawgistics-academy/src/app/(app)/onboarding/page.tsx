@@ -49,7 +49,7 @@ export default async function OnboardingPage({
                   key={step}
                   className={
                     i === 0
-                      ? 'rounded-full bg-paper px-3.5 py-1.5 font-semibold text-burgundy'
+                      ? 'rounded-full bg-paper px-3.5 py-1.5 font-semibold text-accent'
                       : 'rounded-full bg-paper/10 px-3.5 py-1.5 text-paper/80 ring-1 ring-paper/25'
                   }
                 >

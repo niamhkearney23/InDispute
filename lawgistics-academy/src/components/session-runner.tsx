@@ -270,7 +270,7 @@ export function SessionRunner({
                   type="button"
                   disabled={pending}
                   onClick={() => submit(level)}
-                  className="rounded-md border border-rule-strong px-3 py-3.5 text-base transition-colors hover:border-burgundy hover:bg-burgundy-wash disabled:opacity-50"
+                  className="rounded-md border border-rule-strong px-3 py-3.5 text-base transition-colors hover:border-accent hover:bg-accent-wash disabled:opacity-50"
                 >
                   {CONFIDENCE_LABELS[level]}
                 </button>

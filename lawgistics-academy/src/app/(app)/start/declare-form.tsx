@@ -38,7 +38,7 @@ export function DeclareForm({
             type="checkbox"
             checked={confirmed}
             onChange={(event) => setConfirmed(event.target.checked)}
-            className="mt-0.5 size-8 shrink-0 rounded-[4px] border-rule-strong accent-burgundy"
+            className="mt-0.5 size-8 shrink-0 rounded-[4px] border-rule-strong accent-accent"
           />
           <span>I have signed this and returned it to the firm.</span>
         </label>

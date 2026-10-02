@@ -119,7 +119,7 @@ export function FirmModuleForm({
           <button
             type="button"
             onClick={() => setPreview(!preview)}
-            className="rounded-[5px] px-2 py-1.5 text-sm font-medium text-burgundy underline underline-offset-2"
+            className="rounded-[5px] px-2 py-1.5 text-sm font-medium text-accent underline underline-offset-2"
           >
             {preview ? 'Back to editing' : 'Preview'}
           </button>
@@ -147,7 +147,7 @@ export function FirmModuleForm({
             rows={18}
             required
             placeholder={PLACEHOLDER}
-            className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2 font-mono text-base leading-relaxed outline-none focus:border-burgundy"
+            className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2 font-mono text-base leading-relaxed outline-none focus:border-accent"
           />
         )}
         {/* Preview swaps the textarea out of the DOM, so the value has to travel
@@ -188,7 +188,7 @@ function Text({
       </label>
       <input
         id={props.name}
-        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10"
+        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10"
         {...props}
       />
       {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
@@ -208,7 +208,7 @@ function Select({
       </label>
       <select
         id={props.name}
-        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-2.5 text-base outline-none focus:border-burgundy sm:h-10"
+        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-2.5 text-base outline-none focus:border-accent sm:h-10"
         {...props}
       >
         {children}
@@ -222,7 +222,7 @@ function Check({ label, ...props }: { label: string } & React.ComponentProps<'in
     <label className="flex items-center gap-2.5 py-1 text-sm font-medium">
       <input
         type="checkbox"
-        className="size-8 rounded-[4px] border-rule-strong accent-burgundy"
+        className="size-8 rounded-[4px] border-rule-strong accent-accent"
         {...props}
       />
       {label}

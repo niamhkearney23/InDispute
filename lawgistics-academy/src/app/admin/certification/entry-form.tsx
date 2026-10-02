@@ -49,7 +49,7 @@ export function EntryForm({
               name="boxNumber"
               defaultValue={initial.boxNumber}
               required
-              className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10"
+              className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10"
             >
               <option value="" disabled>
                 Choose a box
@@ -73,7 +73,7 @@ export function EntryForm({
                 defaultValue={initial.caseNo}
                 required
                 maxLength={200}
-                className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10"
+                className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10"
               />
             </div>
             <div>
@@ -85,7 +85,7 @@ export function EntryForm({
                 name="courtFileRef"
                 defaultValue={initial.courtFileRef}
                 maxLength={200}
-                className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10"
+                className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10"
               />
             </div>
           </div>
@@ -100,7 +100,7 @@ export function EntryForm({
               defaultValue={initial.caseTypeStage}
               maxLength={200}
               placeholder="e.g. Sessions Court civil, pre-trial"
-              className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10"
+              className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10"
             />
           </div>
 
@@ -115,7 +115,7 @@ export function EntryForm({
                 type="date"
                 defaultValue={initial.dateIn}
                 required
-                className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10"
+                className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10"
               />
             </div>
             <div>
@@ -127,7 +127,7 @@ export function EntryForm({
                 name="draftBack"
                 type="date"
                 defaultValue={initial.draftBack}
-                className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10"
+                className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10"
               />
             </div>
           </div>
@@ -140,7 +140,7 @@ export function EntryForm({
               id="grade"
               name="grade"
               defaultValue={initial.grade}
-              className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10"
+              className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10"
             >
               <option value="">Not yet graded</option>
               {GRADE_OPTIONS.map((grade) => (
@@ -165,7 +165,7 @@ export function EntryForm({
               defaultValue={initial.note}
               rows={3}
               maxLength={2000}
-              className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2.5 text-base outline-none focus:border-burgundy"
+              className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2.5 text-base outline-none focus:border-accent"
             />
           </div>
 

@@ -33,7 +33,7 @@ export function FactCard({
         className="flex w-full items-start gap-3 text-left"
       >
         <span className="min-w-0 flex-1">
-          <span className="eyebrow mb-2 block text-burgundy">Worth knowing</span>
+          <span className="eyebrow mb-2 block text-accent">Worth knowing</span>
           <span className="block font-serif text-lg leading-snug sm:text-xl">{title}</span>
         </span>
         <span

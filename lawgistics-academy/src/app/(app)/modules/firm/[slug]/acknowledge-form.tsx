@@ -28,7 +28,7 @@ export function AcknowledgeForm({ slug, label }: { slug: string; label: string }
             checked={confirmed}
             onChange={(event) => setConfirmed(event.target.checked)}
             // 32px, because this is the tap target the whole record rests on.
-            className="mt-0.5 size-8 shrink-0 rounded-[4px] border-rule-strong accent-burgundy"
+            className="mt-0.5 size-8 shrink-0 rounded-[4px] border-rule-strong accent-accent"
           />
           <span>{label}, and I understand it applies to my work from today.</span>
         </label>
