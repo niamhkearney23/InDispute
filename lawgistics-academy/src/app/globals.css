@@ -22,6 +22,14 @@
   --color-burgundy-soft: #8c3140;
   --color-burgundy-wash: #f6ecec;
 
+  /* The front page only: deep navy and warm cream, with the burgundy kept to
+     a thin accent. Inside the app the paper and burgundy above still lead. */
+  --color-navy: #0d1b2a;
+  --color-navy-raised: #142638;
+  --color-cream: #f5f1e8;
+  --color-mist: #8a98a8;
+  --color-wine: #7a2e3a;
+
   --color-verdict-correct: #2f5d4f;
   --color-verdict-correct-wash: #eaf1ee;
   --color-verdict-wrong: #8a2f22;
