@@ -260,18 +260,6 @@ export function AuthForm({
             </Button>
           </form>
 
-          {trainee ? (
-            <p className="mt-6 text-sm text-slate">
-              Not a trainee?{' '}
-              <Link
-                href="/signup"
-                className="-my-2 inline-block rounded-[5px] px-1 py-2 font-semibold text-burgundy underline underline-offset-4"
-              >
-                Sign up as a law student or junior lawyer
-              </Link>
-            </p>
-          ) : null}
-
           <p className="mt-8 border-t border-rule pt-6 text-sm text-slate">
             {isSignup ? 'Already have an account? ' : 'No account yet? '}
             <Link
