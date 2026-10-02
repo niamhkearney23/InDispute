@@ -68,7 +68,7 @@ export default async function ModulePage({
                   month: 'long',
                   year: 'numeric',
                 })}. These concepts still come back in daily training, because covering something once is not the same as remembering it.`
-              : `${entry.correctOnce} of ${entry.total} answered correctly so far. The module is complete when every question in it has been, which is a thing you do rather than a button you press.`}
+              : `${entry.correctOnce} of ${entry.total} right so far. To complete the module, get every question right once. Going back only asks you the ones still to get right.`}
           </p>
         </Card>
       )}
@@ -83,7 +83,13 @@ export default async function ModulePage({
             lesson={lesson}
             country={profile.country}
             moduleSlug={definition.slug}
-            quizLabel={entry.complete ? 'Answer them again' : 'Start the questions'}
+            quizLabel={
+              entry.complete
+                ? 'Answer them again'
+                : entry.correctOnce > 0
+                  ? 'Go back to the ones left'
+                  : 'Start the questions'
+            }
           />
         </section>
       ) : null}
@@ -92,7 +98,7 @@ export default async function ModulePage({
         {entry.total > 0 && !lesson ? (
           <StartModuleButton
             slug={definition.slug}
-            label={entry.complete ? 'Go through it again' : entry.correctOnce > 0 ? 'Continue' : 'Start'}
+            label={entry.complete ? 'Go through it again' : entry.correctOnce > 0 ? 'Go back to the ones left' : 'Start'}
           />
         ) : null}
         <ButtonLink href="/modules" size="lg" variant="outline">
