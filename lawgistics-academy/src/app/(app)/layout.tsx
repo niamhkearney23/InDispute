@@ -46,7 +46,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="sticky top-0 z-20 border-b border-rule bg-paper/95 backdrop-blur-sm">
+      <header className="sticky top-0 z-20 border-b border-rule bg-paper/95 backdrop-blur-sm print:hidden">
         {/* Tight on a 360px Android. The nav keeps its labels on one line and
             tightens its spacing rather than wrapping, but it is allowed to wrap
             as a last resort, which happens only for somebody who also has the
@@ -122,7 +122,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         {children}
       </main>
 
-      <footer className="mx-auto w-full max-w-4xl px-5 pb-8 sm:px-8">
+      <footer className="mx-auto w-full max-w-4xl px-5 pb-8 sm:px-8 print:hidden">
         <p className="border-t border-rule pt-5 text-xs text-muted">
           Training content only, not legal advice. Levels are game levels, not
           professional titles or qualifications. Always check the current rules of the

@@ -46,6 +46,18 @@ export default async function ModulesPage() {
         </ButtonLink>
       </Card>
 
+      <Card className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="font-medium">Practise on a file</p>
+          <p className="text-sm text-slate">
+            Matters: the problem first, against the clock, then how a lawyer would do it.
+          </p>
+        </div>
+        <ButtonLink href="/matters" variant="outline" size="sm">
+          Open the matters
+        </ButtonLink>
+      </Card>
+
       {/* The firm's own content sits above ours on purpose. On somebody's first
           day, "what this firm allows you to put into a tool" outranks anything
           we can teach them about the law. */}

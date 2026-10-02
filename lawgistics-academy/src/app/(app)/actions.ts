@@ -15,7 +15,28 @@ import { moduleBySlug } from '@/content/seed/modules';
 import { HOMEWORK_DAYS, homeworkForDay } from '@/content/seed/homework';
 import { homeworkDay, lastArrivedDay } from '@/lib/homework/rules';
 import { getLearnerProfile } from '@/lib/learner-overview';
-import { COMMENT_MAX_LENGTH, WORK_FILE_TYPES, workFileProblem } from '@/lib/work/links';
+import {
+  COMMENT_MAX_LENGTH,
+  WORK_FILE_TYPES,
+  WORK_MEMO_TYPES,
+  bareMemoType,
+  workFileProblem,
+  workMemoProblem,
+} from '@/lib/work/links';
+import { attemptForCaller, storeFollowUps } from '@/lib/matters/service';
+import {
+  DRAFT_MAX,
+  FOLLOW_UP_ANSWER_MAX,
+  FOLLOW_UP_COUNT,
+  FOLLOW_UP_SYSTEM,
+  PROCEDURE_MAX,
+  SPEAK_MAX_SECONDS,
+  STANDARD_FOLLOW_UPS,
+  followUpPrompt,
+  missingForHandIn,
+  parseFollowUps,
+} from '@/lib/matters/rules';
+import { getProvider } from '@/lib/ai/provider';
 import {
   IMPROVEMENT_GOALS,
   JURISDICTION_COUNTRY,
@@ -502,4 +523,205 @@ export async function postComment(_prev: WorkState, formData: FormData): Promise
   revalidatePath('/admin/work');
   revalidatePath(`/admin/work/${parsed.data.postId}`);
   return { error: null, ok: 'Posted.' };
+}
+
+/* -------------------------------------------------------------------------- */
+/* Matters                                                                    */
+/* -------------------------------------------------------------------------- */
+
+export type MatterState = { error: string | null; ok?: string };
+
+/**
+ * Starting a matter. Through the learner's own client: the database decides
+ * whether they may see it, and stamps the clock and the copy of the matter
+ * itself. A second open attempt on the same matter is refused there too.
+ */
+export async function startMatter(formData: FormData): Promise<void> {
+  const user = await getCurrentUser();
+  if (!user) redirect('/login?next=/matters');
+
+  const matterId = z.string().uuid().safeParse(formData.get('matterId'));
+  if (!matterId.success) redirect('/matters');
+
+  const supabase = await createSupabaseServerClient();
+  await supabase.from('matter_attempts').insert({ matter_id: matterId.data, user_id: user.id });
+  revalidatePath('/matters');
+  redirect(`/matters/${matterId.data}`);
+}
+
+const matterWorkSchema = z.object({
+  attemptId: z.string().uuid(),
+  procedureAnswer: z.string().max(PROCEDURE_MAX),
+  draftAnswer: z.string().max(DRAFT_MAX),
+  followUpAnswers: z.array(z.string().max(FOLLOW_UP_ANSWER_MAX)).max(FOLLOW_UP_COUNT),
+  handIn: z.boolean(),
+});
+
+/**
+ * Saving the work, and handing it in. Through the learner's own client,
+ * which may change only the columns their work lives in, and only until it
+ * is handed in; the database stamps the time it was handed in and whether
+ * that was after the deadline.
+ */
+export async function saveMatterWork(_prev: MatterState, formData: FormData): Promise<MatterState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: 'You are not signed in.' };
+
+  const parsed = matterWorkSchema.safeParse({
+    attemptId: formData.get('attemptId'),
+    procedureAnswer: String(formData.get('procedureAnswer') ?? ''),
+    draftAnswer: String(formData.get('draftAnswer') ?? ''),
+    followUpAnswers: formData.getAll('followUpAnswer').map((v) => String(v)),
+    handIn: formData.get('intent') === 'hand-in',
+  });
+  if (!parsed.success) return { error: 'Something in that is too long to save.' };
+  const { attemptId, procedureAnswer, draftAnswer, followUpAnswers, handIn } = parsed.data;
+
+  const attempt = await attemptForCaller(attemptId);
+  if (!attempt || attempt.userId !== user.id) return { error: 'That attempt could not be found.' };
+  if (attempt.submittedAt) return { error: 'This attempt has already been handed in.' };
+
+  if (handIn) {
+    const missing = missingForHandIn({
+      procedureAnswer,
+      draftAnswer,
+      followUpQuestions: attempt.followUpQuestions,
+      followUpAnswers,
+    });
+    if (missing.length > 0) return { error: `Before handing in, add ${missing.join(', ')}.` };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from('matter_attempts')
+    .update({
+      procedure_answer: procedureAnswer,
+      draft_answer: draftAnswer,
+      followup_answers: followUpAnswers,
+      ...(handIn ? { submitted_at: new Date().toISOString() } : {}),
+    })
+    .eq('id', attemptId);
+  if (error) return { error: 'That could not be saved. Try again.' };
+
+  revalidatePath(`/matters/${attempt.matterId}`);
+  revalidatePath('/matters');
+  if (handIn) {
+    revalidatePath('/admin/matters');
+    revalidatePath(`/admin/matters/${attempt.matterId}`);
+    revalidatePath('/certificate');
+  }
+  return { error: null, ok: handIn ? 'Handed in.' : 'Saved.' };
+}
+
+/**
+ * Five follow-up questions about the learner's own draft. The AI asks; it
+ * does not answer, grade or state the law, and nothing it writes is
+ * published anywhere: the questions sit on this one attempt. When the AI is
+ * not set up or does not give five usable questions, the standard
+ * questions are used and the page says so. Asked once per attempt.
+ */
+export async function askFollowUps(_prev: MatterState, formData: FormData): Promise<MatterState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: 'You are not signed in.' };
+
+  const attemptId = z.string().uuid().safeParse(formData.get('attemptId'));
+  if (!attemptId.success) return { error: 'That attempt could not be found.' };
+
+  const attempt = await attemptForCaller(attemptId.data);
+  if (!attempt || attempt.userId !== user.id) return { error: 'That attempt could not be found.' };
+  if (attempt.submittedAt) return { error: 'This attempt has already been handed in.' };
+  if (attempt.followUpQuestions.length > 0) return { error: null, ok: 'Already asked.' };
+
+  // The questions are about what is saved, so save first.
+  const procedureAnswer = String(formData.get('procedureAnswer') ?? '').slice(0, PROCEDURE_MAX);
+  const draftAnswer = String(formData.get('draftAnswer') ?? '').slice(0, DRAFT_MAX);
+  if (procedureAnswer.trim().length < 20 || draftAnswer.trim().length < 80) {
+    return { error: 'Write your procedure and your advice first. The questions are about them.' };
+  }
+  const supabase = await createSupabaseServerClient();
+  await supabase
+    .from('matter_attempts')
+    .update({ procedure_answer: procedureAnswer, draft_answer: draftAnswer })
+    .eq('id', attempt.id);
+
+  let questions: string[] | null = null;
+  const provider = getProvider();
+  if (provider) {
+    try {
+      const reply = await provider.complete({
+        system: FOLLOW_UP_SYSTEM,
+        prompt: followUpPrompt({
+          brief: attempt.snapshot.brief,
+          procedurePrompt: attempt.snapshot.procedurePrompt,
+          procedureAnswer,
+          draftPrompt: attempt.snapshot.draftPrompt,
+          draftAnswer,
+        }),
+        maxTokens: 500,
+        temperature: 0.4,
+      });
+      questions = parseFollowUps(reply);
+    } catch {
+      questions = null;
+    }
+  }
+
+  const stored = await storeFollowUps(
+    attempt.id,
+    user.id,
+    questions ?? STANDARD_FOLLOW_UPS,
+    questions !== null,
+  );
+  if (!stored) return { error: 'The questions could not be saved. Try again.' };
+
+  revalidatePath(`/matters/${attempt.matterId}`);
+  return { error: null, ok: 'Questions ready.' };
+}
+
+/**
+ * The spoken explanation. Uploaded through the learner's own client into
+ * their own folder, under this attempt, which the bucket policy checks is
+ * theirs and still open; the path is built here from the session, never
+ * taken from the form.
+ */
+export async function uploadMatterRecording(
+  _prev: MatterState,
+  formData: FormData,
+): Promise<MatterState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: 'You are not signed in.' };
+
+  const attemptId = z.string().uuid().safeParse(formData.get('attemptId'));
+  const file = formData.get('memo');
+  if (!attemptId.success) return { error: 'That attempt could not be found.' };
+  if (!(file instanceof File) || file.size === 0) return { error: 'Record something first.' };
+  const problem = workMemoProblem(file);
+  if (problem) return { error: problem };
+
+  const attempt = await attemptForCaller(attemptId.data);
+  if (!attempt || attempt.userId !== user.id) return { error: 'That attempt could not be found.' };
+  if (attempt.submittedAt) return { error: 'This attempt has already been handed in.' };
+
+  const type = bareMemoType(file.type);
+  const path = `${user.id}/${attempt.id}/${Date.now()}.${WORK_MEMO_TYPES[type]}`;
+  const seconds = Number(formData.get('seconds'));
+
+  const supabase = await createSupabaseServerClient();
+  const { error: uploadError } = await supabase.storage
+    .from('matter-recordings')
+    .upload(path, file, { contentType: type, upsert: false });
+  if (uploadError) return { error: 'The recording could not be uploaded. Try again.' };
+
+  const { error } = await supabase
+    .from('matter_attempts')
+    .update({
+      recording_path: path,
+      recording_seconds:
+        Number.isFinite(seconds) && seconds >= 1 ? Math.min(Math.round(seconds), SPEAK_MAX_SECONDS) : null,
+    })
+    .eq('id', attempt.id);
+  if (error) return { error: 'The recording could not be saved. Try again.' };
+
+  revalidatePath(`/matters/${attempt.matterId}`);
+  return { error: null, ok: 'Recording saved.' };
 }

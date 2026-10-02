@@ -109,6 +109,7 @@ test('the server actions were actually found', () => {
   assert.deepEqual(names, [
     'acknowledge',
     'answerQuestion',
+    'askFollowUps',
     'beginModule',
     'beginSession',
     'changePassword',
@@ -120,12 +121,14 @@ test('the server actions were actually found', () => {
     'createFact',
     'createQuestion',
     'decide',
+    'decideMatter',
     'declare',
     'declareHomework',
     'finishSession',
     'invite',
     'join',
     'loadNewContent',
+    'markMatterAttempt',
     'markSubmission',
     'postComment',
     'publishAllVerified',
@@ -136,6 +139,8 @@ test('the server actions were actually found', () => {
     'revoke',
     'saveCertificationEntry',
     'saveFirmModule',
+    'saveMatter',
+    'saveMatterWork',
     'saveOnboarding',
     'saveSession',
     'saveStep',
@@ -145,8 +150,10 @@ test('the server actions were actually found', () => {
     'setIntakeDates',
     'setLeaderboardEnabled',
     'setLeaderboardOptOut',
+    'setMatterPublished',
     'setPlacementDates',
     'setPublished',
+    'startMatter',
     'submitWork',
     'suggestWorkTime',
     'transitionFact',
@@ -154,6 +161,7 @@ test('the server actions were actually found', () => {
     'updateFact',
     'updateQuestion',
     'uploadAvatar',
+    'uploadMatterRecording',
     'withdrawAllUnverified',
   ]);
 });
@@ -297,6 +305,14 @@ const COACH_ACTIONS = new Set([
   // exactly the sense the standing rules mean, and the only thing the AI
   // does on the work board.
   'suggestWorkTime',
+  // Matters. Signing one off is the same judgement as signing off a question:
+  // a named lawyer saying the content is sound, under their own name, and the
+  // database refuses it from whoever last wrote the words. Marking an attempt
+  // is a supervisor's decision about a person's work, as marking a work-board
+  // submission is; what was handed in is frozen and the mark cannot touch it.
+  // Writing and publishing a matter stay with an administrator.
+  'decideMatter',
+  'markMatterAttempt',
 ]);
 
 test('every admin server action requires a staff role, never merely a session', () => {

@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getCurrentUser, createSupabaseServerClient } from '@/lib/supabase/server';
@@ -48,6 +49,8 @@ import { programmeDay } from '@/content/programme-days';
 import { conceptForDay } from '@/content/programme-concepts';
 import { StreakCalendar } from '@/components/streak-calendar';
 import { QuestCard } from '@/components/quest-card';
+import { mattersForLearner } from '@/lib/matters/service';
+import { MATTERS_FOR_CERTIFICATE, matterLabel } from '@/lib/matters/rules';
 import { CountUp } from '@/components/count-up';
 import { LeaderboardCard } from '@/components/leaderboard-card';
 import { weeklyLeaderboard } from '@/lib/leaderboard';
@@ -85,6 +88,7 @@ export default async function DashboardPage() {
     leaderboard,
     diagnosticSittings,
     homeworkRows,
+    matters,
   ] =
     await Promise.all([
       getFactOfTheDay(profile.timezone, profile.country),
@@ -104,6 +108,7 @@ export default async function DashboardPage() {
       profile.startsOn
         ? supabase.from('homework_declarations').select('day').eq('user_id', user.id)
         : Promise.resolve({ data: null }),
+      mattersForLearner(user.id),
     ]);
 
   const sittingCount = diagnosticSittings.data?.length ?? 0;
@@ -452,6 +457,44 @@ export default async function DashboardPage() {
           )}
         </div>
       </AccentSurface>
+
+      {matters.length > 0 ? (() => {
+        const open = matters.find((m) => m.latest?.stage === 'working');
+        const next = open ?? matters.find((m) => !m.latest) ?? null;
+        const good = Math.min(matters.filter((m) => m.everGood).length, MATTERS_FOR_CERTIFICATE);
+        return (
+          <Card>
+            <CardLabel icon={<BriefcaseIcon className="size-4" />}>Matters</CardLabel>
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div className="min-w-0">
+                {next ? (
+                  <>
+                    <p className="font-mono text-xs font-semibold text-burgundy">
+                      {matterLabel(next.matter.number)}
+                    </p>
+                    <p className="font-serif text-2xl leading-snug">{next.matter.title}</p>
+                    <p className="mt-1 text-sm text-slate">
+                      {open ? 'You have this one open, and the clock is running.' : 'The problem first, then how a lawyer would do it.'}
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-slate">You have tried every matter that is up. New ones appear here.</p>
+                )}
+                <p className="mt-3 text-xs text-muted">
+                  {good} of {MATTERS_FOR_CERTIFICATE} marked Good towards your{' '}
+                  <Link href="/certificate" className="-my-2 inline-block py-2 text-burgundy underline underline-offset-2">
+                    certificate
+                  </Link>
+                  .
+                </p>
+              </div>
+              <ButtonLink href={next ? `/matters/${next.matter.id}` : '/matters'} variant="accent">
+                {open ? 'Carry on' : next ? 'Open the file' : 'See all matters'}
+              </ButtonLink>
+            </div>
+          </Card>
+        );
+      })() : null}
 
       {hasPlacement ? (
         <Card>
