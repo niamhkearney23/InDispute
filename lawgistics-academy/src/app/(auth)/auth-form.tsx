@@ -8,7 +8,12 @@ import { Button, Notice, Wordmark, cn } from '@/components/ui';
 import { brand } from '@/lib/brand';
 import { RotatingMaxim } from '@/components/rotating-maxim';
 import { ArrowIcon, CheckIcon } from '@/components/icons';
-import { PRACTICE_CHOICES, practiceChoiceFor, type Country, type PracticeChoice } from '@/lib/types';
+import {
+  PRACTICE_CHOICES,
+  practiceChoiceFor,
+  type Country,
+  type PracticeChoice,
+} from '@/lib/types';
 
 export function AuthForm({
   mode,
@@ -18,7 +23,8 @@ export function AuthForm({
   defaultCountry = 'MY',
   trainee = false,
 }: {
-  mode: 'login' | 'signup';
+  /** 'reset' is the forgotten-password form: an email, and a link sent to it. */
+  mode: 'login' | 'signup' | 'reset';
   /**
    * The litigation trainees' own sign-up. No country question, because the
    * programme is Malaysian and the database would refuse anything else, and
@@ -55,6 +61,7 @@ export function AuthForm({
   const [notice, setNotice] = useState<string | null>(welcome ?? null);
 
   const isSignup = mode === 'signup';
+  const isReset = mode === 'reset';
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -71,9 +78,7 @@ export function AuthForm({
       // a deployment built without the Supabase environment variables, since
       // NEXT_PUBLIC_ values are inlined at build time rather than read at boot.
       setError(
-        caught instanceof Error
-          ? caught.message
-          : 'Something went wrong. Please try again.',
+        caught instanceof Error ? caught.message : 'Something went wrong. Please try again.',
       );
       setPending(false);
     }
@@ -81,6 +86,23 @@ export function AuthForm({
 
   async function submitCredentials() {
     const supabase = createClient();
+
+    if (isReset) {
+      // The link comes back through the callback, which signs them in, and
+      // lands them on the page where they choose a new password. The answer
+      // is the same whether or not the address has an account, so this form
+      // cannot be used to find out who is signed up.
+      await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent('/account/password?reset=1')}`,
+      });
+      setNotice(
+        'If there is an account for that email, we have sent it a link to choose a new ' +
+          'password. Open it on this device. If it has not arrived in a few minutes, check ' +
+          'your junk folder.',
+      );
+      setPending(false);
+      return;
+    }
 
     if (isSignup) {
       const { data, error: signUpError } = await supabase.auth.signUp({
@@ -143,14 +165,22 @@ export function AuthForm({
       <main className="flex items-start justify-center px-5 pt-8 pb-12 sm:px-10 md:items-center md:py-16">
         <div className="rise-in w-full max-w-md">
           <h2 className="mb-2 text-3xl sm:text-4xl">
-            {trainee ? 'Join as a trainee' : isSignup ? 'Create your account' : 'Sign in'}
+            {trainee
+              ? 'Join as a trainee'
+              : isSignup
+                ? 'Create your account'
+                : isReset
+                  ? 'Forgotten your password?'
+                  : 'Sign in'}
           </h2>
           <p className="mb-8 text-slate">
             {trainee
               ? 'Your name, your email and a password. Your supervisor then confirms you are on the programme, and the work they post for trainees opens up.'
               : isSignup
                 ? 'A few questions, then a diagnostic, and about fifteen minutes to a full skill map.'
-                : 'Pick up where you left off.'}
+                : isReset
+                  ? 'Enter your email and we will send you a link to choose a new one.'
+                  : 'Pick up where you left off.'}
           </p>
 
           <form onSubmit={onSubmit} className="space-y-5">
@@ -230,20 +260,32 @@ export function AuthForm({
               placeholder="you@example.com"
             />
 
-            <Field
-              label="Password"
-              id="password"
-              type="password"
-              value={password}
-              autoComplete={isSignup ? 'new-password' : 'current-password'}
-              required
-              // Ten for a new password, the same rule as joining by invitation.
-              // Not on sign-in, where it would lock out anybody whose older
-              // password is shorter.
-              minLength={isSignup ? 10 : undefined}
-              hint={isSignup ? 'At least 10 characters.' : undefined}
-              onChange={setPassword}
-            />
+            {isReset ? null : (
+              <Field
+                label="Password"
+                id="password"
+                type="password"
+                value={password}
+                autoComplete={isSignup ? 'new-password' : 'current-password'}
+                required
+                // Ten for a new password, the same rule as joining by invitation.
+                // Not on sign-in, where it would lock out anybody whose older
+                // password is shorter.
+                minLength={isSignup ? 10 : undefined}
+                hint={isSignup ? 'At least 10 characters.' : undefined}
+                onChange={setPassword}
+              />
+            )}
+            {mode === 'login' ? (
+              <p className="-mt-2 text-right text-sm">
+                <Link
+                  href="/forgot-password"
+                  className="-my-2 inline-block py-2 font-medium text-burgundy underline-offset-4 hover:underline"
+                >
+                  Forgot your password?
+                </Link>
+              </p>
+            ) : null}
 
             {error ? <Notice tone="error">{error}</Notice> : null}
             {notice ? <Notice tone="warn">{notice}</Notice> : null}
@@ -261,20 +303,36 @@ export function AuthForm({
                   className="size-4 animate-spin rounded-full border-2 border-paper/40 border-t-paper"
                 />
               ) : null}
-              {pending ? (isSignup ? 'Creating your account…' : 'Signing you in…') : isSignup ? 'Create account' : 'Sign in'}
-              {pending ? null : <ArrowIcon className="size-4 transition-transform group-hover:translate-x-0.5" />}
+              {pending
+                ? isSignup
+                  ? 'Creating your account…'
+                  : isReset
+                    ? 'Sending…'
+                    : 'Signing you in…'
+                : isSignup
+                  ? 'Create account'
+                  : isReset
+                    ? 'Send the link'
+                    : 'Sign in'}
+              {pending ? null : (
+                <ArrowIcon className="size-4 transition-transform group-hover:translate-x-0.5" />
+              )}
             </Button>
           </form>
 
           <p className="mt-8 border-t border-rule pt-6 text-sm text-slate">
-            {isSignup ? 'Already have an account? ' : 'No account yet? '}
+            {isSignup
+              ? 'Already have an account? '
+              : isReset
+                ? 'Remembered it? '
+                : 'No account yet? '}
             <Link
-              href={isSignup ? '/login' : '/signup'}
+              href={isSignup || isReset ? '/login' : '/signup'}
               // Negative margin keeps the sentence on one line while the padding
               // grows the tap target to something a thumb can actually hit.
               className="-my-2 inline-block rounded-[5px] px-1 py-2 font-semibold text-burgundy underline underline-offset-4"
             >
-              {isSignup ? 'Sign in' : 'Create one'}
+              {isSignup || isReset ? 'Sign in' : 'Create one'}
             </Link>
           </p>
           {brand.parentLine ? <p className="mt-6 text-xs text-muted">{brand.parentLine}</p> : null}
@@ -297,14 +355,29 @@ export function AuthForm({
 function BrandPanel({ isSignup, trainee }: { isSignup: boolean; trainee: boolean }) {
   const points: Array<[string, string]> = trainee
     ? [
-        ['A task every working day', 'Twenty days of homework on how the firm works, from the start date your supervisor sets.'],
-        ['Work from your supervisor', 'Real pieces of work to put your name on, marked with notes.'],
-        ['Mornings with your coach', 'Short sessions your coach records, waiting when you open the app.'],
+        [
+          'A task every working day',
+          'Twenty days of homework on how the firm works, from the start date your supervisor sets.',
+        ],
+        [
+          'Work from your supervisor',
+          'Real pieces of work to put your name on, marked with notes.',
+        ],
+        [
+          'Mornings with your coach',
+          'Short sessions your coach records, waiting when you open the app.',
+        ],
       ]
     : [
-        ['Know where you stand', 'A short diagnostic maps what you know, then training fills the gaps.'],
+        [
+          'Know where you stand',
+          'A short diagnostic maps what you know, then training fills the gaps.',
+        ],
         ['Your country’s law', 'Australian and Malaysian procedure, kept strictly apart.'],
-        ['Real work, real feedback', 'Tasks set by the lawyers who supervise you, marked with notes.'],
+        [
+          'Real work, real feedback',
+          'Tasks set by the lawyers who supervise you, marked with notes.',
+        ],
       ];
 
   return (

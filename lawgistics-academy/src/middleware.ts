@@ -21,6 +21,7 @@ type CookiesToSet = Array<{ name: string; value: string; options: CookieOptions 
 const PUBLIC_PATHS = [
   '/',
   '/login',
+  '/forgot-password',
   '/signup',
   '/trainee',
   '/auth',
