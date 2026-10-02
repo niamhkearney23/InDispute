@@ -9,14 +9,14 @@ import { PROGRAMME } from '@/content/programme';
 import { trainingOpen } from '@/lib/training/service';
 import { PROGRAMME_WEEKS, boxesForWeek } from '@/content/programme-plan';
 
-const DESCRIPTION = `A one-month litigation trainee programme at ${brand.firm} in Malaysia. Live files with our lawyers, plus the Litigation Academy for homework and practice in your spare time.`;
+const DESCRIPTION = `A one-month litigation trainee programme at ${brand.firm} in Malaysia. Live files with our lawyers, plus the ${brand.traineeAcademy} for homework and practice in your spare time.`;
 
 /* Its own preview text, so a link to this page shared on WhatsApp or by
    email describes the Malaysian programme rather than the whole academy. */
 export const metadata: Metadata = {
-  title: 'Litigation trainee programme',
+  title: brand.traineeAcademy,
   description: DESCRIPTION,
-  openGraph: { title: `Litigation trainee programme · ${brand.firm}`, description: DESCRIPTION },
+  openGraph: { title: `${brand.traineeAcademy} · ${brand.firm}`, description: DESCRIPTION },
 };
 
 /**
@@ -88,7 +88,7 @@ export default async function TraineeProgrammePage() {
 
         <div className="mx-auto max-w-6xl px-5 pt-10 pb-16 sm:px-8 sm:pt-16 sm:pb-24">
           <p className="rise-up mb-4 text-[0.6875rem] font-semibold tracking-[0.18em] text-paper/70 uppercase">
-            Litigation trainee programme · {brand.firm}
+            {brand.traineeAcademy} · {brand.firm}
           </p>
           <h1 className="rise-up delay-1 max-w-3xl text-[2.75rem] leading-[1.02] sm:text-6xl lg:text-7xl">
             {PROGRAMME.length} of litigation, learned by doing.
@@ -99,7 +99,7 @@ export default async function TraineeProgrammePage() {
             and it happens in the office.
           </p>
           <p className="rise-up delay-2 mt-4 max-w-2xl text-lg text-paper/85 sm:text-xl">
-            Alongside it, you get the {brand.fullName}: your homework and practice for the
+            Alongside it, you get the {brand.traineeAcademy}: your homework and practice for the
             month, for your spare time.
           </p>
 
@@ -124,7 +124,7 @@ export default async function TraineeProgrammePage() {
 
       <main className="mx-auto max-w-6xl px-5 sm:px-8">
         <section className="py-14 sm:py-20">
-          <p className="eyebrow mb-3">Your {brand.fullName}</p>
+          <p className="eyebrow mb-3">Your {brand.traineeAcademy}</p>
           <h2 className="mb-10 max-w-2xl text-2xl sm:text-3xl">
             The homework side of the month.
           </h2>
@@ -225,6 +225,7 @@ export default async function TraineeProgrammePage() {
           {brand.fullName} is a training tool. It is not legal advice, and progression
           levels within it are game levels, not professional qualifications or titles.
         </p>
+        {brand.parentLine ? <p className="mt-2 text-xs text-muted">{brand.parentLine}</p> : null}
       </footer>
     </div>
   );

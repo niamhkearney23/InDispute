@@ -127,7 +127,7 @@ export default async function LandingPage() {
 
             <div>
               <p className="eyebrow mb-3">{brand.firm} · Malaysia</p>
-              <h2 className="text-3xl sm:text-4xl">Litigation Trainee</h2>
+              <h2 className="text-3xl sm:text-4xl">{brand.traineeAcademy}</h2>
               <p className="mt-3 text-slate">
                 A one-month programme with {brand.firm}, starting {PROGRAMME.nextIntake}.
                 {intake ? ` ${intake}.` : ''}
@@ -151,6 +151,7 @@ export default async function LandingPage() {
           {brand.fullName} is a training tool. It is not legal advice. Its levels and its
           certificate are training records, not professional qualifications or titles.
         </p>
+        {brand.parentLine ? <p className="mt-2 text-xs text-muted">{brand.parentLine}</p> : null}
       </footer>
     </div>
   );
