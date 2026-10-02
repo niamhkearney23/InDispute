@@ -10,7 +10,7 @@ import { postComment } from '../actions';
  * box under a lawyer's post is the hardest thing on the page to write in.
  * The database decides whether this person may comment here at all.
  */
-const STARTERS = ['I’m on it 💪', 'Quick question: ', 'Handed mine in ✅', 'Thank you! 🙏'];
+const STARTERS = ['I’m on it', 'Quick question: ', 'Handed mine in', 'Thank you!'];
 
 export function CommentForm({ postId, staff = false }: { postId: string; staff?: boolean }) {
   const [state, formAction, pending] = useActionState(postComment, { error: null });

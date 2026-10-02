@@ -2024,6 +2024,175 @@ select pg_temp.expect(
   (select trainees_only from public.coach_sessions where id = 'dddd0026-0000-0000-0000-000000000001'),
   'a learner cannot take the trainees-only mark off a video');
 
+
+-- -----------------------------------------------------------------------------
+-- Matters (0027)
+-- -----------------------------------------------------------------------------
+-- The promise: a matter reaches learners only once somebody other than its
+-- writer has signed it off; changing it takes it down; the lawyer's approach
+-- is hidden until the learner has handed in their own; what was handed in
+-- is frozen, and marking adds a verdict and nothing else.
+set local request.jwt.claim.sub = '';
+insert into public.matters (id, slug, number, title, country, area, brief, model_answer, created_by)
+values
+  ('ffff0027-0000-0000-0000-000000000001', 'test-statutory-demand', 4, 'Shareholder dispute', 'MY',
+   'Company', 'Your client has received a statutory demand and wants to know what to do next.',
+   'MODEL ANSWER TEXT', '33333333-3333-3333-3333-333333333333'),
+  ('ffff0027-0000-0000-0000-000000000002', 'test-au-matter', 1, 'An Australian matter', 'AU',
+   'Procedure', 'An Australian client needs advice about a default judgment entered against it.',
+   'AU MODEL', '33333333-3333-3333-3333-333333333333');
+
+select pg_temp.expect_failure(
+  $$update public.matters set published = true where slug = 'test-statutory-demand'$$,
+  'a matter cannot be published before it is signed off');
+select pg_temp.expect_failure(
+  $$update public.matters set verified_by = '33333333-3333-3333-3333-333333333333'
+    where slug = 'test-statutory-demand'$$,
+  'nobody signs off a matter they wrote');
+update public.matters set verified_by = '44444444-4444-4444-4444-444444444444'
+where slug in ('test-statutory-demand', 'test-au-matter');
+update public.matters set published = true
+where slug in ('test-statutory-demand', 'test-au-matter');
+select pg_temp.expect(
+  (select verified_at is not null and published_at is not null from public.matters
+   where slug = 'test-statutory-demand'),
+  'a coach signs a matter off, and it goes up with both dates stamped');
+
+set local role authenticated;
+set local request.jwt.claim.sub = 'cccc0026-0000-0000-0000-000000000002';
+select pg_temp.expect(
+  (select string_agg(slug, ',') from public.matters) = 'test-statutory-demand',
+  'a learner sees published matters for their own country only');
+select pg_temp.expect_failure(
+  $$select model_answer from public.matters$$,
+  'a learner cannot read the lawyer''s approach from the table');
+
+insert into public.matter_attempts (id, matter_id, user_id, deadline_at, snapshot)
+values ('aaaa0027-0000-0000-0000-000000000001', 'ffff0027-0000-0000-0000-000000000001',
+        'cccc0026-0000-0000-0000-000000000002', timestamptz '2100-01-01 00:00:00+00',
+        '{"title":"forged"}'::jsonb);
+select pg_temp.expect(
+  (select deadline_at = started_at + interval '45 minutes'
+      and snapshot ->> 'title' = 'Shareholder dispute'
+      and not (snapshot ? 'model_answer')
+   from public.matter_attempts where id = 'aaaa0027-0000-0000-0000-000000000001'),
+  'starting a matter stamps the clock and a copy of the matter, without the lawyer''s approach');
+select pg_temp.expect(
+  (select count(*) from public.matter_model_answer('aaaa0027-0000-0000-0000-000000000001')) = 0,
+  'the lawyer''s approach is not given before the learner hands in');
+select pg_temp.expect_failure(
+  $$insert into public.matter_attempts (matter_id, user_id)
+    values ('ffff0027-0000-0000-0000-000000000001', 'cccc0026-0000-0000-0000-000000000002')$$,
+  'one open attempt per person per matter');
+select pg_temp.expect_failure(
+  $$update public.matter_attempts set followup_questions = '["Easy one?"]'::jsonb
+    where id = 'aaaa0027-0000-0000-0000-000000000001'$$,
+  'a learner cannot write their own follow-up questions');
+select pg_temp.expect_failure(
+  $$update public.matter_attempts set verdict = 'good'
+    where id = 'aaaa0027-0000-0000-0000-000000000001'$$,
+  'a learner cannot mark their own attempt');
+update public.matter_attempts
+set draft_answer = 'My advice is to apply to set the demand aside.',
+    procedure_answer = 'Set aside the statutory demand.'
+where id = 'aaaa0027-0000-0000-0000-000000000001';
+insert into storage.objects (bucket_id, name, owner)
+values ('matter-recordings',
+        'cccc0026-0000-0000-0000-000000000002/aaaa0027-0000-0000-0000-000000000001/1.webm', auth.uid());
+select pg_temp.expect_failure(
+  $$insert into storage.objects (bucket_id, name, owner)
+    values ('matter-recordings',
+            'cccc0026-0000-0000-0000-000000000001/aaaa0027-0000-0000-0000-000000000001/1.webm', auth.uid())$$,
+  'a learner cannot put a recording in somebody else''s folder');
+update public.matter_attempts set submitted_at = timestamptz '2001-01-01 00:00:00+00'
+where id = 'aaaa0027-0000-0000-0000-000000000001';
+select pg_temp.expect(
+  (select submitted_at > timestamptz '2020-01-01' and submitted_late = false
+   from public.matter_attempts where id = 'aaaa0027-0000-0000-0000-000000000001'),
+  'handing in stamps its own time, and whether it was late');
+select pg_temp.expect(
+  (select model_answer from public.matter_model_answer('aaaa0027-0000-0000-0000-000000000001'))
+    = 'MODEL ANSWER TEXT',
+  'once handed in, the learner sees the lawyer''s approach');
+update public.matter_attempts set draft_answer = 'Changed my mind'
+where id = 'aaaa0027-0000-0000-0000-000000000001';
+
+set local request.jwt.claim.sub = 'cccc0026-0000-0000-0000-000000000004';
+select pg_temp.expect_failure(
+  $$insert into public.matter_attempts (matter_id, user_id)
+    values ('ffff0027-0000-0000-0000-000000000001', 'cccc0026-0000-0000-0000-000000000004')$$,
+  'a learner cannot start a matter from the other country');
+select pg_temp.expect(
+  (select count(*) from public.matter_model_answer('aaaa0027-0000-0000-0000-000000000001')) = 0
+  and (select count(*) from public.matter_attempts) = 0,
+  'nobody else sees an attempt or its lawyer''s approach');
+select pg_temp.expect_failure(
+  $$insert into public.certificates (user_id, country, matters)
+    values ('cccc0026-0000-0000-0000-000000000004', 'AU', 5)$$,
+  'a learner cannot issue themselves a certificate');
+reset role;
+
+select pg_temp.expect(
+  (select draft_answer from public.matter_attempts where id = 'aaaa0027-0000-0000-0000-000000000001')
+    = 'My advice is to apply to set the demand aside.',
+  'a learner cannot change an attempt after handing it in');
+select pg_temp.expect_failure(
+  $$update public.matter_attempts set draft_answer = 'Rewritten by somebody else'
+    where id = 'aaaa0027-0000-0000-0000-000000000001'$$,
+  'nobody, not even the server, rewrites what was handed in');
+
+update public.matter_attempts
+set verdict = 'good', feedback = 'Right procedure, well explained.',
+    marked_by = '44444444-4444-4444-4444-444444444444'
+where id = 'aaaa0027-0000-0000-0000-000000000001';
+select pg_temp.expect(
+  (select marked_at is not null from public.matter_attempts
+   where id = 'aaaa0027-0000-0000-0000-000000000001'),
+  'a coach marks a handed-in attempt, and the time is stamped');
+
+insert into public.matter_attempts (id, matter_id, user_id)
+values ('aaaa0027-0000-0000-0000-000000000002', 'ffff0027-0000-0000-0000-000000000001',
+        'cccc0026-0000-0000-0000-000000000002');
+select pg_temp.expect_failure(
+  $$update public.matter_attempts set verdict = 'good'
+    where id = 'aaaa0027-0000-0000-0000-000000000002'$$,
+  'an attempt that has not been handed in cannot be marked');
+
+update public.matters set brief = 'Your client has received a statutory demand, and now a winding-up petition too.'
+where slug = 'test-statutory-demand';
+select pg_temp.expect(
+  (select verified_by is null and not published from public.matters where slug = 'test-statutory-demand'),
+  'changing what a matter says clears its sign-off and takes it down');
+select pg_temp.expect(
+  (select snapshot ->> 'brief' like '%wants to know what to do next.' from public.matter_attempts
+   where id = 'aaaa0027-0000-0000-0000-000000000001'),
+  'an attempt keeps the matter as it was when it was started');
+
+update public.matters set verified_by = '44444444-4444-4444-4444-444444444444', published = true
+where slug = 'test-au-matter';
+update public.matters set review_flagged = true, review_note = 'Wrong court.'
+where slug = 'test-au-matter';
+select pg_temp.expect(
+  (select not published from public.matters where slug = 'test-au-matter'),
+  'flagging a matter takes it down');
+
+insert into public.certificates (user_id, country, matters, issued_at)
+values ('cccc0026-0000-0000-0000-000000000002', 'MY', 5, timestamptz '2001-01-01 00:00:00+00');
+select pg_temp.expect(
+  (select issued_at > timestamptz '2020-01-01' from public.certificates
+   where user_id = 'cccc0026-0000-0000-0000-000000000002'),
+  'a certificate carries the day it was actually issued');
+select pg_temp.expect_failure(
+  $$insert into public.certificates (user_id, country, matters)
+    values ('cccc0026-0000-0000-0000-000000000002', 'MY', 5)$$,
+  'a certificate is issued once');
+
+set local role anon;
+select pg_temp.expect_failure(
+  $$select * from public.matter_model_answer('aaaa0027-0000-0000-0000-000000000001')$$,
+  'the lawyer''s approach is not readable signed out');
+reset role;
+
 set local role anon;
 select pg_temp.expect_failure(
   $$select * from public.work_post_comments('eeee0026-0000-0000-0000-000000000001')$$,

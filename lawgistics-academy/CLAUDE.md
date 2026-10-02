@@ -62,8 +62,8 @@ These come from the owner and are not up for renegotiation.
   clears its sign-off, so an account that could edit and verify could sign its
   own rewrite with the audit trail showing an ordinary review. A coach who
   thinks an item is wrong flags it with a note; somebody else changes it.
-  Exactly eleven actions accept a coach, named in `tests/authorisation-contract`,
-  and a test fails if a twelfth quietly does. Two of the eleven are the coach's
+  Exactly thirteen actions accept a coach, named in `tests/authorisation-contract`,
+  and a test fails if a fourteenth quietly does. Two of the eleven are the coach's
   own **sessions**: they record something, paste a YouTube or Vimeo link, and
   it leads the dashboard the morning it is for. That is not an exception to
   the rule, it is outside it: a session has no version chain, no answer key,
@@ -91,7 +91,11 @@ These come from the owner and are not up for renegotiation.
   The eleventh is **confirming a trainee**: the trainee sign-up page is public,
   so saying you are a trainee opens nothing until a coach or administrator
   confirms it (`trainee_approved_at`, 0023), a decision about a person under
-  their name. Joining by invitation is confirmed on the way in.
+  their name. Joining by invitation is confirmed on the way in. The last two
+  are **matters** (0027): signing a matter off, which is the same judgement
+  as signing off a question and is refused from whoever last wrote the
+  words, and marking a learner's handed-in attempt. Writing and publishing a
+  matter stay with an administrator.
 - **AI never publishes legal content.** It may draft. A named person signs off,
   and that sign-off is a statement they are answerable for.
 - **Say what is true.** The product's whole value is a record a firm can rely
@@ -163,7 +167,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0026`. `supabase/UPDATE.sql` is the one-paste update for a
+- Migrations run to `0028`. `supabase/UPDATE.sql` is the one-paste update for a
   database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -195,7 +199,20 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   the author always the caller. Names on the board (who is on a post, who
   commented) come only through two security definer functions that return
   first names by the leaderboard's rule, never ids or emails.
-- 304 tests, 230 schema guarantees against a real Postgres, 240 page and device
+- `0027` is **matters**: a short practice file on invented facts with a time
+  limit and four tasks (procedure, a short advice, a spoken explanation of up
+  to three minutes, and five follow-up questions the AI asks about the
+  learner's own draft; the AI asks and never answers or states law, and the
+  standard questions are used, and labelled, when it is not available). The
+  lawyer's approach is column-revoked from learners and reaches them only
+  through `matter_model_answer()` after they hand in. Publishing needs a
+  sign-off from somebody other than the writer; editing the words clears it
+  and takes the matter down; an attempt keeps a snapshot of what it was given
+  and is frozen at hand-in. `certificates` are issued once, by the server,
+  when every required module is finished and five matters are marked Good.
+  `0028` loads five AI-drafted Malaysian matters, unpublished, unsigned and
+  with no author, for a lawyer to correct and sign off.
+- 315 tests, 256 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB

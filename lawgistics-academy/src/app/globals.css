@@ -424,3 +424,79 @@
 .bubble-pop {
   animation: bubble-pop 360ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
+
+/* A rule turning over on the sign-in panel. */
+@keyframes maxim-in {
+  from { opacity: 0; transform: translateY(8px); filter: blur(2px); }
+  to   { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+.maxim-in {
+  animation: maxim-in 600ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+/* The trainee door: the one the firm is running now, so it stands out. */
+.landing-tile--featured {
+  background:
+    radial-gradient(120% 80% at 100% 0%, rgba(255, 214, 190, 0.16), transparent 55%),
+    linear-gradient(160deg, #2a0c12 0%, #1a0a0d 100%);
+  color: var(--color-paper);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.18),
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 40px 70px -28px rgba(0, 0, 0, 0.75);
+}
+.landing-tile--featured::after {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 55%);
+}
+
+/* A tile that holds links rather than being one: no lift of its own. */
+.landing-tile--static:hover,
+.landing-tile--static:focus-within {
+  transform: none;
+}
+.landing-tile--static::after {
+  display: none;
+}
+
+/* A training file's facts, on ruled paper. The rule sits on the paragraph
+   itself, sized in its own line height, so every line of text sits on a
+   line rather than being crossed by one. */
+.case-paper {
+  background-color: #fffdf8;
+}
+.case-paper p.ruled {
+  background-image: linear-gradient(
+    to bottom,
+    transparent calc(1.85em - 1px),
+    rgba(107, 31, 42, 0.09) calc(1.85em - 1px)
+  );
+  background-size: 100% 1.85em;
+  line-height: 1.85em;
+}
+
+/* The matter clock: steady, then urgent in the last five minutes. */
+@keyframes clock-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+.clock-urgent {
+  animation: clock-pulse 1.4s ease-in-out infinite;
+}
+
+/* The journey through a matter: the line draws across, then each step
+   arrives in turn. */
+@keyframes journey-line {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+.journey-line {
+  transform-origin: left center;
+  animation: journey-line 1400ms cubic-bezier(0.22, 0.61, 0.36, 1) 150ms both;
+}
+@keyframes journey-step {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.journey-step {
+  animation: journey-step 500ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}

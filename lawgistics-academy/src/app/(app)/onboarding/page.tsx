@@ -4,6 +4,7 @@ import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { brand } from '@/lib/brand';
 import { OnboardingForm } from './onboarding-form';
+import { AccentSurface } from '@/components/accent-surface';
 
 export const metadata: Metadata = { title: 'Getting started' };
 
@@ -26,17 +27,37 @@ export default async function OnboardingPage({
 
   return (
     <div className="mx-auto max-w-2xl">
-      <p className="eyebrow mb-3">
-        {editing ? 'Your settings' : `Welcome to ${brand.fullName}`}
-      </p>
-      <h1 className="mb-3 text-3xl sm:text-4xl">
-        {editing ? 'Change what you are training on' : 'Train like a lawyer.'}
-      </h1>
-      <p className="mb-9 text-slate">
-        {editing
-          ? 'Changing country changes which questions you are shown, because Australian and Malaysian law are different bodies of law. Everything you have already answered is kept.'
-          : 'Five quick questions, then a diagnostic of about thirty questions. After that you will have a skill map and a daily session shaped around it.'}
-      </p>
+      <AccentSurface as="section" className="rise-in mb-8 rounded-2xl shadow-raised">
+        <div className="px-6 py-8 sm:px-9 sm:py-10">
+          <p className="mb-3 text-[0.6875rem] font-semibold tracking-[0.16em] text-paper/70 uppercase">
+            {editing ? 'Your settings' : `Welcome to ${brand.fullName}`}
+          </p>
+          <h1 className="text-[2.25rem] leading-[1.05] sm:text-5xl">
+            {editing ? 'Change what you are training on' : 'Train like a lawyer.'}
+          </h1>
+          <p className="mt-4 max-w-xl text-paper/85">
+            {editing
+              ? 'Changing country changes which questions you are shown, because Australian and Malaysian law are different bodies of law. Everything you have already answered is kept.'
+              : 'Five quick questions, then a diagnostic of about thirty. After that you get a skill map and a daily session shaped around it.'}
+          </p>
+          {editing ? null : (
+            <ol className="mt-6 flex flex-wrap gap-2 text-sm" aria-label="What happens next">
+              {['Five questions', 'Diagnostic', 'Your skill map'].map((step, i) => (
+                <li
+                  key={step}
+                  className={
+                    i === 0
+                      ? 'rounded-full bg-paper px-3.5 py-1.5 font-semibold text-burgundy'
+                      : 'rounded-full bg-paper/10 px-3.5 py-1.5 text-paper/80 ring-1 ring-paper/25'
+                  }
+                >
+                  {i + 1}. {step}
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
+      </AccentSurface>
 
       <OnboardingForm
         defaultName={profile?.displayName ?? ''}

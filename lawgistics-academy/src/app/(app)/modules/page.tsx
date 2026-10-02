@@ -46,6 +46,18 @@ export default async function ModulesPage() {
         </ButtonLink>
       </Card>
 
+      <Card className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="font-medium">Practise on a file</p>
+          <p className="text-sm text-slate">
+            Matters: the problem first, against the clock, then how a lawyer would do it.
+          </p>
+        </div>
+        <ButtonLink href="/matters" variant="outline" size="sm">
+          Open the matters
+        </ButtonLink>
+      </Card>
+
       {/* The firm's own content sits above ours on purpose. On somebody's first
           day, "what this firm allows you to put into a tool" outranks anything
           we can teach them about the law. */}
@@ -90,7 +102,7 @@ export default async function ModulesPage() {
             >
               <div className="flex h-full flex-col justify-between overflow-hidden rounded-lg border border-rule bg-paper-raised shadow-card transition-[box-shadow,border-color] hover:border-rule-strong hover:shadow-raised">
                 <div>
-                  <ModuleArt kind={artFor(entry.module.slug)} className="h-24 w-full sm:h-28" />
+                  <ModuleArt kind={artFor(entry.module.slug)} className="h-24 w-full sm:aspect-[2/1] sm:h-auto" />
                   <div className="px-4 pt-4 sm:px-5">
                   {entry.module.required || entry.complete ? (
                     <div className="mb-2 flex flex-wrap items-center gap-1.5">

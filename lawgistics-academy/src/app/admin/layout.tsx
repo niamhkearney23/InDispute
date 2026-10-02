@@ -20,6 +20,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         ['/admin', 'Questions'],
         ['/admin/intake', 'Intake'],
         ['/admin/review', 'Verify'],
+        ['/admin/matters', 'Matters'],
         ['/admin/sessions', 'Sessions'],
         ['/admin/work', 'Work'],
         ['/admin/certification', 'Certification'],
@@ -30,6 +31,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     : [
         ['/admin/intake', 'Intake'],
         ['/admin/review', 'Verify'],
+        ['/admin/matters', 'Matters'],
         ['/admin/sessions', 'Sessions'],
         ['/admin/work', 'Work'],
         ['/admin/certification', 'Certification'],
