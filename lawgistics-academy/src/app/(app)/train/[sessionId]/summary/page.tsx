@@ -106,13 +106,10 @@ export default async function SummaryPage({
           ) : (
             <p className="text-sm">
               <strong>
-                {moduleEntry.correctOnce} of {moduleEntry.total} answered correctly.
+                {moduleEntry.correctOnce} of {moduleEntry.total} right.
               </strong>{' '}
-              The module is complete when all {moduleEntry.total} have been.{' '}
-              {moduleEntry.total - moduleEntry.correctOnce === 1
-                ? 'One'
-                : moduleEntry.total - moduleEntry.correctOnce}{' '}
-              still to go, and the next run through the module asks those first.
+              To complete the module, get every question right once. Going back only asks you
+              the ones still to get right.
             </p>
           )}
         </Card>
@@ -192,7 +189,7 @@ export default async function SummaryPage({
       <div className="flex flex-col gap-3 sm:flex-row">
         {moduleEntry && !moduleEntry.complete ? (
           <ButtonLink href={`/modules/${moduleEntry.module.slug}`} size="lg" variant="accent">
-            Finish the module
+            Go back to the ones left
           </ButtonLink>
         ) : null}
         <ButtonLink

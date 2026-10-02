@@ -36,13 +36,8 @@ export interface SeedModule {
 }
 
 const ETHICS_RATIONALE =
-  'Each of these situations arises in the ordinary course of practice, and ' +
-  'rarely announces itself: a document that must be summarised at short notice, ' +
-  'a citation that appears correct, time that has to be recorded. The ' +
-  'professional rules are unchanged when a machine does the drafting, but the ' +
-  'ways in which they can be breached are new, and few of them feel like a ' +
-  'breach at the time. That is why this module is completed before the first ' +
-  'week of work, not after it.';
+  'The rules do not change when you use AI, but the ways to break them do. ' +
+  'Do this module before your first week of work.';
 
 const RESEARCH_RATIONALE =
   'Nobody is taught this directly, and it is most of what a junior actually ' +

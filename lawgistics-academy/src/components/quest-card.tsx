@@ -52,10 +52,10 @@ export function QuestCard({
         </div>
         <p className="mt-2 text-sm text-slate">
           <span className={cn('font-medium text-ink')}>
-            {left === 1 ? 'One to go.' : `${left} to go.`}
+            {left === 1 ? 'One still to get right.' : `${left} still to get right.`}
           </span>{' '}
           <span className="text-burgundy underline-offset-2 group-hover:underline">
-            {correctOnce > 0 ? 'Finish it' : 'Start it'} →
+            {correctOnce > 0 ? 'Go back to them' : 'Start it'} →
           </span>
         </p>
       </div>

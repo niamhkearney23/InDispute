@@ -45,6 +45,12 @@ export interface Brand {
    */
   parentLine: string;
   /**
+   * Where a university writes about partnering, for the front page. Ours by
+   * default and empty under another name unless it sets its own, so a firm's
+   * academy never sends a university to us. Empty hides the offer.
+   */
+  partnersEmail: string;
+  /**
    * The accent, as a CSS colour. Burgundy by default. Applied as a variable so
    * a firm's colour reaches everything the accent touches rather than the one
    * button somebody remembered.
@@ -99,6 +105,7 @@ export function safeInitial(value: string): string {
 const name = clean(process.env.NEXT_PUBLIC_BRAND_NAME, DEFAULT_NAME);
 const DEFAULT_PARENT_LINE =
   'Lawgistics Academy is part of Lawgistics: business development and operations for lawyers and law firms.';
+const DEFAULT_PARTNERS_EMAIL = 'partners@lawgistics.my';
 const suffix = clean(process.env.NEXT_PUBLIC_BRAND_SUFFIX, DEFAULT_SUFFIX);
 
 export const brand: Brand = {
@@ -114,6 +121,10 @@ export const brand: Brand = {
   parentLine: clean(
     process.env.NEXT_PUBLIC_BRAND_PARENT_LINE,
     name === DEFAULT_NAME ? DEFAULT_PARENT_LINE : '',
+  ),
+  partnersEmail: clean(
+    process.env.NEXT_PUBLIC_BRAND_PARTNERS_EMAIL,
+    name === DEFAULT_NAME ? DEFAULT_PARTNERS_EMAIL : '',
   ),
   accent: safeAccent(process.env.NEXT_PUBLIC_BRAND_ACCENT),
   initial: safeInitial(name),

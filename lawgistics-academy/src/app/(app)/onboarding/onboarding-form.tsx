@@ -136,11 +136,6 @@ export function OnboardingForm({
               <p className="text-lg">Litigation trainee, Malaysia</p>
             </div>
           </div>
-          <p className="mt-1 text-sm text-slate">
-            You are on a Malaysian firm&rsquo;s programme, so you are trained on Malaysian
-            law. Your supervisor confirms your place after you sign up. Until then the
-            work posted for trainees stays hidden; everything else works now.
-          </p>
         </Card>
       ) : (
         <Card>
