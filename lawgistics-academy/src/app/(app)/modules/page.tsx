@@ -90,7 +90,7 @@ export default async function ModulesPage() {
             >
               <div className="flex h-full flex-col justify-between overflow-hidden rounded-lg border border-rule bg-paper-raised shadow-card transition-[box-shadow,border-color] hover:border-rule-strong hover:shadow-raised">
                 <div>
-                  <ModuleArt kind={artFor(entry.module.slug)} className="h-24 w-full sm:h-28" />
+                  <ModuleArt kind={artFor(entry.module.slug)} className="h-24 w-full sm:aspect-[2/1] sm:h-auto" />
                   <div className="px-4 pt-4 sm:px-5">
                   {entry.module.required || entry.complete ? (
                     <div className="mb-2 flex flex-wrap items-center gap-1.5">
