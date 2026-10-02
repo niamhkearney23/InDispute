@@ -10,11 +10,12 @@ import {
   signedUrlForMemo,
   signedUrlForPost,
   signedUrlForSubmission,
+  emailDrafts,
   workPostForCoach,
 } from '@/lib/work/service';
 import type { NamedSubmission } from '@/lib/work/service';
 import { describeMinutes, isLate, slotsLabel } from '@/lib/work/links';
-import { Card, Pill, SectionHeading } from '@/components/ui';
+import { Card, Notice, Pill, SectionHeading } from '@/components/ui';
 import { MessageThread } from '@/components/message-thread';
 import { MessageForm } from '@/app/(app)/work/message-form';
 import { CommentForm } from '@/app/(app)/work/comment-form';
@@ -53,7 +54,8 @@ export default async function WorkPostAdminPage({
   const me = await getLearnerProfile(userId);
   const timeZone = me?.timezone ?? DEFAULT_TIMEZONE;
 
-  const found = await workPostForCoach(id);
+  const [found, fromEmail] = await Promise.all([workPostForCoach(id), emailDrafts()]);
+  const emailInfo = fromEmail.get(id) ?? null;
   if (!found) notFound();
   const { post, claims, submissions, threads, names } = found;
 
@@ -87,6 +89,17 @@ export default async function WorkPostAdminPage({
           {!post.published ? <Pill>Draft</Pill> : null}
         </div>
         <h1 className="text-3xl">{post.title}</h1>
+        {emailInfo ? (
+          <div className="mt-3">
+            <Notice tone="warn">
+              Made from an email from {emailInfo.from}
+              {emailInfo.verified === false
+                ? ', which the sender\u2019s email service could not confirm came from them'
+                : ''}
+              . Read it through, take out any client names, then publish it below.
+            </Notice>
+          </div>
+        ) : null}
         <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
           {fileUrl ? (
             <a

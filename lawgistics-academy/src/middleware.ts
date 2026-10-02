@@ -16,7 +16,19 @@ type CookiesToSet = Array<{ name: string; value: string; options: CookieOptions 
 // route at a time. It carries its own bearer token and returns 404 unless one
 // is configured; putting the whole of /api here would make every future route
 // public by default, which is the wrong way round.
-const PUBLIC_PATHS = ['/', '/login', '/signup', '/trainee', '/auth', '/setup', '/join', '/api/digest'];
+// /api/inbound/work likewise: the inbound email service has no session, and
+// the route checks its own token before reading anything.
+const PUBLIC_PATHS = [
+  '/',
+  '/login',
+  '/signup',
+  '/trainee',
+  '/auth',
+  '/setup',
+  '/join',
+  '/api/digest',
+  '/api/inbound/work',
+];
 
 function isPublic(pathname: string) {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));

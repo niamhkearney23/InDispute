@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { requireCoach } from '@/lib/admin/guard';
-import { allWorkPosts } from '@/lib/work/service';
+import { allWorkPosts, emailDrafts } from '@/lib/work/service';
 import { traineesAwaitingConfirmation } from '@/lib/onboarding/service';
 import { describeMinutes, slotsLabel } from '@/lib/work/links';
 import { ButtonLink, Card, EmptyState, Pill } from '@/components/ui';
@@ -20,9 +20,10 @@ function shortDate(iso: string): string {
 
 export default async function WorkBoardAdminPage() {
   await requireCoach();
-  const [posts, pendingTrainees] = await Promise.all([
+  const [posts, pendingTrainees, fromEmail] = await Promise.all([
     allWorkPosts(),
     traineesAwaitingConfirmation(),
+    emailDrafts(),
   ]);
 
   const waiting = posts.reduce((n, p) => n + p.waiting, 0);
@@ -97,6 +98,7 @@ export default async function WorkBoardAdminPage() {
                   </Pill>
                   {post.dueOn ? <Pill>Due {shortDate(post.dueOn)}</Pill> : null}
                   {post.hasMemo ? <Pill>Memo</Pill> : null}
+                  {fromEmail.has(post.id) ? <Pill tone="accent">From email</Pill> : null}
                   {toMark > 0 ? <Pill tone="warn">{toMark} to mark</Pill> : null}
                   {toAnswer > 0 ? <Pill tone="warn">{toAnswer} to answer</Pill> : null}
                 </div>

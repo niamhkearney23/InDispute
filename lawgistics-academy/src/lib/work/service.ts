@@ -671,3 +671,22 @@ export async function signedUrlForSubmission(submissionId: string): Promise<stri
   const path = (data as { file_path: string | null } | null)?.file_path;
   return path ? sign(path) : null;
 }
+
+/**
+ * Which posts arrived by email, from whom, and whether the sending domain's
+ * check passed. For staff pages only, after the role check, so a draft from
+ * email is shown as one with the reminder to take client names out.
+ */
+export async function emailDrafts(): Promise<
+  Map<string, { from: string; verified: boolean | null }>
+> {
+  const { data } = await createServiceClient()
+    .from('work_posts')
+    .select('id, inbound_from, inbound_verified')
+    .eq('source', 'email');
+  return new Map(
+    ((data ?? []) as Array<{ id: string; inbound_from: string | null; inbound_verified: boolean | null }>).map(
+      (r) => [r.id, { from: r.inbound_from ?? '', verified: r.inbound_verified }],
+    ),
+  );
+}
