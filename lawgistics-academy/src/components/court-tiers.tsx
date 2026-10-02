@@ -42,7 +42,7 @@ export function CourtTiers({
         const below = tiers[tierIndex + 1];
         return (
           <div key={tier} className="grid gap-x-4 sm:grid-cols-[7.5rem_1fr]">
-            <p className="eyebrow mb-1.5 self-center sm:mb-0 sm:text-right">
+            <p className="eyebrow mb-1.5 self-center text-slate sm:mb-0 sm:text-right">
               {hierarchy.tierLabels[tier] ?? ''}
             </p>
             <div className={cn('grid gap-2', row.length > 1 ? 'grid-cols-2' : 'grid-cols-1')}>
