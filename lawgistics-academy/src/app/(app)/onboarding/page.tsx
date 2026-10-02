@@ -35,11 +35,13 @@ export default async function OnboardingPage({
           <h1 className="text-[2.25rem] leading-[1.05] sm:text-5xl">
             {editing ? 'Change what you are training on' : 'Train like a lawyer.'}
           </h1>
-          <p className="mt-4 max-w-xl text-paper/85">
-            {editing
-              ? 'Changing country changes which questions you are shown, because Australian and Malaysian law are different bodies of law. Everything you have already answered is kept.'
-              : 'Five quick questions, then a diagnostic of about thirty. After that you get a skill map and a daily session shaped around it.'}
-          </p>
+          {editing ? (
+            <p className="mt-4 max-w-xl text-paper/85">
+              Changing country changes which questions you are shown, because Australian and
+              Malaysian law are different bodies of law. Everything you have already answered is
+              kept.
+            </p>
+          ) : null}
           {editing ? null : (
             <ol className="mt-6 flex flex-wrap gap-2 text-sm" aria-label="What happens next">
               {['Five questions', 'Diagnostic', 'Your skill map'].map((step, i) => (
