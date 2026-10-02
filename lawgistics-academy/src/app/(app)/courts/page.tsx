@@ -6,6 +6,7 @@ import { COURT_HIERARCHIES } from '@/content/seed/court-hierarchies';
 import { CourtMap } from '@/components/court-map';
 import { moduleBySlug } from '@/content/seed/modules';
 import { getModuleProgress } from '@/lib/modules/service';
+import { requireAccess } from '@/lib/access/service';
 
 export const metadata: Metadata = { title: 'Court map' };
 
@@ -17,6 +18,7 @@ const QUIZ_MODULE: Record<string, string> = {
 };
 
 export default async function CourtsPage() {
+  await requireAccess();
   const user = await getCurrentUser();
   if (!user) redirect('/login');
 

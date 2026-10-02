@@ -18,6 +18,7 @@ import { PostComments } from '@/components/post-comments';
 import { ClaimForm, SubmitForm } from '../work-forms';
 import { MessageForm } from '../message-form';
 import { CommentForm } from '../comment-form';
+import { requireAccess } from '@/lib/access/service';
 
 export const metadata: Metadata = { title: 'Work' };
 export const dynamic = 'force-dynamic';
@@ -47,6 +48,7 @@ function when(iso: string, timeZone: string): string {
  * with the rule above the box, appears only once their name is on it.
  */
 export default async function WorkPostPage({ params }: { params: Promise<{ id: string }> }) {
+  await requireAccess();
   const user = await getCurrentUser();
   const { id } = await params;
   if (!user) redirect(`/login?next=/work/${id}`);

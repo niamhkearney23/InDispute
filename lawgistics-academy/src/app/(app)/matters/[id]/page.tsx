@@ -14,6 +14,7 @@ import { Button, Card, Notice, Pill } from '@/components/ui';
 import { startMatter } from '../../actions';
 import { MatterWorkspace } from './matter-workspace';
 import { CaseFile } from './case-file';
+import { requireAccess } from '@/lib/access/service';
 
 export const metadata: Metadata = { title: 'Matter' };
 export const dynamic = 'force-dynamic';
@@ -42,6 +43,7 @@ function when(iso: string, timeZone: string): string {
  * the mark when it comes).
  */
 export default async function MatterPage({ params }: { params: Promise<{ id: string }> }) {
+  await requireAccess();
   const user = await getCurrentUser();
   const { id } = await params;
   if (!user) redirect(`/login?next=/matters/${id}`);

@@ -6,10 +6,12 @@ import { DIAGNOSTIC_QUESTION_COUNT } from '@/lib/learning/config';
 import { ButtonLink, Card } from '@/components/ui';
 import { BeginSessionButton } from '../begin-session-button';
 import { trainingOpen } from '@/lib/training/service';
+import { requireAccess } from '@/lib/access/service';
 
 export const metadata: Metadata = { title: 'Diagnostic' };
 
 export default async function DiagnosticPage() {
+  await requireAccess();
   const user = await getCurrentUser();
   if (!user) redirect('/login');
 

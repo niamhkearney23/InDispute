@@ -54,11 +54,13 @@ import { MATTERS_FOR_CERTIFICATE, matterLabel } from '@/lib/matters/rules';
 import { CountUp } from '@/components/count-up';
 import { LeaderboardCard } from '@/components/leaderboard-card';
 import { weeklyLeaderboard } from '@/lib/leaderboard';
+import { requireAccess } from '@/lib/access/service';
 
 export const metadata: Metadata = { title: 'Today' };
 
 
 export default async function DashboardPage() {
+  await requireAccess();
   const user = await getCurrentUser();
   if (!user) redirect('/login');
 

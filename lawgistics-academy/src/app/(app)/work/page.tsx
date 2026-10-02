@@ -8,6 +8,7 @@ import type { WorkBoardItem } from '@/lib/work/service';
 import { describeMinutes, isLate, slotsLabel } from '@/lib/work/links';
 import { Card, EmptyState, Notice, Pill } from '@/components/ui';
 import { PeopleOnPost } from '@/components/people-on-post';
+import { requireAccess } from '@/lib/access/service';
 
 export const metadata: Metadata = { title: 'Work' };
 export const dynamic = 'force-dynamic';
@@ -30,6 +31,7 @@ function shortDate(iso: string): string {
  * it went.
  */
 export default async function WorkBoardPage() {
+  await requireAccess();
   const user = await getCurrentUser();
   if (!user) redirect('/login?next=/work');
 

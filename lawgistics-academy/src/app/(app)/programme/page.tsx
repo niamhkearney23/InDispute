@@ -10,6 +10,7 @@ import { conceptForDay } from '@/content/programme-concepts';
 import { TRAINING_FILE } from '@/content/training-file';
 import { brand } from '@/lib/brand';
 import { ButtonLink, Card, Pill, cn } from '@/components/ui';
+import { requireAccess } from '@/lib/access/service';
 
 export const metadata: Metadata = { title: 'The month' };
 
@@ -24,6 +25,7 @@ export const metadata: Metadata = { title: 'The month' };
  * is the map those three sit on.
  */
 export default async function ProgrammePage() {
+  await requireAccess();
   const user = await getCurrentUser();
   if (!user) redirect('/login');
 

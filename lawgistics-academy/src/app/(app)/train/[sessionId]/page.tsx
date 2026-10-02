@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getSessionPlan } from '@/lib/training/service';
 import { SessionRunner } from '@/components/session-runner';
+import { requireAccess } from '@/lib/access/service';
 
 export const metadata: Metadata = { title: 'Training' };
 
@@ -11,6 +12,7 @@ export default async function TrainPage({
 }: {
   params: Promise<{ sessionId: string }>;
 }) {
+  await requireAccess();
   const { sessionId } = await params;
 
   const user = await getCurrentUser();

@@ -2229,6 +2229,100 @@ select pg_temp.expect(
   (select source = 'form' from public.work_posts where id = 'bbbb0001-0000-0000-0000-000000000001'),
   'posts written in the form are marked as such');
 
+-- -----------------------------------------------------------------------------
+-- Who pays (0030)
+-- -----------------------------------------------------------------------------
+-- The promise: nobody marks themselves as paid or as with a firm. Codes are
+-- not listable by learners, a request is only ever written by the server, a
+-- decision is somebody else's, and a new code starts a new request.
+reset role;
+set local request.jwt.claim.sub = '';
+insert into public.access_codes (id, code, label)
+values ('acce0030-0000-0000-0000-000000000001', 'TEST-FIRM', 'Test Firm'),
+       ('acce0030-0000-0000-0000-000000000002', 'OTHER-FIRM', 'Other Firm');
+select pg_temp.expect_failure(
+  $$insert into public.access_codes (code, label) values ('lower case', 'Bad')$$,
+  'a code is capitals, digits and hyphens only');
+insert into public.access_grants (user_id, code_id)
+values ('11111111-1111-1111-1111-111111111111', 'acce0030-0000-0000-0000-000000000001'),
+       ('22222222-2222-2222-2222-222222222222', 'acce0030-0000-0000-0000-000000000001');
+insert into public.subscriptions (user_id, stripe_customer_id, status)
+values ('22222222-2222-2222-2222-222222222222', 'cus_test_b', 'active');
+
+set local role authenticated;
+set local request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+select pg_temp.expect(
+  (select count(*) = 0 from public.access_codes),
+  'a learner cannot list the codes');
+select pg_temp.expect(
+  (select count(*) = 1 from public.access_grants),
+  'a learner sees their own request and nobody else''s');
+select pg_temp.expect_failure(
+  $$insert into public.access_grants (user_id, code_id)
+    values ('22222222-2222-2222-2222-222222222222', 'acce0030-0000-0000-0000-000000000001')$$,
+  'a learner cannot write a request');
+update public.access_grants set decision = 'confirmed'
+where user_id = '11111111-1111-1111-1111-111111111111';
+select pg_temp.expect(
+  (select decision is null from public.access_grants
+   where user_id = '11111111-1111-1111-1111-111111111111'),
+  'a learner cannot confirm themselves');
+select pg_temp.expect(
+  (select count(*) = 0 from public.subscriptions),
+  'a learner cannot see somebody else''s payment');
+select pg_temp.expect_failure(
+  $$insert into public.subscriptions (user_id, status)
+    values ('11111111-1111-1111-1111-111111111111', 'active')$$,
+  'a learner cannot record a payment for themselves');
+
+set local request.jwt.claim.sub = '22222222-2222-2222-2222-222222222222';
+select pg_temp.expect(
+  (select count(*) = 1 from public.subscriptions),
+  'a learner sees their own payment');
+update public.subscriptions set current_period_end = now() + interval '10 years';
+select pg_temp.expect(
+  (select current_period_end is null from public.subscriptions),
+  'a learner cannot extend their own payment');
+
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+select pg_temp.expect(
+  (select count(*) = 2 from public.access_grants),
+  'a coach sees who is waiting to be confirmed');
+select pg_temp.expect(
+  (select count(*) = 0 from public.access_codes),
+  'a coach does not see the codes, which are an administrator''s');
+
+reset role;
+set local request.jwt.claim.sub = '';
+select pg_temp.expect_failure(
+  $$update public.access_grants set decision = 'confirmed',
+      decided_by = '11111111-1111-1111-1111-111111111111'
+    where user_id = '11111111-1111-1111-1111-111111111111'$$,
+  'nobody confirms their own access');
+update public.access_grants set decision = 'confirmed',
+  decided_by = '44444444-4444-4444-4444-444444444444',
+  decided_at = timestamptz '2001-01-01 00:00:00+00'
+where user_id = '11111111-1111-1111-1111-111111111111';
+select pg_temp.expect(
+  (select decided_at > timestamptz '2020-01-01' from public.access_grants
+   where user_id = '11111111-1111-1111-1111-111111111111'),
+  'a confirmation carries the day it was actually made');
+update public.access_grants set code_id = 'acce0030-0000-0000-0000-000000000002'
+where user_id = '11111111-1111-1111-1111-111111111111';
+select pg_temp.expect(
+  (select decision is null and decided_by is null from public.access_grants
+   where user_id = '11111111-1111-1111-1111-111111111111'),
+  'a different code is a new request, not the old confirmation');
+select pg_temp.expect_failure(
+  $$delete from public.access_codes where id = 'acce0030-0000-0000-0000-000000000002'$$,
+  'a code somebody used cannot be deleted, only turned off');
+
+set local role anon;
+select pg_temp.expect(
+  (select count(*) = 0 from public.access_grants) and (select count(*) = 0 from public.subscriptions),
+  'nothing about access or payment is readable signed out');
+reset role;
+
 \echo ''
 \echo 'All schema guarantees hold.'
 

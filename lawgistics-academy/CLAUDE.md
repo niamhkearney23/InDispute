@@ -63,8 +63,8 @@ These come from the owner and are not up for renegotiation.
   clears its sign-off, so an account that could edit and verify could sign its
   own rewrite with the audit trail showing an ordinary review. A coach who
   thinks an item is wrong flags it with a note; somebody else changes it.
-  Exactly thirteen actions accept a coach, named in `tests/authorisation-contract`,
-  and a test fails if a fourteenth quietly does. Two of the thirteen are the coach's
+  Exactly fourteen actions accept a coach, named in `tests/authorisation-contract`,
+  and a test fails if a fifteenth quietly does. Two of the fourteen are the coach's
   own **sessions**: they record something, paste a YouTube or Vimeo link, and
   it leads the dashboard the morning it is for. That is not an exception to
   the rule, it is outside it: a session has no version chain, no answer key,
@@ -92,11 +92,14 @@ These come from the owner and are not up for renegotiation.
   The eleventh is **confirming a trainee**: the trainee sign-up page is public,
   so saying you are a trainee opens nothing until a coach or administrator
   confirms it (`trainee_approved_at`, 0023), a decision about a person under
-  their name. Joining by invitation is confirmed on the way in. The last two
+  their name. Joining by invitation is confirmed on the way in. Two more
   are **matters** (0027): signing a matter off, which is the same judgement
   as signing off a question and is refused from whoever last wrote the
   words, and marking a learner's handed-in attempt. Writing and publishing a
-  matter stay with an administrator.
+  matter stay with an administrator. The fourteenth is **confirming access**
+  (0030): somebody who entered a firm's code is free only once a coach or
+  administrator says they really are with that firm. Making and switching
+  off codes stays with an administrator.
 - **AI never publishes legal content.** It may draft. A named person signs off,
   and that sign-off is a statement they are answerable for.
 - **Say what is true.** The product's whole value is a record a firm can rely
@@ -168,7 +171,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0029`. `supabase/UPDATE.sql` is the one-paste update for a
+- Migrations run to `0030`. `supabase/UPDATE.sql` is the one-paste update for a
   database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -220,7 +223,19 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   answers every sender the same. The AI tidies the email into a post and adds
   nothing; one draft per message id; the page reminds the lawyer to take
   client names out before publishing.
-- 322 tests, 260 schema guarantees against a real Postgres, 240 page and device
+- `0030` is **who pays**. Somebody on their own pays (RM 49 a month or RM 390
+  a year in Malaysia, A$29 or A$249 in Australia, in `src/lib/access/rules.ts`).
+  Staff, confirmed trainees and anyone who joined by a firm's invitation are
+  free. Anyone else from a firm or university enters its code and is free once
+  a coach confirms them, because codes get passed around; switching a code off
+  ends it for everyone on it. **Payments are off** unless the deployment sets
+  `PAYMENTS=on` and a Stripe key, and the owner's decision is to keep them off
+  until the questions and matters are signed off. Payment goes through
+  Stripe's own checkout, and only the signed webhook (`/api/stripe/webhook`)
+  records it. Every training page calls `requireAccess()` and a test fails if
+  a new one does not; the actions that start training or call the AI check
+  `hasAccess` too. None of the three tables is written by a learner.
+- 330 tests, 276 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB

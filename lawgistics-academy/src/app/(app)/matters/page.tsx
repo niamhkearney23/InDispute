@@ -14,6 +14,7 @@ import {
 import { AccentSurface } from '@/components/accent-surface';
 import { EmptyState, Pill } from '@/components/ui';
 import { ArrowIcon } from '@/components/icons';
+import { requireAccess } from '@/lib/access/service';
 
 export const metadata: Metadata = { title: 'Matters' };
 export const dynamic = 'force-dynamic';
@@ -26,6 +27,7 @@ export const dynamic = 'force-dynamic';
  * only shown once the clock is started.
  */
 export default async function MattersPage() {
+  await requireAccess();
   const user = await getCurrentUser();
   if (!user) redirect('/login?next=/matters');
   const profile = await getLearnerProfile(user.id);

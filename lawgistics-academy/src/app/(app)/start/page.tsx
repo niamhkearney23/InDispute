@@ -7,10 +7,12 @@ import { countdown, longDate } from '@/lib/onboarding/rules';
 import { brand } from '@/lib/brand';
 import { ButtonLink, Card, EmptyState, Notice, Pill } from '@/components/ui';
 import { DeclareForm } from './declare-form';
+import { requireAccess } from '@/lib/access/service';
 
 export const metadata: Metadata = { title: 'Before you begin' };
 
 export default async function BeforeYouBeginPage() {
+  await requireAccess();
   const user = await getCurrentUser();
   if (!user) redirect('/login');
 

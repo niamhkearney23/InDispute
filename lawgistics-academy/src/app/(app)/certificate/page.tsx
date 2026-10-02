@@ -8,6 +8,7 @@ import { brand } from '@/lib/brand';
 import { Card, Pill } from '@/components/ui';
 import { CheckIcon } from '@/components/icons';
 import { PrintButton } from './print-button';
+import { requireAccess } from '@/lib/access/service';
 
 export const metadata: Metadata = { title: 'Certificate' };
 export const dynamic = 'force-dynamic';
@@ -27,6 +28,7 @@ function longDate(iso: string, timeZone: string): string {
  * shown it and the product's whole value is that its records are true.
  */
 export default async function CertificatePage() {
+  await requireAccess();
   const user = await getCurrentUser();
   if (!user) redirect('/login?next=/certificate');
   const profile = await getLearnerProfile(user.id);

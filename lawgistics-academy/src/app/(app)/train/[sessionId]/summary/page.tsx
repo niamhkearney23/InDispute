@@ -7,6 +7,7 @@ import { levelForXp } from '@/lib/learning/progression';
 import { STREAK_MILESTONES, streakMilestoneLine } from '@/lib/learning/milestones';
 import { LevelUp } from '../level-up';
 import { moduleForSession } from '@/lib/modules/service';
+import { requireAccess } from '@/lib/access/service';
 
 export const metadata: Metadata = { title: 'Session complete' };
 
@@ -15,6 +16,7 @@ export default async function SummaryPage({
 }: {
   params: Promise<{ sessionId: string }>;
 }) {
+  await requireAccess();
   const { sessionId } = await params;
 
   const user = await getCurrentUser();

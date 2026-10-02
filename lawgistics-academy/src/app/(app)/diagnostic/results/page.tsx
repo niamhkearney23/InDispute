@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentUser, createSupabaseServerClient } from '@/lib/supabase/server';
 import { masteryBand } from '@/lib/learning/mastery';
 import { ButtonLink, Card, ScoreBar, SectionHeading, Stat } from '@/components/ui';
+import { requireAccess } from '@/lib/access/service';
 
 export const metadata: Metadata = { title: 'Your skill map' };
 
@@ -11,6 +12,7 @@ export default async function DiagnosticResultsPage({
 }: {
   searchParams: Promise<{ session?: string }>;
 }) {
+  await requireAccess();
   const user = await getCurrentUser();
   if (!user) redirect('/login');
 

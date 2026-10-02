@@ -29,6 +29,7 @@ const PUBLIC_PATHS = [
   '/join',
   '/api/digest',
   '/api/inbound/work',
+  '/api/stripe/webhook',
 ];
 
 function isPublic(pathname: string) {
