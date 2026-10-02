@@ -244,7 +244,7 @@ export function OnboardingForm({
               name="displayName"
               defaultValue={defaultName}
               maxLength={80}
-              className="mt-2 h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3.5 text-base outline-none focus:border-burgundy"
+              className="mt-2 h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3.5 text-base outline-none focus:border-accent"
             />
           </div>
 
@@ -335,14 +335,14 @@ function Choice({
         'relative rounded-lg border-2 px-4 py-3 text-[0.9375rem] transition-[border-color,background-color,transform,box-shadow] duration-150 active:scale-[0.98]',
         centered ? 'text-center' : 'pr-9 text-left',
         selected
-          ? 'border-burgundy bg-burgundy-wash font-medium text-burgundy shadow-card'
+          ? 'border-accent bg-accent-wash font-medium text-accent shadow-card'
           : 'border-rule hover:-translate-y-px hover:border-rule-strong hover:bg-paper-raised',
       )}
     >
       {selected && !centered ? (
         <span
           aria-hidden
-          className="bubble-pop absolute top-3 right-3 grid size-5 place-items-center rounded-full bg-burgundy text-paper"
+          className="bubble-pop absolute top-3 right-3 grid size-5 place-items-center rounded-full bg-accent text-paper"
         >
           <CheckIcon className="size-3" />
         </span>
@@ -352,7 +352,7 @@ function Choice({
         <span
           className={cn(
             'mt-0.5 block text-xs font-normal',
-            selected ? 'text-burgundy/80' : 'text-muted',
+            selected ? 'text-accent/80' : 'text-muted',
           )}
         >
           {detail}
@@ -369,7 +369,7 @@ function StepNumber({ n, done = false }: { n: number; done?: boolean }) {
       aria-hidden
       className={cn(
         'grid size-8 shrink-0 place-items-center rounded-full font-serif text-base',
-        done ? 'bg-burgundy text-paper' : 'bg-burgundy-wash text-burgundy',
+        done ? 'bg-accent text-paper' : 'bg-accent-wash text-accent',
       )}
     >
       {done ? <CheckIcon className="size-4" /> : n}

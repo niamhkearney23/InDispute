@@ -9,6 +9,8 @@ import { getCurrentUser } from '@/lib/supabase/server';
 import { publicEnv } from '@/lib/env';
 import { brand } from '@/lib/brand';
 import { PROGRAMME } from '@/content/programme';
+import { paymentsOn } from '@/lib/access/service';
+import { PRICES, formatPrice, traineeValue } from '@/lib/access/rules';
 
 /**
  * The front door: navy and cream, product first.
@@ -60,6 +62,7 @@ export const dynamic = 'force-dynamic';
 export default async function LandingPage() {
   const user = await getCurrentUser();
   if (user) redirect('/dashboard');
+  const payments = paymentsOn();
   const intake = intakeStatus(PROGRAMME.intakeStartsOn, PROGRAMME.intakeEndsOn, new Date());
 
   return (
@@ -279,6 +282,12 @@ export default async function LandingPage() {
               <p className="mt-2 text-slate">
                 Practical training on your own, for law students, interns and pupils.
               </p>
+              {payments ? (
+                <p className="mt-3 text-sm text-slate">
+                  {formatPrice(PRICES.MY.month)} a month in Malaysia, {formatPrice(PRICES.AU.month)} in
+                  Australia. Free with a code from your firm or university.
+                </p>
+              ) : null}
               <p className="mt-6 text-xs font-medium text-slate">Where will you practise?</p>
               <div className="mt-2 grid grid-cols-2 gap-2">
                 {(
@@ -367,6 +376,7 @@ export default async function LandingPage() {
               <p className="mt-8 text-lg text-cream/90">
                 One month. Realistic matters. Lawyer feedback.
               </p>
+              <p className="mt-2 text-sm text-mist">{traineeValue(payments).line}</p>
               <ul className="mt-5 flex flex-wrap gap-2 text-sm">
                 {['Research', 'Drafting', 'Procedure', 'Oral advocacy'].map((s) => (
                   <li

@@ -121,6 +121,7 @@ test('the server actions were actually found', () => {
     'createFact',
     'createQuestion',
     'decide',
+    'decideAccess',
     'decideMatter',
     'declare',
     'declareHomework',
@@ -130,13 +131,16 @@ test('the server actions were actually found', () => {
     'loadNewContent',
     'markMatterAttempt',
     'markSubmission',
+    'openBilling',
     'postComment',
     'publishAllVerified',
     'recordReviewDecision',
+    'redeemCode',
     'removeAvatar',
     'requestCoachNote',
     'restoreAllWithdrawn',
     'revoke',
+    'saveAccessCode',
     'saveCertificationEntry',
     'saveFirmModule',
     'saveMatter',
@@ -147,12 +151,14 @@ test('the server actions were actually found', () => {
     'saveTrainee',
     'saveWorkPost',
     'sendWorkMessage',
+    'setAccessCodeActive',
     'setIntakeDates',
     'setLeaderboardEnabled',
     'setLeaderboardOptOut',
     'setMatterPublished',
     'setPlacementDates',
     'setPublished',
+    'startCheckout',
     'startMatter',
     'submitWork',
     'suggestWorkTime',
@@ -313,6 +319,12 @@ const COACH_ACTIONS = new Set([
   // Writing and publishing a matter stay with an administrator.
   'decideMatter',
   'markMatterAttempt',
+  // Confirming that somebody who entered a firm's code really is with that
+  // firm, which makes the academy free for them. The same kind of decision
+  // as confirming a trainee: about a person, under the coach's name, never
+  // their own, and touching no content. Making and switching off codes stays
+  // with an administrator.
+  'decideAccess',
 ]);
 
 test('every admin server action requires a staff role, never merely a session', () => {
@@ -431,6 +443,7 @@ test('privileged modules are marked server-only', () => {
     'src/lib/work/service.ts',
     'src/lib/leaderboard.ts',
     'src/lib/intake/service.ts',
+    'src/lib/access/service.ts',
   ];
 
   for (const relative of mustBeServerOnly) {

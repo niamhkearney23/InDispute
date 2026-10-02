@@ -3,11 +3,12 @@
 /* =============================================================================
    Visual identity
    Financial Times × premium chambers × modern software.
-   Ivory paper, ink type, one burgundy accent. No cartoons, no neon.
+   Warm cream paper, ink type, deep navy for everything that leads.
+   A thin line of burgundy (wine) is the only other colour. No cartoons, no neon.
    ========================================================================== */
 
 @theme {
-  --color-paper: #fbf9f4;
+  --color-paper: #f5f1e8;
   --color-paper-raised: #ffffff;
   --color-paper-sunk: #f3efe6;
 
@@ -18,12 +19,13 @@
   --color-rule: #e2dbcd;
   --color-rule-strong: #cfc5b2;
 
-  --color-burgundy: #6b1f2a;
-  --color-burgundy-soft: #8c3140;
-  --color-burgundy-wash: #f6ecec;
+  --color-accent: #0d1b2a;
+  --color-accent-soft: #1c3150;
+  --color-accent-wash: #e6ebf1;
 
-  /* The front page only: deep navy and warm cream, with the burgundy kept to
-     a thin accent. Inside the app the paper and burgundy above still lead. */
+  /* The front page names the same colours directly: navy is the accent
+     above, cream is the paper, mist is the blue-grey for quieter text on
+     navy, and wine is the burgundy kept to a thin line. */
   --color-navy: #0d1b2a;
   --color-navy-raised: #142638;
   --color-cream: #f5f1e8;
@@ -97,7 +99,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-burgundy);
+    outline: 2px solid var(--color-accent);
     outline-offset: 2px;
   }
 }
@@ -173,8 +175,8 @@
   overflow: hidden;
   color: var(--color-paper);
   background:
-    radial-gradient(120% 90% at 50% 100%, #2a0c12 0%, transparent 60%),
-    linear-gradient(160deg, #4a141d 0%, var(--color-burgundy) 45%, #3a0f17 100%);
+    radial-gradient(120% 90% at 50% 100%, #060e17 0%, transparent 60%),
+    linear-gradient(160deg, #142638 0%, var(--color-accent) 45%, #08121d 100%);
 }
 
 .landing-light {
@@ -192,7 +194,7 @@
   height: 60vw;
   max-width: 820px;
   max-height: 820px;
-  background: radial-gradient(circle, rgba(255, 214, 190, 0.34), transparent 62%);
+  background: radial-gradient(circle, rgba(190, 214, 255, 0.16), transparent 62%);
   animation: drift-a 26s ease-in-out infinite;
 }
 .landing-light--b {
@@ -212,7 +214,7 @@
   height: 40vw;
   max-width: 560px;
   max-height: 560px;
-  background: radial-gradient(circle, rgba(214, 120, 110, 0.35), transparent 60%);
+  background: radial-gradient(circle, rgba(122, 46, 58, 0.30), transparent 60%);
   animation: drift-c 22s ease-in-out infinite;
 }
 
@@ -277,7 +279,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(107, 31, 42, 0.06), transparent 55%);
+  background: linear-gradient(135deg, rgba(13, 27, 42, 0.06), transparent 55%);
   opacity: 0;
   transition: opacity 260ms ease;
   pointer-events: none;
@@ -371,7 +373,7 @@
 .session-bar {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(90deg, var(--color-burgundy), #a3454f);
+  background: linear-gradient(90deg, var(--color-accent), #3b5a80);
   transition: width 500ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 .session-bar-shine {
@@ -392,12 +394,12 @@
   animation: flame-flicker 1.8s ease-in-out infinite;
 }
 
-/* The court diagrams. The apex court carries a burgundy rule along its top
+/* The court diagrams. The apex court carries an accent rule along its top
    so the eye starts there, and the appeal routes change colour smoothly when
    a court is opened rather than snapping. */
 .court-box-apex {
   border-top-width: 3px;
-  border-top-color: var(--color-burgundy);
+  border-top-color: var(--color-accent);
 }
 .court-route {
   transition: stroke 200ms ease-out;
@@ -445,8 +447,8 @@
 /* The trainee door: the one the firm is running now, so it stands out. */
 .landing-tile--featured {
   background:
-    radial-gradient(120% 80% at 100% 0%, rgba(255, 214, 190, 0.16), transparent 55%),
-    linear-gradient(160deg, #2a0c12 0%, #1a0a0d 100%);
+    radial-gradient(120% 80% at 100% 0%, rgba(190, 214, 255, 0.12), transparent 55%),
+    linear-gradient(160deg, #0d1b2a 0%, #060e17 100%);
   color: var(--color-paper);
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.18),
@@ -476,7 +478,7 @@
   background-image: linear-gradient(
     to bottom,
     transparent calc(1.85em - 1px),
-    rgba(107, 31, 42, 0.09) calc(1.85em - 1px)
+    rgba(13, 27, 42, 0.09) calc(1.85em - 1px)
   );
   background-size: 100% 1.85em;
   line-height: 1.85em;

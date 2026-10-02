@@ -51,7 +51,7 @@ export interface Brand {
    */
   partnersEmail: string;
   /**
-   * The accent, as a CSS colour. Burgundy by default. Applied as a variable so
+   * The accent, as a CSS colour. Navy by default. Applied as a variable so
    * a firm's colour reaches everything the accent touches rather than the one
    * button somebody remembered.
    */
@@ -67,8 +67,8 @@ export interface Brand {
 const DEFAULT_NAME = 'Lawgistics';
 const DEFAULT_SUFFIX = 'Academy';
 
-/** The burgundy the stylesheet ships with, for anywhere the variable cannot reach. */
-export const DEFAULT_ACCENT = '#6b1f2a';
+/** The accent the stylesheet ships with, for anywhere the variable cannot reach. */
+export const DEFAULT_ACCENT = '#0d1b2a';
 
 function clean(value: string | undefined, fallback: string): string {
   const trimmed = (value ?? '').trim();

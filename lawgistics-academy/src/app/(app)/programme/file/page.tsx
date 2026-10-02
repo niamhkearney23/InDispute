@@ -4,6 +4,7 @@ import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { TRAINING_FILE } from '@/content/training-file';
 import { ButtonLink, Card, Notice, SectionHeading } from '@/components/ui';
+import { requireAccess } from '@/lib/access/service';
 
 export const metadata: Metadata = { title: 'The training file' };
 
@@ -16,6 +17,7 @@ export const metadata: Metadata = { title: 'The training file' };
  * one thing a trainee should not be handed.
  */
 export default async function TrainingFilePage() {
+  await requireAccess();
   const user = await getCurrentUser();
   if (!user) redirect('/login');
 
@@ -103,7 +105,7 @@ export default async function TrainingFilePage() {
       {staff ? (
         <section>
           <SectionHeading eyebrow="For the coach" title="What the file is built to test" />
-          <Card className="border-burgundy/20 bg-burgundy-wash">
+          <Card className="border-accent/20 bg-accent-wash">
             <ul className="space-y-2 text-sm">
               {file.coachNotes.map((note) => (
                 <li key={note.slice(0, 30)}>{note}</li>

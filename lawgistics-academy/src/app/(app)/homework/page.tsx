@@ -9,10 +9,12 @@ import { Card, Pill, SectionHeading } from '@/components/ui';
 import { HomeworkForm } from '../homework-form';
 import { Materials } from '@/components/materials';
 import { postsForHomeworkDays } from '@/lib/work/service';
+import { requireAccess } from '@/lib/access/service';
 
 export const metadata: Metadata = { title: 'Homework' };
 
 export default async function HomeworkPage() {
+  await requireAccess();
   const user = await getCurrentUser();
   if (!user) redirect('/login');
 

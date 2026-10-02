@@ -119,7 +119,7 @@ export function InviteForm() {
                 id="choice"
                 name="choice"
                 defaultValue="AU"
-                className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10"
+                className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10"
               >
                 {PRACTICE_CHOICES.map((c) => (
                   <option key={c.key} value={c.key}>
@@ -156,7 +156,7 @@ export function InviteForm() {
             ).map(([value, label, help]) => (
               <label
                 key={value}
-                className="flex cursor-pointer items-start gap-2.5 rounded-[5px] border border-rule-strong bg-paper-raised p-3 text-sm has-[:checked]:border-burgundy"
+                className="flex cursor-pointer items-start gap-2.5 rounded-[5px] border border-rule-strong bg-paper-raised p-3 text-sm has-[:checked]:border-accent"
               >
                 <input
                   type="radio"
@@ -203,7 +203,7 @@ function Field({
       </label>
       <input
         id={props.name}
-        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10"
+        className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10"
         {...props}
       />
       {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}

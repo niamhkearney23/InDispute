@@ -25,7 +25,7 @@ export function DailyBrief({ fact }: { fact: DailyFact }) {
           {fact.court ? <span className="text-xs text-muted">{fact.court}</span> : null}
         </div>
         <h2 className="text-xl leading-snug sm:text-2xl">{fact.title}</h2>
-        <p className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-burgundy">
+        <p className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-accent">
           <span className="group-open:hidden">Think about why for five seconds, then tap to see.</span>
           <span className="hidden group-open:inline">Hide it</span>
           <span
@@ -41,7 +41,7 @@ export function DailyBrief({ fact }: { fact: DailyFact }) {
         <p className="text-[0.9375rem] leading-relaxed text-slate">{fact.body}</p>
 
         {fact.whyItMatters ? (
-          <div className="mt-4 rounded-lg border-l-2 border-burgundy bg-paper px-4 py-3">
+          <div className="mt-4 rounded-lg border-l-2 border-accent bg-paper px-4 py-3">
             <p className="eyebrow mb-1.5">Why this matters in practice</p>
             <p className="text-[0.9375rem] leading-relaxed text-slate">{fact.whyItMatters}</p>
           </div>

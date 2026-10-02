@@ -17,12 +17,12 @@ const BUTTON_BASE =
 
 const BUTTON_VARIANTS = {
   primary: 'bg-ink text-paper shadow-button hover:bg-charcoal active:translate-y-px',
-  accent: 'bg-burgundy text-paper shadow-button hover:bg-burgundy-soft active:translate-y-px',
+  accent: 'bg-accent text-paper shadow-button hover:bg-accent-soft active:translate-y-px',
   outline:
     'border border-rule-strong bg-paper-raised text-ink shadow-button hover:bg-paper-sunk active:translate-y-px',
   ghost: 'text-slate hover:text-ink hover:bg-paper-sunk',
   // On an accent-coloured surface, where the accent button would vanish.
-  light: 'bg-paper text-burgundy shadow-button hover:bg-white active:translate-y-px',
+  light: 'bg-paper text-accent shadow-button hover:bg-white active:translate-y-px',
 } as const;
 
 const BUTTON_SIZES = {
@@ -148,7 +148,7 @@ export function Pill({
 }) {
   const tones = {
     neutral: 'border-rule-strong text-slate',
-    accent: 'border-burgundy/30 bg-burgundy-wash text-burgundy',
+    accent: 'border-accent/30 bg-accent-wash text-accent',
     correct: 'border-verdict-correct/30 bg-verdict-correct-wash text-verdict-correct',
     wrong: 'border-verdict-wrong/30 bg-verdict-wrong-wash text-verdict-wrong',
     warn: 'border-amber-600/30 bg-amber-50 text-amber-800',
@@ -182,7 +182,7 @@ export function ScoreBar({
   band: 'weak' | 'developing' | 'strong';
 }) {
   const fill = {
-    weak: 'bg-burgundy',
+    weak: 'bg-accent',
     developing: 'bg-slate',
     strong: 'bg-verdict-correct',
   }[band];

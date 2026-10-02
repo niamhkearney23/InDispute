@@ -67,7 +67,7 @@ export function SessionForm({
               defaultValue={initial.title}
               required
               maxLength={200}
-              className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10"
+              className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10"
             />
           </div>
 
@@ -81,7 +81,7 @@ export function SessionForm({
               defaultValue={initial.summary}
               rows={3}
               maxLength={2000}
-              className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2.5 text-base outline-none focus:border-burgundy"
+              className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2.5 text-base outline-none focus:border-accent"
             />
             <p className="mt-1 text-xs text-muted">
               One or two sentences, so somebody deciding whether to watch at seven in the
@@ -101,7 +101,7 @@ export function SessionForm({
               onChange={(e) => setUrl(e.target.value)}
               required
               placeholder="https://www.youtube-nocookie.com/embed/..."
-              className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10"
+              className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10"
             />
             {playable === false ? (
               <p className="mt-1.5 text-xs text-verdict-wrong">
@@ -155,7 +155,7 @@ export function SessionForm({
               id="country"
               name="country"
               defaultValue={initial.country}
-              className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10"
+              className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10"
             >
               <option value="ALL">Everybody</option>
               <option value="MY">Malaysia only</option>
@@ -192,7 +192,7 @@ export function SessionForm({
               name="airsOn"
               type="date"
               defaultValue={initial.airsOn}
-              className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-burgundy sm:h-10"
+              className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10"
             />
             <p className="mt-1 text-xs text-muted">
               Leads the dashboard on that day. A date in the future stays hidden until it

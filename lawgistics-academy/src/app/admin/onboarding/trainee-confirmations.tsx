@@ -20,7 +20,7 @@ export interface PendingTraineeRow {
 export function TraineeConfirmations({ rows }: { rows: PendingTraineeRow[] }) {
   if (rows.length === 0) return null;
   return (
-    <Card className="border-burgundy/30">
+    <Card className="border-accent/30">
       <h2 className="text-lg">
         {rows.length === 1
           ? '1 person says they are a trainee'

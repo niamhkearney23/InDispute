@@ -10,7 +10,7 @@ import type { PostPerson } from '@/lib/work/links';
  * the name, so the same person is the same colour on every post.
  */
 const COLOURS = [
-  'bg-burgundy text-paper',
+  'bg-accent text-paper',
   'bg-amber-600 text-white',
   'bg-teal-700 text-white',
   'bg-sky-700 text-white',

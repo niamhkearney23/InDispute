@@ -44,6 +44,7 @@ import {
   HOME_JURISDICTIONS,
 } from '@/lib/types';
 import type { AnswerFeedback, SessionKind } from '@/lib/types';
+import { hasAccess } from '@/lib/access/service';
 
 const GOAL_SLUGS = IMPROVEMENT_GOALS.map((g) => g.slug);
 
@@ -141,6 +142,7 @@ export async function beginSession(
 ): Promise<{ error: string } | undefined> {
   const user = await getCurrentUser();
   if (!user) redirect('/login');
+  if (!(await hasAccess(user.id))) redirect('/pricing');
   if (!SESSION_KINDS.includes(kind)) redirect('/dashboard');
 
   let outcome: { sessionId: string } | { error: string };
@@ -168,6 +170,7 @@ export async function beginSession(
 export async function beginModule(slug: string): Promise<{ error: string } | undefined> {
   const user = await getCurrentUser();
   if (!user) redirect('/login');
+  if (!(await hasAccess(user.id))) redirect('/pricing');
 
   // The slug comes from the URL, so it is narrowed to a module that exists
   // before it is allowed to choose which questions get served.
@@ -230,6 +233,9 @@ export async function requestCoachNote(
 ): Promise<{ coachNote: string | null } | { error: string }> {
   const user = await getCurrentUser();
   if (!user) return { error: 'You are not signed in.' };
+  if (!(await hasAccess(user.id))) {
+    return { error: 'This needs a plan, or a code from your firm. See the pricing page.' };
+  }
 
   const parsed = coachNoteSchema.safeParse(input);
   if (!parsed.success) return { error: 'That could not be read.' };
@@ -539,6 +545,7 @@ export type MatterState = { error: string | null; ok?: string };
 export async function startMatter(formData: FormData): Promise<void> {
   const user = await getCurrentUser();
   if (!user) redirect('/login?next=/matters');
+  if (!(await hasAccess(user.id))) redirect('/pricing');
 
   const matterId = z.string().uuid().safeParse(formData.get('matterId'));
   if (!matterId.success) redirect('/matters');
@@ -623,6 +630,9 @@ export async function saveMatterWork(_prev: MatterState, formData: FormData): Pr
 export async function askFollowUps(_prev: MatterState, formData: FormData): Promise<MatterState> {
   const user = await getCurrentUser();
   if (!user) return { error: 'You are not signed in.' };
+  if (!(await hasAccess(user.id))) {
+    return { error: 'This needs a plan, or a code from your firm. See the pricing page.' };
+  }
 
   const attemptId = z.string().uuid().safeParse(formData.get('attemptId'));
   if (!attemptId.success) return { error: 'That attempt could not be found.' };

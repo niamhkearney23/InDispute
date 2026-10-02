@@ -84,7 +84,17 @@ function sessionFor(user) {
   };
 }
 
-const USERS = [USER, NEW_USER, TRAINEE_USER];
+// Somebody on their own: onboarded, not staff, not a trainee, not invited.
+// The one person the pricing page asks to pay, with a firm code waiting.
+const LEARNER_USER_ID = '55555555-5555-5555-5555-555555555555';
+const LEARNER_USER = {
+  ...USER,
+  id: LEARNER_USER_ID,
+  email: 'learner@lawgistics.test',
+  user_metadata: { display_name: 'Wei' },
+};
+
+const USERS = [USER, NEW_USER, TRAINEE_USER, LEARNER_USER];
 
 /** Reads the subject out of an unsigned mock token. */
 function userFromToken(token) {
@@ -279,6 +289,21 @@ const STEP_SIGN_ID = 'aaaaaaaa-0000-0000-0000-000000000002';
 const STEP_TASK_ID = 'aaaaaaaa-0000-0000-0000-000000000003';
 
 const TABLES = {
+  /* Firm codes, and Wei waiting to be confirmed on one. The embedded
+     access_codes object stands in for the join PostgREST would make. */
+  access_codes: [
+    { id: 'acce0001-0000-4000-8000-000000000001', code: 'TP-2026', label: 'Thomas Philip', active: true },
+    { id: 'acce0001-0000-4000-8000-000000000002', code: 'UNI-DEMO', label: 'A university', active: false },
+  ],
+  access_grants: [
+    {
+      user_id: LEARNER_USER_ID,
+      code_id: 'acce0001-0000-4000-8000-000000000001',
+      requested_at: '2026-10-01T09:00:00Z',
+      decision: null,
+      access_codes: { label: 'Thomas Philip', active: true },
+    },
+  ],
   /* The coach's own sessions, in the three states that render differently:
      up and already aired, up but dated ahead, and a draft. Rendering an empty
      list would prove nothing about the page that matters, which is the one with
@@ -492,6 +517,21 @@ const TABLES = {
       timezone: 'Asia/Kuala_Lumpur',
       starts_on: isoDateFromNow(-7),
       ends_on: isoDateFromNow(21),
+      onboarded_at: '2026-02-01T00:00:00Z',
+      diagnostic_completed_at: '2026-02-01T00:20:00Z',
+      is_admin: false,
+    },
+    {
+      id: LEARNER_USER_ID,
+      email: LEARNER_USER.email,
+      display_name: 'Wei',
+      career_stage: 'law_student',
+      improvement_goals: ['litigation_knowledge'],
+      daily_goal_minutes: 10,
+      country: 'MY',
+      track: 'general',
+      home_jurisdiction: 'MY_GENERAL',
+      timezone: 'Asia/Kuala_Lumpur',
       onboarded_at: '2026-02-01T00:00:00Z',
       diagnostic_completed_at: '2026-02-01T00:20:00Z',
       is_admin: false,
@@ -1048,6 +1088,9 @@ const server = http.createServer((req, res) => {
       const RESERVED = new Set(['select', 'order', 'limit', 'offset', 'on_conflict', 'columns']);
       for (const [key, value] of url.searchParams) {
         if (RESERVED.has(key)) continue;
+        // A filter on an embedded table (access_codes.active), which the
+        // fixtures already carry inside the row.
+        if (key.includes('.')) continue;
         if (value.startsWith('eq.')) {
           const want = value.slice(3);
           rows = rows.filter((r) => String(r[key]) === want);

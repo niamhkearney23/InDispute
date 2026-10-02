@@ -201,7 +201,7 @@ export function AuthForm({
                         className={cn(
                           'relative rounded-lg border-2 px-3.5 py-3 text-left transition-all duration-150',
                           on
-                            ? 'border-burgundy bg-burgundy-wash shadow-card'
+                            ? 'border-accent bg-accent-wash shadow-card'
                             : 'border-rule bg-paper-raised hover:-translate-y-px hover:border-rule-strong hover:shadow-card',
                         )}
                       >
@@ -209,7 +209,7 @@ export function AuthForm({
                           aria-hidden
                           className={cn(
                             'absolute top-2.5 right-2.5 grid size-5 place-items-center rounded-full border-2 transition-colors',
-                            on ? 'border-burgundy bg-burgundy text-paper' : 'border-rule-strong',
+                            on ? 'border-accent bg-accent text-paper' : 'border-rule-strong',
                           )}
                         >
                           {on ? <CheckIcon className="size-3" /> : null}
@@ -225,11 +225,11 @@ export function AuthForm({
                 <p className="mt-2 text-xs text-muted">
                   This decides which law you are trained on. You can change it later.
                 </p>
-                <p className="mt-3 rounded-lg bg-burgundy-wash px-3.5 py-2.5 text-sm">
+                <p className="mt-3 rounded-lg bg-accent-wash px-3.5 py-2.5 text-sm">
                   On a firm&apos;s litigation trainee programme?{' '}
                   <Link
                     href={`/trainee${next && next !== '/onboarding' ? `?next=${encodeURIComponent(next)}` : ''}`}
-                    className="-my-2 inline-block py-2 font-semibold text-burgundy underline underline-offset-4"
+                    className="-my-2 inline-block py-2 font-semibold text-accent underline underline-offset-4"
                   >
                     Sign up here instead
                   </Link>
@@ -280,7 +280,7 @@ export function AuthForm({
               <p className="-mt-2 text-right text-sm">
                 <Link
                   href="/forgot-password"
-                  className="-my-2 inline-block py-2 font-medium text-burgundy underline-offset-4 hover:underline"
+                  className="-my-2 inline-block py-2 font-medium text-accent underline-offset-4 hover:underline"
                 >
                   Forgot your password?
                 </Link>
@@ -330,7 +330,7 @@ export function AuthForm({
               href={isSignup || isReset ? '/login' : '/signup'}
               // Negative margin keeps the sentence on one line while the padding
               // grows the tap target to something a thumb can actually hit.
-              className="-my-2 inline-block rounded-[5px] px-1 py-2 font-semibold text-burgundy underline underline-offset-4"
+              className="-my-2 inline-block rounded-[5px] px-1 py-2 font-semibold text-accent underline underline-offset-4"
             >
               {isSignup || isReset ? 'Sign in' : 'Create one'}
             </Link>
@@ -456,7 +456,7 @@ function Field({
         type={type}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-13 w-full rounded-lg border-2 border-rule bg-paper-raised px-4 text-base transition-[border-color,box-shadow] outline-none placeholder:text-muted/70 hover:border-rule-strong focus:border-burgundy focus:ring-4 focus:ring-burgundy/15"
+        className="h-13 w-full rounded-lg border-2 border-rule bg-paper-raised px-4 text-base transition-[border-color,box-shadow] outline-none placeholder:text-muted/70 hover:border-rule-strong focus:border-accent focus:ring-4 focus:ring-accent/15"
         {...rest}
       />
       {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}

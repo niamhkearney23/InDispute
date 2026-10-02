@@ -4,10 +4,12 @@ import { getCurrentUser, createSupabaseServerClient } from '@/lib/supabase/serve
 import { masteryBand } from '@/lib/learning/mastery';
 import { essayTopic } from '@/content/seed/essay-topics';
 import { ButtonLink, Card, Notice, ScoreBar, SectionHeading } from '@/components/ui';
+import { requireAccess } from '@/lib/access/service';
 
 export const metadata: Metadata = { title: 'Day one against the last day' };
 
 export default async function DiagnosticComparePage() {
+  await requireAccess();
   const user = await getCurrentUser();
   if (!user) redirect('/login');
 

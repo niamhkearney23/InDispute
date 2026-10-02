@@ -44,7 +44,7 @@ export function PostComments({
           <div
             className={
               c.isStaff
-                ? 'min-w-0 flex-1 rounded-lg border border-burgundy/25 bg-burgundy-wash px-3 py-2'
+                ? 'min-w-0 flex-1 rounded-lg border border-accent/25 bg-accent-wash px-3 py-2'
                 : 'min-w-0 flex-1 rounded-lg border border-rule bg-paper-sunk px-3 py-2'
             }
           >

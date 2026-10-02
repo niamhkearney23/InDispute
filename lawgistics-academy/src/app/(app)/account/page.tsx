@@ -39,6 +39,14 @@ export default async function AccountPage() {
       </Card>
 
       <Card>
+        <p className="eyebrow mb-2">Your plan</p>
+        <p className="text-sm text-slate">
+          What you pay, or the code from your firm or university.{' '}
+          <InlineLink href="/pricing">See your plan</InlineLink>
+        </p>
+      </Card>
+
+      <Card>
         <p className="eyebrow mb-2">Password</p>
         <p className="text-sm text-slate">
           Signed in as {profile.email ?? 'you'}.{' '}

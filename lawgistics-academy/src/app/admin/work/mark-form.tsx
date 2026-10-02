@@ -35,7 +35,7 @@ export function MarkForm({
           ).map(([value, label]) => (
             <label
               key={value}
-              className="flex cursor-pointer items-center gap-2 rounded-[5px] border border-rule-strong bg-paper-raised px-3 py-2 text-sm has-[:checked]:border-burgundy"
+              className="flex cursor-pointer items-center gap-2 rounded-[5px] border border-rule-strong bg-paper-raised px-3 py-2 text-sm has-[:checked]:border-accent"
             >
               <input
                 type="radio"
@@ -61,7 +61,7 @@ export function MarkForm({
           defaultValue={feedback}
           rows={4}
           maxLength={5000}
-          className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2.5 text-base outline-none focus:border-burgundy"
+          className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2.5 text-base outline-none focus:border-accent"
         />
         <p className="mt-1 text-xs text-muted">
           What you would have done differently, and one thing they got right. They read this

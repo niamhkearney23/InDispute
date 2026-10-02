@@ -8,6 +8,7 @@ import { StartModuleButton } from '../start-module-button';
 import { LessonPlayer } from './lesson-player';
 import { lessonForModule } from '@/content/seed/lessons';
 import { ModuleArt, artFor } from '@/components/module-art';
+import { requireAccess } from '@/lib/access/service';
 
 export const metadata: Metadata = { title: 'Module' };
 
@@ -16,6 +17,7 @@ export default async function ModulePage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
+  await requireAccess();
   const { slug } = await params;
 
   const user = await getCurrentUser();

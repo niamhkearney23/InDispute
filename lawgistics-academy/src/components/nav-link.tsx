@@ -7,7 +7,7 @@ import { cn } from '@/components/ui';
 /**
  * A header link that knows when it is the page you are on.
  *
- * The mark is a short burgundy bar under the word rather than a change of
+ * The mark is a short accent bar under the word rather than a change of
  * background, so it survives the nav wrapping onto two lines on a narrow
  * phone without floating somewhere between them.
  */
@@ -33,7 +33,7 @@ export function NavLink({
       className={cn(
         'relative rounded-[5px] px-2 py-2 whitespace-nowrap transition-colors sm:px-2.5',
         active
-          ? 'font-medium text-ink after:absolute after:inset-x-2 after:bottom-1 after:h-0.5 after:rounded-full after:bg-burgundy sm:after:inset-x-2.5'
+          ? 'font-medium text-ink after:absolute after:inset-x-2 after:bottom-1 after:h-0.5 after:rounded-full after:bg-accent sm:after:inset-x-2.5'
           : 'text-slate hover:text-ink',
         className,
       )}

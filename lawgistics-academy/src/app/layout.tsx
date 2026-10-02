@@ -36,12 +36,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en-AU" className={`${display.variable} ${body.variable}`}>
       <body
-        // A firm's accent replaces the burgundy everywhere it is used, rather
+        // A firm's accent replaces the navy everywhere it is used, rather
         // than in the one button somebody remembered. The value is hex-checked
         // in lib/brand before it reaches a style attribute.
         style={
           brand.accent
-            ? ({ '--color-burgundy': brand.accent } as React.CSSProperties)
+            ? ({ '--color-accent': brand.accent } as React.CSSProperties)
             : undefined
         }
       >

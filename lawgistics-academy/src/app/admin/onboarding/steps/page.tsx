@@ -73,7 +73,7 @@ export default async function StepsPage() {
                             : 'Malaysian accounts'}
                       </p>
                       {broken ? (
-                        <p className="mt-2 text-sm text-burgundy">
+                        <p className="mt-2 text-sm text-accent">
                           This points at a document that is missing, unpublished or empty, so
                           nobody will see the item at all. Fix it under{' '}
                           <InlineLink href="/admin/firm">Firm</InlineLink>.

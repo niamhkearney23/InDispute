@@ -6,6 +6,7 @@ import { seesTraineeVideos, sessionsForLearner } from '@/lib/lessons/sessions';
 import { Card, EmptyState, Pill } from '@/components/ui';
 import { Materials } from '@/components/materials';
 import { postsForSessions } from '@/lib/work/service';
+import { requireAccess } from '@/lib/access/service';
 
 export const metadata: Metadata = { title: 'Sessions' };
 export const dynamic = 'force-dynamic';
@@ -32,6 +33,7 @@ function longDate(iso: string): string {
  * on Wednesday gives away the wrong morning's work.
  */
 export default async function LearnerSessionsPage() {
+  await requireAccess();
   const user = await getCurrentUser();
   if (!user) redirect('/login?next=/sessions');
 

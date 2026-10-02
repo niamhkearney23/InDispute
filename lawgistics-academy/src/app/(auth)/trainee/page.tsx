@@ -8,6 +8,8 @@ import { brand } from '@/lib/brand';
 import { PROGRAMME } from '@/content/programme';
 import { trainingOpen } from '@/lib/training/service';
 import { PROGRAMME_WEEKS, boxesForWeek } from '@/content/programme-plan';
+import { paymentsOn } from '@/lib/access/service';
+import { traineeValue } from '@/lib/access/rules';
 
 const DESCRIPTION = `A one-month litigation trainee programme at ${brand.firm} in Malaysia. Live files with our lawyers, plus the ${brand.traineeAcademy} for homework and practice in your spare time.`;
 
@@ -67,6 +69,8 @@ export default async function TraineeProgrammePage() {
   // a dashboard saying none have been published yet.
   const questionsOpen = await trainingOpen('MY');
   const PARTS = partsFor(questionsOpen);
+  const payments = paymentsOn();
+  const value = traineeValue(payments);
 
   return (
     <div className="min-h-dvh">
@@ -95,8 +99,8 @@ export default async function TraineeProgrammePage() {
           </h1>
           <p className="rise-up delay-2 mt-5 max-w-2xl text-lg text-paper/85 sm:text-xl">
             Our next intake starts in {PROGRAMME.nextIntake}. For four weeks, {PROGRAMME.days},
-            you’ll work on live files with the lawyers at {brand.firm}. That’s the main part,
-            and it happens in the office.
+            you’ll work on live files with the lawyers at {brand.firm}. That’s the main part, and it
+            happens in the office.
           </p>
           <p className="rise-up delay-2 mt-4 max-w-2xl text-lg text-paper/85 sm:text-xl">
             Alongside it, you get the {brand.traineeAcademy}: your homework and practice for the
@@ -119,15 +123,32 @@ export default async function TraineeProgrammePage() {
           <p className="rise-up delay-4 mt-5 text-sm text-paper/70">
             Sign up, and your supervisor will confirm your place.
           </p>
+
+          <div className="rise-up delay-4 mt-10 inline-flex max-w-xl flex-col gap-1 rounded-xl border border-paper/15 bg-paper/[0.06] px-5 py-4">
+            <p className="text-[0.6875rem] font-semibold tracking-[0.16em] text-paper/60 uppercase">
+              Included with your place
+            </p>
+            <p className="flex items-baseline gap-3">
+              <span
+                className={
+                  payments
+                    ? 'font-serif text-2xl text-paper/50 line-through decoration-1'
+                    : 'font-serif text-2xl text-paper/60'
+                }
+              >
+                {value.price} a year
+              </span>
+              <span className="font-serif text-3xl text-paper">Free</span>
+            </p>
+            <p className="text-sm text-paper/70">{value.line}</p>
+          </div>
         </div>
       </section>
 
       <main className="mx-auto max-w-6xl px-5 sm:px-8">
         <section className="py-14 sm:py-20">
           <p className="eyebrow mb-3">Your {brand.traineeAcademy}</p>
-          <h2 className="mb-10 max-w-2xl text-2xl sm:text-3xl">
-            The homework side of the month.
-          </h2>
+          <h2 className="mb-10 max-w-2xl text-2xl sm:text-3xl">The homework side of the month.</h2>
           <ol className="grid gap-4 sm:grid-cols-2">
             {PARTS.map((part, index) => (
               <li
@@ -135,7 +156,7 @@ export default async function TraineeProgrammePage() {
                 className="rounded-xl border border-rule bg-paper-raised p-6 shadow-card sm:p-7"
               >
                 <div className="mb-4 flex items-center gap-3">
-                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-burgundy-wash text-burgundy">
+                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-accent-wash text-accent">
                     <part.icon className="size-5" />
                   </span>
                   <span className="eyebrow">
@@ -155,8 +176,8 @@ export default async function TraineeProgrammePage() {
             From the first interview to the courtroom.
           </h2>
           <p className="mb-8 max-w-2xl text-slate">
-            Each week focuses on a different stage of a case. Your supervisor grades the work
-            you produce. Ten pieces at the top grade, including the six core pieces, earns your
+            Each week focuses on a different stage of a case. Your supervisor grades the work you
+            produce. Ten pieces at the top grade, including the six core pieces, earns your
             certification. Your supervisor may adjust the plan as you go.
           </p>
           <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -186,30 +207,31 @@ export default async function TraineeProgrammePage() {
             <div>
               <h2 className="mb-3 text-2xl sm:text-3xl">Learning by doing</h2>
               <p className="text-slate">
-                You learn by working on live files, with lawyers who have done it many times
-                showing you how. The Academy covers the rest at your own pace: the rules you
-                need to know by heart.
+                You learn by working on live files, with lawyers who have done it many times showing
+                you how. The Academy covers the rest at your own pace: the rules you need to know by
+                heart.
               </p>
             </div>
             <div>
               <h2 className="mb-3 text-2xl sm:text-3xl">Client confidentiality</h2>
               <p className="text-slate">
-                Nothing here belongs to a client. Our lawyers take out any names before they
-                post work, and everything you hand in comes with your confirmation that it
-                doesn’t identify anyone.
+                Nothing here belongs to a client. Our lawyers take out any names before they post
+                work, and everything you hand in comes with your confirmation that it doesn’t
+                identify anyone.
               </p>
             </div>
           </div>
         </section>
 
         <section className="border-t border-rule py-12 sm:py-16">
-          <div className="flex flex-col items-start gap-5 rounded-xl bg-burgundy-wash p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+          <div className="flex flex-col items-start gap-5 rounded-xl bg-accent-wash p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
             <div>
               <h2 className="text-2xl sm:text-3xl">Joining us in {PROGRAMME.nextIntake}?</h2>
               <p className="mt-2 text-slate">
                 {questionsOpen
                   ? 'Sign up now, and you’ll start with the diagnostic quiz on your first day.'
-                  : 'Sign up now, and we’ll see you on your first day.'}
+                  : 'Sign up now, and we’ll see you on your first day.'}{' '}
+                The Academy is included free with your place.
               </p>
             </div>
             <ButtonLink href="/trainee/signup" size="lg" variant="accent">
@@ -222,8 +244,8 @@ export default async function TraineeProgrammePage() {
 
       <footer className="mx-auto max-w-6xl border-t border-rule px-5 py-8 sm:px-8">
         <p className="text-xs text-muted">
-          {brand.fullName} is a training tool. It is not legal advice, and progression
-          levels within it are game levels, not professional qualifications or titles.
+          {brand.fullName} is a training tool. It is not legal advice, and progression levels within
+          it are game levels, not professional qualifications or titles.
         </p>
         {brand.parentLine ? <p className="mt-2 text-xs text-muted">{brand.parentLine}</p> : null}
       </footer>

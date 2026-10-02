@@ -7,6 +7,7 @@ import { readingMinutes } from '@/lib/firm/content';
 import { FirmBody } from '@/components/firm-body';
 import { ButtonLink, Card, Notice, Pill } from '@/components/ui';
 import { AcknowledgeForm } from './acknowledge-form';
+import { requireAccess } from '@/lib/access/service';
 
 export const metadata: Metadata = { title: 'Firm induction' };
 
@@ -15,6 +16,7 @@ export default async function FirmModulePage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
+  await requireAccess();
   const { slug } = await params;
 
   const user = await getCurrentUser();

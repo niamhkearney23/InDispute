@@ -19,10 +19,12 @@ import {
   ScoreBar,
   SectionHeading,
 } from '@/components/ui';
+import { requireAccess } from '@/lib/access/service';
 
 export const metadata: Metadata = { title: 'Your progress' };
 
 export default async function SkillsPage() {
+  await requireAccess();
   const user = await getCurrentUser();
   if (!user) redirect('/login');
 

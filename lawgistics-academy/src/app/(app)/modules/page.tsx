@@ -7,10 +7,12 @@ import { getModuleProgress } from '@/lib/modules/service';
 import { listFirmModulesForLearner } from '@/lib/firm/service';
 import { ButtonLink, Card, Pill, SectionHeading } from '@/components/ui';
 import { ModuleArt, artFor } from '@/components/module-art';
+import { requireAccess } from '@/lib/access/service';
 
 export const metadata: Metadata = { title: 'Modules' };
 
 export default async function ModulesPage() {
+  await requireAccess();
   const user = await getCurrentUser();
   if (!user) redirect('/login');
 

@@ -135,7 +135,7 @@ function Routes({
             vectorEffect="non-scaling-stroke"
             className={cn(
               'court-route',
-              route.isLit ? 'stroke-burgundy' : 'stroke-rule-strong',
+              route.isLit ? 'stroke-accent' : 'stroke-rule-strong',
             )}
             strokeWidth={route.isLit ? 2 : 1.5}
             strokeLinecap="round"
@@ -147,7 +147,7 @@ function Routes({
           key={x}
           className={cn(
             'absolute top-0 block size-2 -translate-x-1/2 -translate-y-[1px] rotate-45 border-l-2 border-t-2 transition-colors',
-            isLit ? 'border-burgundy' : 'border-rule-strong',
+            isLit ? 'border-accent' : 'border-rule-strong',
           )}
           style={{ left: `${x}%` }}
         />

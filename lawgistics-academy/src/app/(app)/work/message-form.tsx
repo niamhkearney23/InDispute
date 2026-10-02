@@ -41,7 +41,7 @@ export function MessageForm({
         required
         maxLength={2000}
         placeholder={placeholder}
-        className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2.5 text-base outline-none focus:border-burgundy"
+        className="w-full rounded-[5px] border border-rule-strong bg-paper px-3 py-2.5 text-base outline-none focus:border-accent"
       />
       {state.error ? <Notice tone="warn">{state.error}</Notice> : null}
       <Button type="submit" variant="outline" size="sm" disabled={pending}>

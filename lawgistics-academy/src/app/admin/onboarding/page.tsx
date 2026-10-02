@@ -108,7 +108,7 @@ export default async function OnboardingRosterPage() {
       />
 
       {urgent.length > 0 ? (
-        <Card className="border-burgundy/30 bg-burgundy-wash">
+        <Card className="border-accent/30 bg-accent-wash">
           <h2 className="text-lg">
             {urgent.length === 1
               ? '1 person starts soon and is not ready'

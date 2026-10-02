@@ -26,12 +26,12 @@ export function QuestCard({
   return (
     <Link
       href={`/modules/${slug}`}
-      className="group flex items-stretch overflow-hidden rounded-xl border border-rule bg-paper-raised shadow-card transition-[box-shadow,border-color] hover:border-burgundy/40 hover:shadow-raised"
+      className="group flex items-stretch overflow-hidden rounded-xl border border-rule bg-paper-raised shadow-card transition-[box-shadow,border-color] hover:border-accent/40 hover:shadow-raised"
     >
       <ModuleArt kind={artFor(slug)} className="w-24 shrink-0 rounded-none sm:w-32" />
       <div className="min-w-0 flex-1 px-4 py-3.5 sm:px-5">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3">
-          <p className="eyebrow text-burgundy">Required module</p>
+          <p className="eyebrow text-accent">Required module</p>
           <p className="text-xs tabular-nums text-muted">
             {correctOnce} of {total}
           </p>
@@ -46,7 +46,7 @@ export function QuestCard({
           aria-label={`${name}: ${correctOnce} of ${total} answered correctly`}
         >
           <div
-            className="bar-grow h-full rounded-full bg-gradient-to-r from-burgundy to-burgundy-soft"
+            className="bar-grow h-full rounded-full bg-gradient-to-r from-accent to-accent-soft"
             style={{ width: `${Math.max(percent, 3)}%` }}
           />
         </div>
@@ -54,7 +54,7 @@ export function QuestCard({
           <span className={cn('font-medium text-ink')}>
             {left === 1 ? 'One still to get right.' : `${left} still to get right.`}
           </span>{' '}
-          <span className="text-burgundy underline-offset-2 group-hover:underline">
+          <span className="text-accent underline-offset-2 group-hover:underline">
             {correctOnce > 0 ? 'Go back to them' : 'Start it'} →
           </span>
         </p>

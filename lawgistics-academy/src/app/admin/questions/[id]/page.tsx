@@ -213,7 +213,7 @@ function TransitionButton({
         disabled={disabled}
         className={
           emphasis
-            ? 'rounded-[5px] bg-burgundy px-3.5 py-2 text-sm font-medium text-paper hover:bg-burgundy-soft disabled:opacity-40'
+            ? 'rounded-[5px] bg-accent px-3.5 py-2 text-sm font-medium text-paper hover:bg-accent-soft disabled:opacity-40'
             : 'rounded-[5px] border border-rule-strong px-3.5 py-2 text-sm hover:bg-paper-sunk disabled:opacity-40'
         }
       >

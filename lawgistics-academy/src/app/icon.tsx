@@ -4,7 +4,7 @@ import { DEFAULT_ACCENT, brand } from '@/lib/brand';
  * The tab icon, drawn from the brand rather than checked in as a file.
  *
  * A static icon.svg meant a firm running their own deployment got somebody
- * else's letter and somebody else's burgundy in the browser tab, which is the
+ * else's letter and somebody else's colour in the browser tab, which is the
  * one piece of branding a person looks at all day.
  *
  * This returns an SVG Response, which the icon convention accepts, so there is
