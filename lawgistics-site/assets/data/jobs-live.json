@@ -1,4 +1,35 @@
 {
-  "generatedDate": "2026-10-03",
-  "jobs": []
+  "generatedDate": "2026-10-04",
+  "jobs": [
+    {
+      "employer": "The Law Society of New South Wales (scheme-wide, all participating NSW firms)",
+      "program": "Summer Clerkship 2027/28 (NSW Clerkship Recruitment Program 2027)",
+      "jurisdiction": "NSW",
+      "opens": "2027-06-09",
+      "closes": null,
+      "notes": "Scheme opens 9:00am AEST Wed 9 June 2027 with offers from 9:00am Wed 8 September 2027; the Law Society publishes two permitted closing dates (Sun 4 July and Sun 11 July 2027) that vary by participating employer, so no single confirmed close date is stated — eligibility is final or penultimate year of study.",
+      "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Clerkship-Recruitment-Program",
+      "verifiedDate": "2026-10-04"
+    },
+    {
+      "employer": "The Law Society of New South Wales (scheme-wide, all participating NSW firms)",
+      "program": "Graduate Program 2028 (NSW Graduate Recruitment Program 2027 — market offers)",
+      "jurisdiction": "NSW",
+      "opens": "2027-02-22",
+      "closes": "2027-04-04",
+      "notes": "Open-market graduate applications run 9:00am AEST Mon 22 Feb 2027 to 11:59pm Sun 4 Apr 2027, with interviews from 27 Apr 2027 and offers made 2 June 2027 (accept/decline by 1:00pm 3 June 2027); open to final-year students.",
+      "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Graduate-Recruitment-Program",
+      "verifiedDate": "2026-10-04"
+    },
+    {
+      "employer": "Allens",
+      "program": "Dive In insight program (May 2027 intake)",
+      "jurisdiction": "National",
+      "opens": null,
+      "closes": null,
+      "notes": "Allens' own graduates site states applications for the May 2027 Dive In program open in March 2027 but publishes only the month, so exact open and close dates are not confirmed; Allens' 2026/27 clerkship rounds in Sydney, Melbourne, Brisbane and Perth are all closed.",
+      "url": "https://graduates.allens.com.au/our-programs/",
+      "verifiedDate": "2026-10-04"
+    }
+  ]
 }
