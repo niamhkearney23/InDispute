@@ -2326,9 +2326,12 @@ reset role;
 -- -----------------------------------------------------------------------------
 -- The tutor (0031)
 -- -----------------------------------------------------------------------------
--- The promise: a learner reads their own conversations and nobody else's,
--- coaches read everybody's, nothing is written by a learner directly, and a
--- message, once written, stays as it was said, for everybody.
+-- The promise: a learner reads their own conversations and nobody else's;
+-- staff read them only through the server, never through the database;
+-- nothing is written by a learner directly; a test question is answered
+-- once and asked once; and a message, once written, stays as it was said,
+-- except that it can be blanked once, with who and when kept. Nothing is
+-- deleted except by the account it belongs to going.
 reset role;
 set local request.jwt.claim.sub = '';
 insert into public.tutor_conversations (id, user_id, mode, topic, created_at)
@@ -2336,9 +2339,12 @@ values ('77770031-0000-0000-0000-000000000001', '11111111-1111-1111-1111-1111111
         'explain', 'Service of a writ', timestamptz '2001-01-01 00:00:00+00'),
        ('77770031-0000-0000-0000-000000000002', '22222222-2222-2222-2222-222222222222',
         'test', 'Finding the right court', now());
-insert into public.tutor_messages (conversation_id, role, body)
-values ('77770031-0000-0000-0000-000000000001', 'learner', 'You give the papers to the person.'),
-       ('77770031-0000-0000-0000-000000000002', 'tutor', 'Question one.');
+insert into public.tutor_messages (id, conversation_id, role, body, redacted_at, redacted_by)
+values ('77770031-0000-0000-0000-0000000000a1', '77770031-0000-0000-0000-000000000001', 'learner',
+        'You give the papers to the person.', now(), '44444444-4444-4444-4444-444444444444');
+insert into public.tutor_messages (conversation_id, role, body, question_version_id)
+values ('77770031-0000-0000-0000-000000000002', 'tutor', 'Question one.',
+        'dddddddd-0000-0000-0000-000000000001');
 insert into public.tutor_messages (conversation_id, role, body, question_version_id, chosen_option, correct)
 values ('77770031-0000-0000-0000-000000000002', 'learner', 'Chose a.',
         'dddddddd-0000-0000-0000-000000000001', 'a', true);
@@ -2346,14 +2352,65 @@ select pg_temp.expect(
   (select created_at > timestamptz '2020-01-01' from public.tutor_conversations
    where id = '77770031-0000-0000-0000-000000000001'),
   'a tutor conversation carries the time it actually started');
+select pg_temp.expect(
+  (select redacted_at is null and redacted_by is null from public.tutor_messages
+   where id = '77770031-0000-0000-0000-0000000000a1'),
+  'a tutor message cannot arrive already marked as removed');
 select pg_temp.expect_failure(
   $$insert into public.tutor_conversations (user_id, mode, topic)
     values ('11111111-1111-1111-1111-111111111111', 'chat', 'Anything')$$,
   'a tutor conversation is one of the known modes');
 select pg_temp.expect_failure(
+  $$insert into public.tutor_conversations (user_id, mode, topic, test_length)
+    values ('11111111-1111-1111-1111-111111111111', 'test', 'Anything', 9)$$,
+  'a test is set at five questions at most');
+select pg_temp.expect_failure(
+  $$insert into public.tutor_messages (conversation_id, role, body, question_version_id, chosen_option, correct)
+    values ('77770031-0000-0000-0000-000000000002', 'learner', 'Chose b.',
+            'dddddddd-0000-0000-0000-000000000001', 'b', false)$$,
+  'a test question is answered once, however many times the button is pressed');
+select pg_temp.expect_failure(
+  $$insert into public.tutor_messages (conversation_id, role, body, question_version_id)
+    values ('77770031-0000-0000-0000-000000000002', 'tutor', 'Question one again.',
+            'dddddddd-0000-0000-0000-000000000001')$$,
+  'a test question is asked once');
+select pg_temp.expect_failure(
   $$update public.tutor_messages set body = 'Something else entirely.'
     where conversation_id = '77770031-0000-0000-0000-000000000001'$$,
   'a tutor message cannot be rewritten, even by the server');
+select pg_temp.expect_failure(
+  $$update public.tutor_messages set body = 'Something else entirely.',
+      redacted_by = '44444444-4444-4444-4444-444444444444'
+    where conversation_id = '77770031-0000-0000-0000-000000000001'$$,
+  'removing a message means the fixed words, nothing of anyone''s choosing');
+select pg_temp.expect_failure(
+  $$update public.tutor_messages set body = '[Removed by an administrator]'
+    where conversation_id = '77770031-0000-0000-0000-000000000001'$$,
+  'a message is not removed without saying who removed it');
+select pg_temp.expect_failure(
+  $$update public.tutor_messages set body = '[Removed by an administrator]',
+      redacted_by = '44444444-4444-4444-4444-444444444444', correct = false
+    where conversation_id = '77770031-0000-0000-0000-000000000002' and role = 'learner'$$,
+  'removing a message changes its words and nothing else');
+update public.tutor_messages set body = '[Removed by an administrator]',
+  redacted_by = '44444444-4444-4444-4444-444444444444',
+  redacted_at = timestamptz '2001-01-01 00:00:00+00'
+where id = '77770031-0000-0000-0000-0000000000a1';
+select pg_temp.expect(
+  (select redacted_at > timestamptz '2020-01-01' and body = '[Removed by an administrator]'
+   from public.tutor_messages where id = '77770031-0000-0000-0000-0000000000a1'),
+  'a removed message keeps when it was removed, by the database''s clock');
+select pg_temp.expect_failure(
+  $$update public.tutor_messages set body = '[Removed by an administrator]',
+      redacted_by = '22222222-2222-2222-2222-222222222222'
+    where id = '77770031-0000-0000-0000-0000000000a1'$$,
+  'a message is removed once, and who removed it stays on the record');
+select pg_temp.expect_failure(
+  $$delete from public.tutor_messages where conversation_id = '77770031-0000-0000-0000-000000000002'$$,
+  'a tutor message cannot be deleted, even by the server');
+select pg_temp.expect_failure(
+  $$delete from public.tutor_conversations where id = '77770031-0000-0000-0000-000000000002'$$,
+  'a tutor conversation cannot be deleted, even by the server');
 select pg_temp.expect_failure(
   $$delete from public.question_versions where id = 'dddddddd-0000-0000-0000-000000000001'$$,
   'a question a tutor asked cannot be deleted from under the conversation');
@@ -2372,24 +2429,45 @@ select pg_temp.expect_failure(
   $$insert into public.tutor_conversations (user_id, mode, topic)
     values ('11111111-1111-1111-1111-111111111111', 'explain', 'Mine')$$,
   'a learner cannot start a conversation except through the server');
+update public.tutor_messages set body = '[Removed by an administrator]',
+  redacted_by = '11111111-1111-1111-1111-111111111111';
 delete from public.tutor_messages;
 reset role;
 select pg_temp.expect(
-  (select count(*) = 3 from public.tutor_messages),
-  'a learner cannot delete tutor messages');
+  (select count(*) = 3 from public.tutor_messages)
+    and (select redacted_by = '44444444-4444-4444-4444-444444444444' from public.tutor_messages
+         where id = '77770031-0000-0000-0000-0000000000a1'),
+  'a learner cannot delete or blank tutor messages');
 
 set local role authenticated;
 set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
 select pg_temp.expect(
-  (select count(*) = 2 from public.tutor_conversations)
-    and (select count(*) = 3 from public.tutor_messages),
-  'a coach reads every tutor conversation');
+  (select count(*) = 0 from public.tutor_conversations)
+    and (select count(*) = 0 from public.tutor_messages),
+  'a coach cannot read tutor conversations through the database');
 
 set local role anon;
 select pg_temp.expect(
   (select count(*) = 0 from public.tutor_conversations) and (select count(*) = 0 from public.tutor_messages),
   'no tutor conversation is readable signed out');
 reset role;
+
+-- An account going takes its conversations with it: the one delete the
+-- record allows, because it arrives by cascade.
+insert into auth.users (id, email, raw_user_meta_data)
+values ('77770031-0000-0000-0000-0000000000ff', 'leaving@example.test', '{}'::jsonb);
+insert into public.tutor_conversations (id, user_id, mode, topic)
+values ('77770031-0000-0000-0000-0000000000fe', '77770031-0000-0000-0000-0000000000ff',
+        'explain', 'Leaving');
+insert into public.tutor_messages (conversation_id, role, body)
+values ('77770031-0000-0000-0000-0000000000fe', 'learner', 'Something said before leaving.');
+delete from auth.users where id = '77770031-0000-0000-0000-0000000000ff';
+select pg_temp.expect(
+  not exists (select 1 from public.tutor_conversations
+              where id = '77770031-0000-0000-0000-0000000000fe')
+    and not exists (select 1 from public.tutor_messages
+                    where conversation_id = '77770031-0000-0000-0000-0000000000fe'),
+  'an account going takes its tutor conversations with it');
 
 \echo ''
 \echo 'All schema guarantees hold.'

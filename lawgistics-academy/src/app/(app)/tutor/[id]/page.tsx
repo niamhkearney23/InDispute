@@ -6,9 +6,16 @@ import { getCurrentUser } from '@/lib/supabase/server';
 import { requireAccess } from '@/lib/access/service';
 import { Notice } from '@/components/ui';
 import { TutorThread } from '@/components/tutor-thread';
-import { MODES, TUTOR_NOTICE, testProgress } from '@/lib/tutor/rules';
-import { conversation, messages, verifiedQuestion } from '@/lib/tutor/service';
-import { AnswerForm, ExplainForm } from '../forms';
+import { aiCompany } from '@/lib/ai/provider';
+import { MODES, testProgress, tutorNotice } from '@/lib/tutor/rules';
+import {
+  conversation,
+  explanationsFor,
+  isSupervised,
+  messages,
+  verifiedQuestion,
+} from '@/lib/tutor/service';
+import { AnswerForm, ExplainForm, SkipForm } from '../forms';
 
 export const metadata: Metadata = { title: 'Tutor' };
 
@@ -27,19 +34,24 @@ export default async function TutorConversationPage({
   // Coaches read conversations on their own page; this one is the learner's.
   if (!convo || convo.userId !== user.id) notFound();
 
-  const thread = await messages(convo.id);
+  const [thread, supervised] = await Promise.all([messages(convo.id), isSupervised(user.id)]);
+  const provider = aiCompany();
 
   let explanations: Record<string, string | null> = {};
+  let current: string | null = null;
   let waiting: Awaited<ReturnType<typeof verifiedQuestion>> = null;
   if (convo.mode === 'test') {
     const progress = testProgress(thread);
-    const answered = thread.filter((m) => m.role === 'learner' && m.questionVersionId);
-    const checked = await Promise.all(answered.map((m) => verifiedQuestion(m.questionVersionId!)));
-    explanations = Object.fromEntries(
-      answered.map((m, i) => [m.questionVersionId!, checked[i]?.explanation ?? null]),
+    current = progress.current;
+    const answered = thread.filter(
+      (m) => m.role === 'learner' && m.questionVersionId && m.correct !== null,
     );
-    waiting = progress.current ? await verifiedQuestion(progress.current) : null;
+    [explanations, waiting] = await Promise.all([
+      explanationsFor(answered.map((m) => m.questionVersionId!)),
+      current ? verifiedQuestion(current) : Promise.resolve(null),
+    ]);
   }
+  const last = thread[thread.length - 1];
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -51,15 +63,33 @@ export default async function TutorConversationPage({
         <h1 className="text-3xl">{convo.topic}</h1>
       </section>
 
-      <Notice tone="neutral">{TUTOR_NOTICE}</Notice>
+      <Notice tone="neutral">{tutorNotice({ supervised, provider })}</Notice>
 
       <TutorThread messages={thread} explanations={explanations} />
 
       <div className="border-t border-rule pt-5">
         {convo.mode === 'explain' ? (
-          <ExplainForm conversationId={convo.id} turn={thread.length} />
-        ) : waiting ? (
-          <AnswerForm conversationId={convo.id} options={waiting.options} turn={thread.length} />
+          provider ? (
+            <ExplainForm
+              conversationId={convo.id}
+              turn={thread.length}
+              unanswered={last?.role === 'learner'}
+            />
+          ) : (
+            <p className="text-sm text-slate">
+              The tutor&rsquo;s AI is not switched on at the moment, so it cannot reply. Your
+              conversation is kept; come back to it later.
+            </p>
+          )
+        ) : current && waiting ? (
+          <AnswerForm
+            conversationId={convo.id}
+            questionVersionId={current}
+            options={waiting.options}
+            turn={thread.length}
+          />
+        ) : current ? (
+          <SkipForm conversationId={convo.id} questionVersionId={current} />
         ) : (
           <p className="text-sm text-slate">
             This test is finished.{' '}

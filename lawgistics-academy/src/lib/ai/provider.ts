@@ -93,3 +93,8 @@ export function getProvider(): AiProvider | null {
   if (!isAiEnabled()) return null;
   return aiEnv.provider === 'anthropic' ? anthropicProvider : openaiProvider;
 }
+
+/** Which company the AI is, when it is switched on, for telling people where their words go. */
+export function aiCompany(): 'openai' | 'anthropic' | null {
+  return isAiEnabled() ? (aiEnv.provider as 'openai' | 'anthropic') : null;
+}

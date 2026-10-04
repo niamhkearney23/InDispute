@@ -7,13 +7,20 @@ import { recentConversations } from '@/lib/tutor/service';
 export const metadata: Metadata = { title: 'Tutor conversations' };
 
 /**
- * What learners have been working through with the tutor, newest first. For
- * coaches and administrators, read only: it shows where people are stuck,
- * and learners are told before their first message that coaches can see it.
+ * What learners have been working through with the tutor, newest first, a
+ * page at a time. A coach sees the people the firm supervises, who are told
+ * so before their first message; an administrator sees everybody, to
+ * remove anything that should not have been typed.
  */
-export default async function AdminTutorPage() {
-  await requireCoach();
-  const rows = await recentConversations(60);
+export default async function AdminTutorPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const { isAdmin } = await requireCoach();
+  const asked = Number.parseInt((await searchParams).page ?? '0', 10);
+  const page = Number.isFinite(asked) && asked > 0 ? Math.min(asked, 1000) : 0;
+  const { rows, more } = await recentConversations({ page, isAdmin });
   const when = (iso: string) =>
     new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
@@ -23,13 +30,17 @@ export default async function AdminTutorPage() {
         <p className="eyebrow mb-2">Tutor</p>
         <h1 className="text-3xl">What people are working through</h1>
         <p className="mt-3 max-w-2xl text-slate">
-          Learners&rsquo; conversations with the tutor, newest first. They are told coaches can read
-          these. Nothing here can be changed.
+          {isAdmin
+            ? 'Everybody\u2019s conversations with the tutor, newest first. Coaches see only the people the firm supervises.'
+            : 'Conversations with the tutor from the people the firm supervises, newest first. They are told their coaches can read these.'}
+          {isAdmin
+            ? ' Open one to remove a message that names a client or should not be there.'
+            : ' Nothing here can be changed.'}
         </p>
       </section>
 
       {rows.length === 0 ? (
-        <p className="text-slate">Nobody has used the tutor yet.</p>
+        <p className="text-slate">{page > 0 ? 'No more conversations.' : 'Nobody has used the tutor yet.'}</p>
       ) : (
         <ul className="divide-y divide-rule rounded-lg border border-rule bg-paper-raised">
           {rows.map((r) => (
@@ -45,13 +56,36 @@ export default async function AdminTutorPage() {
                   </span>
                 </span>
                 <span className="shrink-0 text-xs text-muted">
-                  {r.messageCount} messages · {when(r.createdAt)}
+                  {r.sent === 0 ? 'Not started' : `${r.sent} sent`} · {when(r.createdAt)}
                 </span>
               </Link>
             </li>
           ))}
         </ul>
       )}
+
+      {page > 0 || more ? (
+        <nav className="flex justify-between text-sm" aria-label="Pages">
+          {page > 0 ? (
+            <Link
+              href={page === 1 ? '/admin/tutor' : `/admin/tutor?page=${page - 1}`}
+              className="-my-2 py-2 font-medium text-accent underline underline-offset-2"
+            >
+              Newer
+            </Link>
+          ) : (
+            <span />
+          )}
+          {more ? (
+            <Link
+              href={`/admin/tutor?page=${page + 1}`}
+              className="-my-2 py-2 font-medium text-accent underline underline-offset-2"
+            >
+              Older
+            </Link>
+          ) : null}
+        </nav>
+      ) : null}
     </div>
   );
 }

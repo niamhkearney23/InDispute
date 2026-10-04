@@ -136,6 +136,7 @@ test('the server actions were actually found', () => {
     'postComment',
     'publishAllVerified',
     'recordReviewDecision',
+    'redactTutorMessage',
     'redeemCode',
     'removeAvatar',
     'requestCoachNote',

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { cn } from '@/components/ui';
 
 export interface ThreadMessage {
@@ -6,6 +7,7 @@ export interface ThreadMessage {
   body: string;
   questionVersionId: string | null;
   correct: boolean | null;
+  redacted?: boolean;
 }
 
 /**
@@ -18,18 +20,23 @@ export function TutorThread({
   messages,
   learnerName = 'You',
   explanations = {},
+  tools,
 }: {
   messages: ThreadMessage[];
   learnerName?: string;
   /** Checked explanations by question version, for answered questions. */
   explanations?: Record<string, string | null>;
+  /** Anything a staff page puts under a message, such as "Remove". */
+  tools?: (message: ThreadMessage) => ReactNode;
 }) {
   return (
     <ol className="space-y-4">
       {messages.map((m) => {
         const mine = m.role === 'learner';
         const explanation =
-          mine && m.questionVersionId ? explanations[m.questionVersionId] : undefined;
+          mine && m.questionVersionId && m.correct !== null
+            ? explanations[m.questionVersionId]
+            : undefined;
         return (
           <li key={m.id} className={cn('flex flex-col', mine ? 'items-end' : 'items-start')}>
             <p className="mb-1 text-[0.6875rem] font-semibold tracking-[0.14em] text-muted uppercase">
@@ -48,17 +55,23 @@ export function TutorThread({
             <div
               className={cn(
                 'max-w-[min(36rem,92%)] rounded-xl px-4 py-3 text-[0.9375rem] leading-relaxed whitespace-pre-wrap break-words',
-                mine ? 'bg-accent text-paper' : 'border border-rule bg-paper-raised',
+                m.redacted
+                  ? 'border border-dashed border-rule text-muted italic'
+                  : mine
+                    ? 'bg-accent text-paper'
+                    : 'border border-rule bg-paper-raised',
               )}
             >
               {m.body}
             </div>
+            {tools ? tools(m) : null}
             {explanation !== undefined ? (
               <div className="mt-2 max-w-[min(36rem,92%)] self-start rounded-xl border border-verdict-correct/25 bg-verdict-correct-wash px-4 py-3 text-sm leading-relaxed">
                 <p className="mb-1 text-[0.6875rem] font-semibold tracking-[0.14em] text-verdict-correct uppercase">
                   Checked by a lawyer
                 </p>
-                {explanation ?? 'This question has since been taken back for checking.'}
+                {explanation ??
+                  'This question has since been changed or taken back for checking, so its explanation is not shown here.'}
               </div>
             ) : null}
           </li>

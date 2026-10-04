@@ -50,6 +50,12 @@ export default async function IntakePage() {
   const confirmed = overview.trainees.filter((t) => t.confirmed);
   const awaiting = overview.trainees.filter((t) => !t.confirmed);
   const undated = confirmed.filter((t) => !t.startsOn);
+  // Dated for some other intake (the October dates, from before the intake
+  // moved) and not started yet: their day plan and homework would run to
+  // the wrong calendar.
+  const elsewhere = confirmed.filter(
+    (t) => t.startsOn && t.startsOn !== PROGRAMME.intakeStartsOn && t.startsOn > today,
+  );
   const videosUp = schedule.filter((d) => overview.sessionsByDate.has(d.date)).length;
   const allBoxes = [...new Set(schedule.flatMap((d) => d.due))];
   const workPosted = allBoxes.filter((n) => overview.workByBox.get(n)?.post.published).length;
@@ -69,12 +75,14 @@ export default async function IntakePage() {
       cta: 'Confirm them',
     },
     {
-      ok: confirmed.length > 0 && undated.length === 0,
+      ok: confirmed.length > 0 && undated.length === 0 && elsewhere.length === 0,
       label: 'Start dates',
       detail:
         undated.length > 0
           ? `${undated.length} confirmed ${undated.length === 1 ? 'trainee has' : 'trainees have'} no start date, so their homework and day plan do not show yet.`
-          : confirmed.length === 0
+          : elsewhere.length > 0
+            ? `${elsewhere.length} confirmed ${elsewhere.length === 1 ? 'trainee is' : 'trainees are'} dated for a different start (${elsewhere.map((t) => `${t.name}: ${shortDate(t.startsOn!)}`).join('; ')}), so their day plan runs to the wrong calendar.`
+            : confirmed.length === 0
             ? 'Nobody to date yet.'
             : 'Every confirmed trainee has dates.',
     },
@@ -154,12 +162,22 @@ export default async function IntakePage() {
               </li>
             ))}
           </ul>
-          {undated.length > 0 ? (
-            <div className="mt-4 border-t border-rule pt-4">
+          {undated.length > 0 || elsewhere.length > 0 ? (
+            <div className="mt-4 space-y-4 border-t border-rule pt-4">
               {isAdmin ? (
-                <IntakeDatesButton
-                  label={`Give ${undated.length === 1 ? 'them' : `all ${undated.length}`} the intake dates`}
-                />
+                <>
+                  {undated.length > 0 ? (
+                    <IntakeDatesButton
+                      label={`Give ${undated.length === 1 ? 'them' : `all ${undated.length}`} the intake dates`}
+                    />
+                  ) : null}
+                  {elsewhere.length > 0 ? (
+                    <IntakeDatesButton
+                      scope="move"
+                      label={`Move ${elsewhere.length === 1 ? 'them' : `all ${elsewhere.length}`} to ${shortDate(PROGRAMME.intakeStartsOn)}`}
+                    />
+                  ) : null}
+                </>
               ) : (
                 <p className="text-sm text-slate">
                   An administrator sets start dates. Ask them to open this page and press the

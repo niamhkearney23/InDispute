@@ -23,6 +23,7 @@ export function StartExplainForm({ suggestions }: { suggestions: string[] }) {
         name="topic"
         required
         maxLength={120}
+        defaultValue={state.draft}
         list="tutor-topics"
         placeholder="e.g. Setting aside a default judgment"
         className={INPUT}
@@ -79,41 +80,72 @@ export function StartTestForm({
   );
 }
 
-/** "Explain it back": the box for the next attempt. */
-export function ExplainForm({ conversationId, turn }: { conversationId: string; turn: number }) {
+/**
+ * "Explain it back": the box for the next attempt. When the tutor has not
+ * replied to the last one (the AI was busy), a button asks it again without
+ * sending anything new.
+ */
+export function ExplainForm({
+  conversationId,
+  turn,
+  unanswered,
+}: {
+  conversationId: string;
+  turn: number;
+  unanswered: boolean;
+}) {
   const [state, action, pending] = useActionState<TutorState, FormData>(sendExplanation, {
     error: null,
   });
   return (
-    <form action={action} className="space-y-3" key={turn}>
-      <input type="hidden" name="conversationId" value={conversationId} />
-      <label htmlFor="body" className="sr-only">
-        Your explanation
-      </label>
-      <textarea
-        id="body"
-        name="body"
-        required
-        rows={5}
-        maxLength={2000}
-        placeholder="Explain it in your own words…"
-        className={INPUT}
-      />
-      <Button type="submit" variant="accent" disabled={pending}>
-        {pending ? 'The tutor is reading…' : 'Send'}
-      </Button>
-      {state.error ? <Notice tone="error">{state.error}</Notice> : null}
-    </form>
+    <div className="space-y-4">
+      {unanswered ? (
+        <form action={action} className="flex flex-wrap items-center gap-3">
+          <input type="hidden" name="conversationId" value={conversationId} />
+          <input type="hidden" name="retry" value="1" />
+          <p className="text-sm text-slate">The tutor has not replied to your last message.</p>
+          <Button type="submit" variant="outline" size="sm" disabled={pending}>
+            {pending ? 'Asking…' : 'Ask again'}
+          </Button>
+        </form>
+      ) : null}
+      <form action={action} className="space-y-3" key={turn}>
+        <input type="hidden" name="conversationId" value={conversationId} />
+        <label htmlFor="body" className="sr-only">
+          Your explanation
+        </label>
+        <textarea
+          id="body"
+          name="body"
+          required
+          rows={5}
+          maxLength={2000}
+          defaultValue={state.draft}
+          placeholder="Explain it in your own words…"
+          className={INPUT}
+        />
+        <Button type="submit" variant="accent" disabled={pending}>
+          {pending ? 'The tutor is reading…' : 'Send'}
+        </Button>
+        {state.error ? <Notice tone="error">{state.error}</Notice> : null}
+      </form>
+    </div>
   );
 }
 
-/** "Test me": the answer to the question waiting, and why. */
+/**
+ * "Test me": the answer to the question waiting, and why. The form names
+ * the question it shows, so an answer from an old tab cannot land on a
+ * different question.
+ */
 export function AnswerForm({
   conversationId,
+  questionVersionId,
   options,
   turn,
 }: {
   conversationId: string;
+  questionVersionId: string;
   options: Array<{ id: string; text: string }>;
   turn: number;
 }) {
@@ -123,6 +155,7 @@ export function AnswerForm({
   return (
     <form action={action} className="space-y-4" key={turn}>
       <input type="hidden" name="conversationId" value={conversationId} />
+      <input type="hidden" name="questionVersionId" value={questionVersionId} />
       <fieldset className="space-y-2">
         <legend className="mb-2 text-sm font-semibold">Your answer</legend>
         {options.map((o) => (
@@ -135,6 +168,7 @@ export function AnswerForm({
               name="option"
               value={o.id}
               required
+              defaultChecked={state.option === o.id}
               className="mt-1 accent-accent"
             />
             <span>
@@ -150,10 +184,48 @@ export function AnswerForm({
             (optional, but it helps the tutor find the gap)
           </span>
         </label>
-        <textarea id="reason" name="reason" rows={2} maxLength={600} className={INPUT} />
+        <textarea
+          id="reason"
+          name="reason"
+          rows={2}
+          maxLength={600}
+          defaultValue={state.draft}
+          className={INPUT}
+        />
       </div>
       <Button type="submit" variant="accent" disabled={pending}>
         {pending ? 'Checking…' : 'Answer'}
+      </Button>
+      {state.error ? <Notice tone="error">{state.error}</Notice> : null}
+    </form>
+  );
+}
+
+/**
+ * "Test me", when the question waiting has been taken back for checking
+ * since it was asked: it is not marked, and the test moves on.
+ */
+export function SkipForm({
+  conversationId,
+  questionVersionId,
+}: {
+  conversationId: string;
+  questionVersionId: string;
+}) {
+  const [state, action, pending] = useActionState<TutorState, FormData>(answerTutorQuestion, {
+    error: null,
+  });
+  return (
+    <form action={action} className="space-y-3">
+      <input type="hidden" name="conversationId" value={conversationId} />
+      <input type="hidden" name="questionVersionId" value={questionVersionId} />
+      <input type="hidden" name="skip" value="1" />
+      <p className="text-sm text-slate">
+        This question has been taken back for a lawyer to look at again since it was asked, so it
+        will not be marked.
+      </p>
+      <Button type="submit" variant="accent" disabled={pending}>
+        {pending ? 'Moving on…' : 'Carry on'}
       </Button>
       {state.error ? <Notice tone="error">{state.error}</Notice> : null}
     </form>

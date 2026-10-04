@@ -299,6 +299,9 @@ const TABLES = {
       mode: 'explain',
       topic: 'Setting aside a default judgment',
       module_slug: null,
+      test_length: null,
+      // What PostgREST's embedded count gives the staff list.
+      tutor_messages: [{ count: 1 }],
       created_at: '2026-10-03T09:00:00Z',
     },
     {
@@ -307,6 +310,8 @@ const TABLES = {
       mode: 'test',
       topic: 'Finding the right court',
       module_slug: 'courts-au',
+      test_length: 2,
+      tutor_messages: [{ count: 1 }],
       created_at: '2026-10-03T10:00:00Z',
     },
   ],
@@ -315,7 +320,7 @@ const TABLES = {
       id: 'dddd0031-0000-4000-8000-000000000001',
       conversation_id: 'cccc0031-0000-4000-8000-000000000001',
       role: 'tutor',
-      body: 'Explain "Setting aside a default judgment" to me as if I were ten years old. Use your own words. I will stop you whenever you use a term without saying what it means, skip a step, or make it so simple it is no longer true.',
+      body: 'Explain it to me as if I were ten years old, in your own words. I will stop you whenever you use a term without saying what it means, skip a step, or make it so simple it is no longer true.',
       question_version_id: null, chosen_option: null, correct: null,
       created_at: '2026-10-03T09:00:00Z',
     },
@@ -1017,6 +1022,10 @@ const TABLES = {
       explanation: 'Appeals run up the hierarchy they belong to, one step at a time. The court directly above the County Court is the Court of Appeal.',
       common_misconception: 'Going straight to the top court.',
       verification_status: 'human_verified',
+      review_flagged: false,
+      review_due_on: null,
+      // The embedded parent PostgREST joins in.
+      questions: { status: 'published', country: 'AU', domain_id: 'd1' },
     },
     {
       id: 'eeee0031-0000-4000-8000-000000000002',
@@ -1033,6 +1042,10 @@ const TABLES = {
       explanation: 'Small claims start in the lowest court that can hear them.',
       common_misconception: null,
       verification_status: 'human_verified',
+      review_flagged: false,
+      review_due_on: null,
+      // The embedded parent PostgREST joins in.
+      questions: { status: 'published', country: 'AU', domain_id: 'd1' },
     },
     {
       id: 'bbbbbbbb-0000-4000-8000-000000000001',

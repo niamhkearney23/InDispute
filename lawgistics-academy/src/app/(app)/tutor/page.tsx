@@ -4,11 +4,11 @@ import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { requireAccess } from '@/lib/access/service';
-import { isAiEnabled } from '@/lib/ai/provider';
+import { aiCompany } from '@/lib/ai/provider';
 import { modulesFor } from '@/content/seed/modules';
 import { Card, Notice } from '@/components/ui';
-import { MODES, TUTOR_NOTICE } from '@/lib/tutor/rules';
-import { conversationsFor, testableModules } from '@/lib/tutor/service';
+import { MODES, tutorNotice } from '@/lib/tutor/rules';
+import { conversationsFor, isSupervised, testableModules } from '@/lib/tutor/service';
 import { StartExplainForm, StartTestForm } from './forms';
 
 export const metadata: Metadata = { title: 'Tutor' };
@@ -22,11 +22,12 @@ export default async function TutorPage() {
   if (!profile) redirect('/login');
   if (!profile.onboardedAt) redirect('/onboarding');
 
-  const [modules, recent] = await Promise.all([
+  const [modules, recent, supervised] = await Promise.all([
     testableModules(profile.country),
     conversationsFor(user.id, 10),
+    isSupervised(user.id),
   ]);
-  const ai = isAiEnabled();
+  const provider = aiCompany();
   const day = (iso: string) =>
     new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 
@@ -40,13 +41,13 @@ export default async function TutorPage() {
         </p>
       </section>
 
-      <Notice tone="neutral">{TUTOR_NOTICE}</Notice>
+      <Notice tone="neutral">{tutorNotice({ supervised, provider })}</Notice>
 
       <div className="grid gap-5 md:grid-cols-2">
         <Card>
           <h2 className="font-sans text-xl font-semibold">{MODES.explain.name}</h2>
           <p className="mt-1 mb-4 text-sm text-slate">{MODES.explain.line}</p>
-          {ai ? (
+          {provider ? (
             <StartExplainForm suggestions={modulesFor(profile.country).map((m) => m.name)} />
           ) : (
             <p className="text-sm text-slate">

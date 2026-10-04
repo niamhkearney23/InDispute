@@ -5,27 +5,39 @@ import { z } from 'zod';
 import { requireCoach } from '@/lib/admin/guard';
 import { TutorThread } from '@/components/tutor-thread';
 import { MODES } from '@/lib/tutor/rules';
-import { conversation, messages, personName, verifiedQuestion } from '@/lib/tutor/service';
+import {
+  conversation,
+  explanationsFor,
+  messages,
+  personName,
+  staffMayRead,
+} from '@/lib/tutor/service';
+import { RedactButton } from '../redact-button';
 
 export const metadata: Metadata = { title: 'Tutor conversation' };
 
-/** One learner's conversation with the tutor, as they saw it. Read only. */
+/**
+ * One learner's conversation with the tutor, as they saw it. A coach reads
+ * only the conversations of people the firm supervises; anybody else's is
+ * not found, the same answer as one that does not exist. An administrator
+ * can remove a message that should not have been typed.
+ */
 export default async function AdminTutorConversationPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireCoach();
+  const { isAdmin } = await requireCoach();
   const { id } = await params;
   if (!z.string().uuid().safeParse(id).success) notFound();
   const convo = await conversation(id);
-  if (!convo) notFound();
+  if (!convo || !(await staffMayRead(convo.userId, isAdmin))) notFound();
 
   const [thread, name] = await Promise.all([messages(convo.id), personName(convo.userId)]);
-  const answered = thread.filter((m) => m.role === 'learner' && m.questionVersionId);
-  const checked = await Promise.all(answered.map((m) => verifiedQuestion(m.questionVersionId!)));
-  const explanations = Object.fromEntries(
-    answered.map((m, i) => [m.questionVersionId!, checked[i]?.explanation ?? null]),
+  const explanations = await explanationsFor(
+    thread
+      .filter((m) => m.role === 'learner' && m.questionVersionId && m.correct !== null)
+      .map((m) => m.questionVersionId!),
   );
 
   return (
@@ -41,8 +53,19 @@ export default async function AdminTutorConversationPage({
           {name} · {MODES[convo.mode].name}
         </p>
         <h1 className="text-3xl">{convo.topic}</h1>
+        {isAdmin ? (
+          <p className="mt-3 text-sm text-slate">
+            If a message names a client or holds anything that should not be here, remove it. The
+            words go for good; the record keeps that you removed them, and when.
+          </p>
+        ) : null}
       </section>
-      <TutorThread messages={thread} learnerName={name} explanations={explanations} />
+      <TutorThread
+        messages={thread}
+        learnerName={name}
+        explanations={explanations}
+        tools={isAdmin ? (m) => (m.redacted ? null : <RedactButton messageId={m.id} />) : undefined}
+      />
     </div>
   );
 }
