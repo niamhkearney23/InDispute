@@ -10,7 +10,7 @@ export const PROGRAMME = {
   /** How long it runs. */
   length: 'One month',
   /** When the next one starts, in words. */
-  nextIntake: 'October 2026',
+  nextIntake: 'November 2026',
   /** The working pattern. */
   days: 'Monday to Friday',
   /**
@@ -19,6 +19,6 @@ export const PROGRAMME = {
    * them as a person's dates until that has been done, because a start date
    * is the firm's decision about a person, not a default.
    */
-  intakeStartsOn: '2026-10-05',
-  intakeEndsOn: '2026-10-30',
+  intakeStartsOn: '2026-11-02',
+  intakeEndsOn: '2026-11-27',
 } as const;

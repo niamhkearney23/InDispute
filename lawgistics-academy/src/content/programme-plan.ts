@@ -15,7 +15,7 @@ import { CERTIFICATION_BOXES, type CertificationBox } from '@/content/seed/certi
  * computeCertificationStatus in src/lib/certification/service.ts.
  *
  * NOT YET REVIEWED BY THE FIRM. Proposed as a starting shape for the
- * October intake, not handed down by anybody who has run the programme.
+ * November intake, not handed down by anybody who has run the programme.
  * A supervisor may vary it, and the page that shows it says so.
  */
 
