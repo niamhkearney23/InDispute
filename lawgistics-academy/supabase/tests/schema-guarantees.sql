@@ -2323,6 +2323,74 @@ select pg_temp.expect(
   'nothing about access or payment is readable signed out');
 reset role;
 
+-- -----------------------------------------------------------------------------
+-- The tutor (0031)
+-- -----------------------------------------------------------------------------
+-- The promise: a learner reads their own conversations and nobody else's,
+-- coaches read everybody's, nothing is written by a learner directly, and a
+-- message, once written, stays as it was said, for everybody.
+reset role;
+set local request.jwt.claim.sub = '';
+insert into public.tutor_conversations (id, user_id, mode, topic, created_at)
+values ('77770031-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111',
+        'explain', 'Service of a writ', timestamptz '2001-01-01 00:00:00+00'),
+       ('77770031-0000-0000-0000-000000000002', '22222222-2222-2222-2222-222222222222',
+        'test', 'Finding the right court', now());
+insert into public.tutor_messages (conversation_id, role, body)
+values ('77770031-0000-0000-0000-000000000001', 'learner', 'You give the papers to the person.'),
+       ('77770031-0000-0000-0000-000000000002', 'tutor', 'Question one.');
+insert into public.tutor_messages (conversation_id, role, body, question_version_id, chosen_option, correct)
+values ('77770031-0000-0000-0000-000000000002', 'learner', 'Chose a.',
+        'dddddddd-0000-0000-0000-000000000001', 'a', true);
+select pg_temp.expect(
+  (select created_at > timestamptz '2020-01-01' from public.tutor_conversations
+   where id = '77770031-0000-0000-0000-000000000001'),
+  'a tutor conversation carries the time it actually started');
+select pg_temp.expect_failure(
+  $$insert into public.tutor_conversations (user_id, mode, topic)
+    values ('11111111-1111-1111-1111-111111111111', 'chat', 'Anything')$$,
+  'a tutor conversation is one of the known modes');
+select pg_temp.expect_failure(
+  $$update public.tutor_messages set body = 'Something else entirely.'
+    where conversation_id = '77770031-0000-0000-0000-000000000001'$$,
+  'a tutor message cannot be rewritten, even by the server');
+select pg_temp.expect_failure(
+  $$delete from public.question_versions where id = 'dddddddd-0000-0000-0000-000000000001'$$,
+  'a question a tutor asked cannot be deleted from under the conversation');
+
+set local role authenticated;
+set local request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+select pg_temp.expect(
+  (select count(*) = 1 from public.tutor_conversations)
+    and (select count(*) = 1 from public.tutor_messages),
+  'a learner reads their own tutor conversations and nobody else''s');
+select pg_temp.expect_failure(
+  $$insert into public.tutor_messages (conversation_id, role, body)
+    values ('77770031-0000-0000-0000-000000000001', 'tutor', 'Well done, all correct.')$$,
+  'a learner cannot write a tutor message, as themselves or as the tutor');
+select pg_temp.expect_failure(
+  $$insert into public.tutor_conversations (user_id, mode, topic)
+    values ('11111111-1111-1111-1111-111111111111', 'explain', 'Mine')$$,
+  'a learner cannot start a conversation except through the server');
+delete from public.tutor_messages;
+reset role;
+select pg_temp.expect(
+  (select count(*) = 3 from public.tutor_messages),
+  'a learner cannot delete tutor messages');
+
+set local role authenticated;
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+select pg_temp.expect(
+  (select count(*) = 2 from public.tutor_conversations)
+    and (select count(*) = 3 from public.tutor_messages),
+  'a coach reads every tutor conversation');
+
+set local role anon;
+select pg_temp.expect(
+  (select count(*) = 0 from public.tutor_conversations) and (select count(*) = 0 from public.tutor_messages),
+  'no tutor conversation is readable signed out');
+reset role;
+
 \echo ''
 \echo 'All schema guarantees hold.'
 

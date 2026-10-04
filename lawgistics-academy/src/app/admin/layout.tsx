@@ -28,6 +28,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         ['/admin/firm', 'Firm'],
         ['/admin/onboarding', 'Joiners'],
         ['/admin/access', 'Access'],
+        ['/admin/tutor', 'Tutor'],
       ]
     : [
         ['/admin/intake', 'Intake'],
@@ -38,6 +39,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         ['/admin/certification', 'Certification'],
         ['/admin/onboarding', 'Joiners'],
         ['/admin/access', 'Access'],
+        ['/admin/tutor', 'Tutor'],
       ];
 
   return (

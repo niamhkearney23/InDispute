@@ -171,7 +171,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0030`. `supabase/UPDATE.sql` is the one-paste update for a
+- Migrations run to `0031`. `supabase/UPDATE.sql` is the one-paste update for a
   database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -237,7 +237,22 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   records it. Every training page calls `requireAccess()` and a test fails if
   a new one does not; the actions that start training or call the AI check
   `hasAccess` too. None of the three tables is written by a learner.
-- 330 tests, 276 schema guarantees against a real Postgres, 240 page and device
+- `0031` is the **tutor** (`/tutor`), two modes. "Explain it back": the
+  learner explains an idea as if to a ten-year-old and the AI stops them at
+  jargon, skipped steps and oversimplification, one question at a time; it is
+  told never to explain the idea or state law, and to send anything legally
+  doubtful to the lesson or a coach. "Test me": up to five questions from one
+  module, only ones a person has marked `human_verified` (published alone is
+  not enough, because seed content ships published and unchecked), marked by
+  the server from the answer key; the AI's comment is drawn from the checked
+  explanation, which the page shows in its own box. Coaches read every
+  conversation at `/admin/tutor` (read only, no new coach action) and learners
+  are told so above every conversation, with a warning to keep clients out.
+  Conversations and messages are written by the server only and never
+  changed afterwards, by anybody. Sixty learner messages a day each. More
+  modes (sprint, error simulator, learning path) were proposed and deferred
+  until matters and questions are signed off.
+- 342 tests, 286 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB
