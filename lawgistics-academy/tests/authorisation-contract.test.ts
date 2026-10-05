@@ -455,6 +455,8 @@ test('privileged modules are marked server-only', () => {
     'src/lib/intake/service.ts',
     'src/lib/access/service.ts',
     'src/lib/lessons/signoff.ts',
+    'src/lib/admin/supervision.ts',
+    'src/lib/admin/answers.ts',
     'src/lib/tutor/service.ts',
   ];
 

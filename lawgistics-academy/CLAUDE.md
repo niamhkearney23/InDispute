@@ -280,10 +280,10 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 - **The look.** The academy (everything under `src/app/(app)`) is navy: the
   `theme-navy` class on its layout swaps the colour tokens in
   `globals.css` (cream buttons, ice-blue details, burgundy warnings, a two-level
-  grid, gold-free by the owner's choice). The front page, sign-in and Admin
-  stay cream. The certificate and a matter's case file stay paper inside it.
+  grid, gold-free by the owner's choice). Admin has the same look. The front
+  page and sign-in stay cream. The certificate and a matter's case file stay paper inside it.
   Use the tokens, never fixed Tailwind colours, or a page breaks in one look.
-- 360 tests, 306 schema guarantees against a real Postgres, 240 page and device
+- 364 tests, 306 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB

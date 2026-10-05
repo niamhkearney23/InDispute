@@ -1088,7 +1088,38 @@ const TABLES = {
   ],
   question_concepts: [{ question_id: 'aaaaaaaa-0000-4000-8000-000000000001', concept_id: 'c0' }],
   question_skills: [{ question_id: 'aaaaaaaa-0000-4000-8000-000000000001', skill_id: 'procedural-sequencing' }],
-  user_question_attempts: [],
+  /* Two wrong answers of Aisyah's, for the staff page that shows a
+     trainee's answers. Dated in the past so "answered today" stays zero. */
+  user_question_attempts: [
+    {
+      user_id: TRAINEE_USER_ID,
+      is_correct: false,
+      answered_at: '2026-09-30T02:00:00Z',
+      selected_option_ids: ['a'],
+      question_versions: {
+        stem: 'Where does the appeal go?',
+        options: [
+          { id: 'a', text: 'The High Court of Australia' },
+          { id: 'b', text: 'The Court of Appeal of the Supreme Court of Victoria' },
+        ],
+        correct_option_ids: ['b'],
+      },
+    },
+    {
+      user_id: TRAINEE_USER_ID,
+      is_correct: false,
+      answered_at: '2026-09-29T02:00:00Z',
+      selected_option_ids: ['b'],
+      question_versions: {
+        stem: 'Which court usually hears a small debt claim first?',
+        options: [
+          { id: 'a', text: 'The Magistrates Court' },
+          { id: 'b', text: 'The Supreme Court' },
+        ],
+        correct_option_ids: ['a'],
+      },
+    },
+  ],
   legal_sources: [],
   // Without these the certification pages render only the empty-roster state,
   // and the box grid, the densest of the new pages, is never drawn at any

@@ -257,7 +257,7 @@ export default async function DashboardPage() {
             {overview.currentStreak > 0 && !goalMet
               ? `${overview.currentStreak} ${overview.currentStreak === 1 ? 'day' : 'days'} in a row. Today keeps it alive.`
               : goalMet
-                ? 'Done for today. The chain holds.'
+                ? 'Done for today. Your streak is safe.'
                 : 'Ready to train like a lawyer?'}
           </p>
 
@@ -678,7 +678,7 @@ export default async function DashboardPage() {
           tone="amber"
           label="Longest streak"
           value={overview.longestStreak}
-          hint={overview.longestStreak > 0 ? 'days, your record' : 'no chain yet'}
+          hint={overview.longestStreak > 0 ? 'days, your record' : 'no streak yet'}
         />
         <StatTile
           icon={<SparkIcon className="size-5" />}

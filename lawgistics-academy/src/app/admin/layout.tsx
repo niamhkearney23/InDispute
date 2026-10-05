@@ -19,6 +19,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     ? [
         ['/admin', 'Questions'],
         ['/admin/intake', 'Intake'],
+        ['/admin/trainees', 'Trainees'],
         ['/admin/review', 'Verify'],
         ['/admin/lessons', 'Lessons'],
         ['/admin/matters', 'Matters'],
@@ -33,6 +34,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       ]
     : [
         ['/admin/intake', 'Intake'],
+        ['/admin/trainees', 'Trainees'],
         ['/admin/review', 'Verify'],
         ['/admin/lessons', 'Lessons'],
         ['/admin/matters', 'Matters'],
@@ -45,7 +47,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       ];
 
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="theme-navy flex min-h-dvh flex-col">
       <header className="border-b border-rule bg-paper-sunk">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-5 py-3.5 sm:px-8">
           <div className="flex items-baseline gap-3">

@@ -94,29 +94,29 @@ export const LESSONS: SeedLesson[] = [
     steps: [
       {
         heading: 'Why there is an order at all',
-        body: 'Courts are arranged with some above others for two reasons. A party who says a decision was wrong can have it looked at by a court above. And the law stays consistent, because courts below must follow what courts above have decided. Without that, the same question could be answered differently in two courtrooms on the same street.',
+        body: 'Courts are arranged with some above others for two reasons. A party who says a decision was wrong may be able to appeal to a court above, often only with permission (leave): disagreeing with the result is not, by itself, a right to another hearing. And the law stays consistent, because courts below must follow what courts above have decided. Without that, the same question could be answered differently in two courtrooms on the same street.',
         takeaway: 'Higher courts correct, and higher courts set the rule.',
       },
       {
         heading: 'One country, one top court',
-        body: 'The High Court of Australia sits above everything, federal and State alike. It is what keeps a single common law across the whole country rather than nine separate versions of it. Getting there generally requires special leave, so most cases never do.',
+        body: 'The High Court of Australia is Australia\u2019s highest court and final court of appeal, above every federal and State court. It is what keeps a single common law across the whole country rather than nine separate versions of it. An appeal to it generally requires special leave, so most cases never get there.',
         diagram: true,
       },
       {
         heading: 'Two ladders, not one',
-        body: 'The Federal Court and the State and Territory Supreme Courts run in parallel. Neither is above the other. They are separate hierarchies handling different work, and they meet only at the High Court.',
+        body: 'The Federal Court and the State and Territory Supreme Courts are separate hierarchies running side by side. Neither sits above the other. The two systems do interact: a State court can, for example, exercise federal jurisdiction.',
         diagram: true,
         takeaway: 'The Federal Court does not sit above the State courts.',
       },
       {
-        heading: 'Value decides where you start',
-        body: 'Below the Supreme Court sit the intermediate court, called the County Court in Victoria and the District Court in most other States, and below that the Magistrates or Local Court. Which one a civil claim begins in is usually decided by how much it is worth. Tasmania, the ACT and the Northern Territory have no intermediate court at all.',
+        heading: 'Value matters, but is not decisive',
+        body: 'Below the Supreme Court sit the intermediate court, called the County Court in Victoria and the District Court in most other States, and below that the Magistrates or Local Court. How much a civil claim is worth matters to where it can start, but it does not settle it on its own: more than one court may have jurisdiction, and the County Court has unlimited monetary jurisdiction in civil matters. Tasmania, the ACT and the Northern Territory have no intermediate court at all.',
         diagram: true,
       },
       {
-        heading: 'Appeals go up one step',
-        body: 'An appeal ordinarily goes to the court immediately above the one that decided the case, not straight to the top. From the Magistrates Court to the intermediate court, from there to the Supreme Court, and only then, with leave, towards the High Court.',
-        takeaway: 'Up one rung at a time.',
+        heading: 'Check the appeal route',
+        body: 'Appeal routes come from legislation and vary by court and by kind of case, so there is no single ladder to climb one rung at a time. A civil judgment of a County Court judge ordinarily goes, with leave, to the Court of Appeal, part of the Supreme Court of Victoria. A Magistrates\u2019 Court civil appeal on a question of law goes to the Supreme Court, bypassing the County Court. A further appeal to the High Court generally needs special leave.',
+        takeaway: 'Check the appeal route for this court and this kind of case.',
       },
     ],
   },
@@ -517,13 +517,13 @@ export const DRAFT_LESSONS: SeedLesson[] = [
     },
     guesses: [
       {
-        prompt: 'Why can Ms Tran ask a higher court to look at her case at all?',
+        prompt: 'Why might Ms Tran be able to ask a higher court to look at her case at all?',
         options: [
           {
             id: 'a',
-            text: 'So a decision said to be wrong can be looked at, and so courts below follow the courts above',
+            text: 'So a decision said to be wrong may be reviewed above, and so courts below follow the courts above',
           },
-          { id: 'b', text: 'So that every case gets heard twice' },
+          { id: 'b', text: 'Because anyone who disagrees with a result is entitled to another hearing' },
         ],
         answer: 'a',
       },
@@ -540,24 +540,24 @@ export const DRAFT_LESSONS: SeedLesson[] = [
         prompt: 'Is the Federal Court above the Supreme Court of Victoria?',
         options: [
           { id: 'a', text: 'Yes: federal courts outrank State courts' },
-          { id: 'b', text: 'No: they run side by side and meet only at the High Court' },
+          { id: 'b', text: 'No: they are separate ladders, and neither sits above the other' },
         ],
         answer: 'b',
       },
       {
-        prompt: 'What usually decided that the supplier\u2019s claim started in the County Court?',
+        prompt: 'Does the $450,000 claim mean the supplier had to sue in the County Court?',
         options: [
-          { id: 'a', text: 'How much it was worth' },
-          { id: 'b', text: 'Which court the supplier\u2019s lawyer preferred' },
-          { id: 'c', text: 'How long the hearing would take' },
+          { id: 'a', text: 'Yes: the amount decides the court' },
+          { id: 'b', text: 'No: the amount matters, but more than one court may have jurisdiction' },
         ],
-        answer: 'a',
+        answer: 'b',
       },
       {
-        prompt: 'So can Ms Tran go straight from the County Court to the High Court?',
+        prompt: 'Where would Ms Tran ordinarily seek permission to appeal the County Court judge\u2019s civil judgment?',
         options: [
-          { id: 'a', text: 'Yes, if she feels strongly enough' },
-          { id: 'b', text: 'No: an appeal ordinarily goes to the court immediately above' },
+          { id: 'a', text: 'The High Court of Australia' },
+          { id: 'b', text: 'The Court of Appeal of the Supreme Court of Victoria' },
+          { id: 'c', text: 'The Federal Court of Australia' },
         ],
         answer: 'b',
       },
