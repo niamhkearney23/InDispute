@@ -1,5 +1,6 @@
 'use client';
 
+import { optionLetter } from '@/lib/learning/option-order';
 import { useActionState } from 'react';
 import { Button, Notice } from '@/components/ui';
 import { answerTutorQuestion, sendExplanation, startTutor, type TutorState } from './actions';
@@ -158,7 +159,7 @@ export function AnswerForm({
       <input type="hidden" name="questionVersionId" value={questionVersionId} />
       <fieldset className="space-y-2">
         <legend className="mb-2 text-sm font-semibold">Your answer</legend>
-        {options.map((o) => (
+        {options.map((o, i) => (
           <label
             key={o.id}
             className="flex cursor-pointer items-start gap-3 rounded-lg border-2 border-rule bg-paper-raised px-4 py-3 has-[:checked]:border-accent has-[:checked]:bg-accent-wash"
@@ -172,7 +173,7 @@ export function AnswerForm({
               className="mt-1 accent-accent"
             />
             <span>
-              <span className="font-semibold">{o.id.toUpperCase()}.</span> {o.text}
+              <span className="font-semibold">{optionLetter(i)}.</span> {o.text}
             </span>
           </label>
         ))}

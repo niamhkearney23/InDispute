@@ -12,6 +12,8 @@
  * that states law anyway.
  */
 
+import { optionLetter } from '@/lib/learning/option-order';
+
 export type TutorMode = 'explain' | 'test';
 
 export function asMode(value: unknown): TutorMode | null {
@@ -189,7 +191,7 @@ export function questionMessage(q: VerifiedQuestion, number: number, total: numb
   const lines = [`Question ${number} of ${total}.`];
   if (q.scenario) lines.push('', q.scenario);
   lines.push('', q.stem, '');
-  for (const option of q.options) lines.push(`${option.id.toUpperCase()}. ${option.text}`);
+  q.options.forEach((option, i) => lines.push(`${optionLetter(i)}. ${option.text}`));
   return lines.join('\n');
 }
 

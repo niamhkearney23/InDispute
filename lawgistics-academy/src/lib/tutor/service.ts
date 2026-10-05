@@ -1,4 +1,5 @@
 import 'server-only';
+import { deliveryOrder } from '@/lib/learning/option-order';
 import { createServiceClient } from '@/lib/supabase/service';
 import { modulesFor, moduleBySlug } from '@/content/seed/modules';
 import type { Country } from '@/lib/types';
@@ -110,7 +111,9 @@ function asChecked(row: CheckedRow, today: string): VerifiedQuestion | null {
     versionId: row.id,
     stem: row.stem,
     scenario: row.scenario ?? null,
-    options: row.options ?? [],
+    // The same shuffled order the training shows: the bank was written with
+    // the right answer second three times in four.
+    options: deliveryOrder(row.options ?? [], row.id),
     correctOptionIds: row.correct_option_ids ?? [],
     explanation: row.explanation,
     misconception: row.common_misconception ?? null,

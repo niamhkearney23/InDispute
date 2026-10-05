@@ -1,5 +1,6 @@
 'use client';
 
+import { optionLetter } from '@/lib/learning/option-order';
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { answerQuestion, finishSession, requestCoachNote } from '@/app/(app)/actions';
 import { CourtHierarchyDiagram } from '@/components/court-hierarchy-diagram';
@@ -205,7 +206,7 @@ export function SessionRunner({
           />
         ) : (
         <div className="space-y-2.5" role="group" aria-label="Answer options">
-          {question.options.map((option) => {
+          {question.options.map((option, index) => {
             const isSelected = selected.includes(option.id);
             const isCorrectOption = feedback?.correctOptionIds.includes(option.id);
             const isWrongChoice = answered && isSelected && !isCorrectOption;
@@ -247,7 +248,9 @@ export function SessionRunner({
                   {answered && isCorrectOption ? (
                     <span className="tick-in">✓</span>
                   ) : option.id.length === 1 ? (
-                    option.id.toUpperCase()
+                    // Its place on the screen: options are shown shuffled,
+                    // so option "b" may well be shown as A.
+                    optionLetter(index)
                   ) : (
                     ''
                   )}

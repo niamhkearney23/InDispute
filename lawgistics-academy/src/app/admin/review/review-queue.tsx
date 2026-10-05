@@ -5,6 +5,7 @@ import { Button, Card, Notice, Pill, cn } from '@/components/ui';
 import { JURISDICTION_COUNTRY, JURISDICTION_LABELS, JURISDICTION_SHORT } from '@/lib/types';
 import type { Country } from '@/lib/types';
 import { RISK_LABEL, type RiskLevel } from '@/lib/review/triage';
+import { longAnswerCue } from '@/lib/review/answer-cue';
 import { recordReviewDecision } from './actions';
 import { HOLD_CHOICES, defaultHold, type HoldMonths } from '@/lib/review/expiry';
 import type { ReviewItem } from '@/lib/review/service';
@@ -612,6 +613,12 @@ function ReviewCard({
             );
           })}
         </ul>
+      ) : null}
+      {longAnswerCue(item.options, item.correctOptionIds) ? (
+        <p className="mb-3 text-sm text-warn">
+          The right answer is much longer than the others, which gives it away. Even the lengths
+          out before you sign this off.
+        </p>
       ) : null}
 
       {item.explanation ? (
