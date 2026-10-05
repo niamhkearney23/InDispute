@@ -296,13 +296,23 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   app stopped at the thousand rows a request returns, so a busy month
   undercounted everyone. The page says when figures could not be read rather
   than showing zeros, and when it lists only the first 500 people.
+- **Options are shown shuffled** (`src/lib/learning/option-order.ts`), fixed per
+  question version or lesson screen, and the letter shown is the place on the
+  screen, never the id. The bank was written with the right answer B three
+  times in four. The right answer is also usually the longest, which shuffling
+  cannot fix: the sign-off screens say so per question
+  (`src/lib/review/answer-cue.ts`) for the reviewer to even out.
+- **No "by skill" scores are shown.** Questions carry skill tags, but they were
+  attached loosely when drafted, and a multiple-choice answer cannot show
+  speaking or writing. Scores by area (domain) stay. Bring skills back only
+  once the tags have been checked question by question.
 - **The look.** The academy (everything under `src/app/(app)`) is navy: the
   `theme-navy` class on its layout swaps the colour tokens in
   `globals.css` (cream buttons, ice-blue details, burgundy warnings, a two-level
   grid, gold-free by the owner's choice). Admin has the same look. The front
   page and sign-in stay cream. The certificate and a matter's case file stay paper inside it.
   Use the tokens, never fixed Tailwind colours, or a page breaks in one look.
-- 373 tests, 319 schema guarantees against a real Postgres, 240 page and device
+- 379 tests, 319 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB
