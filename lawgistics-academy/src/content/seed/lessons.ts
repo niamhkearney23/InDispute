@@ -370,6 +370,41 @@ export function lessonForModule(moduleSlug: string): SeedLesson | null {
 }
 
 /**
+ * A live lesson retold as a story with a guess before each screen. Every
+ * screen's words are carried across from the original exactly as they are,
+ * so a rewrite adds a scene and guesses but never a new statement of law;
+ * what a reviewer is checking is that each guess and its right answer match
+ * the screen it opens.
+ */
+function retold(
+  fromSlug: string,
+  story: {
+    slug: string;
+    title: string;
+    minutes: number;
+    scene: LessonScene;
+    guesses: LessonGuess[];
+  },
+): SeedLesson {
+  const original = LESSONS.find((l) => l.slug === fromSlug);
+  if (!original) throw new Error(`No lesson ${fromSlug} to retell`);
+  if (story.guesses.length !== original.steps.length) {
+    throw new Error(
+      `${story.slug} has ${story.guesses.length} guesses for ${original.steps.length} screens`,
+    );
+  }
+  return {
+    ...original,
+    slug: story.slug,
+    title: story.title,
+    minutes: story.minutes,
+    scene: story.scene,
+    replaces: fromSlug,
+    steps: original.steps.map((step, i) => ({ ...step, guess: story.guesses[i] })),
+  };
+}
+
+/**
  * Rewrites waiting for a lawyer: each follows a client through the lesson and
  * asks the learner to guess before each screen. Drafted with AI help, so none
  * of it reaches a learner until somebody has read every screen and signed it
@@ -393,10 +428,14 @@ export const DRAFT_LESSONS: SeedLesson[] = [
       {
         heading: 'The duties are the old ones',
         guess: {
-          prompt: 'If you let a chatbot draft Puan Rohana\u2019s defence, do your professional duties change?',
+          prompt:
+            'If you let a chatbot draft Puan Rohana\u2019s defence, do your professional duties change?',
           options: [
             { id: 'a', text: 'Yes: there are new AI duties, and they replace the old ones' },
-            { id: 'b', text: 'No: confidentiality, competence and responsibility for the work apply exactly as before' },
+            {
+              id: 'b',
+              text: 'No: confidentiality, competence and responsibility for the work apply exactly as before',
+            },
             { id: 'c', text: 'Only if Puan Rohana agreed to AI being used' },
           ],
           answer: 'b',
@@ -420,10 +459,14 @@ export const DRAFT_LESSONS: SeedLesson[] = [
       {
         heading: 'Pressing enter is sending it',
         guess: {
-          prompt: 'Your colleague says: \u201cTake Puan Rohana\u2019s name out first and it is anonymous.\u201d Is that right?',
+          prompt:
+            'Your colleague says: \u201cTake Puan Rohana\u2019s name out first and it is anonymous.\u201d Is that right?',
           options: [
             { id: 'a', text: 'Yes: without the name, nobody can tell whose matter it is' },
-            { id: 'b', text: 'No: the matter is usually identifiable from its facts, and pasting it hands it to whoever runs the system' },
+            {
+              id: 'b',
+              text: 'No: the matter is usually identifiable from its facts, and pasting it hands it to whoever runs the system',
+            },
           ],
           answer: 'b',
         },
@@ -432,10 +475,14 @@ export const DRAFT_LESSONS: SeedLesson[] = [
       {
         heading: 'It answers from the wrong country',
         guess: {
-          prompt: 'You ask a chatbot which Act governs the claim. It names one, confidently, with a section number. What is the risk?',
+          prompt:
+            'You ask a chatbot which Act governs the claim. It names one, confidently, with a section number. What is the risk?',
           options: [
             { id: 'a', text: 'None: a section number means it has checked' },
-            { id: 'b', text: 'It may be answering from English or American material and naming an Act from somewhere else' },
+            {
+              id: 'b',
+              text: 'It may be answering from English or American material and naming an Act from somewhere else',
+            },
           ],
           answer: 'b',
         },
@@ -445,7 +492,8 @@ export const DRAFT_LESSONS: SeedLesson[] = [
       {
         heading: 'The document is still yours',
         guess: {
-          prompt: 'The defence is filed, and a case cited in it turns out not to exist. Whose problem is that?',
+          prompt:
+            'The defence is filed, and a case cited in it turns out not to exist. Whose problem is that?',
           options: [
             { id: 'a', text: 'The company that runs the chatbot' },
             { id: 'b', text: 'Puan Rohana\u2019s, for not checking it' },
@@ -458,6 +506,433 @@ export const DRAFT_LESSONS: SeedLesson[] = [
       },
     ],
   },
+  retold('courts-au-intro', {
+    slug: 'courts-au-story',
+    title: 'Can she go straight to the top?',
+    minutes: 4,
+    scene: {
+      who: 'Ms Tran, an invented client',
+      setup:
+        'Ms Tran runs a bakery in Ballarat. A supplier sued her for $450,000 in the County Court of Victoria, and she lost. She rings you: \u201cThis is wrong. I want to go straight to the High Court.\u201d Before you answer her, work out how the courts fit together.',
+    },
+    guesses: [
+      {
+        prompt: 'Why can Ms Tran ask a higher court to look at her case at all?',
+        options: [
+          {
+            id: 'a',
+            text: 'So a decision said to be wrong can be looked at, and so courts below follow the courts above',
+          },
+          { id: 'b', text: 'So that every case gets heard twice' },
+        ],
+        answer: 'a',
+      },
+      {
+        prompt: 'Which court sits at the very top in Australia?',
+        options: [
+          { id: 'a', text: 'The Supreme Court of Victoria' },
+          { id: 'b', text: 'The High Court of Australia' },
+          { id: 'c', text: 'The Federal Court of Australia' },
+        ],
+        answer: 'b',
+      },
+      {
+        prompt: 'Is the Federal Court above the Supreme Court of Victoria?',
+        options: [
+          { id: 'a', text: 'Yes: federal courts outrank State courts' },
+          { id: 'b', text: 'No: they run side by side and meet only at the High Court' },
+        ],
+        answer: 'b',
+      },
+      {
+        prompt: 'What usually decided that the supplier\u2019s claim started in the County Court?',
+        options: [
+          { id: 'a', text: 'How much it was worth' },
+          { id: 'b', text: 'Which court the supplier\u2019s lawyer preferred' },
+          { id: 'c', text: 'How long the hearing would take' },
+        ],
+        answer: 'a',
+      },
+      {
+        prompt: 'So can Ms Tran go straight from the County Court to the High Court?',
+        options: [
+          { id: 'a', text: 'Yes, if she feels strongly enough' },
+          { id: 'b', text: 'No: an appeal ordinarily goes to the court immediately above' },
+        ],
+        answer: 'b',
+      },
+    ],
+  }),
+  retold('courts-my-intro', {
+    slug: 'courts-my-story',
+    title: 'Which court, and how far?',
+    minutes: 4,
+    scene: {
+      who: 'Encik Hafiz, an invented client',
+      setup:
+        'Encik Hafiz runs a hardware shop in Kuching. A customer owes him RM 80,000 and will not pay. He asks you two things: \u201cWhich court do we sue in? And if we lose, how far can it go?\u201d',
+    },
+    guesses: [
+      {
+        prompt: 'Why are courts arranged with some above others?',
+        options: [
+          {
+            id: 'a',
+            text: 'So a decision said to be wrong can be reviewed, and so courts below follow the courts above',
+          },
+          { id: 'b', text: 'So that every case gets heard twice' },
+        ],
+        answer: 'a',
+      },
+      {
+        prompt: 'Which is Malaysia\u2019s top court?',
+        options: [
+          { id: 'a', text: 'The Court of Appeal' },
+          { id: 'b', text: 'The Federal Court' },
+          { id: 'c', text: 'The High Court in Malaya' },
+        ],
+        answer: 'b',
+      },
+      {
+        prompt: 'The dispute arose in Kuching. Which High Court has it?',
+        options: [
+          { id: 'a', text: 'The High Court in Malaya, because it is the senior one' },
+          {
+            id: 'b',
+            text: 'The High Court in Sabah and Sarawak: territory decides, and neither is senior',
+          },
+        ],
+        answer: 'b',
+      },
+      {
+        prompt:
+          'What decides whether his claim starts in the Magistrates Court or the Sessions Court?',
+        options: [
+          { id: 'a', text: 'How much is in dispute' },
+          { id: 'b', text: 'Whether the customer is a company' },
+        ],
+        answer: 'a',
+      },
+      {
+        prompt: 'Is the Syariah court a lower rung, below the Magistrates Court?',
+        options: [
+          { id: 'a', text: 'Yes: it is the bottom of the same ladder' },
+          { id: 'b', text: 'No: it is a different ladder, with its own jurisdiction' },
+        ],
+        answer: 'b',
+      },
+    ],
+  }),
+  retold('ai-ethics-au-intro', {
+    slug: 'ai-ethics-au-story',
+    title: 'The Thursday night affidavit',
+    minutes: 4,
+    scene: {
+      who: 'Mr Kowalski, an invented client',
+      setup:
+        'Late on a Thursday your supervisor asks for a first draft of Mr Kowalski\u2019s affidavit by nine tomorrow. A colleague leans over: \u201cPaste the whole file into a free AI chatbot. It will write it in a minute.\u201d',
+    },
+    guesses: [
+      {
+        prompt: 'If a chatbot drafts it, do your professional duties change?',
+        options: [
+          { id: 'a', text: 'Yes: there are new AI duties, and they replace the old ones' },
+          {
+            id: 'b',
+            text: 'No: confidentiality, competence, candour and responsibility for the work apply as before',
+          },
+        ],
+        answer: 'b',
+      },
+      {
+        prompt:
+          'Your colleague says: \u201cTake his name out first and it is anonymous.\u201d Is that right?',
+        options: [
+          { id: 'a', text: 'Yes: without the name, nobody can tell whose matter it is' },
+          {
+            id: 'b',
+            text: 'No: the matter is usually identifiable from its facts, and pasting it discloses it',
+          },
+        ],
+        answer: 'b',
+      },
+      {
+        prompt: 'The draft cites a case you cannot find anywhere. What do you do?',
+        options: [
+          { id: 'a', text: 'Ask the chatbot to confirm the case exists' },
+          {
+            id: 'b',
+            text: 'Treat it as not existing, and check every other authority in the document',
+          },
+        ],
+        answer: 'b',
+      },
+      {
+        prompt: 'Do all Australian courts have the same rule on using AI?',
+        options: [
+          { id: 'a', text: 'Yes: there is one national rule' },
+          { id: 'b', text: 'No: the principal courts each have a practice note, and they differ' },
+        ],
+        answer: 'b',
+      },
+      {
+        prompt:
+          'The affidavit is filed, and an error the AI introduced is found. Whose is it to fix?',
+        options: [
+          { id: 'a', text: 'The company that runs the chatbot' },
+          { id: 'b', text: 'Yours: a document filed in your name is your work' },
+        ],
+        answer: 'b',
+      },
+    ],
+  }),
+  retold('research-au-intro', {
+    slug: 'research-au-story',
+    title: 'Two hours to find the law',
+    minutes: 4,
+    scene: {
+      who: 'Ms Okafor, an invented client',
+      setup:
+        'Ms Okafor lent her brother-in-law $40,000 and he has not paid it back. The partner gives you two hours: \u201cFind me the law on this.\u201d You have never done a debt matter in your life.',
+    },
+    guesses: [
+      {
+        prompt: 'Where do you start?',
+        options: [
+          { id: 'a', text: 'Type the facts into a case database' },
+          { id: 'b', text: 'A practitioner text on the area' },
+        ],
+        answer: 'b',
+      },
+      {
+        prompt:
+          'The loan was made years ago. Is the version of the Act a website shows by default the one that governs?',
+        options: [
+          { id: 'a', text: 'Yes: the website always shows the right one' },
+          {
+            id: 'b',
+            text: 'Not necessarily: check which version applied on the date that matters',
+          },
+        ],
+        answer: 'b',
+      },
+      {
+        prompt: 'You find a case that helps. Can you rely on it straight away?',
+        options: [
+          { id: 'a', text: 'Yes: it is a judgment, so it is the law' },
+          { id: 'b', text: 'Not until you have checked what has happened to it since' },
+        ],
+        answer: 'b',
+      },
+      {
+        prompt:
+          'Searching \u201cbrother-in-law did not pay back the money\u201d gives a thousand results. What is wrong?',
+        options: [
+          { id: 'a', text: 'Nothing: read them all' },
+          {
+            id: 'b',
+            text: 'You are describing the facts, not the legal question; use the term of art',
+          },
+        ],
+        answer: 'b',
+      },
+      {
+        prompt: 'When can you stop?',
+        options: [
+          { id: 'a', text: 'At the first case that helps Ms Okafor' },
+          { id: 'b', text: 'When different starting points keep returning the same authorities' },
+        ],
+        answer: 'b',
+      },
+    ],
+  }),
+  retold('research-my-intro', {
+    slug: 'research-my-story',
+    title: 'Two hours to find the law',
+    minutes: 4,
+    scene: {
+      who: 'Encik Lim, an invented client',
+      setup:
+        'Encik Lim\u2019s contractor walked off his renovation half-way through, with the money paid. The partner gives you two hours: \u201cFind me the law on this.\u201d You have never done a construction dispute.',
+    },
+    guesses: [
+      {
+        prompt: 'Where do you start?',
+        options: [
+          { id: 'a', text: 'Type the facts into a case database' },
+          { id: 'b', text: 'A practitioner text or commentary on the area' },
+        ],
+        answer: 'b',
+      },
+      {
+        prompt:
+          'A colleague points you to a copy of the Act on the firm\u2019s shared drive. Good enough?',
+        options: [
+          { id: 'a', text: 'Yes: an Act is an Act' },
+          {
+            id: 'b',
+            text: 'No: use the official portal; a saved copy may not show later amendments',
+          },
+        ],
+        answer: 'b',
+      },
+      {
+        prompt: 'You find a Federal Court decision that helps. Safe to rely on without checking?',
+        options: [
+          { id: 'a', text: 'Yes: nothing can change a Federal Court decision' },
+          {
+            id: 'b',
+            text: 'No: check its subsequent treatment, because even the Federal Court can depart from it',
+          },
+        ],
+        answer: 'b',
+      },
+      {
+        prompt: 'You have an unreported copy, and a reported version exists. Which do you cite?',
+        options: [
+          { id: 'a', text: 'The unreported copy you already have' },
+          {
+            id: 'b',
+            text: 'The reported version, so your pinpoints lead the judge to the passage',
+          },
+        ],
+        answer: 'b',
+      },
+      {
+        prompt: 'When can you stop?',
+        options: [
+          { id: 'a', text: 'At the first case that helps Encik Lim' },
+          { id: 'b', text: 'When different starting points keep returning the same authorities' },
+        ],
+        answer: 'b',
+      },
+    ],
+  }),
+  retold('litigation-support-my-intro', {
+    slug: 'litigation-support-my-story',
+    title: 'The box file',
+    minutes: 4,
+    scene: {
+      who: 'Puan Siti, an invented client',
+      setup:
+        'Your first week. A partner puts a box file on your desk: Puan Siti\u2019s company is suing its former distributor. \u201cGet this into shape for the hearing,\u201d the partner says, and leaves.',
+    },
+    guesses: [
+      {
+        prompt: 'Who are you really organising this file for?',
+        options: [
+          { id: 'a', text: 'Yourself, so you can find things' },
+          {
+            id: 'b',
+            text: 'Someone who was not there: the partner, the other side, eventually a judge',
+          },
+        ],
+        answer: 'b',
+      },
+      {
+        prompt: 'Is the chronology just admin, to tidy up at the end?',
+        options: [
+          { id: 'a', text: 'Yes: it is what juniors do last' },
+          {
+            id: 'b',
+            text: 'No: putting events in order with their source is often when the case becomes an argument',
+          },
+        ],
+        answer: 'b',
+      },
+      {
+        prompt: 'Why does the bundle need page numbers and an index that matches?',
+        options: [
+          { id: 'a', text: 'It looks more professional' },
+          { id: 'b', text: 'So a judge can find a page while counsel is speaking' },
+        ],
+        answer: 'b',
+      },
+      {
+        prompt:
+          'Puan Siti gives you a printout of a chat that helps her case. What is the first question?',
+        options: [
+          { id: 'a', text: 'How much it helps' },
+          { id: 'b', text: 'How it will be proved, and whether it is admissible at all' },
+        ],
+        answer: 'b',
+      },
+      {
+        prompt:
+          'The draft statement of claim tells the whole story from the day they met. Problem?',
+        options: [
+          { id: 'a', text: 'No: more detail is always better' },
+          {
+            id: 'b',
+            text: 'Yes: a pleading sets out the case; telling the story is another document\u2019s job',
+          },
+        ],
+        answer: 'b',
+      },
+    ],
+  }),
+  retold('litigation-support-au-intro', {
+    slug: 'litigation-support-au-story',
+    title: 'The box file',
+    minutes: 4,
+    scene: {
+      who: 'Mr Nguyen, an invented client',
+      setup:
+        'Your first week. Your supervisor puts a box file on your desk: a former business partner is suing Mr Nguyen. \u201cGet this into shape,\u201d your supervisor says, and leaves.',
+    },
+    guesses: [
+      {
+        prompt: 'Who are you really organising this file for?',
+        options: [
+          { id: 'a', text: 'Yourself, so you can find things' },
+          {
+            id: 'b',
+            text: 'Someone who was not there: your supervisor, the other side, eventually a judge',
+          },
+        ],
+        answer: 'b',
+      },
+      {
+        prompt: 'You remember a deadline from a different court. Can you use it on this file?',
+        options: [
+          { id: 'a', text: 'Yes: procedure is the same across Australia' },
+          { id: 'b', text: 'Not without checking: each court has its own rules' },
+        ],
+        answer: 'b',
+      },
+      {
+        prompt: 'Is the chronology just admin, to tidy up at the end?',
+        options: [
+          { id: 'a', text: 'Yes: it is what juniors do last' },
+          {
+            id: 'b',
+            text: 'No: putting events in order with their source is often when the case becomes an argument',
+          },
+        ],
+        answer: 'b',
+      },
+      {
+        prompt: 'Why does the court book need page numbers and an index that matches?',
+        options: [
+          { id: 'a', text: 'It looks more professional' },
+          { id: 'b', text: 'So a judge can find a page while counsel is speaking' },
+        ],
+        answer: 'b',
+      },
+      {
+        prompt:
+          'The draft statement of claim tells the whole story from the day they met. Problem?',
+        options: [
+          { id: 'a', text: 'No: more detail is always better' },
+          {
+            id: 'b',
+            text: 'Yes: a pleading sets out the case; telling the story is another document\u2019s job',
+          },
+        ],
+        answer: 'b',
+      },
+    ],
+  }),
 ];
 
 /** Every lesson, live or waiting for sign-off. */
@@ -493,7 +968,10 @@ export function lessonContent(lesson: SeedLesson): string {
  * stand now. A signed-off rewrite takes its original's place; an unsigned
  * one is shown to nobody but staff, from Admin, Lessons.
  */
-export function lessonToShow(moduleSlug: string, signedOff: (slug: string) => boolean): SeedLesson | null {
+export function lessonToShow(
+  moduleSlug: string,
+  signedOff: (slug: string) => boolean,
+): SeedLesson | null {
   const rewrite = DRAFT_LESSONS.find((l) => l.moduleSlug === moduleSlug && signedOff(l.slug));
   return rewrite ?? lessonForModule(moduleSlug);
 }
