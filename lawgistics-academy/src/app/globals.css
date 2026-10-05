@@ -510,3 +510,60 @@
 .journey-step {
   animation: journey-step 500ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
+
+/* =============================================================================
+   Two looks for the academy, switched by a class on <html>.
+   theme-navy: dark navy with the greeting card's grid behind everything.
+   theme-grid: the cream paper, ruled as faint navy graph paper.
+   Every colour in the app is one of the tokens above, so a look is a set of
+   token values rather than a second copy of every page.
+   ========================================================================== */
+html.theme-navy {
+  --color-paper: #0d1b2a;
+  --color-paper-raised: #13263a;
+  --color-paper-sunk: #0a1521;
+  --color-ink: #f5f1e8;
+  --color-charcoal: #e8e2d6;
+  --color-slate: #b9c3cf;
+  --color-muted: #8f9db0;
+  --color-rule: #22384f;
+  --color-rule-strong: #2e4a66;
+  /* Gold leads on navy, the way navy leads on cream. */
+  --color-accent: #e3b95f;
+  --color-accent-soft: #c99e45;
+  --color-accent-wash: #1d3349;
+  --color-verdict-correct: #79c7a4;
+  --color-verdict-correct-wash: #12302a;
+  --color-verdict-wrong: #f0917f;
+  --color-verdict-wrong-wash: #3a1d1c;
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 12px 28px -16px rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
+}
+html.theme-navy body {
+  background-color: #0d1b2a;
+  background-image:
+    radial-gradient(60% 480px at 80% -10%, rgba(227, 185, 95, 0.10), transparent 70%),
+    radial-gradient(50% 420px at 0% 0%, rgba(59, 110, 168, 0.18), transparent 70%),
+    linear-gradient(to right, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: auto, auto, 44px 44px, 44px 44px;
+  background-repeat: no-repeat, no-repeat, repeat, repeat;
+  background-attachment: scroll, scroll, fixed, fixed;
+}
+/* The greeting card keeps its navy, a shade lifted off the page, with cream
+   type: inside it the tokens are the cream look's again. */
+html.theme-navy .accent-surface {
+  --color-paper: #f5f1e8;
+  --color-accent: #17304a;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 20px 40px -20px rgba(0, 0, 0, 0.7);
+}
+
+html.theme-grid body {
+  background-image:
+    radial-gradient(70% 420px at 50% 0%, rgba(150, 120, 70, 0.09), transparent 70%),
+    linear-gradient(to right, rgba(13, 27, 42, 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(13, 27, 42, 0.055) 1px, transparent 1px);
+  background-size: auto, 32px 32px, 32px 32px;
+  background-repeat: no-repeat, repeat, repeat;
+  background-attachment: scroll, fixed, fixed;
+}
