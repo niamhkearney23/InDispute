@@ -19,21 +19,35 @@ import { StartModuleButton } from '../start-module-button';
  * Back is always available. A learner who has lost the thread and cannot return
  * to the previous screen stops reading and starts tapping, and at that point
  * the lesson is a loading bar.
+ *
+ * A lesson can follow a client (the scene, shown first) and ask a guess
+ * before a screen: the learner commits to an answer, sees whether it was
+ * right, and only then reads why. A guess is never scored or saved; it is
+ * there to make the next paragraph something they want to read.
  */
 export function LessonPlayer({
   lesson,
   country,
   moduleSlug,
   quizLabel,
+  preview = false,
 }: {
   lesson: SeedLesson;
   country: Country;
   moduleSlug: string;
   quizLabel: string;
+  /** Staff reading it before sign-off: no button that starts the questions. */
+  preview?: boolean;
 }) {
   const [index, setIndex] = useState(0);
+  const [guesses, setGuesses] = useState<Record<number, string>>({});
   const step = lesson.steps[index];
   const isLast = index === lesson.steps.length - 1;
+  const guess = step.guess;
+  const guessed = guess ? guesses[index] : undefined;
+  // Until they have guessed, the screen is the question; the teaching waits.
+  const showBody = !guess || guessed !== undefined;
+  const right = guess ? guess.options.find((o) => o.id === guess.answer) : undefined;
 
   return (
     <div className="space-y-5">
@@ -56,65 +70,137 @@ export function LessonPlayer({
         </p>
       </div>
 
+      {lesson.scene && index === 0 ? (
+        <div className="rise-in rounded-xl bg-accent px-5 py-4 text-paper">
+          <p className="mb-1 text-[0.6875rem] font-semibold tracking-[0.14em] uppercase opacity-80">
+            Your file · {lesson.scene.who}
+          </p>
+          <p className="leading-relaxed">{lesson.scene.setup}</p>
+        </div>
+      ) : null}
+
       <Card>
         {/* Keyed on the index so each screen animates in rather than swapping
             in place, which is what makes it read as a sequence. */}
         <div key={index} className="rise-in">
           <p className="eyebrow mb-2 text-accent">{step.heading}</p>
-          <p className="text-[1.0625rem] leading-relaxed sm:text-lg">{step.body}</p>
 
-          {step.video && isEmbeddable(step.video.url) ? (
-            <figure className="mt-5">
-              <div className="aspect-video w-full overflow-hidden rounded-md border border-rule bg-paper-sunk">
-                <iframe
-                  src={step.video.url}
-                  title={step.video.caption ?? step.heading}
-                  allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture"
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                  className="size-full"
-                />
+          {guess ? (
+            <fieldset className="mb-5">
+              <legend className="mb-3 font-serif text-xl leading-snug">{guess.prompt}</legend>
+              <div className="space-y-2">
+                {guess.options.map((o) => {
+                  const chosen = guessed === o.id;
+                  const isRight = o.id === guess.answer;
+                  return (
+                    <button
+                      key={o.id}
+                      type="button"
+                      disabled={guessed !== undefined}
+                      onClick={() => setGuesses({ ...guesses, [index]: o.id })}
+                      className={cn(
+                        'flex w-full items-start gap-3 rounded-lg border-2 px-4 py-3 text-left transition-colors',
+                        guessed === undefined
+                          ? 'border-rule bg-paper-raised hover:border-accent'
+                          : isRight
+                            ? 'border-verdict-correct bg-verdict-correct-wash'
+                            : chosen
+                              ? 'border-verdict-wrong/60 bg-paper-sunk'
+                              : 'border-rule bg-paper-raised opacity-60',
+                      )}
+                    >
+                      <span className="font-semibold">{o.id.toUpperCase()}.</span>
+                      <span>{o.text}</span>
+                    </button>
+                  );
+                })}
               </div>
-              {step.video.caption ? (
-                <figcaption className="mt-2 text-xs text-muted">{step.video.caption}</figcaption>
+              {guessed ? (
+                <p
+                  className={cn(
+                    'mt-3 text-sm font-semibold',
+                    guessed === guess.answer ? 'text-verdict-correct' : 'text-verdict-wrong',
+                  )}
+                  role="status"
+                >
+                  {guessed === guess.answer
+                    ? 'Good instinct. Here is why.'
+                    : `Not quite: it is ${right?.id.toUpperCase()}. Here is why.`}
+                </p>
               ) : null}
-            </figure>
+            </fieldset>
           ) : null}
 
-          {step.diagram ? (
-            <div className="mt-6 border-t border-rule pt-6">
-              <CourtHierarchyDiagram
-                country={country}
-                options={[]}
-                selected={[]}
-                correctOptionIds={null}
-                answered={false}
-                disabled
-                onSelect={() => {}}
-              />
-            </div>
+          {showBody ? (
+            <p className="text-[1.0625rem] leading-relaxed sm:text-lg">{step.body}</p>
           ) : null}
 
-          {step.takeaway ? (
-            <p
-              className={cn(
-                'mt-5 border-l-2 border-accent pl-4 font-serif text-lg leading-snug',
-                step.diagram && 'mt-6',
-              )}
-            >
-              {step.takeaway}
-            </p>
+          {showBody ? (
+            <>
+              {step.video && isEmbeddable(step.video.url) ? (
+                <figure className="mt-5">
+                  <div className="aspect-video w-full overflow-hidden rounded-md border border-rule bg-paper-sunk">
+                    <iframe
+                      src={step.video.url}
+                      title={step.video.caption ?? step.heading}
+                      allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture"
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="strict-origin-when-cross-origin"
+                      className="size-full"
+                    />
+                  </div>
+                  {step.video.caption ? (
+                    <figcaption className="mt-2 text-xs text-muted">
+                      {step.video.caption}
+                    </figcaption>
+                  ) : null}
+                </figure>
+              ) : null}
+
+              {step.diagram ? (
+                <div className="mt-6 border-t border-rule pt-6">
+                  <CourtHierarchyDiagram
+                    country={country}
+                    options={[]}
+                    selected={[]}
+                    correctOptionIds={null}
+                    answered={false}
+                    disabled
+                    onSelect={() => {}}
+                  />
+                </div>
+              ) : null}
+
+              {step.takeaway ? (
+                <p
+                  className={cn(
+                    'mt-5 border-l-2 border-accent pl-4 font-serif text-lg leading-snug',
+                    step.diagram && 'mt-6',
+                  )}
+                >
+                  {step.takeaway}
+                </p>
+              ) : null}
+            </>
           ) : null}
         </div>
       </Card>
 
       <div className="flex flex-col gap-3 sm:flex-row">
         {isLast ? (
-          <StartModuleButton slug={moduleSlug} label={quizLabel} />
+          preview ? null : (
+            <StartModuleButton slug={moduleSlug} label={quizLabel} />
+          )
         ) : (
-          <Button size="lg" variant="accent" onClick={() => setIndex(index + 1)}>
-            Next
+          <Button
+            size="lg"
+            variant={showBody ? 'accent' : 'outline'}
+            onClick={() =>
+              showBody ? setIndex(index + 1) : setGuesses({ ...guesses, [index]: '' })
+            }
+          >
+            {showBody ? 'Next' : 'Just show me'}
           </Button>
         )}
 

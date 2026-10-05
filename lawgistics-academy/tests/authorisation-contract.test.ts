@@ -161,6 +161,7 @@ test('the server actions were actually found', () => {
     'setMatterPublished',
     'setPlacementDates',
     'setPublished',
+    'signOffLesson',
     'startCheckout',
     'startMatter',
     'startTutor',
@@ -329,6 +330,11 @@ const COACH_ACTIONS = new Set([
   // their own, and touching no content. Making and switching off codes stays
   // with an administrator.
   'decideAccess',
+  // Signing a lesson off: the same judgement as signing off a question, a
+  // named lawyer saying the teaching is right, under their own name, pinned
+  // to the exact wording so any later change needs signing again. Writing
+  // lessons stays in the code, with nobody's account able to edit them.
+  'signOffLesson',
 ]);
 
 test('every admin server action requires a staff role, never merely a session', () => {
@@ -448,6 +454,7 @@ test('privileged modules are marked server-only', () => {
     'src/lib/leaderboard.ts',
     'src/lib/intake/service.ts',
     'src/lib/access/service.ts',
+    'src/lib/lessons/signoff.ts',
     'src/lib/tutor/service.ts',
   ];
 

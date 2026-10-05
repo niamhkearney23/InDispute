@@ -38,6 +38,31 @@ export interface LessonStep {
    * running inside yours.
    */
   video?: { url: string; caption?: string };
+  /**
+   * A question asked before the screen is shown: the learner commits to a
+   * guess, then reads why. Guessing first, even wrongly, is what makes the
+   * explanation land. The right answer must be what the body goes on to say.
+   */
+  guess?: LessonGuess;
+}
+
+export interface LessonGuess {
+  prompt: string;
+  /** Two to four. */
+  options: Array<{ id: string; text: string }>;
+  /** The id of the right option. */
+  answer: string;
+}
+
+/**
+ * The client whose problem the lesson follows. Invented, and said to be: a
+ * lesson is teaching, not a case study.
+ */
+export interface LessonScene {
+  /** Who walks in, in a few words. */
+  who: string;
+  /** What has happened and what you have been asked to do. Two or three sentences. */
+  setup: string;
 }
 
 export interface SeedLesson {
@@ -49,6 +74,14 @@ export interface SeedLesson {
   minutes: number;
   country: Country;
   steps: LessonStep[];
+  /** The story the lesson follows, shown before the first screen. */
+  scene?: LessonScene;
+  /**
+   * The lesson this one is written to replace. A replacement is shown to
+   * nobody but staff until a lawyer has signed it off, and then takes the
+   * other one's place.
+   */
+  replaces?: string;
 }
 
 export const LESSONS: SeedLesson[] = [
@@ -334,4 +367,133 @@ export const LESSONS: SeedLesson[] = [
 
 export function lessonForModule(moduleSlug: string): SeedLesson | null {
   return LESSONS.find((lesson) => lesson.moduleSlug === moduleSlug) ?? null;
+}
+
+/**
+ * Rewrites waiting for a lawyer: each follows a client through the lesson and
+ * asks the learner to guess before each screen. Drafted with AI help, so none
+ * of it reaches a learner until somebody has read every screen and signed it
+ * off under their own name (Admin, Lessons); until then the lesson it
+ * replaces stays where it is.
+ */
+export const DRAFT_LESSONS: SeedLesson[] = [
+  {
+    slug: 'ai-ethics-my-story',
+    moduleSlug: 'ai-ethics-my',
+    replaces: 'ai-ethics-my-intro',
+    title: 'The six o\u2019clock email',
+    minutes: 4,
+    country: 'MY',
+    scene: {
+      who: 'Puan Rohana, an invented client',
+      setup:
+        'At six in the evening your supervising partner forwards you an email. Puan Rohana\u2019s company has been served with a writ, and the partner wants a first draft of the defence by nine tomorrow. A colleague leans over: \u201cJust paste the whole file into a free AI chatbot. It will write it in a minute.\u201d',
+    },
+    steps: [
+      {
+        heading: 'The duties are the old ones',
+        guess: {
+          prompt: 'If you let a chatbot draft Puan Rohana\u2019s defence, do your professional duties change?',
+          options: [
+            { id: 'a', text: 'Yes: there are new AI duties, and they replace the old ones' },
+            { id: 'b', text: 'No: confidentiality, competence and responsibility for the work apply exactly as before' },
+            { id: 'c', text: 'Only if Puan Rohana agreed to AI being used' },
+          ],
+          answer: 'b',
+        },
+        body: 'Nothing in your professional obligations changed because a machine can draft. Confidentiality, competence and responsibility for your own work apply exactly as before. What is new is the number of ways to breach them without it feeling like a breach at the time, which is exactly how your colleague\u2019s suggestion feels at six in the evening.',
+        takeaway: 'New tools, same duties.',
+      },
+      {
+        heading: 'The Bar Council has said so',
+        guess: {
+          prompt: 'Has the Malaysian Bar Council said anything to the Bar about generative AI?',
+          options: [
+            { id: 'a', text: 'Not yet: it is left to each firm' },
+            { id: 'b', text: 'Yes: it has issued circulars to the Bar on it' },
+          ],
+          answer: 'b',
+        },
+        body: 'This is not left to inference. Circular No 342/2023 was the Bar Council\u2019s first formal advisory to the Malaysian Bar on generative AI, listing risks including hallucinated citations, bias, threats to client confidentiality and data privacy. Circular No 242/2025 expanded it substantially.',
+        takeaway: 'Your regulator has already written this down.',
+      },
+      {
+        heading: 'Pressing enter is sending it',
+        guess: {
+          prompt: 'Your colleague says: \u201cTake Puan Rohana\u2019s name out first and it is anonymous.\u201d Is that right?',
+          options: [
+            { id: 'a', text: 'Yes: without the name, nobody can tell whose matter it is' },
+            { id: 'b', text: 'No: the matter is usually identifiable from its facts, and pasting it hands it to whoever runs the system' },
+          ],
+          answer: 'b',
+        },
+        body: 'Putting client information into a system run by someone else discloses it to that someone else, and many consumer services reserve the right to keep it and train on it. Section 126 of the Evidence Act 1950 protects professional communications, and that protection assumes you have not handed them to a third party. Removing a name rarely helps, because a matter is usually identifiable from its facts.',
+      },
+      {
+        heading: 'It answers from the wrong country',
+        guess: {
+          prompt: 'You ask a chatbot which Act governs the claim. It names one, confidently, with a section number. What is the risk?',
+          options: [
+            { id: 'a', text: 'None: a section number means it has checked' },
+            { id: 'b', text: 'It may be answering from English or American material and naming an Act from somewhere else' },
+          ],
+          answer: 'b',
+        },
+        body: 'These systems are trained overwhelmingly on English and American material. Asked a Malaysian question they will often answer confidently from that material, citing an Act that exists somewhere else. The answer is fluent and familiar, which is exactly what makes it dangerous: it takes a Malaysian lawyer to notice the Act named is not the governing one.',
+        takeaway: 'Confident and foreign reads exactly like confident and correct.',
+      },
+      {
+        heading: 'The document is still yours',
+        guess: {
+          prompt: 'The defence is filed, and a case cited in it turns out not to exist. Whose problem is that?',
+          options: [
+            { id: 'a', text: 'The company that runs the chatbot' },
+            { id: 'b', text: 'Puan Rohana\u2019s, for not checking it' },
+            { id: 'c', text: 'Yours: papers filed in your name are your work' },
+          ],
+          answer: 'c',
+        },
+        body: 'Cause papers filed in your name are your work. The tool owes no duty to the court, cannot be disciplined and cannot be asked to explain itself. If something in it turns out to be wrong, the correction is yours to make and to make promptly, which is survivable in a way that concealing it is not.',
+        takeaway: 'Whatever helped you write it, you are the one who signed it.',
+      },
+    ],
+  },
+];
+
+/** Every lesson, live or waiting for sign-off. */
+export const ALL_LESSONS: SeedLesson[] = [...LESSONS, ...DRAFT_LESSONS];
+
+export function lessonBySlug(slug: string): SeedLesson | null {
+  return ALL_LESSONS.find((lesson) => lesson.slug === slug) ?? null;
+}
+
+/**
+ * Exactly what a sign-off covers: every word a learner sees, and nothing
+ * else. A sign-off is pinned to this, so changing any of it (a word, a guess,
+ * which answer is right) means it has to be signed off again.
+ */
+export function lessonContent(lesson: SeedLesson): string {
+  return JSON.stringify({
+    slug: lesson.slug,
+    title: lesson.title,
+    scene: lesson.scene ?? null,
+    steps: lesson.steps.map((s) => ({
+      heading: s.heading,
+      body: s.body,
+      takeaway: s.takeaway ?? null,
+      diagram: Boolean(s.diagram),
+      video: s.video ?? null,
+      guess: s.guess ?? null,
+    })),
+  });
+}
+
+/**
+ * The lesson a module shows, given which lessons are signed off as they
+ * stand now. A signed-off rewrite takes its original's place; an unsigned
+ * one is shown to nobody but staff, from Admin, Lessons.
+ */
+export function lessonToShow(moduleSlug: string, signedOff: (slug: string) => boolean): SeedLesson | null {
+  const rewrite = DRAFT_LESSONS.find((l) => l.moduleSlug === moduleSlug && signedOff(l.slug));
+  return rewrite ?? lessonForModule(moduleSlug);
 }

@@ -63,8 +63,8 @@ These come from the owner and are not up for renegotiation.
   clears its sign-off, so an account that could edit and verify could sign its
   own rewrite with the audit trail showing an ordinary review. A coach who
   thinks an item is wrong flags it with a note; somebody else changes it.
-  Exactly fourteen actions accept a coach, named in `tests/authorisation-contract`,
-  and a test fails if a fifteenth quietly does. Two of the fourteen are the coach's
+  Exactly fifteen actions accept a coach, named in `tests/authorisation-contract`,
+  and a test fails if a sixteenth quietly does. Two of the fifteen are the coach's
   own **sessions**: they record something, paste a YouTube or Vimeo link, and
   it leads the dashboard the morning it is for. That is not an exception to
   the rule, it is outside it: a session has no version chain, no answer key,
@@ -99,7 +99,10 @@ These come from the owner and are not up for renegotiation.
   matter stay with an administrator. The fourteenth is **confirming access**
   (0030): somebody who entered a firm's code is free only once a coach or
   administrator says they really are with that firm. Making and switching
-  off codes stays with an administrator.
+  off codes stays with an administrator. The fifteenth is **signing off a
+  lesson** (0032): lessons are written in the code, and a sign-off is pinned
+  to a SHA-256 of every word a learner sees, so any change needs signing
+  again.
 - **AI never publishes legal content.** It may draft. A named person signs off,
   and that sign-off is a statement they are answerable for.
 - **Say what is true.** The product's whole value is a record a firm can rely
@@ -171,7 +174,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0031`. `supabase/UPDATE.sql` is the one-paste update for a
+- Migrations run to `0032`. `supabase/UPDATE.sql` is the one-paste update for a
   database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -267,7 +270,14 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   the limit reached. More
   modes (sprint, error simulator, learning path) were proposed and deferred
   until matters and questions are signed off.
-- 355 tests, 298 schema guarantees against a real Postgres, 240 page and device
+- `0032` is **lesson sign-offs**. Lessons live in `src/content/seed/lessons.ts`;
+  `DRAFT_LESSONS` are rewrites (a client story, a guess before each screen)
+  that replace a live lesson only once signed off at Admin, Lessons, and are
+  shown to no learner before. Live lessons nobody has signed show learners
+  "Not yet checked by a lawyer". A sign-off covers one wording
+  (`lessonContent` hashed); the table is insert-only, server-written, staff
+  only.
+- 360 tests, 306 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB
