@@ -1,0 +1,491 @@
+/* The firm-facing sales page. Deliberately its own stylesheet: the studio
+   chrome is near-black and this is a cream editorial page, and the two should
+   never inherit from each other. Palette taken from the plum and cream
+   direction already in use, so the two pages read as one company. */
+
+.firms {
+  --cream: #efece6;
+  --paper: #f7f5f1;
+  --ink: #15120f;
+  --ink-soft: #4a443c;
+  --ink-faint: #7d756a;
+  --plum: #3f1733;
+  --plum-soft: #5c2a4d;
+  --rule: #d6d0c5;
+  --onplum: #f4ecf1;
+  --onplum-soft: #cbb4c4;
+
+  background: var(--cream);
+  color: var(--ink);
+  font-family: "Studio UI", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  min-height: 100vh;
+  letter-spacing: -0.011em;
+  -webkit-font-smoothing: antialiased;
+}
+/* the studio sets a near-black body, which must not show behind this page */
+body:has(.firms) {
+  background: #efece6;
+}
+
+.firms .serif {
+  font-family: "Studio Serif", "Playfair Display", Georgia, serif;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.firms em {
+  font-style: italic;
+  font-weight: 500;
+}
+
+.firms .fwrap {
+  display: block;
+  min-height: 0;
+  max-width: 1120px;
+  margin-inline: auto;
+  padding-inline: 24px;
+  gap: 0;
+}
+@media (max-width: 600px) {
+  .firms .fwrap {
+    padding-inline: 20px;
+  }
+}
+
+/* ---- bar ---- */
+.firms .bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: color-mix(in srgb, var(--cream) 88%, transparent);
+  backdrop-filter: saturate(180%) blur(12px);
+  border-bottom: 1px solid var(--rule);
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.firms .bar .fwrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 64px;
+}
+.firms .lockup {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+.firms .lmark {
+  width: 30px;
+  height: 30px;
+  border: 1.5px solid var(--ink);
+  display: grid;
+  place-items: center;
+  font-family: "Studio Serif", Georgia, serif;
+  font-size: 16px;
+  font-style: italic;
+  flex: none;
+}
+.firms .lname {
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.firms .lsuffix {
+  font-family: "Studio Serif", Georgia, serif;
+  font-style: italic;
+  font-size: 15px;
+  color: var(--ink-faint);
+  padding-left: 11px;
+  border-left: 1px solid var(--rule);
+}
+@media (max-width: 560px) {
+  .firms .lsuffix {
+    display: none;
+  }
+}
+
+.firms .barlink {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1.5px solid var(--ink);
+  padding-bottom: 2px;
+}
+.firms .barlink:hover {
+  color: var(--plum);
+  border-color: var(--plum);
+}
+
+/* ---- shared section furniture ---- */
+.firms section {
+  padding-block: clamp(56px, 9vw, 104px);
+}
+.firms .eyebrow {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 0 0 20px;
+}
+.firms h1,
+.firms h2,
+.firms h3 {
+  margin: 0;
+  text-wrap: balance;
+}
+.firms h1 {
+  font-size: clamp(38px, 7vw, 68px);
+  line-height: 1.04;
+}
+.firms h2 {
+  font-size: clamp(30px, 4.6vw, 46px);
+  line-height: 1.08;
+}
+.firms h3 {
+  font-size: 20px;
+  line-height: 1.25;
+}
+.firms p {
+  margin: 0;
+  line-height: 1.6;
+}
+.firms .lede {
+  font-size: clamp(17px, 2.1vw, 20px);
+  color: var(--ink-soft);
+  max-width: 54ch;
+  margin-top: 24px;
+}
+
+.firms .fbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 17px 26px;
+  border: 1.5px solid var(--ink);
+  border-radius: 0;
+  background: var(--ink);
+  color: var(--cream);
+  transition: background 0.14s, color 0.14s, border-color 0.14s;
+}
+.firms .fbtn:hover {
+  background: var(--plum);
+  border-color: var(--plum);
+}
+.firms .fbtn-ghost {
+  background: none;
+  color: var(--ink);
+}
+.firms .fbtn-ghost:hover {
+  background: var(--ink);
+  color: var(--cream);
+}
+.firms .ctas {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 36px;
+}
+
+/* ---- hero ---- */
+.firms .hero {
+  padding-block: clamp(56px, 10vw, 120px) clamp(40px, 6vw, 72px);
+}
+.firms .hero h1 {
+  max-width: 16ch;
+}
+
+/* ---- the showcase: real slides, rendered by the real renderer ---- */
+.firms .shelf {
+  display: flex;
+  gap: 18px;
+  overflow-x: auto;
+  padding-block: 4px 18px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+.firms .shelf::-webkit-scrollbar {
+  height: 6px;
+}
+.firms .shelf::-webkit-scrollbar-thumb {
+  background: var(--rule);
+  border-radius: 99px;
+}
+/* 288 / 1080 = 0.26667, so the frame is exactly 288 x 360 with no JS */
+.firms .frame {
+  width: 288px;
+  height: 360px;
+  flex: none;
+  position: relative;
+  overflow: hidden;
+  scroll-snap-align: start;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06), 0 18px 40px -24px rgba(21, 18, 15, 0.5);
+}
+.firms .frame .slide-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: scale(0.266667);
+  transform-origin: top left;
+  pointer-events: none;
+}
+.firms .shelfnote {
+  font-size: 13.5px;
+  color: var(--ink-faint);
+  margin-top: 6px;
+}
+
+/* ---- dark panel ---- */
+.firms .plumpanel {
+  background: var(--plum);
+  color: var(--onplum);
+}
+.firms .plumpanel .eyebrow {
+  color: var(--onplum-soft);
+}
+.firms .plumpanel .lede,
+.firms .plumpanel p {
+  color: var(--onplum-soft);
+}
+
+/* ---- numbered steps ---- */
+.firms .fsteps {
+  margin-top: 48px;
+  border-top: 1px solid var(--rule);
+}
+.firms .fstep {
+  display: grid;
+  grid-template-columns: 60px minmax(0, 1fr);
+  gap: 24px;
+  padding-block: 28px;
+  border-bottom: 1px solid var(--rule);
+  align-items: start;
+}
+@media (max-width: 600px) {
+  .firms .fstep {
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 16px;
+  }
+}
+.firms .fstep .n {
+  font-family: "Studio Serif", Georgia, serif;
+  font-style: italic;
+  font-size: 18px;
+  color: var(--ink-faint);
+  padding-top: 2px;
+}
+.firms .fstep p {
+  color: var(--ink-soft);
+  margin-top: 8px;
+  max-width: 58ch;
+  font-size: 15.5px;
+}
+
+/* ---- what is built, and what is not ---- */
+.firms .ledger {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 0;
+  margin-top: 44px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+}
+.firms .fcol {
+  padding: 32px 28px;
+}
+.firms .fcol + .fcol {
+  border-left: 1px solid var(--rule);
+}
+@media (max-width: 660px) {
+  .firms .fcol + .fcol {
+    border-left: 0;
+    border-top: 1px solid var(--rule);
+  }
+}
+.firms .fcolhead {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin: 0 0 18px;
+}
+.firms .fcol.now .fcolhead {
+  color: var(--plum);
+}
+.firms .fcol.soon .fcolhead {
+  color: var(--ink-faint);
+}
+.firms .ledger ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 13px;
+}
+.firms .ledger li {
+  font-size: 15.5px;
+  line-height: 1.45;
+  padding-left: 26px;
+  position: relative;
+  color: var(--ink-soft);
+}
+.firms .fcol.now li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 7px;
+  width: 13px;
+  height: 8px;
+  border-left: 2px solid var(--plum);
+  border-bottom: 2px solid var(--plum);
+  transform: rotate(-45deg);
+}
+.firms .fcol.soon li::before {
+  content: "";
+  position: absolute;
+  left: 1px;
+  top: 6px;
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid var(--ink-faint);
+  border-radius: 50%;
+}
+.firms .ledgernote {
+  margin-top: 18px;
+  font-size: 14px;
+  color: var(--ink-faint);
+  max-width: 62ch;
+}
+
+/* ---- pricing ---- */
+.firms .price {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 40px 34px;
+  max-width: 460px;
+  margin-top: 44px;
+}
+.firms .plumpanel .price {
+  background: var(--cream);
+  border-color: transparent;
+  color: var(--ink);
+}
+.firms .plumpanel .price p {
+  color: var(--ink-soft);
+}
+.firms .pricehead {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 0 0 14px;
+}
+.firms .amount {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: "Studio Serif", Georgia, serif;
+}
+.firms .amount b {
+  font-size: 58px;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  line-height: 1;
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 3px;
+}
+.firms .amount .cur {
+  font-size: 0.5em;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+.firms .amount span {
+  font-family: "Studio UI", sans-serif;
+  font-size: 14px;
+  color: var(--ink-faint);
+}
+.firms .price ul {
+  margin: 24px 0 0;
+  padding: 24px 0 0;
+  border-top: 1px solid var(--rule);
+  list-style: none;
+  display: grid;
+  gap: 11px;
+  font-size: 15px;
+  color: var(--ink-soft);
+}
+.firms .price li {
+  display: flex;
+  gap: 12px;
+}
+.firms .price li i {
+  font-style: normal;
+  color: var(--ink-faint);
+  flex: none;
+}
+.firms .price .fbtn {
+  margin-top: 28px;
+  width: 100%;
+  justify-content: center;
+}
+
+/* ---- questions ---- */
+.firms .qa {
+  margin-top: 44px;
+  border-top: 1px solid var(--rule);
+}
+.firms .qa > div {
+  padding-block: 26px;
+  border-bottom: 1px solid var(--rule);
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 32px;
+}
+@media (max-width: 700px) {
+  .firms .qa > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+}
+.firms .qa h3 {
+  font-size: 18px;
+}
+.firms .qa p {
+  color: var(--ink-soft);
+  font-size: 15.5px;
+}
+
+/* ---- close ---- */
+.firms .close {
+  text-align: center;
+}
+.firms .close h2 {
+  max-width: 20ch;
+  margin-inline: auto;
+}
+.firms .close .ctas {
+  justify-content: center;
+}
+
+.firms footer {
+  border-top: 1px solid var(--rule);
+  padding-block: 40px calc(40px + env(safe-area-inset-bottom, 0px));
+  font-size: 14px;
+  color: var(--ink-faint);
+}
+.firms footer .fwrap {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  align-items: center;
+}
