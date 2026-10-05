@@ -43,7 +43,7 @@ export function StreakCalendar({
       <div className="mb-4 flex items-center gap-3">
         <span
           className={cn(
-            'grid place-items-center rounded-full bg-amber-50 text-amber-600',
+            'grid place-items-center rounded-full bg-warn-wash text-warn',
             streak >= 30 ? 'size-14' : streak >= 7 ? 'size-12' : 'size-10',
           )}
         >

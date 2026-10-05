@@ -234,7 +234,7 @@ function Clock({ deadlineAt, startedAt }: { deadlineAt: string; startedAt: strin
         over
           ? 'border-verdict-wrong/40 bg-verdict-wrong-wash/95'
           : urgent
-            ? 'border-amber-400 bg-amber-50/95'
+            ? 'border-warn/60 bg-warn-wash/95'
             : 'border-rule bg-paper-raised/95',
       )}
       role="timer"
@@ -243,7 +243,7 @@ function Clock({ deadlineAt, startedAt }: { deadlineAt: string; startedAt: strin
       <span
         className={cn(
           'font-mono text-2xl font-semibold tabular-nums',
-          over ? 'text-verdict-wrong' : urgent ? 'clock-urgent text-amber-700' : 'text-ink',
+          over ? 'text-verdict-wrong' : urgent ? 'clock-urgent text-warn' : 'text-ink',
         )}
       >
         {over ? `+${clock}` : clock}

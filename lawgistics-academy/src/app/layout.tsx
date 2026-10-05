@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Fraunces, Inter } from 'next/font/google';
+import { Fraunces, Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { brand } from '@/lib/brand';
 
@@ -13,6 +13,14 @@ const display = Fraunces({
 const body = Inter({
   subsets: ['latin'],
   variable: '--font-body',
+  display: 'swap',
+});
+
+// Labels, numbers and dates in the navy look: the instrument-panel voice.
+const code = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  variable: '--font-code',
   display: 'swap',
 });
 
@@ -34,7 +42,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-AU" className={`${display.variable} ${body.variable}`}>
+    <html lang="en-AU" className={`${display.variable} ${body.variable} ${code.variable}`}>
       <body
         // A firm's accent replaces the navy everywhere it is used, rather
         // than in the one button somebody remembered. The value is hex-checked

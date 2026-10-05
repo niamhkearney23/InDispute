@@ -783,7 +783,7 @@ export default async function DashboardPage() {
 
 const TONES = {
   accent: 'bg-accent-wash text-accent',
-  amber: 'bg-amber-50 text-amber-700',
+  amber: 'bg-warn-wash text-warn',
   green: 'bg-verdict-correct-wash text-verdict-correct',
   slate: 'bg-paper-sunk text-slate',
 } as const;

@@ -143,7 +143,7 @@ export default async function IntakePage() {
                   aria-hidden
                   className={cn(
                     'mt-0.5 grid size-6 shrink-0 place-items-center rounded-full text-xs font-bold',
-                    c.ok ? 'bg-verdict-correct-wash text-verdict-correct' : 'bg-amber-100 text-amber-800',
+                    c.ok ? 'bg-verdict-correct-wash text-verdict-correct' : 'bg-warn-wash text-warn',
                   )}
                 >
                   {c.ok ? '✓' : '!'}
