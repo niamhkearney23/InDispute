@@ -68,6 +68,7 @@ export default async function AdminTraineePage({ params }: { params: Promise<{ i
                     <ScoreBar
                       label={`${m.module.name}${m.module.required ? ' (required)' : ''}: ${m.correctOnce} of ${m.total} done`}
                       score={score}
+                      unit="%"
                       band={m.complete ? 'strong' : score >= 50 ? 'developing' : 'weak'}
                     />
                   </li>

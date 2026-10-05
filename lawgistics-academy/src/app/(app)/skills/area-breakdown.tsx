@@ -1,5 +1,6 @@
 'use client';
 
+import { MASTERY } from '@/lib/learning/config';
 import { useState } from 'react';
 import { ScoreBar, cn } from '@/components/ui';
 import { masteryBand } from '@/lib/learning/mastery';
@@ -55,6 +56,7 @@ export function AreaBreakdown({ areas }: { areas: Area[] }) {
                 label={area.name}
                 score={area.score}
                 band={masteryBand(area.score)}
+                early={area.attempts < MASTERY.minAttemptsForConfidence}
                 sublabel={
                   area.attempts === 0
                     ? 'Not yet assessed'
@@ -82,6 +84,7 @@ export function AreaBreakdown({ areas }: { areas: Area[] }) {
                           label={concept.name}
                           score={concept.score}
                           band={masteryBand(concept.score)}
+                          early={concept.attempts < MASTERY.minAttemptsForConfidence}
                           sublabel={
                             concept.confidentAndWrong > 0
                               ? `Sure and wrong ${concept.confidentAndWrong} time${concept.confidentAndWrong === 1 ? '' : 's'}`

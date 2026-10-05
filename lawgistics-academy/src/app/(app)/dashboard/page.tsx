@@ -13,7 +13,7 @@ import { essayTopic } from '@/content/seed/essay-topics';
 import { homeworkForDay } from '@/content/seed/homework';
 import { homeworkDay, lastArrivedDay } from '@/lib/homework/rules';
 import { HomeworkForm } from '../homework-form';
-import { QUESTIONS_PER_MINUTE_GOAL } from '@/lib/learning/config';
+import { MASTERY, QUESTIONS_PER_MINUTE_GOAL } from '@/lib/learning/config';
 import { TOP_LEVEL_NAME } from '@/lib/learning/progression';
 import { GoalRing } from '@/components/goal-ring';
 import { AccentSurface } from '@/components/accent-surface';
@@ -808,6 +808,7 @@ export default async function DashboardPage() {
                 label={entry.name}
                 score={entry.score}
                 band={masteryBand(entry.score)}
+                early={entry.attempts < MASTERY.minAttemptsForConfidence}
                 sublabel={
                   entry.attempts === 0
                     ? 'Not yet assessed'
