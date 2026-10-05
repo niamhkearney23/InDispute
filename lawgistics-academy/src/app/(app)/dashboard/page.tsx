@@ -537,7 +537,13 @@ export default async function DashboardPage() {
             <>
               <CardLabel icon={<BookIcon className="size-4" />}>Homework</CardLabel>
               <p className="text-slate">
-                No homework today. Day {homework.nextDay} picks up on Monday.
+                No homework today{homework.holiday ? ` (${homework.holiday})` : ''}. Day{' '}
+                {homework.nextDay} picks up on{' '}
+                {new Date(`${homework.resumesOn}T00:00:00Z`).toLocaleDateString('en-GB', {
+                  weekday: 'long',
+                  timeZone: 'UTC',
+                })}
+                .
               </p>
             </>
           ) : homework.state === 'finished' ? (
@@ -777,7 +783,7 @@ export default async function DashboardPage() {
 
 const TONES = {
   accent: 'bg-accent-wash text-accent',
-  amber: 'bg-amber-50 text-amber-700',
+  amber: 'bg-warn-wash text-warn',
   green: 'bg-verdict-correct-wash text-verdict-correct',
   slate: 'bg-paper-sunk text-slate',
 } as const;

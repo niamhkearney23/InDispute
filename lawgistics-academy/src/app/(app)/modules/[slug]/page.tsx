@@ -6,7 +6,8 @@ import { getModule } from '@/lib/modules/service';
 import { ButtonLink, Card, Notice, Pill, ScoreBar, SectionHeading } from '@/components/ui';
 import { StartModuleButton } from '../start-module-button';
 import { LessonPlayer } from './lesson-player';
-import { lessonForModule } from '@/content/seed/lessons';
+import { lessonToShow } from '@/content/seed/lessons';
+import { currentSignOffs } from '@/lib/lessons/signoff';
 import { ModuleArt, artFor } from '@/components/module-art';
 import { requireAccess } from '@/lib/access/service';
 
@@ -31,7 +32,9 @@ export default async function ModulePage({
 
   const { module: definition } = entry;
   const percent = entry.total === 0 ? 0 : Math.round((entry.correctOnce / entry.total) * 100);
-  const lesson = lessonForModule(definition.slug);
+  const signOffs = await currentSignOffs();
+  const lesson = lessonToShow(definition.slug, (s) => signOffs.has(s));
+  const lessonChecked = lesson ? signOffs.has(lesson.slug) : false;
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">
@@ -70,7 +73,7 @@ export default async function ModulePage({
                   month: 'long',
                   year: 'numeric',
                 })}. These concepts still come back in daily training, because covering something once is not the same as remembering it.`
-              : `${entry.correctOnce} of ${entry.total} right so far. To complete the module, get every question right once. Going back only asks you the ones still to get right.`}
+              : `${entry.correctOnce} of the ${entry.total} questions done. Each sitting asks up to eight, and only the ones you have not yet got right, so carry on until every one is done.`}
           </p>
         </Card>
       )}
@@ -81,6 +84,12 @@ export default async function ModulePage({
             eyebrow={`Lesson, about ${lesson.minutes} minutes`}
             title={lesson.title}
           />
+          {/* Unchecked content should look unchecked. */}
+          {!lessonChecked ? (
+            <p className="-mt-2 mb-4 text-sm text-slate">
+              <Pill tone="neutral">Not yet checked by a lawyer</Pill>
+            </p>
+          ) : null}
           <LessonPlayer
             lesson={lesson}
             country={profile.country}
@@ -89,7 +98,7 @@ export default async function ModulePage({
               entry.complete
                 ? 'Answer them again'
                 : entry.correctOnce > 0
-                  ? 'Go back to the ones left'
+                  ? 'Carry on with the module'
                   : 'Start the questions'
             }
           />
@@ -100,7 +109,7 @@ export default async function ModulePage({
         {entry.total > 0 && !lesson ? (
           <StartModuleButton
             slug={definition.slug}
-            label={entry.complete ? 'Go through it again' : entry.correctOnce > 0 ? 'Go back to the ones left' : 'Start'}
+            label={entry.complete ? 'Go through it again' : entry.correctOnce > 0 ? 'Carry on with the module' : 'Start'}
           />
         ) : null}
         <ButtonLink href="/modules" size="lg" variant="outline">

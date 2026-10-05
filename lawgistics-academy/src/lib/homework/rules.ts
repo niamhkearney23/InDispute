@@ -11,11 +11,13 @@
  */
 import { daysUntil, todayIn } from '@/lib/onboarding/rules';
 import { HOMEWORK_DAYS } from '@/content/seed/homework';
+import { HOLIDAYS } from '@/content/holidays';
 
 export type HomeworkDay =
   | { state: 'none' }
   | { state: 'before'; daysUntilStart: number }
-  | { state: 'weekend'; nextDay: number }
+  /** A weekend, or a public holiday the programme does not run on. */
+  | { state: 'weekend'; nextDay: number; resumesOn: string; holiday?: string }
   | { state: 'day'; day: number }
   | { state: 'finished' };
 
@@ -25,43 +27,44 @@ function isoWeekday(isoDate: string): number {
   return day === 0 ? 7 : day;
 }
 
-/**
- * Working days (Monday to Friday) from a start date through an elapsed
- * calendar offset, counting the start date itself when it is a weekday.
- *
- * A full seven-day block always contains exactly five weekdays regardless of
- * which day it starts on, so only the leftover few days at the end need
- * counting one at a time; the rest is whole weeks times five.
- */
-/**
- * The calendar date working day `day` of a placement falls on, counting
- * the start date as day one when it is a weekday. The inverse of
- * workingDaysElapsed, for drawing a schedule: day 6 of a placement that
- * starts on a Monday is the following Monday.
- */
-export function dateOfWorkingDay(startsOn: string, day: number): string {
-  const d = new Date(`${startsOn}T00:00:00Z`);
-  let counted = isoWeekday(startsOn) <= 5 ? 1 : 0;
-  while (counted < day) {
-    d.setUTCDate(d.getUTCDate() + 1);
-    const weekday = d.getUTCDay();
-    if (weekday !== 0 && weekday !== 6) counted++;
-  }
+function addDays(isoDate: string, days: number): string {
+  const d = new Date(`${isoDate}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
   return d.toISOString().slice(0, 10);
 }
 
+/** Monday to Friday, and not a public holiday the programme skips. */
+export function isWorkingDay(isoDate: string): boolean {
+  return isoWeekday(isoDate) <= 5 && !(isoDate in HOLIDAYS);
+}
+
+/**
+ * The calendar date working day `day` of a placement falls on, counting
+ * the start date as day one when it is a working day. The inverse of
+ * workingDaysElapsed, for drawing a schedule: day 6 of a placement that
+ * starts on a Monday is the following Monday, or the Tuesday when that
+ * Monday is a holiday.
+ */
+export function dateOfWorkingDay(startsOn: string, day: number): string {
+  let date = startsOn;
+  let counted = isWorkingDay(date) ? 1 : 0;
+  while (counted < day) {
+    date = addDays(date, 1);
+    if (isWorkingDay(date)) counted++;
+  }
+  return date;
+}
+
+/**
+ * Working days from a start date through an elapsed calendar offset,
+ * counting the start date itself when it is a working day. Counted a day at
+ * a time: a placement is a few weeks, and a holiday has to be skipped
+ * wherever it falls.
+ */
 export function workingDaysElapsed(startsOn: string, calendarDaysElapsed: number): number {
-  if (calendarDaysElapsed < 0) return 0;
-
-  const totalDays = calendarDaysElapsed + 1;
-  const remainder = totalDays % 7;
-  const fullWeeks = (totalDays - remainder) / 7;
-
-  let count = fullWeeks * 5;
-  const startWeekday = isoWeekday(startsOn);
-  for (let i = 0; i < remainder; i++) {
-    const weekday = ((startWeekday - 1 + i) % 7) + 1;
-    if (weekday <= 5) count++;
+  let count = 0;
+  for (let i = 0; i <= calendarDaysElapsed; i++) {
+    if (isWorkingDay(addDays(startsOn, i))) count++;
   }
   return count;
 }
@@ -81,12 +84,19 @@ export function homeworkDay(
   if (endsOn && today > endsOn) return { state: 'finished' };
 
   const calendarDaysElapsed = -daysUntilStart;
-  const weekday = isoWeekday(today);
 
-  if (weekday > 5) {
-    const toMonday = weekday === 6 ? 2 : 1;
-    const nextDay = workingDaysElapsed(startsOn, calendarDaysElapsed + toMonday);
-    return nextDay > HOMEWORK_DAYS ? { state: 'finished' } : { state: 'weekend', nextDay };
+  if (!isWorkingDay(today)) {
+    let ahead = 1;
+    while (!isWorkingDay(addDays(today, ahead))) ahead++;
+    const nextDay = workingDaysElapsed(startsOn, calendarDaysElapsed + ahead);
+    if (nextDay > HOMEWORK_DAYS) return { state: 'finished' };
+    const holiday = HOLIDAYS[today];
+    return {
+      state: 'weekend',
+      nextDay,
+      resumesOn: addDays(today, ahead),
+      ...(holiday ? { holiday } : {}),
+    };
   }
 
   const day = workingDaysElapsed(startsOn, calendarDaysElapsed);

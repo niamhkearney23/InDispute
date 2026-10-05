@@ -63,11 +63,19 @@ export async function saveAccessCode(_state: AdminState, formData: FormData): Pr
   const db = createServiceClient();
   const { error } = await db.from('access_codes').insert({ code, label, created_by: adminId });
   if (error) {
-    return {
-      error: /duplicate|unique/i.test(error.message)
-        ? 'That code is already in use.'
-        : 'That could not be saved.',
-    };
+    // The reason goes to the server log (Vercel, Logs), never to the page.
+    console.error('saveAccessCode failed', error.code, error.message);
+    if (error.code === '23505' || /duplicate|unique/i.test(error.message)) {
+      return { error: 'That code is already in use.' };
+    }
+    // The table is not there: the database has not had the update that adds it.
+    if (error.code === '42P01' || error.code === 'PGRST205') {
+      return {
+        error:
+          'The database is missing the part that holds codes. Run supabase/UPDATE.sql in Supabase (SQL Editor), then try again.',
+      };
+    }
+    return { error: `That could not be saved (database said: ${error.code ?? 'unknown'}).` };
   }
 
   refresh();

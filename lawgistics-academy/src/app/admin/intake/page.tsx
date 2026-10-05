@@ -50,11 +50,14 @@ export default async function IntakePage() {
   const confirmed = overview.trainees.filter((t) => t.confirmed);
   const awaiting = overview.trainees.filter((t) => !t.confirmed);
   const undated = confirmed.filter((t) => !t.startsOn);
-  // Dated for some other intake (the October dates, from before the intake
-  // moved) and not started yet: their day plan and homework would run to
+  // Dated for some other intake (the October dates, or the November dates
+  // from before Deepavali moved the last day) and not started yet: their day plan and homework would run to
   // the wrong calendar.
   const elsewhere = confirmed.filter(
-    (t) => t.startsOn && t.startsOn !== PROGRAMME.intakeStartsOn && t.startsOn > today,
+    (t) =>
+      t.startsOn &&
+      t.startsOn > today &&
+      (t.startsOn !== PROGRAMME.intakeStartsOn || t.endsOn !== PROGRAMME.intakeEndsOn),
   );
   const videosUp = schedule.filter((d) => overview.sessionsByDate.has(d.date)).length;
   const allBoxes = [...new Set(schedule.flatMap((d) => d.due))];
@@ -81,7 +84,7 @@ export default async function IntakePage() {
         undated.length > 0
           ? `${undated.length} confirmed ${undated.length === 1 ? 'trainee has' : 'trainees have'} no start date, so their homework and day plan do not show yet.`
           : elsewhere.length > 0
-            ? `${elsewhere.length} confirmed ${elsewhere.length === 1 ? 'trainee is' : 'trainees are'} dated for a different start (${elsewhere.map((t) => `${t.name}: ${shortDate(t.startsOn!)}`).join('; ')}), so their day plan runs to the wrong calendar.`
+            ? `${elsewhere.length} confirmed ${elsewhere.length === 1 ? 'trainee is' : 'trainees are'} on different dates (${elsewhere.map((t) => `${t.name}: ${shortDate(t.startsOn!)} to ${t.endsOn ? shortDate(t.endsOn) : 'no end date'}`).join('; ')}), so their day plan runs to the wrong calendar.`
             : confirmed.length === 0
             ? 'Nobody to date yet.'
             : 'Every confirmed trainee has dates.',
@@ -140,7 +143,7 @@ export default async function IntakePage() {
                   aria-hidden
                   className={cn(
                     'mt-0.5 grid size-6 shrink-0 place-items-center rounded-full text-xs font-bold',
-                    c.ok ? 'bg-verdict-correct-wash text-verdict-correct' : 'bg-amber-100 text-amber-800',
+                    c.ok ? 'bg-verdict-correct-wash text-verdict-correct' : 'bg-warn-wash text-warn',
                   )}
                 >
                   {c.ok ? '✓' : '!'}
@@ -174,7 +177,7 @@ export default async function IntakePage() {
                   {elsewhere.length > 0 ? (
                     <IntakeDatesButton
                       scope="move"
-                      label={`Move ${elsewhere.length === 1 ? 'them' : `all ${elsewhere.length}`} to ${shortDate(PROGRAMME.intakeStartsOn)}`}
+                      label={`Give ${elsewhere.length === 1 ? 'them' : `all ${elsewhere.length}`} ${shortDate(PROGRAMME.intakeStartsOn)} to ${shortDate(PROGRAMME.intakeEndsOn)}`}
                     />
                   ) : null}
                 </>

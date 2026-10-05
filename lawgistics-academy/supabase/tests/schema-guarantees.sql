@@ -2469,6 +2469,51 @@ select pg_temp.expect(
                     where conversation_id = '77770031-0000-0000-0000-0000000000fe'),
   'an account going takes its tutor conversations with it');
 
+-- -----------------------------------------------------------------------------
+-- Lesson sign-offs (0032)
+-- -----------------------------------------------------------------------------
+-- The promise: only a coach or administrator signs a lesson off, the time is
+-- the database's, one sign-off per wording, and a sign-off is never changed
+-- or removed. Nobody reads or writes them through the database directly.
+reset role;
+set local request.jwt.claim.sub = '';
+insert into public.lesson_signoffs (lesson_slug, content_hash, signed_by, signed_at)
+values ('ai-ethics-my-story', repeat('a', 64), '44444444-4444-4444-4444-444444444444',
+        timestamptz '2001-01-01 00:00:00+00');
+select pg_temp.expect(
+  (select signed_at > timestamptz '2020-01-01' from public.lesson_signoffs
+   where lesson_slug = 'ai-ethics-my-story'),
+  'a lesson sign-off carries the time it was actually given');
+select pg_temp.expect_failure(
+  $$insert into public.lesson_signoffs (lesson_slug, content_hash, signed_by)
+    values ('ai-ethics-my-story', repeat('b', 64), '11111111-1111-1111-1111-111111111111')$$,
+  'a learner cannot sign a lesson off, even through the server');
+select pg_temp.expect_failure(
+  $$insert into public.lesson_signoffs (lesson_slug, content_hash, signed_by)
+    values ('ai-ethics-my-story', repeat('a', 64), '44444444-4444-4444-4444-444444444444')$$,
+  'one sign-off per wording of a lesson');
+select pg_temp.expect_failure(
+  $$insert into public.lesson_signoffs (lesson_slug, content_hash, signed_by)
+    values ('ai-ethics-my-story', 'not-a-hash', '44444444-4444-4444-4444-444444444444')$$,
+  'a sign-off is pinned to a real fingerprint of the wording');
+select pg_temp.expect_failure(
+  $$update public.lesson_signoffs set content_hash = repeat('c', 64)$$,
+  'a lesson sign-off cannot be moved to other wording');
+select pg_temp.expect_failure(
+  $$delete from public.lesson_signoffs$$,
+  'a lesson sign-off cannot be deleted, even by the server');
+
+set local role authenticated;
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+select pg_temp.expect(
+  (select count(*) = 0 from public.lesson_signoffs),
+  'lesson sign-offs are read through the server, not the database');
+select pg_temp.expect_failure(
+  $$insert into public.lesson_signoffs (lesson_slug, content_hash, signed_by)
+    values ('courts-my-intro', repeat('d', 64), '44444444-4444-4444-4444-444444444444')$$,
+  'nobody signs a lesson off from the browser, coaches included');
+reset role;
+
 \echo ''
 \echo 'All schema guarantees hold.'
 

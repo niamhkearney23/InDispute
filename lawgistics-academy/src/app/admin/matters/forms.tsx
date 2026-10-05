@@ -204,7 +204,7 @@ export function MatterMarkForm({
               choice === v
                 ? v === 'good'
                   ? 'border-verdict-correct bg-verdict-correct-wash text-verdict-correct'
-                  : 'border-amber-500 bg-amber-50 text-amber-800'
+                  : 'border-warn/60 bg-warn-wash text-warn'
                 : 'border-rule',
             )}
           >

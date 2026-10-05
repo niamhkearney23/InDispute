@@ -41,7 +41,7 @@ export function LeaderboardCard({ rows }: { rows: LeaderboardRow[] }) {
                 className={cn(
                   'grid size-7 shrink-0 place-items-center rounded-full font-serif text-sm tabular-nums',
                   row.position === 1
-                    ? 'bg-amber-100 text-amber-800'
+                    ? 'bg-warn-wash text-warn'
                     : row.position <= 3
                       ? 'bg-paper-sunk text-ink'
                       : 'text-muted',

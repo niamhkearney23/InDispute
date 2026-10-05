@@ -83,7 +83,7 @@ export function Card({
   return (
     <Tag
       className={cn(
-        'rounded-lg border border-rule bg-paper-raised p-5 shadow-card sm:p-6',
+        'panel rounded-lg border border-rule bg-paper-raised p-5 shadow-card sm:p-6',
         className,
       )}
     >
@@ -151,7 +151,7 @@ export function Pill({
     accent: 'border-accent/30 bg-accent-wash text-accent',
     correct: 'border-verdict-correct/30 bg-verdict-correct-wash text-verdict-correct',
     wrong: 'border-verdict-wrong/30 bg-verdict-wrong-wash text-verdict-wrong',
-    warn: 'border-amber-600/30 bg-amber-50 text-amber-800',
+    warn: 'border-warn/30 bg-warn-wash text-warn',
   } as const;
 
   return (
@@ -260,7 +260,7 @@ export function Notice({
     // cleared to begin, signed off, nothing left outstanding. Uses the same
     // tokens as Pill's correct tone so the two agree on screen.
     good: 'border-verdict-correct/25 bg-verdict-correct-wash text-verdict-correct',
-    warn: 'border-amber-300 bg-amber-50 text-amber-900',
+    warn: 'border-warn/35 bg-warn-wash text-warn',
     error: 'border-verdict-wrong/25 bg-verdict-wrong-wash text-verdict-wrong',
   } as const;
 

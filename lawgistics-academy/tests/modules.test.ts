@@ -6,7 +6,13 @@ import path from 'node:path';
 
 import { MODULES, modulesFor, moduleBySlug } from '../src/content/seed/modules';
 import { QUESTIONS } from '../src/content/seed';
-import { LESSONS, lessonForModule } from '../src/content/seed/lessons';
+import {
+  DRAFT_LESSONS,
+  LESSONS,
+  lessonContent,
+  lessonForModule,
+  lessonToShow,
+} from '../src/content/seed/lessons';
 import { COURT_HIERARCHIES } from '../src/content/seed/court-hierarchies';
 import { isEmbeddable } from '../src/lib/lessons/embed';
 import { DOMAINS } from '../src/content/seed/taxonomy';
@@ -201,7 +207,10 @@ test('a lesson only draws a diagram for a country that has one', () => {
     if (!lesson.steps.some((s) => s.diagram)) continue;
     const hierarchy = COURT_HIERARCHIES[lesson.country];
     assert.ok(hierarchy, `${lesson.slug} draws a diagram but ${lesson.country} has no hierarchy`);
-    assert.ok(hierarchy.courts.length >= 4, `the ${lesson.country} diagram is too thin to teach from`);
+    assert.ok(
+      hierarchy.courts.length >= 4,
+      `the ${lesson.country} diagram is too thin to teach from`,
+    );
   }
 });
 
@@ -238,4 +247,73 @@ test('a lesson video may only be framed from a host we chose', () => {
       );
     }
   }
+});
+
+/* -------------------------------------------------------------------------- */
+/* Lesson rewrites and sign-off                                               */
+/* -------------------------------------------------------------------------- */
+
+test('a rewrite replaces a live lesson of the same module, and follows the same limits', () => {
+  for (const draft of DRAFT_LESSONS) {
+    const original = LESSONS.find((l) => l.slug === draft.replaces);
+    assert.ok(original, `${draft.slug} replaces a lesson that does not exist`);
+    assert.equal(original.moduleSlug, draft.moduleSlug);
+    assert.equal(original.country, draft.country);
+    assert.ok(!LESSONS.some((l) => l.slug === draft.slug), `${draft.slug} is also live`);
+    assert.ok(draft.steps.length >= 3 && draft.steps.length <= 6, `${draft.slug} length`);
+    for (const step of draft.steps) {
+      assert.ok(step.heading.length <= 40, `"${step.heading}" is a sentence`);
+      assert.ok(step.body.length >= 80 && step.body.length <= 520, `"${step.heading}" body length`);
+    }
+  }
+  const slugs = DRAFT_LESSONS.map((l) => l.slug);
+  assert.equal(new Set(slugs).size, slugs.length, 'two rewrites share a slug');
+});
+
+test('every guess has two to four options and marks exactly one of them right', () => {
+  for (const lesson of [...LESSONS, ...DRAFT_LESSONS]) {
+    for (const step of lesson.steps) {
+      if (!step.guess) continue;
+      const ids = step.guess.options.map((o) => o.id);
+      assert.ok(ids.length >= 2 && ids.length <= 4, `"${step.heading}" has ${ids.length} options`);
+      assert.equal(new Set(ids).size, ids.length, `"${step.heading}" repeats an option id`);
+      assert.ok(ids.includes(step.guess.answer), `"${step.heading}" marks a missing option right`);
+    }
+  }
+});
+
+test("an unsigned rewrite reaches nobody; a signed one takes the original's place", () => {
+  for (const draft of DRAFT_LESSONS) {
+    assert.equal(lessonToShow(draft.moduleSlug, () => false)?.slug, draft.replaces);
+    assert.equal(lessonToShow(draft.moduleSlug, (s) => s === draft.slug)?.slug, draft.slug);
+    // Signing the original does not bring in the rewrite.
+    assert.equal(lessonToShow(draft.moduleSlug, (s) => s === draft.replaces)?.slug, draft.replaces);
+  }
+});
+
+test('a sign-off covers one wording: any change a learner would see changes it', () => {
+  const lesson = DRAFT_LESSONS[0] ?? LESSONS[0];
+  const before = lessonContent(lesson);
+  const reworded = {
+    ...lesson,
+    steps: lesson.steps.map((s, i) => (i === 0 ? { ...s, body: `${s.body}!` } : s)),
+  };
+  assert.notEqual(lessonContent(reworded), before);
+  const guessed = lesson.steps.find((s) => s.guess);
+  if (guessed?.guess) {
+    const other = guessed.guess.options.find((o) => o.id !== guessed.guess!.answer)!;
+    const flipped = {
+      ...lesson,
+      steps: lesson.steps.map((s) =>
+        s === guessed ? { ...s, guess: { ...s.guess!, answer: other.id } } : s,
+      ),
+    };
+    assert.notEqual(
+      lessonContent(flipped),
+      before,
+      'changing which answer is right needs a new sign-off',
+    );
+  }
+  // Reading time is not something a lawyer vouches for.
+  assert.equal(lessonContent({ ...lesson, minutes: lesson.minutes + 1 }), before);
 });

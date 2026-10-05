@@ -114,6 +114,8 @@ const PAGES = [
   { name: 'tutor-explain', path: '/tutor/cccc0031-0000-4000-8000-000000000001', auth: true },
   { name: 'tutor-test', path: '/tutor/cccc0031-0000-4000-8000-000000000002', auth: true },
   { name: 'admin-tutor', path: '/admin/tutor', auth: true },
+  { name: 'admin-lessons', path: '/admin/lessons', auth: true },
+  { name: 'admin-lesson-draft', path: '/admin/lessons/ai-ethics-my-story', auth: true },
   { name: 'admin-tutor-detail', path: '/admin/tutor/cccc0031-0000-4000-8000-000000000002', auth: true },
   { name: 'admin-matters', path: '/admin/matters', auth: true },
   { name: 'admin-matter', path: '/admin/matters/mmmm0001-0000-4000-8000-000000000001', auth: true },
