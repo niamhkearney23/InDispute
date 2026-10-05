@@ -13,7 +13,8 @@ import type { Country } from '@/lib/types';
  * drawn side by side. It is not a claim that courts on a tier are equivalent.
  * The two Malaysian High Courts share a tier because they are of co-ordinate
  * jurisdiction; the Australian Federal Court and the State Supreme Courts share
- * one because they are parallel hierarchies that meet only at the High Court.
+ * one because they are separate hierarchies, though they interact: a State
+ * court can exercise federal jurisdiction, and both answer to the High Court.
  *
  * NOT VERIFIED. Same standing as every other piece of content here: drafted
  * without a qualified reader, and to be checked before anyone learns from it.
@@ -105,7 +106,7 @@ const AUSTRALIA: CourtHierarchy = {
       short: 'Lowest court',
       tier: 3,
       appealsTo: 'intermediate',
-      note: 'Local Court in New South Wales; Magistrates Court elsewhere. Subject to a monetary limit.',
+      note: 'Local Court in New South Wales; Magistrates Court elsewhere. Subject to a monetary limit. Where an appeal goes depends on the legislation and the kind of case: in Victoria, a civil appeal on a question of law goes to the Supreme Court.',
     },
   ],
 };
@@ -118,7 +119,6 @@ const MALAYSIA: CourtHierarchy = {
     1: 'Intermediate appellate court',
     2: 'Superior courts: the High Courts',
     3: 'Subordinate courts',
-    4: 'Subordinate courts, lowest',
   },
   courts: [
     {
@@ -162,9 +162,12 @@ const MALAYSIA: CourtHierarchy = {
     {
       slug: 'magistrates-court',
       name: 'Magistrates Court',
-      tier: 4,
-      appealsTo: 'sessions-court',
-      note: 'The lowest court in the ordinary civil hierarchy.',
+      // Beside the Sessions Court, not under it: its appeals go past the
+      // Sessions Court to the High Court, and lines run between neighbouring rows.
+      tier: 3,
+      appealsTo: 'high-court-malaya',
+      alsoAppealsTo: 'high-court-sabah-sarawak',
+      note: 'The lowest court in the ordinary civil hierarchy. Appeals go to the High Court for the place it sits, not to the Sessions Court.',
     },
   ],
 };

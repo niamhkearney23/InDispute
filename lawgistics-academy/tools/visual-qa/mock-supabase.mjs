@@ -869,6 +869,15 @@ const TABLES = {
     { model_answer: 'How a lawyer would approach it\n\n1. Work out the clock first.\n2. Separate the undisputed part from the disputed part.', sources: 'Companies Act 2016, s 466.' },
   ],
   certificates: [],
+  'rpc/learner_answer_summary': [
+    {
+      user_id: TRAINEE_USER_ID,
+      answered: 2,
+      right_answers: 0,
+      last_answered: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+      weakest: 'Which court hears what',
+    },
+  ],
   'rpc/weekly_leaderboard': [
     { place: 1, first_name: 'Aisyah', xp: 640, is_me: false },
     { place: 2, first_name: 'Niamh', xp: 480, is_me: true },

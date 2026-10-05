@@ -22,7 +22,7 @@ export default async function AdminTraineePage({ params }: { params: Promise<{ i
   const { id } = await params;
   if (!z.string().uuid().safeParse(id).success) notFound();
   if (!(await staffMayRead(id, isAdmin))) notFound();
-  const person = await learnerDetail(id);
+  const person = await learnerDetail(id, isAdmin);
   if (!person) notFound();
 
   const percent = person.totalAnswered

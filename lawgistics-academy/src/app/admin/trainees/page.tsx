@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { requireCoach } from '@/lib/admin/guard';
-import { RECENT_DAYS, learnerList } from '@/lib/admin/answers';
-import { Pill } from '@/components/ui';
+import { LIST_LIMIT, RECENT_DAYS, learnerList } from '@/lib/admin/answers';
+import { Notice, Pill } from '@/components/ui';
 import { Avatar } from '@/components/avatar';
 
 export const metadata: Metadata = { title: 'Trainees' };
@@ -16,7 +16,7 @@ export const dynamic = 'force-dynamic';
  */
 export default async function AdminTraineesPage() {
   const { isAdmin } = await requireCoach();
-  const rows = await learnerList(isAdmin);
+  const { rows, more, failed } = await learnerList(isAdmin);
   const day = (iso: string) =>
     new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 
@@ -32,8 +32,20 @@ export default async function AdminTraineesPage() {
         </p>
       </section>
 
+      {failed ? (
+        <Notice tone="warn">
+          The answer figures could not be read just now, so nobody is shown as having answered.
+          Reload the page to try again.
+        </Notice>
+      ) : null}
+      {more ? (
+        <p className="text-sm text-slate">
+          Showing the first {LIST_LIMIT} people, by name.
+        </p>
+      ) : null}
+
       {rows.length === 0 ? (
-        <p className="text-slate">Nobody to show yet.</p>
+        <p className="text-slate">{failed ? 'Nobody could be listed just now.' : 'Nobody to show yet.'}</p>
       ) : (
         <ul className="divide-y divide-rule rounded-lg border border-rule bg-paper-raised">
           {rows.map((r) => {
