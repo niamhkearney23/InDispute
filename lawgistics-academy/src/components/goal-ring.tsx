@@ -74,7 +74,8 @@ export function GoalRing({
         <span
           className={`mt-0.5 text-[0.65rem] uppercase tracking-wider ${light ? 'text-paper/70' : 'text-muted'}`}
         >
-          of {target}
+          {/* Past the goal, "35 of 26" reads like a mistake; say what it is. */}
+          {done > target ? 'today' : `of ${target}`}
         </span>
       </div>
     </div>
