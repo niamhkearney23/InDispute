@@ -110,8 +110,8 @@ export function CourtMap({
       </div>
 
       <p className="mt-4 text-xs text-slate">
-        Lines are appeal routes and run upwards. Courts drawn side by side are of equal
-        standing, not one above the other. Choose a court to see what it does.
+        Lines are appeal routes and run upwards. Courts drawn side by side do not hear appeals
+        from each other, though they may not rank equally. Choose a court to see what it does.
       </p>
 
       {quizHref ? (

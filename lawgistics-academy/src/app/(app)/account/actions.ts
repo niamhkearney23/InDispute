@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { createSupabaseServerClient, getCurrentUser } from '@/lib/supabase/server';
+import { strictCartoon } from '@/lib/avatar/cartoon';
 
 export type AvatarState = { error: string | null };
 
@@ -89,6 +90,57 @@ export async function removeAvatar(_prev: AvatarState, _formData: FormData): Pro
   revalidatePath('/dashboard');
   revalidatePath('/account');
   return { error: null };
+}
+
+export type CartoonState = { error: string | null; ok?: string };
+
+/**
+ * Saving the cartoon you built. Only choices from the app's own lists are
+ * accepted, all of them or nothing, through your own session, so it can only
+ * ever be your own profile.
+ */
+export async function saveCartoon(
+  _prev: CartoonState,
+  formData: FormData,
+): Promise<CartoonState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: 'You are not signed in.' };
+
+  let raw: unknown = null;
+  try {
+    raw = JSON.parse(String(formData.get('style') ?? ''));
+  } catch {
+    raw = null;
+  }
+  const style = strictCartoon(raw);
+  if (!style) return { error: 'That cartoon could not be saved. Reload the page and try again.' };
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from('profiles')
+    .update({ avatar_style: style })
+    .eq('id', user.id);
+  if (error) return { error: 'That cartoon could not be saved. Please try again.' };
+
+  revalidatePath('/', 'layout');
+  return { error: null, ok: 'Saved. Your cartoon now shows beside your name.' };
+}
+
+// The shape useActionState requires, as removeAvatar.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function clearCartoon(_prev: CartoonState, _formData: FormData): Promise<CartoonState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: 'You are not signed in.' };
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from('profiles')
+    .update({ avatar_style: null })
+    .eq('id', user.id);
+  if (error) return { error: 'That could not be removed. Please try again.' };
+
+  revalidatePath('/', 'layout');
+  return { error: null, ok: 'Your cartoon is gone.' };
 }
 
 export type PasswordState = { error: string | null };

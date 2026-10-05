@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getCurrentUser, createSupabaseServerClient } from '@/lib/supabase/server';
 import { getLearnerOverview } from '@/lib/learner-overview';
-import { displayScore, masteryBand } from '@/lib/learning/mastery';
+import { displayScore } from '@/lib/learning/mastery';
 import { getFactOfTheDay } from '@/lib/facts/service';
 import { getModuleProgress } from '@/lib/modules/service';
 import { trainingOpen } from '@/lib/training/service';
@@ -16,7 +16,6 @@ import {
   Card,
   EmptyState,
   Pill,
-  ScoreBar,
   SectionHeading,
 } from '@/components/ui';
 import { requireAccess } from '@/lib/access/service';
@@ -200,27 +199,13 @@ export default async function SkillsPage() {
             <AreaBreakdown areas={areas} />
           </section>
 
-          {overview.skillProfile.length > 0 ? (
-            <section>
-              <SectionHeading
-                eyebrow="By skill"
-                title="How you think, not what you know"
-              />
-              <Card>
-                <div className="divide-y divide-rule">
-                  {overview.skillProfile.map((entry) => (
-                    <ScoreBar
-                      key={entry.slug}
-                      label={entry.name}
-                      score={entry.score}
-                      band={masteryBand(entry.score)}
-                      sublabel={`${entry.attempts} answer${entry.attempts === 1 ? '' : 's'}`}
-                    />
-                  ))}
-                </div>
-              </Card>
-            </section>
-          ) : null}
+          {/* No "by skill" scores. Every question carries skill tags, but they
+              were attached loosely when the questions were drafted (which
+              court sits in the middle was tagged attention to detail; how
+              to address a judge, oral communication), and a multiple-choice
+              answer cannot show speaking or writing at all. A score built on
+              that would be a number nobody can stand behind, so it is not
+              shown until the tags have been checked question by question. */}
 
           {blindSpots.length > 0 ? (
             <section>

@@ -2514,6 +2514,116 @@ select pg_temp.expect_failure(
   'nobody signs a lesson off from the browser, coaches included');
 reset role;
 
+-- -----------------------------------------------------------------------------
+-- A cartoon of yourself (0033)
+-- -----------------------------------------------------------------------------
+-- The promise: a person sets and clears their own cartoon and nobody else's,
+-- and what is stored is a short list of plain words, never markup.
+set local role authenticated;
+set local request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+update public.profiles
+set avatar_style = '{"skin":"edb98a","hair":"bob","eyes":"happy"}'::jsonb
+where id = '11111111-1111-1111-1111-111111111111';
+select pg_temp.expect(
+  (select avatar_style->>'hair' = 'bob' from public.profiles
+   where id = '11111111-1111-1111-1111-111111111111'),
+  'a person can save their own cartoon');
+update public.profiles
+set avatar_style = '{"hair":"fro"}'::jsonb
+where id = '22222222-2222-2222-2222-222222222222';
+reset role;
+select pg_temp.expect(
+  (select avatar_style is null from public.profiles
+   where id = '22222222-2222-2222-2222-222222222222'),
+  'nobody can set somebody else''s cartoon');
+set local role authenticated;
+set local request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+select pg_temp.expect_failure(
+  $$update public.profiles set avatar_style = '{"hair":"<svg onload=alert(1)>"}'::jsonb
+    where id = '11111111-1111-1111-1111-111111111111'$$,
+  'a cartoon choice is a plain word, never markup');
+select pg_temp.expect_failure(
+  $$update public.profiles set avatar_style = '{"hair":{"nested":"bob"}}'::jsonb
+    where id = '11111111-1111-1111-1111-111111111111'$$,
+  'a cartoon choice is a word, not an object');
+select pg_temp.expect_failure(
+  $$update public.profiles set avatar_style = '["bob"]'::jsonb
+    where id = '11111111-1111-1111-1111-111111111111'$$,
+  'a cartoon is a set of named choices, not a list');
+select pg_temp.expect_failure(
+  $$update public.profiles set avatar_style =
+      (select jsonb_object_agg('k' || g, 'v') from generate_series(1, 200) g)
+    where id = '11111111-1111-1111-1111-111111111111'$$,
+  'a cartoon stays small');
+select pg_temp.expect_failure(
+  $$update public.profiles set avatar_style = '{"hair":["bob","fro"]}'::jsonb
+    where id = '11111111-1111-1111-1111-111111111111'$$,
+  'a cartoon choice is one word, not a list of them');
+select pg_temp.expect_failure(
+  $$update public.profiles set avatar_style = '{"<svg onload=alert(1)>":"bob"}'::jsonb
+    where id = '11111111-1111-1111-1111-111111111111'$$,
+  'the name of a cartoon part is a plain word too');
+update public.profiles set avatar_style = null
+where id = '11111111-1111-1111-1111-111111111111';
+select pg_temp.expect(
+  (select avatar_style is null from public.profiles
+   where id = '11111111-1111-1111-1111-111111111111'),
+  'a person can take their cartoon away');
+reset role;
+
+-- -----------------------------------------------------------------------------
+-- How each learner is getting on, counted in the database (0034)
+-- -----------------------------------------------------------------------------
+-- The promise: the figures on Admin, Trainees are every answer in the
+-- window, not the first thousand rows of them, and only the server can ask.
+insert into public.concepts (id, domain_id, slug, name)
+values ('bbbbbbbb-0000-0000-0000-000000000034',
+        'aaaaaaaa-0000-0000-0000-000000000001', 'weak-concept-0034', 'A weak concept');
+insert into public.user_question_attempts
+  (user_id, question_id, question_version_id, selected_option_ids, is_correct, answered_at)
+select '22222222-2222-2222-2222-222222222222',
+       'cccccccc-0000-0000-0000-000000000001',
+       'dddddddd-0000-0000-0000-000000000001',
+       array['a'], g % 3 = 0, now() - interval '1 hour'
+from generate_series(1, 1500) g;
+insert into public.user_question_attempts
+  (user_id, question_id, question_version_id, selected_option_ids, is_correct, answered_at)
+values ('22222222-2222-2222-2222-222222222222',
+        'cccccccc-0000-0000-0000-000000000001',
+        'dddddddd-0000-0000-0000-000000000001',
+        array['a'], true, now() - interval '60 days');
+insert into public.user_concept_mastery (user_id, concept_id, mastery, attempts)
+values ('22222222-2222-2222-2222-222222222222', 'bbbbbbbb-0000-0000-0000-000000000034', 0, 4),
+       ('22222222-2222-2222-2222-222222222222', 'bbbbbbbb-0000-0000-0000-000000000001', 80, 4)
+on conflict (user_id, concept_id) do update set mastery = excluded.mastery, attempts = excluded.attempts;
+
+set local role service_role;
+select pg_temp.expect(
+  (select answered = 1500 and right_answers = 500 and weakest = 'A weak concept'
+   from public.learner_answer_summary(
+     array['22222222-2222-2222-2222-222222222222']::uuid[], now() - interval '30 days')),
+  'the trainee figures count every answer in the window, past a thousand');
+select pg_temp.expect(
+  (select answered = 0 and right_answers = 0 and last_answered is null and weakest is null
+   from public.learner_answer_summary(
+     array['cccc0034-0000-0000-0000-000000000099']::uuid[], now() - interval '30 days')),
+  'somebody with no answers is shown as none, not left out');
+reset role;
+
+set local role authenticated;
+set local request.jwt.claim.sub = '22222222-2222-2222-2222-222222222222';
+select pg_temp.expect_failure(
+  $$select * from public.learner_answer_summary(
+      array['11111111-1111-1111-1111-111111111111']::uuid[], now() - interval '30 days')$$,
+  'a learner cannot read anybody''s answer figures through the database');
+reset role;
+set local role anon;
+select pg_temp.expect_failure(
+  $$select * from public.learner_answer_summary(
+      array['11111111-1111-1111-1111-111111111111']::uuid[], now() - interval '30 days')$$,
+  'the answer figures are not readable signed out');
+reset role;
+
 \echo ''
 \echo 'All schema guarantees hold.'
 

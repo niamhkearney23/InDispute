@@ -40,6 +40,8 @@
 --   0030_access.sql
 --   0031_tutor.sql
 --   0032_lesson_signoffs.sql
+--   0033_cartoon_avatar.sql
+--   0034_trainee_answer_summary.sql
 -- =============================================================================
 
 
@@ -4872,4 +4874,105 @@ create or replace trigger lesson_signoffs_guard
 -- Read and written by the server only: no policy lets anybody at it through
 -- the database directly, so a learner's browser cannot add one.
 alter table public.lesson_signoffs enable row level security;
+
+
+-- >>> 0033_cartoon_avatar.sql -------------------------------------
+
+-- =============================================================================
+-- A cartoon of yourself
+-- =============================================================================
+-- Trainees can build a cartoon face (skin, hair, eyes, glasses, clothes and
+-- so on) and it shows beside their name instead of a photo or an initial.
+-- Nothing is drawn from a photo: the person picks every part themselves, and
+-- what is stored is the list of choices, never a picture.
+--
+-- The app only ever saves choices from a fixed list in the code and draws the
+-- face from them. The database cannot know that list, so it holds the shape:
+-- a small object whose names and values are short plain words, nothing
+-- else: no lists, no objects, no markup. A value that is not on the app's
+-- list is ignored when the face is drawn.
+--
+-- A person sets and clears their own, through their own session, under the
+-- existing rule that a learner may only update their own profile.
+-- =============================================================================
+
+alter table public.profiles
+  add column if not exists avatar_style jsonb;
+
+alter table public.profiles drop constraint if exists profiles_avatar_style_shape;
+alter table public.profiles
+  add constraint profiles_avatar_style_shape check (
+    avatar_style is null
+    or (
+      jsonb_typeof(avatar_style) = 'object'
+      and octet_length(avatar_style::text) <= 1024
+      -- Strict mode: in the default (lax) mode a list is opened up before
+      -- it is tested, so ["bob","fro"] would pass as if it were words.
+      and not jsonb_path_exists(avatar_style, 'strict $.* ? (@.type() != "string")')
+      and not jsonb_path_exists(avatar_style, 'strict $.* ? (!(@ like_regex "^[A-Za-z0-9]{1,40}$"))')
+      and not jsonb_path_exists(avatar_style, 'strict $.keyvalue() ? (!(@.key like_regex "^[A-Za-z]{1,40}$"))')
+    )
+  );
+
+
+-- >>> 0034_trainee_answer_summary.sql -----------------------------
+
+-- =============================================================================
+-- How each learner is getting on, counted in the database
+-- =============================================================================
+-- Admin, Trainees shows, for each learner, how many questions they answered
+-- in the last thirty days, how many were right, when they last answered,
+-- and the concept they are weakest on. Those figures were counted in the
+-- app from the raw answers, and a request returns at most a thousand rows,
+-- so a busy month quietly undercounted everyone. This counts them here and
+-- returns one row per person.
+--
+-- Only the server calls it, after it has checked who is asking and narrowed
+-- the list to the people that reader may see. Nobody can call it from the
+-- browser.
+-- =============================================================================
+
+create or replace function public.learner_answer_summary(ids uuid[], since timestamptz)
+returns table (
+  user_id       uuid,
+  answered      integer,
+  right_answers integer,
+  last_answered timestamptz,
+  weakest       text
+)
+language sql
+stable
+set search_path = public
+as $$
+  select
+    p.id as user_id,
+    coalesce(a.answered, 0)::integer,
+    coalesce(a.right_answers, 0)::integer,
+    a.last_answered,
+    w.name
+  from unnest(ids) as p(id)
+  left join lateral (
+    select
+      count(*) as answered,
+      count(*) filter (where q.is_correct) as right_answers,
+      max(q.answered_at) as last_answered
+    from public.user_question_attempts q
+    where q.user_id = p.id
+      and q.answered_at >= since
+  ) a on true
+  left join lateral (
+    select c.name
+    from public.user_concept_mastery m
+    join public.concepts c on c.id = m.concept_id
+    where m.user_id = p.id
+      and m.attempts >= 2
+    order by m.mastery asc, c.name asc
+    limit 1
+  ) w on true
+$$;
+
+revoke all on function public.learner_answer_summary(uuid[], timestamptz) from public;
+revoke all on function public.learner_answer_summary(uuid[], timestamptz) from anon;
+revoke all on function public.learner_answer_summary(uuid[], timestamptz) from authenticated;
+grant execute on function public.learner_answer_summary(uuid[], timestamptz) to service_role;
 

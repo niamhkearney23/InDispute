@@ -70,8 +70,8 @@ export function CourtHierarchyDiagram({
       />
 
       <p className="mt-4 text-xs text-muted">
-        Lines are appeal routes and run upwards. Courts drawn side by side are of equal
-        standing, not one above the other.
+        Lines are appeal routes and run upwards. Courts drawn side by side do not hear appeals
+        from each other, though they may not rank equally.
       </p>
     </div>
   );

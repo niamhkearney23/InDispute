@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { longAnswerCue } from '@/lib/review/answer-cue';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { requireCoach } from '@/lib/admin/guard';
@@ -96,6 +97,12 @@ export default async function AdminLessonPage({ params }: { params: Promise<{ sl
                       </li>
                     ))}
                   </ul>
+                  {longAnswerCue(step.guess.options, [step.guess.answer]) ? (
+                    <p className="mt-2 text-sm text-warn">
+                      The right answer is much longer than the others, which gives it away. Even
+                      the lengths out before you sign this off.
+                    </p>
+                  ) : null}
                 </div>
               ) : null}
               <p className="leading-relaxed">{step.body}</p>

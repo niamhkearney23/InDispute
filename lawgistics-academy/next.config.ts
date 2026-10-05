@@ -24,6 +24,17 @@ const nextConfig: NextConfig = {
           { key: 'X-Frame-Options', value: 'DENY' },
         ],
       },
+      {
+        // A cartoon opened on its own is an SVG document: nothing in it may
+        // run or load anything. Listed after the rule above, so it wins.
+        source: '/cartoon/:code*',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'",
+          },
+        ],
+      },
     ];
   },
 };

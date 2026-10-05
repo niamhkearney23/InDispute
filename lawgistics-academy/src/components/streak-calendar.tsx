@@ -64,10 +64,10 @@ export function StreakCalendar({
           </p>
           <p className="mt-1 text-xs text-muted">
             {streak === 0
-              ? 'Finish a session today to start a chain.'
+              ? 'Finish a session today to start a streak.'
               : trainedToday
-                ? 'Today counts. Train again tomorrow to keep the chain.'
-                : 'Not trained yet today. One session keeps the chain.'}
+                ? 'Today counts. Train again tomorrow to keep your streak going.'
+                : 'Not trained yet today. One session keeps your streak going.'}
           </p>
         </div>
       </div>

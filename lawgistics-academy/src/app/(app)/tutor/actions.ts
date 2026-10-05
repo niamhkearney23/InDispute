@@ -1,5 +1,6 @@
 'use server';
 
+import { optionLetter } from '@/lib/learning/option-order';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
@@ -296,7 +297,9 @@ export async function answerTutorQuestion(
     const correct = isCorrect(question, chosen);
     const saved = await addMessage(convo.id, {
       role: 'learner',
-      body: `${chosen.toUpperCase()}${reason ? `. ${reason}` : ''}`,
+      // The letter the learner saw beside it, which after shuffling is its
+      // place on the screen rather than its id.
+      body: `${optionLetter(question.options.findIndex((o) => o.id === chosen))}${reason ? `. ${reason}` : ''}`,
       questionVersionId: question.versionId,
       chosenOption: chosen,
       correct,

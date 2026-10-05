@@ -6,6 +6,7 @@ import { levelForXp, localDateString, type LevelInfo } from '@/lib/learning/prog
 import { MASTERY } from '@/lib/learning/config';
 import { asCountry, asTrack, learnerTimezone } from '@/lib/types';
 import { liveStreak, localMidnight, shiftLocalDate } from '@/lib/local-day';
+import { readCartoon, type CartoonStyle } from '@/lib/avatar/cartoon';
 import type {
   CareerStage,
   Country,
@@ -24,6 +25,8 @@ export interface LearnerProfile {
   email: string | null;
   displayName: string | null;
   avatarUrl: string | null;
+  /** The cartoon they built of themselves, if any (0033). */
+  cartoon: CartoonStyle | null;
   careerStage: CareerStage | null;
   improvementGoals: string[];
   dailyGoalMinutes: number;
@@ -86,6 +89,7 @@ export async function getLearnerProfile(userId: string): Promise<LearnerProfile 
     email: data.email,
     displayName: data.display_name,
     avatarUrl: data.avatar_url,
+    cartoon: readCartoon(data.avatar_style),
     careerStage: data.career_stage,
     improvementGoals: data.improvement_goals ?? [],
     dailyGoalMinutes: data.daily_goal_minutes,

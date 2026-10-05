@@ -3,6 +3,7 @@ import 'server-only';
 import { createServiceClient } from '@/lib/supabase/service';
 import { isEmbeddable } from './embed';
 import type { Country } from '@/lib/types';
+import { readCartoon, type CartoonStyle } from '@/lib/avatar/cartoon';
 
 /**
  * The coach's own sessions: what they recorded, for their own people.
@@ -30,6 +31,7 @@ export interface CoachSession {
   traineesOnly: boolean;
   publishedByName: string | null;
   publishedByAvatarUrl: string | null;
+  publishedByCartoon: CartoonStyle | null;
   publishedAt: string | null;
   position: number;
 }
@@ -45,7 +47,7 @@ interface Row {
   trainees_only: boolean | null;
   published_at: string | null;
   position: number;
-  publisher?: { display_name: string | null; email: string; avatar_url: string | null } | null;
+  publisher?: { display_name: string | null; email: string; avatar_url: string | null; avatar_style?: unknown } | null;
 }
 
 function first<T>(value: unknown): T | null {
@@ -54,7 +56,7 @@ function first<T>(value: unknown): T | null {
 }
 
 function toSession(row: Row): CoachSession {
-  const publisher = first<{ display_name: string | null; email: string; avatar_url: string | null }>(
+  const publisher = first<{ display_name: string | null; email: string; avatar_url: string | null; avatar_style?: unknown }>(
     row.publisher,
   );
   return {
@@ -70,6 +72,7 @@ function toSession(row: Row): CoachSession {
     // address would put somebody's inbox on a page their whole cohort reads.
     publishedByName: publisher?.display_name ?? null,
     publishedByAvatarUrl: publisher?.avatar_url ?? null,
+    publishedByCartoon: readCartoon(publisher?.avatar_style),
     publishedAt: row.published_at,
     position: row.position,
   };
@@ -77,7 +80,7 @@ function toSession(row: Row): CoachSession {
 
 const SELECT =
   'id, title, summary, url, country, airs_on, published, trainees_only, published_at, position, ' +
-  'publisher:profiles!coach_sessions_published_by_fkey(display_name, email, avatar_url)';
+  'publisher:profiles!coach_sessions_published_by_fkey(display_name, email, avatar_url, avatar_style)';
 
 /**
  * Whether this person may watch a trainee-only video: a litigation trainee a

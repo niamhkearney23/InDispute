@@ -10,9 +10,12 @@ const initialState: AvatarState = { error: null };
 export function AvatarForm({
   displayName,
   avatarUrl,
+  hasCartoon = false,
 }: {
   displayName: string | null;
   avatarUrl: string | null;
+  /** A cartoon shows instead of the photo, so say so here. */
+  hasCartoon?: boolean;
 }) {
   const [uploadState, uploadAction, uploadPending] = useActionState(uploadAvatar, initialState);
   const [removeState, removeAction, removePending] = useActionState(removeAvatar, initialState);
@@ -53,6 +56,11 @@ export function AvatarForm({
             />
           </label>
           <p className="mt-1.5 text-xs text-muted">JPEG, PNG or WEBP, up to 5MB.</p>
+          {hasCartoon ? (
+            <p className="mt-1.5 text-xs text-muted">
+              Your cartoon shows instead of this photo. Remove the cartoon to show the photo.
+            </p>
+          ) : null}
 
           <div className="mt-3 flex flex-wrap gap-2">
             <Button type="submit" size="sm" disabled={uploadPending}>

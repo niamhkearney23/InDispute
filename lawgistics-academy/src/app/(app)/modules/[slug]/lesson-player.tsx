@@ -5,6 +5,7 @@ import { CourtHierarchyDiagram } from '@/components/court-hierarchy-diagram';
 import { Button, Card, cn } from '@/components/ui';
 import type { SeedLesson } from '@/content/seed/lessons';
 import { isEmbeddable } from '@/lib/lessons/embed';
+import { deliveryOrder, optionLetter } from '@/lib/learning/option-order';
 import type { Country } from '@/lib/types';
 import { StartModuleButton } from '../start-module-button';
 
@@ -47,7 +48,10 @@ export function LessonPlayer({
   const guessed = guess ? guesses[index] : undefined;
   // Until they have guessed, the screen is the question; the teaching waits.
   const showBody = !guess || guessed !== undefined;
-  const right = guess ? guess.options.find((o) => o.id === guess.answer) : undefined;
+  // Shown shuffled, fixed per screen: the guesses were written with the
+  // right answer second nine times in ten. Letters are places on the screen.
+  const shown = guess ? deliveryOrder(guess.options, `${lesson.slug}:${index}`) : [];
+  const rightAt = shown.findIndex((o) => guess && o.id === guess.answer);
 
   return (
     <div className="space-y-5">
@@ -89,7 +93,7 @@ export function LessonPlayer({
             <fieldset className="mb-5">
               <legend className="mb-3 font-serif text-xl leading-snug">{guess.prompt}</legend>
               <div className="space-y-2">
-                {guess.options.map((o) => {
+                {shown.map((o, at) => {
                   const chosen = guessed === o.id;
                   const isRight = o.id === guess.answer;
                   return (
@@ -109,7 +113,7 @@ export function LessonPlayer({
                               : 'border-rule bg-paper-raised opacity-60',
                       )}
                     >
-                      <span className="font-semibold">{o.id.toUpperCase()}.</span>
+                      <span className="font-semibold">{optionLetter(at)}.</span>
                       <span>{o.text}</span>
                     </button>
                   );
@@ -125,7 +129,7 @@ export function LessonPlayer({
                 >
                   {guessed === guess.answer
                     ? 'Good instinct. Here is why.'
-                    : `Not quite: it is ${right?.id.toUpperCase()}. Here is why.`}
+                    : `Not quite: it is ${optionLetter(rightAt)}. Here is why.`}
                 </p>
               ) : null}
             </fieldset>

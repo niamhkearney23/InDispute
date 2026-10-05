@@ -30,6 +30,7 @@ function session(over: Partial<CoachSession> = {}): CoachSession {
     traineesOnly: false,
     publishedByName: null,
     publishedByAvatarUrl: null,
+    publishedByCartoon: null,
     publishedAt: null,
     position: 0,
     ...over,

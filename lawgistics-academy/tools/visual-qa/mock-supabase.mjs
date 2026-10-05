@@ -591,6 +591,11 @@ const TABLES = {
       id: TRAINEE_USER_ID,
       email: TRAINEE_USER.email,
       display_name: 'Aisyah',
+      avatar_style: {
+        skin: 'd08b5b', hair: 'hijab', hairColour: '2c1b18', eyes: 'happy',
+        eyebrows: 'defaultNatural', mouth: 'smile', glasses: 'round', facialHair: 'none',
+        clothes: 'blazerAndShirt', clothesColour: '25557c', background: 'b1e2ff',
+      },
       career_stage: 'plt_student',
       improvement_goals: ['litigation_knowledge'],
       daily_goal_minutes: 10,
@@ -864,6 +869,15 @@ const TABLES = {
     { model_answer: 'How a lawyer would approach it\n\n1. Work out the clock first.\n2. Separate the undisputed part from the disputed part.', sources: 'Companies Act 2016, s 466.' },
   ],
   certificates: [],
+  'rpc/learner_answer_summary': [
+    {
+      user_id: TRAINEE_USER_ID,
+      answered: 2,
+      right_answers: 0,
+      last_answered: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+      weakest: 'Which court hears what',
+    },
+  ],
   'rpc/weekly_leaderboard': [
     { place: 1, first_name: 'Aisyah', xp: 640, is_me: false },
     { place: 2, first_name: 'Niamh', xp: 480, is_me: true },
@@ -1088,7 +1102,39 @@ const TABLES = {
   ],
   question_concepts: [{ question_id: 'aaaaaaaa-0000-4000-8000-000000000001', concept_id: 'c0' }],
   question_skills: [{ question_id: 'aaaaaaaa-0000-4000-8000-000000000001', skill_id: 'procedural-sequencing' }],
-  user_question_attempts: [],
+  /* Two wrong answers of Aisyah's, for the staff page that shows a
+     trainee's answers. The mock ignores date filters (gte, lt), so these also
+     come back for "answered today"; nothing in the sweep depends on that count. */
+  user_question_attempts: [
+    {
+      user_id: TRAINEE_USER_ID,
+      is_correct: false,
+      answered_at: '2026-09-30T02:00:00Z',
+      selected_option_ids: ['a'],
+      question_versions: {
+        stem: 'Where does the appeal go?',
+        options: [
+          { id: 'a', text: 'The High Court of Australia' },
+          { id: 'b', text: 'The Court of Appeal of the Supreme Court of Victoria' },
+        ],
+        correct_option_ids: ['b'],
+      },
+    },
+    {
+      user_id: TRAINEE_USER_ID,
+      is_correct: false,
+      answered_at: '2026-09-29T02:00:00Z',
+      selected_option_ids: ['b'],
+      question_versions: {
+        stem: 'Which court usually hears a small debt claim first?',
+        options: [
+          { id: 'a', text: 'The Magistrates Court' },
+          { id: 'b', text: 'The Supreme Court' },
+        ],
+        correct_option_ids: ['a'],
+      },
+    },
+  ],
   legal_sources: [],
   // Without these the certification pages render only the empty-roster state,
   // and the box grid, the densest of the new pages, is never drawn at any

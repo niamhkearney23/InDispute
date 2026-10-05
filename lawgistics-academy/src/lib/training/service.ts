@@ -1,4 +1,5 @@
 import 'server-only';
+import { deliveryOrder } from '@/lib/learning/option-order';
 
 import { after } from 'next/server';
 
@@ -280,7 +281,9 @@ export async function getSessionPlan(
         questionType: d.question_type,
         scenario: d.scenario,
         stem: d.stem,
-        options: (d.options ?? []) as QuestionOption[],
+        // Shown shuffled, fixed per question: the bank was written with the
+        // right answer second three times in four.
+        options: deliveryOrder((d.options ?? []) as QuestionOption[], row.question_version_id as string),
         difficulty: d.difficulty,
         jurisdiction: d.jurisdiction,
         court: d.court,
