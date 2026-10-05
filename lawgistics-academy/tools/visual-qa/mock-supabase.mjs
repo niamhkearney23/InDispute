@@ -591,6 +591,11 @@ const TABLES = {
       id: TRAINEE_USER_ID,
       email: TRAINEE_USER.email,
       display_name: 'Aisyah',
+      avatar_style: {
+        skin: 'd08b5b', hair: 'hijab', hairColour: '2c1b18', eyes: 'happy',
+        eyebrows: 'defaultNatural', mouth: 'smile', glasses: 'round', facialHair: 'none',
+        clothes: 'blazerAndShirt', clothesColour: '25557c', background: 'b1e2ff',
+      },
       career_stage: 'plt_student',
       improvement_goals: ['litigation_knowledge'],
       daily_goal_minutes: 10,

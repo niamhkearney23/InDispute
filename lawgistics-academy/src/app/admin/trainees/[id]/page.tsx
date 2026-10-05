@@ -6,6 +6,7 @@ import { requireCoach } from '@/lib/admin/guard';
 import { staffMayRead } from '@/lib/admin/supervision';
 import { learnerDetail } from '@/lib/admin/answers';
 import { Card, Pill, ScoreBar, SectionHeading } from '@/components/ui';
+import { Avatar } from '@/components/avatar';
 
 export const metadata: Metadata = { title: 'Trainee' };
 export const dynamic = 'force-dynamic';
@@ -36,7 +37,8 @@ export default async function AdminTraineePage({ params }: { params: Promise<{ i
         <Link href="/admin/trainees" className="-my-2 inline-block py-2 text-sm text-slate hover:text-ink">
           ← All trainees
         </Link>
-        <div className="mt-2 flex flex-wrap items-center gap-2">
+        <div className="mt-2 flex flex-wrap items-center gap-3">
+          <Avatar url={null} cartoon={person.cartoon} name={person.name} size={48} />
           <h1 className="text-3xl">{person.name}</h1>
           {person.trainee ? <Pill tone="accent">Trainee</Pill> : null}
         </div>

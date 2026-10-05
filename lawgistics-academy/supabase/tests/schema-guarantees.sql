@@ -2514,6 +2514,55 @@ select pg_temp.expect_failure(
   'nobody signs a lesson off from the browser, coaches included');
 reset role;
 
+-- -----------------------------------------------------------------------------
+-- A cartoon of yourself (0033)
+-- -----------------------------------------------------------------------------
+-- The promise: a person sets and clears their own cartoon and nobody else's,
+-- and what is stored is a short list of plain words, never markup.
+set local role authenticated;
+set local request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+update public.profiles
+set avatar_style = '{"skin":"edb98a","hair":"bob","eyes":"happy"}'::jsonb
+where id = '11111111-1111-1111-1111-111111111111';
+select pg_temp.expect(
+  (select avatar_style->>'hair' = 'bob' from public.profiles
+   where id = '11111111-1111-1111-1111-111111111111'),
+  'a person can save their own cartoon');
+update public.profiles
+set avatar_style = '{"hair":"fro"}'::jsonb
+where id = '22222222-2222-2222-2222-222222222222';
+reset role;
+select pg_temp.expect(
+  (select avatar_style is null from public.profiles
+   where id = '22222222-2222-2222-2222-222222222222'),
+  'nobody can set somebody else''s cartoon');
+set local role authenticated;
+set local request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+select pg_temp.expect_failure(
+  $$update public.profiles set avatar_style = '{"hair":"<svg onload=alert(1)>"}'::jsonb
+    where id = '11111111-1111-1111-1111-111111111111'$$,
+  'a cartoon choice is a plain word, never markup');
+select pg_temp.expect_failure(
+  $$update public.profiles set avatar_style = '{"hair":{"nested":"bob"}}'::jsonb
+    where id = '11111111-1111-1111-1111-111111111111'$$,
+  'a cartoon choice is a word, not an object');
+select pg_temp.expect_failure(
+  $$update public.profiles set avatar_style = '["bob"]'::jsonb
+    where id = '11111111-1111-1111-1111-111111111111'$$,
+  'a cartoon is a set of named choices, not a list');
+select pg_temp.expect_failure(
+  $$update public.profiles set avatar_style =
+      (select jsonb_object_agg('k' || g, 'v') from generate_series(1, 200) g)
+    where id = '11111111-1111-1111-1111-111111111111'$$,
+  'a cartoon stays small');
+update public.profiles set avatar_style = null
+where id = '11111111-1111-1111-1111-111111111111';
+select pg_temp.expect(
+  (select avatar_style is null from public.profiles
+   where id = '11111111-1111-1111-1111-111111111111'),
+  'a person can take their cartoon away');
+reset role;
+
 \echo ''
 \echo 'All schema guarantees hold.'
 

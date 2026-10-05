@@ -4,6 +4,7 @@ import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { Card, InlineLink } from '@/components/ui';
 import { AvatarForm } from './avatar-form';
+import { CartoonMaker } from './cartoon-maker';
 import { LeaderboardForm } from './leaderboard-form';
 
 export const metadata: Metadata = { title: 'Your account' };
@@ -21,9 +22,20 @@ export default async function AccountPage() {
         <p className="eyebrow mb-2">Your account</p>
         <h1 className="text-3xl sm:text-4xl">{profile.displayName ?? 'Your account'}</h1>
         <p className="mt-3 max-w-xl text-slate">
-          Only you decide whether there is a photo here, and only you can change it.
+          Make a cartoon of yourself, or add a photo. Only you decide, and only you can change it.
         </p>
       </section>
+
+      <Card>
+        <section id="cartoon" className="scroll-mt-24">
+          <p className="eyebrow mb-2">Your cartoon</p>
+          <p className="mb-4 text-sm text-slate">
+            Pick each part and watch it change. Your cartoon shows beside your name, instead of
+            your photo, until you remove it.
+          </p>
+          <CartoonMaker saved={profile.cartoon} />
+        </section>
+      </Card>
 
       <Card>
         <AvatarForm displayName={profile.displayName} avatarUrl={profile.avatarUrl} />

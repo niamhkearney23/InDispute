@@ -105,7 +105,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               aria-label="Your account"
               className="-mx-1 flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full hover:bg-paper-sunk"
             >
-              <Avatar url={profile?.avatarUrl ?? null} name={profile?.displayName ?? null} size={26} />
+              <Avatar url={profile?.avatarUrl ?? null} cartoon={profile?.cartoon ?? null} name={profile?.displayName ?? null} size={26} />
             </Link>
             <form action="/auth/sign-out" method="post">
               <button

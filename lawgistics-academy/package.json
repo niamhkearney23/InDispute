@@ -24,6 +24,8 @@
     "build:sql": "tsx scripts/build-combined-sql.ts"
   },
   "dependencies": {
+    "@dicebear/avataaars": "^9.4.2",
+    "@dicebear/core": "^9.4.3",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.47.10",
     "next": "^16.3.0",

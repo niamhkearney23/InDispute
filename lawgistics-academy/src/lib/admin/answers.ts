@@ -3,6 +3,7 @@ import { createServiceClient } from '@/lib/supabase/service';
 import { getModuleProgress, type ModuleProgress } from '@/lib/modules/service';
 import type { Country } from '@/lib/types';
 import { supervisedIds } from './supervision';
+import { readCartoon, type CartoonStyle } from '@/lib/avatar/cartoon';
 
 /**
  * How each learner is getting on with the questions, for staff. Service-role
@@ -20,6 +21,8 @@ export interface LearnerRow {
   name: string;
   email: string | null;
   trainee: boolean;
+  /** The cartoon they built of themselves, if any. */
+  cartoon: CartoonStyle | null;
   /** Answers in the last RECENT_DAYS days. */
   answered: number;
   /** Of those, how many were right. */
@@ -38,6 +41,7 @@ interface ProfileRow {
   track: string | null;
   is_admin: boolean | null;
   is_coach: boolean | null;
+  avatar_style: unknown;
 }
 
 const nameOf = (p: Pick<ProfileRow, 'display_name' | 'email'>) =>
@@ -51,7 +55,7 @@ export async function learnerList(isAdmin: boolean): Promise<LearnerRow[]> {
   const db = createServiceClient();
   let query = db
     .from('profiles')
-    .select('id, display_name, email, country, track, is_admin, is_coach')
+    .select('id, display_name, email, country, track, is_admin, is_coach, avatar_style')
     .order('display_name');
   if (!isAdmin) {
     const ids = [...(await supervisedIds())];
@@ -105,6 +109,7 @@ export async function learnerList(isAdmin: boolean): Promise<LearnerRow[]> {
       name: nameOf(p),
       email: p.email,
       trainee: p.track === 'litigation_trainee',
+      cartoon: readCartoon(p.avatar_style),
       answered: s?.answered ?? 0,
       right: s?.right ?? 0,
       lastAnswered: s?.last ?? null,
@@ -132,6 +137,7 @@ export interface LearnerDetail {
   name: string;
   email: string | null;
   trainee: boolean;
+  cartoon: CartoonStyle | null;
   totalAnswered: number;
   totalRight: number;
   modules: ModuleProgress[];
@@ -148,7 +154,7 @@ export async function learnerDetail(userId: string): Promise<LearnerDetail | nul
   const db = createServiceClient();
   const { data: p } = await db
     .from('profiles')
-    .select('id, display_name, email, country, track, is_admin, is_coach')
+    .select('id, display_name, email, country, track, is_admin, is_coach, avatar_style')
     .eq('id', userId)
     .maybeSingle();
   const profile = p as ProfileRow | null;
@@ -186,6 +192,7 @@ export async function learnerDetail(userId: string): Promise<LearnerDetail | nul
     name: nameOf(profile),
     email: profile.email,
     trainee: profile.track === 'litigation_trainee',
+    cartoon: readCartoon(profile.avatar_style),
     totalAnswered: total.count ?? 0,
     totalRight: right.count ?? 0,
     modules: modules.filter((m) => m.total > 0),

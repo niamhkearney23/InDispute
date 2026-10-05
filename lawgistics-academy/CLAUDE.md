@@ -174,7 +174,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0032`. `supabase/UPDATE.sql` is the one-paste update for a
+- Migrations run to `0033`. `supabase/UPDATE.sql` is the one-paste update for a
   database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -277,13 +277,22 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   "Not yet checked by a lawyer". A sign-off covers one wording
   (`lessonContent` hashed); the table is insert-only, server-written, staff
   only.
+- `0033` is a **cartoon of yourself**: a person builds a face on the Account
+  page (skin, hair or head covering, eyes, glasses, clothes and so on) and it
+  shows beside their name instead of a photo or initial, including to coaches
+  on Admin, Trainees. Nothing is drawn from a photo. What is stored
+  (`profiles.avatar_style`) is the list of choices, every one from the lists in
+  `src/lib/avatar/cartoon.ts`; the database holds it to short plain words and
+  the drawing puts anything off a list back to its default. The drawings are
+  Avataaars by Pablo Stanley (free for personal and commercial use), drawn by
+  DiceBear (MIT); a test checks every choice is one the library can draw.
 - **The look.** The academy (everything under `src/app/(app)`) is navy: the
   `theme-navy` class on its layout swaps the colour tokens in
   `globals.css` (cream buttons, ice-blue details, burgundy warnings, a two-level
   grid, gold-free by the owner's choice). Admin has the same look. The front
   page and sign-in stay cream. The certificate and a matter's case file stay paper inside it.
   Use the tokens, never fixed Tailwind colours, or a page breaks in one look.
-- 364 tests, 306 schema guarantees against a real Postgres, 240 page and device
+- 370 tests, 313 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB

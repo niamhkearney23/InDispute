@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { requireCoach } from '@/lib/admin/guard';
 import { RECENT_DAYS, learnerList } from '@/lib/admin/answers';
 import { Pill } from '@/components/ui';
+import { Avatar } from '@/components/avatar';
 
 export const metadata: Metadata = { title: 'Trainees' };
 export const dynamic = 'force-dynamic';
@@ -43,13 +44,16 @@ export default async function AdminTraineesPage() {
                   href={`/admin/trainees/${r.id}`}
                   className="flex min-h-14 flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-2.5 hover:bg-paper-sunk"
                 >
-                  <span className="min-w-0">
-                    <span className="flex flex-wrap items-center gap-2 font-medium">
-                      {r.name}
-                      {r.trainee ? <Pill tone="accent">Trainee</Pill> : null}
-                    </span>
-                    <span className="text-sm text-slate">
-                      {r.weakest ? `Weakest: ${r.weakest}` : 'Not enough answers to say yet'}
+                  <span className="flex min-w-0 items-center gap-3">
+                    <Avatar url={null} cartoon={r.cartoon} name={r.name} size={36} />
+                    <span className="min-w-0">
+                      <span className="flex flex-wrap items-center gap-2 font-medium">
+                        {r.name}
+                        {r.trainee ? <Pill tone="accent">Trainee</Pill> : null}
+                      </span>
+                      <span className="block text-sm text-slate">
+                        {r.weakest ? `Weakest: ${r.weakest}` : 'Not enough answers to say yet'}
+                      </span>
                     </span>
                   </span>
                   <span className="shrink-0 text-right text-sm tabular-nums">

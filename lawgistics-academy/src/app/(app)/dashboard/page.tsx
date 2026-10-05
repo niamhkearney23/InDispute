@@ -17,6 +17,7 @@ import { QUESTIONS_PER_MINUTE_GOAL } from '@/lib/learning/config';
 import { TOP_LEVEL_NAME } from '@/lib/learning/progression';
 import { GoalRing } from '@/components/goal-ring';
 import { AccentSurface } from '@/components/accent-surface';
+import { Avatar } from '@/components/avatar';
 import {
   BookIcon,
   BriefcaseIcon,
@@ -249,10 +250,33 @@ export default async function DashboardPage() {
           expected, and the button is where their thumb should go next. */}
       <AccentSurface as="section" className="rounded-xl shadow-raised">
         <div className="px-6 py-7 sm:px-9 sm:py-9">
-          <h1 className="text-[2rem] leading-tight sm:text-5xl">
-            {greeting(new Date(), profile.timezone)}
-            {greetingName(profile.displayName) ? `, ${greetingName(profile.displayName)}` : ''}.
-          </h1>
+          <div className="flex items-start justify-between gap-4">
+            <h1 className="min-w-0 text-[2rem] leading-tight sm:text-5xl">
+              {greeting(new Date(), profile.timezone)}
+              {greetingName(profile.displayName) ? `, ${greetingName(profile.displayName)}` : ''}.
+            </h1>
+            {/* Their cartoon, waving back. Somebody without one is shown
+                where to make it, here, rather than nagged. */}
+            <Link
+              href="/account#cartoon"
+              className="shrink-0 rounded-full"
+              aria-label={profile.cartoon ? 'Change your cartoon' : 'Make a cartoon of yourself'}
+            >
+              {profile.cartoon ? (
+                <Avatar
+                  url={null}
+                  cartoon={profile.cartoon}
+                  name={profile.displayName}
+                  size={64}
+                  className="border-paper/30"
+                />
+              ) : (
+                <span className="flex size-16 items-center justify-center rounded-full border-2 border-dashed border-paper/40 px-1 text-center text-[0.625rem] leading-tight font-semibold text-paper/80">
+                  Make your cartoon
+                </span>
+              )}
+            </Link>
+          </div>
           <p className="mt-2 text-lg text-paper/80">
             {overview.currentStreak > 0 && !goalMet
               ? `${overview.currentStreak} ${overview.currentStreak === 1 ? 'day' : 'days'} in a row. Today keeps it alive.`
