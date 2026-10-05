@@ -202,8 +202,22 @@ export async function updateQuestion(
   if (linkError) return { error: linkError };
 
   if (!contentChanged) {
+    // The explanation is what a learner reads after answering: legal content
+    // as much as the question is. A sign-off covered the words that were
+    // there, so changing them sends the question back for checking.
+    const explanationChanged =
+      (current.explanation ?? '') !== data.explanation ||
+      (current.why_it_matters ?? '') !== (empty(data.whyItMatters) ?? '') ||
+      (current.common_misconception ?? '') !== (empty(data.commonMisconception) ?? '') ||
+      (current.memory_trick ?? '') !== (empty(data.memoryTrick) ?? '');
+    const losesSignOff = explanationChanged && current.verification_status === 'human_verified';
+
     // Explanatory text and provenance may be corrected on the existing version;
     // the immutability trigger only guards what the learner was actually asked.
+    // The new words and the cleared sign-off go in one update: as two, there
+    // was a moment (or, if the second failed, for good) when new, unchecked
+    // words sat under the old sign-off, and the tutor shows that explanation
+    // as "Checked by a lawyer".
     const { error } = await db
       .from('question_versions')
       .update({
@@ -216,29 +230,20 @@ export async function updateQuestion(
         source_reference: empty(data.sourceReference),
         source_url: empty(data.sourceUrl),
         source_checked_on: empty(data.sourceCheckedOn),
+        ...(losesSignOff
+          ? {
+              verification_status: 'requires_review',
+              verified_by: null,
+              verified_at: null,
+              review_due_on: null,
+            }
+          : {}),
       })
       .eq('id', current.id);
 
     if (error) return { error: error.message };
 
-    // The explanation is what a learner reads after answering: legal content
-    // as much as the question is. A sign-off covered the words that were
-    // there, so changing them sends the question back for checking.
-    const explanationChanged =
-      (current.explanation ?? '') !== data.explanation ||
-      (current.why_it_matters ?? '') !== (empty(data.whyItMatters) ?? '') ||
-      (current.common_misconception ?? '') !== (empty(data.commonMisconception) ?? '') ||
-      (current.memory_trick ?? '') !== (empty(data.memoryTrick) ?? '');
-    if (explanationChanged && current.verification_status === 'human_verified') {
-      await db
-        .from('question_versions')
-        .update({
-          verification_status: 'requires_review',
-          verified_by: null,
-          verified_at: null,
-          review_due_on: null,
-        })
-        .eq('id', current.id);
+    if (losesSignOff) {
       await db
         .from('questions')
         .update({ status: 'requires_review' })

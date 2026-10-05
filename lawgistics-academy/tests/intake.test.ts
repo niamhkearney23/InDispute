@@ -4,7 +4,7 @@ import { dateOfWorkingDay, workingDaysElapsed } from '../src/lib/homework/rules'
 import { boxOfTitle, boxTitle, intakeSchedule, sessionPrefill, workPrefill } from '../src/lib/intake/plan';
 import { PROGRAMME } from '../src/content/programme';
 
-test('the October intake runs twenty working days, Monday to Friday', () => {
+test('the intake runs twenty working days, Monday to Friday', () => {
   const schedule = intakeSchedule(PROGRAMME.intakeStartsOn);
   assert.equal(schedule.length, 20);
   assert.equal(schedule[0].date, PROGRAMME.intakeStartsOn);

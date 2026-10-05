@@ -289,6 +289,90 @@ const STEP_SIGN_ID = 'aaaaaaaa-0000-0000-0000-000000000002';
 const STEP_TASK_ID = 'aaaaaaaa-0000-0000-0000-000000000003';
 
 const TABLES = {
+  /* The tutor: one "Explain it back" a few turns in, and one "Test me"
+     with a question answered (wrongly, so the checked explanation shows) and
+     the next one waiting. Both belong to the default signed-in user. */
+  tutor_conversations: [
+    {
+      id: 'cccc0031-0000-4000-8000-000000000001',
+      user_id: USER_ID,
+      mode: 'explain',
+      topic: 'Setting aside a default judgment',
+      module_slug: null,
+      test_length: null,
+      // What PostgREST's embedded count gives the staff list.
+      tutor_messages: [{ count: 1 }],
+      created_at: '2026-10-03T09:00:00Z',
+    },
+    {
+      id: 'cccc0031-0000-4000-8000-000000000002',
+      user_id: USER_ID,
+      mode: 'test',
+      topic: 'Finding the right court',
+      module_slug: 'courts-au',
+      test_length: 2,
+      tutor_messages: [{ count: 1 }],
+      created_at: '2026-10-03T10:00:00Z',
+    },
+  ],
+  tutor_messages: [
+    {
+      id: 'dddd0031-0000-4000-8000-000000000001',
+      conversation_id: 'cccc0031-0000-4000-8000-000000000001',
+      role: 'tutor',
+      body: 'Explain it to me as if I were ten years old, in your own words. I will stop you whenever you use a term without saying what it means, skip a step, or make it so simple it is no longer true.',
+      question_version_id: null, chosen_option: null, correct: null,
+      created_at: '2026-10-03T09:00:00Z',
+    },
+    {
+      id: 'dddd0031-0000-4000-8000-000000000002',
+      conversation_id: 'cccc0031-0000-4000-8000-000000000001',
+      role: 'learner',
+      body: 'If someone gets a judgment against you because you did not enter appearance, you can apply to set it aside if it was irregular.',
+      question_version_id: null, chosen_option: null, correct: null,
+      created_at: '2026-10-03T09:02:00Z',
+    },
+    {
+      id: 'dddd0031-0000-4000-8000-000000000003',
+      conversation_id: 'cccc0031-0000-4000-8000-000000000001',
+      role: 'tutor',
+      body: 'You said "enter appearance". That is a term a ten-year-old would not know. What does it mean, in plain words, and why does not doing it lead to a judgment?',
+      question_version_id: null, chosen_option: null, correct: null,
+      created_at: '2026-10-03T09:02:10Z',
+    },
+    {
+      id: 'dddd0031-0000-4000-8000-000000000011',
+      conversation_id: 'cccc0031-0000-4000-8000-000000000002',
+      role: 'tutor',
+      body: 'Question 1 of 2.\n\nA decision of the County Court of Victoria is to be appealed. Where does the appeal go?\n\nA. The High Court of Australia\nB. The Court of Appeal of the Supreme Court of Victoria',
+      question_version_id: 'eeee0031-0000-4000-8000-000000000001', chosen_option: null, correct: null,
+      created_at: '2026-10-03T10:00:00Z',
+    },
+    {
+      id: 'dddd0031-0000-4000-8000-000000000012',
+      conversation_id: 'cccc0031-0000-4000-8000-000000000002',
+      role: 'learner',
+      body: 'A. Because the High Court is the top court.',
+      question_version_id: 'eeee0031-0000-4000-8000-000000000001', chosen_option: 'a', correct: false,
+      created_at: '2026-10-03T10:01:00Z',
+    },
+    {
+      id: 'dddd0031-0000-4000-8000-000000000013',
+      conversation_id: 'cccc0031-0000-4000-8000-000000000002',
+      role: 'tutor',
+      body: 'Not quite. Your reason treats the top of the hierarchy as the next step up. The checked explanation is about which court sits directly above the one that decided the case.',
+      question_version_id: null, chosen_option: null, correct: null,
+      created_at: '2026-10-03T10:01:05Z',
+    },
+    {
+      id: 'dddd0031-0000-4000-8000-000000000014',
+      conversation_id: 'cccc0031-0000-4000-8000-000000000002',
+      role: 'tutor',
+      body: 'Question 2 of 2.\n\nWhich court usually hears a small debt claim first?\n\nA. The Magistrates Court\nB. The Supreme Court',
+      question_version_id: 'eeee0031-0000-4000-8000-000000000002', chosen_option: null, correct: null,
+      created_at: '2026-10-03T10:01:06Z',
+    },
+  ],
   /* Firm codes, and Wei waiting to be confirmed on one. The embedded
      access_codes object stands in for the join PostgREST would make. */
   access_codes: [
@@ -923,6 +1007,46 @@ const TABLES = {
     },
   ],
   question_versions: [
+    {
+      id: 'eeee0031-0000-4000-8000-000000000001',
+      question_id: 'aaaaaaaa-0000-4000-8000-000000000031',
+      version: 1,
+      is_current: true,
+      stem: 'Where does the appeal go?',
+      scenario: 'A decision of the County Court of Victoria is to be appealed.',
+      options: [
+        { id: 'a', text: 'The High Court of Australia' },
+        { id: 'b', text: 'The Court of Appeal of the Supreme Court of Victoria' },
+      ],
+      correct_option_ids: ['b'],
+      explanation: 'Appeals run up the hierarchy they belong to, one step at a time. The court directly above the County Court is the Court of Appeal.',
+      common_misconception: 'Going straight to the top court.',
+      verification_status: 'human_verified',
+      review_flagged: false,
+      review_due_on: null,
+      // The embedded parent PostgREST joins in.
+      questions: { status: 'published', country: 'AU', domain_id: 'd1' },
+    },
+    {
+      id: 'eeee0031-0000-4000-8000-000000000002',
+      question_id: 'aaaaaaaa-0000-4000-8000-000000000032',
+      version: 1,
+      is_current: true,
+      stem: 'Which court usually hears a small debt claim first?',
+      scenario: null,
+      options: [
+        { id: 'a', text: 'The Magistrates Court' },
+        { id: 'b', text: 'The Supreme Court' },
+      ],
+      correct_option_ids: ['a'],
+      explanation: 'Small claims start in the lowest court that can hear them.',
+      common_misconception: null,
+      verification_status: 'human_verified',
+      review_flagged: false,
+      review_due_on: null,
+      // The embedded parent PostgREST joins in.
+      questions: { status: 'published', country: 'AU', domain_id: 'd1' },
+    },
     {
       id: 'bbbbbbbb-0000-4000-8000-000000000001',
       question_id: 'aaaaaaaa-0000-4000-8000-000000000001',

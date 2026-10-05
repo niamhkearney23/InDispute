@@ -109,6 +109,7 @@ test('the server actions were actually found', () => {
   assert.deepEqual(names, [
     'acknowledge',
     'answerQuestion',
+    'answerTutorQuestion',
     'askFollowUps',
     'beginModule',
     'beginSession',
@@ -135,6 +136,7 @@ test('the server actions were actually found', () => {
     'postComment',
     'publishAllVerified',
     'recordReviewDecision',
+    'redactTutorMessage',
     'redeemCode',
     'removeAvatar',
     'requestCoachNote',
@@ -150,6 +152,7 @@ test('the server actions were actually found', () => {
     'saveStep',
     'saveTrainee',
     'saveWorkPost',
+    'sendExplanation',
     'sendWorkMessage',
     'setAccessCodeActive',
     'setIntakeDates',
@@ -160,6 +163,7 @@ test('the server actions were actually found', () => {
     'setPublished',
     'startCheckout',
     'startMatter',
+    'startTutor',
     'submitWork',
     'suggestWorkTime',
     'transitionFact',
@@ -444,6 +448,7 @@ test('privileged modules are marked server-only', () => {
     'src/lib/leaderboard.ts',
     'src/lib/intake/service.ts',
     'src/lib/access/service.ts',
+    'src/lib/tutor/service.ts',
   ];
 
   for (const relative of mustBeServerOnly) {

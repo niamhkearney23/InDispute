@@ -171,7 +171,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0030`. `supabase/UPDATE.sql` is the one-paste update for a
+- Migrations run to `0031`. `supabase/UPDATE.sql` is the one-paste update for a
   database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -237,7 +237,37 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   records it. Every training page calls `requireAccess()` and a test fails if
   a new one does not; the actions that start training or call the AI check
   `hasAccess` too. None of the three tables is written by a learner.
-- 330 tests, 276 schema guarantees against a real Postgres, 240 page and device
+- `0031` is the **tutor** (`/tutor`), two modes. "Explain it back": the
+  learner explains an idea as if to a ten-year-old and the AI stops them at
+  jargon, skipped steps and oversimplification, one question at a time; it is
+  told never to explain the idea or state law, and to send anything legally
+  doubtful to the lesson or a coach. "Test me": up to five questions from one
+  module, only questions that still stand today (current version, published,
+  `human_verified`, not `review_flagged`, `review_due_on` null or in the
+  future, exactly one right answer: `stillChecked` and `askable` in
+  `src/lib/tutor/rules.ts`), marked by the server from the answer key; the
+  AI's comment is drawn from the checked explanation, which the page shows in
+  its own box only while it still stands. A question taken back mid-test is
+  skipped ("Carry on"), not marked. Every AI reply goes through
+  `src/lib/tutor/guard.ts` first: anything law-shaped (sections, orders,
+  Acts, cases, citations, time limits) not in the checked words or the
+  learner's own is thrown away and replaced with fixed words. Learner text
+  is fenced (`quoted`) so it reads as words, never instructions. One answer
+  per question and one asking per question are unique indexes; the answer
+  form names the question it shows, so an old tab cannot answer a new one.
+  Staff read conversations through the server only (the RLS policies name
+  the owner and nobody else): a coach sees only people the firm supervises
+  (confirmed trainees, accepted invitations, confirmed on an active code), an
+  administrator sees everybody, and the notice above each conversation says
+  which. Messages are never changed or deleted, except that an administrator
+  may blank one once (`redactTutorMessage`, admin only, the database checks
+  the words and stamps who and when); deletes only arrive by cascade from the
+  account going. Sixty learner messages and twenty conversations a day each,
+  forty messages per "Explain it back"; a count that cannot be read counts as
+  the limit reached. More
+  modes (sprint, error simulator, learning path) were proposed and deferred
+  until matters and questions are signed off.
+- 355 tests, 298 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB

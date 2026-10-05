@@ -12,7 +12,7 @@ import { weekOfDay } from '@/content/programme-plan';
  * Homework is not repeated here: the homework file already has one task
  * per day, and the day page pulls it in by number.
  *
- * NOT YET REVIEWED BY THE FIRM. A proposed timetable for the October
+ * NOT YET REVIEWED BY THE FIRM. A proposed timetable for the November
  * intake. A supervisor may vary it, and the page says so.
  */
 

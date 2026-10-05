@@ -12,6 +12,7 @@ import {
   revokeInvitation,
 } from '@/lib/onboarding/invitations';
 import { practiceChoiceFor } from '@/lib/types';
+import { todayIn } from '@/lib/onboarding/rules';
 import type { LearnerTrack } from '@/lib/types';
 import { publicEnv } from '@/lib/env';
 import { PROGRAMME } from '@/content/programme';
@@ -413,9 +414,16 @@ export async function confirmTrainee(
  *
  * Setting a start date stays with an administrator, as it does person by
  * person on the joiner page: this is the same decision made for the whole
- * intake at once. It only fills in trainees who have no start date yet, so
- * a person whose supervisor gave them different dates keeps them, and it
- * can be pressed again on Monday morning for anyone confirmed since.
+ * intake at once. By default it only fills in trainees who have no start
+ * date yet, so a person whose supervisor gave them different dates keeps
+ * them, and it can be pressed again on Monday morning for anyone confirmed
+ * since.
+ *
+ * With scope "move", it also moves confirmed trainees whose dates are some
+ * other intake's and who have not started yet: what is needed when an
+ * intake itself moves (October became November), and a separate button,
+ * because it changes dates somebody set rather than filling blanks. Anyone
+ * already started is never moved.
  */
 export async function setIntakeDates(
   _state: AdminState,
@@ -428,15 +436,20 @@ export async function setIntakeDates(
   if (formData.get('intake') !== PROGRAMME.intakeStartsOn) {
     return { error: 'The intake has changed since this page was opened. Reload it and try again.' };
   }
+  const move = formData.get('scope') === 'move';
 
   const db = createServiceClient();
-  const { data, error } = await db
+  let query = db
     .from('profiles')
     .update({ starts_on: PROGRAMME.intakeStartsOn, ends_on: PROGRAMME.intakeEndsOn })
     .eq('track', 'litigation_trainee')
-    .not('trainee_approved_at', 'is', null)
-    .is('starts_on', null)
-    .select('id');
+    .not('trainee_approved_at', 'is', null);
+  query = move
+    ? query
+        .neq('starts_on', PROGRAMME.intakeStartsOn)
+        .gt('starts_on', todayIn('Asia/Kuala_Lumpur'))
+    : query.is('starts_on', null);
+  const { data, error } = await query.select('id');
   if (error) return { error: 'That could not be saved. Please try again.' };
 
   revalidatePath('/admin/intake');
@@ -449,7 +462,9 @@ export async function setIntakeDates(
     error: null,
     ok:
       n === 0
-        ? 'Every confirmed trainee already has dates.'
-        : `${n} ${n === 1 ? 'trainee' : 'trainees'} given the intake dates.`,
+        ? move
+          ? 'Nobody needed moving.'
+          : 'Every confirmed trainee already has dates.'
+        : `${n} ${n === 1 ? 'trainee' : 'trainees'} ${move ? 'moved to' : 'given'} the intake dates.`,
   };
 }
