@@ -1,6 +1,3 @@
-import { createAvatar } from '@dicebear/core';
-import * as avataaars from '@dicebear/avataaars';
-
 /**
  * A cartoon of yourself, built from parts you pick.
  *
@@ -8,7 +5,8 @@ import * as avataaars from '@dicebear/avataaars';
  * is the list of choices (`profiles.avatar_style`, 0033), and the face is
  * drawn from that list each time it is shown. The drawings are the
  * Avataaars set by Pablo Stanley, free for personal and commercial use; the
- * code that draws them is DiceBear, MIT.
+ * code that draws them is DiceBear, MIT, in ./draw so that a page which only
+ * shows a cartoon does not download it.
  *
  * Every choice comes from the lists below. Anything else, whether an old
  * choice that has since been taken off a list or something sent by hand, is
@@ -246,29 +244,27 @@ export function randomCartoon(random: () => number = Math.random): CartoonStyle 
   return style;
 }
 
-/** The face as an SVG data URI, for an <img>. */
-export function cartoonDataUri(style: CartoonStyle): string {
-  const s = readCartoon(style) ?? DEFAULT_CARTOON;
-  const hair = s.hair === 'none' ? [] : [s.hair];
-  return createAvatar(avataaars, {
-    seed: 'cartoon',
-    backgroundColor: [s.background],
-    skinColor: [s.skin],
-    top: hair.length ? hair : ['shortFlat'],
-    topProbability: hair.length ? 100 : 0,
-    hairColor: [s.hairColour],
-    // A head covering takes the clothes colour, so it can be chosen.
-    hatColor: [s.clothesColour],
-    eyes: [s.eyes],
-    eyebrows: [s.eyebrows],
-    mouth: [s.mouth],
-    accessories: s.glasses === 'none' ? ['round'] : [s.glasses],
-    accessoriesProbability: s.glasses === 'none' ? 0 : 100,
-    accessoriesColor: ['262e33'],
-    facialHair: s.facialHair === 'none' ? ['beardLight'] : [s.facialHair],
-    facialHairProbability: s.facialHair === 'none' ? 0 : 100,
-    facialHairColor: [s.hairColour],
-    clothing: [s.clothes],
-    clothesColor: [s.clothesColour],
-  } as Parameters<typeof createAvatar<typeof avataaars>>[1]).toDataUri();
+/**
+ * A cartoon as a short code: its choices in part order, joined by hyphens.
+ * Every choice is letters and digits, so the code needs no escaping.
+ */
+export function cartoonCode(style: CartoonStyle): string {
+  return CARTOON_PARTS.map(({ key }) => style[key]).join('-');
+}
+
+/** The cartoon a code names, or null unless every part is on its list. */
+export function cartoonFromCode(code: string): CartoonStyle | null {
+  const values = code.split('-');
+  if (values.length !== CARTOON_PARTS.length) return null;
+  return strictCartoon(Object.fromEntries(CARTOON_PARTS.map(({ key }, i) => [key, values[i]])));
+}
+
+/**
+ * Where the face is drawn, for an <img> on a page with many of them. The
+ * drawing is the same for the same choices forever, so the browser keeps it,
+ * and a page of five hundred trainees carries five hundred short addresses
+ * rather than five hundred pictures written out in full.
+ */
+export function cartoonPath(style: CartoonStyle): string {
+  return `/cartoon/${cartoonCode(readCartoon(style) ?? DEFAULT_CARTOON)}.svg`;
 }

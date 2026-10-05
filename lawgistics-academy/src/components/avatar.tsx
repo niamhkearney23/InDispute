@@ -1,5 +1,5 @@
 import { cn } from '@/components/ui';
-import { cartoonDataUri, type CartoonStyle } from '@/lib/avatar/cartoon';
+import { cartoonPath, type CartoonStyle } from '@/lib/avatar/cartoon';
 
 /**
  * The cartoon a person built of themselves, or their own photo, or their
@@ -28,10 +28,10 @@ export function Avatar({
 
   if (cartoon) {
     return (
-      // Drawn here from a list of choices, as an SVG data URI.
+      // Drawn by /cartoon from the list of choices in its address.
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src={cartoonDataUri(cartoon)}
+        src={cartoonPath(cartoon)}
         alt=""
         width={size}
         height={size}

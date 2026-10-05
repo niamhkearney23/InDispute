@@ -286,6 +286,11 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   the drawing puts anything off a list back to its default. The drawings are
   Avataaars by Pablo Stanley (free for personal and commercial use), drawn by
   DiceBear (MIT); a test checks every choice is one the library can draw.
+  A face is served from `/cartoon/<choices>.svg` (public, cached for good,
+  draws only listed choices, its own strict content security policy in
+  `next.config.ts`), so a page of faces carries addresses, not drawings. The
+  drawing library lives in `src/lib/avatar/draw.ts` and reaches the browser
+  only on the maker.
 - `0034` counts the figures on Admin, Trainees in the database
   (`learner_answer_summary`, service role only). Counting raw answers in the
   app stopped at the thousand rows a request returns, so a busy month
@@ -297,7 +302,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   grid, gold-free by the owner's choice). Admin has the same look. The front
   page and sign-in stay cream. The certificate and a matter's case file stay paper inside it.
   Use the tokens, never fixed Tailwind colours, or a page breaks in one look.
-- 371 tests, 319 schema guarantees against a real Postgres, 240 page and device
+- 373 tests, 319 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB

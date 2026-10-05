@@ -1,14 +1,19 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
 import { schema } from '@dicebear/avataaars';
 import {
   CARTOON_PARTS,
   DEFAULT_CARTOON,
-  cartoonDataUri,
+  cartoonCode,
+  cartoonFromCode,
+  cartoonPath,
   randomCartoon,
   readCartoon,
   strictCartoon,
 } from '../src/lib/avatar/cartoon';
+import { cartoonDataUri, cartoonSvg } from '../src/lib/avatar/draw';
 
 // Where each part of ours is drawn from in the drawing library.
 // Colours are any six-digit hex there, so only the shapes have a list.
@@ -82,4 +87,23 @@ test('a face is drawn as an SVG image', () => {
   assert.notEqual(uri, cartoonDataUri(DEFAULT_CARTOON));
   // No hair, no glasses, no facial hair: drawn, not an error.
   assert.match(cartoonDataUri({ ...DEFAULT_CARTOON, hair: 'none' }), /^data:image\/svg/);
+});
+
+test('a cartoon has a short address that names exactly its choices', () => {
+  const face = { ...DEFAULT_CARTOON, hair: 'hijab', glasses: 'round' };
+  assert.deepEqual(cartoonFromCode(cartoonCode(face)), face);
+  assert.match(cartoonPath(face), /^\/cartoon\/[A-Za-z0-9-]+\.svg$/);
+  assert.ok(cartoonPath(face).length < 200);
+  // Anything off a list, a part short or a part over: not a face.
+  assert.equal(cartoonFromCode(cartoonCode({ ...face, hair: 'notAStyle' })), null);
+  assert.equal(cartoonFromCode(cartoonCode(face).split('-').slice(1).join('-')), null);
+  assert.equal(cartoonFromCode(`${cartoonCode(face)}-extra`), null);
+  assert.equal(cartoonFromCode('%3Csvg%3E'), null);
+  assert.match(cartoonSvg(face), /^<svg /);
+});
+
+test('the drawing library goes only where a face is drawn', () => {
+  const read = (f: string) => fs.readFileSync(path.join(import.meta.dirname, '..', f), 'utf8');
+  assert.doesNotMatch(read('src/lib/avatar/cartoon.ts'), /@dicebear/);
+  assert.doesNotMatch(read('src/components/avatar.tsx'), /avatar\/draw|@dicebear/);
 });

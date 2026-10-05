@@ -36,7 +36,12 @@ export function SessionCard({
         {session.traineesOnly ? <Pill>Trainees only</Pill> : null}
         {session.publishedByName ? (
           <span className="flex items-center gap-1.5 text-xs text-muted">
-            <Avatar url={session.publishedByAvatarUrl} name={session.publishedByName} size={18} />
+            <Avatar
+              url={session.publishedByAvatarUrl}
+              cartoon={session.publishedByCartoon}
+              name={session.publishedByName}
+              size={18}
+            />
             from {session.publishedByName}
           </span>
         ) : null}

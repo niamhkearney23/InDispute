@@ -1103,7 +1103,8 @@ const TABLES = {
   question_concepts: [{ question_id: 'aaaaaaaa-0000-4000-8000-000000000001', concept_id: 'c0' }],
   question_skills: [{ question_id: 'aaaaaaaa-0000-4000-8000-000000000001', skill_id: 'procedural-sequencing' }],
   /* Two wrong answers of Aisyah's, for the staff page that shows a
-     trainee's answers. Dated in the past so "answered today" stays zero. */
+     trainee's answers. The mock ignores date filters (gte, lt), so these also
+     come back for "answered today"; nothing in the sweep depends on that count. */
   user_question_attempts: [
     {
       user_id: TRAINEE_USER_ID,

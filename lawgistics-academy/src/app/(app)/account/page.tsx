@@ -38,7 +38,11 @@ export default async function AccountPage() {
       </Card>
 
       <Card>
-        <AvatarForm displayName={profile.displayName} avatarUrl={profile.avatarUrl} />
+        <AvatarForm
+          displayName={profile.displayName}
+          avatarUrl={profile.avatarUrl}
+          hasCartoon={profile.cartoon !== null}
+        />
       </Card>
 
       <Card>

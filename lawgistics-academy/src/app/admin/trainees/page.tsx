@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { requireCoach } from '@/lib/admin/guard';
+import { getLearnerProfile } from '@/lib/learner-overview';
+import { DEFAULT_TIMEZONE } from '@/lib/types';
 import { LIST_LIMIT, RECENT_DAYS, learnerList } from '@/lib/admin/answers';
 import { Notice, Pill } from '@/components/ui';
 import { Avatar } from '@/components/avatar';
@@ -15,10 +17,13 @@ export const dynamic = 'force-dynamic';
  * administrator everybody who is not staff.
  */
 export default async function AdminTraineesPage() {
-  const { isAdmin } = await requireCoach();
+  const { isAdmin, userId } = await requireCoach();
+  // The reader's own clock: a 7am session in Kuala Lumpur is the evening
+  // before in UTC, where the server keeps time.
+  const timeZone = (await getLearnerProfile(userId))?.timezone ?? DEFAULT_TIMEZONE;
   const { rows, more, failed } = await learnerList(isAdmin);
   const day = (iso: string) =>
-    new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+    new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone });
 
   return (
     <div className="space-y-6">
@@ -49,7 +54,7 @@ export default async function AdminTraineesPage() {
       ) : (
         <ul className="divide-y divide-rule rounded-lg border border-rule bg-paper-raised">
           {rows.map((r) => {
-            const percent = r.answered ? Math.round((r.right / r.answered) * 100) : null;
+            const percent = r.answered ? Math.floor((r.right / r.answered) * 100) : null;
             return (
               <li key={r.id}>
                 <Link
@@ -57,7 +62,7 @@ export default async function AdminTraineesPage() {
                   className="flex min-h-14 flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-2.5 hover:bg-paper-sunk"
                 >
                   <span className="flex min-w-0 items-center gap-3">
-                    <Avatar url={null} cartoon={r.cartoon} name={r.name} size={36} />
+                    <Avatar url={r.avatarUrl} cartoon={r.cartoon} name={r.name} size={36} />
                     <span className="min-w-0">
                       <span className="flex flex-wrap items-center gap-2 font-medium">
                         {r.name}

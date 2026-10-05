@@ -4,6 +4,7 @@ import { getModuleProgress, type ModuleProgress } from '@/lib/modules/service';
 import type { Country } from '@/lib/types';
 import { staffMayRead, supervisedIds } from './supervision';
 import { readCartoon, type CartoonStyle } from '@/lib/avatar/cartoon';
+import { MASTERY } from '@/lib/learning/config';
 
 /**
  * How each learner is getting on with the questions, for staff. Service-role
@@ -22,6 +23,7 @@ export interface LearnerRow {
   trainee: boolean;
   /** The cartoon they built of themselves, if any. */
   cartoon: CartoonStyle | null;
+  avatarUrl: string | null;
   /** Answers in the last RECENT_DAYS days. */
   answered: number;
   /** Of those, how many were right. */
@@ -52,6 +54,7 @@ interface ProfileRow {
   is_admin: boolean | null;
   is_coach: boolean | null;
   avatar_style: unknown;
+  avatar_url: string | null;
 }
 
 const nameOf = (p: Pick<ProfileRow, 'display_name' | 'email'>) =>
@@ -68,7 +71,7 @@ export async function learnerList(isAdmin: boolean): Promise<LearnerList> {
   const db = createServiceClient();
   let query = db
     .from('profiles')
-    .select('id, display_name, email, country, track, is_admin, is_coach, avatar_style')
+    .select('id, display_name, email, country, track, is_admin, is_coach, avatar_style, avatar_url')
     .eq('is_admin', false)
     .eq('is_coach', false)
     .order('display_name')
@@ -109,6 +112,7 @@ export async function learnerList(isAdmin: boolean): Promise<LearnerList> {
         name: nameOf(p),
         trainee: p.track === 'litigation_trainee',
         cartoon: readCartoon(p.avatar_style),
+        avatarUrl: p.avatar_url,
         answered: s?.answered ?? 0,
         right: s?.right_answers ?? 0,
         lastAnswered: s?.last_answered ?? null,
@@ -137,6 +141,7 @@ export interface LearnerDetail {
   name: string;
   trainee: boolean;
   cartoon: CartoonStyle | null;
+  avatarUrl: string | null;
   totalAnswered: number;
   totalRight: number;
   modules: ModuleProgress[];
@@ -156,7 +161,7 @@ export async function learnerDetail(userId: string, isAdmin: boolean): Promise<L
   const db = createServiceClient();
   const { data: p } = await db
     .from('profiles')
-    .select('id, display_name, email, country, track, is_admin, is_coach, avatar_style')
+    .select('id, display_name, email, country, track, is_admin, is_coach, avatar_style, avatar_url')
     .eq('id', userId)
     .maybeSingle();
   const profile = p as ProfileRow | null;
@@ -174,6 +179,8 @@ export async function learnerDetail(userId: string, isAdmin: boolean): Promise<L
       .select('mastery, attempts, correct, concepts(name)')
       .eq('user_id', userId)
       .gte('attempts', 2)
+      // Weak means not yet mastered: somebody strong everywhere has none.
+      .lt('mastery', MASTERY.masteredThreshold)
       .order('mastery', { ascending: true })
       .limit(6),
     db
@@ -194,6 +201,7 @@ export async function learnerDetail(userId: string, isAdmin: boolean): Promise<L
     name: nameOf(profile),
     trainee: profile.track === 'litigation_trainee',
     cartoon: readCartoon(profile.avatar_style),
+    avatarUrl: profile.avatar_url,
     totalAnswered: total.count ?? 0,
     totalRight: right.count ?? 0,
     modules: modules.filter((m) => m.total > 0),

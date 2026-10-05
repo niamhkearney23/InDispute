@@ -167,7 +167,7 @@ const MALAYSIA: CourtHierarchy = {
       tier: 3,
       appealsTo: 'high-court-malaya',
       alsoAppealsTo: 'high-court-sabah-sarawak',
-      note: 'The lowest court in the ordinary civil hierarchy. Appeals go to the High Court for the place it sits, not to the Sessions Court.',
+      note: 'The lowest court in the ordinary civil hierarchy, below the Sessions Court in rank though drawn beside it. Appeals go to the High Court for the place it sits, not to the Sessions Court.',
     },
   ],
 };

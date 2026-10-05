@@ -5,11 +5,11 @@ import { Button, Notice, cn } from '@/components/ui';
 import {
   CARTOON_PARTS,
   DEFAULT_CARTOON,
-  cartoonDataUri,
   randomCartoon,
   type CartoonPart,
   type CartoonStyle,
 } from '@/lib/avatar/cartoon';
+import { cartoonDataUri } from '@/lib/avatar/draw';
 import { clearCartoon, saveCartoon, type CartoonState } from './actions';
 
 const initialState: CartoonState = { error: null };
@@ -25,6 +25,13 @@ export function CartoonMaker({ saved }: { saved: CartoonStyle | null }) {
   const [partKey, setPartKey] = useState<CartoonPart>('hair');
   const [saveState, saveAction, saving] = useActionState(saveCartoon, initialState);
   const [clearState, clearAction, clearing] = useActionState(clearCartoon, initialState);
+  // Which button was pressed last. Only its result is shown, and changing
+  // the face clears it, so an old message never sits over a newer one.
+  const [last, setLast] = useState<'save' | 'clear' | null>(null);
+  const change = (next: CartoonStyle) => {
+    setDraft(next);
+    setLast(null);
+  };
 
   const part = CARTOON_PARTS.find((p) => p.key === partKey)!;
   const face = useMemo(() => cartoonDataUri(draft), [draft]);
@@ -38,9 +45,15 @@ export function CartoonMaker({ saved }: { saved: CartoonStyle | null }) {
     [draft, part],
   );
 
-  const changed = JSON.stringify(draft) !== JSON.stringify(saved);
-  const message = saveState.error ?? clearState.error;
-  const ok = !message ? (saveState.ok ?? clearState.ok) : undefined;
+  const changed = !saved || CARTOON_PARTS.some(({ key }) => draft[key] !== saved[key]);
+  const result = last === 'save' ? saveState : last === 'clear' ? clearState : null;
+  const message = result?.error ?? null;
+  const ok =
+    last === 'save' && !message && saved && !changed
+      ? saveState.ok
+      : last === 'clear' && !message && !saved
+        ? clearState.ok
+        : undefined;
 
   return (
     <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
@@ -57,16 +70,17 @@ export function CartoonMaker({ saved }: { saved: CartoonStyle | null }) {
         />
         <form action={saveAction} className="flex min-w-0 flex-1 flex-col gap-2">
           <input type="hidden" name="style" value={JSON.stringify(draft)} />
-          <Button type="submit" size="sm" disabled={saving || (!changed && saved !== null)}>
+          <Button type="submit" size="sm" disabled={saving || !changed} onClick={() => setLast('save')}>
             {saving ? 'Saving…' : saved && !changed ? 'Saved' : 'Save my cartoon'}
           </Button>
-          <Button type="button" size="sm" variant="outline" onClick={() => setDraft(randomCartoon())}>
+          <Button type="button" size="sm" variant="outline" onClick={() => change(randomCartoon())}>
             Surprise me
           </Button>
           {saved ? (
             <Button
               type="submit"
               formAction={clearAction}
+              onClick={() => setLast('clear')}
               size="sm"
               variant="outline"
               disabled={clearing}
@@ -112,7 +126,7 @@ export function CartoonMaker({ saved }: { saved: CartoonStyle | null }) {
                 key={c.id}
                 type="button"
                 aria-pressed={on}
-                onClick={() => setDraft({ ...draft, [part.key]: c.id })}
+                onClick={() => change({ ...draft, [part.key]: c.id })}
                 className={cn(
                   'flex flex-col items-center gap-1.5 rounded-lg border-2 px-1 py-2 text-center transition-colors',
                   on ? 'border-accent bg-paper-sunk' : 'border-transparent hover:border-rule',
@@ -143,7 +157,7 @@ export function CartoonMaker({ saved }: { saved: CartoonStyle | null }) {
             <Notice tone="warn">
               <strong>{message}</strong>
             </Notice>
-          ) : ok && !changed ? (
+          ) : ok ? (
             <p className="text-sm font-semibold text-verdict-correct">{ok}</p>
           ) : null}
         </div>

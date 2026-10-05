@@ -250,17 +250,19 @@ export default async function DashboardPage() {
           expected, and the button is where their thumb should go next. */}
       <AccentSurface as="section" className="rounded-xl shadow-raised">
         <div className="px-6 py-7 sm:px-9 sm:py-9">
-          <div className="flex items-start justify-between gap-4">
-            <h1 className="min-w-0 text-[2rem] leading-tight sm:text-5xl">
+          {/* Their cartoon above the greeting on a phone, so a long name
+              keeps the full width; beside it on a wider screen. */}
+          <div className="flex flex-col-reverse items-start gap-3 sm:flex-row sm:justify-between sm:gap-4">
+            <h1 className="min-w-0 text-[2rem] leading-tight break-words sm:text-5xl">
               {greeting(new Date(), profile.timezone)}
               {greetingName(profile.displayName) ? `, ${greetingName(profile.displayName)}` : ''}.
             </h1>
-            {/* Their cartoon, waving back. Somebody without one is shown
-                where to make it, here, rather than nagged. */}
+            {/* Somebody without one is shown where to make it, here, rather
+                than nagged. */}
             <Link
               href="/account#cartoon"
               className="shrink-0 rounded-full"
-              aria-label={profile.cartoon ? 'Change your cartoon' : 'Make a cartoon of yourself'}
+              aria-label={profile.cartoon ? 'Change your cartoon' : undefined}
             >
               {profile.cartoon ? (
                 <Avatar
@@ -268,7 +270,7 @@ export default async function DashboardPage() {
                   cartoon={profile.cartoon}
                   name={profile.displayName}
                   size={64}
-                  className="border-paper/30"
+                  className="ring-2 ring-paper/30"
                 />
               ) : (
                 <span className="flex size-16 items-center justify-center rounded-full border-2 border-dashed border-paper/40 px-1 text-center text-[0.625rem] leading-tight font-semibold text-paper/80">

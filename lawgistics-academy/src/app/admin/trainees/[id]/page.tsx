@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 import { requireCoach } from '@/lib/admin/guard';
+import { getLearnerProfile } from '@/lib/learner-overview';
+import { DEFAULT_TIMEZONE } from '@/lib/types';
 import { staffMayRead } from '@/lib/admin/supervision';
 import { learnerDetail } from '@/lib/admin/answers';
 import { Card, Pill, ScoreBar, SectionHeading } from '@/components/ui';
@@ -18,7 +20,10 @@ export const dynamic = 'force-dynamic';
  * anybody else is not found, the same answer as somebody who does not exist.
  */
 export default async function AdminTraineePage({ params }: { params: Promise<{ id: string }> }) {
-  const { isAdmin } = await requireCoach();
+  const { isAdmin, userId } = await requireCoach();
+  // The reader's own clock: a 7am session in Kuala Lumpur is the evening
+  // before in UTC, where the server keeps time.
+  const timeZone = (await getLearnerProfile(userId))?.timezone ?? DEFAULT_TIMEZONE;
   const { id } = await params;
   if (!z.string().uuid().safeParse(id).success) notFound();
   if (!(await staffMayRead(id, isAdmin))) notFound();
@@ -26,10 +31,10 @@ export default async function AdminTraineePage({ params }: { params: Promise<{ i
   if (!person) notFound();
 
   const percent = person.totalAnswered
-    ? Math.round((person.totalRight / person.totalAnswered) * 100)
+    ? Math.floor((person.totalRight / person.totalAnswered) * 100)
     : null;
   const day = (iso: string) =>
-    new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone });
 
   return (
     <div className="mx-auto max-w-3xl space-y-8">
@@ -38,7 +43,7 @@ export default async function AdminTraineePage({ params }: { params: Promise<{ i
           ← All trainees
         </Link>
         <div className="mt-2 flex flex-wrap items-center gap-3">
-          <Avatar url={null} cartoon={person.cartoon} name={person.name} size={48} />
+          <Avatar url={person.avatarUrl} cartoon={person.cartoon} name={person.name} size={48} />
           <h1 className="text-3xl">{person.name}</h1>
           {person.trainee ? <Pill tone="accent">Trainee</Pill> : null}
         </div>
@@ -57,7 +62,7 @@ export default async function AdminTraineePage({ params }: { params: Promise<{ i
           <Card>
             <ul className="space-y-4">
               {person.modules.map((m) => {
-                const score = m.total ? Math.round((m.correctOnce / m.total) * 100) : 0;
+                const score = m.total ? Math.floor((m.correctOnce / m.total) * 100) : 0;
                 return (
                   <li key={m.module.slug}>
                     <ScoreBar
@@ -76,7 +81,10 @@ export default async function AdminTraineePage({ params }: { params: Promise<{ i
       <section>
         <SectionHeading eyebrow="From two or more answers each" title="Weakest topics" />
         {person.weak.length === 0 ? (
-          <p className="text-sm text-slate">Not enough answers to say yet.</p>
+          <p className="text-sm text-slate">
+            None to show: every topic they have answered twice or more is mastered, or they have
+            not answered enough yet.
+          </p>
         ) : (
           <Card>
             <ul className="divide-y divide-rule">
