@@ -532,25 +532,28 @@ html.theme-navy {
   --color-muted: #7f8fa3;
   --color-rule: #1f3349;
   --color-rule-strong: #2b4560;
-  /* Gold leads on navy, the way navy leads on cream. */
-  --color-accent: #e6bd63;
-  --color-accent-soft: #f0cd80;
+  /* Cream leads on navy, the way navy leads on cream: buttons are cream
+     with navy type. The ice blue is for the instrument details only. */
+  --color-accent: #f2ede3;
+  --color-accent-soft: #ffffff;
   --color-accent-wash: #182c42;
+  --color-ice: #8cc4f5;
   --color-verdict-correct: #6fd0a6;
   --color-verdict-correct-wash: #0f2a26;
   --color-verdict-wrong: #ff8f7d;
   --color-verdict-wrong-wash: #2e1719;
-  --color-warn: #f2c66b;
-  --color-warn-wash: #2a2416;
+  /* Warnings in the burgundy, lifted to read on navy. */
+  --color-warn: #f0a9b4;
+  --color-warn-wash: #2b1720;
   --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 18px 40px -24px rgba(0, 0, 0, 0.85);
   color-scheme: dark;
 }
 html.theme-navy body {
   background-color: #0b1622;
-  /* Two grids, a fine one and a coarse one, under two pools of light: the
-     greeting card's texture, carried across the whole academy. */
+  /* Two grids, a fine one and a coarse one, under two pools of cold light:
+     the greeting card's texture, carried across the whole academy. */
   background-image:
-    radial-gradient(55% 520px at 85% -8%, rgba(230, 189, 99, 0.11), transparent 70%),
+    radial-gradient(55% 520px at 85% -8%, rgba(140, 196, 245, 0.10), transparent 70%),
     radial-gradient(45% 460px at 5% 0%, rgba(70, 130, 200, 0.16), transparent 70%),
     linear-gradient(to right, rgba(140, 170, 205, 0.07) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(140, 170, 205, 0.07) 1px, transparent 1px),
@@ -561,14 +564,14 @@ html.theme-navy body {
   background-attachment: scroll, scroll, fixed, fixed, fixed, fixed;
 }
 
-/* The header: glass over the grid, with a thin gold line along its foot. */
+/* The header: glass over the grid, with a thin ice line along its foot. */
 html.theme-navy header.sticky {
   background-color: rgba(11, 22, 34, 0.82);
   border-bottom-color: transparent;
-  box-shadow: 0 1px 0 rgba(230, 189, 99, 0.18), 0 10px 30px -20px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 1px 0 rgba(140, 196, 245, 0.22), 0 10px 30px -20px rgba(0, 0, 0, 0.9);
 }
 
-/* Labels speak in monospace, with a small gold marker: an instrument
+/* Labels speak in monospace, with a small lit marker: an instrument
    panel's voice rather than a magazine's. */
 html.theme-navy .eyebrow {
   font-family: var(--font-code), ui-monospace, monospace;
@@ -583,15 +586,15 @@ html.theme-navy .eyebrow::before {
   height: 6px;
   margin-right: 8px;
   vertical-align: 1px;
-  background: var(--color-accent);
-  box-shadow: 0 0 10px rgba(230, 189, 99, 0.6);
+  background: var(--color-ice);
+  box-shadow: 0 0 10px rgba(140, 196, 245, 0.7);
 }
 html.theme-navy .tabular-nums {
   font-family: var(--font-code), ui-monospace, monospace;
   letter-spacing: -0.02em;
 }
 
-/* Panels: a faint sheen from the top, and gold corner marks top left and
+/* Panels: a faint sheen from the top, and ice corner marks top left and
    bottom right, the way a heads-up display frames what matters. */
 html.theme-navy .panel {
   position: relative;
@@ -605,7 +608,7 @@ html.theme-navy .panel::after {
   width: 12px;
   height: 12px;
   pointer-events: none;
-  border-color: rgba(230, 189, 99, 0.75);
+  border-color: rgba(140, 196, 245, 0.8);
   border-style: solid;
 }
 html.theme-navy .panel::before {
@@ -621,9 +624,19 @@ html.theme-navy .panel::after {
   border-bottom-right-radius: 8px;
 }
 
-/* Gold buttons glow a little when you reach for them. */
+/* Cream buttons give off a cold glow when you reach for them. */
 html.theme-navy .bg-accent.shadow-button:hover {
-  box-shadow: 0 0 0 1px rgba(240, 205, 128, 0.5), 0 0 24px -4px rgba(230, 189, 99, 0.55);
+  box-shadow: 0 0 0 1px rgba(140, 196, 245, 0.55), 0 0 26px -4px rgba(140, 196, 245, 0.55);
+}
+
+/* The greeting card's gold details (streak flame, level, week) and its
+   progress bar go ice blue here. */
+html.theme-navy .text-amber-300 {
+  color: var(--color-ice);
+}
+html.theme-navy .bg-amber-300 {
+  background-color: var(--color-ice);
+  box-shadow: 0 0 10px rgba(140, 196, 245, 0.6);
 }
 
 /* The greeting card keeps its navy, lifted off the page and edged in light,
@@ -632,8 +645,8 @@ html.theme-navy .accent-surface {
   --color-paper: #f2ede3;
   --color-accent: #132a42;
   box-shadow:
-    0 0 0 1px rgba(140, 170, 205, 0.18),
-    0 0 0 1px rgba(230, 189, 99, 0.12) inset,
+    0 0 0 1px rgba(140, 170, 205, 0.2),
+    0 0 0 1px rgba(140, 196, 245, 0.1) inset,
     0 30px 60px -30px rgba(0, 0, 0, 0.9);
 }
 
