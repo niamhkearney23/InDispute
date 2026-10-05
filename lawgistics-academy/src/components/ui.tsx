@@ -175,11 +175,22 @@ export function ScoreBar({
   score,
   sublabel,
   band,
+  unit = '/100',
+  early = false,
 }: {
   label: string;
   score: number;
   sublabel?: string;
   band: 'weak' | 'developing' | 'strong';
+  /** What the number is out of. A strength score is out of 100; a share is a percentage. */
+  unit?: '/100' | '%';
+  /**
+   * Too few answers to say anything. No number and no coloured bar: a
+   * strength score climbs a step per right answer, so after one right answer
+   * it is still low, and showing that low number in the "weak" colour read
+   * as a bad mark for getting it right.
+   */
+  early?: boolean;
 }) {
   const fill = {
     weak: 'bg-accent',
@@ -191,20 +202,29 @@ export function ScoreBar({
     <div className="py-2.5">
       <div className="mb-1.5 flex items-baseline justify-between gap-3">
         <span className="text-sm font-medium">{label}</span>
-        <span className="font-serif text-base tabular-nums">{score}</span>
+        {early ? (
+          <span className="shrink-0 text-xs text-muted">Too early to say</span>
+        ) : (
+          <span className="shrink-0 font-serif text-base tabular-nums">
+            {score}
+            <span className="ml-0.5 font-sans text-xs text-muted">{unit === '%' ? '%' : ' out of 100'}</span>
+          </span>
+        )}
       </div>
       <div
         className="h-2 w-full overflow-hidden rounded-full bg-paper-sunk"
         role="meter"
-        aria-valuenow={score}
+        aria-valuenow={early ? 0 : score}
         aria-valuemin={0}
         aria-valuemax={100}
-        aria-label={`${label}: ${score} out of 100`}
+        aria-label={early ? `${label}: too early to say` : `${label}: ${score}${unit === '%' ? ' percent' : ' out of 100'}`}
       >
-        <div
-          className={cn('h-full rounded-full transition-all duration-500', fill)}
-          style={{ width: `${Math.max(score, 1.5)}%` }}
-        />
+        {early ? null : (
+          <div
+            className={cn('h-full rounded-full transition-all duration-500', fill)}
+            style={{ width: `${Math.max(score, 1.5)}%` }}
+          />
+        )}
       </div>
       {sublabel ? <p className="mt-1 text-xs text-muted">{sublabel}</p> : null}
     </div>

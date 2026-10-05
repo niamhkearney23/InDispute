@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { MASTERY } from '@/lib/learning/config';
 import { redirect } from 'next/navigation';
 import { getCurrentUser, createSupabaseServerClient } from '@/lib/supabase/server';
 import { getLearnerOverview } from '@/lib/learner-overview';
@@ -196,6 +197,12 @@ export default async function SkillsPage() {
               eyebrow="By area"
               title="Open one to see what is underneath"
             />
+            <p className="-mt-2 mb-4 max-w-2xl text-sm text-slate">
+              Each score is out of 100. It goes up a step with every right answer and down with
+              every wrong one, so it takes several right answers in a row to climb. Until you have
+              answered {MASTERY.minAttemptsForConfidence} questions on something, it is too early
+              to say.
+            </p>
             <AreaBreakdown areas={areas} />
           </section>
 
@@ -264,9 +271,14 @@ export default async function SkillsPage() {
                                   {due && new Date(due) <= new Date() ? ' · due now' : ''}
                                 </p>
                               </div>
-                              <span className="font-serif text-base tabular-nums">
-                                {concept.score}
-                              </span>
+                              {concept.attempts < MASTERY.minAttemptsForConfidence ? (
+                                <span className="shrink-0 text-xs text-muted">Too early to say</span>
+                              ) : (
+                                <span className="shrink-0 font-serif text-base tabular-nums">
+                                  {concept.score}
+                                  <span className="ml-0.5 font-sans text-xs text-muted"> out of 100</span>
+                                </span>
+                              )}
                             </li>
                           );
                         })}

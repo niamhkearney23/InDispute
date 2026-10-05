@@ -64,6 +64,7 @@ export default async function ModulePage({
           <ScoreBar
             label="Answered correctly at least once"
             score={percent}
+            unit="%"
             band={entry.complete ? 'strong' : percent >= 50 ? 'developing' : 'weak'}
           />
           <p className="mt-4 border-t border-rule pt-4 text-sm text-slate">
