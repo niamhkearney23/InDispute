@@ -317,3 +317,25 @@ test('a sign-off covers one wording: any change a learner would see changes it',
   // Reading time is not something a lawyer vouches for.
   assert.equal(lessonContent({ ...lesson, minutes: lesson.minutes + 1 }), before);
 });
+
+test('a retold lesson asks a guess before every screen, and keeps every screen of the original', () => {
+  for (const draft of DRAFT_LESSONS) {
+    assert.ok(draft.scene, `${draft.slug} has no story`);
+    assert.ok(
+      draft.steps.every((s) => s.guess),
+      `${draft.slug} has a screen with no guess`,
+    );
+    const original = LESSONS.find((l) => l.slug === draft.replaces)!;
+    assert.equal(draft.steps.length, original.steps.length, `${draft.slug} drops or adds a screen`);
+    assert.deepEqual(
+      draft.steps.map((s) => s.heading),
+      original.steps.map((s) => s.heading),
+      `${draft.slug} reorders the screens`,
+    );
+  }
+  // Every live lesson now has a story waiting for a lawyer.
+  assert.deepEqual(
+    LESSONS.filter((l) => !DRAFT_LESSONS.some((d) => d.replaces === l.slug)).map((l) => l.slug),
+    [],
+  );
+});

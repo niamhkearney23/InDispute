@@ -177,60 +177,6 @@ export default async function DashboardPage() {
           the count below it. An unread firm policy is not one more module
           outstanding, it is the firm's own rules not yet in front of the person
           they apply to. */}
-      {/* The programme, in one line, for the people on it: what the month is
-          and where each of its four parts lives. Trainees arrive from a
-          front door that promised these four things, and this is the same
-          list with the doors on it. */}
-      {profile.track === 'litigation_trainee' ? (
-        <Card className="border-accent/20 bg-accent-wash">
-          <p className="eyebrow mb-1">Your programme · {brand.firm}</p>
-          <p className="text-slate">
-            {PROGRAMME.length}, {PROGRAMME.days}, learned by doing. The training that goes
-            with the work lives here.
-            {programmeWeek
-              ? ` Week ${programmeWeek} of 4: ${PROGRAMME_WEEKS[programmeWeek - 1].title.toLowerCase()}.`
-              : ''}
-          </p>
-          {todayPlan ? (
-            <div className="mt-3 rounded-md border border-accent/15 bg-paper px-4 py-3">
-              <p className="eyebrow">Day {todayPlan.day} of 20 · Today&rsquo;s concept</p>
-              <p className="mt-0.5 font-serif text-lg leading-snug">
-                {conceptForDay(todayPlan.day)?.concept ?? todayPlan.title}
-              </p>
-              <p className="mt-1 text-sm">
-                <span className="text-muted">Morning:</span> {todayPlan.morning}
-              </p>
-              <p className="text-sm">
-                <span className="text-muted">Afternoon:</span> {todayPlan.afternoon}
-              </p>
-              {todayPlan.due.length > 0 ? (
-                <p className="mt-1 text-sm font-medium">
-                  Due today: {todayPlan.due.map((n) => `box ${n}`).join(' and ')}. Hand it in on the work board.
-                </p>
-              ) : null}
-            </div>
-          ) : null}
-          <ul className="mt-3 flex flex-wrap gap-2">
-            {(
-              [
-                ['The month, week by week', '/programme'],
-                ['The training file', '/programme/file'],
-                ['Daily questions', '/dashboard'],
-                ['Homework', '/homework'],
-                ['Work from your supervisors', '/work'],
-                ['Sessions from your coach', '/sessions'],
-              ] as const
-            ).map(([label, href]) => (
-              <li key={href}>
-                <ButtonLink href={href} variant="outline" size="sm">
-                  {label}
-                </ButtonLink>
-              </li>
-            ))}
-          </ul>
-        </Card>
-      ) : null}
-
       {profile.track === 'litigation_trainee' && !profile.traineeConfirmed ? (
         <Notice>
           <strong>Waiting for your supervisor.</strong> They need to confirm you are on the
@@ -459,6 +405,75 @@ export default async function DashboardPage() {
           )}
         </div>
       </AccentSurface>
+
+      {/* The programme, for the people on it: where the month is up to, today's
+          concept when there is one, and the six places its work lives, as
+          equal tiles rather than a pile of buttons. Below the greeting, so
+          the page opens on the person and then the plan. */}
+      {profile.track === 'litigation_trainee' ? (
+        <Card>
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <p className="eyebrow">Your programme · {brand.firm}</p>
+            <p className="text-sm text-slate tabular-nums">
+              {homework.state === 'day'
+                ? `Day ${homework.day} of 20 · Week ${weekOfDay(homework.day)} of 4`
+                : homework.state === 'weekend'
+                  ? `Week ${weekOfDay(homework.nextDay)} of 4`
+                  : homework.state === 'before'
+                    ? `Starts ${longDate(profile.startsOn!)}`
+                    : homework.state === 'finished'
+                      ? 'Finished'
+                      : 'Start date not set yet'}
+            </p>
+          </div>
+          <h2 className="mt-2 text-2xl">
+            {programmeWeek
+              ? PROGRAMME_WEEKS[programmeWeek - 1].title
+              : `${PROGRAMME.length}, ${PROGRAMME.days}, on one training file`}
+          </h2>
+          {todayPlan ? (
+            <div className="mt-4 rounded-md border border-rule bg-paper-sunk px-4 py-3">
+              <p className="eyebrow">Today&rsquo;s concept</p>
+              <p className="mt-0.5 font-serif text-lg leading-snug">
+                {conceptForDay(todayPlan.day)?.concept ?? todayPlan.title}
+              </p>
+              <p className="mt-1 text-sm">
+                <span className="text-muted">Morning:</span> {todayPlan.morning}
+              </p>
+              <p className="text-sm">
+                <span className="text-muted">Afternoon:</span> {todayPlan.afternoon}
+              </p>
+              {todayPlan.due.length > 0 ? (
+                <p className="mt-1 text-sm font-medium">
+                  Due today: {todayPlan.due.map((n) => `box ${n}`).join(' and ')}. Hand it in on the work board.
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+          <ul className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {(
+              [
+                ['The month', 'Week by week', '/programme'],
+                ['The training file', 'The one case you work on', '/programme/file'],
+                ['Homework', 'One task a day', '/homework'],
+                ['Work board', 'From your supervisors', '/work'],
+                ['Sessions', 'Your coach\u2019s videos', '/sessions'],
+                ['Certificate', 'What earns it', '/certificate'],
+              ] as const
+            ).map(([label, hint, href]) => (
+              <li key={href}>
+                <Link
+                  href={href}
+                  className="flex h-full min-h-16 flex-col justify-center rounded-md border border-rule bg-paper-sunk px-3 py-2.5 transition-colors hover:border-rule-strong hover:bg-paper-raised"
+                >
+                  <span className="font-medium leading-snug">{label}</span>
+                  <span className="text-xs text-slate">{hint}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      ) : null}
 
       {matters.length > 0 ? (() => {
         const open = matters.find((m) => m.latest?.stage === 'working');
