@@ -516,20 +516,20 @@
 }
 
 /* =============================================================================
-   Two looks for the academy, switched by a class on <html>.
-   theme-navy: dark navy with the greeting card's grid behind everything.
-   theme-grid: the cream paper, ruled as faint navy graph paper.
-   Every colour in the app is one of the tokens above, so a look is a set of
-   token values rather than a second copy of every page.
+   The academy's navy look: dark navy with the greeting card's grid behind
+   everything. Switched on by the theme-navy class on the academy's own
+   layout, so the front page, sign-in and Admin keep the cream look. Every
+   colour in the app is one of the tokens above, so a look is a set of token
+   values rather than a second copy of every page.
    ========================================================================== */
-html.theme-navy {
+.theme-navy {
   --color-paper: #0b1622;
   --color-paper-raised: #102033;
   --color-paper-sunk: #0d1a29;
   --color-ink: #f2ede3;
   --color-charcoal: #e3dccd;
   --color-slate: #a9b6c4;
-  --color-muted: #7f8fa3;
+  --color-muted: #93a3b7;
   --color-rule: #1f3349;
   --color-rule-strong: #2b4560;
   /* Cream leads on navy, the way navy leads on cream: buttons are cream
@@ -548,8 +548,9 @@ html.theme-navy {
   --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 18px 40px -24px rgba(0, 0, 0, 0.85);
   color-scheme: dark;
 }
-html.theme-navy body {
+.theme-navy {
   background-color: #0b1622;
+  color: var(--color-ink);
   /* Two grids, a fine one and a coarse one, under two pools of cold light:
      the greeting card's texture, carried across the whole academy. */
   background-image:
@@ -565,7 +566,7 @@ html.theme-navy body {
 }
 
 /* The header: glass over the grid, with a thin ice line along its foot. */
-html.theme-navy header.sticky {
+.theme-navy header.sticky {
   background-color: rgba(11, 22, 34, 0.82);
   border-bottom-color: transparent;
   box-shadow: 0 1px 0 rgba(140, 196, 245, 0.22), 0 10px 30px -20px rgba(0, 0, 0, 0.9);
@@ -573,13 +574,13 @@ html.theme-navy header.sticky {
 
 /* Labels speak in monospace, with a small lit marker: an instrument
    panel's voice rather than a magazine's. */
-html.theme-navy .eyebrow {
+.theme-navy .eyebrow {
   font-family: var(--font-code), ui-monospace, monospace;
   font-weight: 500;
   letter-spacing: 0.1em;
   color: #8fa3ba;
 }
-html.theme-navy .eyebrow::before {
+.theme-navy .eyebrow::before {
   content: '';
   display: inline-block;
   width: 6px;
@@ -589,20 +590,20 @@ html.theme-navy .eyebrow::before {
   background: var(--color-ice);
   box-shadow: 0 0 10px rgba(140, 196, 245, 0.7);
 }
-html.theme-navy .tabular-nums {
+.theme-navy .tabular-nums {
   font-family: var(--font-code), ui-monospace, monospace;
   letter-spacing: -0.02em;
 }
 
 /* Panels: a faint sheen from the top, and ice corner marks top left and
    bottom right, the way a heads-up display frames what matters. */
-html.theme-navy .panel {
+.theme-navy .panel {
   position: relative;
   background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0) 40%);
   border-color: rgba(140, 170, 205, 0.16);
 }
-html.theme-navy .panel::before,
-html.theme-navy .panel::after {
+.theme-navy .panel::before,
+.theme-navy .panel::after {
   content: '';
   position: absolute;
   width: 12px;
@@ -611,13 +612,13 @@ html.theme-navy .panel::after {
   border-color: rgba(140, 196, 245, 0.8);
   border-style: solid;
 }
-html.theme-navy .panel::before {
+.theme-navy .panel::before {
   top: -1px;
   left: -1px;
   border-width: 1px 0 0 1px;
   border-top-left-radius: 8px;
 }
-html.theme-navy .panel::after {
+.theme-navy .panel::after {
   right: -1px;
   bottom: -1px;
   border-width: 0 1px 1px 0;
@@ -625,23 +626,23 @@ html.theme-navy .panel::after {
 }
 
 /* Cream buttons give off a cold glow when you reach for them. */
-html.theme-navy .bg-accent.shadow-button:hover {
+.theme-navy .bg-accent.shadow-button:hover {
   box-shadow: 0 0 0 1px rgba(140, 196, 245, 0.55), 0 0 26px -4px rgba(140, 196, 245, 0.55);
 }
 
 /* The greeting card's gold details (streak flame, level, week) and its
    progress bar go ice blue here. */
-html.theme-navy .text-amber-300 {
+.theme-navy .text-amber-300 {
   color: var(--color-ice);
 }
-html.theme-navy .bg-amber-300 {
+.theme-navy .bg-amber-300 {
   background-color: var(--color-ice);
   box-shadow: 0 0 10px rgba(140, 196, 245, 0.6);
 }
 
 /* The greeting card keeps its navy, lifted off the page and edged in light,
    with cream type: inside it the tokens are the cream look's again. */
-html.theme-navy .accent-surface {
+.theme-navy .accent-surface {
   --color-paper: #f2ede3;
   --color-accent: #132a42;
   box-shadow:
@@ -650,12 +651,21 @@ html.theme-navy .accent-surface {
     0 30px 60px -30px rgba(0, 0, 0, 0.9);
 }
 
-html.theme-grid body {
-  background-image:
-    radial-gradient(70% 420px at 50% 0%, rgba(150, 120, 70, 0.09), transparent 70%),
-    linear-gradient(to right, rgba(13, 27, 42, 0.055) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(13, 27, 42, 0.055) 1px, transparent 1px);
-  background-size: auto, 32px 32px, 32px 32px;
-  background-repeat: no-repeat, repeat, repeat;
-  background-attachment: scroll, fixed, fixed;
+/* Documents stay paper: the certificate and a matter's case file are cream
+   on purpose, so inside them the tokens are the cream look's again. */
+.theme-navy .certificate,
+.theme-navy .case-paper {
+  --color-paper: #f5f1e8;
+  --color-paper-raised: #ffffff;
+  --color-paper-sunk: #f3efe6;
+  --color-ink: #14110f;
+  --color-charcoal: #2f2b27;
+  --color-slate: #5c554d;
+  --color-muted: #8a8177;
+  --color-rule: #e2dbcd;
+  --color-rule-strong: #cfc5b2;
+  --color-accent: #0d1b2a;
+  --color-accent-soft: #1c3150;
+  --color-accent-wash: #e6ebf1;
+  color: var(--color-ink);
 }

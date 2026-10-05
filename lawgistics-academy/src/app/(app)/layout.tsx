@@ -27,7 +27,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // for, and the moment it is made the old one stops working.
   if (profile?.mustChangePassword) {
     return (
-      <div className="flex min-h-dvh flex-col">
+      <div className="theme-navy flex min-h-dvh flex-col">
         <main className="mx-auto w-full max-w-md flex-1 px-4 py-10 sm:px-8">
           <FirstPassword />
           {/* A way out that is not choosing a password: somebody on a
@@ -46,7 +46,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="theme-navy flex min-h-dvh flex-col">
       <header className="sticky top-0 z-20 border-b border-rule bg-paper/95 backdrop-blur-sm print:hidden">
         {/* Tight on a 360px Android. The nav keeps its labels on one line and
             tightens its spacing rather than wrapping, but it is allowed to wrap

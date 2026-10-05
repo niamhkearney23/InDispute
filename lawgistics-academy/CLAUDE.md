@@ -277,6 +277,12 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   "Not yet checked by a lawyer". A sign-off covers one wording
   (`lessonContent` hashed); the table is insert-only, server-written, staff
   only.
+- **The look.** The academy (everything under `src/app/(app)`) is navy: the
+  `theme-navy` class on its layout swaps the colour tokens in
+  `globals.css` (cream buttons, ice-blue details, burgundy warnings, a two-level
+  grid, gold-free by the owner's choice). The front page, sign-in and Admin
+  stay cream. The certificate and a matter's case file stay paper inside it.
+  Use the tokens, never fixed Tailwind colours, or a page breaks in one look.
 - 360 tests, 306 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.

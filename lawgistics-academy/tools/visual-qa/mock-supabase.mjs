@@ -1025,7 +1025,7 @@ const TABLES = {
       review_flagged: false,
       review_due_on: null,
       // The embedded parent PostgREST joins in.
-      questions: { status: 'published', country: 'AU', domain_id: 'd1' },
+      questions: { slug: 'qa-tutor-court-1', status: 'published', country: 'AU', domain_id: 'd1', withdrawn_at: null, domains: { name: 'Court System' } },
     },
     {
       id: 'eeee0031-0000-4000-8000-000000000002',
@@ -1045,7 +1045,7 @@ const TABLES = {
       review_flagged: false,
       review_due_on: null,
       // The embedded parent PostgREST joins in.
-      questions: { status: 'published', country: 'AU', domain_id: 'd1' },
+      questions: { slug: 'qa-tutor-court-2', status: 'published', country: 'AU', domain_id: 'd1', withdrawn_at: null, domains: { name: 'Court System' } },
     },
     {
       id: 'bbbbbbbb-0000-4000-8000-000000000001',
