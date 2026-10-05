@@ -537,7 +537,13 @@ export default async function DashboardPage() {
             <>
               <CardLabel icon={<BookIcon className="size-4" />}>Homework</CardLabel>
               <p className="text-slate">
-                No homework today. Day {homework.nextDay} picks up on Monday.
+                No homework today{homework.holiday ? ` (${homework.holiday})` : ''}. Day{' '}
+                {homework.nextDay} picks up on{' '}
+                {new Date(`${homework.resumesOn}T00:00:00Z`).toLocaleDateString('en-GB', {
+                  weekday: 'long',
+                  timeZone: 'UTC',
+                })}
+                .
               </p>
             </>
           ) : homework.state === 'finished' ? (

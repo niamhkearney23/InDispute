@@ -3,8 +3,9 @@ import assert from 'node:assert/strict';
 import { dateOfWorkingDay, workingDaysElapsed } from '../src/lib/homework/rules';
 import { boxOfTitle, boxTitle, intakeSchedule, sessionPrefill, workPrefill } from '../src/lib/intake/plan';
 import { PROGRAMME } from '../src/content/programme';
+import { HOLIDAYS } from '../src/content/holidays';
 
-test('the intake runs twenty working days, Monday to Friday', () => {
+test('the intake runs twenty working days, Monday to Friday, around the holidays', () => {
   const schedule = intakeSchedule(PROGRAMME.intakeStartsOn);
   assert.equal(schedule.length, 20);
   assert.equal(schedule[0].date, PROGRAMME.intakeStartsOn);
@@ -12,6 +13,7 @@ test('the intake runs twenty working days, Monday to Friday', () => {
   for (const d of schedule) {
     const weekday = new Date(`${d.date}T00:00:00Z`).getUTCDay();
     assert.ok(weekday >= 1 && weekday <= 5, `day ${d.day} falls on a weekend`);
+    assert.ok(!(d.date in HOLIDAYS), `day ${d.day} falls on ${HOLIDAYS[d.date]}`);
   }
   assert.equal(new Date(`${PROGRAMME.intakeStartsOn}T00:00:00Z`).getUTCDay(), 1, 'starts on a Monday');
 });
@@ -22,6 +24,13 @@ test('a working day and its date agree both ways', () => {
     const elapsed =
       (Date.parse(`${date}T00:00:00Z`) - Date.parse('2026-10-05T00:00:00Z')) / 86_400_000;
     assert.equal(workingDaysElapsed('2026-10-05', elapsed), day);
+  }
+  for (let day = 1; day <= 20; day++) {
+    const date = dateOfWorkingDay(PROGRAMME.intakeStartsOn, day);
+    const elapsed =
+      (Date.parse(`${date}T00:00:00Z`) - Date.parse(`${PROGRAMME.intakeStartsOn}T00:00:00Z`)) /
+      86_400_000;
+    assert.equal(workingDaysElapsed(PROGRAMME.intakeStartsOn, elapsed), day);
   }
   // A weekend start begins on the Monday after.
   assert.equal(dateOfWorkingDay('2026-10-03', 1), '2026-10-05');

@@ -419,9 +419,10 @@ export async function confirmTrainee(
  * them, and it can be pressed again on Monday morning for anyone confirmed
  * since.
  *
- * With scope "move", it also moves confirmed trainees whose dates are some
- * other intake's and who have not started yet: what is needed when an
- * intake itself moves (October became November), and a separate button,
+ * With scope "move", it also moves confirmed trainees whose start or end
+ * date is not this intake's and who have not started yet: what is needed when an
+ * intake itself moves (October became November, and a holiday moved the
+ * last day), and a separate button,
  * because it changes dates somebody set rather than filling blanks. Anyone
  * already started is never moved.
  */
@@ -446,7 +447,9 @@ export async function setIntakeDates(
     .not('trainee_approved_at', 'is', null);
   query = move
     ? query
-        .neq('starts_on', PROGRAMME.intakeStartsOn)
+        .or(
+          `starts_on.neq.${PROGRAMME.intakeStartsOn},ends_on.neq.${PROGRAMME.intakeEndsOn},ends_on.is.null`,
+        )
         .gt('starts_on', todayIn('Asia/Kuala_Lumpur'))
     : query.is('starts_on', null);
   const { data, error } = await query.select('id');

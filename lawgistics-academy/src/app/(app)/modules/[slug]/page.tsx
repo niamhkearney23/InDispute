@@ -70,7 +70,7 @@ export default async function ModulePage({
                   month: 'long',
                   year: 'numeric',
                 })}. These concepts still come back in daily training, because covering something once is not the same as remembering it.`
-              : `${entry.correctOnce} of ${entry.total} right so far. To complete the module, get every question right once. Going back only asks you the ones still to get right.`}
+              : `${entry.correctOnce} of the ${entry.total} questions done. Each sitting asks up to eight, and only the ones you have not yet got right, so carry on until every one is done.`}
           </p>
         </Card>
       )}

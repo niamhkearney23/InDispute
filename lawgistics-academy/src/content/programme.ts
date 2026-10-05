@@ -20,5 +20,7 @@ export const PROGRAMME = {
    * is the firm's decision about a person, not a default.
    */
   intakeStartsOn: '2026-11-02',
-  intakeEndsOn: '2026-11-27',
+  // Twenty working days: Monday 9 November is Deepavali (see holidays.ts),
+  // so the last day is Monday 30 November.
+  intakeEndsOn: '2026-11-30',
 } as const;

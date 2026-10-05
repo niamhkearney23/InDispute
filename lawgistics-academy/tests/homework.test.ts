@@ -4,7 +4,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { HOMEWORK_DAYS, HOMEWORK_TASKS, homeworkForDay, homeworkThroughDay } from '../src/content/seed/homework';
-import { homeworkDay, lastArrivedDay, workingDaysElapsed } from '../src/lib/homework/rules';
+import {
+  dateOfWorkingDay,
+  homeworkDay,
+  lastArrivedDay,
+  workingDaysElapsed,
+} from '../src/lib/homework/rules';
 
 const KL = 'Asia/Kuala_Lumpur';
 
@@ -72,10 +77,18 @@ test('the working days of week one count up to five', () => {
 
 test('the weekend shows no homework, and names the day Monday will be', () => {
   const saturday = new Date('2026-01-10T09:00:00Z');
-  assert.deepEqual(homeworkDay('2026-01-05', null, 'UTC', saturday), { state: 'weekend', nextDay: 6 });
+  assert.deepEqual(homeworkDay('2026-01-05', null, 'UTC', saturday), {
+    state: 'weekend',
+    nextDay: 6,
+    resumesOn: '2026-01-12',
+  });
 
   const sunday = new Date('2026-01-11T09:00:00Z');
-  assert.deepEqual(homeworkDay('2026-01-05', null, 'UTC', sunday), { state: 'weekend', nextDay: 6 });
+  assert.deepEqual(homeworkDay('2026-01-05', null, 'UTC', sunday), {
+    state: 'weekend',
+    nextDay: 6,
+    resumesOn: '2026-01-12',
+  });
 });
 
 test('the following Monday picks up where the weekend left off', () => {
@@ -103,7 +116,11 @@ test('an end date closes homework early, even mid-week', () => {
 
 test('a start date on a weekend puts day one on the following Monday', () => {
   const saturdayStart = new Date('2026-01-10T09:00:00Z');
-  assert.deepEqual(homeworkDay('2026-01-10', null, 'UTC', saturdayStart), { state: 'weekend', nextDay: 1 });
+  assert.deepEqual(homeworkDay('2026-01-10', null, 'UTC', saturdayStart), {
+    state: 'weekend',
+    nextDay: 1,
+    resumesOn: '2026-01-12',
+  });
 
   const followingMonday = new Date('2026-01-12T09:00:00Z');
   assert.deepEqual(homeworkDay('2026-01-10', null, 'UTC', followingMonday), { state: 'day', day: 1 });
@@ -159,4 +176,37 @@ test('lastArrivedDay before the placement begins is zero', () => {
 test('lastArrivedDay once finished is the full twenty', () => {
   const mondayAfter = new Date('2026-02-02T09:00:00Z');
   assert.equal(lastArrivedDay(homeworkDay('2026-01-05', null, 'UTC', mondayAfter)), 20);
+});
+
+test('a public holiday is not a working day, and the programme runs on past it', () => {
+  // The November 2026 intake: Monday 9 November is Deepavali.
+  const start = '2026-11-02';
+  assert.equal(dateOfWorkingDay(start, 5), '2026-11-06');
+  assert.equal(dateOfWorkingDay(start, 6), '2026-11-10', 'day 6 is the Tuesday');
+  assert.equal(dateOfWorkingDay(start, 20), '2026-11-30', 'day 20 is the Monday after');
+
+  const holiday = new Date('2026-11-09T04:00:00Z');
+  assert.deepEqual(homeworkDay(start, '2026-11-30', 'Asia/Kuala_Lumpur', holiday), {
+    state: 'weekend',
+    nextDay: 6,
+    resumesOn: '2026-11-10',
+    holiday: 'Deepavali',
+  });
+  // The weekend before it resumes on the Tuesday, not the Monday.
+  const sunday = new Date('2026-11-08T04:00:00Z');
+  assert.deepEqual(homeworkDay(start, '2026-11-30', 'Asia/Kuala_Lumpur', sunday), {
+    state: 'weekend',
+    nextDay: 6,
+    resumesOn: '2026-11-10',
+  });
+  const tuesday = new Date('2026-11-10T04:00:00Z');
+  assert.deepEqual(homeworkDay(start, '2026-11-30', 'Asia/Kuala_Lumpur', tuesday), {
+    state: 'day',
+    day: 6,
+  });
+  const lastDay = new Date('2026-11-30T04:00:00Z');
+  assert.deepEqual(homeworkDay(start, '2026-11-30', 'Asia/Kuala_Lumpur', lastDay), {
+    state: 'day',
+    day: 20,
+  });
 });

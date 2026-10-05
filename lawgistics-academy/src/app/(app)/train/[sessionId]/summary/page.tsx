@@ -90,9 +90,10 @@ export default async function SummaryPage({
 
       {/* A module session says where the module now stands, in numbers. The
           module is finished when every question in it has been answered
-          correctly once, so "8 of 8" and "6 of 8, two to go" are the two
-          things a person needs to hear here, and neither is a verdict on the
-          session they just did. */}
+          correctly once. A sitting asks at most eight, so a module of thirteen
+          cannot be finished in one: this says how many of the module's
+          questions are done and how many are still to come, never "8 of 13
+          right", which reads as five wrong to somebody who got all eight. */}
       {moduleEntry ? (
         <Card
           className={
@@ -106,13 +107,24 @@ export default async function SummaryPage({
               correctly at least once, and the date is recorded.
             </p>
           ) : (
-            <p className="text-sm">
-              <strong>
-                {moduleEntry.correctOnce} of {moduleEntry.total} right.
-              </strong>{' '}
-              To complete the module, get every question right once. Going back only asks you
-              the ones still to get right.
-            </p>
+            (() => {
+              const left = moduleEntry.total - moduleEntry.correctOnce;
+              const missed = moduleEntry.answered - moduleEntry.correctOnce;
+              return (
+                <p className="text-sm">
+                  <strong>
+                    {moduleEntry.correctOnce} of the {moduleEntry.total} questions in this module
+                    done.
+                  </strong>{' '}
+                  Each sitting asks up to eight, so {left === 1 ? 'one is' : `${left} are`} still
+                  to come
+                  {missed > 0
+                    ? `, including ${missed === 1 ? 'one' : missed} you have tried but not yet got right`
+                    : ''}
+                  . Carry on to finish the module; it only asks the ones left.
+                </p>
+              );
+            })()
           )}
         </Card>
       ) : null}
@@ -191,7 +203,7 @@ export default async function SummaryPage({
       <div className="flex flex-col gap-3 sm:flex-row">
         {moduleEntry && !moduleEntry.complete ? (
           <ButtonLink href={`/modules/${moduleEntry.module.slug}`} size="lg" variant="accent">
-            Go back to the ones left
+            Carry on with the module
           </ButtonLink>
         ) : null}
         <ButtonLink
