@@ -3,6 +3,7 @@ import { requireCoach } from '@/lib/admin/guard';
 import Link from 'next/link';
 import { asReviewOrder, getReviewItems, summarise } from '@/lib/review/service';
 import { Card, Notice, Stat, cn } from '@/components/ui';
+import { JURISDICTION_COUNTRY, type Country } from '@/lib/types';
 import { ReviewQueue } from './review-queue';
 import { BulkActions } from './bulk-actions';
 
@@ -12,15 +13,34 @@ export const dynamic = 'force-dynamic';
 export default async function ReviewPage({
   searchParams,
 }: {
-  searchParams: Promise<{ order?: string }>;
+  searchParams: Promise<{ order?: string; country?: string }>;
 }) {
   const { isAdmin } = await requireCoach();
 
-  const { order: requested } = await searchParams;
+  const { order: requested, country: askedCountry } = await searchParams;
   const order = asReviewOrder(requested);
+  // One country's questions at a time, so a Malaysian lawyer is not paging
+  // past the Australian bank to find the ones they can sign.
+  const country: Country | null =
+    askedCountry === 'MY' || askedCountry === 'AU' ? askedCountry : null;
 
-  const items = await getReviewItems(order);
+  const everything = await getReviewItems(order);
+  const items = country
+    ? everything.filter((item) => JURISDICTION_COUNTRY[item.jurisdiction] === country)
+    : everything;
   const stats = summarise(items);
+  // Publishing and withdrawing act on the whole bank, so their counts do too.
+  const allStats = country ? summarise(everything) : stats;
+
+  const href = (next: { order?: string; country?: Country | null }) => {
+    const params = new URLSearchParams();
+    const o = next.order ?? order;
+    const c = next.country === undefined ? country : next.country;
+    if (o === 'simplest') params.set('order', 'simplest');
+    if (c) params.set('country', c);
+    const query = params.toString();
+    return query ? `/admin/review?${query}` : '/admin/review';
+  };
 
   return (
     <div className="space-y-6">
@@ -33,13 +53,28 @@ export default async function ReviewPage({
             : 'Every question and daily fact, ordered so the ones most likely to contain an error come first. Anything already in front of learners but not yet signed off is at the very top.'}
         </p>
 
-        <div className="mt-5 inline-flex rounded-[5px] border border-rule-strong p-0.5">
-          <OrderTab href="/admin/review" label="Riskiest first" active={order === 'riskiest'} />
-          <OrderTab
-            href="/admin/review?order=simplest"
-            label="Simplest first"
-            active={order === 'simplest'}
-          />
+        <div className="mt-5 flex flex-wrap gap-3">
+          <div className="inline-flex rounded-[5px] border border-rule-strong p-0.5">
+            <OrderTab
+              href={href({ order: 'riskiest' })}
+              label="Riskiest first"
+              active={order === 'riskiest'}
+            />
+            <OrderTab
+              href={href({ order: 'simplest' })}
+              label="Simplest first"
+              active={order === 'simplest'}
+            />
+          </div>
+          <div className="inline-flex rounded-[5px] border border-rule-strong p-0.5">
+            <OrderTab href={href({ country: null })} label="Both" active={country === null} />
+            <OrderTab href={href({ country: 'MY' })} label="Malaysia" active={country === 'MY'} />
+            <OrderTab
+              href={href({ country: 'AU' })}
+              label="Australia"
+              active={country === 'AU'}
+            />
+          </div>
         </div>
       </section>
 
@@ -130,9 +165,9 @@ export default async function ReviewPage({
           turn them down. */}
       {isAdmin ? (
         <BulkActions
-          verifiedCount={stats.verified}
-          liveUnverifiedCount={stats.liveUnverified}
-          withdrawnCount={stats.withdrawn}
+          verifiedCount={allStats.verified}
+          liveUnverifiedCount={allStats.liveUnverified}
+          withdrawnCount={allStats.withdrawn}
         />
       ) : null}
 
