@@ -322,13 +322,17 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   calendar of every morning, and a coach sees the calendar and missed count on
   Admin, Trainees. No rounds run until questions are published for the
   trainee's country, so nothing is marked missed that could not be done.
+- **Score over time** (`src/lib/learning/score-history.ts`): the overall score
+  is the share of every answer ever given that was right, drawn as a line with a
+  point per day, on Progress for the learner and on Admin, Trainees for staff.
+  Answers are read page by page (`answerMarks`), never just the first thousand.
 - **The look.** The academy (everything under `src/app/(app)`) is navy: the
   `theme-navy` class on its layout swaps the colour tokens in
   `globals.css` (cream buttons, ice-blue details, burgundy warnings, a two-level
   grid, gold-free by the owner's choice). Admin has the same look. The front
   page and sign-in stay cream. The certificate and a matter's case file stay paper inside it.
   Use the tokens, never fixed Tailwind colours, or a page breaks in one look.
-- 379 tests, 319 schema guarantees against a real Postgres, 240 page and device
+- 391 tests, 319 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB

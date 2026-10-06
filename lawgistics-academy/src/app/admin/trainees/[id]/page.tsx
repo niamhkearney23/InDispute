@@ -11,6 +11,8 @@ import { Card, Pill, ScoreBar, SectionHeading } from '@/components/ui';
 import { Avatar } from '@/components/avatar';
 import { RoundsCalendar } from '@/components/rounds-calendar';
 import { roundsHistory } from '@/lib/training/rounds-service';
+import { scoreOverTime } from '@/lib/learning/score-history';
+import { ScoreHistoryChart } from '@/components/score-history-chart';
 
 export const metadata: Metadata = { title: 'Trainee' };
 export const dynamic = 'force-dynamic';
@@ -60,6 +62,15 @@ export default async function AdminTraineePage({ params }: { params: Promise<{ i
             : `${person.totalAnswered} questions answered, ${person.totalRight} right (${percent}%).`}
         </p>
       </section>
+
+      {person.marks && person.marks.length > 0 ? (
+        <section>
+          <SectionHeading eyebrow="Every answer, right or wrong" title="Overall score over time" />
+          <Card>
+            <ScoreHistoryChart days={scoreOverTime(person.marks, timeZone)} />
+          </Card>
+        </section>
+      ) : null}
 
       {mornings && mornings.days.length > 0 ? (
         <section>
