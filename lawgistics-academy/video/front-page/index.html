@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1080" />
+    <!--
+      The front page's explainer: 32 seconds, square, silent, looping.
+
+      Rendered with HyperFrames (HTML to video). Everything shown is something
+      the academy does: the matter is the first drafted Malaysian matter with
+      its real time limit and four tasks, the rounds are the trainee
+      programme's real hours, and the score is the real rule. No brand name
+      appears, so a firm's own deployment can show it unchanged.
+
+      To change it: edit this file, then from this folder run
+        npx hyperframes@0.8.137 render -o ../../public/video/front-page.mp4
+      and re-encode as described in README.md.
+    -->
+    <script src="assets/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: 'Fraunces';
+        src: url('assets/fonts/fraunces-latin-wght-normal.woff2') format('woff2');
+        font-weight: 100 900;
+      }
+      @font-face {
+        font-family: 'Inter';
+        src: url('assets/fonts/inter-latin-wght-normal.woff2') format('woff2');
+        font-weight: 100 900;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1080px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0d1b2a;
+      }
+      #root {
+        position: relative;
+        width: 1080px;
+        height: 1080px;
+        font-family: 'Inter', sans-serif;
+        color: #f5f1e8;
+      }
+      .layer {
+        position: absolute;
+        inset: 0;
+      }
+
+      /* Ground: the hero's own faint grid. */
+      #ground {
+        background-color: #0d1b2a;
+        background-image:
+          linear-gradient(to right, rgba(245, 241, 232, 0.07) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(245, 241, 232, 0.07) 1px, transparent 1px);
+        background-size: 72px 72px;
+        -webkit-mask-image: radial-gradient(ellipse at 60% 40%, black, transparent 75%);
+        mask-image: radial-gradient(ellipse at 60% 40%, black, transparent 75%);
+      }
+
+      /* The step label, top left. */
+      .step {
+        position: absolute;
+        left: 96px;
+        top: 92px;
+        display: flex;
+        align-items: center;
+        gap: 22px;
+      }
+      .step-bar {
+        width: 8px;
+        height: 44px;
+        border-radius: 4px;
+        background: #7a2e3a;
+      }
+      .step-num {
+        font-size: 30px;
+        font-weight: 600;
+        color: #8a98a8;
+        font-variant-numeric: tabular-nums;
+      }
+      .step-name {
+        font-size: 30px;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      /* The matter card. */
+      #card {
+        position: absolute;
+        left: 150px;
+        top: 230px;
+        width: 780px;
+        border-radius: 22px;
+        background: #ffffff;
+        color: #14110f;
+        overflow: hidden;
+        box-shadow: 0 50px 120px -30px rgba(0, 0, 0, 0.7);
+      }
+      .card-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 22px 34px;
+        background: #f5f1e8;
+        border-bottom: 2px solid #e2dbcd;
+      }
+      .card-kicker {
+        font-size: 17px;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #5c554d;
+      }
+      .card-chip {
+        font-size: 17px;
+        font-weight: 500;
+        color: #f5f1e8;
+        background: #0d1b2a;
+        border-radius: 999px;
+        padding: 5px 16px;
+      }
+      .card-body {
+        padding: 34px 34px 30px;
+      }
+      .card-title {
+        font-size: 40px;
+        font-weight: 650;
+        letter-spacing: -0.01em;
+      }
+      .card-client {
+        margin-top: 6px;
+        font-size: 24px;
+        color: #5c554d;
+      }
+      .card-brief {
+        margin-top: 22px;
+        font-size: 26px;
+        line-height: 1.4;
+      }
+      .tasks {
+        margin-top: 26px;
+        list-style: none;
+        overflow: hidden;
+      }
+      .task {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        height: 52px;
+        font-size: 26px;
+      }
+      .tick {
+        position: relative;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 3px solid #cfc5b2;
+        flex: none;
+      }
+      .tick-fill {
+        position: absolute;
+        inset: -3px;
+        border-radius: 50%;
+        background: #0d1b2a;
+        color: #f5f1e8;
+        font-size: 18px;
+        font-weight: 700;
+        display: grid;
+        place-items: center;
+      }
+      .wave {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        height: 32px;
+        margin-left: 6px;
+      }
+      .wave span {
+        display: block;
+        width: 6px;
+        height: 32px;
+        border-radius: 3px;
+        background: #7a2e3a;
+        transform-origin: center;
+      }
+      .clock-row {
+        margin-top: 26px;
+        padding-top: 22px;
+        border-top: 2px solid #e2dbcd;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 22px;
+        color: #5c554d;
+      }
+      .clock {
+        font-size: 34px;
+        font-weight: 600;
+        color: #14110f;
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* The lawyer's mark. */
+      #mark {
+        position: absolute;
+        left: 150px;
+        top: 760px;
+        width: 780px;
+        border-radius: 22px;
+        background: #142638;
+        border: 2px solid rgba(245, 241, 232, 0.14);
+        padding: 30px 34px;
+      }
+      .mark-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .mark-who {
+        font-size: 24px;
+        color: #8a98a8;
+      }
+      .verdict {
+        font-size: 24px;
+        font-weight: 650;
+        color: #0f2a26;
+        background: #6fd0a6;
+        border-radius: 999px;
+        padding: 6px 22px;
+      }
+      .mark-line {
+        margin-top: 18px;
+        height: 16px;
+        border-radius: 8px;
+        background: rgba(245, 241, 232, 0.22);
+        transform-origin: left center;
+      }
+
+      /* Mornings. */
+      .big {
+        font-family: 'Fraunces', serif;
+        font-weight: 500;
+        font-size: 84px;
+        line-height: 1.04;
+        letter-spacing: -0.02em;
+      }
+      .sub {
+        margin-top: 22px;
+        font-size: 30px;
+        line-height: 1.4;
+        color: #8a98a8;
+      }
+      #mornings-copy {
+        position: absolute;
+        left: 96px;
+        top: 220px;
+        width: 900px;
+      }
+      .rounds {
+        position: absolute;
+        left: 96px;
+        right: 96px;
+        top: 560px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+      }
+      .round {
+        border-radius: 20px;
+        background: #142638;
+        border: 2px solid rgba(245, 241, 232, 0.12);
+        padding: 30px 26px;
+      }
+      .round-time {
+        font-size: 44px;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+      }
+      .round-dots {
+        margin-top: 22px;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 9px;
+      }
+      .round-dots span {
+        display: block;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        border: 2px solid rgba(245, 241, 232, 0.28);
+      }
+      .round-dots span.on {
+        background: #8cc4f5;
+        border-color: #8cc4f5;
+      }
+      .round-note {
+        margin-top: 20px;
+        font-size: 21px;
+        color: #8a98a8;
+      }
+
+      /* The score. */
+      #score-copy {
+        position: absolute;
+        left: 96px;
+        top: 220px;
+        width: 900px;
+      }
+      #score-num {
+        position: absolute;
+        left: 96px;
+        top: 520px;
+        font-family: 'Fraunces', serif;
+        font-size: 150px;
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.03em;
+      }
+      #chart {
+        position: absolute;
+        left: 96px;
+        top: 720px;
+        width: 888px;
+        height: 230px;
+      }
+
+      /* The close. */
+      #close-copy {
+        position: absolute;
+        left: 96px;
+        right: 96px;
+        top: 400px;
+      }
+      #close-copy .big {
+        font-size: 86px;
+      }
+      #close-copy .mist {
+        color: #8a98a8;
+      }
+      #close-bar {
+        width: 88px;
+        height: 8px;
+        border-radius: 4px;
+        background: #7a2e3a;
+        margin-bottom: 44px;
+        transform-origin: left center;
+      }
+
+      #veil {
+        background: #0d1b2a;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="32"
+      data-width="1080"
+      data-height="1080"
+    >
+      <div id="ground" class="layer clip" data-start="0" data-duration="32" data-track-index="0"></div>
+
+      <!-- 0 to 18s: the matter, worked and marked -->
+      <div class="step clip" id="step1" data-start="0" data-duration="6" data-track-index="2">
+        <span class="step-bar"></span><span class="step-num">01</span><span class="step-name">Receive the file</span>
+      </div>
+      <div class="step clip" id="step2" data-start="6" data-duration="6" data-track-index="3">
+        <span class="step-bar"></span><span class="step-num">02</span><span class="step-name">Do the work</span>
+      </div>
+      <div class="step clip" id="step3" data-start="12" data-duration="6" data-track-index="4">
+        <span class="step-bar"></span><span class="step-num">03</span><span class="step-name">Get reviewed</span>
+      </div>
+
+      <div id="card" class="clip" data-start="0" data-duration="18" data-track-index="1">
+        <div class="card-head">
+          <span class="card-kicker">Matter 001 · Companies and insolvency</span>
+          <span class="card-chip">Example</span>
+        </div>
+        <div class="card-body">
+          <p class="card-title">A statutory demand</p>
+          <p class="card-client">Harimau Fabrication Sdn Bhd</p>
+          <p class="card-brief" id="brief">Your client has received a statutory demand. You have 45 minutes to advise on the next step.</p>
+          <ul class="tasks" id="tasks">
+            <li class="task"><span class="tick"><span class="tick-fill" id="t1">✓</span></span>Read the file</li>
+            <li class="task"><span class="tick"><span class="tick-fill" id="t2">✓</span></span>Identify the procedure</li>
+            <li class="task"><span class="tick"><span class="tick-fill" id="t3">✓</span></span>Draft the advice</li>
+            <li class="task">
+              <span class="tick"><span class="tick-fill" id="t4">✓</span></span>Record your explanation
+              <span class="wave" id="wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
+            </li>
+          </ul>
+          <div class="clock-row">
+            <span>Time left</span>
+            <span class="clock" id="clock">45:00</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="mark" class="clip" data-start="12" data-duration="6" data-track-index="5">
+        <div class="mark-top">
+          <span class="mark-who">Marked by your lawyer</span>
+          <span class="verdict">Good</span>
+        </div>
+        <div class="mark-line" id="ml1" style="width: 100%"></div>
+        <div class="mark-line" id="ml2" style="width: 82%"></div>
+        <div class="mark-line" id="ml3" style="width: 56%"></div>
+      </div>
+
+      <!-- 18 to 24.5s: the trainee mornings -->
+      <div id="mornings" class="layer clip" data-start="18" data-duration="6.5" data-track-index="1">
+        <div class="step" id="step4">
+          <span class="step-bar"></span><span class="step-name">Trainee programme</span>
+        </div>
+        <div id="mornings-copy">
+          <p class="big">Every working morning, 7 to 11am.</p>
+          <p class="sub">Four rounds of ten questions, Kuala Lumpur time.</p>
+        </div>
+        <div class="rounds">
+          <div class="round" id="r1"><p class="round-time">7am</p><div class="round-dots"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><p class="round-note">10 questions</p></div>
+          <div class="round" id="r2"><p class="round-time">8am</p><div class="round-dots"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><p class="round-note">10 questions</p></div>
+          <div class="round" id="r3"><p class="round-time">9am</p><div class="round-dots"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><p class="round-note">10 questions</p></div>
+          <div class="round" id="r4"><p class="round-time">10am</p><div class="round-dots"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><p class="round-note">10 questions</p></div>
+        </div>
+      </div>
+
+      <!-- 24.5 to 29s: the score -->
+      <div id="score" class="layer clip" data-start="24.5" data-duration="4.5" data-track-index="2">
+        <div class="step" id="step5">
+          <span class="step-bar"></span><span class="step-name">Your score</span>
+        </div>
+        <div id="score-copy">
+          <p class="big">Starts at 100%.</p>
+          <p class="sub">Only a wrong answer brings it down.</p>
+        </div>
+        <p id="score-num">100%</p>
+        <svg id="chart" viewBox="0 0 888 230" fill="none">
+          <line x1="0" y1="10" x2="888" y2="10" stroke="rgba(245,241,232,0.14)" stroke-width="2" />
+          <line x1="0" y1="220" x2="888" y2="220" stroke="rgba(245,241,232,0.14)" stroke-width="2" />
+          <path
+            id="score-line"
+            d="M 8 10 L 160 10 L 300 10 L 440 52 L 580 44 L 720 38 L 880 31"
+            stroke="#8cc4f5"
+            stroke-width="6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <circle id="wrong-dot" cx="440" cy="52" r="13" fill="#ff8f7d" stroke="#0d1b2a" stroke-width="5" />
+        </svg>
+      </div>
+
+      <!-- 29 to 32s: the close -->
+      <div id="close" class="layer clip" data-start="29" data-duration="3" data-track-index="3">
+        <div id="close-copy">
+          <div id="close-bar"></div>
+          <p class="big" id="close-1">Learn to practise law</p>
+          <p class="big mist" id="close-2">before you have to practise it.</p>
+        </div>
+      </div>
+
+      <!-- A navy veil at both ends, so the loop joins without a jump. -->
+      <div id="veil" class="layer clip" data-start="0" data-duration="32" data-track-index="9"></div>
+    </div>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      const ease = 'power3.out';
+
+      // The loop's seam: up from navy, back down to navy.
+      tl.fromTo('#veil', { opacity: 1 }, { opacity: 0, duration: 0.6, ease: 'none' }, 0);
+      tl.fromTo('#veil', { opacity: 0 }, { opacity: 1, duration: 0.5, ease: 'none', immediateRender: false }, 31.5);
+
+      /* 01 Receive the file */
+      tl.fromTo('#step1', { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.6, ease }, 0.2);
+      tl.fromTo('#card', { opacity: 0, y: 90, scale: 0.96 }, { opacity: 1, y: 0, scale: 1, duration: 0.9, ease }, 0.3);
+      // The tasks wait for step two; the brief carries the first.
+      tl.fromTo('#tasks', { opacity: 0, height: 0 }, { opacity: 0, height: 0, duration: 0.01 }, 0);
+      tl.fromTo('.tick-fill', { scale: 0, opacity: 0 }, { scale: 0, opacity: 0, duration: 0.01 }, 0);
+      tl.fromTo('#wave span', { scaleY: 0.25 }, { scaleY: 0.25, duration: 0.01 }, 0);
+      // The clock runs from 45:00, a second a second, then faster.
+      const clock = { s: 45 * 60 };
+      const show = () => {
+        const s = Math.max(0, Math.round(clock.s));
+        document.getElementById('clock').textContent =
+          String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+      };
+      tl.fromTo(clock, { s: 45 * 60 }, { s: 44 * 60 + 55, duration: 5, ease: 'none', onUpdate: show }, 1);
+      tl.fromTo(clock, { s: 44 * 60 + 55 }, { s: 21 * 60 + 14, duration: 11, ease: 'none', onUpdate: show, immediateRender: false }, 6);
+
+      /* 02 Do the work */
+      tl.fromTo('#step2', { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.6, ease }, 6.1);
+      tl.to('#brief', { opacity: 0.45, duration: 0.5 }, 6.0);
+      tl.fromTo('#tasks', { opacity: 0, height: 0 }, { opacity: 1, height: 208, duration: 0.8, ease, immediateRender: false }, 6.2);
+      tl.fromTo('#t1', { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: 'back.out(2)', immediateRender: false }, 7.1);
+      tl.fromTo('#t2', { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: 'back.out(2)', immediateRender: false }, 8.1);
+      tl.fromTo('#t3', { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: 'back.out(2)', immediateRender: false }, 9.1);
+      // Recording: the bars move, each on its own beat, then it is done.
+      document.querySelectorAll('#wave span').forEach((bar, i) => {
+        const peaks = [0.9, 0.5, 1, 0.65, 0.85, 0.4, 0.75];
+        for (let k = 0; k < 6; k++) {
+          tl.to(bar, { scaleY: k % 2 ? 0.3 : peaks[(i + k) % 7], duration: 0.22, ease: 'sine.inOut' }, 9.9 + k * 0.22 + i * 0.04);
+        }
+      });
+      tl.fromTo('#t4', { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: 'back.out(2)', immediateRender: false }, 11.4);
+
+      /* 03 Get reviewed: the card makes room for the mark. */
+      tl.fromTo('#step3', { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.6, ease }, 12.1);
+      tl.to('#card', { y: -60, scale: 0.92, transformOrigin: '50% 0%', duration: 0.8, ease }, 12.0);
+      tl.fromTo('#mark', { opacity: 0, y: 80 }, { opacity: 1, y: 0, duration: 0.8, ease }, 12.4);
+      tl.fromTo('#mark .verdict', { scale: 0.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.45, ease: 'back.out(2.4)' }, 13.3);
+      tl.fromTo('#ml1', { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease }, 13.8);
+      tl.fromTo('#ml2', { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease }, 14.2);
+      tl.fromTo('#ml3', { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease }, 14.6);
+      tl.to(['#card', '#mark', '#step3'], { opacity: 0, y: '-=40', duration: 0.5, ease: 'power2.in' }, 17.4);
+
+      /* Trainee mornings */
+      tl.fromTo('#step4', { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.6, ease }, 18.1);
+      tl.fromTo('#mornings-copy', { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.8, ease }, 18.2);
+      tl.fromTo('.round', { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.6, ease, stagger: 0.12 }, 18.7);
+      ['#r1', '#r2', '#r3', '#r4'].forEach((id, r) => {
+        document.querySelectorAll(id + ' .round-dots span').forEach((dot, d) => {
+          tl.fromTo(
+            dot,
+            { backgroundColor: 'rgba(140,196,245,0)', borderColor: 'rgba(245,241,232,0.28)' },
+            { backgroundColor: 'rgba(140,196,245,1)', borderColor: 'rgba(140,196,245,1)', duration: 0.12, immediateRender: false },
+            19.8 + r * 1.0 + d * 0.08,
+          );
+        });
+      });
+      tl.to('#mornings', { opacity: 0, duration: 0.5, ease: 'power2.in' }, 24.0);
+
+      /* The score */
+      tl.fromTo('#step5', { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.6, ease }, 24.6);
+      tl.fromTo('#score-copy', { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.8, ease }, 24.7);
+      tl.fromTo('#score-num', { opacity: 0 }, { opacity: 1, duration: 0.5 }, 25.0);
+      const line = document.getElementById('score-line');
+      const length = line.getTotalLength();
+      tl.fromTo(line, { strokeDasharray: length, strokeDashoffset: length }, { strokeDashoffset: 0, duration: 2.6, ease: 'none' }, 25.2);
+      tl.fromTo('#wrong-dot', { scale: 0, opacity: 0, transformOrigin: '50% 50%' }, { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(2.5)' }, 26.25);
+      const score = { v: 100 };
+      tl.fromTo(
+        score,
+        { v: 100 },
+        { v: 80, duration: 0.25, ease: 'none', onUpdate: () => (document.getElementById('score-num').textContent = Math.round(score.v) + '%') },
+        26.25,
+      );
+      tl.fromTo(
+        score,
+        { v: 80 },
+        { v: 86, duration: 1.3, ease: 'none', immediateRender: false, onUpdate: () => (document.getElementById('score-num').textContent = Math.round(score.v) + '%') },
+        26.5,
+      );
+      tl.to('#score', { opacity: 0, duration: 0.45, ease: 'power2.in' }, 28.55);
+
+      /* The close */
+      tl.fromTo('#close-bar', { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease }, 29.1);
+      tl.fromTo('#close-1', { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.8, ease }, 29.2);
+      tl.fromTo('#close-2', { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.8, ease }, 29.6);
+
+      window.__timelines['main'] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

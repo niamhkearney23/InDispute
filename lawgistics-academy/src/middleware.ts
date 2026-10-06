@@ -94,9 +94,10 @@ export async function middleware(request: NextRequest) {
 // `icon$` is the tab icon. It used to be a checked-in file at /icon.svg and was
 // covered by the extension rule below; it is now generated from the brand and
 // served at /icon with no extension, so without this line a signed-out visitor
-// gets a redirect to /login where the browser expected an image.
+// gets a redirect to /login where the browser expected an image. `mp4` is the
+// front page's video, which is for people who have not signed in yet.
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|icon$|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|icon$|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4)$).*)',
   ],
 };

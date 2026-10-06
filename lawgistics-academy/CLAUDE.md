@@ -326,6 +326,12 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   is the share of every answer ever given that was right, drawn as a line with a
   point per day, on Progress for the learner and on Admin, Trainees for staff.
   Answers are read page by page (`answerMarks`), never just the first thousand.
+- **The front page video** (`video/front-page/`, HyperFrames): 32 seconds,
+  silent, in the hero where the example matter card was. It shows the same
+  matter worked and marked, the trainee mornings and the score rule, and no
+  brand name, so a firm's deployment can use it unchanged. Change it when any
+  of those change; `video/front-page/README.md` says how to render it again.
+  The middleware matcher lets `.mp4` through so signed-out visitors get it.
 - **The look.** The academy (everything under `src/app/(app)`) is navy: the
   `theme-navy` class on its layout swaps the colour tokens in
   `globals.css` (cream buttons, ice-blue details, burgundy warnings, a two-level

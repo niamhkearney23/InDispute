@@ -71,9 +71,14 @@ test('the tab icon is reachable without signing in', () => {
   const match = /matcher:\s*\[\s*'([^']+)'/.exec(source);
   assert.ok(match, 'middleware config.matcher should be a single-quoted pattern');
 
-  const matcher = new RegExp(`^${match[1]}$`);
+  // The source holds the pattern as a string literal, so `\\.` there is `\.`
+  // in the pattern Next.js uses.
+  const matcher = new RegExp(`^${match[1].replace(/\\\\/g, '\\')}$`);
 
   assert.equal(matcher.test('/icon'), false, 'the tab icon must not be gated');
+  // The front page's video and its still are for people not yet signed in.
+  assert.equal(matcher.test('/video/front-page.mp4'), false, 'the front page video must not be gated');
+  assert.equal(matcher.test('/video/front-page-poster.jpg'), false);
   assert.equal(matcher.test('/dashboard'), true, 'but the app still is');
   assert.equal(matcher.test('/admin/review'), true);
 });
