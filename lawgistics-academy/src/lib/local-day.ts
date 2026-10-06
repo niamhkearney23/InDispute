@@ -53,6 +53,19 @@ export function localMidnight(timezone: string, localDate: string): Date {
   return new Date(guess);
 }
 
+/**
+ * The instant a local clock reads a given hour on a local calendar day:
+ * 7am in Kuala Lumpur on 2 November. Two passes, as localMidnight, so the
+ * day the clocks change still lands on the hour the clock on the wall shows.
+ */
+export function localHour(timezone: string, localDate: string, hour: number): Date {
+  const [y, m, d] = localDate.split('-').map(Number);
+  const naive = Date.UTC(y, m - 1, d, hour);
+  let guess = naive - zoneOffsetMinutes(timezone, new Date(naive)) * 60_000;
+  guess = naive - zoneOffsetMinutes(timezone, new Date(guess)) * 60_000;
+  return new Date(guess);
+}
+
 /** A calendar day some days before or after another, as YYYY-MM-DD. */
 export function shiftLocalDate(localDate: string, days: number): string {
   const [y, m, d] = localDate.split('-').map(Number);

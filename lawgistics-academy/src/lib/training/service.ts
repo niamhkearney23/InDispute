@@ -82,6 +82,8 @@ export function resumeIndexFor(
 export async function startSession(
   userId: string,
   kind: SessionKind,
+  /** How many questions, when something other than the daily goal decides (a trainee's round). */
+  countOverride?: number,
 ): Promise<{ sessionId: string } | { error: string }> {
   const db = createServiceClient();
 
@@ -98,7 +100,9 @@ export async function startSession(
   );
 
   const count =
-    kind === 'diagnostic' ? DIAGNOSTIC_QUESTION_COUNT : questionCountForGoal(goalMinutes);
+    kind === 'diagnostic'
+      ? DIAGNOSTIC_QUESTION_COUNT
+      : (countOverride ?? questionCountForGoal(goalMinutes));
 
   const selected =
     kind === 'diagnostic'
@@ -192,6 +196,12 @@ export function isFromToday(startedAt: string, timezone: string, now: Date = new
 export async function resumeOrStartSession(
   userId: string,
   kind: SessionKind,
+  /**
+   * A trainee's round: how many questions it still needs, and when it
+   * opened. A session left open from an earlier round is closed rather than
+   * resumed, because a session belongs to the round it was started in.
+   */
+  round?: { count: number; opensAt: Date },
 ): Promise<{ sessionId: string } | { error: string }> {
   const db = createServiceClient();
 
@@ -213,7 +223,9 @@ export async function resumeOrStartSession(
     .maybeSingle();
 
   if (existing) {
-    if (isFromToday(existing.started_at as string, timezone)) {
+    const fromThisRound =
+      !round || new Date(existing.started_at as string).getTime() >= round.opensAt.getTime();
+    if (isFromToday(existing.started_at as string, timezone) && fromThisRound) {
       return { sessionId: existing.id as string };
     }
 
@@ -222,7 +234,7 @@ export async function resumeOrStartSession(
     await db.from('training_sessions').update({ status: 'abandoned' }).eq('id', existing.id);
   }
 
-  return startSession(userId, kind);
+  return startSession(userId, kind, round?.count);
 }
 
 /* -------------------------------------------------------------------------- */

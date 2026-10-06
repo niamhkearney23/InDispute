@@ -459,6 +459,7 @@ test('privileged modules are marked server-only', () => {
     'src/lib/lessons/signoff.ts',
     'src/lib/admin/supervision.ts',
     'src/lib/admin/answers.ts',
+    'src/lib/training/rounds-service.ts',
     'src/lib/tutor/service.ts',
   ];
 

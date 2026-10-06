@@ -87,6 +87,17 @@ export function displayScore(mastery: number, attempts: number): number {
   return Math.round(mastery * (attempts / MASTERY.minAttemptsForConfidence));
 }
 
+/**
+ * The share of answers that were right, as a whole percentage: what a
+ * learner is shown. Every answer right is 100, and it only comes down when
+ * one is wrong. Nothing answered is 0, and the page says "not asked" rather
+ * than showing it.
+ */
+export function rightShare(correct: number, attempts: number): number {
+  if (attempts <= 0) return 0;
+  return Math.floor((Math.min(correct, attempts) / attempts) * 100);
+}
+
 export function masteryBand(score: number): 'weak' | 'developing' | 'strong' {
   if (score <= MASTERY.weaknessThreshold) return 'weak';
   if (score < MASTERY.masteredThreshold) return 'developing';
