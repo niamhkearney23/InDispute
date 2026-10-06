@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { Notice } from '@/components/ui';
 import { ArrowIcon } from '@/components/icons';
-import { MatterClock } from '@/components/matter-clock';
+import { FrontPageVideo } from '@/components/front-page-video';
 import { intakeStatus } from '@/lib/intake/countdown';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { publicEnv } from '@/lib/env';
@@ -16,12 +16,13 @@ import { PRICES, formatPrice, traineeValue } from '@/lib/access/rules';
  * The front door: navy and cream, product first.
  *
  * The page leads with a matter, because that is the thing the academy does
- * and nobody else does: a file lands, there is a clock, and four tasks.
- * Everything after it explains that card. The serif is for the big editorial
+ * and nobody else does: a file lands, there is a clock, and four tasks. The
+ * hero's video opens on that matter, works it and has it marked, then shows
+ * the trainee mornings and the score; everything after it explains it. The serif is for the big editorial
  * headings only; everything a person reads to act on is in the sans.
  *
- * Everything shown is something the app does. The example matter is the
- * first of the drafted Malaysian matters, with its real time limit and its
+ * Everything shown is something the app does. The example matter in the
+ * video is the first of the drafted Malaysian matters, with its real time limit and its
  * real four tasks; the training record is the real path to the certificate,
  * and its numbers are labelled as an example.
  */
@@ -37,13 +38,6 @@ const SKILLS = [
   ['Drafting', 'Turn the law into advice, letters and court documents.'],
   ['Strategy', 'Decide what you would actually recommend to a client.'],
   ['Advocacy', 'Explain your position clearly, under time pressure.'],
-] as const;
-
-const TASKS = [
-  ['Read the file', true],
-  ['Identify the procedure', true],
-  ['Draft the advice', false],
-  ['Record your explanation', false],
 ] as const;
 
 const RECORD = [
@@ -152,60 +146,17 @@ export default async function LandingPage() {
             </div>
           </div>
 
-          {/* The example matter: the product, shown rather than described. */}
+          {/* The explainer: the example matter worked, marked, then the
+              mornings and the score. It starts on the same matter the card
+              here used to show, so the page still leads with a matter. */}
           <div className="rise-up delay-2 relative">
             <div
               aria-hidden
               className="absolute -inset-3 rounded-2xl bg-cream/5 ring-1 ring-cream/10"
             />
-            <article
-              aria-label="An example matter"
-              className="relative overflow-hidden rounded-xl bg-white text-ink shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]"
-            >
-              <div className="flex items-center justify-between border-b border-rule bg-cream/60 px-5 py-3">
-                <p className="text-[0.6875rem] font-semibold tracking-[0.16em] text-slate uppercase">
-                  Matter 001 · Companies and insolvency
-                </p>
-                <p className="rounded-full bg-navy px-2.5 py-0.5 text-[0.6875rem] font-medium text-cream">
-                  Example
-                </p>
-              </div>
-              <div className="px-5 py-5">
-                <h2 className="font-sans text-xl font-semibold tracking-tight">
-                  A statutory demand
-                </h2>
-                <p className="mt-1 text-sm text-slate">Harimau Fabrication Sdn Bhd</p>
-                <p className="mt-4 text-[0.9375rem] leading-relaxed">
-                  Your client has received a statutory demand. You have 45 minutes to advise on the
-                  next step.
-                </p>
-                <ul className="mt-5 space-y-2.5 text-sm">
-                  {TASKS.map(([task, done]) => (
-                    <li key={task} className="flex items-center gap-3">
-                      <span
-                        aria-hidden
-                        className={
-                          done
-                            ? 'grid size-5 place-items-center rounded-full bg-navy text-[0.625rem] text-cream'
-                            : 'size-5 rounded-full border-[1.5px] border-rule-strong'
-                        }
-                      >
-                        {done ? '✓' : null}
-                      </span>
-                      <span
-                        className={done ? 'text-slate line-through decoration-rule-strong' : ''}
-                      >
-                        {task}
-                      </span>
-                      {done ? <span className="sr-only">(done)</span> : null}
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-6 border-t border-rule pt-4">
-                  <MatterClock startSeconds={38 * 60 + 42} totalSeconds={45 * 60} />
-                </div>
-              </div>
-            </article>
+            <div className="relative overflow-hidden rounded-xl shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]">
+              <FrontPageVideo />
+            </div>
           </div>
         </div>
       </section>

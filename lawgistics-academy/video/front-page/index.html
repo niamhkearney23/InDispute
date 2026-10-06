@@ -1,0 +1,784 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1080" />
+    <!--
+      The front page's explainer: 32 seconds, square, silent, looping.
+
+      Rendered with HyperFrames (HTML to video). Everything shown is something
+      the academy does: the matter is the first drafted Malaysian matter with
+      its real time limit and four tasks, the rounds are the trainee
+      programme's real hours, and the score is the real rule (the share of
+      answers that were right, rounded down). No brand name appears, so a
+      firm's own deployment can show it unchanged.
+
+      Five scenes: the hook, the matter (worked, then marked), the mornings,
+      the score, the close. Each scene drifts slowly so nothing sits still,
+      and scenes change by zooming through rather than fading.
+
+      To change it: edit this file, then render and re-encode as described in
+      README.md.
+    -->
+    <script src="assets/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: 'Fraunces';
+        src: url('assets/fonts/fraunces-latin-wght-normal.woff2') format('woff2');
+        font-weight: 100 900;
+      }
+      @font-face {
+        font-family: 'Inter';
+        src: url('assets/fonts/inter-latin-wght-normal.woff2') format('woff2');
+        font-weight: 100 900;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1080px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0d1b2a;
+      }
+      #root {
+        position: relative;
+        width: 1080px;
+        height: 1080px;
+        overflow: hidden;
+        font-family: 'Inter', sans-serif;
+        color: #f5f1e8;
+      }
+      .layer {
+        position: absolute;
+        inset: 0;
+      }
+
+      /* Ground: the hero's own faint grid, drifting. */
+      #ground {
+        background-color: #0d1b2a;
+        background-image:
+          linear-gradient(to right, rgba(245, 241, 232, 0.07) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(245, 241, 232, 0.07) 1px, transparent 1px);
+        background-size: 72px 72px;
+        -webkit-mask-image: radial-gradient(ellipse at 60% 40%, black, transparent 75%);
+        mask-image: radial-gradient(ellipse at 60% 40%, black, transparent 75%);
+      }
+      #glow {
+        background: radial-gradient(circle at 70% 30%, rgba(140, 196, 245, 0.10), transparent 55%);
+      }
+
+      .big {
+        font-family: 'Fraunces', serif;
+        font-weight: 500;
+        font-size: 84px;
+        line-height: 1.04;
+        letter-spacing: -0.02em;
+      }
+      .mist {
+        color: #8a98a8;
+      }
+      .sub {
+        margin-top: 22px;
+        font-size: 30px;
+        line-height: 1.4;
+        color: #8a98a8;
+      }
+      .word {
+        display: inline-block;
+        margin-right: 0.24em;
+      }
+
+      /* The step label, top left. Several share the spot and swap. */
+      .step {
+        position: absolute;
+        left: 96px;
+        top: 92px;
+        display: flex;
+        align-items: center;
+        gap: 22px;
+      }
+      .step-bar {
+        width: 8px;
+        height: 44px;
+        border-radius: 4px;
+        background: #7a2e3a;
+      }
+      .step-num {
+        font-size: 30px;
+        font-weight: 600;
+        color: #8a98a8;
+        font-variant-numeric: tabular-nums;
+      }
+      .step-name {
+        font-size: 30px;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      /* 0: the hook */
+      #hook-copy {
+        position: absolute;
+        left: 96px;
+        right: 96px;
+        top: 360px;
+      }
+      #hook-copy .big {
+        font-size: 120px;
+      }
+      #hook-kicker {
+        font-size: 26px;
+        font-weight: 600;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #8a98a8;
+        margin-bottom: 34px;
+      }
+
+      /* 1: the matter card */
+      #card {
+        position: absolute;
+        left: 150px;
+        top: 220px;
+        width: 780px;
+        border-radius: 22px;
+        background: #ffffff;
+        color: #14110f;
+        overflow: hidden;
+        box-shadow: 0 50px 120px -30px rgba(0, 0, 0, 0.7);
+      }
+      .card-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 22px 34px;
+        background: #f5f1e8;
+        border-bottom: 2px solid #e2dbcd;
+      }
+      .card-kicker {
+        font-size: 17px;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #5c554d;
+      }
+      .card-chip {
+        font-size: 17px;
+        font-weight: 500;
+        color: #f5f1e8;
+        background: #0d1b2a;
+        border-radius: 999px;
+        padding: 5px 16px;
+      }
+      .card-body {
+        padding: 34px 34px 30px;
+      }
+      .card-title {
+        font-size: 40px;
+        font-weight: 650;
+        letter-spacing: -0.01em;
+      }
+      .card-client {
+        margin-top: 6px;
+        font-size: 24px;
+        color: #5c554d;
+      }
+      .card-brief {
+        margin-top: 22px;
+        font-size: 26px;
+        line-height: 1.4;
+      }
+      .tasks {
+        margin-top: 26px;
+        list-style: none;
+        overflow: hidden;
+      }
+      .task {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        height: 52px;
+        font-size: 26px;
+      }
+      .task-glow {
+        position: absolute;
+        left: -12px;
+        right: -12px;
+        top: 4px;
+        bottom: 4px;
+        border-radius: 10px;
+        background: #e6ebf1;
+        transform-origin: left center;
+      }
+      .task > *:not(.task-glow) {
+        position: relative;
+      }
+      .tick {
+        position: relative;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 3px solid #cfc5b2;
+        flex: none;
+      }
+      .tick-fill {
+        position: absolute;
+        inset: -3px;
+        border-radius: 50%;
+        background: #0d1b2a;
+        color: #f5f1e8;
+        font-size: 18px;
+        font-weight: 700;
+        display: grid;
+        place-items: center;
+      }
+      .rec {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .rec-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #c0392b;
+      }
+      .rec-time {
+        font-size: 22px;
+        font-weight: 600;
+        color: #7a2e3a;
+        font-variant-numeric: tabular-nums;
+        width: 58px;
+      }
+      .wave {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        height: 36px;
+      }
+      .wave span {
+        display: block;
+        width: 6px;
+        height: 36px;
+        border-radius: 3px;
+        background: #7a2e3a;
+        transform-origin: center;
+      }
+      .clock-row {
+        margin-top: 26px;
+        padding-top: 22px;
+        border-top: 2px solid #e2dbcd;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 22px;
+        color: #5c554d;
+      }
+      .clock {
+        font-size: 34px;
+        font-weight: 600;
+        color: #14110f;
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* 1: the lawyer's mark */
+      #mark {
+        position: absolute;
+        left: 150px;
+        top: 770px;
+        width: 780px;
+        border-radius: 22px;
+        background: #142638;
+        border: 2px solid rgba(245, 241, 232, 0.14);
+        padding: 30px 34px;
+      }
+      .mark-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .mark-who {
+        font-size: 24px;
+        color: #8a98a8;
+      }
+      .verdict-wrap {
+        position: relative;
+      }
+      .verdict {
+        position: relative;
+        display: block;
+        font-size: 26px;
+        font-weight: 650;
+        color: #0f2a26;
+        background: #6fd0a6;
+        border-radius: 999px;
+        padding: 7px 26px;
+      }
+      .verdict-ring {
+        position: absolute;
+        inset: -6px;
+        border-radius: 999px;
+        border: 3px solid #6fd0a6;
+      }
+      .mark-line {
+        margin-top: 18px;
+        height: 16px;
+        border-radius: 8px;
+        background: rgba(245, 241, 232, 0.22);
+        transform-origin: left center;
+      }
+
+      /* 2: mornings */
+      #mornings-copy {
+        position: absolute;
+        left: 96px;
+        top: 220px;
+        width: 900px;
+      }
+      #kl {
+        position: absolute;
+        right: 96px;
+        top: 86px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        border-radius: 999px;
+        padding: 12px 24px;
+        background: #142638;
+        border: 2px solid rgba(245, 241, 232, 0.16);
+        font-size: 24px;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+      }
+      #kl-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #8a98a8;
+      }
+      .rounds {
+        position: absolute;
+        left: 96px;
+        right: 96px;
+        top: 580px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+      }
+      .round {
+        border-radius: 20px;
+        background: #142638;
+        border: 2px solid rgba(245, 241, 232, 0.12);
+        padding: 30px 26px;
+      }
+      .round-time {
+        font-size: 44px;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+      }
+      .round-dots {
+        margin-top: 22px;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 9px;
+      }
+      .round-dots span {
+        display: block;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        border: 2px solid rgba(245, 241, 232, 0.28);
+      }
+      .round-note {
+        margin-top: 20px;
+        font-size: 21px;
+        color: #8a98a8;
+      }
+
+      /* 3: the score */
+      #score-copy {
+        position: absolute;
+        left: 96px;
+        top: 220px;
+        width: 900px;
+      }
+      #score-num {
+        position: absolute;
+        left: 96px;
+        top: 500px;
+        font-family: 'Fraunces', serif;
+        font-size: 170px;
+        font-weight: 500;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.03em;
+      }
+      #score-count {
+        position: absolute;
+        left: 104px;
+        top: 690px;
+        font-size: 28px;
+        color: #8a98a8;
+        font-variant-numeric: tabular-nums;
+      }
+      .answers {
+        position: absolute;
+        left: 96px;
+        right: 96px;
+        top: 790px;
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        gap: 14px;
+      }
+      .answer {
+        aspect-ratio: 1;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-size: 34px;
+        font-weight: 700;
+      }
+      .answer.right {
+        background: #6fd0a6;
+        color: #0f2a26;
+      }
+      .answer.wrong {
+        background: #ff8f7d;
+        color: #2e1719;
+      }
+
+      /* 4: the close */
+      #close-copy {
+        position: absolute;
+        left: 96px;
+        right: 96px;
+        top: 380px;
+      }
+      #close-copy .big {
+        font-size: 82px;
+      }
+      #close-bar {
+        width: 88px;
+        height: 8px;
+        border-radius: 4px;
+        background: #7a2e3a;
+        margin-bottom: 44px;
+        transform-origin: left center;
+      }
+
+      #veil {
+        background: #0d1b2a;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="32"
+      data-width="1080"
+      data-height="1080"
+    >
+      <div id="ground" class="layer clip" data-start="0" data-duration="32" data-track-index="0"></div>
+      <div id="glow" class="layer clip" data-start="0" data-duration="32" data-track-index="1"></div>
+
+      <!-- 0 to 3.4s: the hook -->
+      <div id="hook" class="layer clip" data-start="0" data-duration="3.4" data-track-index="2">
+        <div id="hook-copy">
+          <p id="hook-kicker">An example matter</p>
+          <p class="big">
+            <span class="word">A</span><span class="word">file</span><span class="word">lands</span><br />
+            <span class="word mist">on</span><span class="word mist">your</span><span class="word mist">desk.</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- 3 to 19.4s: the matter, worked and marked -->
+      <div id="matter" class="layer clip" data-start="3" data-duration="16.4" data-track-index="3">
+        <div class="step" id="step1">
+          <span class="step-bar"></span><span class="step-num">01</span><span class="step-name">Receive the file</span>
+        </div>
+        <div class="step" id="step2">
+          <span class="step-bar"></span><span class="step-num">02</span><span class="step-name">Do the work</span>
+        </div>
+        <div class="step" id="step3">
+          <span class="step-bar"></span><span class="step-num">03</span><span class="step-name">Get reviewed</span>
+        </div>
+
+        <div id="card">
+          <div class="card-head">
+            <span class="card-kicker">Matter 001 · Companies and insolvency</span>
+            <span class="card-chip">Example</span>
+          </div>
+          <div class="card-body">
+            <p class="card-title">A statutory demand</p>
+            <p class="card-client">Harimau Fabrication Sdn Bhd</p>
+            <p class="card-brief" id="brief">Your client has received a statutory demand. You have 45 minutes to advise on the next step.</p>
+            <ul class="tasks" id="tasks">
+              <li class="task"><span class="task-glow" id="g1"></span><span class="tick"><span class="tick-fill" id="t1">✓</span></span><span>Read the file</span></li>
+              <li class="task"><span class="task-glow" id="g2"></span><span class="tick"><span class="tick-fill" id="t2">✓</span></span><span>Identify the procedure</span></li>
+              <li class="task"><span class="task-glow" id="g3"></span><span class="tick"><span class="tick-fill" id="t3">✓</span></span><span>Draft the advice</span></li>
+              <li class="task">
+                <span class="task-glow" id="g4"></span>
+                <span class="tick"><span class="tick-fill" id="t4">✓</span></span><span>Record your explanation</span>
+                <span class="rec" id="rec">
+                  <span class="rec-dot" id="rec-dot"></span>
+                  <span class="wave" id="wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
+                  <span class="rec-time" id="rec-time">0:00</span>
+                </span>
+              </li>
+            </ul>
+            <div class="clock-row">
+              <span>Time left</span>
+              <span class="clock" id="clock">45:00</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="mark">
+          <div class="mark-top">
+            <span class="mark-who">Marked by your lawyer</span>
+            <span class="verdict-wrap"><span class="verdict-ring" id="ring"></span><span class="verdict" id="verdict">Good</span></span>
+          </div>
+          <div class="mark-line" id="ml1" style="width: 100%"></div>
+          <div class="mark-line" id="ml2" style="width: 82%"></div>
+          <div class="mark-line" id="ml3" style="width: 56%"></div>
+        </div>
+      </div>
+
+      <!-- 19.1 to 25.2s: the trainee mornings -->
+      <div id="mornings" class="layer clip" data-start="19.1" data-duration="6.1" data-track-index="4">
+        <div class="step" id="step4">
+          <span class="step-bar"></span><span class="step-name">Trainee programme</span>
+        </div>
+        <div id="kl"><span id="kl-dot"></span><span id="kl-text">KL 06:59:57</span></div>
+        <div id="mornings-copy">
+          <p class="big">Every working morning, 7 to 11am.</p>
+          <p class="sub">Four rounds of ten questions, Kuala Lumpur time.</p>
+        </div>
+        <div class="rounds">
+          <div class="round" id="r1"><p class="round-time">7am</p><div class="round-dots"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><p class="round-note">10 questions</p></div>
+          <div class="round" id="r2"><p class="round-time">8am</p><div class="round-dots"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><p class="round-note">10 questions</p></div>
+          <div class="round" id="r3"><p class="round-time">9am</p><div class="round-dots"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><p class="round-note">10 questions</p></div>
+          <div class="round" id="r4"><p class="round-time">10am</p><div class="round-dots"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><p class="round-note">10 questions</p></div>
+        </div>
+      </div>
+
+      <!-- 24.9 to 29.6s: the score -->
+      <div id="score" class="layer clip" data-start="24.9" data-duration="4.7" data-track-index="5">
+        <div class="step" id="step5">
+          <span class="step-bar"></span><span class="step-name">Your score</span>
+        </div>
+        <div id="score-copy">
+          <p class="big">Starts at 100%.</p>
+          <p class="sub">Only a wrong answer brings it down.</p>
+        </div>
+        <p id="score-num">100%</p>
+        <p id="score-count"></p>
+        <div class="answers" id="answers">
+          <span class="answer right">✓</span><span class="answer right">✓</span><span class="answer right">✓</span><span class="answer right">✓</span><span class="answer right">✓</span>
+          <span class="answer wrong">✗</span><span class="answer right">✓</span><span class="answer right">✓</span><span class="answer right">✓</span><span class="answer right">✓</span>
+        </div>
+      </div>
+
+      <!-- 29.3 to 32s: the close -->
+      <div id="close" class="layer clip" data-start="29.3" data-duration="2.7" data-track-index="6">
+        <div id="close-copy">
+          <div id="close-bar"></div>
+          <p class="big">
+            <span class="word cw">Learn</span><span class="word cw">to</span><span class="word cw">practise</span><span class="word cw">law</span><br />
+            <span class="word cw mist">before</span><span class="word cw mist">you</span><span class="word cw mist">have</span><span class="word cw mist">to</span><span class="word cw mist">practise</span><span class="word cw mist">it.</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- A navy veil at both ends, so the loop joins without a jump. -->
+      <div id="veil" class="layer clip" data-start="0" data-duration="32" data-track-index="9"></div>
+    </div>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      const ease = 'power3.out';
+      const $ = (s) => document.querySelector(s);
+      const $$ = (s) => Array.from(document.querySelectorAll(s));
+      const pad = (n) => String(n).padStart(2, '0');
+
+      // Scene changes zoom through: the old scene pushes past the camera and
+      // blurs, the new one settles in from just behind it.
+      const zoomOut = (sel, at) =>
+        tl.to(sel, { scale: 1.12, opacity: 0, filter: 'blur(10px)', duration: 0.5, ease: 'power2.in' }, at);
+      const zoomIn = (sel, at) =>
+        tl.fromTo(
+          sel,
+          { scale: 0.93, opacity: 0, filter: 'blur(10px)' },
+          { scale: 1, opacity: 1, filter: 'blur(0px)', duration: 0.6, ease },
+          at,
+        );
+      // Each scene drifts a little closer while it is up, so none sits still.
+      const drift = (sel, at, length) =>
+        tl.fromTo(sel, { scale: 1 }, { scale: 1.03, duration: length, ease: 'none', immediateRender: false }, at);
+
+      // The ground drifts the whole way through, and the loop's seam is a fade from and to navy.
+      tl.fromTo('#ground', { backgroundPosition: '0px 0px' }, { backgroundPosition: '72px 36px', duration: 32, ease: 'none' }, 0);
+      tl.fromTo('#veil', { opacity: 1 }, { opacity: 0, duration: 0.5, ease: 'none' }, 0);
+      tl.fromTo('#veil', { opacity: 0 }, { opacity: 1, duration: 0.5, ease: 'none', immediateRender: false }, 31.5);
+
+      /* 0: the hook, word by word */
+      tl.fromTo('#hook-kicker', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease }, 0.3);
+      tl.fromTo('#hook .word', { opacity: 0, y: 70 }, { opacity: 1, y: 0, duration: 0.6, ease, stagger: 0.14 }, 0.45);
+      drift('#hook-copy', 0.3, 3.1);
+      zoomOut('#hook', 2.85);
+
+      /* 1: the matter */
+      tl.fromTo('#step1', { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.5, ease }, 3.45);
+      tl.fromTo('#card', { opacity: 0, y: 140, rotation: 2.5 }, { opacity: 1, y: 0, rotation: 0, duration: 0.9, ease }, 3.35);
+      tl.fromTo('#tasks', { opacity: 0, height: 0 }, { opacity: 0, height: 0, duration: 0.01 }, 0);
+      tl.fromTo('.tick-fill', { scale: 0, opacity: 0 }, { scale: 0, opacity: 0, duration: 0.01 }, 0);
+      tl.fromTo('.task-glow', { scaleX: 0, opacity: 0 }, { scaleX: 0, opacity: 0, duration: 0.01 }, 0);
+      tl.fromTo('#rec', { opacity: 0 }, { opacity: 0, duration: 0.01 }, 0);
+      tl.fromTo('#wave span', { scaleY: 0.2 }, { scaleY: 0.2, duration: 0.01 }, 0);
+      tl.fromTo('#mark', { opacity: 0, y: 90 }, { opacity: 0, y: 90, duration: 0.01 }, 0);
+      tl.fromTo(['#step2', '#step3'], { opacity: 0 }, { opacity: 0, duration: 0.01 }, 0);
+
+      // The clock runs from 45:00, a second a second, then the work speeds it up.
+      const clock = { s: 45 * 60 };
+      const showClock = () => {
+        const s = Math.max(0, Math.round(clock.s));
+        $('#clock').textContent = pad(Math.floor(s / 60)) + ':' + pad(s % 60);
+      };
+      tl.fromTo(clock, { s: 45 * 60 }, { s: 44 * 60 + 56, duration: 4, ease: 'none', onUpdate: showClock }, 3.8);
+      tl.fromTo(clock, { s: 44 * 60 + 56 }, { s: 19 * 60 + 48, duration: 11, ease: 'none', onUpdate: showClock, immediateRender: false }, 7.8);
+
+      // 02: the work. Each task lights up, then is ticked.
+      tl.to('#step1', { opacity: 0, y: -24, duration: 0.3 }, 8.0);
+      tl.fromTo('#step2', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease, immediateRender: false }, 8.15);
+      tl.to('#brief', { opacity: 0.45, duration: 0.5 }, 8.0);
+      tl.fromTo('#tasks', { opacity: 0, height: 0 }, { opacity: 1, height: 208, duration: 0.8, ease, immediateRender: false }, 8.2);
+      [['#g1', '#t1', 8.9], ['#g2', '#t2', 9.7], ['#g3', '#t3', 10.5]].forEach(([g, t, at]) => {
+        tl.fromTo(g, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.35, ease, immediateRender: false }, at - 0.3);
+        tl.fromTo(t, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: 'back.out(2.4)', immediateRender: false }, at);
+        tl.to(g, { opacity: 0, duration: 0.4 }, at + 0.3);
+      });
+      // Recording: a red dot, a moving level and a running time, then ticked.
+      tl.fromTo('#g4', { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.35, ease, immediateRender: false }, 11.1);
+      tl.fromTo('#rec', { opacity: 0, x: 20 }, { opacity: 1, x: 0, duration: 0.35, ease, immediateRender: false }, 11.2);
+      for (let k = 0; k < 6; k++) {
+        tl.to('#rec-dot', { opacity: k % 2 ? 1 : 0.25, duration: 0.3, ease: 'sine.inOut' }, 11.4 + k * 0.3);
+      }
+      const levels = [0.9, 0.45, 1, 0.6, 0.8, 0.35, 0.95, 0.55, 0.75];
+      $$('#wave span').forEach((bar, i) => {
+        for (let k = 0; k < 9; k++) {
+          tl.to(bar, { scaleY: k % 2 ? 0.25 : levels[(i * 2 + k) % levels.length], duration: 0.2, ease: 'sine.inOut' }, 11.4 + k * 0.2 + i * 0.03);
+        }
+      });
+      const rec = { s: 0 };
+      tl.fromTo(
+        rec,
+        { s: 0 },
+        { s: 38, duration: 1.8, ease: 'none', onUpdate: () => ($('#rec-time').textContent = '0:' + pad(Math.round(rec.s))) },
+        11.4,
+      );
+      tl.to('#rec-dot', { opacity: 0, duration: 0.2 }, 13.3);
+      tl.fromTo('#t4', { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: 'back.out(2.4)', immediateRender: false }, 13.4);
+      tl.to('#g4', { opacity: 0, duration: 0.4 }, 13.7);
+
+      // 03: reviewed. The card makes room; the mark lands like a stamp.
+      tl.to('#step2', { opacity: 0, y: -24, duration: 0.3 }, 14.0);
+      tl.fromTo('#step3', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease, immediateRender: false }, 14.15);
+      tl.to('#card', { y: -70, scale: 0.9, transformOrigin: '50% 0%', duration: 0.8, ease }, 14.0);
+      tl.fromTo('#mark', { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.7, ease, immediateRender: false }, 14.4);
+      tl.fromTo('#verdict', { scale: 2.2, rotation: -14, opacity: 0 }, { scale: 1, rotation: -4, opacity: 1, duration: 0.4, ease: 'back.out(1.6)' }, 15.2);
+      tl.fromTo('#ring', { scale: 1, opacity: 0.9 }, { scale: 1.6, opacity: 0, duration: 0.7, ease: 'power2.out' }, 15.5);
+      tl.fromTo('#ml1', { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease }, 15.8);
+      tl.fromTo('#ml2', { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease }, 16.15);
+      tl.fromTo('#ml3', { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease }, 16.5);
+      drift('#matter', 3.1, 15.8);
+      zoomOut('#matter', 18.9);
+
+      /* 2: the mornings. The Kuala Lumpur clock reaches seven and the rounds open. */
+      zoomIn('#mornings', 19.3);
+      drift('#mornings-copy', 19.4, 5.3);
+      tl.fromTo('#mornings-copy', { y: 40 }, { y: 0, duration: 0.8, ease }, 19.3);
+      tl.fromTo('.round', { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.6, ease, stagger: 0.1 }, 19.7);
+      // The pill's words follow the clock: the last seconds before seven, then
+      // whichever round is open. Driven by one tween so any frame can be seeked to.
+      const kl = { t: 0 };
+      tl.fromTo(
+        kl,
+        { t: 19.4 },
+        {
+          t: 24.7,
+          duration: 5.3,
+          ease: 'none',
+          onUpdate: () => {
+            const t = kl.t;
+            if (t < 20.6) {
+              $('#kl-text').textContent = 'KL 06:59:' + pad(Math.min(59, 57 + Math.floor((t - 19.4) / 0.4)));
+            } else {
+              const round = Math.min(4, Math.max(1, 1 + Math.floor((t - 20.8) / 0.95)));
+              $('#kl-text').textContent = 'Round ' + round + ' open';
+            }
+          },
+        },
+        19.4,
+      );
+      tl.fromTo('#kl-dot', { backgroundColor: '#8a98a8' }, { backgroundColor: '#6fd0a6', duration: 0.2 }, 20.6);
+      tl.fromTo('#kl', { scale: 1 }, { scale: 1.08, duration: 0.15 }, 20.6);
+      tl.to('#kl', { scale: 1, duration: 0.25 }, 20.75);
+      ['#r1', '#r2', '#r3', '#r4'].forEach((id, r) => {
+        const start = 20.8 + r * 0.95;
+        tl.fromTo(id, { borderColor: 'rgba(245,241,232,0.12)' }, { borderColor: 'rgba(140,196,245,0.8)', duration: 0.2, immediateRender: false }, start);
+        $$(id + ' .round-dots span').forEach((dot, d) => {
+          tl.fromTo(
+            dot,
+            { backgroundColor: 'rgba(140,196,245,0)', borderColor: 'rgba(245,241,232,0.28)' },
+            { backgroundColor: 'rgba(140,196,245,1)', borderColor: 'rgba(140,196,245,1)', duration: 0.1, immediateRender: false },
+            start + 0.05 + d * 0.07,
+          );
+        });
+        tl.to(id, { borderColor: 'rgba(245,241,232,0.12)', duration: 0.3 }, start + 0.85);
+      });
+      zoomOut('#mornings', 24.45);
+
+      /* 3: the score, answer by answer */
+      zoomIn('#score', 24.95);
+      drift('#score-copy', 25.2, 4.0);
+      const answers = [1, 1, 1, 1, 1, 0, 1, 1, 1, 1];
+      tl.fromTo('.answer', { scale: 0, opacity: 0 }, { scale: 0, opacity: 0, duration: 0.01 }, 0);
+      const tally = { n: 0 };
+      const showTally = () => {
+        const n = Math.floor(tally.n);
+        const right = answers.slice(0, n).filter(Boolean).length;
+        $('#score-num').textContent = (n === 0 ? 100 : Math.floor((right / n) * 100)) + '%';
+        $('#score-count').textContent = n === 0 ? '' : right + ' of ' + n + ' right';
+      };
+      // One step ahead of the chips, so each chip and its count land together.
+      tl.fromTo(tally, { n: 0 }, { n: 10.001, duration: 2.6, ease: 'none', onUpdate: showTally }, 25.44);
+      $$('.answer').forEach((el, i) => {
+        tl.fromTo(el, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.25, ease: 'back.out(2.4)', immediateRender: false }, 25.7 + i * 0.26);
+      });
+      // The wrong answer: the number takes the knock.
+      tl.fromTo('#score-num', { x: 0 }, { x: -12, duration: 0.06 }, 27.27);
+      tl.to('#score-num', { x: 10, duration: 0.06 }, 27.33);
+      tl.to('#score-num', { x: 0, duration: 0.08 }, 27.39);
+      tl.fromTo('#score-num', { color: '#f5f1e8' }, { color: '#ff8f7d', duration: 0.1, immediateRender: false }, 27.27);
+      tl.to('#score-num', { color: '#f5f1e8', duration: 0.6 }, 27.6);
+      zoomOut('#score', 29.0);
+
+      /* 4: the close, word by word */
+      zoomIn('#close', 29.45);
+      tl.fromTo('#close-bar', { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease }, 29.4);
+      tl.fromTo('.cw', { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.5, ease, stagger: 0.08 }, 29.45);
+      drift('#close-copy', 29.4, 2.6);
+
+      window.__timelines['main'] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
