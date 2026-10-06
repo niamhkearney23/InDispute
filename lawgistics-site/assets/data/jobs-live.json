@@ -2,43 +2,53 @@
   "generatedDate": "2026-10-06",
   "jobs": [
     {
-      "employer": "The Law Society of NSW (scheme-wide — all participating firms/organisations)",
-      "program": "Summer Clerkship — 2027 NSW Clerkship Recruitment Program (2027/28 summer intake)",
+      "employer": "The Law Society of New South Wales (coordinated scheme — approx. 40+ participating firms and organisations)",
+      "program": "Summer Clerkship 2027/28 recruitment round (Law Society of NSW Clerkship Recruitment Program)",
       "jurisdiction": "NSW",
       "opens": "2027-06-09",
       "closes": null,
-      "notes": "Scheme-wide window: applications open 9:00am AEST on 9 June 2027 and offers can be made from 9:00am on 8 September 2027; 'closes' is null because the Law Society publishes two staggered closing dates (Sunday 4 July and Sunday 11 July 2027, both 11:59pm AEST) depending on the employer, and eligibility is normally penultimate (or final) year of an LLB/JD.",
+      "notes": "The Law Society's published 2027 recruitment dates confirm applications open 9:00am AEST Wed 9 June 2027 and offers can be made from 9:00am Wed 8 September 2027, but two staggered closing dates are listed (Sun 4 July and Sun 11 July 2027, 11:59pm AEST) depending on the employer, so a single closing date cannot be stated — eligibility is normally penultimate-year students.",
       "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Clerkship-Recruitment-Program",
       "verifiedDate": "2026-10-06"
     },
     {
-      "employer": "The Law Society of NSW (scheme-wide — all participating firms/organisations)",
-      "program": "Graduate Program — 2027 NSW Graduate Recruitment Program (market offers round)",
-      "jurisdiction": "NSW",
-      "opens": "2027-02-22",
-      "closes": "2027-04-04",
-      "notes": "Market-offer round for final-year students: applications open 9:00am AEST 22 February 2027 and close 11:59pm AEST 4 April 2027, with interviews from 27 April 2027; individual employers may run their own additional processes within these dates.",
-      "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Graduate-Recruitment-Program",
+      "employer": "Queensland Law Society (coordinated scheme — signatory firms incl. Ashurst, HSF Kramer, HopgoodGanim, HWL Ebsworth, Mills Oakley, Norton Rose Fulbright)",
+      "program": "Graduate Program — 2027 program cycle (QLS Seasonal Clerkship and Graduate Recruitment Guidelines)",
+      "jurisdiction": "QLD",
+      "opens": null,
+      "closes": null,
+      "notes": "The QLS page publishes a separate graduate-program key-dates table for the 2027 cycle (priority graduate decisions in early August with open-market recruitment immediately afterwards), but the exact graduate open/close dates could not be read off the live page in this check, so they are left null rather than guessed; the QLD seasonal clerkship round for the same cycle has already closed (opened 13 July 2026, closed 7 August 2026, offers 7–8 October 2026).",
+      "url": "https://www.qls.com.au/the-hub-early-career-lawyers/your-legal-career/seasonal-clerkship-and-graduate-recruitment",
+      "verifiedDate": "2026-10-06"
+    },
+    {
+      "employer": "Uniform Clerkship Scheme (coordinated by Adelaide University Law Students' Association and Flinders Law Students' Association)",
+      "program": "Summer Clerkship — next (2027) Uniform Clerkship Scheme round",
+      "jurisdiction": "SA",
+      "opens": null,
+      "closes": null,
+      "notes": "The live scheme page still displays the 2026 scheme (that round opened and closed mid-2026 — e.g. signatory HWL Ebsworth Adelaide ran 23 June to 17 July 2026), and no dates for the next round have yet been published, so opens/closes are null rather than a reused prior-year date.",
+      "url": "https://www.aulsa.org/uniform-clerkship-scheme",
+      "verifiedDate": "2026-10-06"
+    },
+    {
+      "employer": "HWL Ebsworth Lawyers",
+      "program": "Hobart Clerkship Program 2027",
+      "jurisdiction": "TAS",
+      "opens": null,
+      "closes": null,
+      "notes": "The firm's own early careers page confirms a 2027 Hobart program is planned but states only that information will be posted on that page in future, and no open or close date has been published; the firm's Adelaide, Brisbane, Canberra, Darwin and Sydney rounds for the 2026/27 cycle have already closed.",
+      "url": "https://hwlebsworth.com.au/graduate-centre/",
       "verifiedDate": "2026-10-06"
     },
     {
       "employer": "Allens",
-      "program": "Dive In 2027 (pre-penultimate year insight program, May 2027)",
-      "jurisdiction": "National (Australia)",
+      "program": "First Nations Legal Internship — February 2027 program",
+      "jurisdiction": "National",
       "opens": null,
       "closes": null,
-      "notes": "Allens' own graduate site states the May 2027 Dive In program opens in March 2027 but publishes no exact open/close dates, so both are null; it is an insight program for pre-penultimate students (2nd/3rd-year LLB or 1st-year JD) rather than a clerkship, and Allens' 2026/27 clerkship round is already closed with no 2027/28 dates yet published.",
+      "notes": "Allens' official graduate site states applications for the February 2027 First Nations Legal Internship open in September 2026, but no exact open or close date is given and the current application status could not be confirmed from the page, so both fields are null; Allens' 2026/27 clerkship applications are shown as closed.",
       "url": "https://graduates.allens.com.au/our-programs/",
-      "verifiedDate": "2026-10-06"
-    },
-    {
-      "employer": "NSW Crown Solicitor's Office",
-      "program": "Graduate Development Program (two-year program, applications opening May 2027)",
-      "jurisdiction": "NSW",
-      "opens": null,
-      "closes": null,
-      "notes": "The CSO's official careers page confirms graduate applications open in May 2027 but gives no day-level open or close dates, so both fields are null; entry requires admission (or eligibility for admission) as a lawyer.",
-      "url": "https://cso.nsw.gov.au/careers/students-and-graduates.html",
       "verifiedDate": "2026-10-06"
     }
   ]
