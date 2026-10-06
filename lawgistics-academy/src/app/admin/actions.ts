@@ -40,7 +40,8 @@ const questionSchema = z.object({
   sourceUrl: z.string().trim().url().max(1000).optional().or(z.literal('')),
   sourceCheckedOn: z.string().trim().optional().or(z.literal('')),
   conceptIds: z.array(z.string().uuid()).min(1, 'Link at least one concept'),
-  skillIds: z.array(z.string().uuid()).min(1, 'Link at least one skill'),
+  // None is a fine answer: a recall question tests no skill.
+  skillIds: z.array(z.string().uuid()),
 });
 
 function parseQuestionForm(formData: FormData) {
@@ -345,10 +346,14 @@ async function replaceLinks(
     .insert(conceptIds.map((id) => ({ question_id: questionId, concept_id: id })));
   if (conceptError) return conceptError.message;
 
-  const { error: skillError } = await db
-    .from('question_skills')
-    .insert(skillIds.map((id) => ({ question_id: questionId, skill_id: id })));
-  if (skillError) return skillError.message;
+  // A recall question tests no skill, and that is a fine answer: an empty
+  // insert is skipped rather than sent.
+  if (skillIds.length > 0) {
+    const { error: skillError } = await db
+      .from('question_skills')
+      .insert(skillIds.map((id) => ({ question_id: questionId, skill_id: id })));
+    if (skillError) return skillError.message;
+  }
 
   return null;
 }
