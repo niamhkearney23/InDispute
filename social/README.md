@@ -69,6 +69,36 @@ fresh checkout, or the tile build stops rather than quietly rendering in
 whatever serif your machine happens to have. It stopped being theoretical once:
 the first run of these tiles went out in Chromium's default serif.
 
+## Reels, ready to post
+
+`npm run reels` writes 1080 by 1920 MP4s into `reels/`, plus a cover PNG for
+each. Same idea as the tiles, in motion: brand type on the grounds, and the
+shop's own product drawings, so a reel needs no camera either.
+
+| Reel | Length | What it is |
+| --- | --- | --- |
+| `preorder` | 12s | Pre-orders are open. The box, $149, ships from 1 December. |
+| `inside` | 20s | One piece per beat, each on its own ground, ending on the box. |
+| `ritual` | 18s | The 15 minute reset. The ground steps darker each beat, cream to cocoa, so the lights go down as the ritual does. |
+| `card` | 15s | The gift card, with a message writing itself on. |
+
+Each reel is a list of beats in `calendar.json` under `reels`. A beat sits on
+one ground; a change of ground wipes across, and the same ground crossfades the
+words while the tag, the drawing and the card hold still. A beat that names a
+`piece` takes its name, material, drawing and ground from the shop data, so a
+renamed product cannot leave a stale reel behind. Every caption and every word
+on screen goes through the same linter as the posts.
+
+Needs ffmpeg with libx264, because Instagram wants H.264 and the ffmpeg that
+ships with Playwright only writes WebM. `brew install ffmpeg` on a Mac, or set
+`FFMPEG` to the binary's path. `npm run reels card` builds one.
+
+**Posting:** upload the MP4, choose "add from camera roll" for the cover and
+pick the matching `-cover.png`. The grid crops covers to the middle 3:4, which
+is where everything that matters sits. There is no music in the files: add
+quiet room sound in the app, never trending audio. Post `preorder` and `inside`
+apart, since both covers are powder and two grounds must not touch.
+
 ## The calendar
 
 `calendar.json` holds four weeks, sixteen posts, Monday Wednesday Friday Sunday.

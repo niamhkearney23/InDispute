@@ -14,7 +14,22 @@ const readme = readFileSync(path.join(root, 'README.md'), 'utf8');
 const posts = calendar.weeks.flatMap((week) =>
   week.posts.map((post) => ({ ...post, ref: `week ${week.week} ${post.day}` }))
 );
-const captions = posts.map((p) => [p.ref, p.caption]);
+/* Everything that gets posted is linted, not just the four weeks: the
+   evergreen bank, and the reels, whose on-screen words are copy too. */
+const reels = calendar.reels?.posts ?? [];
+const reelWords = reels.flatMap((reel) =>
+  reel.beats.flatMap((beat, i) =>
+    ['tag', 'head', 'note', 'card']
+      .filter((slot) => beat[slot])
+      .map((slot) => [`reel ${reel.id} beat ${i + 1} ${slot}`, beat[slot]])
+  )
+);
+const captions = [
+  ...posts.map((p) => [p.ref, p.caption]),
+  ...(calendar.evergreen?.posts ?? []).map((p) => [`evergreen ${p.id}`, p.caption]),
+  ...reels.map((r) => [`reel ${r.id}`, r.caption]),
+  ...reelWords
+];
 
 /* ---------------------------------------------------- therapeutic claims */
 
@@ -225,5 +240,27 @@ test('the tiles are set in the same faces as the shop', () => {
       css, new RegExp(`--ss-${role}:\\s*"?${family}`),
       `the shop sets ${role} in something other than ${family}, so the tiles are off brand`
     );
+  }
+});
+
+/* ---------------------------------------------------------------- reels */
+
+test('every reel beat sits on a brand ground and has something to say', () => {
+  const allowed = ['cocoa', 'rose', 'powder', 'cream'];
+  for (const reel of reels) {
+    assert.ok(reel.beats.length >= 2, `reel ${reel.id}: a reel needs more than one beat`);
+    assert.ok(reel.beats.some((b) => b.cover), `reel ${reel.id}: mark one beat as the cover`);
+    for (const [i, beat] of reel.beats.entries()) {
+      const ref = `reel ${reel.id} beat ${i + 1}`;
+      assert.ok(beat.for > 0, `${ref}: no duration`);
+      /* A piece beat takes its ground and words from the shop data. */
+      if (beat.piece) continue;
+      assert.ok(allowed.includes(beat.ground), `${ref}: unknown ground "${beat.ground}"`);
+      assert.ok(beat.head || beat.note || beat.card, `${ref}: nothing on screen to read`);
+      if (beat.face === 'script') {
+        const words = beat.head.trim().split(/\s+/).length;
+        assert.ok(words <= 8, `${ref}: the script face is for one phrase, not ${words} words`);
+      }
+    }
   }
 });
