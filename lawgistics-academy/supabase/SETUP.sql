@@ -4998,18 +4998,24 @@ grant execute on function public.learner_answer_summary(uuid[], timestamptz) to 
 --
 -- What learners have already been credited for under the old labels stays
 -- in their record; new answers count under the new ones.
+--
+-- One statement, on purpose. The Supabase SQL editor can run each statement
+-- on its own connection, so a scratch table made by one statement was gone
+-- by the next ("relation relabel_0035 does not exist"). Here the list is part
+-- of every statement that uses it, inside a single block.
 -- =============================================================================
 
--- A scratch list for this script only: temporary, gone when the script ends.
-drop table if exists relabel_0035;
-create temporary table relabel_0035 (
-  slug     text primary key,
-  domain   text not null,
-  concepts text[] not null,
-  skills   text[] not null
-);
+do $$
+begin
+  drop table if exists relabel_0035;
+  create temporary table relabel_0035 (
+    slug     text primary key,
+    domain   text not null,
+    concepts text[] not null,
+    skills   text[] not null
+  ) on commit drop;
 
-insert into relabel_0035 (slug, domain, concepts, skills) values
+  insert into relabel_0035 (slug, domain, concepts, skills) values
   ('my-cs-apex-court', 'court-system', array['my-court-structure', 'court-hierarchy']::text[], array[]::text[]),
   ('my-cs-two-high-courts', 'court-system', array['my-court-structure']::text[], array[]::text[]),
   ('my-cs-subordinate-courts', 'court-system', array['my-court-structure']::text[], array[]::text[]),
@@ -5214,36 +5220,38 @@ insert into relabel_0035 (slug, domain, concepts, skills) values
   ('my-bas-first-instance', 'court-system', array['court-terminology']::text[], array[]::text[]),
   ('my-bas-parties', 'court-system', array['court-terminology']::text[], array[]::text[]);
 
-update public.questions q
-set domain_id = d.id
-from relabel_0035 l
-join public.domains d on d.slug = l.domain
-where q.slug = l.slug
-  and q.domain_id is distinct from d.id;
+  update public.questions q
+  set domain_id = d.id
+  from relabel_0035 l
+  join public.domains d on d.slug = l.domain
+  where q.slug = l.slug
+    and q.domain_id is distinct from d.id;
 
-delete from public.question_concepts qc
-using public.questions q, relabel_0035 l
-where qc.question_id = q.id
-  and q.slug = l.slug;
+  delete from public.question_concepts qc
+  using public.questions q, relabel_0035 l
+  where qc.question_id = q.id
+    and q.slug = l.slug;
 
-insert into public.question_concepts (question_id, concept_id)
-select q.id, c.id
-from relabel_0035 l
-join public.questions q on q.slug = l.slug
-cross join lateral unnest(l.concepts) as wanted(slug)
-join public.concepts c on c.slug = wanted.slug;
+  insert into public.question_concepts (question_id, concept_id)
+  select q.id, c.id
+  from relabel_0035 l
+  join public.questions q on q.slug = l.slug
+  cross join lateral unnest(l.concepts) as wanted(slug)
+  join public.concepts c on c.slug = wanted.slug;
 
-delete from public.question_skills qs
-using public.questions q, relabel_0035 l
-where qs.question_id = q.id
-  and q.slug = l.slug;
+  delete from public.question_skills qs
+  using public.questions q, relabel_0035 l
+  where qs.question_id = q.id
+    and q.slug = l.slug;
 
-insert into public.question_skills (question_id, skill_id)
-select q.id, s.id
-from relabel_0035 l
-join public.questions q on q.slug = l.slug
-cross join lateral unnest(l.skills) as wanted(slug)
-join public.skills s on s.slug = wanted.slug;
+  insert into public.question_skills (question_id, skill_id)
+  select q.id, s.id
+  from relabel_0035 l
+  join public.questions q on q.slug = l.slug
+  cross join lateral unnest(l.skills) as wanted(slug)
+  join public.skills s on s.slug = wanted.slug;
 
-drop table if exists relabel_0035;
+  drop table relabel_0035;
+end
+$$;
 
