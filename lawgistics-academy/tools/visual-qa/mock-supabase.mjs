@@ -1134,6 +1134,20 @@ const TABLES = {
         correct_option_ids: ['a'],
       },
     },
+    /* A fortnight of answers for the demo learner and two right ones for
+       Aisyah, so the score over time draws a line rather than a dot. */
+    ...[
+      [1, 5, 5], [2, 4, 5], [3, 5, 6], [6, 3, 5], [7, 6, 6], [8, 4, 6], [9, 7, 8], [10, 8, 8],
+    ].flatMap(([day, right, of]) =>
+      Array.from({ length: of }, (_, k) => ({
+        user_id: USER_ID,
+        is_correct: k < right,
+        answered_at: `2026-09-${String(day + 18).padStart(2, '0')}T0${k % 4}:1${k % 6}:00Z`,
+        selected_option_ids: ['a'],
+      })),
+    ),
+    { user_id: TRAINEE_USER_ID, is_correct: true, answered_at: '2026-09-28T01:00:00Z', selected_option_ids: ['b'] },
+    { user_id: TRAINEE_USER_ID, is_correct: true, answered_at: '2026-10-01T01:00:00Z', selected_option_ids: ['b'] },
   ],
   legal_sources: [],
   // Without these the certification pages render only the empty-roster state,

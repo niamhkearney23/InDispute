@@ -5,6 +5,8 @@ import type { Country } from '@/lib/types';
 import { staffMayRead, supervisedIds } from './supervision';
 import { readCartoon, type CartoonStyle } from '@/lib/avatar/cartoon';
 import { MASTERY } from '@/lib/learning/config';
+import { answerMarks } from '@/lib/learning/score-history-service';
+import type { AnswerMark } from '@/lib/learning/score-history';
 
 /**
  * How each learner is getting on with the questions, for staff. Service-role
@@ -144,6 +146,8 @@ export interface LearnerDetail {
   avatarUrl: string | null;
   totalAnswered: number;
   totalRight: number;
+  /** Every answer, when and whether right, for the score over time. Null if unreadable. */
+  marks: AnswerMark[] | null;
   modules: ModuleProgress[];
   weak: WeakConcept[];
   wrong: WrongAnswer[];
@@ -167,7 +171,7 @@ export async function learnerDetail(userId: string, isAdmin: boolean): Promise<L
   const profile = p as ProfileRow | null;
   if (!profile || profile.is_admin || profile.is_coach) return null;
 
-  const [total, right, mastery, wrongRows, modules] = await Promise.all([
+  const [total, right, mastery, wrongRows, modules, marks] = await Promise.all([
     db.from('user_question_attempts').select('id', { count: 'exact', head: true }).eq('user_id', userId),
     db
       .from('user_question_attempts')
@@ -191,6 +195,7 @@ export async function learnerDetail(userId: string, isAdmin: boolean): Promise<L
       .order('answered_at', { ascending: false })
       .limit(25),
     getModuleProgress(userId, (profile.country === 'MY' ? 'MY' : 'AU') as Country),
+    answerMarks(db, userId),
   ]);
 
   const textOf = (options: Array<{ id: string; text: string }>, ids: string[]) =>
@@ -204,6 +209,7 @@ export async function learnerDetail(userId: string, isAdmin: boolean): Promise<L
     avatarUrl: profile.avatar_url,
     totalAnswered: total.count ?? 0,
     totalRight: right.count ?? 0,
+    marks,
     modules: modules.filter((m) => m.total > 0),
     weak: ((mastery.data ?? []) as unknown as Array<{
       mastery: number;

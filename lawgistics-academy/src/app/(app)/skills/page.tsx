@@ -3,6 +3,9 @@ import { redirect } from 'next/navigation';
 import { getCurrentUser, createSupabaseServerClient } from '@/lib/supabase/server';
 import { getLearnerOverview } from '@/lib/learner-overview';
 import { rightShare } from '@/lib/learning/mastery';
+import { scoreOverTime } from '@/lib/learning/score-history';
+import { answerMarks } from '@/lib/learning/score-history-service';
+import { ScoreHistoryChart } from '@/components/score-history-chart';
 import { getFactOfTheDay } from '@/lib/facts/service';
 import { getModuleProgress } from '@/lib/modules/service';
 import { trainingOpen } from '@/lib/training/service';
@@ -34,11 +37,14 @@ export default async function SkillsPage() {
   const { profile, level } = overview;
 
   // A different fact from the one the dashboard is showing today.
-  const [fact, modules, open] = await Promise.all([
+  const [fact, modules, open, marks] = await Promise.all([
     getFactOfTheDay(profile.timezone, profile.country, new Date(), 1),
     getModuleProgress(user.id, profile.country),
     trainingOpen(profile.country),
+    // Their own answers, through their own session: RLS limits it to them.
+    answerMarks(supabase, user.id),
   ]);
+  const history = marks ? scoreOverTime(marks, profile.timezone) : [];
 
   const [{ data: conceptRows }, { data: domains }, { data: schedule }] = await Promise.all([
     supabase
@@ -188,6 +194,19 @@ export default async function SkillsPage() {
             ) : undefined
           }
         />
+      ) : null}
+
+      {history.length > 0 ? (
+        <section>
+          <SectionHeading eyebrow="Overall" title="Your score over time" />
+          <Card>
+            <p className="mb-4 max-w-2xl text-sm text-slate">
+              Every answer you have given, right or wrong, as a share. It starts at 100% and only
+              comes down when you get one wrong.
+            </p>
+            <ScoreHistoryChart days={history} />
+          </Card>
+        </section>
       ) : null}
 
       {hasData ? (
