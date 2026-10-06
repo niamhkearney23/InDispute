@@ -174,7 +174,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0034`. `supabase/UPDATE.sql` is the one-paste update for a
+- Migrations run to `0035`. `supabase/UPDATE.sql` is the one-paste update for a
   database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -309,8 +309,9 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   where answering depends on it): 201 of 203 changed, 156 now carry no skill,
   and the seed check refuses oral or written communication on a question and
   allows none. Eleven questions use the closest topic because none fits; that
-  list is in PR #43. Changing labels in the seed reaches a live database when an
-  administrator presses "Load new content", which relinks every question.
+  list is in PR #43. `0035` applies the same labels to a database that already
+  has the questions, because the app only loads questions the database lacks;
+  any future relabel needs the same kind of migration.
 - **The look.** The academy (everything under `src/app/(app)`) is navy: the
   `theme-navy` class on its layout swaps the colour tokens in
   `globals.css` (cream buttons, ice-blue details, burgundy warnings, a two-level
