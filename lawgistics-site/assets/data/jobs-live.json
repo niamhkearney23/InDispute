@@ -1,35 +1,45 @@
 {
-  "generatedDate": "2026-10-04",
+  "generatedDate": "2026-10-06",
   "jobs": [
     {
-      "employer": "The Law Society of New South Wales (scheme-wide, all participating NSW firms)",
-      "program": "Summer Clerkship 2027/28 (NSW Clerkship Recruitment Program 2027)",
+      "employer": "The Law Society of NSW (scheme-wide — all participating firms/organisations)",
+      "program": "Summer Clerkship — 2027 NSW Clerkship Recruitment Program (2027/28 summer intake)",
       "jurisdiction": "NSW",
       "opens": "2027-06-09",
       "closes": null,
-      "notes": "Scheme opens 9:00am AEST Wed 9 June 2027 with offers from 9:00am Wed 8 September 2027; the Law Society publishes two permitted closing dates (Sun 4 July and Sun 11 July 2027) that vary by participating employer, so no single confirmed close date is stated — eligibility is final or penultimate year of study.",
+      "notes": "Scheme-wide window: applications open 9:00am AEST on 9 June 2027 and offers can be made from 9:00am on 8 September 2027; 'closes' is null because the Law Society publishes two staggered closing dates (Sunday 4 July and Sunday 11 July 2027, both 11:59pm AEST) depending on the employer, and eligibility is normally penultimate (or final) year of an LLB/JD.",
       "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Clerkship-Recruitment-Program",
-      "verifiedDate": "2026-10-04"
+      "verifiedDate": "2026-10-06"
     },
     {
-      "employer": "The Law Society of New South Wales (scheme-wide, all participating NSW firms)",
-      "program": "Graduate Program 2028 (NSW Graduate Recruitment Program 2027 — market offers)",
+      "employer": "The Law Society of NSW (scheme-wide — all participating firms/organisations)",
+      "program": "Graduate Program — 2027 NSW Graduate Recruitment Program (market offers round)",
       "jurisdiction": "NSW",
       "opens": "2027-02-22",
       "closes": "2027-04-04",
-      "notes": "Open-market graduate applications run 9:00am AEST Mon 22 Feb 2027 to 11:59pm Sun 4 Apr 2027, with interviews from 27 Apr 2027 and offers made 2 June 2027 (accept/decline by 1:00pm 3 June 2027); open to final-year students.",
+      "notes": "Market-offer round for final-year students: applications open 9:00am AEST 22 February 2027 and close 11:59pm AEST 4 April 2027, with interviews from 27 April 2027; individual employers may run their own additional processes within these dates.",
       "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Graduate-Recruitment-Program",
-      "verifiedDate": "2026-10-04"
+      "verifiedDate": "2026-10-06"
     },
     {
       "employer": "Allens",
-      "program": "Dive In insight program (May 2027 intake)",
-      "jurisdiction": "National",
+      "program": "Dive In 2027 (pre-penultimate year insight program, May 2027)",
+      "jurisdiction": "National (Australia)",
       "opens": null,
       "closes": null,
-      "notes": "Allens' own graduates site states applications for the May 2027 Dive In program open in March 2027 but publishes only the month, so exact open and close dates are not confirmed; Allens' 2026/27 clerkship rounds in Sydney, Melbourne, Brisbane and Perth are all closed.",
+      "notes": "Allens' own graduate site states the May 2027 Dive In program opens in March 2027 but publishes no exact open/close dates, so both are null; it is an insight program for pre-penultimate students (2nd/3rd-year LLB or 1st-year JD) rather than a clerkship, and Allens' 2026/27 clerkship round is already closed with no 2027/28 dates yet published.",
       "url": "https://graduates.allens.com.au/our-programs/",
-      "verifiedDate": "2026-10-04"
+      "verifiedDate": "2026-10-06"
+    },
+    {
+      "employer": "NSW Crown Solicitor's Office",
+      "program": "Graduate Development Program (two-year program, applications opening May 2027)",
+      "jurisdiction": "NSW",
+      "opens": null,
+      "closes": null,
+      "notes": "The CSO's official careers page confirms graduate applications open in May 2027 but gives no day-level open or close dates, so both fields are null; entry requires admission (or eligibility for admission) as a lawyer.",
+      "url": "https://cso.nsw.gov.au/careers/students-and-graduates.html",
+      "verifiedDate": "2026-10-06"
     }
   ]
 }
