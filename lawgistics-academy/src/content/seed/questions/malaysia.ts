@@ -38,8 +38,8 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     commonMisconception:
       'The Court of Appeal is sometimes treated as the final court because most appeals stop there in practice. It is not; it is the intermediate appellate court.',
     memoryTrick: 'Federal Court at the top, Court of Appeal below it, High Courts below that.',
-    concepts: ['my-court-structure', 'court-hierarchy', 'appellate-structure'],
-    skills: ['procedural-sequencing', 'argument-construction'],
+    concepts: ['my-court-structure', 'court-hierarchy'],
+    skills: [],
     sourceReference: 'Federal Constitution art 121; Courts of Judicature Act 1964',
   },
   {
@@ -62,8 +62,8 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
       'It determines where a proceeding is properly commenced, and it means a decision of one High Court is persuasive rather than binding on the other.',
     commonMisconception:
       'Assuming a single national High Court with State registries. The division is constitutional, not administrative.',
-    concepts: ['my-court-structure', 'court-hierarchy'],
-    skills: ['procedural-sequencing', 'attention-to-detail'],
+    concepts: ['my-court-structure'],
+    skills: [],
     sourceReference: 'Federal Constitution art 121(1)',
   },
   {
@@ -84,8 +84,8 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
       'Below the two High Courts sit the Sessions Courts and the Magistrates’ Courts, constituted under the Subordinate Courts Act 1948. The Sessions Court is the higher of the two. Syariah courts and native courts exist, but they are separate from this hierarchy rather than a rung within it.',
     whyItMatters:
       'Filing in the wrong court wastes time and costs, and the value of the claim usually decides which one is right.',
-    concepts: ['my-court-structure', 'court-hierarchy'],
-    skills: ['procedural-sequencing'],
+    concepts: ['my-court-structure'],
+    skills: [],
     sourceReference: 'Subordinate Courts Act 1948',
   },
   {
@@ -109,8 +109,8 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
       'Getting this wrong means a claim filed in a court that cannot hear it, and a client who has lost time they may not have.',
     commonMisconception:
       'Treating the limit as fixed forever. It has been raised more than once, so it should be checked against the current Act rather than remembered.',
-    concepts: ['my-monetary-jurisdiction', 'my-court-structure'],
-    skills: ['procedural-sequencing', 'attention-to-detail'],
+    concepts: ['my-monetary-jurisdiction'],
+    skills: [],
     sourceReference: 'Subordinate Courts Act 1948 s 65',
   },
   {
@@ -133,7 +133,7 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'It is the first question on any new file: how much is this worth, and therefore where does it go.',
     concepts: ['my-monetary-jurisdiction'],
-    skills: ['procedural-sequencing', 'attention-to-detail'],
+    skills: [],
     sourceReference: 'Subordinate Courts Act 1948 s 90',
   },
   {
@@ -151,8 +151,8 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
       'Civil courts generally do not determine the merits of matters validly within Syariah Court jurisdiction; however, constitutional and jurisdictional questions may still fall within the civil courts’ supervisory role. Taking the merits of an Islamic family law file to the civil courts wastes the client’s money on an argument you will lose.',
     commonMisconception:
       'Reading article 121(1A) as making the Syariah courts superior. It is a division of jurisdiction, not a ranking.',
-    concepts: ['syariah-courts', 'my-court-structure'],
-    skills: ['procedural-sequencing', 'professional-judgment'],
+    concepts: ['syariah-courts'],
+    skills: [],
     sourceReference: 'Federal Constitution art 121(1A), Ninth Schedule List II',
   },
   {
@@ -176,7 +176,7 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     commonMisconception:
       'That s 26 is the provision to cite. Section 26 is the High Court’s criminal appellate jurisdiction; the civil route is ss 27 and 28.',
     concepts: ['appellate-structure', 'my-court-structure'],
-    skills: ['procedural-sequencing'],
+    skills: [],
     // Corrected on review. The destination was right and the citation was not:
     // s 26 is criminal appellate jurisdiction.
     sourceReference: 'Courts of Judicature Act 1964 ss 27-28',
@@ -201,7 +201,7 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'It sets a client’s expectations honestly. Most cases end at the Court of Appeal, and saying so early is better than discovering it after a leave application fails.',
     concepts: ['appellate-structure', 'my-court-structure'],
-    skills: ['procedural-sequencing', 'professional-judgment'],
+    skills: ['procedural-sequencing'],
     sourceReference: 'Courts of Judicature Act 1964 s 96',
   },
 
@@ -226,7 +226,7 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
       'Older textbooks and precedents still cite the 1980 rules. Working from them will give you the wrong order and rule numbers.',
     memoryTrick: 'Two sets of rules became one, in 2012.',
     concepts: ['rules-of-court-2012'],
-    skills: ['procedural-sequencing', 'attention-to-detail'],
+    skills: [],
     sourceReference: 'Rules of Court 2012',
   },
   {
@@ -251,8 +251,8 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
       'Choosing the wrong mode invites an application to convert or strike out, and the delay lands on your client rather than the other side.',
     commonMisconception:
       'Picking an originating summons for speed. Speed is no help if the disputed facts cannot be resolved on affidavit.',
-    concepts: ['originating-process', 'rules-of-court-2012'],
-    skills: ['procedural-sequencing', 'strategic-reasoning'],
+    concepts: ['originating-process'],
+    skills: ['strategic-reasoning'],
     sourceReference: 'Rules of Court 2012 O 5',
   },
   {
@@ -274,8 +274,8 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'Filing stops the limitation clock, but an unserved writ that expires can leave a client with a claim that is now statute barred.',
     memoryTrick: 'Issuing is not serving. The writ has a shelf life.',
-    concepts: ['originating-process', 'limitation-periods'],
-    skills: ['procedural-sequencing', 'attention-to-detail'],
+    concepts: ['originating-process', 'rules-of-court-2012'],
+    skills: [],
     sourceReference: 'Rules of Court 2012 O 6 r 7',
   },
   {
@@ -299,7 +299,7 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     commonMisconception:
       'Running the period from when the client found out. Discoverability is a limited statutory exception, not the general rule.',
     concepts: ['limitation-periods'],
-    skills: ['attention-to-detail', 'professional-judgment'],
+    skills: [],
     sourceReference: 'Limitation Act 1953 s 6',
   },
   {
@@ -327,8 +327,8 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
       'Failing to appear in time exposes the defendant to judgment in default, and setting that aside costs money the client should not have had to spend.',
     commonMisconception:
       'That fourteen days is the answer everywhere in Malaysia. Check the rule against where the defendant actually is before you diarise it.',
-    concepts: ['originating-process', 'default-judgment', 'rules-of-court-2012'],
-    skills: ['procedural-sequencing', 'attention-to-detail'],
+    concepts: ['originating-process', 'rules-of-court-2012'],
+    skills: [],
     sourceReference: 'Rules of Court 2012 O 12 r 4',
   },
   {
@@ -351,8 +351,8 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
       'It is the fastest route to judgment in an undefended matter, and knowing it exists stops a file drifting for months.',
     commonMisconception:
       'Confusing default of appearance with Order 14 summary judgment. Order 14 is for a defendant who has appeared but has no real defence.',
-    concepts: ['default-judgment', 'rules-of-court-2012'],
-    skills: ['procedural-sequencing', 'strategic-reasoning'],
+    concepts: ['default-judgment'],
+    skills: ['procedural-sequencing'],
     sourceReference: 'Rules of Court 2012 O 13',
   },
   {
@@ -376,7 +376,7 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     commonMisconception:
       'Arguing the merits. A triable issue defeats the application even if the judge doubts the defendant will succeed on it.',
     concepts: ['summary-judgment', 'rules-of-court-2012'],
-    skills: ['strategic-reasoning', 'argument-construction'],
+    skills: [],
     sourceReference: 'Rules of Court 2012 O 14',
   },
   {
@@ -399,7 +399,7 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
       'Clients consistently expect to disclose only what helps them. Explaining early that the obligation runs the other way avoids a much harder conversation later.',
     memoryTrick: 'Not just what is in the drawer: what you could get out of someone else’s drawer if you asked.',
     concepts: ['discovery', 'rules-of-court-2012'],
-    skills: ['procedural-sequencing', 'professional-judgment'],
+    skills: [],
     sourceReference: 'Rules of Court 2012 O 24',
   },
   {
@@ -416,7 +416,7 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'It is what makes a costs risk analysis possible, and it is the single most useful thing to tell a client considering whether to fight.',
     concepts: ['costs'],
-    skills: ['commercial-reasoning', 'professional-judgment'],
+    skills: [],
     sourceReference: 'Rules of Court 2012 O 59',
   },
 
@@ -442,7 +442,7 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     commonMisconception:
       'Assuming the Australian uniform Evidence Acts, or English common law, apply by analogy. The structure of the Malaysian Act is genuinely different.',
     concepts: ['evidence-act-1950'],
-    skills: ['statutory-analysis', 'evidence-analysis'],
+    skills: [],
     sourceReference: 'Evidence Act 1950',
   },
   {
@@ -460,7 +460,7 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
       'It changes how you argue admissibility. The question is not whether the evidence helps, but which section lets it in.',
     memoryTrick: 'Find the section first. Logic is not enough on its own.',
     concepts: ['evidence-act-1950', 'relevance'],
-    skills: ['statutory-analysis', 'evidence-analysis'],
+    skills: [],
     sourceReference: 'Evidence Act 1950 ss 5 to 55',
   },
   {
@@ -482,7 +482,7 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'Expert reports are frequently vulnerable because nobody laid the foundation for the expertise. Reading a report with section 45 in mind is how you find that.',
     concepts: ['evidence-act-1950', 'opinion-evidence'],
-    skills: ['evidence-analysis', 'statutory-analysis'],
+    skills: [],
     sourceReference: 'Evidence Act 1950 s 45',
   },
   {
@@ -504,7 +504,7 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'Privilege is decided document by document and is regularly lost through carelessness, so knowing which section you are relying on matters when it is challenged.',
     concepts: ['evidence-act-1950', 'client-legal-privilege'],
-    skills: ['evidence-analysis', 'professional-judgment'],
+    skills: [],
     sourceReference: 'Evidence Act 1950 s 126',
   },
   {
@@ -520,8 +520,8 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
       'False. Protection attaches to admissions made upon an express or implied condition that evidence of them is not to be given, which in practice means communications forming part of a genuine attempt to settle. The label is evidence of the intention, not the source of the protection. A letter marked without prejudice that makes no settlement proposal at all may not be protected, and a genuine settlement communication may be protected without the label.',
     whyItMatters:
       'Juniors mark correspondence without prejudice reflexively, and sometimes mark genuine open offers that way by mistake. Both errors have consequences.',
-    concepts: ['evidence-act-1950', 'settlement-privilege'],
-    skills: ['written-communication', 'professional-judgment'],
+    concepts: ['settlement-privilege'],
+    skills: [],
     sourceReference: 'Evidence Act 1950 s 23',
   },
   {
@@ -543,7 +543,7 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'It decides what your evidence has to establish, and it is the first thing to work out before deciding what witnesses you need.',
     concepts: ['evidence-act-1950', 'onus-of-proof'],
-    skills: ['evidence-analysis', 'statutory-analysis'],
+    skills: [],
     sourceReference: 'Evidence Act 1950 ss 101 to 103',
   },
   {
@@ -565,14 +565,14 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'It is what you are actually trying to achieve with the evidence, and it is often lower than a client fears.',
     concepts: ['standard-of-proof'],
-    skills: ['evidence-analysis'],
+    skills: [],
     sourceReference: 'Evidence Act 1950 s 3, definition of "proved"',
   },
 
   /* --- advocacy ---------------------------------------------------------- */
   {
     slug: 'my-ad-leading-questions',
-    domain: 'advocacy',
+    domain: 'evidence',
     type: 'true_false',
     difficulty: 2,
     jurisdiction: 'MY_GENERAL',
@@ -584,8 +584,8 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'It is the most common objection you will hear and the most common one taken against you, and it is entirely avoidable with prepared open questions.',
     memoryTrick: 'In chief you ask. In cross you tell, and wait for the answer.',
-    concepts: ['evidence-act-1950', 'questioning-rules', 'examination-in-chief'],
-    skills: ['oral-communication', 'evidence-analysis'],
+    concepts: ['questioning-rules', 'evidence-act-1950'],
+    skills: [],
     sourceReference: 'Evidence Act 1950 ss 141 to 143',
   },
   {
@@ -632,8 +632,8 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
       'Section 138 confines re-examination to the explanation of matters referred to in cross-examination. New matter may be introduced only with the leave of the court, and if it is, the other side may cross-examine on it.',
     whyItMatters:
       'Juniors often want re-examination to repair everything that went badly. It cannot do that, and attempting it draws an objection and highlights the damage.',
-    concepts: ['evidence-act-1950', 're-examination'],
-    skills: ['oral-communication', 'strategic-reasoning'],
+    concepts: ['re-examination'],
+    skills: [],
     sourceReference: 'Evidence Act 1950 s 138',
   },
   {
@@ -655,7 +655,7 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'The court’s concern is the thing that will decide the case. An advocate who defers it is arguing to a plan rather than to the judge.',
     concepts: ['oral-submissions'],
-    skills: ['oral-communication', 'argument-construction'],
+    skills: ['strategic-reasoning'],
   },
 
   /* --- drafting ---------------------------------------------------------- */
@@ -678,7 +678,7 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'Clients almost always want the pleading to tell the whole story of how badly they were treated. Explaining why it cannot, and that the material will be deployed as evidence in due course, is part of the job.',
     concepts: ['drafting-pleadings', 'pleadings'],
-    skills: ['written-communication', 'attention-to-detail'],
+    skills: [],
     sourceReference: 'Rules of Court 2012 O 18 r 7',
   },
   {
@@ -700,7 +700,7 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'Drafting affidavits is delegated to juniors constantly, and this is the error a supervising partner will send back most often.',
     concepts: ['affidavits'],
-    skills: ['written-communication', 'attention-to-detail'],
+    skills: [],
     sourceReference: 'Rules of Court 2012 O 41',
   },
   {
@@ -721,8 +721,8 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
       'The prayer sets out the relief sought in the form of the orders the plaintiff asks the court to make: judgment for a sum, a declaration, an injunction in specified terms, interest, and costs. It is what the client actually walks away with.',
     whyItMatters:
       'Drafting it first, before the body, forces you to be clear about what the case is for. Left to the end, it tends to be vague in exactly the way that causes trouble at judgment.',
-    concepts: ['relief-claimed', 'drafting-pleadings'],
-    skills: ['written-communication', 'strategic-reasoning'],
+    concepts: ['relief-claimed'],
+    skills: [],
     sourceReference: 'Rules of Court 2012 O 18',
   },
 
@@ -750,7 +750,7 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     commonMisconception:
       'Treating a later decision as superseding an earlier one. That works within a level, not across the hierarchy.',
     concepts: ['stare-decisis'],
-    skills: ['argument-construction', 'professional-judgment'],
+    skills: ['argument-construction'],
   },
   {
     slug: 'my-lr-ratio-obiter',
@@ -771,7 +771,7 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'Citing an obiter passage as though it were binding is an error a judge will correct, usually in front of your client.',
     concepts: ['ratio-and-obiter'],
-    skills: ['argument-construction', 'attention-to-detail'],
+    skills: [],
   },
   {
     slug: 'my-lr-purposive-approach',
@@ -793,7 +793,7 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
       'It changes how a submission on meaning is built: purpose is not a fallback for ambiguity, it is preferred from the start.',
     memoryTrick: '17A in Malaysia. Purpose is preferred, not merely consulted.',
     concepts: ['statutory-interpretation'],
-    skills: ['statutory-analysis', 'argument-construction'],
+    skills: [],
     sourceReference: 'Interpretation Acts 1948 and 1967 s 17A',
   },
   {
@@ -817,7 +817,7 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'It converts a client’s grievance into a legal question you can answer. It is also how you discover early that a client has a genuine complaint but no cause of action, which is far better found in the first conference than after filing.',
     concepts: ['elements-analysis', 'issue-identification'],
-    skills: ['strategic-reasoning', 'argument-construction'],
+    skills: ['argument-construction'],
   },
   {
     slug: 'my-ad-objection-ground',
@@ -839,8 +839,8 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
       'Once the answer is out, the court has heard it. Objecting afterwards achieves far less and looks like an afterthought.',
     commonMisconception:
       'Objecting at length. A short ground is more effective and less irritating to the bench than an argument.',
-    concepts: ['objections', 'questioning-rules'],
-    skills: ['oral-communication', 'evidence-analysis'],
+    concepts: ['objections'],
+    skills: [],
   },
   {
     slug: 'my-ad-putting-your-case',
@@ -856,8 +856,8 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'Breach of it is one of the most common ways a junior loses a point that was otherwise available, and it is discovered only in closing when it is too late.',
     memoryTrick: 'If you are going to say it about them, say it to them first.',
-    concepts: ['browne-v-dunn', 'cross-examination'],
-    skills: ['oral-communication', 'strategic-reasoning'],
+    concepts: ['browne-v-dunn'],
+    skills: [],
   },
   {
     slug: 'my-dr-letter-of-demand',
@@ -878,7 +878,7 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'It is frequently the first thing a junior drafts unsupervised, and a vague one invites a reply asking for the detail you should have given.',
     concepts: ['letters-of-demand'],
-    skills: ['written-communication', 'commercial-reasoning'],
+    skills: [],
   },
   {
     slug: 'my-dr-chronology',
@@ -899,7 +899,7 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'It is often the document a judge keeps open throughout a hearing, and preparing it is usually the junior’s job.',
     concepts: ['chronologies'],
-    skills: ['written-communication', 'attention-to-detail'],
+    skills: [],
   },
   {
     slug: 'my-dr-written-submissions',
@@ -919,8 +919,8 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
       'Written submissions should tell the court what it has to decide, then answer each of those questions in turn, supporting each proposition with a reference to the evidence and to authority. A narrative that leaves the court to work out the questions makes the court do the advocate’s job.',
     whyItMatters:
       'Judges read submissions before the hearing. What they take from that first reading often shapes everything after it.',
-    concepts: ['written-submissions', 'issue-identification'],
-    skills: ['written-communication', 'argument-construction'],
+    concepts: ['written-submissions'],
+    skills: [],
   },
   {
     slug: 'my-lr-distinguishing',
@@ -940,7 +940,7 @@ export const MALAYSIA_QUESTIONS: SeedQuestion[] = [
       'Distinguishing accepts the earlier decision as correct and binding, and argues that it does not apply because a materially different fact or issue takes the present case outside its ratio. It is not the same as saying the case was wrongly decided, which a court bound by it cannot act on anyway.',
     whyItMatters:
       'It is the only move available to you when binding authority is against your client and you are not in a court that can depart from it.',
-    concepts: ['distinguishing', 'ratio-and-obiter'],
-    skills: ['argument-construction', 'strategic-reasoning'],
+    concepts: ['distinguishing'],
+    skills: [],
   },
 ];

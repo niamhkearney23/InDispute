@@ -177,6 +177,7 @@ export function ScoreBar({
   band,
   unit = '/100',
   early = false,
+  earlyText = 'Too early to say',
 }: {
   label: string;
   score: number;
@@ -191,6 +192,8 @@ export function ScoreBar({
    * as a bad mark for getting it right.
    */
   early?: boolean;
+  /** What to say instead of a number: "Not asked yet" when nothing has been asked. */
+  earlyText?: string;
 }) {
   const fill = {
     weak: 'bg-accent',
@@ -203,7 +206,7 @@ export function ScoreBar({
       <div className="mb-1.5 flex items-baseline justify-between gap-3">
         <span className="text-sm font-medium">{label}</span>
         {early ? (
-          <span className="shrink-0 text-xs text-muted">Too early to say</span>
+          <span className="shrink-0 text-xs text-muted">{earlyText}</span>
         ) : (
           <span className="shrink-0 font-serif text-base tabular-nums">
             {score}
@@ -217,7 +220,7 @@ export function ScoreBar({
         aria-valuenow={early ? 0 : score}
         aria-valuemin={0}
         aria-valuemax={100}
-        aria-label={early ? `${label}: too early to say` : `${label}: ${score}${unit === '%' ? ' percent' : ' out of 100'}`}
+        aria-label={early ? `${label}: ${earlyText.toLowerCase()}` : `${label}: ${score}${unit === '%' ? ' percent' : ' out of 100'}`}
       >
         {early ? null : (
           <div

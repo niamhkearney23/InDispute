@@ -46,8 +46,8 @@ export const ETHICS_AI_MY_QUESTIONS: SeedQuestion[] = [
     commonMisconception:
       'That removing the client’s name is sufficient. A matter is often identifiable from its facts.',
     memoryTrick: 'Pressing enter is sending it.',
-    concepts: ['ai-confidentiality', 'ai-supervision'],
-    skills: ['professional-judgment', 'attention-to-detail'],
+    concepts: ['ai-confidentiality'],
+    skills: ['professional-judgment'],
     sourceReference:
       'Evidence Act 1950 s 126; Legal Profession Act 1976; Bar Council Circular No 342/2023 and Circular No 242/2025 on generative AI',
   },
@@ -72,8 +72,8 @@ export const ETHICS_AI_MY_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'Putting a non-existent authority before a court misleads it. Inadvertence is mitigation, not an answer, and the duty to the court is paramount.',
     memoryTrick: 'If you have not read it, you cannot cite it.',
-    concepts: ['ai-verification', 'ai-candour'],
-    skills: ['professional-judgment', 'attention-to-detail'],
+    concepts: ['ai-verification'],
+    skills: ['professional-judgment'],
     sourceReference:
       'Bar Council Circular No 342/2023, which lists hallucinated citations first among the risks it identifies',
   },
@@ -97,8 +97,8 @@ export const ETHICS_AI_MY_QUESTIONS: SeedQuestion[] = [
       'Asked where the obligation comes from, the answer should be your own regulator, not a court practice note from another country that does not bind you.',
     commonMisconception:
       'That because the tools are new there is no local guidance yet. There has been since 2023, and it has already been updated once.',
-    concepts: ['ai-competence', 'ai-supervision'],
-    skills: ['professional-judgment', 'statutory-analysis'],
+    concepts: ['ai-competence'],
+    skills: [],
     sourceReference: 'Bar Council Circular No 342/2023; Bar Council Circular No 242/2025',
   },
   {
@@ -114,8 +114,8 @@ export const ETHICS_AI_MY_QUESTIONS: SeedQuestion[] = [
       'False. A document filed in your name or your firm’s name is your work. The tool owes no duty to the court, cannot be disciplined, and cannot be called to explain itself. Responsibility stays where it was, which means the checking must happen before the document leaves you.',
     whyItMatters:
       'Every other rule in this area follows from this one.',
-    concepts: ['ai-supervision', 'ai-verification'],
-    skills: ['professional-judgment'],
+    concepts: ['ai-supervision'],
+    skills: [],
     sourceReference: 'Legal Profession (Practice and Etiquette) Rules 1978',
   },
   {
@@ -136,7 +136,7 @@ export const ETHICS_AI_MY_QUESTIONS: SeedQuestion[] = [
       'The decision about which tools may touch client material, and under what contractual terms the provider holds it, belongs to the firm, not to the individual using it. A junior who adopts a tool privately has made a confidentiality decision on the firm’s behalf without the firm knowing, and usually without reading the terms.',
     whyItMatters:
       'On day one this is the practical rule that prevents most of the other problems in this module.',
-    concepts: ['ai-supervision', 'ai-confidentiality'],
+    concepts: ['ai-policy'],
     skills: ['professional-judgment'],
   },
   {
@@ -157,8 +157,8 @@ export const ETHICS_AI_MY_QUESTIONS: SeedQuestion[] = [
       'Competence extends to the means used to do the work. You need not explain the mathematics. You must know the failure modes: that AI systems may produce outdated, fabricated or wrong-jurisdiction law while sounding authoritative, and that they cannot reliably tell you which of their answers is the unreliable one. Verify propositions and citations against current Malaysian primary sources.',
     whyItMatters:
       'The failure modes are knowable, which is what makes not knowing them a choice rather than bad luck.',
-    concepts: ['ai-competence', 'ai-verification'],
-    skills: ['professional-judgment'],
+    concepts: ['ai-competence'],
+    skills: [],
   },
   {
     slug: 'my-ai-jurisdiction-drift',
@@ -181,8 +181,8 @@ export const ETHICS_AI_MY_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'It is the failure most likely to catch a Malaysian junior, and it is invisible unless you check the source rather than the tone.',
     memoryTrick: 'Confident and foreign reads exactly like confident and correct.',
-    concepts: ['ai-verification', 'ai-competence'],
-    skills: ['professional-judgment', 'statutory-analysis'],
+    concepts: ['ai-competence'],
+    skills: [],
   },
   {
     slug: 'my-ai-correcting-the-record',
@@ -205,7 +205,7 @@ export const ETHICS_AI_MY_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'The instinct to conceal a mistake like this is strong and entirely human. Deciding in advance what you will do is what makes it possible on the day.',
     memoryTrick: 'The mistake is survivable. Concealing it is not.',
-    concepts: ['ai-candour', 'ai-verification'],
+    concepts: ['ai-candour'],
     skills: ['professional-judgment'],
   },
 ];

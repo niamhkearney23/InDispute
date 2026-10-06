@@ -56,7 +56,16 @@ export default async function DiagnosticComparePage() {
     .map((domain) => {
       const before = firstScores[domain.slug] ?? 0;
       const after = lastScores[domain.slug] ?? 0;
-      return { slug: domain.slug, name: domain.name, before, after, delta: after - before };
+      return {
+        slug: domain.slug,
+        name: domain.name,
+        before,
+        after,
+        delta: after - before,
+        // Not asked about is no score, not a zero.
+        askedBefore: domain.slug in firstScores,
+        askedAfter: domain.slug in lastScores,
+      };
     });
 
   const topic = first.essay_topic_slug ? essayTopic(first.essay_topic_slug as string) : undefined;
@@ -99,6 +108,9 @@ export default async function DiagnosticComparePage() {
                   label={row.name}
                   score={row.before}
                   band={masteryBand(row.before)}
+                  unit="%"
+                  early={!row.askedBefore}
+                  earlyText="Not asked"
                 />
               ))}
             </div>
@@ -115,8 +127,13 @@ export default async function DiagnosticComparePage() {
                   label={row.name}
                   score={row.after}
                   band={masteryBand(row.after)}
+                  unit="%"
+                  early={!row.askedAfter}
+                  earlyText="Not asked"
                   sublabel={
-                    row.delta === 0
+                    !row.askedBefore || !row.askedAfter
+                      ? undefined
+                      : row.delta === 0
                       ? 'No change'
                       : `${row.delta > 0 ? '+' : ''}${row.delta} since day one`
                   }

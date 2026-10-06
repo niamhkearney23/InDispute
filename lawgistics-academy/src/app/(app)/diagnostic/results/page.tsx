@@ -45,6 +45,8 @@ export default async function DiagnosticResultsPage({
       slug: domain.slug,
       name: domain.name,
       score: domainScores[domain.slug] ?? 0,
+      // An area the diagnostic asked nothing about has no score, not a zero.
+      asked: domain.slug in domainScores,
     }))
     .sort((a, b) => b.score - a.score);
 
@@ -84,6 +86,9 @@ export default async function DiagnosticResultsPage({
                 label={row.name}
                 score={row.score}
                 band={masteryBand(row.score)}
+                unit="%"
+                early={!row.asked}
+                earlyText="Not asked"
               />
             ))}
           </div>

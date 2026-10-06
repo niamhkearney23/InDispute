@@ -24,7 +24,7 @@ export const EVIDENCE_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'The three that opted out are the three across the top and west: Queensland, Western Australia and South Australia.',
     concepts: ['uniform-evidence-acts'],
-    skills: ['statutory-analysis', 'attention-to-detail'],
+    skills: [],
     sourceReference: 'Evidence Act 1995 (Cth); Evidence Act 1977 (Qld)',
     sourceUrl: 'https://www.alrc.gov.au/publication/uniform-evidence-law-alrc-report-102/',
   },
@@ -51,7 +51,7 @@ export const EVIDENCE_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Section 55 asks "could it matter?", not "does it prove it?".',
     concepts: ['relevance'],
-    skills: ['evidence-analysis', 'statutory-analysis'],
+    skills: [],
     sourceReference: 'Evidence Act 1995 (Cth) ss 55–56',
   },
   {
@@ -77,7 +77,7 @@ export const EVIDENCE_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Hearsay is about purpose, not about who said it or how.',
     concepts: ['hearsay'],
-    skills: ['evidence-analysis', 'statutory-analysis'],
+    skills: [],
     sourceReference: 'Evidence Act 1995 (Cth) s 59',
   },
   {
@@ -104,8 +104,8 @@ export const EVIDENCE_QUESTIONS: SeedQuestion[] = [
       'Assuming that repeating someone’s words is always hearsay. Ask what the words are being used to prove.',
     memoryTrick:
       'Words as facts, not words as truth.',
-    concepts: ['hearsay', 'relevance'],
-    skills: ['evidence-analysis', 'strategic-reasoning'],
+    concepts: ['hearsay'],
+    skills: ['evidence-analysis'],
     sourceReference: 'Evidence Act 1995 (Cth) ss 59–60',
   },
   {
@@ -131,7 +131,7 @@ export const EVIDENCE_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Two links: knowledge, and the opinion resting on it. Break either and the opinion falls out.',
     concepts: ['opinion-evidence'],
-    skills: ['evidence-analysis', 'statutory-analysis'],
+    skills: [],
     sourceReference: 'Evidence Act 1995 (Cth) ss 76, 79',
   },
   {
@@ -157,7 +157,7 @@ export const EVIDENCE_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Dominant, not incidental. Ask why the document really came into existence.',
     concepts: ['client-legal-privilege'],
-    skills: ['professional-judgment', 'evidence-analysis'],
+    skills: [],
     sourceReference: 'Evidence Act 1995 (Cth) ss 118–119',
   },
   {
@@ -185,7 +185,7 @@ export const EVIDENCE_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Privilege asks one question: why was this brought into existence?',
     concepts: ['client-legal-privilege'],
-    skills: ['professional-judgment', 'strategic-reasoning'],
+    skills: ['evidence-analysis'],
     sourceReference: 'Evidence Act 1995 (Cth) s 119',
   },
   {
@@ -205,8 +205,8 @@ export const EVIDENCE_QUESTIONS: SeedQuestion[] = [
       'Treating the words as a magic incantation. A court looks at whether the letter was truly part of settlement negotiations.',
     memoryTrick:
       'The protection is earned by content, not conferred by a heading.',
-    concepts: ['settlement-privilege', 'costs'],
-    skills: ['professional-judgment', 'written-communication'],
+    concepts: ['settlement-privilege'],
+    skills: [],
     sourceReference: 'Evidence Act 1995 (Cth) s 131',
   },
   {
@@ -230,7 +230,7 @@ export const EVIDENCE_QUESTIONS: SeedQuestion[] = [
     commonMisconception:
       'Importing "clear and convincing evidence" from American sources. It is not an Australian standard.',
     concepts: ['standard-of-proof'],
-    skills: ['evidence-analysis', 'argument-construction'],
+    skills: [],
     sourceReference: 'Evidence Act 1995 (Cth) s 140',
   },
   {
@@ -255,8 +255,8 @@ export const EVIDENCE_QUESTIONS: SeedQuestion[] = [
       'Describing Briginshaw as raising the standard of proof. It does not; it affects the quality of persuasion required to meet the ordinary standard.',
     memoryTrick:
       'Same bar, heavier weight. The standard does not move; the evidence has to.',
-    concepts: ['standard-of-proof', 'onus-of-proof'],
-    skills: ['evidence-analysis', 'argument-construction', 'professional-judgment'],
+    concepts: ['standard-of-proof'],
+    skills: [],
     sourceReference: 'Briginshaw v Briginshaw (1938) 60 CLR 336; Evidence Act 1995 (Cth) s 140(2)',
   },
   {
@@ -280,7 +280,7 @@ export const EVIDENCE_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'He who asserts must prove.',
     concepts: ['onus-of-proof'],
-    skills: ['evidence-analysis', 'argument-construction'],
+    skills: [],
   },
   {
     slug: 'ev-business-records',
@@ -305,7 +305,7 @@ export const EVIDENCE_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Records of a business doing business, not records of a business preparing for court.',
     concepts: ['documentary-evidence', 'hearsay'],
-    skills: ['evidence-analysis', 'statutory-analysis'],
+    skills: [],
     sourceReference: 'Evidence Act 1995 (Cth) s 69',
   },
   {
@@ -325,8 +325,8 @@ export const EVIDENCE_QUESTIONS: SeedQuestion[] = [
       'Thinking the prohibition applies to all questioning. It is specific to chief; cross-examination is where leading belongs.',
     memoryTrick:
       'Your witness tells the story. The other side’s witness answers your propositions.',
-    concepts: ['questioning-rules', 'examination-in-chief'],
-    skills: ['oral-communication', 'evidence-analysis'],
+    concepts: ['questioning-rules'],
+    skills: [],
     sourceReference: 'Evidence Act 1995 (Cth) ss 37, 42',
   },
 ];

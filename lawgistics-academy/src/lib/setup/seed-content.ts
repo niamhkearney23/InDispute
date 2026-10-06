@@ -173,13 +173,16 @@ export async function seedContent(
     );
     if (linkError) throw linkError;
 
-    const { error: skillLinkError } = await db.from('question_skills').insert(
-      q.skills.map((slug) => ({
-        question_id: questionId,
-        skill_id: skillIdBySlug.get(slug),
-      })),
-    );
-    if (skillLinkError) throw skillLinkError;
+    // A recall question tests no skill; nothing to insert then.
+    if (q.skills.length > 0) {
+      const { error: skillLinkError } = await db.from('question_skills').insert(
+        q.skills.map((slug) => ({
+          question_id: questionId,
+          skill_id: skillIdBySlug.get(slug),
+        })),
+      );
+      if (skillLinkError) throw skillLinkError;
+    }
 
     const { data: currentVersion } = await db
       .from('question_versions')

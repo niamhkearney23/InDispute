@@ -50,8 +50,8 @@ export const AI_COMPLIANCE_QUESTIONS: SeedQuestion[] = [
       'Choosing a tool is choosing who else will hold client material and on what terms. That is a firm obligation, not an individual preference, and it cannot sensibly be made forty times by forty people reading forty sets of terms. A practitioner who adopts a tool privately has made a confidentiality decision on the firm’s behalf, usually without reading what the provider is permitted to do with the input.',
     whyItMatters:
       'It is the control that makes every other control possible. Without a list of approved tools there is nothing to train people on and nothing to audit.',
-    concepts: ['ai-policy', 'ai-confidentiality'],
-    skills: ['professional-judgment', 'commercial-reasoning'],
+    concepts: ['ai-policy'],
+    skills: [],
   },
   {
     slug: 'aic-vendor-terms',
@@ -74,8 +74,8 @@ export const AI_COMPLIANCE_QUESTIONS: SeedQuestion[] = [
       'These are the questions a client, an insurer or a regulator would ask, and a firm that cannot answer them has not made a decision, it has made an assumption.',
     commonMisconception:
       'That a business subscription automatically means the material is safe. It usually helps a great deal. It is still the terms that decide.',
-    concepts: ['ai-vendor-terms', 'ai-policy'],
-    skills: ['commercial-reasoning', 'attention-to-detail'],
+    concepts: ['ai-vendor-terms'],
+    skills: [],
   },
   {
     slug: 'aic-client-consent',
@@ -96,8 +96,8 @@ export const AI_COMPLIANCE_QUESTIONS: SeedQuestion[] = [
       'Dealing with it in the engagement terms means the position is set once, in writing, before there is anything at stake. Per-use consent is unworkable and per-question consent is theatre. Saying nothing leaves the firm explaining its practice for the first time in the worst possible circumstances. Whether consent is required, as opposed to advisable, is a question this content has not established.',
     whyItMatters:
       'A client who learns after the fact that a tool was involved will ask when they could have been told, and "at the start" is the only comfortable answer.',
-    concepts: ['ai-client-consent', 'ai-policy'],
-    skills: ['professional-judgment', 'commercial-reasoning'],
+    concepts: ['ai-client-consent'],
+    skills: ['professional-judgment'],
   },
   {
     slug: 'aic-incident-path',
@@ -121,7 +121,7 @@ export const AI_COMPLIANCE_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'The person who notices is almost always the most junior person involved, and whether they speak up depends entirely on what they expect to happen next.',
     memoryTrick: 'A path nobody can name is not a path.',
-    concepts: ['ai-incident', 'ai-supervision'],
+    concepts: ['ai-incident'],
     skills: ['professional-judgment'],
   },
   {
@@ -138,8 +138,8 @@ export const AI_COMPLIANCE_QUESTIONS: SeedQuestion[] = [
       'True, and it has stopped being merely prudent. The Supreme Court of Victoria’s practice note requires a court user to be able to identify the parts of a document produced using AI and explain how the output was verified. A firm that keeps no record cannot answer that when asked, and the question will be asked at the point when answering it matters most.',
     whyItMatters:
       'It is also the only way a firm can demonstrate that its policy is real rather than a document nobody follows.',
-    concepts: ['ai-records', 'ai-candour'],
-    skills: ['attention-to-detail', 'professional-judgment'],
+    concepts: ['ai-records'],
+    skills: [],
     sourceReference: 'Supreme Court of Victoria Practice Note SC Gen 25',
   },
   {
@@ -161,8 +161,8 @@ export const AI_COMPLIANCE_QUESTIONS: SeedQuestion[] = [
       'Signing work is adopting it. Supervision is not a formality performed on a document someone else produced; it is the point at which a practitioner takes responsibility for the content. That does not excuse the junior from checking their own work, but it does mean a supervisor who signs without reading has not delegated the risk, they have accepted it.',
     whyItMatters:
       'It decides how much checking a supervisor should actually be doing, which is more than most assume when the draft reads well.',
-    concepts: ['ai-supervision', 'ai-policy'],
-    skills: ['professional-judgment'],
+    concepts: ['ai-supervision'],
+    skills: [],
   },
 
   /* --- Malaysia ---------------------------------------------------------- */
@@ -185,8 +185,8 @@ export const AI_COMPLIANCE_QUESTIONS: SeedQuestion[] = [
       'Choosing a tool is choosing who else will hold client material and on what terms, which engages the duty of confidence the firm carries. It cannot sensibly be decided forty times by forty people reading forty sets of terms. Bar Council guidance has consistently placed responsibility for the content and the advice on the practitioner, and a firm-level decision about which tools exist is what makes that responsibility discharegable.',
     whyItMatters:
       'Without a list of approved tools there is nothing to train anyone on and nothing to check.',
-    concepts: ['ai-policy', 'ai-confidentiality'],
-    skills: ['professional-judgment', 'commercial-reasoning'],
+    concepts: ['ai-policy'],
+    skills: [],
     sourceReference: 'Bar Council Circular No 342/2023; Circular No 242/2025',
   },
   {
@@ -208,8 +208,8 @@ export const AI_COMPLIANCE_QUESTIONS: SeedQuestion[] = [
       'Retention, training use and location decide whether sending material to a provider is consistent with the duty of confidence, and none of them follows from the size of the company or the price of the plan. Where the data is held matters additionally because it may engage data protection obligations on cross-border transfer, which is a question to check rather than assume.',
     whyItMatters:
       'These are the questions a client or a regulator would ask, and a firm that cannot answer them has assumed rather than decided.',
-    concepts: ['ai-vendor-terms', 'ai-policy'],
-    skills: ['commercial-reasoning', 'attention-to-detail'],
+    concepts: ['ai-vendor-terms'],
+    skills: [],
   },
   {
     slug: 'my-aic-incident-path',
@@ -232,7 +232,7 @@ export const AI_COMPLIANCE_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'The person who notices is almost always the most junior, and whether they speak depends on what they expect to happen next.',
     memoryTrick: 'A path nobody can name is not a path.',
-    concepts: ['ai-incident', 'ai-supervision'],
+    concepts: ['ai-incident'],
     skills: ['professional-judgment'],
   },
   {
@@ -249,8 +249,8 @@ export const AI_COMPLIANCE_QUESTIONS: SeedQuestion[] = [
       'True. A record is what lets a firm answer the question when it is asked, and it is the only way to demonstrate that a policy is real rather than a document nobody follows. Whether any Malaysian court or regulator presently requires such a record, as opposed to it being prudent practice, is a question this content has not established.',
     whyItMatters:
       'A policy without records is indistinguishable, from the outside, from no policy.',
-    concepts: ['ai-records', 'ai-candour'],
-    skills: ['attention-to-detail', 'professional-judgment'],
+    concepts: ['ai-records'],
+    skills: [],
   },
   {
     slug: 'my-aic-supervision',
@@ -275,7 +275,7 @@ export const AI_COMPLIANCE_QUESTIONS: SeedQuestion[] = [
       'Signing work is adopting it. Supervision is not a formality performed over a document someone else produced; it is where a practitioner takes responsibility for the content. Responsibility is not a single parcel handed to one person: the pupil is expected to check their own work and to say what was AI-assisted, and the partner who signs without reading has accepted the risk rather than delegated it.',
     whyItMatters:
       'It sets how much checking a supervisor should be doing, which is more than most assume when a draft reads well.',
-    concepts: ['ai-supervision', 'ai-policy'],
-    skills: ['professional-judgment'],
+    concepts: ['ai-supervision'],
+    skills: [],
   },
 ];

@@ -107,12 +107,18 @@ export function validateSeed(): string[] {
       }
     }
 
-    if (question.skills.length === 0) {
-      errors.push(`${where} is not linked to any skill`);
+    // No skill is a fine answer: a recall question tests none. Requiring one
+    // is how "which court sits in the middle" came to be tagged attention to
+    // detail. And a chosen option cannot show speaking or writing at all.
+    if (question.skills.length > 2) {
+      errors.push(`${where} claims ${question.skills.length} skills; two at most`);
     }
     for (const slug of question.skills) {
       if (!skillSlugs.has(slug)) {
         errors.push(`${where} references unknown skill "${slug}"`);
+      }
+      if (slug === 'oral-communication' || slug === 'written-communication') {
+        errors.push(`${where} claims ${slug}, which a chosen option cannot show`);
       }
     }
   }

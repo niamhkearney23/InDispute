@@ -36,8 +36,8 @@ export const BASICS_MY_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'Nearly everything about procedure follows from it: where you start, where an appeal goes, and which decisions you can rely on.',
     memoryTrick: 'Higher courts correct, and higher courts set the rule.',
-    concepts: ['court-hierarchy', 'my-court-structure'],
-    skills: ['procedural-sequencing'],
+    concepts: ['court-hierarchy'],
+    skills: [],
   },
   {
     slug: 'my-bas-what-is-an-appeal',
@@ -59,12 +59,12 @@ export const BASICS_MY_QUESTIONS: SeedQuestion[] = [
       'Clients almost always assume an appeal means running the case again. Correcting that early is one of the more useful things a junior does.',
     commonMisconception:
       'That you appeal because you lost. You appeal because something went wrong, and losing is not by itself something going wrong.',
-    concepts: ['appellate-structure', 'my-court-structure'],
-    skills: ['procedural-sequencing', 'professional-judgment'],
+    concepts: ['appellate-structure'],
+    skills: [],
   },
   {
     slug: 'my-bas-binding',
-    domain: 'court-system',
+    domain: 'legal-reasoning',
     type: 'multiple_choice',
     difficulty: 1,
     jurisdiction: 'MY_GENERAL',
@@ -81,8 +81,8 @@ export const BASICS_MY_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'It decides which authorities settle an argument and which merely support it, which is the difference between a submission that wins and one that sounds good.',
     memoryTrick: 'Binding means must. Persuasive means may.',
-    concepts: ['stare-decisis', 'court-hierarchy'],
-    skills: ['argument-construction'],
+    concepts: ['stare-decisis'],
+    skills: [],
   },
   {
     slug: 'my-bas-two-high-courts-basic',
@@ -98,8 +98,8 @@ export const BASICS_MY_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'It is one of the first things that surprises someone arriving from a country with a single national High Court, and it decides where a proceeding is properly started.',
     memoryTrick: 'Side by side, not stacked.',
-    concepts: ['my-court-structure', 'court-hierarchy'],
-    skills: ['procedural-sequencing', 'attention-to-detail'],
+    concepts: ['my-court-structure'],
+    skills: [],
     sourceReference: 'Federal Constitution art 121(1)',
   },
   {
@@ -116,8 +116,8 @@ export const BASICS_MY_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'Civil courts generally do not determine the merits of matters validly within Syariah Court jurisdiction; however, constitutional and jurisdictional questions may still fall within the civil courts’ supervisory role. Pressing the merits in the wrong forum loses time on an argument you cannot win.',
     memoryTrick: 'A different ladder, not a lower rung.',
-    concepts: ['syariah-courts', 'my-court-structure'],
-    skills: ['procedural-sequencing', 'professional-judgment'],
+    concepts: ['syariah-courts'],
+    skills: [],
     sourceReference: 'Federal Constitution art 121(1A)',
   },
   {
@@ -139,8 +139,8 @@ export const BASICS_MY_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'It is the first thing to check on a new matter. A proceeding started in a court with no power to hear it has to be started again, and the limitation clock does not pause while that is sorted out.',
     memoryTrick: 'Jurisdiction is can this court, not should this court.',
-    concepts: ['my-court-structure', 'my-monetary-jurisdiction'],
-    skills: ['procedural-sequencing'],
+    concepts: ['court-terminology'],
+    skills: [],
   },
   {
     slug: 'my-bas-first-instance',
@@ -160,8 +160,8 @@ export const BASICS_MY_QUESTIONS: SeedQuestion[] = [
       'First instance means the original hearing, where evidence is heard and the matter is decided for the first time. The High Court sits both ways: it hears matters at first instance, and it hears appeals from the subordinate courts. So knowing a case was "in the High Court" does not tell you which it was.',
     whyItMatters:
       'When you read a judgment, whether it was at first instance or on appeal changes how much weight it carries and what the court was actually deciding.',
-    concepts: ['court-terminology', 'appellate-structure'],
-    skills: ['attention-to-detail'],
+    concepts: ['court-terminology'],
+    skills: [],
   },
   {
     slug: 'my-bas-parties',
@@ -181,7 +181,7 @@ export const BASICS_MY_QUESTIONS: SeedQuestion[] = [
       'In an action begun by writ the party starting it is the plaintiff and the party defending is the defendant. Proceedings begun by originating summons use applicant and respondent, and on appeal the parties become appellant and respondent. Prosecutor and accused belong to criminal proceedings.',
     whyItMatters:
       'Using the wrong label in cause papers signals immediately that the drafter is unfamiliar with the court, before anyone reads the substance.',
-    concepts: ['court-terminology', 'originating-process'],
-    skills: ['written-communication', 'attention-to-detail'],
+    concepts: ['court-terminology'],
+    skills: [],
   },
 ];

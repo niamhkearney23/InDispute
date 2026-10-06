@@ -43,8 +43,8 @@ export const ETHICS_AI_QUESTIONS: SeedQuestion[] = [
     commonMisconception:
       'That anonymising a name is enough. A matter can be identifiable from the facts alone, and in a small market it usually is.',
     memoryTrick: 'Pressing enter is sending it.',
-    concepts: ['ai-confidentiality', 'ai-supervision'],
-    skills: ['professional-judgment', 'attention-to-detail'],
+    concepts: ['ai-confidentiality'],
+    skills: ['professional-judgment'],
     sourceReference:
       'Australian Solicitors’ Conduct Rules r 9; Supreme Court of NSW Practice Note SC Gen 23, which permits certain material to be entered only where it stays within the provider’s controlled environment and is not used for training',
   },
@@ -71,8 +71,8 @@ export const ETHICS_AI_QUESTIONS: SeedQuestion[] = [
     commonMisconception:
       'That a plausible citation format means a real case. The format is the easiest part to generate.',
     memoryTrick: 'If you have not read it, you cannot cite it.',
-    concepts: ['ai-verification', 'ai-candour'],
-    skills: ['professional-judgment', 'attention-to-detail'],
+    concepts: ['ai-verification'],
+    skills: ['professional-judgment'],
   },
   {
     slug: 'ai-duty-to-court-paramount',
@@ -87,8 +87,8 @@ export const ETHICS_AI_QUESTIONS: SeedQuestion[] = [
       'False, and this is the foundation of everything else in this area. A document filed under your name or your firm’s name is your work. The tool is not a person, cannot owe a duty to the court, and cannot be disciplined. Responsibility does not move, which means the checking has to happen before the document leaves you.',
     whyItMatters:
       'Every other rule here follows from this one. If responsibility moved, none of the rest would matter.',
-    concepts: ['ai-supervision', 'ai-verification'],
-    skills: ['professional-judgment'],
+    concepts: ['ai-supervision'],
+    skills: [],
   },
   {
     slug: 'ai-disclosure-to-court',
@@ -110,8 +110,8 @@ export const ETHICS_AI_QUESTIONS: SeedQuestion[] = [
       'A junior is usually the person who actually prepared the document, and so is often the only person who knows how it was prepared. If the court asks which parts were AI-assisted and how they were checked, that answer has to exist before the question is asked.',
     commonMisconception:
       'That there is one national rule. There is not, and carrying the rule from your last matter into a different court is how this goes wrong.',
-    concepts: ['ai-candour', 'ai-competence'],
-    skills: ['professional-judgment', 'procedural-sequencing'],
+    concepts: ['ai-candour'],
+    skills: ['professional-judgment'],
     sourceReference:
       'Supreme Court of NSW Practice Note SC Gen 23; Federal Court GPN-AI; Supreme Court of Victoria Practice Note SC Gen 25',
     sourceUrl: 'https://supremecourt.nsw.gov.au/practice-procedure/generative-artificial-intelligence.html',
@@ -137,8 +137,8 @@ export const ETHICS_AI_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'Preparing affidavits is delegated to juniors constantly, and this is the exact task where the tool is most tempting and most prohibited.',
     memoryTrick: 'The witness’s words, or it is not their evidence.',
-    concepts: ['ai-candour', 'ai-supervision'],
-    skills: ['professional-judgment', 'written-communication'],
+    concepts: ['ai-candour', 'affidavits'],
+    skills: [],
     sourceReference: 'Supreme Court of NSW Practice Note SC Gen 23',
     sourceUrl: 'https://supremecourt.nsw.gov.au/documents/Practice-and-Procedure/Practice-Notes/general/current/PN_SC_Gen_23.pdf',
   },
@@ -162,8 +162,8 @@ export const ETHICS_AI_QUESTIONS: SeedQuestion[] = [
       'Losing privilege over a document is not recoverable by apologising. It is one of the few mistakes in litigation that cannot be undone.',
     commonMisconception:
       'Assuming a paid or business account solves it automatically. It may help a great deal, but it is the terms that matter, not the price.',
-    concepts: ['ai-privilege', 'ai-confidentiality'],
-    skills: ['professional-judgment', 'evidence-analysis'],
+    concepts: ['ai-privilege'],
+    skills: [],
   },
   {
     slug: 'ai-competence-obligation',
@@ -183,8 +183,8 @@ export const ETHICS_AI_QUESTIONS: SeedQuestion[] = [
       'Competence extends to the means you use to do the work. You are not expected to explain the mathematics, any more than you must explain how a search database indexes. You are expected to know the characteristic failures of the thing you are relying on: that AI systems may produce outdated, fabricated or wrong-jurisdiction law while sounding authoritative, and that they cannot reliably tell you which of their answers is the unreliable one.',
     whyItMatters:
       'It is the difference between using a tool and being used by one. The failure modes are knowable, which is what makes not knowing them a choice.',
-    concepts: ['ai-competence', 'ai-verification'],
-    skills: ['professional-judgment'],
+    concepts: ['ai-competence'],
+    skills: [],
     sourceReference: 'Australian Solicitors’ Conduct Rules r 4.1.3',
   },
   {
@@ -208,7 +208,7 @@ export const ETHICS_AI_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'This is where the commercial pressure of these tools lands, and it lands on juniors first, because juniors record the time.',
     concepts: ['ai-billing'],
-    skills: ['professional-judgment', 'commercial-reasoning'],
+    skills: ['professional-judgment'],
   },
   {
     slug: 'ai-advice-is-yours',
@@ -225,8 +225,8 @@ export const ETHICS_AI_QUESTIONS: SeedQuestion[] = [
       'It marks the line between using a tool to work faster and letting it do the part of the job you are actually paid for.',
     commonMisconception:
       'That a review step launders the output. It only counts if judgment was genuinely applied.',
-    concepts: ['ai-supervision', 'ai-competence'],
-    skills: ['professional-judgment'],
+    concepts: ['ai-supervision'],
+    skills: [],
   },
   {
     slug: 'ai-correcting-the-record',
@@ -249,7 +249,7 @@ export const ETHICS_AI_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'The instinct to hide a mistake like this is strong and entirely human. Knowing in advance what you are supposed to do is what makes it possible to do it on the day.',
     memoryTrick: 'The mistake is survivable. Concealing it is not.',
-    concepts: ['ai-candour', 'ai-verification'],
+    concepts: ['ai-candour'],
     skills: ['professional-judgment'],
   },
 ];

@@ -57,9 +57,10 @@ export function AreaBreakdown({ areas }: { areas: Area[] }) {
                 score={area.score}
                 band={masteryBand(area.score)}
                 early={area.attempts < MASTERY.minAttemptsForConfidence}
+                earlyText={area.attempts === 0 ? 'Not asked yet' : undefined}
                 sublabel={
                   area.attempts === 0
-                    ? 'Not yet assessed'
+                    ? 'No questions on this yet'
                     : open
                       ? 'Tap to close'
                       : `${measured.length} concept${measured.length === 1 ? '' : 's'} measured`

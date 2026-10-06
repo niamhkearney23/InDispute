@@ -37,7 +37,7 @@ export const HIERARCHY_QUESTIONS: SeedQuestion[] = [
     commonMisconception:
       'Treating the Federal Court as sitting above the State courts. It does not; the two hierarchies meet only at the High Court.',
     concepts: ['court-hierarchy', 'appellate-structure'],
-    skills: ['procedural-sequencing'],
+    skills: [],
     sourceReference: 'Constitution s 73',
   },
   {
@@ -59,8 +59,8 @@ export const HIERARCHY_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'It tells you where an argument must ultimately survive, and therefore whether a point is genuinely open. If the High Court has decided it, no court below can decide otherwise.',
     memoryTrick: 'Two ladders, one landing.',
-    concepts: ['court-hierarchy', 'federal-jurisdiction', 'appellate-structure'],
-    skills: ['argument-construction', 'procedural-sequencing'],
+    concepts: ['court-hierarchy', 'federal-jurisdiction'],
+    skills: [],
     sourceReference: 'Constitution s 73; Australia Act 1986 (Cth)',
   },
   {
@@ -85,8 +85,8 @@ export const HIERARCHY_QUESTIONS: SeedQuestion[] = [
       'It is the first question on any new file, and getting it wrong costs the client money even when they win.',
     commonMisconception:
       'Choosing a higher court to signal that the claim is serious. The court is chosen by value, and the costs rules will say so.',
-    concepts: ['monetary-jurisdiction', 'court-hierarchy'],
-    skills: ['procedural-sequencing', 'commercial-reasoning'],
+    concepts: ['monetary-jurisdiction'],
+    skills: [],
   },
 
   /* --- Malaysia ---------------------------------------------------------- */
@@ -109,7 +109,7 @@ export const HIERARCHY_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'It tells you where a point of principle has to be able to survive, and what binds every court beneath it.',
     concepts: ['my-court-structure', 'court-hierarchy'],
-    skills: ['procedural-sequencing', 'argument-construction'],
+    skills: [],
     sourceReference: 'Federal Constitution art 121; Courts of Judicature Act 1964',
   },
   {
@@ -133,7 +133,7 @@ export const HIERARCHY_QUESTIONS: SeedQuestion[] = [
     commonMisconception:
       'Assuming appeals go to the court with "appeal" in its name. From the subordinate courts they do not.',
     concepts: ['my-court-structure', 'appellate-structure'],
-    skills: ['procedural-sequencing', 'attention-to-detail'],
+    skills: [],
     sourceReference: 'Courts of Judicature Act 1964 s 26',
   },
   {
@@ -160,7 +160,7 @@ export const HIERARCHY_QUESTIONS: SeedQuestion[] = [
       'Reading the two High Courts as a head office and a branch. They are equals with different territories.',
     memoryTrick: 'Two High Courts, side by side, not stacked.',
     concepts: ['my-court-structure', 'court-hierarchy'],
-    skills: ['procedural-sequencing', 'attention-to-detail'],
+    skills: ['attention-to-detail'],
     sourceReference: 'Federal Constitution art 121(1)',
   },
 ];

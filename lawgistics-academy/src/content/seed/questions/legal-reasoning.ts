@@ -24,7 +24,7 @@ export const LEGAL_REASONING_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Necessary to the decision, on the facts found. If the case would have come out the same without it, it is obiter.',
     concepts: ['ratio-and-obiter'],
-    skills: ['argument-construction', 'attention-to-detail'],
+    skills: [],
   },
   {
     slug: 'lr-obiter-persuasive',
@@ -49,7 +49,7 @@ export const LEGAL_REASONING_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Not binding is not the same as not decisive.',
     concepts: ['ratio-and-obiter', 'stare-decisis'],
-    skills: ['argument-construction', 'strategic-reasoning'],
+    skills: [],
   },
   {
     slug: 'lr-stare-decisis-hierarchy',
@@ -74,7 +74,7 @@ export const LEGAL_REASONING_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Look up your own hierarchy. Those decisions bind you.',
     concepts: ['stare-decisis'],
-    skills: ['argument-construction', 'procedural-sequencing'],
+    skills: [],
   },
   {
     slug: 'lr-interstate-appellate',
@@ -98,8 +98,8 @@ export const LEGAL_REASONING_QUESTIONS: SeedQuestion[] = [
       'Confining research to your own State. On common law and uniform legislation, the whole country is relevant.',
     memoryTrick:
       'One common law. Depart from a sister court only if it is plainly wrong.',
-    concepts: ['appellate-comity', 'stare-decisis'],
-    skills: ['argument-construction', 'strategic-reasoning'],
+    concepts: ['appellate-comity'],
+    skills: [],
     sourceReference: 'Farah Constructions Pty Ltd v Say-Dee Pty Ltd (2007) 230 CLR 89',
   },
   {
@@ -119,8 +119,8 @@ export const LEGAL_REASONING_QUESTIONS: SeedQuestion[] = [
       'Dismissing single judge decisions as carrying little weight. In practice they are ordinarily applied.',
     memoryTrick:
       'Sideways is comity. Upwards is binding.',
-    concepts: ['appellate-comity', 'stare-decisis'],
-    skills: ['argument-construction'],
+    concepts: ['appellate-comity'],
+    skills: [],
   },
   {
     slug: 'lr-purposive-interpretation',
@@ -145,7 +145,7 @@ export const LEGAL_REASONING_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       '15AA: purpose is preferred. Not consulted: preferred.',
     concepts: ['statutory-interpretation'],
-    skills: ['statutory-analysis', 'argument-construction'],
+    skills: [],
     sourceReference: 'Acts Interpretation Act 1901 (Cth) s 15AA',
     sourceUrl: 'https://www.legislation.gov.au/C1901A00002/latest/text',
   },
@@ -171,8 +171,8 @@ export const LEGAL_REASONING_QUESTIONS: SeedQuestion[] = [
       'Opening an interpretation argument with the explanatory memorandum. Start with the text; the extrinsic material has a defined and secondary role.',
     memoryTrick:
       'Confirm, or resolve ambiguity, or avoid absurdity. Three gates, and the text comes first.',
-    concepts: ['extrinsic-materials', 'statutory-interpretation'],
-    skills: ['statutory-analysis', 'argument-construction'],
+    concepts: ['extrinsic-materials'],
+    skills: [],
     sourceReference: 'Acts Interpretation Act 1901 (Cth) s 15AB',
   },
   {
@@ -198,7 +198,7 @@ export const LEGAL_REASONING_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Start with the text. Read it in context. Come back to the text.',
     concepts: ['statutory-interpretation'],
-    skills: ['statutory-analysis', 'argument-construction'],
+    skills: [],
     sourceReference:
       'Project Blue Sky Inc v Australian Broadcasting Authority (1998) 194 CLR 355; CIC Insurance Ltd v Bankstown Football Club Ltd (1997) 187 CLR 384',
   },
@@ -226,8 +226,8 @@ export const LEGAL_REASONING_QUESTIONS: SeedQuestion[] = [
       'Starting with case research. Without the elements you do not yet know what you are researching.',
     memoryTrick:
       'Cause of action, elements, facts, gaps. In that order.',
-    concepts: ['elements-analysis', 'issue-identification'],
-    skills: ['argument-construction', 'strategic-reasoning', 'commercial-reasoning'],
+    concepts: ['elements-analysis'],
+    skills: ['procedural-sequencing'],
   },
   {
     slug: 'lr-distinguishing',
@@ -251,8 +251,8 @@ export const LEGAL_REASONING_QUESTIONS: SeedQuestion[] = [
       'Pointing to any factual difference at all. Every case differs on its facts; the difference must engage the reasoning.',
     memoryTrick:
       'Accept the case. Escape its reach.',
-    concepts: ['distinguishing', 'ratio-and-obiter'],
-    skills: ['argument-construction', 'strategic-reasoning'],
+    concepts: ['distinguishing'],
+    skills: [],
   },
   {
     slug: 'lr-issue-identification',
@@ -279,7 +279,7 @@ export const LEGAL_REASONING_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Read the defence, not the claim. The denials are the case.',
     concepts: ['issue-identification', 'pleadings'],
-    skills: ['strategic-reasoning', 'argument-construction'],
+    skills: ['attention-to-detail'],
   },
   {
     slug: 'lr-analogical-reasoning',
@@ -303,8 +303,8 @@ export const LEGAL_REASONING_QUESTIONS: SeedQuestion[] = [
       'Searching for a case with the same facts and concluding there is no answer when none exists. Principle, not factual coincidence, is what you are looking for.',
     memoryTrick:
       'Up to the principle, across the analogy, down to your facts.',
-    concepts: ['distinguishing', 'stare-decisis', 'issue-identification'],
-    skills: ['argument-construction', 'strategic-reasoning'],
+    concepts: ['distinguishing'],
+    skills: ['argument-construction'],
   },
   {
     slug: 'lr-dissent-status',
@@ -323,7 +323,7 @@ export const LEGAL_REASONING_QUESTIONS: SeedQuestion[] = [
       'Pulling a helpful passage from a judgment without checking whether that judge was in the majority. Always check.',
     memoryTrick:
       'A dissent tells you what the law is not.',
-    concepts: ['ratio-and-obiter', 'stare-decisis'],
-    skills: ['attention-to-detail', 'professional-judgment'],
+    concepts: ['ratio-and-obiter'],
+    skills: [],
   },
 ];
