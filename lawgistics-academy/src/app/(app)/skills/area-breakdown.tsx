@@ -1,6 +1,5 @@
 'use client';
 
-import { MASTERY } from '@/lib/learning/config';
 import { useState } from 'react';
 import { ScoreBar, cn } from '@/components/ui';
 import { masteryBand } from '@/lib/learning/mastery';
@@ -10,6 +9,8 @@ export interface AreaConcept {
   name: string;
   score: number;
   attempts: number;
+  /** How many of those answers were right. */
+  correct: number;
   confidentAndWrong: number;
 }
 
@@ -56,8 +57,9 @@ export function AreaBreakdown({ areas }: { areas: Area[] }) {
                 label={area.name}
                 score={area.score}
                 band={masteryBand(area.score)}
-                early={area.attempts < MASTERY.minAttemptsForConfidence}
-                earlyText={area.attempts === 0 ? 'Not asked yet' : undefined}
+                unit="%"
+                early={area.attempts === 0}
+                earlyText="Not asked yet"
                 sublabel={
                   area.attempts === 0
                     ? 'No questions on this yet'
@@ -85,11 +87,11 @@ export function AreaBreakdown({ areas }: { areas: Area[] }) {
                           label={concept.name}
                           score={concept.score}
                           band={masteryBand(concept.score)}
-                          early={concept.attempts < MASTERY.minAttemptsForConfidence}
+                          unit="%"
                           sublabel={
                             concept.confidentAndWrong > 0
                               ? `Sure and wrong ${concept.confidentAndWrong} time${concept.confidentAndWrong === 1 ? '' : 's'}`
-                              : `${concept.attempts} answer${concept.attempts === 1 ? '' : 's'}`
+                              : `${concept.correct} of ${concept.attempts} right`
                           }
                         />
                       ))}

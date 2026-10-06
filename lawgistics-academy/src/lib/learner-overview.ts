@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { displayScore } from '@/lib/learning/mastery';
+import { displayScore, rightShare } from '@/lib/learning/mastery';
 import { levelForXp, localDateString, type LevelInfo } from '@/lib/learning/progression';
 import { MASTERY } from '@/lib/learning/config';
 import { asCountry, asTrack, learnerTimezone } from '@/lib/types';
@@ -155,7 +155,7 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
         .maybeSingle(),
       supabase
         .from('user_concept_mastery')
-        .select('mastery, attempts, last_seen_at, concepts(slug, name, domain_id)')
+        .select('mastery, attempts, correct, last_seen_at, concepts(slug, name, domain_id)')
         .eq('user_id', userId),
       supabase
         .from('user_skill_mastery')
@@ -225,33 +225,36 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
   const totalXp = sum(xpAll.data);
 
   /* --- skill map by domain ------------------------------------------------ */
-  const domainTotals = new Map<string, { weighted: number; attempts: number }>();
+  // What a learner sees is the share of their answers that were right: all
+  // right is 100%, and it only comes down when they get one wrong. The
+  // engine's own strength estimate (mastery) still decides what to ask next;
+  // it starts at zero and climbs slowly, which read as a low mark for right
+  // answers.
+  const domainTotals = new Map<string, { correct: number; attempts: number }>();
 
   type ConceptRef = { slug: string; name: string; domain_id: string };
   const conceptRows = (conceptMastery.data ?? []).map((row) => ({
     mastery: Number(row.mastery),
     attempts: row.attempts as number,
+    correct: (row.correct as number) ?? 0,
     lastSeenAt: row.last_seen_at as string | null,
     concept: first<ConceptRef>(row.concepts),
   }));
 
   for (const row of conceptRows) {
     if (!row.concept || row.attempts === 0) continue;
-    const entry = domainTotals.get(row.concept.domain_id) ?? { weighted: 0, attempts: 0 };
-    // Weighted by attempts so a concept answered ten times counts for more than
-    // one answered once.
-    entry.weighted += row.mastery * row.attempts;
+    const entry = domainTotals.get(row.concept.domain_id) ?? { correct: 0, attempts: 0 };
+    entry.correct += row.correct;
     entry.attempts += row.attempts;
     domainTotals.set(row.concept.domain_id, entry);
   }
 
   const skillMap: SkillMapEntry[] = (domains.data ?? []).map((domain) => {
     const entry = domainTotals.get(domain.id);
-    const raw = entry && entry.attempts > 0 ? entry.weighted / entry.attempts : 0;
     return {
       slug: domain.slug,
       name: domain.name,
-      score: displayScore(raw, entry?.attempts ?? 0),
+      score: rightShare(entry?.correct ?? 0, entry?.attempts ?? 0),
       attempts: entry?.attempts ?? 0,
     };
   });

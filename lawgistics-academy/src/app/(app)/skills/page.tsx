@@ -1,9 +1,8 @@
 import type { Metadata } from 'next';
-import { MASTERY } from '@/lib/learning/config';
 import { redirect } from 'next/navigation';
 import { getCurrentUser, createSupabaseServerClient } from '@/lib/supabase/server';
 import { getLearnerOverview } from '@/lib/learner-overview';
-import { displayScore } from '@/lib/learning/mastery';
+import { rightShare } from '@/lib/learning/mastery';
 import { getFactOfTheDay } from '@/lib/facts/service';
 import { getModuleProgress } from '@/lib/modules/service';
 import { trainingOpen } from '@/lib/training/service';
@@ -67,7 +66,7 @@ export default async function SkillsPage() {
         slug: concept?.slug ?? '',
         name: concept?.name ?? '',
         domainId: concept?.domain_id ?? '',
-        score: displayScore(Number(row.mastery), row.attempts as number),
+        score: rightShare(row.correct as number, row.attempts as number),
         attempts: row.attempts as number,
         correct: row.correct as number,
         confidentAndWrong: row.confident_and_wrong as number,
@@ -98,6 +97,7 @@ export default async function SkillsPage() {
         name: c.name,
         score: c.score,
         attempts: c.attempts,
+        correct: c.correct,
         confidentAndWrong: c.confidentAndWrong,
       })),
   }));
@@ -198,10 +198,8 @@ export default async function SkillsPage() {
               title="Open one to see what is underneath"
             />
             <p className="-mt-2 mb-4 max-w-2xl text-sm text-slate">
-              Each score is out of 100. It goes up a step with every right answer and down with
-              every wrong one, so it takes several right answers in a row to climb. Until you have
-              answered {MASTERY.minAttemptsForConfidence} questions on something, it is too early
-              to say.
+              The share of your answers that were right. Get them all right and it stays at 100%;
+              each wrong answer brings it down.
             </p>
             <AreaBreakdown areas={areas} />
           </section>
@@ -267,18 +265,13 @@ export default async function SkillsPage() {
                               <div className="min-w-0">
                                 <p className="truncate text-sm">{concept.name}</p>
                                 <p className="text-xs text-muted">
-                                  {concept.correct}/{concept.attempts} correct
+                                  {concept.correct} of {concept.attempts} right
                                   {due && new Date(due) <= new Date() ? ' · due now' : ''}
                                 </p>
                               </div>
-                              {concept.attempts < MASTERY.minAttemptsForConfidence ? (
-                                <span className="shrink-0 text-xs text-muted">Too early to say</span>
-                              ) : (
-                                <span className="shrink-0 font-serif text-base tabular-nums">
-                                  {concept.score}
-                                  <span className="ml-0.5 font-sans text-xs text-muted"> out of 100</span>
-                                </span>
-                              )}
+                              <span className="shrink-0 font-serif text-base tabular-nums">
+                                {concept.score}%
+                              </span>
                             </li>
                           );
                         })}
