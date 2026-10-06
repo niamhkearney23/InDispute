@@ -37,7 +37,7 @@ export const BASICS_QUESTIONS: SeedQuestion[] = [
       'Almost everything about procedure follows from this: which court you start in, where an appeal goes, and which decisions you can rely on.',
     memoryTrick: 'Higher courts correct, and higher courts set the rule.',
     concepts: ['court-hierarchy'],
-    skills: ['procedural-sequencing'],
+    skills: [],
   },
   {
     slug: 'bas-what-is-an-appeal',
@@ -59,12 +59,12 @@ export const BASICS_QUESTIONS: SeedQuestion[] = [
       'Clients almost always assume an appeal means running the case again. Explaining early that it does not is one of the more useful things a junior can do.',
     commonMisconception:
       'That you appeal because you lost. You appeal because something went wrong, and losing is not by itself something going wrong.',
-    concepts: ['appellate-structure', 'court-hierarchy'],
-    skills: ['procedural-sequencing', 'professional-judgment'],
+    concepts: ['appellate-structure'],
+    skills: [],
   },
   {
     slug: 'bas-what-binding-means',
-    domain: 'court-system',
+    domain: 'legal-reasoning',
     type: 'multiple_choice',
     difficulty: 1,
     jurisdiction: 'AU_GENERAL',
@@ -81,8 +81,8 @@ export const BASICS_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'It decides which authorities actually settle an argument and which merely support it, and that is the difference between a submission that wins and one that sounds good.',
     memoryTrick: 'Binding means must. Persuasive means may.',
-    concepts: ['stare-decisis', 'court-hierarchy'],
-    skills: ['argument-construction'],
+    concepts: ['stare-decisis'],
+    skills: [],
   },
   {
     slug: 'bas-trial-vs-appeal-court',
@@ -102,8 +102,8 @@ export const BASICS_QUESTIONS: SeedQuestion[] = [
       'The trial court is where witnesses give evidence, documents are tendered and the facts are found. The appeal court usually has none of that in front of it: it has the transcript, the judgment and the arguments. That is why appeal courts are reluctant to disturb findings about which witness was telling the truth, and much readier to correct a mistake about what the law required.',
     whyItMatters:
       'It shapes what is worth arguing where. An argument about the law belongs on appeal. An argument about who to believe belongs at trial, and is very hard to revive later.',
-    concepts: ['court-hierarchy', 'appellate-structure'],
-    skills: ['strategic-reasoning', 'procedural-sequencing'],
+    concepts: ['appellate-structure'],
+    skills: [],
   },
   {
     slug: 'bas-what-is-jurisdiction',
@@ -124,8 +124,8 @@ export const BASICS_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'It is the first thing to check on any new matter. A proceeding started in a court that has no power to hear it has to be started again, and the limitation clock does not stop while you sort it out.',
     memoryTrick: 'Jurisdiction is can this court, not should this court.',
-    concepts: ['court-hierarchy', 'monetary-jurisdiction'],
-    skills: ['procedural-sequencing'],
+    concepts: ['court-hierarchy'],
+    skills: [],
   },
   {
     slug: 'bas-first-instance',
@@ -145,8 +145,8 @@ export const BASICS_QUESTIONS: SeedQuestion[] = [
       'First instance means the original hearing, where the evidence is heard and the case is decided for the first time. The same court can sit both ways: a Supreme Court judge may hear a matter at first instance, and the Court of Appeal within that same Supreme Court hears appeals from it. So knowing a case was "in the Supreme Court" does not tell you which it was.',
     whyItMatters:
       'When you read a case, whether it was at first instance or on appeal changes how much weight it carries and what the court was actually deciding.',
-    concepts: ['court-terminology', 'appellate-structure'],
-    skills: ['attention-to-detail'],
+    concepts: ['court-terminology'],
+    skills: [],
   },
   {
     slug: 'bas-who-decides-facts',
@@ -161,8 +161,8 @@ export const BASICS_QUESTIONS: SeedQuestion[] = [
       'True. Most Australian civil trials are heard by a judge alone, and that judge does two separate jobs: finding the facts, which means deciding what happened and who to believe, and applying the law to those facts. Where there is a jury the roles split, with the jury finding the facts and the judge directing them on the law.',
     whyItMatters:
       'It explains why so much preparation goes into evidence rather than argument. Persuading the judge what happened usually matters more than persuading them what the rule is.',
-    concepts: ['court-terminology', 'court-hierarchy'],
-    skills: ['strategic-reasoning'],
+    concepts: ['court-terminology'],
+    skills: [],
   },
   {
     slug: 'bas-parties-names',
@@ -183,6 +183,6 @@ export const BASICS_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'Using the wrong label in a document signals immediately that the drafter is not familiar with the court, before anyone has read the substance.',
     concepts: ['court-terminology'],
-    skills: ['written-communication', 'attention-to-detail'],
+    skills: [],
   },
 ];

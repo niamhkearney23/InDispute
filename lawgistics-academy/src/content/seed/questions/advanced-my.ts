@@ -54,7 +54,7 @@ export const ADVANCED_MY_QUESTIONS: SeedQuestion[] = [
       'That striking out is a mini-trial on the documents. On the first limb it is an argument about the pleading alone.',
     memoryTrick: 'No reasonable cause of action means: read the pleading, and nothing else.',
     concepts: ['rules-of-court-2012', 'pleadings'],
-    skills: ['procedural-sequencing', 'statutory-analysis'],
+    skills: ['attention-to-detail'],
     sourceReference:
       'Rules of Court 2012 O 18 r 19; Bandar Builder Sdn Bhd v United Malayan Banking Corporation Bhd [1993] 3 MLJ 36',
   },
@@ -81,8 +81,8 @@ export const ADVANCED_MY_QUESTIONS: SeedQuestion[] = [
     commonMisconception:
       'That the presumption is mandatory once a witness is not called. It is a discretion, and it does not relieve you of your own burden.',
     memoryTrick: 'May presume, not must. Withheld, not merely absent.',
-    concepts: ['evidence-act-1950', 'onus-of-proof'],
-    skills: ['evidence-analysis', 'argument-construction'],
+    concepts: ['evidence-act-1950'],
+    skills: ['statutory-analysis'],
     sourceReference: 'Evidence Act 1950 s 114 illustration (g)',
   },
   {
@@ -109,7 +109,7 @@ export const ADVANCED_MY_QUESTIONS: SeedQuestion[] = [
       'That because the codification tracks the common law, the common law exceptions apply as such. The provisos to section 92 are the operative text.',
     memoryTrick: 'Section 91 says prove it by the document. Section 92 says do not talk it away.',
     concepts: ['evidence-act-1950', 'documentary-evidence'],
-    skills: ['statutory-analysis', 'evidence-analysis'],
+    skills: ['evidence-analysis'],
     sourceReference: 'Evidence Act 1950 ss 91, 92 and the provisos to s 92',
   },
   {
@@ -136,7 +136,7 @@ export const ADVANCED_MY_QUESTIONS: SeedQuestion[] = [
       'That you must always show a defence on the merits. Against an irregular judgment you should not have to.',
     memoryTrick: 'Irregular is a right. Regular is a request.',
     concepts: ['default-judgment', 'rules-of-court-2012'],
-    skills: ['procedural-sequencing', 'strategic-reasoning'],
+    skills: ['strategic-reasoning'],
     sourceReference:
       'Rules of Court 2012 O 13 and O 42 r 13; and the line of authority following Evans v Bartlam [1937] AC 473',
     tentative: true,
@@ -165,7 +165,7 @@ export const ADVANCED_MY_QUESTIONS: SeedQuestion[] = [
       'That Order 14A is a variant of summary judgment. It answers a legal question; it does not weigh the merits of a factual case.',
     memoryTrick: 'Order 14 is about whether there is a dispute. Order 14A is about what the words mean.',
     concepts: ['rules-of-court-2012', 'summary-judgment'],
-    skills: ['procedural-sequencing', 'statutory-analysis'],
+    skills: ['strategic-reasoning'],
     sourceReference: 'Rules of Court 2012 O 14A',
   },
   {
@@ -191,8 +191,8 @@ export const ADVANCED_MY_QUESTIONS: SeedQuestion[] = [
     commonMisconception:
       'That the risk of dissipation can be inferred from the defendant simply being in financial difficulty. It requires evidence of a risk of dealing with assets to defeat the judgment.',
     memoryTrick: 'Ex parte means you argue both sides, including theirs.',
-    concepts: ['interlocutory-applications', 'rules-of-court-2012'],
-    skills: ['professional-judgment', 'strategic-reasoning'],
+    concepts: ['interlocutory-applications'],
+    skills: [],
     sourceReference:
       'Rules of Court 2012 O 29; Mareva Compania Naviera SA v International Bulkcarriers SA [1975] 2 Lloyd’s Rep 509',
     tentative: true,
@@ -221,7 +221,7 @@ export const ADVANCED_MY_QUESTIONS: SeedQuestion[] = [
       'That it is a search warrant. It is a mandatory order permitting entry with consent, and refusing entry is contempt rather than something enforced by force.',
     memoryTrick: 'Extremely strong, very serious, clear evidence, real possibility. Four, all high.',
     concepts: ['interlocutory-applications'],
-    skills: ['professional-judgment', 'strategic-reasoning'],
+    skills: [],
     sourceReference: 'Anton Piller KG v Manufacturing Processes Ltd [1976] Ch 55; Rules of Court 2012 O 29',
     tentative: true,
   },
@@ -252,8 +252,8 @@ export const ADVANCED_MY_QUESTIONS: SeedQuestion[] = [
     commonMisconception:
       'That importance to the client is importance for the purposes of leave. The test looks past the parties.',
     memoryTrick: 'The question has to matter to more people than your client.',
-    concepts: ['my-court-structure', 'appellate-structure'],
-    skills: ['argument-construction', 'strategic-reasoning'],
+    concepts: ['appellate-structure', 'my-court-structure'],
+    skills: [],
     sourceReference: 'Courts of Judicature Act 1964 s 96(a)',
   },
   {
@@ -280,7 +280,7 @@ export const ADVANCED_MY_QUESTIONS: SeedQuestion[] = [
       'That the court weighs which case is stronger on the affidavits. It asks whether there is something that ought to be tried.',
     memoryTrick: 'Triable, not winnable.',
     concepts: ['summary-judgment', 'rules-of-court-2012'],
-    skills: ['strategic-reasoning', 'procedural-sequencing'],
+    skills: [],
     sourceReference: 'Rules of Court 2012 O 14',
   },
   {
@@ -307,7 +307,7 @@ export const ADVANCED_MY_QUESTIONS: SeedQuestion[] = [
       'That a court can extend a limitation period because it would be unjust not to. In these actions it cannot; the relief has to come from the Act.',
     memoryTrick: 'No general discretion. Find the provision or find another claim.',
     concepts: ['limitation-periods'],
-    skills: ['statutory-analysis', 'strategic-reasoning'],
+    skills: ['strategic-reasoning'],
     sourceReference: 'Limitation Act 1953, including the provisions postponing time in cases of fraud and concealment',
     tentative: true,
   },

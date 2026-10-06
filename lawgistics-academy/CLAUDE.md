@@ -304,8 +304,13 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   (`src/lib/review/answer-cue.ts`) for the reviewer to even out.
 - **No "by skill" scores are shown.** Questions carry skill tags, but they were
   attached loosely when drafted, and a multiple-choice answer cannot show
-  speaking or writing. Scores by area (domain) stay. Bring skills back only
-  once the tags have been checked question by question.
+  speaking or writing. Scores by area (domain) stay. In October 2026 every
+  question's area, topics and skills were reviewed strictly (a label stays only
+  where answering depends on it): 201 of 203 changed, 156 now carry no skill,
+  and the seed check refuses oral or written communication on a question and
+  allows none. Eleven questions use the closest topic because none fits; that
+  list is in PR #43. Changing labels in the seed reaches a live database when an
+  administrator presses "Load new content", which relinks every question.
 - **The look.** The academy (everything under `src/app/(app)`) is navy: the
   `theme-navy` class on its layout swaps the colour tokens in
   `globals.css` (cream buttons, ice-blue details, burgundy warnings, a two-level

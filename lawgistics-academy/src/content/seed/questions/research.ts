@@ -35,8 +35,8 @@ export const RESEARCH_QUESTIONS: SeedQuestion[] = [
     commonMisconception:
       'That starting with a text is somehow cheating. It is the fastest route to the primary material, which is where you finish.',
     memoryTrick: 'Secondary to find it. Primary to rely on it.',
-    concepts: ['research-strategy', 'search-technique'],
-    skills: ['strategic-reasoning', 'statutory-analysis'],
+    concepts: ['research-strategy'],
+    skills: ['procedural-sequencing'],
   },
   {
     slug: 'res-currency-legislation',
@@ -57,8 +57,8 @@ export const RESEARCH_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'Advising on the wrong version of a section is not a small error. It produces an answer that is confidently and completely wrong.',
     memoryTrick: 'Which version, on what date.',
-    concepts: ['currency', 'authoritative-sources'],
-    skills: ['attention-to-detail', 'statutory-analysis'],
+    concepts: ['currency'],
+    skills: [],
     sourceUrl: 'https://www.legislation.gov.au',
   },
   {
@@ -80,8 +80,8 @@ export const RESEARCH_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'Citing an overruled case in front of a judge who knows it was overruled costs you the point and something harder to get back.',
     memoryTrick: 'The case does not tell you what happened to it afterwards.',
-    concepts: ['noting-up', 'currency'],
-    skills: ['attention-to-detail', 'argument-construction'],
+    concepts: ['noting-up'],
+    skills: [],
   },
   {
     slug: 'res-authorised-report',
@@ -102,7 +102,7 @@ export const RESEARCH_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'Quoting a passage from an unauthorised version means your page reference sends the judge to the wrong page, which is a small error that reads as a careless one.',
     concepts: ['authoritative-sources'],
-    skills: ['attention-to-detail', 'written-communication'],
+    skills: [],
   },
   {
     slug: 'res-search-terms',
@@ -126,8 +126,8 @@ export const RESEARCH_QUESTIONS: SeedQuestion[] = [
       'Search skill is the difference between an afternoon and a week, and nobody is taught it directly.',
     commonMisconception:
       'That a big result set means good coverage. It usually means the wrong words.',
-    concepts: ['search-technique', 'research-strategy'],
-    skills: ['strategic-reasoning', 'attention-to-detail'],
+    concepts: ['search-technique'],
+    skills: [],
   },
   {
     slug: 'res-record-what-you-did',
@@ -143,7 +143,7 @@ export const RESEARCH_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'It also protects you. Research that turns out to be wrong is a very different conversation when you can show exactly what you searched and when.',
     concepts: ['recording-research'],
-    skills: ['attention-to-detail', 'professional-judgment'],
+    skills: [],
   },
   {
     slug: 'res-when-to-stop',
@@ -164,7 +164,7 @@ export const RESEARCH_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'Juniors either stop far too early, at the first case that helps, or never stop at all. Both are expensive, and knowing the signal is what fixes it.',
     memoryTrick: 'Stop when the same names keep arriving by different roads.',
-    concepts: ['knowing-when-to-stop', 'research-strategy'],
-    skills: ['strategic-reasoning', 'professional-judgment'],
+    concepts: ['knowing-when-to-stop'],
+    skills: [],
   },
 ];

@@ -24,7 +24,7 @@ export const COURT_SYSTEM_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'One country, one common law, one court at the top. Everything else runs in parallel until it reaches Canberra.',
     concepts: ['court-hierarchy', 'appellate-structure'],
-    skills: ['procedural-sequencing', 'argument-construction'],
+    skills: [],
     sourceReference: 'Constitution s 73; Australia Act 1986 (Cth) s 11',
     sourceUrl: 'https://www.hcourt.gov.au/about/role-of-the-high-court',
   },
@@ -51,8 +51,8 @@ export const COURT_SYSTEM_QUESTIONS: SeedQuestion[] = [
       'That an appeal to the High Court is simply the next rung on the ladder. It is a filtered jurisdiction, not an automatic one.',
     memoryTrick:
       'Special leave is a door, not a corridor. You have to be let through.',
-    concepts: ['appellate-structure', 'court-hierarchy'],
-    skills: ['procedural-sequencing', 'commercial-reasoning'],
+    concepts: ['appellate-structure'],
+    skills: ['procedural-sequencing'],
     sourceReference: 'Judiciary Act 1903 (Cth) s 35A',
     sourceUrl: 'https://www.hcourt.gov.au/cases/special-leave-applications',
   },
@@ -79,7 +79,7 @@ export const COURT_SYSTEM_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Victoria goes its own way: County, not District.',
     concepts: ['court-hierarchy'],
-    skills: ['attention-to-detail', 'procedural-sequencing'],
+    skills: [],
     sourceReference: 'County Court Act 1958 (Vic)',
     sourceUrl: 'https://www.countycourt.vic.gov.au/',
   },
@@ -103,8 +103,8 @@ export const COURT_SYSTEM_QUESTIONS: SeedQuestion[] = [
       'Practitioners moving between States get this wrong constantly, and it shows. If you are briefing agents interstate or drafting for a NSW proceeding, the court names have to be right.',
     commonMisconception:
       'Calling the NSW Local Court the "Magistrates’ Court". The officers are Magistrates; the court is the Local Court.',
-    concepts: ['court-hierarchy', 'court-terminology'],
-    skills: ['attention-to-detail'],
+    concepts: ['court-hierarchy'],
+    skills: [],
     sourceReference: 'District Court Act 1973 (NSW); Local Court Act 2007 (NSW)',
     sourceUrl: 'https://districtcourt.nsw.gov.au/',
   },
@@ -126,7 +126,7 @@ export const COURT_SYSTEM_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Small jurisdictions, small hierarchies: ACT, NT and Tasmania skip the middle.',
     concepts: ['court-hierarchy'],
-    skills: ['attention-to-detail', 'procedural-sequencing'],
+    skills: [],
     sourceReference: 'Supreme Court Act 1933 (ACT); Magistrates Court Act 1930 (ACT)',
     sourceUrl: 'https://www.courts.act.gov.au/',
   },
@@ -150,8 +150,8 @@ export const COURT_SYSTEM_QUESTIONS: SeedQuestion[] = [
       'Filing an appeal in the wrong court wastes time you usually do not have; appeal periods are short and unforgiving.',
     commonMisconception:
       'Treating "the Supreme Court" as one undifferentiated destination. Trial Division and Court of Appeal do quite different work.',
-    concepts: ['appellate-structure', 'court-hierarchy'],
-    skills: ['procedural-sequencing', 'attention-to-detail'],
+    concepts: ['appellate-structure'],
+    skills: [],
     sourceReference: 'Supreme Court Act 1986 (Vic) Pt 3',
     sourceUrl: 'https://www.supremecourt.vic.gov.au/law-and-practice/court-of-appeal',
   },
@@ -175,8 +175,8 @@ export const COURT_SYSTEM_QUESTIONS: SeedQuestion[] = [
       'Older precedents, textbooks and templates still refer to the former courts. Knowing what became what is how you read pre-2021 authorities and correspondence without confusion.',
     commonMisconception:
       'That the merger folded family law into the Federal Court of Australia. It did not; the FCFCOA is a separate court.',
-    concepts: ['federal-jurisdiction', 'court-hierarchy'],
-    skills: ['attention-to-detail', 'procedural-sequencing'],
+    concepts: ['federal-jurisdiction'],
+    skills: [],
     sourceReference: 'Federal Circuit and Family Court of Australia Act 2021 (Cth)',
     sourceUrl: 'https://www.fcfcoa.gov.au/',
   },
@@ -202,8 +202,8 @@ export const COURT_SYSTEM_QUESTIONS: SeedQuestion[] = [
       'That magistrates are still addressed as "Your Worship". Australian practice has moved to "Your Honour" across the board.',
     memoryTrick:
       'Australian courts: everyone on the bench is "Your Honour".',
-    concepts: ['courtroom-conduct', 'court-terminology'],
-    skills: ['oral-communication', 'professional-judgment'],
+    concepts: ['courtroom-conduct'],
+    skills: [],
     sourceUrl: 'https://www.supremecourt.vic.gov.au/',
   },
   {
@@ -224,8 +224,8 @@ export const COURT_SYSTEM_QUESTIONS: SeedQuestion[] = [
       'Treating "tribunal" as just a cheaper word for a small claims court. The constitutional difference is real and it defeats otherwise perfectly good cases.',
     memoryTrick:
       'Tribunals are creatures of statute with limited reach. Federal jurisdiction needs a court.',
-    concepts: ['tribunals', 'federal-jurisdiction'],
-    skills: ['strategic-reasoning', 'procedural-sequencing'],
+    concepts: ['tribunals'],
+    skills: [],
     sourceReference:
       'Victorian Civil and Administrative Tribunal Act 1998 (Vic); Burns v Corbett (2018) 265 CLR 304',
     sourceUrl: 'https://www.vcat.vic.gov.au/',
@@ -247,8 +247,8 @@ export const COURT_SYSTEM_QUESTIONS: SeedQuestion[] = [
       'That any adverse ruling can be appealed. Most cannot be, at least not immediately, and the usual answer is that the point is preserved for any appeal from the final judgment.',
     memoryTrick:
       'Final orders open a door; interlocutory orders make you knock.',
-    concepts: ['appellate-structure', 'interlocutory-applications'],
-    skills: ['procedural-sequencing', 'strategic-reasoning'],
+    concepts: ['appellate-structure'],
+    skills: [],
   },
   {
     slug: 'cs-first-instance',
@@ -270,8 +270,8 @@ export const COURT_SYSTEM_QUESTIONS: SeedQuestion[] = [
       'Reading case law fluently requires knowing which layer of the case you are looking at. The primary judge’s findings of fact, and the appellate court’s treatment of them, do quite different work in an argument.',
     commonMisconception:
       'Confusing "first instance" with "ex tempore". One is about which court; the other is about when reasons were given.',
-    concepts: ['court-terminology', 'appellate-structure'],
-    skills: ['argument-construction', 'attention-to-detail'],
+    concepts: ['court-terminology'],
+    skills: [],
   },
   {
     slug: 'cs-parties-terminology',
@@ -295,8 +295,8 @@ export const COURT_SYSTEM_QUESTIONS: SeedQuestion[] = [
       'Using "plaintiff" universally in civil matters. The label follows the form of originating process.',
     memoryTrick:
       'Claim → plaintiff. Application → applicant. Appeal → appellant.',
-    concepts: ['court-terminology', 'originating-process'],
-    skills: ['attention-to-detail', 'written-communication'],
+    concepts: ['court-terminology'],
+    skills: ['attention-to-detail'],
   },
   {
     slug: 'cs-vic-magistrates-jurisdictional-limit',
@@ -323,8 +323,8 @@ export const COURT_SYSTEM_QUESTIONS: SeedQuestion[] = [
       'Assuming the highest court is always the safest choice. Courts can and do penalise a party in costs for using a court more expensive than the claim warranted.',
     memoryTrick:
       'Match the forum to the figure. Bigger is not better; it is just dearer.',
-    concepts: ['monetary-jurisdiction', 'court-hierarchy'],
-    skills: ['commercial-reasoning', 'strategic-reasoning'],
+    concepts: ['monetary-jurisdiction'],
+    skills: [],
     sourceReference: 'Magistrates’ Court Act 1989 (Vic); County Court Act 1958 (Vic)',
     sourceUrl: 'https://www.mcv.vic.gov.au/',
   },

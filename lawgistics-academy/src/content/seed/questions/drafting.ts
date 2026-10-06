@@ -24,7 +24,7 @@ export const DRAFTING_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'The deponent deposes. Nobody can do it for them.',
     concepts: ['affidavits'],
-    skills: ['written-communication', 'attention-to-detail'],
+    skills: [],
   },
   {
     slug: 'dr-affidavit-no-submissions',
@@ -48,8 +48,8 @@ export const DRAFTING_QUESTIONS: SeedQuestion[] = [
       'Thinking a persuasive affidavit is one that argues the case. A persuasive affidavit is one that sets out facts so clearly the argument becomes obvious.',
     memoryTrick:
       'Affidavits say what happened. Submissions say what it means.',
-    concepts: ['affidavits', 'written-submissions'],
-    skills: ['written-communication', 'argument-construction'],
+    concepts: ['affidavits'],
+    skills: [],
   },
   {
     slug: 'dr-affidavit-information-and-belief',
@@ -73,8 +73,8 @@ export const DRAFTING_QUESTIONS: SeedQuestion[] = [
       'Writing "I am informed and believe" without naming who informed you. Naming the source is the point of the formula.',
     memoryTrick:
       'Information and belief needs a name attached. "I am informed by X and believe."',
-    concepts: ['affidavits', 'interlocutory-applications'],
-    skills: ['written-communication', 'attention-to-detail'],
+    concepts: ['affidavits'],
+    skills: [],
   },
   {
     slug: 'dr-jurat',
@@ -98,8 +98,8 @@ export const DRAFTING_QUESTIONS: SeedQuestion[] = [
       'Confusing the jurat with the attestation of an exhibit. They are separate formalities and both need attention.',
     memoryTrick:
       'The jurat is where the swearing is recorded. Latin "jurare", to swear.',
-    concepts: ['affidavit-formalities', 'affidavits'],
-    skills: ['attention-to-detail', 'written-communication'],
+    concepts: ['affidavit-formalities'],
+    skills: [],
   },
   {
     slug: 'dr-exhibit-vs-annexure',
@@ -124,7 +124,7 @@ export const DRAFTING_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Annexures are bound in. Exhibits travel separately with a certificate.',
     concepts: ['affidavit-formalities'],
-    skills: ['attention-to-detail', 'written-communication'],
+    skills: [],
   },
   {
     slug: 'dr-statutory-declaration',
@@ -148,8 +148,8 @@ export const DRAFTING_QUESTIONS: SeedQuestion[] = [
       'Believing a statutory declaration is a "softer" document with no consequences. Making a false declaration is an offence.',
     memoryTrick:
       'Affidavits are for courts. Statutory declarations are for everywhere else.',
-    concepts: ['statutory-declarations', 'affidavits'],
-    skills: ['written-communication', 'professional-judgment'],
+    concepts: ['statutory-declarations'],
+    skills: [],
     sourceReference: 'Statutory Declarations Act 1959 (Cth) and State equivalents',
   },
   {
@@ -177,7 +177,7 @@ export const DRAFTING_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Say what is owed, why, by when, and what happens next. Nothing more.',
     concepts: ['letters-of-demand'],
-    skills: ['written-communication', 'professional-judgment', 'commercial-reasoning'],
+    skills: ['professional-judgment'],
     sourceReference: 'Australian Solicitors’ Conduct Rules r 34',
   },
   {
@@ -202,8 +202,8 @@ export const DRAFTING_QUESTIONS: SeedQuestion[] = [
       'Treating the relief as boilerplate at the end. It defines the boundaries of the case.',
     memoryTrick:
       'Write the orders you want first. Then work backwards to the facts that get you there.',
-    concepts: ['relief-claimed', 'drafting-pleadings'],
-    skills: ['written-communication', 'strategic-reasoning'],
+    concepts: ['relief-claimed'],
+    skills: [],
   },
   {
     slug: 'dr-chronology-purpose',
@@ -228,7 +228,7 @@ export const DRAFTING_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Date, event, reference. Nothing else in the column.',
     concepts: ['chronologies'],
-    skills: ['attention-to-detail', 'written-communication'],
+    skills: [],
   },
   {
     slug: 'dr-first-person-affidavit',
@@ -245,8 +245,8 @@ export const DRAFTING_QUESTIONS: SeedQuestion[] = [
       'Numbered paragraphs are how everyone in the case refers to the evidence: in cross-examination, in submissions, and in the judgment. Long undivided paragraphs make an affidavit painful to use and mark the drafter out immediately.',
     memoryTrick:
       'One idea, one paragraph, one number.',
-    concepts: ['affidavits', 'affidavit-formalities'],
-    skills: ['written-communication', 'attention-to-detail'],
+    concepts: ['affidavits'],
+    skills: [],
   },
   {
     slug: 'dr-alterations-initialled',
@@ -266,7 +266,7 @@ export const DRAFTING_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Two people signed the affidavit. Two people initial any change to it.',
     concepts: ['affidavit-formalities'],
-    skills: ['attention-to-detail'],
+    skills: [],
   },
   {
     slug: 'dr-written-submissions-structure',
@@ -291,7 +291,7 @@ export const DRAFTING_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Issue, argument, evidence, authority. Then the next issue.',
     concepts: ['written-submissions'],
-    skills: ['written-communication', 'argument-construction'],
+    skills: [],
   },
   {
     slug: 'dr-pleading-a-contract-claim',
@@ -317,7 +317,7 @@ export const DRAFTING_QUESTIONS: SeedQuestion[] = [
       'Believing a fuller pleading is a stronger one. An overloaded pleading is vulnerable to strike out and gives the other side a map of your evidence.',
     memoryTrick:
       'Elements in the pleading. Everything else waits for trial.',
-    concepts: ['drafting-pleadings', 'pleadings', 'elements-analysis'],
-    skills: ['written-communication', 'argument-construction', 'professional-judgment'],
+    concepts: ['drafting-pleadings'],
+    skills: [],
   },
 ];

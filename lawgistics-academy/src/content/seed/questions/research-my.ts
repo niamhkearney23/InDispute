@@ -32,8 +32,8 @@ export const RESEARCH_MY_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'It is the difference between two hours that produce an answer and two hours that produce open tabs.',
     memoryTrick: 'Secondary to find it. Primary to rely on it.',
-    concepts: ['research-strategy', 'search-technique'],
-    skills: ['strategic-reasoning', 'statutory-analysis'],
+    concepts: ['research-strategy'],
+    skills: [],
   },
   {
     slug: 'my-res-current-legislation',
@@ -54,7 +54,7 @@ export const RESEARCH_MY_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'A saved copy of an Act is the most convenient wrong answer available, because it looks exactly like the right one.',
     concepts: ['currency', 'authoritative-sources'],
-    skills: ['attention-to-detail', 'statutory-analysis'],
+    skills: [],
     sourceReference: 'Attorney General’s Chambers, Federal Legislation portal',
   },
   {
@@ -75,8 +75,8 @@ export const RESEARCH_MY_QUESTIONS: SeedQuestion[] = [
       'A judgment says nothing about what happened to it afterwards. It may have been distinguished into irrelevance, doubted on appeal, or overruled. Even a Federal Court decision can be departed from by the Federal Court itself. Subsequent treatment has to be checked, on whatever service the firm uses or by reading the later citing cases.',
     whyItMatters:
       'Citing an overruled case in front of a judge who knows costs you the point and your credibility on the rest.',
-    concepts: ['noting-up', 'currency'],
-    skills: ['attention-to-detail', 'argument-construction'],
+    concepts: ['noting-up'],
+    skills: [],
   },
   {
     slug: 'my-res-report-series',
@@ -97,7 +97,7 @@ export const RESEARCH_MY_QUESTIONS: SeedQuestion[] = [
     whyItMatters:
       'A pinpoint reference that sends the judge to the wrong page is a small error that reads as a careless one.',
     concepts: ['authoritative-sources'],
-    skills: ['attention-to-detail', 'written-communication'],
+    skills: [],
   },
   {
     slug: 'my-res-search-terms',
@@ -118,8 +118,8 @@ export const RESEARCH_MY_QUESTIONS: SeedQuestion[] = [
       'A thousand results means the search is describing the facts rather than the legal question. Courts do not say "the money was not paid back", they say the debt was not discharged. Restricting to the Federal Court and Court of Appeal finds statements of principle rather than applications of them.',
     whyItMatters:
       'Search skill is the difference between an afternoon and a week, and it is rarely taught directly.',
-    concepts: ['search-technique', 'research-strategy'],
-    skills: ['strategic-reasoning', 'attention-to-detail'],
+    concepts: ['search-technique'],
+    skills: [],
   },
   {
     slug: 'my-res-record-and-stop',
@@ -134,7 +134,7 @@ export const RESEARCH_MY_QUESTIONS: SeedQuestion[] = [
       'True. You will be asked how you know, and "I looked it up" is not an answer. Someone else may take the matter over and would otherwise start from nothing. And the law changes, so a dated note of what was searched is what tells anyone whether the research needs redoing. It also protects you if the research turns out to be wrong.',
     whyItMatters:
       'It is the habit that separates research you can stand behind from research you merely remember doing.',
-    concepts: ['recording-research', 'knowing-when-to-stop'],
-    skills: ['attention-to-detail', 'professional-judgment'],
+    concepts: ['recording-research'],
+    skills: [],
   },
 ];

@@ -25,8 +25,8 @@ export const CIVIL_PROCEDURE_QUESTIONS: SeedQuestion[] = [
       'Reaching for discovery instead. Discovery operates between the parties to a proceeding; it does not reach a stranger to the litigation.',
     memoryTrick:
       'Party documents: discovery. Stranger’s documents: subpoena.',
-    concepts: ['subpoenas', 'discovery'],
-    skills: ['procedural-sequencing', 'strategic-reasoning'],
+    concepts: ['subpoenas'],
+    skills: [],
   },
   {
     slug: 'cp-conduct-money',
@@ -51,7 +51,7 @@ export const CIVIL_PROCEDURE_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'You are asking a stranger to do work for your case. Pay their bus fare.',
     concepts: ['subpoenas'],
-    skills: ['attention-to-detail', 'procedural-sequencing'],
+    skills: [],
     sourceReference:
       'See e.g. Uniform Civil Procedure Rules 2005 (NSW) r 33.6; Supreme Court (General Civil Procedure) Rules 2015 (Vic) O 42',
   },
@@ -79,8 +79,8 @@ export const CIVIL_PROCEDURE_QUESTIONS: SeedQuestion[] = [
       'That anything relevant can be subpoenaed. Relevance is necessary but not sufficient; the subpoena must also be no wider than the forensic purpose requires.',
     memoryTrick:
       'A subpoena proves a case. It does not go looking for one.',
-    concepts: ['subpoenas', 'interlocutory-applications'],
-    skills: ['strategic-reasoning', 'evidence-analysis', 'argument-construction'],
+    concepts: ['subpoenas'],
+    skills: ['argument-construction', 'attention-to-detail'],
   },
   {
     slug: 'cp-discovery-scope',
@@ -105,7 +105,7 @@ export const CIVIL_PROCEDURE_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Not just what is in the drawer: what you could get out of someone else’s drawer if you asked.',
     concepts: ['discovery'],
-    skills: ['attention-to-detail', 'professional-judgment'],
+    skills: [],
   },
   {
     slug: 'cp-pleadings-material-facts',
@@ -129,8 +129,8 @@ export const CIVIL_PROCEDURE_QUESTIONS: SeedQuestion[] = [
       'Drafting a statement of claim as a narrative of everything that happened. That is a chronology, not a pleading.',
     memoryTrick:
       'Facts in the pleading. Evidence in the witness box. Law in submissions.',
-    concepts: ['pleadings', 'drafting-pleadings'],
-    skills: ['written-communication', 'argument-construction'],
+    concepts: ['pleadings'],
+    skills: [],
   },
   {
     slug: 'cp-particulars-function',
@@ -154,8 +154,8 @@ export const CIVIL_PROCEDURE_QUESTIONS: SeedQuestion[] = [
       'Treating particulars as a way to expand a case. They explain what is already there; they do not enlarge it.',
     memoryTrick:
       'Particulars sharpen the picture. They do not paint a new one.',
-    concepts: ['particulars', 'pleadings'],
-    skills: ['strategic-reasoning', 'written-communication'],
+    concepts: ['particulars'],
+    skills: [],
   },
   {
     slug: 'cp-default-judgment',
@@ -181,8 +181,8 @@ export const CIVIL_PROCEDURE_QUESTIONS: SeedQuestion[] = [
       'Confusing default judgment with summary judgment. Default is about failing to respond. Summary is about responding with something hopeless.',
     memoryTrick:
       'Silence gets default. A bad answer gets summary.',
-    concepts: ['default-judgment', 'summary-judgment'],
-    skills: ['procedural-sequencing', 'commercial-reasoning'],
+    concepts: ['default-judgment'],
+    skills: ['procedural-sequencing'],
   },
   {
     slug: 'cp-summary-judgment-vic-test',
@@ -205,7 +205,7 @@ export const CIVIL_PROCEDURE_QUESTIONS: SeedQuestion[] = [
     commonMisconception:
       'Assuming the older, higher common law test still governs. In Victoria it has been displaced by statute.',
     concepts: ['summary-judgment'],
-    skills: ['statutory-analysis', 'strategic-reasoning'],
+    skills: [],
     sourceReference: 'Civil Procedure Act 2010 (Vic) ss 61–64',
     sourceUrl: 'https://www.legislation.vic.gov.au/in-force/acts/civil-procedure-act-2010',
   },
@@ -232,7 +232,7 @@ export const CIVIL_PROCEDURE_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Contract time starts when the promise is broken, not when the client works out they have been wronged.',
     concepts: ['limitation-periods'],
-    skills: ['attention-to-detail', 'professional-judgment', 'statutory-analysis'],
+    skills: [],
     sourceReference: 'Limitation of Actions Act 1958 (Vic) s 5',
     sourceUrl: 'https://www.legislation.vic.gov.au/in-force/acts/limitation-actions-act-1958',
   },
@@ -259,7 +259,7 @@ export const CIVIL_PROCEDURE_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Costs follow the event, but they do not catch up with it.',
     concepts: ['costs'],
-    skills: ['commercial-reasoning', 'professional-judgment'],
+    skills: [],
   },
   {
     slug: 'cp-indemnity-costs',
@@ -284,7 +284,7 @@ export const CIVIL_PROCEDURE_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Standard is the default. Indemnity is a rebuke.',
     concepts: ['costs'],
-    skills: ['strategic-reasoning', 'commercial-reasoning'],
+    skills: [],
   },
   {
     slug: 'cp-interlocutory-meaning',
@@ -309,7 +309,7 @@ export const CIVIL_PROCEDURE_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Inter- as in "between". Anything between the start and the final judgment.',
     concepts: ['interlocutory-applications'],
-    skills: ['procedural-sequencing', 'strategic-reasoning'],
+    skills: [],
   },
   {
     slug: 'cp-service-purpose',
@@ -328,7 +328,7 @@ export const CIVIL_PROCEDURE_QUESTIONS: SeedQuestion[] = [
       'Treating the filing date as the moment the defendant is "on notice". They are not, until served.',
     memoryTrick:
       'Filing starts the clock. Service starts the case.',
-    concepts: ['originating-process', 'limitation-periods'],
-    skills: ['procedural-sequencing', 'attention-to-detail'],
+    concepts: ['originating-process'],
+    skills: ['procedural-sequencing'],
   },
 ];

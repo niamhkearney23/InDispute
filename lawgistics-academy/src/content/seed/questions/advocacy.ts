@@ -23,8 +23,8 @@ export const ADVOCACY_QUESTIONS: SeedQuestion[] = [
       'Thinking the rule requires you to cross-examine every witness. It requires you to put your case to the witnesses whose evidence you intend to contradict.',
     memoryTrick:
       'If you are going to say it in closing, you have to have said it to their face.',
-    concepts: ['browne-v-dunn', 'cross-examination'],
-    skills: ['oral-communication', 'professional-judgment', 'strategic-reasoning'],
+    concepts: ['browne-v-dunn'],
+    skills: [],
     sourceReference: 'Browne v Dunn (1893) 6 R 67',
   },
   {
@@ -45,7 +45,7 @@ export const ADVOCACY_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'In chief you ask. In cross you tell, and wait for the answer.',
     concepts: ['cross-examination', 'questioning-rules'],
-    skills: ['oral-communication'],
+    skills: [],
     sourceReference: 'Evidence Act 1995 (Cth) ss 41–42',
   },
   {
@@ -71,7 +71,7 @@ export const ADVOCACY_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Re-examination answers cross-examination. Nothing else.',
     concepts: ['re-examination'],
-    skills: ['oral-communication', 'strategic-reasoning'],
+    skills: [],
     sourceReference: 'Evidence Act 1995 (Cth) s 39',
   },
   {
@@ -97,7 +97,7 @@ export const ADVOCACY_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Paramount means exactly that. Nothing sits above it.',
     concepts: ['duty-to-court'],
-    skills: ['professional-judgment'],
+    skills: [],
     sourceReference: 'Australian Solicitors’ Conduct Rules r 3; Giannarelli v Wraith (1988) 165 CLR 543',
     sourceUrl: 'https://www.lawcouncil.au/policy-agenda/regulation-of-the-profession-and-ethics/australian-solicitors-conduct-rules',
   },
@@ -125,8 +125,8 @@ export const ADVOCACY_QUESTIONS: SeedQuestion[] = [
       'Believing the adversarial system means each side finds its own authorities. That is true of the facts; it is not true of binding law against you.',
     memoryTrick:
       'Disclose the authority. Then argue about it.',
-    concepts: ['candour-and-disclosure', 'duty-to-court'],
-    skills: ['professional-judgment', 'argument-construction'],
+    concepts: ['candour-and-disclosure'],
+    skills: ['professional-judgment'],
     sourceReference: 'Australian Solicitors’ Conduct Rules r 19.6',
   },
   {
@@ -146,8 +146,8 @@ export const ADVOCACY_QUESTIONS: SeedQuestion[] = [
       'Thinking that showing conviction helps. Conviction is conveyed through the strength of the argument, not through assertions of personal belief.',
     memoryTrick:
       '"I submit", never "I believe".',
-    concepts: ['candour-and-disclosure', 'oral-submissions'],
-    skills: ['oral-communication', 'professional-judgment'],
+    concepts: ['candour-and-disclosure'],
+    skills: [],
     sourceReference: 'Australian Solicitors’ Conduct Rules r 17',
   },
   {
@@ -173,7 +173,7 @@ export const ADVOCACY_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Stand, name the ground, sit down. Argue only if invited.',
     concepts: ['objections'],
-    skills: ['oral-communication', 'evidence-analysis'],
+    skills: [],
   },
   {
     slug: 'ad-opening-purpose',
@@ -198,7 +198,7 @@ export const ADVOCACY_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Opening gives the court the map. Closing tells them where you have arrived.',
     concepts: ['oral-submissions'],
-    skills: ['oral-communication', 'argument-construction'],
+    skills: [],
   },
   {
     slug: 'ad-answering-judicial-question',
@@ -225,7 +225,7 @@ export const ADVOCACY_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'The bench sets the agenda. Answer first, structure second.',
     concepts: ['oral-submissions'],
-    skills: ['oral-communication', 'strategic-reasoning'],
+    skills: ['strategic-reasoning'],
   },
   {
     slug: 'ad-concession',
@@ -249,8 +249,8 @@ export const ADVOCACY_QUESTIONS: SeedQuestion[] = [
       'Equating advocacy with never giving ground. Selective concession is a technique, not a weakness.',
     memoryTrick:
       'Give the point. Keep the case.',
-    concepts: ['oral-submissions', 'duty-to-court'],
-    skills: ['oral-communication', 'professional-judgment', 'strategic-reasoning'],
+    concepts: ['oral-submissions'],
+    skills: ['strategic-reasoning'],
   },
   {
     slug: 'ad-taking-instructions',
@@ -276,8 +276,8 @@ export const ADVOCACY_QUESTIONS: SeedQuestion[] = [
       'Assuming procedural matters do not require instructions. Timetables carry cost and risk consequences for the client.',
     memoryTrick:
       'When in doubt, ask for a moment. It is always granted, and it is never held against you.',
-    concepts: ['oral-submissions', 'duty-to-court'],
-    skills: ['professional-judgment', 'oral-communication'],
+    concepts: ['oral-submissions'],
+    skills: ['professional-judgment'],
   },
   {
     slug: 'ad-cross-purpose',
@@ -302,7 +302,7 @@ export const ADVOCACY_QUESTIONS: SeedQuestion[] = [
     memoryTrick:
       'Get what you need, and test what hurts. Nothing else.',
     concepts: ['cross-examination'],
-    skills: ['strategic-reasoning', 'oral-communication', 'evidence-analysis'],
+    skills: [],
   },
   {
     slug: 'ad-witness-preparation-limit',
@@ -321,8 +321,8 @@ export const ADVOCACY_QUESTIONS: SeedQuestion[] = [
       'Believing that any preparation is improper. Proper preparation is not only permitted but expected; suggesting content is not.',
     memoryTrick:
       'Prepare the witness. Never supply the evidence.',
-    concepts: ['candour-and-disclosure', 'examination-in-chief'],
-    skills: ['professional-judgment'],
+    concepts: ['duty-to-court'],
+    skills: [],
     sourceReference: 'Australian Solicitors’ Conduct Rules r 24',
   },
 ];

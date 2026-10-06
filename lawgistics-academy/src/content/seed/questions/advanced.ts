@@ -51,13 +51,13 @@ export const ADVANCED_QUESTIONS: SeedQuestion[] = [
     commonMisconception:
       'That a distinct cause of action is always safe. Anshun is precisely the doctrine that says otherwise.',
     memoryTrick: 'Res judicata is what was decided. Anshun is what should have been.',
-    concepts: ['limitation-periods', 'pleadings'],
-    skills: ['strategic-reasoning', 'procedural-sequencing'],
+    concepts: ['pleadings'],
+    skills: ['attention-to-detail'],
     sourceReference: 'Port of Melbourne Authority v Anshun Pty Ltd (1981) 147 CLR 589',
   },
   {
     slug: 'adv-au-house-v-king',
-    domain: 'legal-reasoning',
+    domain: 'court-system',
     type: 'multiple_choice',
     difficulty: 4,
     jurisdiction: 'AU_GENERAL',
@@ -78,8 +78,8 @@ export const ADVANCED_QUESTIONS: SeedQuestion[] = [
     commonMisconception:
       'That an appeal asks the appellate court to decide the question again. Against a discretion it does not.',
     memoryTrick: 'Not "was it wrong", but "was it wrongly reached".',
-    concepts: ['appellate-structure', 'stare-decisis'],
-    skills: ['argument-construction', 'strategic-reasoning'],
+    concepts: ['appellate-structure'],
+    skills: [],
     sourceReference: 'House v The King (1936) 55 CLR 499',
   },
   {
@@ -105,8 +105,8 @@ export const ADVANCED_QUESTIONS: SeedQuestion[] = [
     commonMisconception:
       'That a Browne v Dunn breach automatically excludes something. It is about fairness to the witness, and the cure is usually procedural.',
     memoryTrick: 'The rule is a duty to put, not a switch that deletes.',
-    concepts: ['browne-v-dunn', 'cross-examination'],
-    skills: ['oral-communication', 'strategic-reasoning'],
+    concepts: ['browne-v-dunn'],
+    skills: [],
     sourceReference: 'Browne v Dunn (1893) 6 R 67; Allied Pastoral Holdings Pty Ltd v FCT [1983] 1 NSWLR 1; MWJ v The Queen (2005) 80 ALJR 329',
   },
   {
@@ -132,8 +132,8 @@ export const ADVANCED_QUESTIONS: SeedQuestion[] = [
     commonMisconception:
       'That a substantial litigation purpose is enough. That was the older test, and it was displaced.',
     memoryTrick: 'Dominant means it beat the others, not that it was among them.',
-    concepts: ['client-legal-privilege', 'discovery'],
-    skills: ['evidence-analysis', 'commercial-reasoning'],
+    concepts: ['client-legal-privilege'],
+    skills: ['attention-to-detail', 'evidence-analysis'],
     sourceReference: 'Esso Australia Resources Ltd v FCT (1999) 201 CLR 49; Evidence Act 1995 (Cth) ss 118, 119',
   },
   {
@@ -159,8 +159,8 @@ export const ADVANCED_QUESTIONS: SeedQuestion[] = [
     commonMisconception:
       'That not calling a witness proves what the witness would have said. It proves nothing; it only removes a reason to hesitate.',
     memoryTrick: 'It is a tailwind, not an engine.',
-    concepts: ['onus-of-proof', 'relevance'],
-    skills: ['evidence-analysis', 'argument-construction'],
+    concepts: ['onus-of-proof'],
+    skills: ['evidence-analysis'],
     sourceReference: 'Jones v Dunkel (1959) 101 CLR 298',
   },
   {
@@ -186,8 +186,8 @@ export const ADVANCED_QUESTIONS: SeedQuestion[] = [
     commonMisconception:
       'That Briginshaw raises the standard. It does not raise the standard; it raises what it takes to meet it.',
     memoryTrick: 'Same bar, heavier weight to lift over it.',
-    concepts: ['standard-of-proof', 'onus-of-proof'],
-    skills: ['evidence-analysis', 'professional-judgment'],
+    concepts: ['standard-of-proof'],
+    skills: [],
     sourceReference: 'Briginshaw v Briginshaw (1938) 60 CLR 336; Evidence Act 1995 (Cth) s 140(2)',
   },
   {
@@ -213,8 +213,8 @@ export const ADVANCED_QUESTIONS: SeedQuestion[] = [
     commonMisconception:
       'That the two are interchangeable. They differ in formality, in timing requirements and in whether the consequence is prescribed or discretionary.',
     memoryTrick: 'The rules give you an entitlement. Calderbank gives you an argument.',
-    concepts: ['costs', 'settlement-privilege'],
-    skills: ['commercial-reasoning', 'strategic-reasoning'],
+    concepts: ['costs'],
+    skills: [],
     sourceReference: 'Calderbank v Calderbank [1975] 3 All ER 333; and see the offer of compromise provisions in the relevant court rules',
   },
   {
@@ -268,7 +268,7 @@ export const ADVANCED_QUESTIONS: SeedQuestion[] = [
       'That poverty of the plaintiff decides the application. It opens it.',
     memoryTrick: 'Impecuniosity is the key to the door, not the decision inside it.',
     concepts: ['costs', 'interlocutory-applications'],
-    skills: ['strategic-reasoning', 'commercial-reasoning'],
+    skills: [],
     sourceReference: 'Corporations Act 2001 (Cth) s 1335, and the security for costs provisions of the relevant court rules',
   },
   {
@@ -295,7 +295,7 @@ export const ADVANCED_QUESTIONS: SeedQuestion[] = [
       'That writing "without prejudice" at the top makes a document inadmissible whatever it says.',
     memoryTrick: 'The protection follows the purpose, not the heading.',
     concepts: ['settlement-privilege'],
-    skills: ['professional-judgment', 'written-communication'],
+    skills: ['evidence-analysis'],
     sourceReference: 'Evidence Act 1995 (Cth) s 131 and its exceptions; and the general law on without prejudice communications',
   },
 ];
