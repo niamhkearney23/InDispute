@@ -9,6 +9,8 @@ import { staffMayRead } from '@/lib/admin/supervision';
 import { learnerDetail } from '@/lib/admin/answers';
 import { Card, Pill, ScoreBar, SectionHeading } from '@/components/ui';
 import { Avatar } from '@/components/avatar';
+import { RoundsCalendar } from '@/components/rounds-calendar';
+import { roundsHistory } from '@/lib/training/rounds-service';
 
 export const metadata: Metadata = { title: 'Trainee' };
 export const dynamic = 'force-dynamic';
@@ -29,6 +31,11 @@ export default async function AdminTraineePage({ params }: { params: Promise<{ i
   if (!(await staffMayRead(id, isAdmin))) notFound();
   const person = await learnerDetail(id, isAdmin);
   if (!person) notFound();
+  // Their mornings: four rounds a working day, and which were missed.
+  const mornings = person.trainee ? await roundsHistory(id).catch(() => null) : null;
+  const missed = mornings
+    ? mornings.days.reduce((n, d) => n + d.rounds.filter((r) => r.state === 'missed').length, 0)
+    : 0;
 
   const percent = person.totalAnswered
     ? Math.floor((person.totalRight / person.totalAnswered) * 100)
@@ -53,6 +60,18 @@ export default async function AdminTraineePage({ params }: { params: Promise<{ i
             : `${person.totalAnswered} questions answered, ${person.totalRight} right (${percent}%).`}
         </p>
       </section>
+
+      {mornings && mornings.days.length > 0 ? (
+        <section>
+          <SectionHeading
+            eyebrow="Rounds, 7am to 11am Kuala Lumpur time"
+            title={missed === 0 ? 'No rounds missed' : `${missed} round${missed === 1 ? '' : 's'} missed`}
+          />
+          <Card>
+            <RoundsCalendar days={mornings.days} today={mornings.days[mornings.days.length - 1].date} />
+          </Card>
+        </section>
+      ) : null}
 
       <section>
         <SectionHeading eyebrow="Required and optional" title="Modules" />

@@ -8,7 +8,7 @@ import type { WorkPost } from '@/lib/work/service';
 /**
  * This morning's session, on the dashboard.
  *
- * The training runs seven to eight. Somebody opening the app at ten past seven
+ * The training runs 7am to 11am. Somebody opening the app at ten past seven
  * should see what their coach has put up for that morning before anything else,
  * because that is the thing with a time on it. The questions will still be there
  * at nine.

@@ -7,6 +7,9 @@ import { brand } from '@/lib/brand';
 import { Avatar } from '@/components/avatar';
 import { NavLink } from '@/components/nav-link';
 import { FirstPassword } from './account/password-form';
+import { NextRoundClock } from '@/components/next-round-clock';
+import { roundsToday } from '@/lib/training/rounds-service';
+import { nextOpening, openRound } from '@/lib/training/rounds';
 
 /**
  * Every page under this layout is per-learner and auth-gated. Say so explicitly
@@ -43,6 +46,23 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </main>
       </div>
     );
+  }
+
+  // A confirmed trainee on a working morning gets the corner clock: how long
+  // the open round has left, or when the next one opens. Nothing for anyone
+  // else, and nothing if the rounds cannot be read.
+  let clock: { at: string; label: string } | null = null;
+  if (profile?.track === 'litigation_trainee' && profile.traineeConfirmed) {
+    const today = await roundsToday(user.id).catch(() => null);
+    if (today) {
+      const open = openRound(today.rounds);
+      const next = nextOpening(today.rounds);
+      clock = open
+        ? { at: open.closesAt.toISOString(), label: `Round ${open.number} closes` }
+        : next
+          ? { at: next.opensAt.toISOString(), label: `Round ${next.number} opens` }
+          : null;
+    }
   }
 
   return (
@@ -123,7 +143,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         {children}
       </main>
 
-      <footer className="mx-auto w-full max-w-4xl px-5 pb-8 sm:px-8 print:hidden">
+      {clock ? <NextRoundClock at={clock.at} label={clock.label} /> : null}
+
+      <footer
+        className={`mx-auto w-full max-w-4xl px-5 sm:px-8 print:hidden ${clock ? 'pb-20' : 'pb-8'}`}
+      >
         <p className="border-t border-rule pt-5 text-xs text-muted">
           Training content only, not legal advice. Levels are game levels, not
           professional titles or qualifications. Always check the current rules of the

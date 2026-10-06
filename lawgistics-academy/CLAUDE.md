@@ -69,7 +69,7 @@ These come from the owner and are not up for renegotiation.
   it leads the dashboard the morning it is for. That is not an exception to
   the rule, it is outside it: a session has no version chain, no answer key,
   no sign-off, and never reaches the training engine. It is the coach's own
-  teaching, under their own name, and the training runs seven to eight daily,
+  teaching, under their own name, and the training runs 7am to 11am daily,
   so the coach needs to be able to put something in front of people without a
   developer and a deployment. Two more are the **certification register**
   under `/admin/certification`: a coach's own trainees, on their own real
@@ -312,6 +312,16 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   list is in PR #43. `0035` applies the same labels to a database that already
   has the questions, because the app only loads questions the database lacks;
   any future relabel needs the same kind of migration.
+- **Rounds** (`src/lib/training/rounds.ts`): on a working day of the placement a
+  confirmed trainee trains in four rounds of ten questions, opening at 7, 8, 9
+  and 10am Kuala Lumpur time whatever their own timezone. A round is open for
+  its hour and missed for good after it; a session belongs to the round it was
+  started in. `beginSession` refuses a daily session outside an open round and
+  sizes it to what the round still needs. A corner clock counts down to the
+  next opening or the open round's close, Today shows the rounds and a little
+  calendar of every morning, and a coach sees the calendar and missed count on
+  Admin, Trainees. No rounds run until questions are published for the
+  trainee's country, so nothing is marked missed that could not be done.
 - **The look.** The academy (everything under `src/app/(app)`) is navy: the
   `theme-navy` class on its layout swaps the colour tokens in
   `globals.css` (cream buttons, ice-blue details, burgundy warnings, a two-level

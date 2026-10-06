@@ -1,5 +1,7 @@
 'use server';
 
+import { roundsToday } from '@/lib/training/rounds-service';
+import { ROUND_SIZE, nextOpening, openRound, roundLabel } from '@/lib/training/rounds';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
@@ -147,8 +149,34 @@ export async function beginSession(
 
   let outcome: { sessionId: string } | { error: string };
 
+  // A trainee on a working morning trains in rounds: only while one is
+  // open, and only the questions that round still needs.
+  let round: { count: number; opensAt: Date } | undefined;
+  if (kind === 'daily') {
+    // Reading the rounds is the first service-role call, so it fails here
+    // first on a deployment missing the key; say so next to the button.
+    let today: Awaited<ReturnType<typeof roundsToday>>;
+    try {
+      today = await roundsToday(user.id);
+    } catch (caught) {
+      return { error: caught instanceof Error ? caught.message : 'Could not start the session.' };
+    }
+    if (today) {
+      const open = openRound(today.rounds);
+      if (!open) {
+        const next = nextOpening(today.rounds);
+        return {
+          error: next
+            ? `Round ${next.number} opens at ${roundLabel(next)}, Kuala Lumpur time.`
+            : 'This morning’s rounds are over. The first one tomorrow opens at 7am, Kuala Lumpur time.',
+        };
+      }
+      round = { count: ROUND_SIZE - open.answered, opensAt: open.opensAt };
+    }
+  }
+
   try {
-    outcome = await resumeOrStartSession(user.id, kind);
+    outcome = await resumeOrStartSession(user.id, kind, round);
   } catch (caught) {
     // Starting a session is the first thing that touches the service-role key,
     // so a deployment missing SUPABASE_SERVICE_ROLE_KEY fails here and nowhere

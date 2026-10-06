@@ -18,6 +18,10 @@ import { TOP_LEVEL_NAME } from '@/lib/learning/progression';
 import { GoalRing } from '@/components/goal-ring';
 import { AccentSurface } from '@/components/accent-surface';
 import { Avatar } from '@/components/avatar';
+import { RoundsStrip } from '@/components/rounds-strip';
+import { RoundsCalendar } from '@/components/rounds-calendar';
+import { roundsHistory, roundsToday } from '@/lib/training/rounds-service';
+import { ROUND_SIZE, closingLabel, nextOpening, openRound, roundLabel } from '@/lib/training/rounds';
 import {
   BookIcon,
   BriefcaseIcon,
@@ -119,6 +123,17 @@ export default async function DashboardPage() {
   const assignedTopic = assignedTopicSlug ? essayTopic(assignedTopicSlug) : undefined;
 
   const homework = homeworkDay(profile.startsOn, profile.endsOn, profile.timezone);
+  // A confirmed trainee's working morning is four rounds of ten (rounds.ts),
+  // in place of the daily goal; the calendar shows every morning so far.
+  const isTrainee = profile.track === 'litigation_trainee' && profile.traineeConfirmed;
+  const [rounds, roundDays] = isTrainee
+    ? await Promise.all([
+        roundsToday(user.id).catch(() => null),
+        roundsHistory(user.id).catch(() => null),
+      ])
+    : [null, null];
+  const openNow = rounds ? openRound(rounds.rounds) : null;
+  const nextUp = rounds ? nextOpening(rounds.rounds) : null;
   // Today's entry in the day plan, for the programme strip. Null outside a working day.
   const todayPlan = homework.state === 'day' ? programmeDay(homework.day) : null;
   // Which week of the month it is, for the programme strip. Null outside it.
@@ -367,6 +382,38 @@ export default async function DashboardPage() {
                 </div>
               ) : null}
             </div>
+          ) : rounds ? (
+            <div className="mt-7 space-y-4 rounded-lg bg-black/15 p-4 ring-1 ring-white/10 sm:p-5">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="mb-1.5 text-[0.6875rem] font-semibold tracking-[0.16em] text-paper/70 uppercase">
+                    This morning, Kuala Lumpur time
+                  </p>
+                  <p className="font-serif text-2xl leading-snug sm:text-3xl">
+                    {openNow
+                      ? `Round ${openNow.number} is open`
+                      : nextUp
+                        ? `Round ${nextUp.number} opens at ${roundLabel(nextUp)}`
+                        : 'This morning is over'}
+                  </p>
+                  <p className="mt-2 text-sm text-paper/80">
+                    {openNow
+                      ? `${openNow.answered} of ${ROUND_SIZE} done. It closes at ${closingLabel(openNow)}; after that it counts as missed.`
+                      : nextUp
+                        ? `Ten questions, one round an hour from 7am to 11am. ${rounds.rounds.filter((r) => r.state === 'done').length} done so far today.`
+                        : `${rounds.rounds.filter((r) => r.state === 'done').length} of 4 rounds done. The first round tomorrow opens at 7am.`}
+                  </p>
+                </div>
+                {openNow ? (
+                  <BeginSessionButton
+                    kind="daily"
+                    variant="light"
+                    label={openNow.answered > 0 ? `Carry on with round ${openNow.number}` : `Start round ${openNow.number}`}
+                  />
+                ) : null}
+              </div>
+              <RoundsStrip rounds={rounds.rounds} />
+            </div>
           ) : (
             <div className="mt-7 flex flex-col gap-5 rounded-lg bg-black/15 p-4 ring-1 ring-white/10 sm:flex-row sm:items-center sm:justify-between sm:p-5">
               <div className="flex items-center gap-5">
@@ -431,6 +478,15 @@ export default async function DashboardPage() {
           )}
         </div>
       </AccentSurface>
+
+      {/* Every morning of the placement so far, a square a day and a dot a
+          round, so a missed round is as visible as a done one. */}
+      {roundDays && roundDays.days.length > 0 ? (
+        <Card>
+          <p className="eyebrow mb-3">Your mornings</p>
+          <RoundsCalendar days={roundDays.days} today={rounds?.date ?? roundDays.days[roundDays.days.length - 1].date} />
+        </Card>
+      ) : null}
 
       {/* The programme, for the people on it: where the month is up to, today's
           concept when there is one, and the six places its work lives, as
@@ -634,7 +690,7 @@ export default async function DashboardPage() {
       ) : null}
 
       {/* The coach's own session comes before the daily brief and before the
-          stats. The training runs seven to eight and this is the thing with a
+          stats. The training runs 7am to 11am and this is the thing with a
           time on it; the questions will still be there at nine. */}
       {lead ? (
         <SessionCard session={lead} more={sessions.length - 1} materials={leadMaterials} />
