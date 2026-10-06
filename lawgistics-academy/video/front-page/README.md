@@ -17,7 +17,7 @@ npx hyperframes@0.8.137 check
 npx hyperframes@0.8.137 render -o /tmp/raw.mp4
 ffmpeg -i /tmp/raw.mp4 -c:v libx264 -preset slow -crf 27 -pix_fmt yuv420p \
   -movflags +faststart -an ../../public/video/front-page.mp4
-ffmpeg -ss 16.4 -i /tmp/raw.mp4 -frames:v 1 -q:v 4 ../../public/video/front-page-poster.jpg
+ffmpeg -ss 16.9 -i /tmp/raw.mp4 -frames:v 1 -q:v 4 ../../public/video/front-page-poster.jpg
 ```
 
 The page plays it muted and looping, waits on the still for anyone whose
