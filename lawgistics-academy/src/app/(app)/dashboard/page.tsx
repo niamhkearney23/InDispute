@@ -809,9 +809,10 @@ export default async function DashboardPage() {
                 score={entry.score}
                 band={masteryBand(entry.score)}
                 early={entry.attempts < MASTERY.minAttemptsForConfidence}
+                earlyText={entry.attempts === 0 ? 'Not asked yet' : undefined}
                 sublabel={
                   entry.attempts === 0
-                    ? 'Not yet assessed'
+                    ? 'No questions on this yet'
                     : `${entry.attempts} answer${entry.attempts === 1 ? '' : 's'}`
                 }
               />
