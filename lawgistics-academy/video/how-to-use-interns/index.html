@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <!--
+      How to use the Lawgistics Academy, for the firm's interns: a 60 second
+      portrait video to send by WhatsApp or email. Silent, with the words on
+      screen.
+
+      Interns are not litigation trainees. They join by an invitation link,
+      train whenever suits them as homework, and have no morning rounds, so
+      none of that appears here. The tour and Learn screens are captured
+      from a Malaysian learner on the mock backend; the score screen carries
+      sample data and is marked "Example". Joining, the diagnostic, training
+      and a question are drawn, the question with blank lines so no legal
+      content appears that a lawyer has not signed off.
+
+      To change it: edit this file, then render and re-encode as described in
+      README.md.
+    -->
+    <script src="assets/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: 'Fraunces';
+        src: url('assets/fonts/fraunces-latin-wght-normal.woff2') format('woff2');
+        font-weight: 100 900;
+      }
+      @font-face {
+        font-family: 'Inter';
+        src: url('assets/fonts/inter-latin-wght-normal.woff2') format('woff2');
+        font-weight: 100 900;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #0d1b2a;
+      }
+      #root {
+        position: relative;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        font-family: 'Inter', sans-serif;
+        color: #f5f1e8;
+      }
+      .layer {
+        position: absolute;
+        inset: 0;
+      }
+      #ground {
+        background-color: #0d1b2a;
+        background-image:
+          linear-gradient(to right, rgba(245, 241, 232, 0.06) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(245, 241, 232, 0.06) 1px, transparent 1px);
+        background-size: 72px 72px;
+      }
+      #glow {
+        background: radial-gradient(circle at 50% 30%, rgba(140, 196, 245, 0.10), transparent 60%);
+      }
+      .serif {
+        font-family: 'Fraunces', serif;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+      }
+      .mist {
+        color: #8a98a8;
+      }
+
+      /* Title and close */
+      .big-copy {
+        position: absolute;
+        left: 90px;
+        right: 90px;
+      }
+      .kicker {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        font-size: 28px;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #8a98a8;
+        margin-bottom: 40px;
+      }
+      .kicker span {
+        display: block;
+        width: 56px;
+        height: 3px;
+        background: #7a2e3a;
+      }
+      .huge {
+        font-size: 112px;
+        line-height: 1.02;
+      }
+      .lead {
+        margin-top: 40px;
+        font-size: 40px;
+        line-height: 1.35;
+        color: #c9d2dc;
+      }
+      .url {
+        display: inline-block;
+        margin-top: 26px;
+        padding: 18px 30px;
+        border-radius: 16px;
+        background: #f5f1e8;
+        color: #0d1b2a;
+        font-size: 38px;
+        font-weight: 650;
+      }
+
+      /* Step captions */
+      .cap {
+        position: absolute;
+        left: 90px;
+        right: 90px;
+        top: 96px;
+      }
+      .cap-head {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+      }
+      .num {
+        flex: none;
+        width: 74px;
+        height: 74px;
+        border-radius: 50%;
+        background: #7a2e3a;
+        display: grid;
+        place-items: center;
+        font-size: 38px;
+        font-weight: 700;
+      }
+      .cap-title {
+        font-size: 70px;
+        line-height: 1.05;
+      }
+      .sub {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 112px;
+        font-size: 36px;
+        line-height: 1.38;
+        color: #c9d2dc;
+      }
+      .sub.warn {
+        color: #ffb3a7;
+        font-weight: 600;
+      }
+
+      /* The phone */
+      #phone {
+        position: absolute;
+        left: 206px;
+        top: 452px;
+        width: 668px;
+        height: 1413px;
+        border-radius: 70px;
+        background: #05090f;
+        padding: 14px;
+        box-shadow:
+          0 0 0 3px rgba(245, 241, 232, 0.12),
+          0 60px 140px -30px rgba(0, 0, 0, 0.8);
+      }
+      #screen {
+        position: relative;
+        width: 640px;
+        height: 1385px;
+        border-radius: 56px;
+        overflow: hidden;
+        background: #0b1622;
+      }
+      .shot {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 640px;
+        height: 1385px;
+        object-fit: cover;
+        object-position: top;
+      }
+      .example {
+        position: absolute;
+        right: 24px;
+        bottom: 24px;
+        padding: 10px 20px;
+        border-radius: 999px;
+        background: rgba(5, 9, 15, 0.85);
+        border: 2px solid rgba(245, 241, 232, 0.3);
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #f5f1e8;
+      }
+      .tap {
+        position: absolute;
+        width: 96px;
+        height: 96px;
+        margin: -48px 0 0 -48px;
+        border-radius: 50%;
+        background: rgba(245, 241, 232, 0.35);
+        border: 4px solid #f5f1e8;
+      }
+      .ring {
+        position: absolute;
+        border-radius: 22px;
+        border: 5px solid #8cc4f5;
+        box-shadow: 0 0 0 9999px rgba(5, 9, 15, 0.35);
+      }
+
+      /* Drawn screens, in the app's own navy */
+      .drawn {
+        padding: 150px 40px 40px;
+        color: #f2ede3;
+        background: #0b1622;
+      }
+      .app-bar {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 96px;
+        border-bottom: 2px solid #1f3349;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 36px;
+        font-size: 24px;
+        color: #a9b6c4;
+      }
+      .app-bar b {
+        font-family: 'Fraunces', serif;
+        font-size: 30px;
+        color: #f2ede3;
+      }
+      .eyebrow {
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #8cc4f5;
+      }
+      .d-title {
+        margin-top: 16px;
+        font-size: 64px;
+        line-height: 1.08;
+      }
+      .d-text {
+        margin-top: 22px;
+        font-size: 31px;
+        line-height: 1.45;
+        color: #a9b6c4;
+      }
+      .panel {
+        margin-top: 30px;
+        border-radius: 24px;
+        background: #102033;
+        border: 2px solid #1f3349;
+        padding: 36px;
+      }
+      .bar {
+        height: 22px;
+        border-radius: 11px;
+        background: rgba(242, 237, 227, 0.18);
+        margin-top: 20px;
+        transform-origin: left center;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        border-radius: 999px;
+        padding: 12px 22px;
+        font-size: 24px;
+        font-weight: 600;
+        border: 2px solid #2b4560;
+        background: #102033;
+      }
+      .dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #a9b6c4;
+      }
+      .progress {
+        margin-top: 26px;
+        height: 14px;
+        border-radius: 7px;
+        background: #1f3349;
+        overflow: hidden;
+      }
+      .progress span {
+        display: block;
+        height: 100%;
+        width: 100%;
+        background: #8cc4f5;
+        transform-origin: left center;
+      }
+      .round-row {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        padding: 40px 0;
+        border-top: 2px solid #1f3349;
+      }
+      .round-row:first-child {
+        border-top: 0;
+      }
+      .round-time {
+        width: 120px;
+        font-size: 40px;
+        font-weight: 650;
+        font-variant-numeric: tabular-nums;
+      }
+      .round-dots {
+        flex: 1;
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        gap: 8px;
+      }
+      .round-dots span {
+        display: block;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        border: 2px solid rgba(242, 237, 227, 0.3);
+      }
+      .round-state {
+        width: 130px;
+        text-align: right;
+        font-size: 25px;
+        font-weight: 600;
+        color: #a9b6c4;
+      }
+      .opt {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        margin-top: 22px;
+        border-radius: 20px;
+        border: 2px solid #2b4560;
+        padding: 34px 26px;
+      }
+      .opt b {
+        width: 56px;
+        height: 56px;
+        flex: none;
+        border-radius: 50%;
+        border: 2px solid #2b4560;
+        display: grid;
+        place-items: center;
+        font-size: 22px;
+        color: #a9b6c4;
+      }
+      .opt .bar {
+        margin: 0;
+        flex: 1;
+      }
+      .sure {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-top: 16px;
+      }
+      .sure span {
+        border-radius: 16px;
+        border: 2px solid #2b4560;
+        padding: 30px 8px;
+        text-align: center;
+        font-size: 26px;
+      }
+      .verdict {
+        margin-top: 26px;
+        border-radius: 20px;
+        background: #0f2a26;
+        border: 2px solid #6fd0a6;
+        padding: 34px 32px;
+      }
+      .verdict p {
+        font-size: 38px;
+        font-weight: 650;
+        color: #6fd0a6;
+      }
+
+      /* The joining page is cream, as it is in the app */
+      .join {
+        padding: 120px 44px 40px;
+        background: #f5f1e8;
+        color: #14110f;
+      }
+      .join .wordmark {
+        font-family: 'Fraunces', serif;
+        font-size: 34px;
+      }
+      .join h3 {
+        margin-top: 70px;
+        font-family: 'Fraunces', serif;
+        font-weight: 500;
+        font-size: 60px;
+      }
+      .join .j-text {
+        margin-top: 18px;
+        font-size: 28px;
+        line-height: 1.45;
+        color: #5c554d;
+      }
+      .join label {
+        display: block;
+        margin-top: 40px;
+        font-size: 26px;
+        font-weight: 600;
+      }
+      .field {
+        margin-top: 12px;
+        height: 86px;
+        border-radius: 10px;
+        border: 2px solid #cfc5b2;
+        background: #fff;
+        padding: 0 22px;
+        display: flex;
+        align-items: center;
+        font-size: 28px;
+        color: #8a8177;
+        letter-spacing: 0.1em;
+      }
+      .field.ro {
+        background: #f3efe6;
+        letter-spacing: 0;
+      }
+      .join-button {
+        margin-top: 44px;
+        height: 96px;
+        border-radius: 10px;
+        background: #0d1b2a;
+        color: #f5f1e8;
+        display: grid;
+        place-items: center;
+        font-size: 30px;
+        font-weight: 600;
+      }
+      .start-button {
+        margin-top: 30px;
+        height: 92px;
+        border-radius: 12px;
+        background: #f2ede3;
+        color: #0b1622;
+        display: grid;
+        place-items: center;
+        font-size: 30px;
+        font-weight: 600;
+      }
+
+      #veil {
+        background: #0d1b2a;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="60" data-width="1080" data-height="1920">
+      <div id="ground" class="layer clip" data-start="0" data-duration="60" data-track-index="0"></div>
+      <div id="glow" class="layer clip" data-start="0" data-duration="60" data-track-index="1"></div>
+
+      <div id="title" class="layer clip" data-start="0" data-duration="4.6" data-track-index="2">
+        <div class="big-copy" style="top: 700px">
+          <p class="kicker"><span></span>For Thomas Philip interns</p>
+          <p class="huge serif" id="t1">How to use the</p>
+          <p class="huge serif mist" id="t2">Lawgistics Academy</p>
+          <p class="lead" id="t3">Your homework, whenever it suits you.</p>
+        </div>
+      </div>
+
+      <div id="caps" class="layer clip" data-start="4.2" data-duration="48.3" data-track-index="3">
+        <div class="cap" id="c1">
+          <div class="cap-head"><span class="num">1</span><span class="cap-title serif">Join with your link</span></div>
+          <p class="sub" id="c1a">Your supervisor sends you a link. It is yours alone and works once.</p>
+          <p class="sub" id="c1b">Choose a password and tap Create my account.</p>
+        </div>
+        <div class="cap" id="c2">
+          <div class="cap-head"><span class="num">2</span><span class="cap-title serif">Take the tour</span></div>
+          <p class="sub">A quick tour shows what each part is and where to find it.</p>
+        </div>
+        <div class="cap" id="c3">
+          <div class="cap-head"><span class="num">3</span><span class="cap-title serif">The diagnostic</span></div>
+          <p class="sub">About 30 questions. There is no pass mark. It shows where you are starting from.</p>
+        </div>
+        <div class="cap" id="c4">
+          <div class="cap-head"><span class="num">4</span><span class="cap-title serif">Train when it suits you</span></div>
+          <p class="sub" id="c4a">A few minutes at a time, from Today.</p>
+          <p class="sub" id="c4b">What you get wrong comes back until you have it.</p>
+        </div>
+        <div class="cap" id="c5">
+          <div class="cap-head"><span class="num">5</span><span class="cap-title serif">Answering</span></div>
+          <p class="sub" id="c5a">Pick an answer, then say how sure you are. Be honest.</p>
+          <p class="sub" id="c5b">You see straight away whether you were right, and why.</p>
+        </div>
+        <div class="cap" id="c6">
+          <div class="cap-head"><span class="num">6</span><span class="cap-title serif">Learn</span></div>
+          <p class="sub">Modules teach for a few minutes, then ask. Each has a finishing line.</p>
+        </div>
+        <div class="cap" id="c7">
+          <div class="cap-head"><span class="num">7</span><span class="cap-title serif">Your score</span></div>
+          <p class="sub">It starts at 100%. Only a wrong answer brings it down.</p>
+        </div>
+      </div>
+
+      <div id="phone" class="clip" data-start="4.2" data-duration="48.3" data-track-index="4">
+        <div id="screen">
+          <div class="shot join" id="s-join">
+            <p class="wordmark">Lawgistics <span style="font-family: Inter, sans-serif; font-size: 20px; letter-spacing: 0.2em; color: #8a8177">ACADEMY</span></p>
+            <h3>Welcome</h3>
+            <p class="j-text">You have been invited to join through Lawgistics Academy. Set a password and you will go straight to the list of what to do before your first day.</p>
+            <label>Email</label>
+            <div class="field ro">you@example.com</div>
+            <label>Choose a password</label>
+            <div class="field" id="pw"></div>
+            <div class="join-button" id="create">Create my account</div>
+          </div>
+          <img class="shot" id="s-welcome" src="assets/screens/welcome.jpg" alt="" />
+          <div class="shot drawn" id="s-diag">
+            <div class="app-bar"><b>Lawgistics</b><span>Today · Learn · Skills</span></div>
+            <p class="eyebrow">First</p>
+            <p class="d-title serif">The diagnostic</p>
+            <p class="d-text">About 30 questions across the foundation areas. There is no pass mark. The result sets what your daily training covers.</p>
+            <div class="panel">
+              <p class="d-text" style="margin: 0; color: #f2ede3; font-variant-numeric: tabular-nums">Question <span id="diag-n">1</span> of 30</p>
+              <div class="progress"><span id="diag-bar"></span></div>
+              <div class="bar" style="width: 100%; margin-top: 30px"></div>
+              <div class="bar" style="width: 86%"></div>
+              <div class="bar" style="width: 64%"></div>
+              <div class="bar" style="width: 90%; margin-top: 40px"></div>
+              <div class="bar" style="width: 72%"></div>
+            </div>
+            <p class="pill" style="margin-top: 36px; font-size: 28px"><span class="dot" style="background: #6fd0a6"></span>No pass mark</p>
+          </div>
+          <div class="shot drawn" id="s-today">
+            <div class="app-bar"><b>Lawgistics</b><span>Today · Learn · Skills</span></div>
+            <p class="eyebrow">Today</p>
+            <p class="d-title serif">Today&rsquo;s training</p>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 30px">
+              <div class="panel" style="margin: 0; padding: 22px"><p class="eyebrow" style="color: #a9b6c4">Streak</p><p style="font-size: 48px; margin-top: 8px">3 <span style="font-size: 22px; color: #a9b6c4">days</span></p></div>
+              <div class="panel" style="margin: 0; padding: 22px"><p class="eyebrow" style="color: #a9b6c4">Level</p><p style="font-size: 48px; margin-top: 8px">2</p></div>
+              <div class="panel" style="margin: 0; padding: 22px"><p class="eyebrow" style="color: #a9b6c4">Week</p><p style="font-size: 48px; margin-top: 8px">120 <span style="font-size: 22px; color: #a9b6c4">XP</span></p></div>
+            </div>
+            <p class="d-text">A short session, whenever suits you. Anything you got wrong before comes back in it.</p>
+            <div class="panel">
+              <p class="d-text" style="margin: 0; color: #f2ede3">Due for another look</p>
+              <div class="bar" style="width: 80%; margin-top: 24px"></div>
+              <div class="bar" style="width: 62%"></div>
+              <div class="bar" style="width: 70%"></div>
+            </div>
+            <div class="start-button" id="start">Start training</div>
+          </div>
+          <div class="shot drawn" id="s-answer">
+            <div class="app-bar"><b>Lawgistics</b><span>3 of 10</span></div>
+            <div class="panel" style="margin-top: 10px">
+              <div class="bar" style="width: 100%; margin-top: 0"></div>
+              <div class="bar" style="width: 94%"></div>
+              <div class="bar" style="width: 88%"></div>
+              <div class="bar" style="width: 52%"></div>
+            </div>
+            <div class="opt" id="o1"><b>A</b><div class="bar" style="max-width: 70%"></div></div>
+            <div class="opt" id="o2"><b>B</b><div class="bar" style="max-width: 82%"></div></div>
+            <div class="opt" id="o3"><b>C</b><div class="bar" style="max-width: 64%"></div></div>
+            <div class="opt" id="o4"><b>D</b><div class="bar" style="max-width: 76%"></div></div>
+            <div style="position: relative">
+              <div id="sure-block">
+                <p class="d-text" style="color: #f2ede3; margin-top: 26px">How sure are you?</p>
+                <div class="sure"><span>Guess</span><span id="sure-mid">Somewhat sure</span><span>Certain</span></div>
+              </div>
+              <div class="verdict" id="verdict" style="position: absolute; left: 0; right: 0; top: 26px">
+                <p>Right</p>
+                <div class="bar" style="width: 100%"></div>
+                <div class="bar" style="width: 78%"></div>
+              </div>
+            </div>
+          </div>
+          <img class="shot" id="s-modules" src="assets/screens/modules.jpg" alt="" />
+          <img class="shot" id="s-skills" src="assets/screens/skills.jpg" alt="" />
+          <div class="ring" id="ring"></div>
+          <div class="tap" id="tap"></div>
+          <p class="example" id="example">Example</p>
+        </div>
+      </div>
+
+      <div id="close" class="layer clip" data-start="52.2" data-duration="7.8" data-track-index="5">
+        <div class="big-copy" style="top: 700px">
+          <p class="kicker"><span></span>For Thomas Philip interns</p>
+          <p class="huge serif" id="e1">A few minutes</p>
+          <p class="huge serif mist" id="e2">whenever it suits you.</p>
+          <p class="lead" id="e3">Questions? Ask your supervisor.</p>
+        </div>
+      </div>
+
+      <div id="veil" class="layer clip" data-start="0" data-duration="60" data-track-index="9"></div>
+    </div>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      const ease = 'power3.out';
+      const $ = (s) => document.querySelector(s);
+      const K = 640 / 780;
+
+      tl.fromTo(['.cap', '.sub', '.shot', '#tap', '#ring', '#example', '#verdict', '#sure-block'], { opacity: 0 }, { opacity: 0, duration: 0.01 }, 0);
+      tl.fromTo('#veil', { opacity: 1 }, { opacity: 0, duration: 0.5, ease: 'none' }, 0);
+      tl.fromTo('#veil', { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'none', immediateRender: false }, 59.4);
+      tl.fromTo('#ground', { backgroundPosition: '0px 0px' }, { backgroundPosition: '72px 144px', duration: 60, ease: 'none' }, 0);
+
+      tl.fromTo('#title .kicker', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, ease }, 0.3);
+      tl.fromTo(['#t1', '#t2', '#t3'], { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.7, ease, stagger: 0.18 }, 0.5);
+      tl.to('#title', { opacity: 0, y: -60, duration: 0.5, ease: 'power2.in' }, 4.0);
+
+      tl.fromTo('#phone', { y: 300, opacity: 0 }, { y: 0, opacity: 1, duration: 0.9, ease }, 4.3);
+      tl.to('#phone', { y: 300, opacity: 0, duration: 0.6, ease: 'power2.in' }, 51.8);
+
+      const capIn = (id, at) => {
+        tl.fromTo(id, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease, immediateRender: false }, at);
+        tl.fromTo(id + ' .num', { scale: 0.4 }, { scale: 1, duration: 0.45, ease: 'back.out(2.2)', immediateRender: false }, at + 0.05);
+      };
+      const capOut = (id, at) => tl.to(id, { opacity: 0, y: -30, duration: 0.35, ease: 'power2.in' }, at);
+      const subIn = (id, at) => tl.fromTo(id, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.45, ease, immediateRender: false }, at);
+      const subOut = (id, at) => tl.to(id, { opacity: 0, duration: 0.3 }, at);
+      const screenIn = (id, at) => tl.fromTo(id, { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.5, ease, immediateRender: false }, at);
+      const screenOut = (id, at) => tl.to(id, { opacity: 0, duration: 0.35 }, at);
+      const tap = (box, at) => {
+        tl.set('#tap', { left: (box.x + box.w / 2) * K, top: (box.y + box.h / 2) * K }, at - 0.01);
+        tl.fromTo('#tap', { opacity: 0, scale: 1.6 }, { opacity: 1, scale: 1, duration: 0.35, ease, immediateRender: false }, at);
+        tl.to('#tap', { scale: 0.8, duration: 0.12 }, at + 0.4);
+        tl.to('#tap', { scale: 1.3, opacity: 0, duration: 0.35 }, at + 0.55);
+      };
+      const tapEl = (sel, at) => {
+        const screen = $('#screen').getBoundingClientRect();
+        const r = $(sel).getBoundingClientRect();
+        tap({ x: (r.left - screen.left) / K, y: (r.top - screen.top) / K, w: r.width / K, h: r.height / K }, at);
+      };
+      const ring = (box, at, length) => {
+        tl.set('#ring', { left: box.x * K - 10, top: box.y * K - 10, width: box.w * K + 20, height: box.h * K + 20 }, at - 0.01);
+        tl.fromTo('#ring', { opacity: 0, scale: 1.08 }, { opacity: 1, scale: 1, duration: 0.4, ease, immediateRender: false }, at);
+        tl.to('#ring', { opacity: 0, duration: 0.3 }, at + length);
+      };
+      const example = (on, off) => {
+        tl.fromTo('#example', { opacity: 0 }, { opacity: 1, duration: 0.3, immediateRender: false }, on);
+        tl.to('#example', { opacity: 0, duration: 0.3 }, off);
+      };
+      const B = {
+        next: { x: 545, y: 1294, w: 195, h: 88 },
+        chart: { x: 40, y: 304, w: 700, h: 1014 },
+      };
+
+      /* 1. Join: 4.6 to 12.6. The password fills in dots. */
+      capIn('#c1', 4.6);
+      subIn('#c1a', 4.8);
+      screenIn('#s-join', 4.5);
+      const pw = { n: 0 };
+      tl.fromTo(pw, { n: 0 }, { n: 12, duration: 1.6, ease: 'none', onUpdate: () => ($('#pw').textContent = '\u2022'.repeat(Math.round(pw.n))) }, 8.6);
+      subOut('#c1a', 8.0);
+      subIn('#c1b', 8.25);
+      tapEl('#create', 10.8);
+      capOut('#c1', 12.3);
+      screenOut('#s-join', 12.5);
+
+      /* 2. The tour: 12.6 to 18.6 */
+      capIn('#c2', 12.65);
+      tl.fromTo('#c2 .sub', { opacity: 0 }, { opacity: 1, duration: 0.45, immediateRender: false }, 12.8);
+      screenIn('#s-welcome', 12.6);
+      tap(B.next, 15.0);
+      tap(B.next, 16.6);
+      capOut('#c2', 18.3);
+      screenOut('#s-welcome', 18.5);
+
+      /* 3. The diagnostic: 18.6 to 24.1 */
+      capIn('#c3', 18.65);
+      tl.fromTo('#c3 .sub', { opacity: 0 }, { opacity: 1, duration: 0.45, immediateRender: false }, 18.8);
+      screenIn('#s-diag', 18.6);
+      const diag = { n: 1 };
+      tl.fromTo('#diag-bar', { scaleX: 1 / 30 }, { scaleX: 1, duration: 3.6, ease: 'power1.inOut' }, 19.4);
+      tl.fromTo(diag, { n: 1 }, { n: 30, duration: 3.6, ease: 'power1.inOut', onUpdate: () => ($('#diag-n').textContent = Math.round(diag.n)) }, 19.4);
+      capOut('#c3', 23.8);
+      screenOut('#s-diag', 24.0);
+
+      /* 4. Train when it suits you: 24.1 to 30.1 */
+      capIn('#c4', 24.15);
+      subIn('#c4a', 24.3);
+      screenIn('#s-today', 24.1);
+      tl.fromTo('#s-today .bar', { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease, stagger: 0.15, immediateRender: false }, 24.8);
+      subOut('#c4a', 26.9);
+      subIn('#c4b', 27.15);
+      tapEl('#start', 28.4);
+      capOut('#c4', 29.8);
+      screenOut('#s-today', 30.0);
+
+      /* 5. Answering: 30.1 to 38.1 */
+      capIn('#c5', 30.15);
+      subIn('#c5a', 30.3);
+      screenIn('#s-answer', 30.1);
+      tapEl('#o3', 31.5);
+      tl.fromTo('#o3', { borderColor: '#2b4560', backgroundColor: 'rgba(140,196,245,0)' }, { borderColor: '#8cc4f5', backgroundColor: 'rgba(140,196,245,0.12)', duration: 0.25, immediateRender: false }, 31.9);
+      tl.fromTo('#sure-block', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease, immediateRender: false }, 32.4);
+      tapEl('#sure-mid', 33.4);
+      tl.fromTo('#sure-mid', { borderColor: '#2b4560', backgroundColor: 'rgba(140,196,245,0)' }, { borderColor: '#8cc4f5', backgroundColor: 'rgba(140,196,245,0.12)', duration: 0.25, immediateRender: false }, 33.8);
+      tl.to('#sure-block', { opacity: 0, duration: 0.3 }, 34.5);
+      tl.fromTo('#verdict', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.45, ease, immediateRender: false }, 34.7);
+      tl.fromTo('#o3', { borderColor: '#8cc4f5' }, { borderColor: '#6fd0a6', duration: 0.25, immediateRender: false }, 34.7);
+      subOut('#c5a', 34.4);
+      subIn('#c5b', 34.65);
+      capOut('#c5', 37.8);
+      screenOut('#s-answer', 38.0);
+
+      /* 6. Learn: 38.1 to 44.6 */
+      capIn('#c6', 38.15);
+      tl.fromTo('#c6 .sub', { opacity: 0 }, { opacity: 1, duration: 0.45, immediateRender: false }, 38.3);
+      screenIn('#s-modules', 38.1);
+      tl.fromTo('#s-modules', { y: 0 }, { y: -40, duration: 5.5, ease: 'sine.inOut', immediateRender: false }, 38.6);
+      capOut('#c6', 44.3);
+      screenOut('#s-modules', 44.5);
+
+      /* 7. Your score: 44.6 to 52 */
+      capIn('#c7', 44.65);
+      tl.fromTo('#c7 .sub', { opacity: 0 }, { opacity: 1, duration: 0.45, immediateRender: false }, 44.8);
+      screenIn('#s-skills', 44.6);
+      example(44.9, 51.4);
+      ring(B.chart, 45.7, 4.8);
+      capOut('#c7', 51.5);
+
+      /* Close */
+      tl.fromTo('#close .kicker', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, ease }, 52.4);
+      tl.fromTo(['#e1', '#e2', '#e3'], { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.6, ease, stagger: 0.3 }, 52.6);
+
+      window.__timelines['main'] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
