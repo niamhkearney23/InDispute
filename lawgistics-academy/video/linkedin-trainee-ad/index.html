@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1350" />
+    <!--
+      LinkedIn ad for the litigation trainee programme at Thomas Philip.
+      1080 by 1350 (4:5, the feed), 25 seconds, silent, in the Lawgistics
+      house style: cream with a navy close, Playfair Display for the
+      statement with one italic phrase, TikTok Sans for the detail, steel-blue
+      as the only accent, the kicker top left, the facts bottom left and the
+      wordmark bottom right.
+
+      Every claim is confirmed from the programme's own copy in the app
+      (src/content/programme.ts and programme-plan.ts, and the trainee
+      page): one month, Monday to Friday, from 2 November 2026; the four
+      weeks; a morning in court and a moot; ten pieces at the top grade,
+      including the six core pieces, for certification; the academy free
+      with a place. No quote from anybody, no superlative, nothing about
+      anybody else's programme.
+
+      Render with HyperFrames; see README.md.
+    -->
+    <script src="assets/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: 'Playfair Display';
+        src: url('assets/fonts/playfair-display-latin-wght-normal.woff2') format('woff2');
+        font-weight: 400 900;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: 'Playfair Display';
+        src: url('assets/fonts/playfair-display-latin-wght-italic.woff2') format('woff2');
+        font-weight: 400 900;
+        font-style: italic;
+      }
+      @font-face {
+        font-family: 'TikTok Sans';
+        src: url('assets/fonts/tiktok-sans-latin-400-normal.woff2') format('woff2');
+        font-weight: 400;
+      }
+      @font-face {
+        font-family: 'TikTok Sans';
+        src: url('assets/fonts/tiktok-sans-latin-600-normal.woff2') format('woff2');
+        font-weight: 600;
+      }
+      @font-face {
+        font-family: 'TikTok Sans';
+        src: url('assets/fonts/tiktok-sans-latin-700-normal.woff2') format('woff2');
+        font-weight: 700;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1080px;
+        height: 1350px;
+        overflow: hidden;
+        background: #ede7dc;
+      }
+      #root {
+        position: relative;
+        width: 1080px;
+        height: 1350px;
+        overflow: hidden;
+        font-family: 'TikTok Sans', sans-serif;
+        color: #171d2b;
+      }
+      .layer {
+        position: absolute;
+        inset: 0;
+      }
+      #cream {
+        background: #ede7dc;
+      }
+      #navy {
+        background: #141a28;
+        transform-origin: bottom center;
+      }
+
+      /* The furniture: kicker, facts, wordmark */
+      .chip {
+        position: absolute;
+        left: 80px;
+        top: 80px;
+        padding: 14px 24px;
+        border-radius: 6px;
+        background: #3a5697;
+        color: #ede7dc;
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+      .facts {
+        position: absolute;
+        left: 80px;
+        bottom: 76px;
+        font-size: 24px;
+        line-height: 1.5;
+        color: #5b6170;
+      }
+      .wordmark {
+        position: absolute;
+        right: 80px;
+        bottom: 80px;
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: 0.32em;
+      }
+      .on-navy .facts {
+        color: #a6adbd;
+      }
+      .on-navy .chip {
+        background: #6e86c9;
+        color: #141a28;
+      }
+
+      /* Statements */
+      .scene {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        top: 380px;
+      }
+      .rule {
+        width: 96px;
+        height: 4px;
+        background: #3a5697;
+        margin-bottom: 52px;
+        transform-origin: left center;
+      }
+      .statement {
+        font-family: 'Playfair Display', serif;
+        font-weight: 500;
+        font-size: 112px;
+        line-height: 1.16;
+        letter-spacing: -0.015em;
+      }
+      .statement em {
+        font-style: italic;
+      }
+      .w {
+        display: inline-block;
+        margin-right: 0.22em;
+      }
+      .body {
+        margin-top: 44px;
+        max-width: 860px;
+        font-size: 40px;
+        line-height: 1.38;
+        color: #3d4352;
+      }
+
+      .weeks {
+        margin-top: 56px;
+        list-style: none;
+      }
+      .weeks li {
+        display: flex;
+        align-items: baseline;
+        gap: 34px;
+        padding: 26px 0;
+        border-top: 2px solid rgba(23, 29, 43, 0.14);
+      }
+      .weeks li:last-child {
+        border-bottom: 2px solid rgba(23, 29, 43, 0.14);
+      }
+      .weeks .n {
+        width: 120px;
+        flex: none;
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #3a5697;
+      }
+      .weeks .t {
+        font-family: 'Playfair Display', serif;
+        font-size: 50px;
+      }
+
+      /* The close, on navy */
+      #close {
+        color: #ede7dc;
+      }
+      #close .rule {
+        background: #6e86c9;
+      }
+      #close .body {
+        color: #c9cdd8;
+      }
+      .url {
+        display: inline-block;
+        margin-top: 50px;
+        padding: 22px 32px;
+        border-radius: 8px;
+        border: 2px solid #6e86c9;
+        font-size: 36px;
+        font-weight: 600;
+        color: #ede7dc;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="25"
+      data-width="1080"
+      data-height="1350"
+    >
+      <div id="cream" class="layer clip" data-start="0" data-duration="25" data-track-index="0"></div>
+
+      <!-- The cream furniture, under the four cream scenes -->
+      <div id="furn" class="layer clip" data-start="0" data-duration="19.6" data-track-index="1">
+        <p class="chip">Litigation trainee programme</p>
+        <p class="facts">Thomas Philip, Malaysia<br />2 to 30 November 2026</p>
+        <p class="wordmark">LAWGISTICS</p>
+      </div>
+
+      <div id="s1" class="layer clip" data-start="0" data-duration="4.9" data-track-index="2">
+        <div class="scene">
+          <div class="rule"></div>
+          <p class="statement" data-layout-allow-overlap><span class="w">One</span><span class="w">month</span><span class="w">on</span><em class="w">live</em><em class="w">files.</em></p>
+          <p class="body">Four weeks, Monday to Friday, with the lawyers at Thomas Philip in Malaysia.</p>
+        </div>
+      </div>
+
+      <div id="s2" class="layer clip" data-start="4.7" data-duration="6.2" data-track-index="3">
+        <div class="scene" style="top: 250px">
+          <p class="statement" style="font-size: 90px" data-layout-allow-overlap><span class="w">From</span><span class="w">first</span><span class="w">interview</span><span class="w">to</span><span class="w">the</span><em class="w">courtroom.</em></p>
+          <ul class="weeks">
+            <li><span class="n">Week 1</span><span class="t">The file and the facts</span></li>
+            <li><span class="n">Week 2</span><span class="t">The law and the timeline</span></li>
+            <li><span class="n">Week 3</span><span class="t">Drafting</span></li>
+            <li><span class="n">Week 4</span><span class="t">Court</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div id="s3" class="layer clip" data-start="10.7" data-duration="4.6" data-track-index="4">
+        <div class="scene">
+          <div class="rule"></div>
+          <p class="statement" data-layout-allow-overlap><span class="w">A</span><span class="w">morning</span><span class="w">in</span><em class="w">court.</em></p>
+          <p class="body">The bundle, the submissions, and a moot on your own file.</p>
+        </div>
+      </div>
+
+      <div id="s4" class="layer clip" data-start="15.1" data-duration="4.6" data-track-index="5">
+        <div class="scene">
+          <div class="rule"></div>
+          <p class="statement" data-layout-allow-overlap><span class="w">Your</span><span class="w">work,</span><em class="w">graded.</em></p>
+          <p class="body">Ten pieces at the top grade, including the six core pieces, earns your certification.</p>
+        </div>
+      </div>
+
+      <!-- The close inverts to navy -->
+      <div id="navy" class="layer clip" data-start="19.3" data-duration="5.7" data-track-index="6"></div>
+      <div id="close" class="layer clip on-navy" data-start="19.3" data-duration="5.7" data-track-index="7">
+        <p class="chip">Litigation trainee programme</p>
+        <div class="scene">
+          <div class="rule"></div>
+          <p class="statement" data-layout-allow-overlap><span class="w">Starts</span><em class="w">2</em><em class="w">November.</em></p>
+          <p class="body">Your place comes with the Litigation Trainee Academy, free.</p>
+          <p class="url" id="url">litigation-training.vercel.app/trainee</p>
+        </div>
+        <p class="facts">Thomas Philip, Malaysia<br />Places confirmed by the firm</p>
+        <p class="wordmark">LAWGISTICS</p>
+      </div>
+    </div>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      const ease = 'power3.out';
+
+      // A statement arrives word by word, its rule drawn first.
+      const enter = (scene, at) => {
+        tl.fromTo(scene + ' .rule', { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease }, at);
+        tl.fromTo(scene + ' .w', { opacity: 0, y: 46 }, { opacity: 1, y: 0, duration: 0.55, ease, stagger: 0.09 }, at + 0.15);
+        tl.fromTo(scene + ' .body', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease }, at + 0.9);
+      };
+      const leave = (scene, at) =>
+        tl.to(scene + ' .scene', { opacity: 0, y: -40, duration: 0.35, ease: 'power2.in' }, at);
+      // Each scene drifts a few pixels up while it holds, so it is never still.
+      const drift = (scene, at, length) =>
+        tl.fromTo(scene + ' .scene', { y: 0 }, { y: -14, duration: length, ease: 'none', immediateRender: false }, at);
+
+      tl.fromTo('#furn .chip', { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.5, ease }, 0.1);
+      tl.fromTo(['#furn .facts', '#furn .wordmark'], { opacity: 0 }, { opacity: 1, duration: 0.6 }, 0.4);
+
+      enter('#s1', 0.3);
+      drift('#s1', 1.6, 2.9);
+      leave('#s1', 4.5);
+
+      tl.fromTo('#s2 .w', { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.5, ease, stagger: 0.07 }, 4.8);
+      tl.fromTo('#s2 .weeks li', { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.5, ease, stagger: 0.42 }, 5.7);
+      drift('#s2', 6.0, 4.4);
+      leave('#s2', 10.5);
+
+      enter('#s3', 10.8);
+      drift('#s3', 12.1, 2.7);
+      leave('#s3', 14.9);
+
+      enter('#s4', 15.2);
+      drift('#s4', 16.5, 2.7);
+      tl.to(['#s4 .scene', '#furn'], { opacity: 0, duration: 0.3 }, 19.2);
+
+      // The close: navy rises from the bottom, then the statement.
+      tl.fromTo('#navy', { scaleY: 0 }, { scaleY: 1, duration: 0.55, ease: 'power3.inOut' }, 19.3);
+      tl.fromTo('#close .chip', { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.5, ease }, 19.8);
+      tl.fromTo(['#close .facts', '#close .wordmark'], { opacity: 0 }, { opacity: 1, duration: 0.6 }, 20.0);
+      enter('#close', 19.9);
+      tl.fromTo('#url', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease }, 21.3);
+      drift('#close', 21.0, 4.0);
+
+      window.__timelines['main'] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

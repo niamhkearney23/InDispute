@@ -337,6 +337,13 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   names the firm and the start date and shows real screens, the ones with
   sample data marked "Example"; change it when the dates, the rounds or a
   screen it shows change.
+- **Interns are not litigation trainees.** The firm's interns join by
+  invitation (choose "Malaysian"), use the academy as homework whenever it
+  suits them and have no rounds; nothing in the app calls them trainees. Their
+  how-to video is `video/how-to-use-interns/` (`/video/how-to-use-interns.mp4`).
+- **The LinkedIn ad** for the trainee programme is `video/linkedin-trainee-ad/`,
+  with the video, stills and post text in `out/`. Posted by hand, once the
+  firm has approved it.
 - **The tour** (`/welcome`, words in `src/content/tour.ts`): joining ends on a
   short card-by-card tour of what each part of the academy is and where to
   find it, then the diagnostic (or Today when there is nothing to sit).
