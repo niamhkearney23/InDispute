@@ -130,11 +130,11 @@ export async function saveOnboarding(
   if (error) return { error: error.message };
 
   revalidatePath('/dashboard');
-  // To the dashboard either way. It sends somebody who has not sat the
-  // diagnostic on to it when there are questions to sit it with, and keeps
-  // them on their day when there are not; somebody changing their settings
-  // goes back to their day rather than into a diagnostic they did not ask for.
-  redirect('/dashboard');
+  // Somebody joining goes to the tour, which ends on the diagnostic when there
+  // are questions to sit it with and on their day when there are not.
+  // Somebody changing their settings goes back to their day rather than into
+  // a tour or a diagnostic they did not ask for.
+  redirect(editing ? '/dashboard' : '/welcome');
 }
 
 const SESSION_KINDS: SessionKind[] = ['diagnostic', 'daily', 'review', 'practice'];

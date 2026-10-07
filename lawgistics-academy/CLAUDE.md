@@ -332,13 +332,21 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   brand name, so a firm's deployment can use it unchanged. Change it when any
   of those change; `video/front-page/README.md` says how to render it again.
   The middleware matcher lets `.mp4` through so signed-out visitors get it.
+- **The tour** (`/welcome`, words in `src/content/tour.ts`): joining ends on a
+  short card-by-card tour of what each part of the academy is and where to
+  find it, then the diagnostic (or Today when there is nothing to sit).
+  Trainees also get the rounds, the work board and the month. Open again from
+  Account. Change it when a menu item or a rule it describes changes.
+- **The front page** says "In association with Thomas Philip" under the
+  headline (`brand.association`, shown only under the Lawgistics name). The
+  trainee page (`/trainee`) has the same navy hero and the same video.
 - **The look.** The academy (everything under `src/app/(app)`) is navy: the
   `theme-navy` class on its layout swaps the colour tokens in
   `globals.css` (cream buttons, ice-blue details, burgundy warnings, a two-level
   grid, gold-free by the owner's choice). Admin has the same look. The front
   page and sign-in stay cream. The certificate and a matter's case file stay paper inside it.
   Use the tokens, never fixed Tailwind colours, or a page breaks in one look.
-- 391 tests, 319 schema guarantees against a real Postgres, 240 page and device
+- 396 tests, 319 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB

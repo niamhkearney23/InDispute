@@ -10,6 +10,7 @@ import { trainingOpen } from '@/lib/training/service';
 import { PROGRAMME_WEEKS, boxesForWeek } from '@/content/programme-plan';
 import { paymentsOn } from '@/lib/access/service';
 import { traineeValue } from '@/lib/access/rules';
+import { FrontPageVideo } from '@/components/front-page-video';
 
 const DESCRIPTION = `A one-month litigation trainee programme at ${brand.firm} in Malaysia. Live files with our lawyers, plus the ${brand.traineeAcademy} for homework and practice in your spare time.`;
 
@@ -39,11 +40,11 @@ const partsFor = (questionsOpen: boolean) => [
   },
   {
     icon: SparkIcon,
-    when: 'Every day',
-    title: 'A few minutes of questions',
+    when: 'Every working morning',
+    title: 'Four rounds of ten questions',
     body: questionsOpen
-      ? 'Five to twenty minutes on Malaysian procedure, evidence and drafting, whenever suits you. Anything you get wrong comes back until you’ve got it. There’s also a short homework task each day about how the firm runs a file.'
-      : 'Five to twenty minutes on Malaysian procedure, evidence and drafting, as soon as the questions are signed off. Anything you get wrong comes back until you’ve got it. The short daily homework on how the firm runs a file starts on day one.',
+      ? 'At 7, 8, 9 and 10am, Kuala Lumpur time, on Malaysian procedure, evidence and drafting. Each round is open for its hour. Anything you get wrong comes back until you’ve got it. There’s also a short homework task each day about how the firm runs a file.'
+      : 'At 7, 8, 9 and 10am, Kuala Lumpur time, on Malaysian procedure, evidence and drafting, once our lawyers have signed the questions off. Anything you get wrong comes back until you’ve got it. The short daily homework on how the firm runs a file starts on day one.',
   },
   {
     icon: BriefcaseIcon,
@@ -74,14 +75,13 @@ export default async function TraineeProgrammePage() {
 
   return (
     <div className="min-h-dvh">
-      <section className="landing-hero">
-        <div aria-hidden className="landing-light landing-light--a" />
-        <div aria-hidden className="landing-light landing-light--b" />
-        <div aria-hidden className="landing-light landing-light--c" />
-        <div aria-hidden className="landing-grid" />
-        <div aria-hidden className="landing-grain" />
+      <section className="relative overflow-hidden bg-navy text-cream">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.07] [background-image:linear-gradient(to_right,#f5f1e8_1px,transparent_1px),linear-gradient(to_bottom,#f5f1e8_1px,transparent_1px)] [background-size:72px_72px] [mask-image:radial-gradient(ellipse_at_70%_40%,black,transparent_70%)]"
+        />
 
-        <header className="fade-in mx-auto flex max-w-6xl items-center justify-between px-5 py-5 sm:px-8">
+        <header className="fade-in relative mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-8">
           <Link href="/" className="-mx-1 rounded-[5px] px-1 py-2">
             <Wordmark light />
           </Link>
@@ -90,57 +90,74 @@ export default async function TraineeProgrammePage() {
           </ButtonLink>
         </header>
 
-        <div className="mx-auto max-w-6xl px-5 pt-10 pb-16 sm:px-8 sm:pt-16 sm:pb-24">
-          <p className="rise-up mb-4 text-[0.6875rem] font-semibold tracking-[0.18em] text-paper/70 uppercase">
-            {brand.traineeAcademy} · {brand.firm}
-          </p>
-          <h1 className="rise-up delay-1 max-w-3xl text-[2.75rem] leading-[1.02] sm:text-6xl lg:text-7xl">
-            {PROGRAMME.length} of litigation, learned by doing.
-          </h1>
-          <p className="rise-up delay-2 mt-5 max-w-2xl text-lg text-paper/85 sm:text-xl">
-            Our next intake starts in {PROGRAMME.nextIntake}. For four weeks, {PROGRAMME.days},
-            you’ll work on live files with the lawyers at {brand.firm}. That’s the main part, and it
-            happens in the office.
-          </p>
-          <p className="rise-up delay-2 mt-4 max-w-2xl text-lg text-paper/85 sm:text-xl">
-            Alongside it, you get the {brand.traineeAcademy}: your homework and practice for the
-            month, for your spare time.
-          </p>
-
-          <div className="rise-up delay-3 mt-9 flex flex-col gap-3 sm:flex-row">
-            <ButtonLink href="/trainee/signup" size="lg" variant="light">
-              Sign up for the programme
-            </ButtonLink>
-            <ButtonLink
-              href="/login"
-              size="lg"
-              variant="outline"
-              className="border-paper/40 bg-transparent text-paper hover:bg-paper/10"
-            >
-              Already signed up? Sign in
-            </ButtonLink>
-          </div>
-          <p className="rise-up delay-4 mt-5 text-sm text-paper/70">
-            Sign up, and your supervisor will confirm your place.
-          </p>
-
-          <div className="rise-up delay-4 mt-10 inline-flex max-w-xl flex-col gap-1 rounded-xl border border-paper/15 bg-paper/[0.06] px-5 py-4">
-            <p className="text-[0.6875rem] font-semibold tracking-[0.16em] text-paper/60 uppercase">
-              Included with your place
+        <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 pt-8 pb-16 sm:px-8 sm:pt-14 md:grid-cols-[1.15fr_1fr] md:pb-24 lg:gap-16">
+          <div>
+            <p className="rise-up mb-4 flex items-center gap-3 text-[0.6875rem] font-semibold tracking-[0.18em] text-mist uppercase">
+              <span aria-hidden className="h-px w-8 bg-wine" />
+              {brand.traineeAcademy} · {brand.firm}
             </p>
-            <p className="flex items-baseline gap-3">
-              <span
-                className={
-                  payments
-                    ? 'font-serif text-2xl text-paper/50 line-through decoration-1'
-                    : 'font-serif text-2xl text-paper/60'
-                }
+            <h1 className="rise-up delay-1 text-[2.5rem] leading-[1.05] tracking-[-0.02em] sm:text-5xl lg:text-[3.3rem]">
+              <span className="block">{PROGRAMME.length} of litigation,</span>{' '}
+              <span className="block text-mist">learned by doing.</span>
+            </h1>
+            <p className="rise-up delay-2 mt-6 max-w-xl text-lg leading-relaxed text-cream/80">
+              Our next intake starts in {PROGRAMME.nextIntake}. For four weeks, {PROGRAMME.days},
+              you’ll work on live files with the lawyers at {brand.firm}. That’s the main part, and it
+              happens in the office.
+            </p>
+            <p className="rise-up delay-2 mt-4 max-w-xl text-lg leading-relaxed text-cream/80">
+              Alongside it, you get the {brand.traineeAcademy}: the morning rounds, your homework and
+              practice for the month.
+            </p>
+
+            <div className="rise-up delay-3 mt-9 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/trainee/signup"
+                className="inline-flex min-h-12 items-center justify-center rounded-md bg-cream px-6 font-semibold text-navy transition-colors hover:bg-white"
               >
-                {value.price} a year
-              </span>
-              <span className="font-serif text-3xl text-paper">Free</span>
+                Sign up for the programme
+              </Link>
+              <Link
+                href="/login"
+                className="inline-flex min-h-12 items-center justify-center rounded-md border border-cream/30 px-6 font-medium text-cream transition-colors hover:border-cream/70"
+              >
+                Already signed up? Sign in
+              </Link>
+            </div>
+            <p className="rise-up delay-4 mt-5 text-sm text-cream/70">
+              Sign up, and your supervisor will confirm your place.
             </p>
-            <p className="text-sm text-paper/70">{value.line}</p>
+
+            <div className="rise-up delay-4 mt-9 inline-flex max-w-xl flex-col gap-1 rounded-xl border border-cream/15 bg-cream/[0.06] px-5 py-4">
+              <p className="text-[0.6875rem] font-semibold tracking-[0.16em] text-cream/60 uppercase">
+                Included with your place
+              </p>
+              <p className="flex items-baseline gap-3">
+                <span
+                  className={
+                    payments
+                      ? 'font-serif text-2xl text-cream/50 line-through decoration-1'
+                      : 'font-serif text-2xl text-cream/60'
+                  }
+                >
+                  {value.price} a year
+                </span>
+                <span className="font-serif text-3xl text-cream">Free</span>
+              </p>
+              <p className="text-sm text-cream/70">{value.line}</p>
+            </div>
+          </div>
+
+          {/* The same explainer as the front page: it opens on a matter like
+              the ones trainees get and shows the morning rounds. */}
+          <div className="rise-up delay-2 relative">
+            <div
+              aria-hidden
+              className="absolute -inset-3 rounded-2xl bg-cream/5 ring-1 ring-cream/10"
+            />
+            <div className="relative overflow-hidden rounded-xl shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]">
+              <FrontPageVideo />
+            </div>
           </div>
         </div>
       </section>

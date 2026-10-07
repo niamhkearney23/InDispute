@@ -126,6 +126,12 @@ export default async function LandingPage() {
               <span className="block">Learn to practise law</span>{' '}
               <span className="block text-mist">before you have to practise it.</span>
             </h1>
+            {brand.association ? (
+              <p className="rise-up delay-1 mt-5 flex items-center gap-3 text-sm font-semibold tracking-[0.14em] text-mist uppercase">
+                <span aria-hidden className="h-px w-8 bg-wine" />
+                {brand.association}
+              </p>
+            ) : null}
             <p className="rise-up delay-1 mt-6 max-w-lg text-lg leading-relaxed text-cream/80">
               Work through realistic legal matters. Draft the documents. Make the call. Explain your
               reasoning. Get reviewed by lawyers.

@@ -34,6 +34,13 @@ export interface Brand {
    */
   firm: string;
   /**
+   * One line under the front page's headline naming the firm the academy is
+   * run with. "In association with" the firm by default; empty for a
+   * deployment under another name unless it sets its own, so a firm's own
+   * academy never announces itself as in association with itself.
+   */
+  association: string;
+  /**
    * The name of the trainee side: the part of the academy that belongs to
    * the firm's litigation trainee programme.
    */
@@ -107,6 +114,7 @@ const DEFAULT_PARENT_LINE =
   'Lawgistics Academy is part of Lawgistics: business development and operations for lawyers and law firms.';
 const DEFAULT_PARTNERS_EMAIL = 'partners@lawgistics.my';
 const suffix = clean(process.env.NEXT_PUBLIC_BRAND_SUFFIX, DEFAULT_SUFFIX);
+const firm = clean(process.env.NEXT_PUBLIC_BRAND_FIRM, 'Thomas Philip');
 
 export const brand: Brand = {
   name,
@@ -116,7 +124,11 @@ export const brand: Brand = {
     process.env.NEXT_PUBLIC_BRAND_TAGLINE,
     'Australian and Malaysian litigation training.',
   ),
-  firm: clean(process.env.NEXT_PUBLIC_BRAND_FIRM, 'Thomas Philip'),
+  firm,
+  association: clean(
+    process.env.NEXT_PUBLIC_BRAND_ASSOCIATION,
+    name === DEFAULT_NAME ? `In association with ${firm}` : '',
+  ),
   traineeAcademy: clean(process.env.NEXT_PUBLIC_BRAND_TRAINEE_ACADEMY, 'Litigation Trainee Academy'),
   parentLine: clean(
     process.env.NEXT_PUBLIC_BRAND_PARENT_LINE,
