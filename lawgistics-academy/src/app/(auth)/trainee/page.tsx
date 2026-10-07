@@ -100,51 +100,21 @@ export default async function TraineeProgrammePage() {
               <span className="block">{PROGRAMME.length} of litigation,</span>{' '}
               <span className="block text-mist">learned by doing.</span>
             </h1>
-            <p className="rise-up delay-2 mt-6 max-w-xl text-lg leading-relaxed text-cream/80">
-              Our next intake starts in {PROGRAMME.nextIntake}. For four weeks, {PROGRAMME.days},
-              you’ll work on live files with the lawyers at {brand.firm}. That’s the main part, and it
-              happens in the office.
-            </p>
-            <p className="rise-up delay-2 mt-4 max-w-xl text-lg leading-relaxed text-cream/80">
-              Alongside it, you get the {brand.traineeAcademy}: the morning rounds, your homework and
-              practice for the month.
+            <p className="rise-up delay-2 mt-6 max-w-lg text-lg leading-relaxed text-cream/80">
+              Four weeks on live files with the lawyers at {brand.firm}, starting{' '}
+              {PROGRAMME.nextIntake}.
             </p>
 
-            <div className="rise-up delay-3 mt-9 flex flex-col gap-3 sm:flex-row">
+            <div className="rise-up delay-3 mt-9">
               <Link
                 href="/trainee/signup"
                 className="inline-flex min-h-12 items-center justify-center rounded-md bg-cream px-6 font-semibold text-navy transition-colors hover:bg-white"
               >
                 Sign up for the programme
               </Link>
-              <Link
-                href="/login"
-                className="inline-flex min-h-12 items-center justify-center rounded-md border border-cream/30 px-6 font-medium text-cream transition-colors hover:border-cream/70"
-              >
-                Already signed up? Sign in
-              </Link>
-            </div>
-            <p className="rise-up delay-4 mt-5 text-sm text-cream/70">
-              Sign up, and your supervisor will confirm your place.
-            </p>
-
-            <div className="rise-up delay-4 mt-9 inline-flex max-w-xl flex-col gap-1 rounded-xl border border-cream/15 bg-cream/[0.06] px-5 py-4">
-              <p className="text-[0.6875rem] font-semibold tracking-[0.16em] text-cream/60 uppercase">
-                Included with your place
+              <p className="mt-4 text-sm text-cream/70">
+                Free with your place. Your supervisor confirms it.
               </p>
-              <p className="flex items-baseline gap-3">
-                <span
-                  className={
-                    payments
-                      ? 'font-serif text-2xl text-cream/50 line-through decoration-1'
-                      : 'font-serif text-2xl text-cream/60'
-                  }
-                >
-                  {value.price} a year
-                </span>
-                <span className="font-serif text-3xl text-cream">Free</span>
-              </p>
-              <p className="text-sm text-cream/70">{value.line}</p>
             </div>
           </div>
 
@@ -165,7 +135,12 @@ export default async function TraineeProgrammePage() {
       <main className="mx-auto max-w-6xl px-5 sm:px-8">
         <section className="py-14 sm:py-20">
           <p className="eyebrow mb-3">Your {brand.traineeAcademy}</p>
-          <h2 className="mb-10 max-w-2xl text-2xl sm:text-3xl">The homework side of the month.</h2>
+          <h2 className="mb-3 max-w-2xl text-2xl sm:text-3xl">The homework side of the month.</h2>
+          <p className="mb-10 max-w-2xl text-slate">
+            The main part of the month happens in the office, {PROGRAMME.days}, on live files with
+            the lawyers at {brand.firm}. Alongside it you get the {brand.traineeAcademy}: the morning
+            rounds, your homework and practice.
+          </p>
           <ol className="grid gap-4 sm:grid-cols-2">
             {PARTS.map((part, index) => (
               <li
@@ -248,8 +223,21 @@ export default async function TraineeProgrammePage() {
                 {questionsOpen
                   ? 'Sign up now, and you’ll start with the diagnostic quiz on your first day.'
                   : 'Sign up now, and we’ll see you on your first day.'}{' '}
-                The Academy is included free with your place.
+                Your supervisor will confirm your place.
               </p>
+              <p className="mt-4 flex items-baseline gap-3">
+                <span
+                  className={
+                    payments
+                      ? 'font-serif text-xl text-muted line-through decoration-1'
+                      : 'font-serif text-xl text-muted'
+                  }
+                >
+                  {value.price} a year
+                </span>
+                <span className="font-serif text-2xl">Free</span>
+              </p>
+              <p className="mt-1 text-sm text-slate">{value.line}</p>
             </div>
             <ButtonLink href="/trainee/signup" size="lg" variant="accent">
               Sign up for the programme
