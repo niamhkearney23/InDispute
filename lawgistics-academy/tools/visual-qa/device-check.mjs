@@ -71,6 +71,7 @@ const PAGES = [
   { name: 'courts', path: '/courts', auth: true },
   { name: 'courts-my', path: '/courts', auth: true, as: 'trainee@lawgistics.test' },
   { name: 'account', path: '/account', auth: true },
+  { name: 'welcome', path: '/welcome', auth: true },
   { name: 'account-password', path: '/account/password', auth: true },
   { name: 'modules', path: '/modules', auth: true },
   { name: 'module', path: '/modules/ai-ethics-au', auth: true },

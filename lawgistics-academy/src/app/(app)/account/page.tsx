@@ -69,6 +69,14 @@ export default async function AccountPage() {
           <InlineLink href="/account/password">Change your password</InlineLink>
         </p>
       </Card>
+
+      <Card>
+        <p className="eyebrow mb-2">How it works</p>
+        <p className="text-sm text-slate">
+          What each part of the academy is, and where to find it.{' '}
+          <InlineLink href="/welcome">See the tour again</InlineLink>
+        </p>
+      </Card>
     </div>
   );
 }
