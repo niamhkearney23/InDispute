@@ -1,55 +1,95 @@
 {
-  "generatedDate": "2026-10-06",
+  "generatedDate": "2026-10-07",
   "jobs": [
     {
-      "employer": "The Law Society of New South Wales (coordinated scheme — approx. 40+ participating firms and organisations)",
-      "program": "Summer Clerkship 2027/28 recruitment round (Law Society of NSW Clerkship Recruitment Program)",
+      "employer": "The Law Society of New South Wales",
+      "program": "Summer Clerkship Recruitment Program (cycle year unconfirmed)",
       "jurisdiction": "NSW",
-      "opens": "2027-06-09",
+      "opens": null,
       "closes": null,
-      "notes": "The Law Society's published 2027 recruitment dates confirm applications open 9:00am AEST Wed 9 June 2027 and offers can be made from 9:00am Wed 8 September 2027, but two staggered closing dates are listed (Sun 4 July and Sun 11 July 2027, 11:59pm AEST) depending on the employer, so a single closing date cannot be stated — eligibility is normally penultimate-year students.",
+      "notes": "Official scheme page is live and lists a co-ordinated timetable (clerkship applications close on two alternative Sundays in early/mid July, with offers made in early September), but the page mixes a '2026 participating employers' list with a date table whose stated weekday/date combinations do not match 2026, so I could not confirm which recruitment year the dates belong to and have not guessed.",
       "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Clerkship-Recruitment-Program",
-      "verifiedDate": "2026-10-06"
+      "verifiedDate": "2026-10-07"
     },
     {
-      "employer": "Queensland Law Society (coordinated scheme — signatory firms incl. Ashurst, HSF Kramer, HopgoodGanim, HWL Ebsworth, Mills Oakley, Norton Rose Fulbright)",
-      "program": "Graduate Program — 2027 program cycle (QLS Seasonal Clerkship and Graduate Recruitment Guidelines)",
+      "employer": "The Law Society of New South Wales",
+      "program": "Graduate Recruitment Program (cycle year unconfirmed)",
+      "jurisdiction": "NSW",
+      "opens": null,
+      "closes": null,
+      "notes": "Official graduate scheme page is live; the only Schedule A dates I could actually read were from the published 2026 guidelines (applications 23 February – 5 April 2026), which are now in the past, and I could not retrieve a confirmed 2027 schedule, so dates are left null.",
+      "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Graduate-Recruitment-Program",
+      "verifiedDate": "2026-10-07"
+    },
+    {
+      "employer": "Queensland Law Society",
+      "program": "Seasonal Clerkship and Graduate Recruitment Program (cycle year unconfirmed)",
       "jurisdiction": "QLD",
       "opens": null,
       "closes": null,
-      "notes": "The QLS page publishes a separate graduate-program key-dates table for the 2027 cycle (priority graduate decisions in early August with open-market recruitment immediately afterwards), but the exact graduate open/close dates could not be read off the live page in this check, so they are left null rather than guessed; the QLD seasonal clerkship round for the same cycle has already closed (opened 13 July 2026, closed 7 August 2026, offers 7–8 October 2026).",
+      "notes": "QLS's official seasonal clerkship/graduate recruitment page is live, but I could not retrieve its current key-dates table, so no open/close dates are asserted.",
       "url": "https://www.qls.com.au/the-hub-early-career-lawyers/your-legal-career/seasonal-clerkship-and-graduate-recruitment",
-      "verifiedDate": "2026-10-06"
+      "verifiedDate": "2026-10-07"
     },
     {
-      "employer": "Uniform Clerkship Scheme (coordinated by Adelaide University Law Students' Association and Flinders Law Students' Association)",
-      "program": "Summer Clerkship — next (2027) Uniform Clerkship Scheme round",
-      "jurisdiction": "SA",
-      "opens": null,
-      "closes": null,
-      "notes": "The live scheme page still displays the 2026 scheme (that round opened and closed mid-2026 — e.g. signatory HWL Ebsworth Adelaide ran 23 June to 17 July 2026), and no dates for the next round have yet been published, so opens/closes are null rather than a reused prior-year date.",
-      "url": "https://www.aulsa.org/uniform-clerkship-scheme",
-      "verifiedDate": "2026-10-06"
-    },
-    {
-      "employer": "HWL Ebsworth Lawyers",
-      "program": "Hobart Clerkship Program 2027",
-      "jurisdiction": "TAS",
-      "opens": null,
-      "closes": null,
-      "notes": "The firm's own early careers page confirms a 2027 Hobart program is planned but states only that information will be posted on that page in future, and no open or close date has been published; the firm's Adelaide, Brisbane, Canberra, Darwin and Sydney rounds for the 2026/27 cycle have already closed.",
-      "url": "https://hwlebsworth.com.au/graduate-centre/",
-      "verifiedDate": "2026-10-06"
-    },
-    {
-      "employer": "Allens",
-      "program": "First Nations Legal Internship — February 2027 program",
+      "employer": "Herbert Smith Freehills Kramer",
+      "program": "Vacation Clerkships (cycle year unconfirmed)",
       "jurisdiction": "National",
       "opens": null,
       "closes": null,
-      "notes": "Allens' official graduate site states applications for the February 2027 First Nations Legal Internship open in September 2026, but no exact open or close date is given and the current application status could not be confirmed from the page, so both fields are null; Allens' 2026/27 clerkship applications are shown as closed.",
+      "notes": "Firm's own early-careers vacation clerkship page is live, but application windows are set per state law society timetable and I could not read the current dates from the page.",
+      "url": "https://careers.hsfkramer.com/global/en/australia/early-careers/vacation-clerkships",
+      "verifiedDate": "2026-10-07"
+    },
+    {
+      "employer": "Allens",
+      "program": "Clerkship and Graduate Programs (cycle year unconfirmed)",
+      "jurisdiction": "National",
+      "opens": null,
+      "closes": null,
+      "notes": "Official Allens graduate site programs page is live but appears not to have been updated recently in the index, and no current application dates could be confirmed.",
       "url": "https://graduates.allens.com.au/our-programs/",
-      "verifiedDate": "2026-10-06"
+      "verifiedDate": "2026-10-07"
+    },
+    {
+      "employer": "King & Wood Mallesons (Mallesons)",
+      "program": "Clerkship Program (cycle year unconfirmed)",
+      "jurisdiction": "National",
+      "opens": null,
+      "closes": null,
+      "notes": "Official clerkship page for penultimate-year law students is live; it directs applicants to state-based timetables but I could not confirm the current open/close dates from the page itself.",
+      "url": "https://www.mallesons.com/au/en/careers/graduates/graduates-australia/penultimate-year-law-students/clerkship-program.html",
+      "verifiedDate": "2026-10-07"
+    },
+    {
+      "employer": "Clayton Utz",
+      "program": "Seasonal Clerkships (cycle year unconfirmed)",
+      "jurisdiction": "National",
+      "opens": null,
+      "closes": null,
+      "notes": "Firm's official seasonal clerkship page is live, with separate windows per office following each state scheme, but current dates could not be read from the source.",
+      "url": "https://www.claytonutz.com/careers/early-careers/seasonal-clerkships",
+      "verifiedDate": "2026-10-07"
+    },
+    {
+      "employer": "DLA Piper",
+      "program": "Seasonal Clerkship Programme (cycle year unconfirmed)",
+      "jurisdiction": "National",
+      "opens": null,
+      "closes": null,
+      "notes": "Official DLA Piper Asia-Pacific early-careers clerkship page is live; no confirmed application open/close dates could be extracted.",
+      "url": "https://careers.dlapiper.com/early-careers/asia-pacific/au/seasonal-clerkship-programme.html",
+      "verifiedDate": "2026-10-07"
+    },
+    {
+      "employer": "Gadens",
+      "program": "Early Careers Programs – clerkships and graduate program (cycle year unconfirmed)",
+      "jurisdiction": "National",
+      "opens": null,
+      "closes": null,
+      "notes": "Gadens' official early-careers page is live and recently updated, but specific application windows per office were not confirmable from the retrieved content.",
+      "url": "https://www.gadens.com/early-careers-programs/",
+      "verifiedDate": "2026-10-07"
     }
   ]
 }
