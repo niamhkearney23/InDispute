@@ -510,6 +510,7 @@ function ReviewCard({
         kind: item.kind,
         id: item.id,
         versionId: item.versionId ?? undefined,
+        seen: item.seenAt,
         decision,
         note: note.trim() || undefined,
         holdsForMonths: decision === 'verify' ? holds : undefined,

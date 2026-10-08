@@ -115,6 +115,7 @@ function item(over: Partial<ReviewItem>): ReviewItem {
     kind: 'question',
     id: 'id',
     versionId: null,
+    seenAt: '2026-01-01T00:00:00+00:00',
     slug: 'slug',
     domainName: null,
     heading: 'A question',

@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { createSupabaseServerClient, getCurrentUser } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/service';
 import {
   completeSession,
   getCoachNote,
@@ -333,10 +334,11 @@ export async function declareHomework(
   const task = homeworkForDay(parsed.data.day);
   if (!task) return { error: 'That day could not be found.' };
 
-  // A learner recording their own homework needs no elevated privilege, go
-  // through RLS, exactly as saveOnboarding does above.
-  const supabase = await createSupabaseServerClient();
-  const { error } = await supabase
+  // Written by the server, after the checks above. Through RLS a learner
+  // could declare a day that has not come round yet by writing directly, so
+  // since 0040 learners only read this table. The user is the session's and
+  // the day was checked, so nothing here comes from the request unchecked.
+  const { error } = await createServiceClient()
     .from('homework_declarations')
     .insert({ user_id: user.id, day: parsed.data.day, task_slug: task.slug });
 

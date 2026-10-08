@@ -24,6 +24,13 @@ const decisionSchema = z.object({
    * they never saw.
    */
   versionId: z.string().uuid().optional(),
+  /**
+   * When what the reviewer read was last changed, as the card was given it.
+   * Explanations and facts are corrected in place, so the version alone does
+   * not say which words were on the screen; the update only lands while this
+   * still matches, in the same statement.
+   */
+  seen: z.string().min(1).max(64),
   decision: z.enum(['verify', 'flag', 'retire']),
   note: z.string().trim().max(2000).optional(),
   /**
@@ -41,6 +48,8 @@ const decisionSchema = z.object({
 
 export type ReviewResult = { ok: true } | { ok: false; error: string };
 
+const CHANGED = 'This changed while you were reading it. Read it again.';
+
 export async function recordReviewDecision(
   input: z.input<typeof decisionSchema>,
 ): Promise<ReviewResult> {
@@ -52,7 +61,7 @@ export async function recordReviewDecision(
   const parsed = decisionSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: 'That decision could not be read.' };
 
-  const { kind, id, versionId, decision, note, holdsForMonths } = parsed.data;
+  const { kind, id, versionId, seen, decision, note, holdsForMonths } = parsed.data;
 
   if (decision === 'flag' && !note) {
     return { ok: false, error: 'Say what is wrong with it, a flag without a note is a dead end.' };
@@ -81,7 +90,7 @@ export async function recordReviewDecision(
       .eq('is_current', true)
       .maybeSingle();
     if (!current) return { ok: false, error: 'That question could not be found.' };
-    if (versionId && current.id !== versionId) {
+    if (!versionId || current.id !== versionId) {
       return {
         ok: false,
         error:
@@ -109,13 +118,19 @@ export async function recordReviewDecision(
           }
         : { ...reviewFields, verification_status: 'requires_review' as const };
 
-    const { error } = await db
+    const { data: saved, error } = await db
       .from('question_versions')
       .update(patch)
       .eq('id', current.id)
-      .eq('is_current', true);
+      .eq('is_current', true)
+      .eq('updated_at', seen)
+      .select('id');
 
     if (error) return { ok: false, error: error.message };
+    // Nothing updated means the words moved on since the card was drawn.
+    // Reporting that as done would mark the question verified over a
+    // sign-off that never landed.
+    if (!saved || saved.length === 0) return { ok: false, error: CHANGED };
 
     // The question's own status follows the decision. Verifying does not publish
     // on its own, publishing stays a separate, deliberate act.
@@ -160,8 +175,14 @@ export async function recordReviewDecision(
           ? { ...reviewFields, verification_status: 'requires_review' as const, status: 'retired' as const }
           : { ...reviewFields, verification_status: 'requires_review' as const };
 
-    const { error } = await db.from('daily_facts').update(patch).eq('id', id);
+    const { data: saved, error } = await db
+      .from('daily_facts')
+      .update(patch)
+      .eq('id', id)
+      .eq('updated_at', seen)
+      .select('id');
     if (error) return { ok: false, error: error.message };
+    if (!saved || saved.length === 0) return { ok: false, error: CHANGED };
   }
 
   revalidatePath('/admin/review');

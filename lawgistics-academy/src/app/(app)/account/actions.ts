@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { createSupabaseServerClient, getCurrentUser } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/service';
 import { strictCartoon } from '@/lib/avatar/cartoon';
 
 export type AvatarState = { error: string | null };
@@ -157,9 +158,9 @@ const passwordSchema = z
  * Choosing your own password.
  *
  * Through the person's own session, so it can only ever be their own
- * account. Clearing the first-password flag afterwards is theirs to do
- * too: the flag is a convenience that keeps the choice in front of them,
- * not a right, and nothing else in the app turns on it.
+ * account. The first-password flag is then cleared by the server, and only
+ * once the new password is saved: since 0040 the database refuses the flag
+ * coming off any other way, so it cannot be cleared without a new password.
  */
 export async function changePassword(
   _prev: PasswordState,
@@ -186,7 +187,7 @@ export async function changePassword(
     };
   }
 
-  const { error: flagError } = await supabase
+  const { error: flagError } = await createServiceClient()
     .from('profiles')
     .update({ must_change_password: false })
     .eq('id', user.id);
