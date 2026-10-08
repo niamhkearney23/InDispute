@@ -130,7 +130,10 @@ export async function startSession(
     .single();
 
   if (error || !session) {
-    return { error: error?.message ?? 'Could not start a session.' };
+    // The database's words are logged, not shown: they are for whoever reads
+    // the logs, and a learner can do nothing with a constraint name.
+    if (error) console.error('[training] session could not be made', error);
+    return { error: 'The session could not be started. Please try again.' };
   }
 
   const rows = selected.map((q, index) => ({
@@ -144,7 +147,8 @@ export async function startSession(
   const { error: insertError } = await db.from('training_session_questions').insert(rows);
   if (insertError) {
     await db.from('training_sessions').delete().eq('id', session.id);
-    return { error: insertError.message };
+    console.error('[training] session questions could not be saved', insertError);
+    return { error: 'The session could not be started. Please try again.' };
   }
 
   return { sessionId: session.id as string };
@@ -471,7 +475,8 @@ export async function submitAnswer(args: {
       .from('training_session_questions')
       .update({ answered_at: null })
       .eq('id', slot.id);
-    return { error: attemptError?.message ?? 'Could not record your answer.' };
+    if (attemptError) console.error('[training] answer could not be recorded', attemptError);
+    return { error: 'Your answer could not be recorded. Please try again.' };
   }
 
   const conceptIds = (conceptLinks ?? []).map((link) => link.concept_id as string);
@@ -1114,7 +1119,10 @@ export async function startModuleSession(
     .select('id')
     .single();
 
-  if (error || !session) return { error: error?.message ?? 'Could not start the module.' };
+  if (error || !session) {
+    if (error) console.error('[training] module session could not be made', error);
+    return { error: 'The module could not be started. Please try again.' };
+  }
 
   const { error: insertError } = await db.from('training_session_questions').insert(
     selected.map((q, index) => ({
@@ -1128,7 +1136,8 @@ export async function startModuleSession(
 
   if (insertError) {
     await db.from('training_sessions').delete().eq('id', session.id);
-    return { error: insertError.message };
+    console.error('[training] session questions could not be saved', insertError);
+    return { error: 'The session could not be started. Please try again.' };
   }
 
   return { sessionId: session.id as string };

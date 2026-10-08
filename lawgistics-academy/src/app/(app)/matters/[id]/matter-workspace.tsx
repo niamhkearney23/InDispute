@@ -396,6 +396,15 @@ function SpeakRecorder({
           <audio controls src={preview} className="w-full" />
         </figure>
       ) : null}
+      {/* Asked with the recording, not as a rule somewhere else: the box is
+          a statement the learner is making. Not pre-ticked, and not marked
+          required, because the same form also saves the written answers. */}
+      {preview && !recording ? (
+        <label className="mt-3 flex items-start gap-2.5 py-2 text-sm">
+          <input type="checkbox" name="recordingDeclaredClean" className="mt-0.5 size-5" />
+          <span>I have checked, and there is nothing in this recording that identifies a client.</span>
+        </label>
+      ) : null}
       {problem ? <p className="mt-1.5 text-xs text-verdict-wrong">{problem}</p> : null}
       {ok && !preview ? <p className="mt-1.5 text-xs text-verdict-correct">Recording saved.</p> : null}
 

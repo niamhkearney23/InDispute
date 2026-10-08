@@ -36,7 +36,7 @@ export async function estimateWorkMinutes(
 
   try {
     const text = await Promise.race([
-      provider.complete({ system: SYSTEM, prompt, maxTokens: 12, temperature: 0 }),
+      provider.complete({ system: SYSTEM, prompt, maxTokens: 12, temperature: 0, timeoutMs: TIMEOUT_MS }),
       new Promise<string>((_, reject) =>
         setTimeout(() => reject(new Error('AI request timed out')), TIMEOUT_MS),
       ),

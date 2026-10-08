@@ -98,7 +98,21 @@ export async function saveWorkPost(
   // the file can be stored under it.
   const id = values.id || crypto.randomUUID();
   const file = formData.get('file');
+  const memo = formData.get('memo');
   let uploaded: { file_path: string; file_name: string } | null = null;
+
+  // The same declaration an intern makes when handing work in, and for the
+  // same reason: everybody the post is for can open what is attached. Asked
+  // before anything is uploaded, so a refused post leaves no file behind.
+  // The database refuses a post with a file or memo and no declaration too.
+  const attaching = (file instanceof File && file.size > 0) || (memo instanceof File && memo.size > 0);
+  if (attaching && formData.get('declaredClean') !== 'on') {
+    return {
+      error:
+        'Tick the box to confirm there is nothing in the file or the recording that identifies a ' +
+        'client. If there is, take it out first.',
+    };
+  }
 
   if (file instanceof File && file.size > 0) {
     const problem = workFileProblem(file);
@@ -115,7 +129,6 @@ export async function saveWorkPost(
   }
 
   // The voice memo, the same way: the coach's own client, under the post.
-  const memo = formData.get('memo');
   let recorded: { memo_path: string | null; memo_type: string | null } | null = null;
 
   if (memo instanceof File && memo.size > 0) {
@@ -163,6 +176,9 @@ export async function saveWorkPost(
     published: values.published,
     ...(uploaded ?? {}),
     ...(recorded ?? {}),
+    // Only ever set, never cleared here: a post keeps the declaration made
+    // for the file it still has.
+    ...(attaching ? { declared_clean: true } : {}),
   };
 
   if (values.id) {

@@ -3,15 +3,7 @@ import test from 'node:test';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import {
-  bareAddress,
-  cleanSubject,
-  driveLinkIn,
-  parseDraft,
-  plainDraft,
-  readPostmark,
-  usableAttachment,
-} from '../src/lib/work/inbound';
+import { bareAddress, cleanSubject, driveLinkIn, plainDraft, readPostmark } from '../src/lib/work/inbound';
 
 const ROOT = path.join(import.meta.dirname, '..');
 const read = (p: string) => fs.readFileSync(path.join(ROOT, p), 'utf8');
@@ -26,7 +18,13 @@ const sample = {
   TextBody: 'Please draft a chronology by 10 October.\n\nFolder: https://drive.google.com/drive/folders/abc\n\nThanks, Priya',
   StrippedTextReply: '',
   MessageID: 'abc-123',
-  Headers: [{ Name: 'Received-SPF', Value: 'Pass (sender SPF authorized)' }],
+  Headers: [
+    { Name: 'Received-SPF', Value: 'Pass (sender SPF authorized)' },
+    {
+      Name: 'Authentication-Results',
+      Value: 'mx.inbound.example; dkim=pass header.d=thomasphilip.example; dmarc=pass header.from=thomasphilip.example',
+    },
+  ],
   Attachments: [
     { Name: 'evil.exe', ContentType: 'application/octet-stream', Content: 'AAAA', ContentLength: 3 },
     { Name: 'brief.pdf', ContentType: 'application/pdf', Content: 'JVBERi0=', ContentLength: 5 },
@@ -47,8 +45,10 @@ test('a stranger and a lawyer get the same answer, so the address reveals nobody
 });
 
 test('only a coach or administrator, by their own address, can make a draft', () => {
-  // The sending domain must vouch for the From address before it is looked up.
-  assert.match(SERVICE, /if \(!email\.spfPass && !email\.dkimPass\) return \{ status: 'ignored' \}/);
+  // The From domain must vouch for the address before it is looked up.
+  assert.match(SERVICE, /if \(!email\.verifiedBy\) return \{ status: 'ignored' \}/);
+  assert.doesNotMatch(SERVICE, /spf/i, 'SPF on its own no longer lets an email in');
+  assert.match(SERVICE, /inbound_auth: email\.verifiedBy/);
   assert.match(SERVICE, /\.ilike\('email', exact\)/);
   assert.match(SERVICE, /if \(!staff \|\| !\(staff\.is_admin \|\| staff\.is_coach\)\) return \{ status: 'ignored' \}/);
 });
@@ -63,33 +63,31 @@ test('the email is read safely', () => {
   const email = readPostmark(sample);
   assert.ok(email);
   assert.equal(email.fromEmail, 'priya.nair@thomasphilip.example');
-  assert.equal(email.spfPass, true);
+  assert.equal(email.verifiedBy, 'dmarc');
   assert.equal(readPostmark({ From: 'nobody' }), null, 'no address, no email');
   assert.equal(readPostmark('junk'), null);
   assert.equal(bareAddress('Priya <P@X.example>'), 'p@x.example');
   assert.equal(cleanSubject('Fwd: Re: RE: Draft the chronology'), 'Draft the chronology');
 });
 
-test('only a PDF, Word file or image within the limit is attached, and only a Drive link is kept', () => {
+test('nothing from an email is stored as a file or sent to the AI before a lawyer has looked', () => {
+  // A file on the board carries the poster's declaration that it identifies
+  // no client; nobody has made one for an attachment, so none is kept. And an
+  // email that may name a client is not passed to a third party unread.
+  assert.doesNotMatch(SERVICE, /\.storage\b/);
+  assert.doesNotMatch(SERVICE, /file_path/);
+  assert.doesNotMatch(SERVICE, /getProvider|\.complete\(/);
+  assert.match(SERVICE, /Attachments are not taken from email/);
   const email = readPostmark(sample)!;
-  assert.equal(usableAttachment(email.attachments, 1000)?.name, 'brief.pdf');
-  assert.equal(usableAttachment(email.attachments, 4), null, 'too large');
+  assert.deepEqual(email.attachments.map((a) => a.name), ['evil.exe', 'brief.pdf']);
   assert.equal(driveLinkIn(email.text), 'https://drive.google.com/drive/folders/abc');
   assert.equal(driveLinkIn('see https://evil.example/x'), null);
 });
 
-test('the AI’s tidy-up is used only when it is sound, otherwise the email itself is the draft', () => {
+test('the draft is the email as typed', () => {
   const email = readPostmark(sample)!;
-  const fallback = plainDraft(email);
-  assert.equal(fallback.title, 'Draft the chronology');
-  const good = parseDraft(
-    '{"title":"Chronology","instructions":"Draft it.","dueOn":"2026-10-10","expectedMinutes":90,"maxClaims":2}',
-    fallback,
-  );
-  assert.deepEqual(good, { title: 'Chronology', instructions: 'Draft it.', dueOn: '2026-10-10', expectedMinutes: 90, maxClaims: 2 });
-  assert.equal(parseDraft('Sorry, I cannot help with that.', fallback), null);
-  assert.equal(parseDraft('{"title":"","instructions":"x"}', fallback), null);
-  const odd = parseDraft('{"title":"T","instructions":"I","dueOn":"next week","expectedMinutes":-5}', fallback);
-  assert.equal(odd?.dueOn, null);
-  assert.equal(odd?.expectedMinutes, null);
+  const draft = plainDraft(email);
+  assert.equal(draft.title, 'Draft the chronology');
+  assert.equal(draft.instructions, email.text);
+  assert.equal(draft.dueOn, null);
 });

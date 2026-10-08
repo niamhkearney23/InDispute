@@ -174,8 +174,8 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0036`. `supabase/UPDATE.sql` is the one-paste update for a
-  database that already exists; `SETUP.sql` is for a new one. Both are generated
+- Migrations run to `0039` (`0037` and `0038` are another engineer's).
+  `supabase/UPDATE.sql` is the one-paste update for a database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
   app does. Learners now only read their own training record (the server
@@ -223,8 +223,11 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   `/api/inbound/work` (off unless `INBOUND_EMAIL_TOKEN` is set, Basic auth,
   constant-time compare) turns it into an **unpublished draft** under their
   name, only if the sender's address matches a coach or administrator, and
-  answers every sender the same. The AI tidies the email into a post and adds
-  nothing; one draft per message id; the page reminds the lawyer to take
+  answers every sender the same. The draft is the subject and the email as
+  typed (since 0039 the AI no longer tidies it: an email may name a client,
+  and nothing goes to a third party before a lawyer has looked), attachments
+  are not stored (the reply says to add the file on the draft page, under the
+  declaration); one draft per message id; the page reminds the lawyer to take
   client names out before publishing.
 - `0030` is **who pays**. Somebody on their own pays (RM 349 a month or RM 2,990
   a year in Malaysia, A$209 or A$1,790 in Australia, in `src/lib/access/rules.ts`),
@@ -304,13 +307,33 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   `area_scores` counts each answer once by its question's area, so scores
   by area are the share of answers right, as the pages say (the app falls
   back to the old per-concept sum on a database without 0036). Inbound
-  email needs SPF or a DKIM signature from the sender's own domain before
-  the address is looked up. Rounds count only answers given in the round's
-  hour plus ten minutes (`ROUND_GRACE_MINUTES`): a round left at 7:59 cannot
+  email needs a check from the sender's own domain before the address is
+  looked up (0039 narrowed this to DMARC or aligned DKIM; see below). Rounds
+  count only answers given in the round's hour plus ten minutes (`ROUND_GRACE_MINUTES`): a round left at 7:59 cannot
   be filled in at 10:45 or finished unanswered. The calendar starts at the
   latest of the start date, the day the trainee was confirmed and the day
   questions were first signed off, and ends on day twenty when no end date
   is set.
+- `0039` is the fourth audit, on uploads and email. A coach's file or voice
+  memo on a work post, and a learner's matter recording, carry the same
+  declaration an intern makes (`declared_clean`, `recording_declared_clean`);
+  the database refuses one without it. Rows from before were marked covered
+  rather than left to fail (a "not valid" check would have frozen them, see
+  0024), except unpublished email drafts, whose attachment was taken off.
+  Inbound email reads only the topmost Authentication-Results header (the one
+  the receiving server wrote; `INBOUND_AUTHSERV_ID` pins whose it must be) and
+  needs DMARC pass or DKIM from the From domain itself; SPF alone no longer
+  counts, `inbound_auth` records which, and older drafts are shown as
+  unconfirmed. A hand-in carries its form's nonce (`client_nonce`, unique) so
+  a double press is one submission, and a refused insert removes the file it
+  uploaded. Ten wrong access codes an hour per person (`code_attempts`,
+  server only). Display names are 1 to 80 characters and the signup trigger
+  cuts to fit. Every AI call aborts after 25 seconds (`AI_TIMEOUT_MS`), and a
+  tutor explanation is saved only with its reply. Learners never see a
+  database or storage message; only `MissingSettingError` (src/lib/env.ts) is
+  shown as written. Server settings live in `env-server.ts` (`server-only`).
+  Error pages: `global-error.tsx`, `(app)/error.tsx`, `admin/error.tsx`,
+  `not-found.tsx`.
 - **Options are shown shuffled** (`src/lib/learning/option-order.ts`), fixed per
   question version or lesson screen, and the letter shown is the place on the
   screen, never the id. The bank was written with the right answer B three
@@ -373,7 +396,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   grid, gold-free by the owner's choice). Admin has the same look. The front
   page and sign-in stay cream. The certificate and a matter's case file stay paper inside it.
   Use the tokens, never fixed Tailwind colours, or a page breaks in one look.
-- 401 tests, 329 schema guarantees against a real Postgres, 240 page and device
+- 417 tests, 345 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB

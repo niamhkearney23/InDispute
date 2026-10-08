@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  const email = readPostmark(body);
+  const email = readPostmark(body, process.env.INBOUND_AUTHSERV_ID ?? '');
   if (!email) return NextResponse.json({ ok: true });
 
   await draftFromEmail(email);

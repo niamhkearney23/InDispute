@@ -46,7 +46,8 @@ export async function uploadAvatar(
   const { error: uploadError } = await supabase.storage
     .from('avatars')
     .upload(path, file, { upsert: true, contentType: file.type });
-  if (uploadError) return { error: uploadError.message };
+  // Storage's own words are not for the person: say what happened instead.
+  if (uploadError) return { error: 'The photo could not be uploaded. Please try again.' };
 
   const {
     data: { publicUrl },
@@ -59,7 +60,7 @@ export async function uploadAvatar(
     .from('profiles')
     .update({ avatar_url: `${publicUrl}?v=${Date.now()}` })
     .eq('id', user.id);
-  if (profileError) return { error: profileError.message };
+  if (profileError) return { error: 'The photo could not be saved. Please try again.' };
 
   revalidatePath('/dashboard');
   revalidatePath('/account');
@@ -85,7 +86,7 @@ export async function removeAvatar(_prev: AvatarState, _formData: FormData): Pro
     .from('profiles')
     .update({ avatar_url: null })
     .eq('id', user.id);
-  if (error) return { error: error.message };
+  if (error) return { error: 'The photo could not be removed. Please try again.' };
 
   revalidatePath('/dashboard');
   revalidatePath('/account');

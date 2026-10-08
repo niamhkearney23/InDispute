@@ -673,20 +673,29 @@ export async function signedUrlForSubmission(submissionId: string): Promise<stri
 }
 
 /**
- * Which posts arrived by email, from whom, and whether the sending domain's
- * check passed. For staff pages only, after the role check, so a draft from
- * email is shown as one with the reminder to take client names out.
+ * Which posts arrived by email, from whom, and what vouched for the sender.
+ * For staff pages only, after the role check, so a draft from email is shown
+ * as one with the reminder to take client names out. `auth` is 'dmarc' or
+ * 'dkim' when the From domain itself vouched for the address; null on drafts
+ * from before 0039, which were let in on SPF alone and are shown as
+ * unconfirmed.
  */
 export async function emailDrafts(): Promise<
-  Map<string, { from: string; verified: boolean | null }>
+  Map<string, { from: string; auth: 'dmarc' | 'dkim' | null }>
 > {
   const { data } = await createServiceClient()
     .from('work_posts')
-    .select('id, inbound_from, inbound_verified')
+    .select('id, inbound_from, inbound_auth')
     .eq('source', 'email');
   return new Map(
-    ((data ?? []) as Array<{ id: string; inbound_from: string | null; inbound_verified: boolean | null }>).map(
-      (r) => [r.id, { from: r.inbound_from ?? '', verified: r.inbound_verified }],
+    ((data ?? []) as Array<{ id: string; inbound_from: string | null; inbound_auth: string | null }>).map(
+      (r) => [
+        r.id,
+        {
+          from: r.inbound_from ?? '',
+          auth: r.inbound_auth === 'dmarc' || r.inbound_auth === 'dkim' ? r.inbound_auth : null,
+        },
+      ],
     ),
   );
 }

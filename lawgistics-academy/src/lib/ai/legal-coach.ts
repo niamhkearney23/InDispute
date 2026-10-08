@@ -111,6 +111,8 @@ export async function coachOnAnswer(context: CoachContext): Promise<string | nul
         system: supervisorSystem(JURISDICTION_COUNTRY[context.jurisdiction]),
         prompt,
         maxTokens: 220,
+        // The race below answers the learner on time; this stops the request.
+        timeoutMs: TIMEOUT_MS,
       }),
       TIMEOUT_MS,
     );
@@ -141,7 +143,7 @@ export async function summariseSkillMap(
 
   try {
     const text = await withTimeout(
-      provider.complete({ system: supervisorSystem(country), prompt, maxTokens: 180 }),
+      provider.complete({ system: supervisorSystem(country), prompt, maxTokens: 180, timeoutMs: TIMEOUT_MS }),
       TIMEOUT_MS,
     );
     return text.length > 0 ? text : null;

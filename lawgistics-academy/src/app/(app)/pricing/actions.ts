@@ -82,6 +82,10 @@ export async function openBilling(): Promise<void> {
   redirect(portal.url);
 }
 
+/** Wrong codes allowed in CODE_WINDOW_MS before the form stops looking codes up. */
+const CODE_ATTEMPTS_PER_HOUR = 10;
+const CODE_WINDOW_MS = 60 * 60 * 1000;
+
 export interface CodeState {
   error: string | null;
   ok?: string;
@@ -102,14 +106,38 @@ export async function redeemCode(_prev: CodeState, formData: FormData): Promise<
     return { error: 'That does not look like a code. Check it with whoever gave it to you.' };
 
   const db = createServiceClient();
+
+  // Codes are short enough to guess by trying, and a right guess is a
+  // request to a firm the person is not with. Ten wrong ones in an hour and
+  // the form stops looking codes up until the oldest of them is an hour old.
+  // A count that cannot be read counts as the limit reached, as the tutor's
+  // does: a broken counter must not become no limit.
+  const since = new Date(Date.now() - CODE_WINDOW_MS).toISOString();
+  const { count, error: countError } = await db
+    .from('code_attempts')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .gte('attempted_at', since);
+  if (countError || count === null || count >= CODE_ATTEMPTS_PER_HOUR) {
+    return {
+      error:
+        'That is too many codes that did not match for now. Wait an hour, or check the code ' +
+        'with whoever gave it to you.',
+    };
+  }
+
   const { data: found } = await db
     .from('access_codes')
     .select('id, label')
     .eq('code', code)
     .eq('active', true)
     .maybeSingle();
-  if (!found)
+  if (!found) {
+    // Only a wrong code counts; a typo caught by the shape check above, or a
+    // right code entered twice, does not.
+    await db.from('code_attempts').insert({ user_id: user.id });
     return { error: 'That code was not recognised. Check it with whoever gave it to you.' };
+  }
 
   const { data: existing } = await db
     .from('access_grants')
