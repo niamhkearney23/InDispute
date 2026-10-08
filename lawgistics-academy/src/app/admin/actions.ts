@@ -191,13 +191,12 @@ export async function updateQuestion(
       JSON.stringify([...data.correctOptionIds].sort()) ||
     current.jurisdiction !== data.jurisdiction;
 
-  await db
-    .from('questions')
-    .update({
-      domain_id: data.domainId,
-      country: JURISDICTION_COUNTRY[data.jurisdiction],
-    })
-    .eq('id', questionId);
+  // The country is not set here. It follows the jurisdiction, and a new
+  // jurisdiction is a content change, so it is set below with the status
+  // change once the new version is in. Set here, a version that then failed
+  // to save would leave a published question showing its old, signed-off
+  // words to the other country's learners.
+  await db.from('questions').update({ domain_id: data.domainId }).eq('id', questionId);
 
   const linkError = await replaceLinks(questionId, data.conceptIds, data.skillIds);
   if (linkError) return { error: linkError };
@@ -287,12 +286,23 @@ export async function updateQuestion(
     return { error: versionError };
   }
 
-  // A rewritten question is unverified again, whatever it was before.
-  await db
+  // A rewritten question is unverified again, whatever it was before, and
+  // takes the country of its new jurisdiction. A published one changes both
+  // in the same write, so it is never in front of learners under the new
+  // country; one that is not published only needs the country.
+  const country = JURISDICTION_COUNTRY[data.jurisdiction];
+  const { error: withdrawError } = await db
     .from('questions')
-    .update({ status: 'requires_review' })
+    .update({ status: 'requires_review', country })
     .eq('id', questionId)
     .eq('status', 'published');
+  if (withdrawError) return { error: withdrawError.message };
+  const { error: countryError } = await db
+    .from('questions')
+    .update({ country })
+    .eq('id', questionId)
+    .neq('status', 'published');
+  if (countryError) return { error: countryError.message };
 
   revalidatePath(`/admin/questions/${questionId}`);
   revalidatePath('/admin');

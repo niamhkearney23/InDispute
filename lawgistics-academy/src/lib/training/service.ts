@@ -255,14 +255,18 @@ export async function getSessionPlan(
 ): Promise<SessionPlan | null> {
   const db = createServiceClient();
 
-  const { data: session } = await db
-    .from('training_sessions')
-    .select('id, kind, user_id, status')
-    .eq('id', sessionId)
-    .maybeSingle();
+  const [{ data: session }, { data: profile }] = await Promise.all([
+    db.from('training_sessions').select('id, kind, user_id, status').eq('id', sessionId).maybeSingle(),
+    db.from('profiles').select('country').eq('id', userId).maybeSingle(),
+  ]);
 
   // Ownership is enforced here because the service client bypasses RLS.
   if (!session || session.user_id !== userId) return null;
+  // A session holds the questions of the country the learner had when it
+  // started. Somebody who has since changed country must not be shown the
+  // other country's law on resuming it, so those drop out like a question
+  // withdrawn mid-session. With no country to go on, nothing is shown.
+  if (!profile?.country) return null;
 
   const { data: rows } = await db
     .from('training_session_questions')
@@ -275,6 +279,7 @@ export async function getSessionPlan(
   const { data: delivery } = await db
     .from('v_question_delivery')
     .select('*')
+    .eq('country', profile.country)
     .in(
       'question_version_id',
       rows.map((r) => r.question_version_id),

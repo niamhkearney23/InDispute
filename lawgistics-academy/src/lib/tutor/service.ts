@@ -175,16 +175,24 @@ export async function verifiedQuestions(
 
 /**
  * One question by its version, for marking an answer: null unless it is
- * still a question the tutor may stand on today.
+ * still a question the tutor may stand on today, and from the learner's own
+ * country. A test started before the learner changed country names the
+ * other country's questions, and those are not theirs to be asked or marked.
  */
-export async function verifiedQuestion(versionId: string): Promise<VerifiedQuestion | null> {
+export async function verifiedQuestion(
+  versionId: string,
+  country: Country,
+): Promise<VerifiedQuestion | null> {
   const db = createServiceClient();
   const { data } = await db
     .from('question_versions')
     .select(CHECKED_COLUMNS)
     .eq('id', versionId)
+    .eq('questions.country', country)
     .maybeSingle();
-  return data ? asChecked(data as unknown as CheckedRow, todayUtc()) : null;
+  const row = data as unknown as CheckedRow | null;
+  if (!row || row.questions?.country !== country) return null;
+  return asChecked(row, todayUtc());
 }
 
 /**

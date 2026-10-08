@@ -57,13 +57,18 @@ async function roundSessions(db: SupabaseClient, userId: string, since: string):
 async function firstQuestionDay(db: SupabaseClient, country: Country, timezone: string): Promise<string | null> {
   const { data } = await db
     .from('question_versions')
-    .select('verified_at, jurisdiction, questions!inner(status)')
+    .select('verified_at, jurisdiction, questions!inner(status, country)')
     .eq('is_current', true)
     .eq('verification_status', 'human_verified')
     .eq('questions.status', 'published')
+    // Filtered in the query: the first two hundred sign-offs could all be the
+    // other country's, and then this country's first day was never found.
+    .eq('questions.country', country)
     .not('verified_at', 'is', null)
     .order('verified_at', { ascending: true })
-    .limit(200);
+    .limit(1);
+  // Checked again by jurisdiction, so a question whose country and
+  // jurisdiction disagree does not start the other country's calendar.
   const first = ((data ?? []) as Array<{ verified_at: string; jurisdiction: Jurisdiction }>).find(
     (v) => JURISDICTION_COUNTRY[v.jurisdiction] === country,
   );
