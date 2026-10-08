@@ -220,7 +220,14 @@ export default async function SkillsPage() {
               The share of your answers that were right. Get them all right and it stays at 100%;
               each wrong answer brings it down.
             </p>
-            <AreaBreakdown areas={areas} />
+            {overview.areaScoresUnavailable ? (
+              <p className="max-w-2xl text-sm text-slate">
+                Scores by area could not be read just now. Try again in a moment; your answers
+                are all still recorded.
+              </p>
+            ) : (
+              <AreaBreakdown areas={areas} />
+            )}
           </section>
 
           {/* No "by skill" scores. Every question carries skill tags, but they
@@ -235,12 +242,12 @@ export default async function SkillsPage() {
             <section>
               <SectionHeading
                 eyebrow="Worth your attention"
-                title="Confident and wrong"
+                title="Certain and wrong"
               />
               <Card>
                 <p className="mb-4 text-sm text-slate">
                   On these concepts you have answered incorrectly while marking yourself
-                  certain. That is a belief that needs correcting rather than a gap that
+                  Certain (not Somewhat sure). That is a belief that needs correcting rather than a gap that
                   needs filling, and it is weighted accordingly in your training.
                 </p>
                 <ul className="divide-y divide-rule">

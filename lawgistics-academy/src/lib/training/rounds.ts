@@ -12,6 +12,8 @@
  * and what they have done today, say where each round stands.
  */
 import { localHour } from '@/lib/local-day';
+import { dateOfWorkingDay, isWorkingDay, workingDaysElapsed } from '@/lib/homework/rules';
+import { HOMEWORK_DAYS } from '@/content/seed/homework';
 
 /**
  * The rounds run on Kuala Lumpur time, the firm's clock, for every trainee
@@ -26,7 +28,12 @@ export const ROUND_SIZE = 10;
 /** When the last round closes. */
 export const MORNING_ENDS = 11;
 
-export type RoundState = 'upcoming' | 'open' | 'done' | 'missed';
+/**
+ * `not_applicable` is a round that closed before the trainee was confirmed
+ * or before questions were first published: nothing could have been done in
+ * it, so it is neither done nor missed.
+ */
+export type RoundState = 'upcoming' | 'open' | 'done' | 'missed' | 'not_applicable';
 
 export interface Round {
   /** 1 to 4. */
@@ -34,22 +41,14 @@ export interface Round {
   opensAt: Date;
   closesAt: Date;
   state: RoundState;
-  /** Answers given in this round's sessions. */
+  /** Answers given in this round's hour, at most ten. */
   answered: number;
 }
-
-/**
- * A session started at 7:55 still belongs to round one, so its answers count
- * for a little after the round closes; any later and the round was missed.
- * Without a limit, a round left at 7:59 could be filled in at 10:45, or
- * finished unanswered, and show as done.
- */
-export const ROUND_GRACE_MINUTES = 10;
 
 /** A daily session as the rounds see it. */
 export interface RoundSession {
   startedAt: string;
-  /** When each of its answers was given. */
+  /** When each of its answers was given, by the server's clock. */
   answeredAt: string[];
   /** How many questions it was given. */
   questionCount: number;
@@ -66,43 +65,83 @@ export function roundWindows(timezone: string, localDate: string) {
 }
 
 /**
- * Where each round stands. A session belongs to the round it was started
- * in, and only answers given before the round closes (plus the grace) count.
- * A round is done at ten such answers, or when a session the bank could not
- * fill to ten was answered in full and finished in time.
+ * Where each round stands.
+ *
+ * An answer counts for the round whose hour it was given in, whatever
+ * session it belongs to, so a session started at 7:50 and answered through
+ * to 8:18 gives its early answers to the 7am round and its later ones to the
+ * 8am round: a trainee who is answering is never marked missing. A round
+ * left at 7:59 still cannot be filled in at 10:45, because those answers
+ * belong to the 10am round. The hour is the whole window, with no grace: an
+ * answer at 7:59:59 counts for 7am, one at 8:00:01 does not.
+ *
+ * A round is done at ten answers in its hour, or when a session the bank
+ * could not fill to ten was started, answered in full and finished inside
+ * that same hour.
+ *
+ * A round that closes at or before `notBefore` (the trainee was confirmed,
+ * or questions were first published, after it) could not have been done, so
+ * it is not applicable rather than missed.
  */
 export function roundsFor(
   timezone: string,
   localDate: string,
   sessions: RoundSession[],
   now: Date = new Date(),
+  notBefore: Date | null = null,
 ): Round[] {
   return roundWindows(timezone, localDate).map((w) => {
-    const inRound = sessions.filter((s) => {
-      const t = new Date(s.startedAt).getTime();
+    const inHour = (iso: string) => {
+      const t = new Date(iso).getTime();
       return t >= w.opensAt.getTime() && t < w.closesAt.getTime();
-    });
-    const deadline = w.closesAt.getTime() + ROUND_GRACE_MINUTES * 60_000;
-    const inTime = (iso: string) => new Date(iso).getTime() < deadline;
-    const answered = inRound.reduce((n, s) => n + s.answeredAt.filter(inTime).length, 0);
-    const shortButFinished = inRound.some(
+    };
+    const answered = sessions.reduce((n, s) => n + s.answeredAt.filter(inHour).length, 0);
+    const shortButFinished = sessions.some(
       (s) =>
-        s.completedAt !== null &&
-        inTime(s.completedAt) &&
         s.questionCount > 0 &&
         s.questionCount < ROUND_SIZE &&
-        s.answeredAt.filter(inTime).length >= s.questionCount,
+        inHour(s.startedAt) &&
+        s.completedAt !== null &&
+        inHour(s.completedAt) &&
+        s.answeredAt.filter(inHour).length >= s.questionCount,
     );
     const done = answered >= ROUND_SIZE || shortButFinished;
     const state: RoundState = done
       ? 'done'
-      : now < w.opensAt
-        ? 'upcoming'
-        : now < w.closesAt
-          ? 'open'
-          : 'missed';
+      : notBefore && w.closesAt.getTime() <= notBefore.getTime()
+        ? 'not_applicable'
+        : now < w.opensAt
+          ? 'upcoming'
+          : now < w.closesAt
+            ? 'open'
+            : 'missed';
     return { ...w, state, answered: Math.min(answered, ROUND_SIZE) };
   });
+}
+
+/** The last day rounds can run: the end date, or working day twenty when none is set. */
+export function lastRoundsDate(startsOn: string, endsOn: string | null): string {
+  return endsOn ?? dateOfWorkingDay(startsOn, HOMEWORK_DAYS);
+}
+
+/**
+ * Whether a calendar day is a rounds day for this person, and if so which
+ * working day of their placement it is: a working day (not a weekend or a
+ * skipped holiday) from the start date to the last rounds day. Null when it
+ * is not one. Today's rounds and the calendar both ask this, so they cannot
+ * disagree about which mornings had rounds.
+ */
+export function roundsDayNumber(
+  startsOn: string | null,
+  endsOn: string | null,
+  date: string,
+): number | null {
+  if (!startsOn || date < startsOn || date > lastRoundsDate(startsOn, endsOn)) return null;
+  if (!isWorkingDay(date)) return null;
+  const elapsed = Math.round(
+    (Date.parse(`${date}T00:00:00Z`) - Date.parse(`${startsOn}T00:00:00Z`)) / 86_400_000,
+  );
+  return workingDaysElapsed(startsOn, elapsed);
 }
 
 /** The round open now and not yet done, if there is one. */

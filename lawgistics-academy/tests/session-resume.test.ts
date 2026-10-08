@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { isFromToday, resumeIndexFor } from '../src/lib/training/service';
+import { isFromToday, resumeIndexFor, sameSet } from '../src/lib/training/service';
+import { functionMissing } from '../src/lib/supabase/errors';
 
 /**
  * Resuming a part-finished session.
@@ -83,4 +84,28 @@ test('the day boundary is the learner’s timezone, not the server’s', () => {
   const now = new Date('2026-08-25T20:00:00Z');
   assert.equal(isFromToday(startedAt, 'Australia/Melbourne', now), false);
   assert.equal(isFromToday(startedAt, 'America/Los_Angeles', now), true);
+});
+
+test('grading compares sets: an option sent twice is not two answers', () => {
+  assert.equal(sameSet(['a', 'b'], ['b', 'a']), true);
+  assert.equal(sameSet(['a'], ['a']), true);
+  assert.equal(sameSet(['a', 'a'], ['a', 'b']), false);
+  assert.equal(sameSet(['a', 'b'], ['a', 'a']), false);
+  assert.equal(sameSet(['a'], ['a', 'b']), false);
+  assert.equal(sameSet([], ['a']), false);
+});
+
+test('only a missing function lets the area scores fall back to the per-concept sum', () => {
+  assert.equal(
+    functionMissing({ code: 'PGRST202', message: 'Could not find the function public.area_scores(uid)' }),
+    true,
+  );
+  assert.equal(functionMissing({ code: '42883', message: 'function area_scores(uuid) does not exist' }), true);
+  assert.equal(
+    functionMissing({ message: 'Could not find the function public.area_scores in the schema cache' }),
+    true,
+  );
+  assert.equal(functionMissing({ code: '57014', message: 'canceling statement due to statement timeout' }), false);
+  assert.equal(functionMissing({ code: 'PGRST301', message: 'JWT expired' }), false);
+  assert.equal(functionMissing(null), false);
 });

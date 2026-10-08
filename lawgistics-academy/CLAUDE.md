@@ -306,11 +306,11 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   back to the old per-concept sum on a database without 0036). Inbound
   email needs SPF or a DKIM signature from the sender's own domain before
   the address is looked up. Rounds count only answers given in the round's
-  hour plus ten minutes (`ROUND_GRACE_MINUTES`): a round left at 7:59 cannot
-  be filled in at 10:45 or finished unanswered. The calendar starts at the
-  latest of the start date, the day the trainee was confirmed and the day
-  questions were first signed off, and ends on day twenty when no end date
-  is set.
+  own hour, with no grace (the ten-minute grace 0036 shipped with was taken
+  out later): a round left at 7:59 cannot be filled in at 10:45 or finished
+  unanswered. The calendar starts at the later of the start date and the day
+  rounds start counting (see Rounds), and ends on day twenty when no end
+  date is set.
 - **Options are shown shuffled** (`src/lib/learning/option-order.ts`), fixed per
   question version or lesson screen, and the letter shown is the place on the
   screen, never the id. The bank was written with the right answer B three
@@ -330,13 +330,24 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 - **Rounds** (`src/lib/training/rounds.ts`): on a working day of the placement a
   confirmed trainee trains in four rounds of ten questions, opening at 7, 8, 9
   and 10am Kuala Lumpur time whatever their own timezone. A round is open for
-  its hour and missed for good after it; a session belongs to the round it was
-  started in. `beginSession` refuses a daily session outside an open round and
-  sizes it to what the round still needs. A corner clock counts down to the
-  next opening or the open round's close, Today shows the rounds and a little
-  calendar of every morning, and a coach sees the calendar and missed count on
-  Admin, Trainees. No rounds run until questions are published for the
-  trainee's country, so nothing is marked missed that could not be done.
+  exactly its hour and missed for good after it, with no grace: an answer
+  counts for the round whose hour it was given in by the server's clock
+  (`answered_at`), whatever session it belongs to, so 7:59:59 counts for 7am
+  and 8:00:01 for 8am, and somebody answering across the hour is never marked
+  missing. A round is done at ten answers in its hour, or a short session
+  (the bank had fewer than ten) started, answered and finished inside it.
+  `beginSession` refuses a daily session outside an open round and sizes it
+  to what the round still needs, by the same count. Which days have rounds
+  is one function, `roundsDayNumber` (working days from the start date to
+  the end date, or day twenty when none is set), used by today's rounds and
+  the calendar alike. Nothing is missed before rounds start counting
+  (`notBefore`: the later of `trainee_approved_at` and the first sign-off of
+  a published question for the country, since questions have no publication
+  time); a round that closed by then shows as not counted. A corner clock
+  counts down to the next opening or the open round's close, Today shows the
+  rounds and a little calendar of every morning, and a coach sees the
+  calendar and missed count on Admin, Trainees. No rounds run until
+  questions are published for the trainee's country.
 - **Score over time** (`src/lib/learning/score-history.ts`): the overall score
   is the share of every answer ever given that was right, drawn as a line with a
   point per day, on Progress for the learner and on Admin, Trainees for staff.
@@ -373,7 +384,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   grid, gold-free by the owner's choice). Admin has the same look. The front
   page and sign-in stay cream. The certificate and a matter's case file stay paper inside it.
   Use the tokens, never fixed Tailwind colours, or a page breaks in one look.
-- 401 tests, 329 schema guarantees against a real Postgres, 240 page and device
+- 413 tests, 329 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB

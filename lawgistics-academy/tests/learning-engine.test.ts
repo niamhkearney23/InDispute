@@ -160,6 +160,23 @@ test('review dates are described in plain English', () => {
   assert.equal(describeNextReview(new Date('2026-03-25T00:00:00Z'), NOW), 'Back in 2 weeks');
 });
 
+test('a review is described in calendar days where the learner is', () => {
+  // 7:30am in Kuala Lumpur on 10 March is 11:30pm UTC on 9 March. Got wrong,
+  // it is due back at midnight there, which is tomorrow for the learner; from
+  // UTC midnight it read as two days.
+  const KL = 'Asia/Kuala_Lumpur';
+  const answeredAt = new Date('2026-03-09T23:30:00Z');
+  const review = scheduleNextReview(
+    initialReviewState(answeredAt),
+    { isCorrect: false, confidence: 'certain', mastery: 20 },
+    answeredAt,
+    KL,
+  );
+  assert.equal(review.nextReviewAt.toISOString(), '2026-03-10T16:00:00.000Z');
+  assert.equal(describeNextReview(review.nextReviewAt, answeredAt, KL), 'Back tomorrow');
+  assert.equal(describeNextReview(new Date('2026-03-10T08:00:00Z'), answeredAt, KL), 'Back later today');
+});
+
 /* -------------------------------------------------------------------------- */
 /* Mastery                                                                    */
 /* -------------------------------------------------------------------------- */
