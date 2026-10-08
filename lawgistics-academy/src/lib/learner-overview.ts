@@ -48,6 +48,8 @@ export interface LearnerProfile {
    * caller wants "may this person coach", never "is this person only a coach".
    */
   isCoach: boolean;
+  /** Runs the firm's own people and setup, never content (0037). */
+  isFirmAdmin: boolean;
   /** An administrator set this person's first password; they choose their own next. */
   mustChangePassword: boolean;
   /** On the trainee programme and confirmed by somebody at the firm (0023). */
@@ -104,6 +106,7 @@ export async function getLearnerProfile(userId: string): Promise<LearnerProfile 
     endsOn: data.ends_on,
     isAdmin: data.is_admin,
     isCoach: data.is_coach ?? false,
+    isFirmAdmin: data.is_firm_admin ?? false,
     mustChangePassword: data.must_change_password ?? false,
     traineeConfirmed: Boolean(data.trainee_approved_at),
     leaderboardOptOut: Boolean(data.leaderboard_opt_out),

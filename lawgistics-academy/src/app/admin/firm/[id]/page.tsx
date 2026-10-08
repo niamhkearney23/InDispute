@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { requireAdmin } from '@/lib/admin/guard';
+import { requireFirmAdmin } from '@/lib/admin/guard';
 import { getFirmModuleForAdmin } from '@/lib/firm/service';
 import { ButtonLink } from '@/components/ui';
 import { saveFirmModule } from '../actions';
@@ -13,7 +13,7 @@ export default async function EditFirmModulePage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireAdmin();
+  await requireFirmAdmin();
   const { id } = await params;
 
   const definition = await getFirmModuleForAdmin(id);

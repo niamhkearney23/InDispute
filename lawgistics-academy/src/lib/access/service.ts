@@ -40,7 +40,7 @@ export async function accessFor(userId: string): Promise<AccessState> {
     await Promise.all([
       db
         .from('profiles')
-        .select('is_admin, is_coach, trainee_approved_at')
+        .select('*')
         .eq('id', userId)
         .maybeSingle(),
       db.from('joiner_invitations').select('id').eq('accepted_by', userId).limit(1).maybeSingle(),
@@ -61,7 +61,7 @@ export async function accessFor(userId: string): Promise<AccessState> {
 
   const facts: AccessFacts = {
     paymentsOn: paymentsOn(),
-    isStaff: Boolean(profile?.is_admin || profile?.is_coach),
+    isStaff: Boolean(profile?.is_admin || profile?.is_coach || profile?.is_firm_admin),
     traineeConfirmed: Boolean(profile?.trainee_approved_at),
     joinedByInvitation: Boolean(invitation),
     // Turning a code off ends it for everybody on it, not only new people:

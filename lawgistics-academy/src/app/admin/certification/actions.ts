@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { checkCoach } from '@/lib/admin/guard';
+import { checkReviewer } from '@/lib/admin/guard';
 import { createServiceClient } from '@/lib/supabase/service';
 import type { AdminState } from '../actions';
 
@@ -25,7 +25,7 @@ const traineeSchema = z.object({
 });
 
 export async function saveTrainee(_state: AdminState, formData: FormData): Promise<AdminState> {
-  const coachId = await checkCoach();
+  const coachId = await checkReviewer();
   if (!coachId) return { error: 'You are not signed in as a coach or administrator.' };
 
   const parsed = traineeSchema.safeParse({
@@ -93,7 +93,7 @@ export async function saveCertificationEntry(
   _state: AdminState,
   formData: FormData,
 ): Promise<AdminState> {
-  const coachId = await checkCoach();
+  const coachId = await checkReviewer();
   if (!coachId) return { error: 'You are not signed in as a coach or administrator.' };
 
   const parsed = entrySchema.safeParse({

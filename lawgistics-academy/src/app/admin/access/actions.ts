@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { checkAdmin, checkCoach } from '@/lib/admin/guard';
+import { checkCoach, checkFirmAdmin } from '@/lib/admin/guard';
 import { createServiceClient } from '@/lib/supabase/service';
 import { normaliseCode } from '@/lib/access/rules';
 import type { AdminState } from '../actions';
@@ -51,8 +51,8 @@ export async function decideAccess(_state: AdminState, formData: FormData): Prom
 
 /** A new code for a firm or university. Administrators only. */
 export async function saveAccessCode(_state: AdminState, formData: FormData): Promise<AdminState> {
-  const adminId = await checkAdmin();
-  if (!adminId) return { error: 'You are not signed in as an administrator.' };
+  const adminId = await checkFirmAdmin();
+  if (!adminId) return { error: 'You are not signed in as an administrator or firm administrator.' };
 
   const code = normaliseCode(String(formData.get('code') ?? ''));
   const label = String(formData.get('label') ?? '').trim();
@@ -91,8 +91,8 @@ export async function setAccessCodeActive(
   _state: AdminState,
   formData: FormData,
 ): Promise<AdminState> {
-  const adminId = await checkAdmin();
-  if (!adminId) return { error: 'You are not signed in as an administrator.' };
+  const adminId = await checkFirmAdmin();
+  if (!adminId) return { error: 'You are not signed in as an administrator or firm administrator.' };
 
   const id = String(formData.get('id') ?? '');
   const active = formData.get('active') === 'true';

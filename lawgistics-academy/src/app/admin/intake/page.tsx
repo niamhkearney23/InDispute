@@ -38,7 +38,7 @@ function shortDate(iso: string): string {
  * only an administrator sees, through its own guarded action.
  */
 export default async function IntakePage() {
-  const { isAdmin } = await requireCoach();
+  const { isFirmAdmin } = await requireCoach();
   const overview = await intakeOverview();
 
   const schedule = intakeSchedule(PROGRAMME.intakeStartsOn);
@@ -167,7 +167,7 @@ export default async function IntakePage() {
           </ul>
           {undated.length > 0 || elsewhere.length > 0 ? (
             <div className="mt-4 space-y-4 border-t border-rule pt-4">
-              {isAdmin ? (
+              {isFirmAdmin ? (
                 <>
                   {undated.length > 0 ? (
                     <IntakeDatesButton

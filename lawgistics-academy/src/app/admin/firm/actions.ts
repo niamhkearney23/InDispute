@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { checkAdmin } from '@/lib/admin/guard';
+import { checkFirmAdmin } from '@/lib/admin/guard';
 import { createServiceClient } from '@/lib/supabase/service';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import type { AdminState } from '../actions';
@@ -43,8 +43,8 @@ export async function saveFirmModule(
   _state: AdminState,
   formData: FormData,
 ): Promise<AdminState> {
-  const adminId = await checkAdmin();
-  if (!adminId) return { error: 'You are not signed in as an administrator.' };
+  const adminId = await checkFirmAdmin();
+  if (!adminId) return { error: 'You are not signed in as an administrator or firm administrator.' };
 
   const parsed = schema.safeParse({
     moduleId: formData.get('moduleId') ?? '',
@@ -137,8 +137,8 @@ export async function setLeaderboardEnabled(
   _state: AdminState,
   formData: FormData,
 ): Promise<AdminState> {
-  const adminId = await checkAdmin();
-  if (!adminId) return { error: 'Not authorised.' };
+  const adminId = await checkFirmAdmin();
+  if (!adminId) return { error: 'You are not signed in as an administrator or firm administrator.' };
 
   const enabled = formData.get('enabled') === 'on';
   // Through the administrator's own session: the firm_settings policy

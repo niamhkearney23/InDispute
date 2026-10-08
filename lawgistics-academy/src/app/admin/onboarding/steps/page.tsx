@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { requireAdmin } from '@/lib/admin/guard';
+import { requireFirmAdmin } from '@/lib/admin/guard';
 import { listStepsForAdmin } from '@/lib/onboarding/service';
 import { listFirmModulesForAdmin } from '@/lib/firm/service';
 import { ButtonLink, Card, EmptyState, InlineLink, Pill, SectionHeading } from '@/components/ui';
@@ -7,7 +7,7 @@ import { ButtonLink, Card, EmptyState, InlineLink, Pill, SectionHeading } from '
 export const metadata: Metadata = { title: 'The checklist' };
 
 export default async function StepsPage() {
-  await requireAdmin();
+  await requireFirmAdmin();
 
   const [steps, modules] = await Promise.all([listStepsForAdmin(), listFirmModulesForAdmin()]);
   const moduleById = new Map(modules.map((m) => [m.id, m]));

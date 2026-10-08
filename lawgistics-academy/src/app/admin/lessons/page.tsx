@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { requireCoach } from '@/lib/admin/guard';
+import { requireReviewer } from '@/lib/admin/guard';
 import { ALL_LESSONS, DRAFT_LESSONS } from '@/content/seed/lessons';
 import { moduleBySlug } from '@/content/seed/modules';
 import { currentSignOffs } from '@/lib/lessons/signoff';
@@ -15,7 +15,7 @@ export const dynamic = 'force-dynamic';
  * lessons already live show learners that they are not yet checked.
  */
 export default async function AdminLessonsPage() {
-  await requireCoach();
+  await requireReviewer();
   const signed = await currentSignOffs();
   const day = (iso: string) =>
     new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });

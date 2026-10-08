@@ -12,10 +12,10 @@ export const metadata: Metadata = { title: 'Access' };
  * administrator's.
  */
 export default async function AccessPage() {
-  const { isAdmin } = await requireCoach();
+  const { isFirmAdmin } = await requireCoach();
   const [waiting, codes] = await Promise.all([
     waitingForAccess(),
-    isAdmin ? accessCodes() : Promise.resolve([]),
+    isFirmAdmin ? accessCodes() : Promise.resolve([]),
   ]);
   const on = paymentsOn();
   const day = (iso: string) =>
@@ -66,7 +66,7 @@ export default async function AccessPage() {
         ) : null}
       </Card>
 
-      {isAdmin ? (
+      {isFirmAdmin ? (
         <Card>
           <h2 className="text-lg">Codes</h2>
           <p className="mt-1 mb-5 text-sm text-slate">

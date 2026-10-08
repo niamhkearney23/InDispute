@@ -2700,6 +2700,46 @@ select pg_temp.expect_failure(
   'a learner cannot read anybody''s area scores through the database');
 reset role;
 
+-- The firm administrator (0037) -----------------------------------------------
+insert into auth.users (id, email, raw_user_meta_data)
+values ('aaaa0037-0000-0000-0000-000000000001', 'firmadmin@example.test', '{}');
+update public.profiles set is_firm_admin = true
+  where id = 'aaaa0037-0000-0000-0000-000000000001';
+
+set local role authenticated;
+set local request.jwt.claim.sub = '22222222-2222-2222-2222-222222222222';
+select pg_temp.expect_failure(
+  $$update public.profiles set is_firm_admin = true
+    where id = '22222222-2222-2222-2222-222222222222'$$,
+  'a learner cannot make themselves a firm administrator');
+select pg_temp.expect(not public.is_firm_admin(), 'a learner is not a firm administrator');
+reset role;
+
+set local role authenticated;
+set local request.jwt.claim.sub = 'aaaa0037-0000-0000-0000-000000000001';
+select pg_temp.expect(public.is_coach(), 'a firm administrator is a coach in the database');
+select pg_temp.expect(public.is_firm_admin(), 'a firm administrator is a firm administrator');
+select pg_temp.expect(not public.is_admin(), 'a firm administrator is not an administrator');
+select pg_temp.expect_failure(
+  $$update public.profiles set is_admin = true
+    where id = 'aaaa0037-0000-0000-0000-000000000001'$$,
+  'a firm administrator cannot promote themselves to administrator');
+select pg_temp.expect_failure(
+  $$update public.profiles set is_coach = true
+    where id = 'aaaa0037-0000-0000-0000-000000000001'$$,
+  'a firm administrator cannot make themselves a coach');
+update public.firm_settings set leaderboard_enabled = false where id;
+reset role;
+select pg_temp.expect(
+  (select not leaderboard_enabled and updated_by = 'aaaa0037-0000-0000-0000-000000000001'
+   from public.firm_settings where id),
+  'a firm administrator switches the leaderboard, and the record says who');
+
+set local role authenticated;
+set local request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+select pg_temp.expect(public.is_firm_admin(), 'an administrator answers as a firm administrator too');
+reset role;
+
 \echo ''
 \echo 'All schema guarantees hold.'
 

@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { checkAdmin, checkCoach } from '@/lib/admin/guard';
+import { checkAdmin, checkReviewer } from '@/lib/admin/guard';
 import { createServiceClient } from '@/lib/supabase/service';
 import type { AdminState } from '../actions';
 
@@ -136,7 +136,7 @@ const decisionSchema = z.object({
  * it takes the matter down.
  */
 export async function decideMatter(_prev: AdminState, formData: FormData): Promise<AdminState> {
-  const coachId = await checkCoach();
+  const coachId = await checkReviewer();
   if (!coachId) return { error: 'Not authorised.' };
 
   const parsed = decisionSchema.safeParse({
@@ -215,7 +215,7 @@ const markSchema = z.object({
 
 /** A lawyer's mark on a handed-in attempt: a verdict and a paragraph. */
 export async function markMatterAttempt(_prev: AdminState, formData: FormData): Promise<AdminState> {
-  const coachId = await checkCoach();
+  const coachId = await checkReviewer();
   if (!coachId) return { error: 'Not authorised.' };
 
   const parsed = markSchema.safeParse({

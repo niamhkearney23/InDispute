@@ -23,7 +23,7 @@ export default async function TrainingFilePage() {
 
   const profile = await getLearnerProfile(user.id);
   if (!profile) redirect('/login');
-  const staff = profile.isAdmin || profile.isCoach;
+  const staff = profile.isAdmin || profile.isCoach || profile.isFirmAdmin;
   if (profile.track !== 'litigation_trainee' && !staff) redirect('/dashboard');
 
   const file = TRAINING_FILE;

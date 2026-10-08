@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { checkAdmin, checkCoach } from '@/lib/admin/guard';
+import { checkAdmin, checkReviewer } from '@/lib/admin/guard';
 import { createServiceClient } from '@/lib/supabase/service';
 import { HOLD_CHOICES, dueDateFrom, type HoldMonths } from '@/lib/review/expiry';
 
@@ -46,7 +46,7 @@ export async function recordReviewDecision(
 ): Promise<ReviewResult> {
   // A coach's decision, not an administrator's. Signing an item off is the
   // judgement the role exists for, and it is recorded against them by name.
-  const adminId = await checkCoach();
+  const adminId = await checkReviewer();
   if (!adminId) return { ok: false, error: 'Not authorised.' };
 
   const parsed = decisionSchema.safeParse(input);

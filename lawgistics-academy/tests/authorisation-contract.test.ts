@@ -29,6 +29,10 @@ const AUTH_CALLS = [
   'requireAdmin',
   'checkCoach',
   'requireCoach',
+  'checkFirmAdmin',
+  'requireFirmAdmin',
+  'checkReviewer',
+  'requireReviewer',
   'getCurrentUser',
 ];
 
@@ -163,6 +167,7 @@ test('the server actions were actually found', () => {
     'setMatterPublished',
     'setPlacementDates',
     'setPublished',
+    'setStaffRole',
     'signOffLesson',
     'startCheckout',
     'startMatter',
@@ -339,15 +344,74 @@ const COACH_ACTIONS = new Set([
   'signOffLesson',
 ]);
 
+/**
+ * A lawyer's judgement, inside the coach's list: signing content off, marking
+ * a matter, grading the register. These ask `checkReviewer`, which a firm
+ * administrator who is not also a coach does not pass (0037).
+ */
+const REVIEWER_ACTIONS = new Set([
+  'recordReviewDecision',
+  'decideMatter',
+  'signOffLesson',
+  'markMatterAttempt',
+  'saveTrainee',
+  'saveCertificationEntry',
+]);
+
+/**
+ * The firm's own setup, which a firm administrator runs (0037): the joining
+ * checklist and the firm's documents, invitations, codes, programme dates
+ * and the leaderboard. Never content: questions, matters, the daily brief,
+ * publishing and the staff list stay with an administrator.
+ */
+const FIRM_ADMIN_ACTIONS = new Set([
+  'saveStep',
+  'setPlacementDates',
+  'invite',
+  'createAccount',
+  'revoke',
+  'setIntakeDates',
+  'saveAccessCode',
+  'setAccessCodeActive',
+  'saveFirmModule',
+  'setLeaderboardEnabled',
+]);
+
+test('the reviewer actions are coach actions, and the firm list is separate', () => {
+  for (const name of REVIEWER_ACTIONS) assert.ok(COACH_ACTIONS.has(name), name);
+  for (const name of FIRM_ADMIN_ACTIONS) assert.ok(!COACH_ACTIONS.has(name), name);
+  assert.equal(FIRM_ADMIN_ACTIONS.size, 10, 'adding to the firm administrator is a visible act');
+});
+
+test('signing off, marking a matter and grading ask for a reviewer, never just a coach', () => {
+  const found = ACTIONS.filter((a) => REVIEWER_ACTIONS.has(a.name));
+  assert.equal(found.length, REVIEWER_ACTIONS.size, 'every reviewer action exists');
+  const loose = found
+    .filter((a) => !/checkReviewer\(/.test(a.body) || /checkCoach\(/.test(a.body))
+    .map((a) => `${a.file}:${a.line} ${a.name}`);
+  assert.deepEqual(loose, [], 'a firm administrator who is not a lawyer signs nothing off');
+});
+
+test('nothing outside the firm list settles for a firm administrator', () => {
+  const slipped = ACTIONS.filter((a) => !FIRM_ADMIN_ACTIONS.has(a.name))
+    .filter((a) => /checkFirmAdmin\(|requireFirmAdmin\(/.test(a.body))
+    .map((a) => `${a.file}:${a.line} ${a.name}`);
+  assert.deepEqual(slipped, [], 'a firm administrator never writes or publishes content');
+});
+
 test('every admin server action requires a staff role, never merely a session', () => {
   const adminActions = ACTIONS.filter((a) => a.file.includes('app/admin'));
   assert.ok(adminActions.length >= 6, `only found ${adminActions.length} admin actions`);
 
   const weak = adminActions
     .filter((a) => {
-      const guards = COACH_ACTIONS.has(a.name)
-        ? ['checkCoach(', 'requireCoach(', 'checkAdmin(', 'requireAdmin(']
-        : ['checkAdmin(', 'requireAdmin('];
+      const guards = REVIEWER_ACTIONS.has(a.name)
+        ? ['checkReviewer(']
+        : COACH_ACTIONS.has(a.name)
+          ? ['checkCoach(', 'requireCoach(', 'checkAdmin(', 'requireAdmin(']
+          : FIRM_ADMIN_ACTIONS.has(a.name)
+            ? ['checkFirmAdmin(']
+            : ['checkAdmin(', 'requireAdmin('];
       return !guards.some((g) => a.body.includes(g));
     })
     .map((a) => `${a.file}:${a.line} ${a.name}`);
@@ -375,7 +439,9 @@ test('the admin authorisation check is the first thing an admin action does', ()
   // A check that runs after the write has already happened is not a check.
   const late = ACTIONS.filter((a) => a.file.includes('app/admin'))
     .filter((action) => {
-      const guardAt = action.body.search(/(checkAdmin|requireAdmin|checkCoach|requireCoach)\(/);
+      const guardAt = action.body.search(
+        /(checkAdmin|requireAdmin|checkCoach|requireCoach|checkFirmAdmin|requireFirmAdmin|checkReviewer|requireReviewer)\(/,
+      );
       const writeAt = action.body.search(/createServiceClient\(/);
       return writeAt !== -1 && guardAt > writeAt;
     })

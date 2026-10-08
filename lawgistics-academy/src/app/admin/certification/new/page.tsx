@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { requireCoach } from '@/lib/admin/guard';
+import { requireReviewer } from '@/lib/admin/guard';
 import { saveTrainee } from '../actions';
 import { TraineeForm } from '../trainee-form';
 
@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: 'Add trainee' };
 export const dynamic = 'force-dynamic';
 
 export default async function NewTraineePage() {
-  await requireCoach();
+  await requireReviewer();
 
   return (
     <div className="space-y-6">

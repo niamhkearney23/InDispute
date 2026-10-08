@@ -87,7 +87,8 @@ export default async function DashboardPage() {
         : false;
     if (!roundOpen) redirect('/diagnostic');
   }
-  const staff = overview.profile.isAdmin || overview.profile.isCoach;
+  const staff =
+    overview.profile.isAdmin || overview.profile.isCoach || overview.profile.isFirmAdmin;
   const countryName = overview.profile.country === 'MY' ? 'Malaysia' : 'Australia';
 
   const { profile, level, skillMap } = overview;
