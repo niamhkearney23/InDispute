@@ -2,6 +2,7 @@
 
 import { useActionState } from 'react';
 import { Button, Notice } from '@/components/ui';
+import { brand } from '@/lib/brand';
 import type { AdminState } from '../actions';
 import { decideAccess, saveAccessCode, setAccessCodeActive } from './actions';
 
@@ -81,7 +82,7 @@ export function NewCodeForm() {
             name="label"
             required
             maxLength={120}
-            placeholder="Thomas Philip"
+            placeholder={brand.firm}
             className="h-11 w-full rounded-md border-2 border-rule bg-paper-raised px-3 outline-none focus:border-accent"
           />
         </div>

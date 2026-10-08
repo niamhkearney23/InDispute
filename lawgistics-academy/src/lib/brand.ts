@@ -64,6 +64,12 @@ export interface Brand {
    */
   accent: string | null;
   /**
+   * The firm's logo, shown before the name in the wordmark: an https address
+   * or a path to a file in public/. Anything else is ignored, so a typo shows
+   * the name alone rather than a broken image.
+   */
+  logo: string | null;
+  /**
    * One character for the browser tab icon. Derived rather than configured,
    * because it is drawn into an SVG and a configured value would be a string
    * from the environment landing in markup.
@@ -100,6 +106,19 @@ export function safeAccent(value: string | undefined): string | null {
 }
 
 /**
+ * A logo address goes into an img tag, so it is checked rather than trusted:
+ * an https address or a path from the site's own root, with no quotes, spaces
+ * or angle brackets, and nothing that starts with two slashes.
+ */
+export function safeLogo(value: string | undefined): string | null {
+  const trimmed = (value ?? '').trim();
+  if (!trimmed || /["'<>\s\\]/.test(trimmed)) return null;
+  if (/^https:\/\/[a-z0-9.-]+\.[a-z]{2,}\//i.test(trimmed)) return trimmed;
+  if (/^\/[^/]/.test(trimmed)) return trimmed;
+  return null;
+}
+
+/**
  * The first letter, and only if it is a letter or a digit. Everything else is
  * dropped, so nothing that could close an attribute or open a tag survives the
  * trip into the icon's SVG.
@@ -114,7 +133,12 @@ const DEFAULT_PARENT_LINE =
   'Lawgistics Academy is part of Lawgistics: business development and operations for lawyers and law firms.';
 const DEFAULT_PARTNERS_EMAIL = 'partners@lawgistics.my';
 const suffix = clean(process.env.NEXT_PUBLIC_BRAND_SUFFIX, DEFAULT_SUFFIX);
-const firm = clean(process.env.NEXT_PUBLIC_BRAND_FIRM, 'Thomas Philip');
+// Thomas Philip only on Thomas Philip's own copy. Another firm's copy that
+// forgets to set its firm name shows its own brand name, never ours.
+const firm = clean(
+  process.env.NEXT_PUBLIC_BRAND_FIRM,
+  name === DEFAULT_NAME ? 'Thomas Philip' : name,
+);
 
 export const brand: Brand = {
   name,
@@ -139,5 +163,6 @@ export const brand: Brand = {
     name === DEFAULT_NAME ? DEFAULT_PARTNERS_EMAIL : '',
   ),
   accent: safeAccent(process.env.NEXT_PUBLIC_BRAND_ACCENT),
+  logo: safeLogo(process.env.NEXT_PUBLIC_BRAND_LOGO),
   initial: safeInitial(name),
 };
