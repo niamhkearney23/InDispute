@@ -78,7 +78,15 @@ export default async function DashboardPage() {
   // new learner on a page they cannot get past, with their homework, work
   // and coach's sessions all waiting on the other side of it.
   const open = await trainingOpen(overview.profile.country);
-  if (open && !overview.profile.diagnosticCompletedAt) redirect('/diagnostic');
+  if (open && !overview.profile.diagnosticCompletedAt) {
+    // Except a trainee while a round is open: the round's button is on this
+    // page and the hour does not wait, so the diagnostic can come after it.
+    const roundOpen =
+      overview.profile.track === 'litigation_trainee' && overview.profile.traineeConfirmed
+        ? Boolean(openRound((await roundsToday(user.id).catch(() => null))?.rounds ?? []))
+        : false;
+    if (!roundOpen) redirect('/diagnostic');
+  }
   const staff = overview.profile.isAdmin || overview.profile.isCoach;
   const countryName = overview.profile.country === 'MY' ? 'Malaysia' : 'Australia';
 
@@ -401,7 +409,11 @@ export default async function DashboardPage() {
                       ? `${openNow.answered} of ${ROUND_SIZE} done. It closes at ${closingLabel(openNow)}; after that it counts as missed.`
                       : nextUp
                         ? `Ten questions, one round an hour from 7am to 11am. ${rounds.rounds.filter((r) => r.state === 'done').length} done so far today.`
-                        : `${rounds.rounds.filter((r) => r.state === 'done').length} of 4 rounds done. The first round tomorrow opens at 7am.`}
+                        : `${rounds.rounds.filter((r) => r.state === 'done').length} of 4 rounds done. ${
+                            rounds.nextMorning
+                              ? `The next round opens on ${rounds.nextMorning} at 7am.`
+                              : 'That was the last morning of the programme.'
+                          }`}
                   </p>
                 </div>
                 {openNow ? (

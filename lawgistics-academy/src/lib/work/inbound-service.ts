@@ -38,11 +38,19 @@ export type InboundResult =
 export async function draftFromEmail(email: InboundEmail): Promise<InboundResult> {
   const db = createServiceClient();
 
-  // The sender has to be staff here, by the address on their account.
+  // A From address is only a claim: anybody can type a coach's. The sending
+  // domain has to vouch for it, by SPF or by its own DKIM signature, or the
+  // email is dropped like any other stranger's.
+  if (!email.spfPass && !email.dkimPass) return { status: 'ignored' };
+
+  // The sender has to be staff here, by the address on their account. Case
+  // does not matter in an address, but % and _ are wildcards to ilike, so
+  // they are escaped: the match is the address, not a pattern.
+  const exact = email.fromEmail.replace(/[\\%_]/g, (c) => `\\${c}`);
   const { data: sender } = await db
     .from('profiles')
     .select('id, country, is_admin, is_coach, display_name')
-    .ilike('email', email.fromEmail)
+    .ilike('email', exact)
     .maybeSingle();
   const staff = sender as
     | { id: string; country: string | null; is_admin: boolean; is_coach: boolean | null; display_name: string | null }

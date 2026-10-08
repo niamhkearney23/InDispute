@@ -2624,6 +2624,82 @@ select pg_temp.expect_failure(
   'the answer figures are not readable signed out');
 reset role;
 
+-- -----------------------------------------------------------------------------
+-- The third audit (0036)
+-- -----------------------------------------------------------------------------
+-- The promises: a coach edits but never deletes sessions, register entries
+-- or work posts; a post's files stay in its own folder; a recording and a
+-- photo are the learner's own; area scores count each answer once.
+insert into public.coach_sessions (id, title, url, published, published_by)
+values ('dddd0036-0000-0000-0000-000000000001', 'Audit session', 'https://www.youtube.com/watch?v=abc', false,
+        '44444444-4444-4444-4444-444444444444');
+insert into public.certification_trainees (id, full_name, firm_name, created_by)
+values ('aaaa0036-0000-0000-0000-000000000001', 'Audit Trainee', 'Test Firm',
+        '44444444-4444-4444-4444-444444444444');
+
+set local role authenticated;
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+update public.coach_sessions set title = 'Audit session, edited'
+  where id = 'dddd0036-0000-0000-0000-000000000001';
+delete from public.coach_sessions where id = 'dddd0036-0000-0000-0000-000000000001';
+delete from public.certification_trainees where id = 'aaaa0036-0000-0000-0000-000000000001';
+delete from public.work_posts where id = 'bbbb0001-0000-0000-0000-000000000002';
+reset role;
+select pg_temp.expect(
+  (select title = 'Audit session, edited' from public.coach_sessions
+   where id = 'dddd0036-0000-0000-0000-000000000001'),
+  'a coach can still edit their session');
+select pg_temp.expect(
+  (select count(*) = 1 from public.coach_sessions where id = 'dddd0036-0000-0000-0000-000000000001')
+  and (select count(*) = 1 from public.certification_trainees where id = 'aaaa0036-0000-0000-0000-000000000001')
+  and (select count(*) = 1 from public.work_posts where id = 'bbbb0001-0000-0000-0000-000000000002'),
+  'a coach cannot delete a session, a register trainee or a work post');
+
+select pg_temp.expect_failure(
+  $$update public.work_posts set file_path = 'submissions/cccc0026-0000-0000-0000-000000000002/x.pdf'
+    where id = 'bbbb0001-0000-0000-0000-000000000002'$$,
+  'a work post cannot point at a file outside its own folder');
+update public.work_posts set file_path = 'posts/bbbb0001-0000-0000-0000-000000000002/a.pdf' where id = 'bbbb0001-0000-0000-0000-000000000002';
+select pg_temp.expect(
+  (select file_path = 'posts/bbbb0001-0000-0000-0000-000000000002/a.pdf' from public.work_posts where id = 'bbbb0001-0000-0000-0000-000000000002'),
+  'a work post can point at a file in its own folder');
+
+insert into public.matter_attempts (id, matter_id, user_id, deadline_at, snapshot)
+values ('aaaa0036-0000-0000-0000-000000000003', 'ffff0027-0000-0000-0000-000000000001',
+        '22222222-2222-2222-2222-222222222222', timestamptz '2100-01-01 00:00:00+00', '{}'::jsonb);
+select pg_temp.expect_failure(
+  $$update public.matter_attempts set recording_path = '11111111-1111-1111-1111-111111111111/x/1.webm'
+    where id = 'aaaa0036-0000-0000-0000-000000000003'$$,
+  'a recording cannot point at somebody else''s file');
+update public.matter_attempts set recording_path = '22222222-2222-2222-2222-222222222222/aaaa0036-0000-0000-0000-000000000003/1700000000.webm' where id = 'aaaa0036-0000-0000-0000-000000000003';
+select pg_temp.expect(
+  (select recording_path = '22222222-2222-2222-2222-222222222222/aaaa0036-0000-0000-0000-000000000003/1700000000.webm' from public.matter_attempts where id = 'aaaa0036-0000-0000-0000-000000000003'),
+  'a recording can be the learner''s own, under that attempt');
+
+select pg_temp.expect_failure(
+  $$update public.profiles set avatar_url = 'https://tracker.example/pixel.png'
+    where id = '22222222-2222-2222-2222-222222222222'$$,
+  'a photo cannot be an address on another server');
+update public.profiles set avatar_url = 'https://x.supabase.co/storage/v1/object/public/avatars/22222222-2222-2222-2222-222222222222/avatar.png?v=1' where id = '22222222-2222-2222-2222-222222222222';
+select pg_temp.expect(
+  (select avatar_url = 'https://x.supabase.co/storage/v1/object/public/avatars/22222222-2222-2222-2222-222222222222/avatar.png?v=1' from public.profiles where id = '22222222-2222-2222-2222-222222222222'),
+  'a photo can be the learner''s own file');
+
+-- Area scores: one answer, counted once, whatever concepts its question has.
+set local role service_role;
+select pg_temp.expect(
+  (select sum(answered) = (select count(*) from public.user_question_attempts
+                           where user_id = '22222222-2222-2222-2222-222222222222')
+   from public.area_scores('22222222-2222-2222-2222-222222222222')),
+  'area scores count every answer exactly once');
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '22222222-2222-2222-2222-222222222222';
+select pg_temp.expect_failure(
+  $$select * from public.area_scores('11111111-1111-1111-1111-111111111111')$$,
+  'a learner cannot read anybody''s area scores through the database');
+reset role;
+
 \echo ''
 \echo 'All schema guarantees hold.'
 

@@ -54,6 +54,7 @@ export function FrontPageVideo() {
         loop
         playsInline
         preload="metadata"
+        aria-label="Explainer video"
         aria-describedby="front-page-video-story"
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
@@ -77,9 +78,9 @@ export function FrontPageVideo() {
       <figcaption id="front-page-video-story" className="sr-only">
         A 32 second video with no sound. It opens on the words: a file lands on your desk. An
         example matter appears: a statutory demand for Harimau Fabrication Sdn Bhd, with 45
-        minutes on the clock. The four tasks are ticked off one by one: read the file, identify
-        the procedure, draft the advice, and record your explanation, with a recording level and
-        timer. A lawyer marks it Good. Then the trainee programme: a Kuala Lumpur clock reaches
+        minutes on the clock. The four tasks are ticked off one by one: identify the procedure,
+        draft the advice, record your explanation, with a recording level and timer, and answer
+        the follow-up questions on your draft. A lawyer marks it Good. Then the trainee programme: a Kuala Lumpur clock reaches
         7am and four rounds of ten questions open, at 7, 8, 9 and 10am. Then the score: it starts
         at 100%, ten answers arrive, one of them wrong, and it ends at 90%, nine of ten right. It
         ends: learn to practise law before you have to practise it.

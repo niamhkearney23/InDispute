@@ -6,11 +6,17 @@ import { nextOpening, openRound, roundLabel, roundsFor, roundWindows } from '../
 const KL = 'Asia/Kuala_Lumpur';
 const DAY = '2026-11-02';
 const at = (h: number, m = 0) => new Date(localHour(KL, DAY, h).getTime() + m * 60_000);
-const session = (h: number, m: number, answered: number, completed = false) => ({
-  startedAt: at(h, m).toISOString(),
-  totalAnswered: answered,
-  completed,
-});
+// A session started at h:m with `answered` answers, one every 30 seconds.
+const session = (h: number, m: number, answered: number, completed = false, questionCount = 10) => {
+  const start = at(h, m).getTime();
+  const answeredAt = Array.from({ length: answered }, (_, i) => new Date(start + (i + 1) * 30_000).toISOString());
+  return {
+    startedAt: new Date(start).toISOString(),
+    answeredAt,
+    questionCount,
+    completedAt: completed ? new Date(start + (answered + 1) * 30_000).toISOString() : null,
+  };
+};
 
 test('four rounds, opening at 7, 8, 9 and 10 where the trainee is', () => {
   const w = roundWindows(KL, DAY);
@@ -43,7 +49,7 @@ test('a session belongs to the round it was started in', () => {
 });
 
 test('finishing a short session counts when the bank had fewer than ten', () => {
-  const r = roundsFor(KL, DAY, [session(7, 1, 6, true)], at(7, 30));
+  const r = roundsFor(KL, DAY, [session(7, 1, 6, true, 6)], at(7, 30));
   assert.equal(r[0].state, 'done');
 });
 
@@ -63,4 +69,29 @@ test('7am is 7am on the morning the clocks change in Melbourne', () => {
 test('each round closes when the next opens, and the last at 11', async () => {
   const { closingLabel } = await import('../src/lib/training/rounds');
   assert.deepEqual([1, 2, 3, 4].map((number) => closingLabel({ number })), ['8am', '9am', '10am', '11am']);
+});
+
+test('finishing a session without answering it does not do the round', () => {
+  // Ten questions given, none answered, finished at once: not done.
+  const r = roundsFor(KL, DAY, [session(7, 59, 0, true, 10)], at(8, 30));
+  assert.equal(r[0].state, 'missed');
+});
+
+test('answers given long after the round closed do not count for it', () => {
+  // Started at 7:59, the ten answers given at 10:45: round one was missed.
+  const late = {
+    startedAt: at(7, 59).toISOString(),
+    answeredAt: Array.from({ length: 10 }, (_, i) => at(10, 45 + i).toISOString()),
+    questionCount: 10,
+    completedAt: at(10, 56).toISOString(),
+  };
+  const r = roundsFor(KL, DAY, [late], at(11, 0));
+  assert.equal(r[0].state, 'missed');
+  assert.equal(r[0].answered, 0);
+});
+
+test('a round started near the end still counts if finished just after it closes', () => {
+  // Started at 7:55, the last answer at 8:00:30: inside the grace.
+  const r = roundsFor(KL, DAY, [session(7, 55, 10)], at(8, 30));
+  assert.equal(r[0].state, 'done');
 });

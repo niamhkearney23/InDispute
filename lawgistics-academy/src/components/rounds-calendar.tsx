@@ -59,19 +59,22 @@ export function RoundsCalendar({
                     isToday ? 'border-accent' : 'border-rule',
                     done === 4 && 'bg-verdict-correct-wash',
                   )}
-                  aria-label={`${day.date}: ${done} of 4 rounds done${missed ? `, ${missed} missed` : ''}`}
                 >
-                  <p className="text-xs tabular-nums">{Number(day.date.slice(8))}</p>
+                  {/* aria-label on a plain div is not read out, so the
+                      description is text a screen reader reaches. */}
+                  <span className="sr-only">
+                    {`${day.date}: ${done} of 4 rounds done${missed ? `, ${missed} missed` : ''}`}
+                  </span>
+                  <p className="text-xs tabular-nums" aria-hidden>
+                    {Number(day.date.slice(8))}
+                  </p>
                   <p className="mt-0.5 flex justify-center gap-0.5" aria-hidden>
                     {day.rounds.map((r) => (
-                      <span
+                      <RoundMark
                         key={r.number}
-                        className={cn(
-                          'size-1.5 rounded-full',
-                          r.state === 'done' && 'bg-verdict-correct',
-                          r.state === 'missed' && 'bg-verdict-wrong',
-                          (r.state === 'open' || r.state === 'upcoming') && 'bg-rule-strong',
-                        )}
+                        state={
+                          r.state === 'done' ? 'done' : r.state === 'missed' ? 'missed' : 'to-come'
+                        }
                       />
                     ))}
                   </p>
@@ -81,10 +84,43 @@ export function RoundsCalendar({
           </div>
         ))}
       </div>
-      <p className="mt-2 text-xs text-muted">
-        Each dot is a round: green done, red missed, grey still to come.
+      <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
+        <span>Each mark is a round:</span>
+        <span className="inline-flex items-center gap-1">
+          <RoundMark state="done" /> a filled green dot, done
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <RoundMark state="missed" /> a red cross, missed
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <RoundMark state="to-come" /> a hollow grey ring, still to come
+        </span>
       </p>
     </div>
+  );
+}
+
+/**
+ * One round, told apart by shape as well as colour: filled when done, a
+ * cross when missed, hollow while it is still to come.
+ */
+function RoundMark({ state }: { state: 'done' | 'missed' | 'to-come' }) {
+  return (
+    <svg viewBox="0 0 8 8" className="size-2 shrink-0" aria-hidden>
+      {state === 'done' ? (
+        <circle cx="4" cy="4" r="3.5" className="fill-verdict-correct" />
+      ) : state === 'missed' ? (
+        <path
+          d="M1.5 1.5l5 5M6.5 1.5l-5 5"
+          className="stroke-verdict-wrong"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          fill="none"
+        />
+      ) : (
+        <circle cx="4" cy="4" r="3" className="stroke-rule-strong" strokeWidth="1.2" fill="none" />
+      )}
+    </svg>
   );
 }
 

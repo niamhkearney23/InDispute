@@ -37,7 +37,11 @@ test('no file contains an em dash', () => {
     const full = path.join(ROOT, file);
     if (!fs.existsSync(full) || fs.statSync(full).isDirectory()) continue;
 
-    const text = fs.readFileSync(full, 'utf8');
+    const bytes = fs.readFileSync(full);
+    // A video, picture or font is not prose: its bytes can happen to spell
+    // the dash, and there is nothing in it anybody could correct.
+    if (bytes.includes(0)) continue;
+    const text = bytes.toString('utf8');
     text.split('\n').forEach((line, index) => {
       if (line.includes(EM_DASH)) offenders.push(`${file}:${index + 1}  ${line.trim()}`);
     });
@@ -55,7 +59,9 @@ test('no file contains an en dash used as punctuation', () => {
     const full = path.join(ROOT, file);
     if (!fs.existsSync(full) || fs.statSync(full).isDirectory()) continue;
 
-    const text = fs.readFileSync(full, 'utf8');
+    const bytes = fs.readFileSync(full);
+    if (bytes.includes(0)) continue;
+    const text = bytes.toString('utf8');
     text.split('\n').forEach((line, index) => {
       // Flag only a spaced en dash, which is never a range.
       if (new RegExp(`\\s${EN_DASH}\\s`).test(line)) {

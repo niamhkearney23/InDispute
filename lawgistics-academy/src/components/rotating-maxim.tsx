@@ -46,7 +46,7 @@ export function RotatingMaxim({ className }: { className?: string }) {
           ))}
         </div>
       </div>
-      <figcaption className="sr-only">One of the twenty rules from the trainee programme</figcaption>
+      <figcaption className="sr-only">One of twenty rules for running a file</figcaption>
     </figure>
   );
 }

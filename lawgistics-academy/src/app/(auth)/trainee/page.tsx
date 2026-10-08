@@ -10,6 +10,7 @@ import { trainingOpen } from '@/lib/training/service';
 import { PROGRAMME_WEEKS, boxesForWeek } from '@/content/programme-plan';
 import { paymentsOn } from '@/lib/access/service';
 import { traineeValue } from '@/lib/access/rules';
+import { DIAGNOSTIC_QUESTION_COUNT } from '@/lib/learning/config';
 import { FrontPageVideo } from '@/components/front-page-video';
 
 const DESCRIPTION = `A one-month litigation trainee programme at ${brand.firm} in Malaysia. Live files with our lawyers, plus the ${brand.traineeAcademy} for homework and practice in your spare time.`;
@@ -35,8 +36,8 @@ const partsFor = (questionsOpen: boolean) => [
     when: 'Day one',
     title: 'A quick diagnostic quiz',
     body: questionsOpen
-      ? 'About thirty questions on courts, procedure, evidence, advocacy and drafting. There’s no pass mark. It just shows us where you’re starting from, so we know what to focus on.'
-      : 'About thirty questions on courts, procedure, evidence, advocacy and drafting, once our lawyers have signed the questions off. There’s no pass mark. It just shows us where you’re starting from.',
+      ? `About ${DIAGNOSTIC_QUESTION_COUNT} questions across every area. There’s no pass mark. It just shows us where you’re starting from, so we know what to focus on.`
+      : `About ${DIAGNOSTIC_QUESTION_COUNT} questions across every area, once our lawyers have signed the questions off. There’s no pass mark. It just shows us where you’re starting from.`,
   },
   {
     icon: SparkIcon,
@@ -55,7 +56,7 @@ const partsFor = (questionsOpen: boolean) => [
   {
     icon: BookIcon,
     when: 'From your coach',
-    title: 'A video from your coach each day',
+    title: 'Videos from your coach',
     body: 'What’s happening this week, and what to focus on. These are for trainees only.',
   },
 ];
@@ -168,9 +169,10 @@ export default async function TraineeProgrammePage() {
             From the first interview to the courtroom.
           </h2>
           <p className="mb-8 max-w-2xl text-slate">
-            Each week focuses on a different stage of a case. Your supervisor grades the work you
-            produce. Ten pieces at the top grade, including the six core pieces, earns your
-            certification. Your supervisor may adjust the plan as you go.
+            Each week focuses on a different stage of a case. Your supervisor grades your work
+            against fifteen competencies. Ten at the top grade, including the six core ones and at
+            least one of the five advocacy ones, earns your certification. Your supervisor may
+            adjust the plan as you go.
           </p>
           <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {PROGRAMME_WEEKS.map((week) => (
@@ -249,8 +251,8 @@ export default async function TraineeProgrammePage() {
 
       <footer className="mx-auto max-w-6xl border-t border-rule px-5 py-8 sm:px-8">
         <p className="text-xs text-muted">
-          {brand.fullName} is a training tool. It is not legal advice, and progression levels within
-          it are game levels, not professional qualifications or titles.
+          {brand.fullName} is a training tool. It is not legal advice. Its levels and its
+          certification are training records, not professional qualifications or titles.
         </p>
         {brand.parentLine ? <p className="mt-2 text-xs text-muted">{brand.parentLine}</p> : null}
       </footer>

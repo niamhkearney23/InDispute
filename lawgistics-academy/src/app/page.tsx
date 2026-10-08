@@ -242,7 +242,7 @@ export default async function LandingPage() {
               {payments ? (
                 <p className="mt-3 text-sm text-slate">
                   {formatPrice(PRICES.MY.month)} a month in Malaysia, {formatPrice(PRICES.AU.month)} in
-                  Australia. Free with a code from your firm or university.
+                  Australia. Free with a code from your firm or university, once they confirm it.
                 </p>
               ) : null}
               <p className="mt-6 text-xs font-medium text-slate">Where will you practise?</p>
@@ -406,6 +406,10 @@ export default async function LandingPage() {
                     />
                     <p className="mt-2 text-[0.6875rem] font-semibold tabular-nums text-mist">
                       0{i + 1}
+                      {/* The bar above says this by colour alone, and is hidden. */}
+                      <span className="sr-only">
+                        {state === 'done' ? ', done' : state === 'now' ? ', in progress' : ', next'}
+                      </span>
                     </p>
                     <p className="text-xs font-medium leading-snug sm:text-sm">{step}</p>
                   </li>

@@ -177,7 +177,7 @@ export function AuthForm({
             {trainee
               ? 'Your name, your email and a password. Your supervisor then confirms you are on the programme, and the work they post for trainees opens up.'
               : isSignup
-                ? 'A few questions, then a diagnostic, and about fifteen minutes to a full skill map.'
+                ? 'A few questions about you, then a diagnostic that shows your score in each area once questions are published for your country.'
                 : isReset
                   ? 'Enter your email and we will send you a link to choose a new one.'
                   : 'Pick up where you left off.'}
@@ -376,7 +376,7 @@ function BrandPanel({ isSignup, trainee }: { isSignup: boolean; trainee: boolean
         ['Your country’s law', 'Australian and Malaysian procedure, kept strictly apart.'],
         [
           'Real work, real feedback',
-          'Tasks set by the lawyers who supervise you, marked with notes.',
+          'Work from the firm’s lawyers, marked with notes, if you join through one.',
         ],
       ];
 

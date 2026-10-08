@@ -168,7 +168,9 @@ export async function beginSession(
         return {
           error: next
             ? `Round ${next.number} opens at ${roundLabel(next)}, Kuala Lumpur time.`
-            : 'This morning’s rounds are over. The first one tomorrow opens at 7am, Kuala Lumpur time.',
+            : today.nextMorning
+              ? `This morning’s rounds are over. The next opens on ${today.nextMorning} at 7am, Kuala Lumpur time.`
+              : 'This morning’s rounds are over, and that was the last morning of the programme.',
         };
       }
       round = { count: ROUND_SIZE - open.answered, opensAt: open.opensAt };

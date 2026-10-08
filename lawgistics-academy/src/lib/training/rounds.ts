@@ -38,11 +38,22 @@ export interface Round {
   answered: number;
 }
 
+/**
+ * A session started at 7:55 still belongs to round one, so its answers count
+ * for a little after the round closes; any later and the round was missed.
+ * Without a limit, a round left at 7:59 could be filled in at 10:45, or
+ * finished unanswered, and show as done.
+ */
+export const ROUND_GRACE_MINUTES = 10;
+
 /** A daily session as the rounds see it. */
 export interface RoundSession {
   startedAt: string;
-  totalAnswered: number;
-  completed: boolean;
+  /** When each of its answers was given. */
+  answeredAt: string[];
+  /** How many questions it was given. */
+  questionCount: number;
+  completedAt: string | null;
 }
 
 /** Each round's window on a local day. */
@@ -56,9 +67,9 @@ export function roundWindows(timezone: string, localDate: string) {
 
 /**
  * Where each round stands. A session belongs to the round it was started
- * in; a round is done once its sessions hold ten answers, or one of them
- * was finished (when the bank could not supply ten, finishing what there
- * was counts).
+ * in, and only answers given before the round closes (plus the grace) count.
+ * A round is done at ten such answers, or when a session the bank could not
+ * fill to ten was answered in full and finished in time.
  */
 export function roundsFor(
   timezone: string,
@@ -71,8 +82,18 @@ export function roundsFor(
       const t = new Date(s.startedAt).getTime();
       return t >= w.opensAt.getTime() && t < w.closesAt.getTime();
     });
-    const answered = inRound.reduce((n, s) => n + s.totalAnswered, 0);
-    const done = answered >= ROUND_SIZE || inRound.some((s) => s.completed);
+    const deadline = w.closesAt.getTime() + ROUND_GRACE_MINUTES * 60_000;
+    const inTime = (iso: string) => new Date(iso).getTime() < deadline;
+    const answered = inRound.reduce((n, s) => n + s.answeredAt.filter(inTime).length, 0);
+    const shortButFinished = inRound.some(
+      (s) =>
+        s.completedAt !== null &&
+        inTime(s.completedAt) &&
+        s.questionCount > 0 &&
+        s.questionCount < ROUND_SIZE &&
+        s.answeredAt.filter(inTime).length >= s.questionCount,
+    );
+    const done = answered >= ROUND_SIZE || shortButFinished;
     const state: RoundState = done
       ? 'done'
       : now < w.opensAt

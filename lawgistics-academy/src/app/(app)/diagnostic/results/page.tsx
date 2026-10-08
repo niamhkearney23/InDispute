@@ -71,7 +71,7 @@ export default async function DiagnosticResultsPage({
           <Stat
             label="Areas assessed"
             value={Object.keys(domainScores).length}
-            hint="of six foundation areas"
+            hint={`of ${(domains ?? []).length} areas`}
           />
         </div>
       </Card>

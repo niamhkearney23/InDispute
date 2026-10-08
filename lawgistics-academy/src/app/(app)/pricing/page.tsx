@@ -55,14 +55,24 @@ export default async function PricingPage({
     state.standing && state.standing !== 'paid' && state.standing !== 'payments-off'
       ? state.standing
       : null;
-  const showCode = free !== 'staff' && free !== 'trainee' && free !== 'invited';
+  // Somebody who signed up as a trainee and is waiting for a supervisor is
+  // never offered a plan: their month is free once confirmed, so the only
+  // price they see is the yearly one it is worth.
+  const pendingTrainee =
+    !free && state.reason !== 'paid' && profile.track === 'litigation_trainee';
+  const showCode =
+    !pendingTrainee && free !== 'staff' && free !== 'trainee' && free !== 'invited';
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <section>
         <p className="eyebrow mb-2">Your plan</p>
         <h1 className="text-3xl sm:text-4xl">
-          {free || state.reason === 'paid' ? 'You are all set' : 'Choose how to train'}
+          {free || state.reason === 'paid'
+            ? 'You are all set'
+            : pendingTrainee
+              ? 'Your place'
+              : 'Choose how to train'}
         </h1>
       </section>
 
@@ -78,12 +88,19 @@ export default async function PricingPage({
           <p className="font-semibold">Free</p>
           <p className="mt-1 text-sm text-slate">{freeBecause[free]}</p>
         </Card>
+      ) : pendingTrainee ? (
+        <Card>
+          <p className="font-semibold">
+            {traineeValue(on).price} a year &middot; Free
+          </p>
+          <p className="mt-1 text-sm text-slate">Your supervisor confirms your place.</p>
+        </Card>
       ) : !on ? (
         <Card>
           <p className="font-semibold">Free for now</p>
           <p className="mt-1 text-sm text-slate">
             Nothing is charged yet. When paid plans start they will be {month} a month or {year} a
-            year. Anyone with a firm or university we work with stays free.
+            year. Anyone with a code from a firm or university we work with is free once they confirm it.
           </p>
         </Card>
       ) : state.reason === 'paid' ? (

@@ -521,18 +521,18 @@
             <p class="card-client">Harimau Fabrication Sdn Bhd</p>
             <p class="card-brief" id="brief">Your client has received a statutory demand. You have 45 minutes to advise on the next step.</p>
             <ul class="tasks" id="tasks">
-              <li class="task"><span class="task-glow" id="g1"></span><span class="tick"><span class="tick-fill" id="t1">✓</span></span><span>Read the file</span></li>
-              <li class="task"><span class="task-glow" id="g2"></span><span class="tick"><span class="tick-fill" id="t2">✓</span></span><span>Identify the procedure</span></li>
-              <li class="task"><span class="task-glow" id="g3"></span><span class="tick"><span class="tick-fill" id="t3">✓</span></span><span>Draft the advice</span></li>
+              <li class="task"><span class="task-glow" id="g1"></span><span class="tick"><span class="tick-fill" id="t1">✓</span></span><span>Identify the procedure</span></li>
+              <li class="task"><span class="task-glow" id="g2"></span><span class="tick"><span class="tick-fill" id="t2">✓</span></span><span>Draft the advice</span></li>
               <li class="task">
-                <span class="task-glow" id="g4"></span>
-                <span class="tick"><span class="tick-fill" id="t4">✓</span></span><span>Record your explanation</span>
+                <span class="task-glow" id="g3"></span>
+                <span class="tick"><span class="tick-fill" id="t3">✓</span></span><span>Record your explanation</span>
                 <span class="rec" id="rec">
                   <span class="rec-dot" id="rec-dot"></span>
                   <span class="wave" id="wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
                   <span class="rec-time" id="rec-time">0:00</span>
                 </span>
               </li>
+              <li class="task"><span class="task-glow" id="g4"></span><span class="tick"><span class="tick-fill" id="t4">✓</span></span><span>Answer the follow-up questions</span></li>
             </ul>
             <div class="clock-row">
               <span>Time left</span>
@@ -660,13 +660,13 @@
       tl.fromTo('#step2', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease, immediateRender: false }, 8.15);
       tl.to('#brief', { opacity: 0.45, duration: 0.5 }, 8.0);
       tl.fromTo('#tasks', { opacity: 0, height: 0 }, { opacity: 1, height: 208, duration: 0.8, ease, immediateRender: false }, 8.2);
-      [['#g1', '#t1', 8.9], ['#g2', '#t2', 9.7], ['#g3', '#t3', 10.5]].forEach(([g, t, at]) => {
+      [['#g1', '#t1', 8.9], ['#g2', '#t2', 9.9]].forEach(([g, t, at]) => {
         tl.fromTo(g, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.35, ease, immediateRender: false }, at - 0.3);
         tl.fromTo(t, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: 'back.out(2.4)', immediateRender: false }, at);
         tl.to(g, { opacity: 0, duration: 0.4 }, at + 0.3);
       });
       // Recording: a red dot, a moving level and a running time, then ticked.
-      tl.fromTo('#g4', { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.35, ease, immediateRender: false }, 11.1);
+      tl.fromTo('#g3', { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.35, ease, immediateRender: false }, 10.5);
       tl.fromTo('#rec', { opacity: 0, x: 20 }, { opacity: 1, x: 0, duration: 0.35, ease, immediateRender: false }, 11.2);
       for (let k = 0; k < 6; k++) {
         tl.to('#rec-dot', { opacity: k % 2 ? 1 : 0.25, duration: 0.3, ease: 'sine.inOut' }, 11.4 + k * 0.3);
@@ -685,8 +685,12 @@
         11.4,
       );
       tl.to('#rec-dot', { opacity: 0, duration: 0.2 }, 13.3);
-      tl.fromTo('#t4', { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: 'back.out(2.4)', immediateRender: false }, 13.4);
-      tl.to('#g4', { opacity: 0, duration: 0.4 }, 13.7);
+      tl.fromTo('#t3', { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: 'back.out(2.4)', immediateRender: false }, 13.4);
+      tl.to('#g3', { opacity: 0, duration: 0.4 }, 13.6);
+      // The follow-up questions on their own draft, then the last tick.
+      tl.fromTo('#g4', { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.3, ease, immediateRender: false }, 13.5);
+      tl.fromTo('#t4', { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(2.4)', immediateRender: false }, 13.85);
+      tl.to('#g4', { opacity: 0, duration: 0.3 }, 14.1);
 
       // 03: reviewed. The card makes room; the mark lands like a stamp.
       tl.to('#step2', { opacity: 0, y: -24, duration: 0.3 }, 14.0);

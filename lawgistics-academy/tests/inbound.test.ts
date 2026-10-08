@@ -47,7 +47,9 @@ test('a stranger and a lawyer get the same answer, so the address reveals nobody
 });
 
 test('only a coach or administrator, by their own address, can make a draft', () => {
-  assert.match(SERVICE, /\.ilike\('email', email\.fromEmail\)/);
+  // The sending domain must vouch for the From address before it is looked up.
+  assert.match(SERVICE, /if \(!email\.spfPass && !email\.dkimPass\) return \{ status: 'ignored' \}/);
+  assert.match(SERVICE, /\.ilike\('email', exact\)/);
   assert.match(SERVICE, /if \(!staff \|\| !\(staff\.is_admin \|\| staff\.is_coach\)\) return \{ status: 'ignored' \}/);
 });
 

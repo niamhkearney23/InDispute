@@ -1,5 +1,6 @@
 'use server';
 
+import { createHash, timingSafeEqual } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/service';
@@ -52,7 +53,10 @@ export async function completeSetup(formData: FormData): Promise<SetupResult> {
   }
 
   const requiredToken = process.env.SETUP_TOKEN;
-  if (requiredToken && String(formData.get('token') ?? '') !== requiredToken) {
+  // Compared as hashes in constant time, so the response time says nothing
+  // about how much of a guess was right.
+  const digest = (v: string) => createHash('sha256').update(v).digest();
+  if (requiredToken && !timingSafeEqual(digest(String(formData.get('token') ?? '')), digest(requiredToken))) {
     return { ok: false, error: 'That setup token is not right.' };
   }
 

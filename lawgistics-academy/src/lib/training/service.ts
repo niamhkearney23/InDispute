@@ -214,7 +214,7 @@ export async function resumeOrStartSession(
 
   const { data: existing } = await db
     .from('training_sessions')
-    .select('id, started_at')
+    .select('id, started_at, planned_question_count, total_answered')
     .eq('user_id', userId)
     .eq('kind', kind)
     .eq('status', 'in_progress')
@@ -225,6 +225,14 @@ export async function resumeOrStartSession(
   if (existing) {
     const fromThisRound =
       !round || new Date(existing.started_at as string).getTime() >= round.opensAt.getTime();
+    const answeredAll =
+      (existing.total_answered as number) >= (existing.planned_question_count as number);
+    if (answeredAll) {
+      // Every question answered but never finished: finish it, so its XP and
+      // streak count, and start a fresh one rather than resuming nothing.
+      await completeSession(userId, existing.id as string);
+      return startSession(userId, kind, round?.count);
+    }
     if (isFromToday(existing.started_at as string, timezone) && fromThisRound) {
       return { sessionId: existing.id as string };
     }

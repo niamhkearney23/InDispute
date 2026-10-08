@@ -25,6 +25,8 @@ export interface InboundEmail {
   messageId: string;
   /** Whether the sending domain's SPF check passed, if the service said. */
   spfPass: boolean;
+  /** Whether a DKIM signature from the sender's own domain checked out. */
+  dkimPass: boolean;
   attachments: InboundAttachment[];
 }
 
@@ -56,6 +58,11 @@ export function readPostmark(body: unknown): InboundEmail | null {
   if (!fromEmail.includes('@') || !messageId) return null;
 
   const spf = (p.Headers ?? []).find((h) => str(h.Name).toLowerCase() === 'received-spf');
+  const auth = (p.Headers ?? [])
+    .filter((h) => str(h.Name).toLowerCase() === 'authentication-results')
+    .map((h) => str(h.Value))
+    .join(';');
+  const domain = fromEmail.split('@')[1] ?? '';
   return {
     fromEmail,
     fromName: str(p.FromFull?.Name).trim(),
@@ -65,6 +72,10 @@ export function readPostmark(body: unknown): InboundEmail | null {
     text: (str(p.StrippedTextReply).trim() || str(p.TextBody)).trim(),
     messageId,
     spfPass: /^\s*pass\b/i.test(str(spf?.Value)),
+    // dkim=pass for the From address's own domain, not just any signature.
+    dkimPass:
+      domain.length > 0 &&
+      new RegExp(`dkim=pass[^;]*header\\.d=${domain.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\w.-])`, 'i').test(auth),
     attachments: (p.Attachments ?? []).map((a) => ({
       name: str(a.Name).replace(/[\\/]/g, ' ').trim().slice(0, 200) || 'Attached file',
       contentType: str(a.ContentType).split(';')[0].trim().toLowerCase(),

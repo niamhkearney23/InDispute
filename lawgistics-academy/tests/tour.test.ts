@@ -31,9 +31,12 @@ test('the tour ends on the diagnostic only when there is one to sit', () => {
   assert.equal(tourFinish({ trainee: true, open: false, needsDiagnostic: true }).href, '/dashboard');
 });
 
+// Built from code points so this file passes the repository's own dash check.
+const DASHES = new RegExp(`[${String.fromCharCode(0x2013)}${String.fromCharCode(0x2014)}]`);
+
 test('no em or en dashes in the tour', () => {
   const all = [true, false].flatMap((trainee) =>
     tourSteps({ trainee, open: false, needsDiagnostic: true }).flatMap((s) => [s.where, s.title, s.body]),
   );
-  for (const text of all) assert.doesNotMatch(text, /[–—]/);
+  for (const text of all) assert.doesNotMatch(text, DASHES);
 });
