@@ -49,6 +49,9 @@ export function Tour({ steps, finish }: { steps: TourStep[]; finish: TourFinish 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.target instanceof HTMLElement && event.target.closest('input, textarea, select')) return;
+      // Alt+Left is the browser's Back, and Ctrl or Cmd with an arrow belongs
+      // to the system, so only a bare arrow turns the page.
+      if (event.altKey || event.metaKey || event.ctrlKey) return;
       if (event.key === 'ArrowRight') setIndex((i) => Math.min(total - 1, i + 1));
       if (event.key === 'ArrowLeft') setIndex((i) => Math.max(0, i - 1));
     };
@@ -68,7 +71,7 @@ export function Tour({ steps, finish }: { steps: TourStep[]; finish: TourFinish 
         {!last ? (
           <Link
             href={finish.href}
-            className="-my-2 inline-block rounded-[5px] px-1 py-2 text-sm text-slate underline underline-offset-4 hover:text-ink"
+            className="-my-2 inline-flex min-h-11 items-center rounded-[5px] px-1 text-sm text-slate underline underline-offset-4 hover:text-ink"
           >
             Skip the tour
           </Link>

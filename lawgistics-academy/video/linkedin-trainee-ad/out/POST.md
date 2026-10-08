@@ -21,8 +21,9 @@ Week 3: drafting.
 Week 4: court. The bundle, the submissions, a morning in court, and a moot on
 your own file.
 
-Your work is graded. Ten pieces at the top grade, including the six core
-pieces, earns your certification.
+Your work is graded against fifteen competencies. Ten at the top grade,
+including the six core ones and at least one in advocacy, earns your
+certification.
 
 Every place comes with the Litigation Trainee Academy, free.
 

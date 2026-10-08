@@ -231,6 +231,11 @@ export async function updateQuestion(
         source_reference: empty(data.sourceReference),
         source_url: empty(data.sourceUrl),
         source_checked_on: empty(data.sourceCheckedOn),
+        // Whoever changes the words is their writer from now on, so the rule
+        // that nobody signs off what they wrote covers a rewritten
+        // explanation too. Left as the original writer, a second
+        // administrator could rewrite it and then verify their own words.
+        ...(explanationChanged ? { created_by: adminId } : {}),
         ...(losesSignOff
           ? {
               verification_status: 'requires_review',

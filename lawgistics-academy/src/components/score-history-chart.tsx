@@ -99,7 +99,7 @@ export function ScoreHistoryChart({ days }: { days: ScoreDay[] }) {
                   {/* The hit area is bigger than the dot, for a finger. */}
                   <span
                     tabIndex={0}
-                    className="grid size-6 cursor-default place-items-center rounded-full outline-none"
+                    className="grid size-6 cursor-default place-items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-accent"
                   >
                     <span
                       className="size-2.5 rounded-full border-2 border-paper-raised group-hover:scale-125 group-focus-within:scale-125"
@@ -142,7 +142,7 @@ export function ScoreHistoryChart({ days }: { days: ScoreDay[] }) {
       </div>
 
       <details className="mt-4 text-sm">
-        <summary className="-my-2 inline-block cursor-pointer py-2 text-slate underline underline-offset-4 hover:text-ink">
+        <summary className="-my-2 inline-flex min-h-11 cursor-pointer items-center text-slate underline underline-offset-4 hover:text-ink">
           See each day
         </summary>
         <table className="mt-2 w-full text-left tabular-nums">

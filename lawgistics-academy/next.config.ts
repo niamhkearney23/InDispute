@@ -22,6 +22,15 @@ const nextConfig: NextConfig = {
         headers: [
           { key: 'Content-Security-Policy', value: "frame-ancestors 'none'" },
           { key: 'X-Frame-Options', value: 'DENY' },
+          // A file is what its type says, never sniffed into a script.
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          // Other sites see where a visitor came from, not which page.
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          // HTTPS only, from the first visit onwards.
+          { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains' },
+          // The microphone is for voice memos and recorded explanations on
+          // these pages only; the camera and location are never used.
+          { key: 'Permissions-Policy', value: 'camera=(), geolocation=(), microphone=(self)' },
         ],
       },
       {

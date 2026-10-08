@@ -174,7 +174,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0035`. `supabase/UPDATE.sql` is the one-paste update for a
+- Migrations run to `0036`. `supabase/UPDATE.sql` is the one-paste update for a
   database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -296,6 +296,21 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   app stopped at the thousand rows a request returns, so a busy month
   undercounted everyone. The page says when figures could not be read rather
   than showing zeros, and when it lists only the first 500 people.
+- `0036` is the third audit. Coaches edit but never delete sessions,
+  certification trainees and entries, or work posts (each table had one
+  "for all" coach policy; the register now has its own read policy). A work
+  post's files must sit in its own folder, a matter recording under its own
+  learner and attempt, and a photo in the learner's own avatars folder.
+  `area_scores` counts each answer once by its question's area, so scores
+  by area are the share of answers right, as the pages say (the app falls
+  back to the old per-concept sum on a database without 0036). Inbound
+  email needs SPF or a DKIM signature from the sender's own domain before
+  the address is looked up. Rounds count only answers given in the round's
+  hour plus ten minutes (`ROUND_GRACE_MINUTES`): a round left at 7:59 cannot
+  be filled in at 10:45 or finished unanswered. The calendar starts at the
+  latest of the start date, the day the trainee was confirmed and the day
+  questions were first signed off, and ends on day twenty when no end date
+  is set.
 - **Options are shown shuffled** (`src/lib/learning/option-order.ts`), fixed per
   question version or lesson screen, and the letter shown is the place on the
   screen, never the id. The bank was written with the right answer B three
@@ -358,7 +373,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   grid, gold-free by the owner's choice). Admin has the same look. The front
   page and sign-in stay cream. The certificate and a matter's case file stay paper inside it.
   Use the tokens, never fixed Tailwind colours, or a page breaks in one look.
-- 396 tests, 319 schema guarantees against a real Postgres, 240 page and device
+- 401 tests, 329 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB

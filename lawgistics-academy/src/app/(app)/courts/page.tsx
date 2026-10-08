@@ -7,6 +7,7 @@ import { CourtMap } from '@/components/court-map';
 import { moduleBySlug } from '@/content/seed/modules';
 import { getModuleProgress } from '@/lib/modules/service';
 import { requireAccess } from '@/lib/access/service';
+import { Pill } from '@/components/ui';
 
 export const metadata: Metadata = { title: 'Court map' };
 
@@ -43,6 +44,11 @@ export default async function CourtsPage() {
         <p className="mt-3 max-w-xl text-slate">
           Where a matter starts, and where it goes if somebody appeals. Tap any court to
           open it.
+        </p>
+        {/* The hierarchies in court-hierarchies.ts are marked NOT VERIFIED.
+            Unchecked content should look unchecked, the same as a lesson. */}
+        <p className="mt-3 text-sm text-slate">
+          <Pill tone="neutral">Not yet checked by a lawyer</Pill>
         </p>
       </section>
 

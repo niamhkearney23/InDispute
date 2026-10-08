@@ -28,8 +28,8 @@ export default async function DiagnosticPage() {
         <p className="eyebrow mb-2">{retaking ? 'Retake' : 'Step two'}</p>
         <h1 className="text-3xl sm:text-4xl">The diagnostic</h1>
         <p className="mt-3 text-slate">
-          About {DIAGNOSTIC_QUESTION_COUNT} questions across the six foundation areas. There
-          is no pass mark. The result sets what your daily training covers.
+          About {DIAGNOSTIC_QUESTION_COUNT} questions across every area. There is no pass
+          mark. The result sets what your daily training covers.
         </p>
       </section>
 

@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/service';
 import { displayScore, rightShare } from '@/lib/learning/mastery';
 import { levelForXp, localDateString, type LevelInfo } from '@/lib/learning/progression';
 import { MASTERY } from '@/lib/learning/config';
@@ -241,12 +242,25 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
     concept: first<ConceptRef>(row.concepts),
   }));
 
-  for (const row of conceptRows) {
-    if (!row.concept || row.attempts === 0) continue;
-    const entry = domainTotals.get(row.concept.domain_id) ?? { correct: 0, attempts: 0 };
-    entry.correct += row.correct;
-    entry.attempts += row.attempts;
-    domainTotals.set(row.concept.domain_id, entry);
+  // Each answer once, by its question's own area (area_scores, 0036). A
+  // question tagged with three concepts used to count three times when the
+  // totals were added up per concept; that sum stays only as the fallback
+  // for a database that has not had 0036 yet.
+  const { data: byArea, error: areaError } = await createServiceClient().rpc('area_scores', {
+    uid: userId,
+  });
+  if (!areaError && Array.isArray(byArea)) {
+    for (const row of byArea as Array<{ domain_id: string; answered: number; right_answers: number }>) {
+      domainTotals.set(row.domain_id, { correct: row.right_answers, attempts: row.answered });
+    }
+  } else {
+    for (const row of conceptRows) {
+      if (!row.concept || row.attempts === 0) continue;
+      const entry = domainTotals.get(row.concept.domain_id) ?? { correct: 0, attempts: 0 };
+      entry.correct += row.correct;
+      entry.attempts += row.attempts;
+      domainTotals.set(row.concept.domain_id, entry);
+    }
   }
 
   const skillMap: SkillMapEntry[] = (domains.data ?? []).map((domain) => {

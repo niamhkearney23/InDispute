@@ -120,24 +120,30 @@ export async function updateFact(
   const substantiveChange =
     current?.title !== parsed.data.title || current?.body !== parsed.data.body;
 
-  const { error } = await db.from('daily_facts').update(toRow(parsed.data)).eq('id', factId);
-  if (error) return { error: error.message };
-
   // Rewriting the substance means the sign-off no longer covers what is there,
   // whether or not it had been published yet: a fact signed off and then
   // reworded before publishing would otherwise go out under the old sign-off.
-  if (substantiveChange) {
-    await db
-      .from('daily_facts')
-      .update({
-        verification_status: 'requires_review',
-        verified_by: null,
-        verified_at: null,
-        review_due_on: null,
-        ...(current?.status === 'published' ? { status: 'requires_review' } : {}),
-      })
-      .eq('id', factId);
-  }
+  // The new words and the cleared sign-off go in one update (as two, the new
+  // words sat for a moment, or for good if the second failed, under the old
+  // sign-off), and whoever rewrote it becomes its writer, so they cannot then
+  // sign it off themselves.
+  const { error } = await db
+    .from('daily_facts')
+    .update({
+      ...toRow(parsed.data),
+      ...(substantiveChange
+        ? {
+            created_by: adminId,
+            verification_status: 'requires_review',
+            verified_by: null,
+            verified_at: null,
+            review_due_on: null,
+            ...(current?.status === 'published' ? { status: 'requires_review' } : {}),
+          }
+        : {}),
+    })
+    .eq('id', factId);
+  if (error) return { error: error.message };
 
   revalidatePath('/admin/facts');
   revalidatePath(`/admin/facts/${factId}`);

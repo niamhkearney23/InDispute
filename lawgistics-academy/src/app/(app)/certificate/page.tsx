@@ -48,6 +48,12 @@ export default async function CertificatePage() {
             Two things earn it: every required module finished, and {status.mattersNeeded}{' '}
             matters marked Good by a lawyer.
           </p>
+          {profile.track === 'litigation_trainee' ? (
+            <p className="mt-2 text-slate">
+              Separately, your supervisor grades your programme work towards the firm&rsquo;s
+              certification.
+            </p>
+          ) : null}
         </section>
 
         <Card>
@@ -104,6 +110,12 @@ export default async function CertificatePage() {
         <p className="eyebrow">Certificate</p>
         <PrintButton />
       </div>
+      {profile.track === 'litigation_trainee' ? (
+        <p className="text-sm text-slate print:hidden">
+          Separately, your supervisor grades your programme work towards the firm&rsquo;s
+          certification.
+        </p>
+      ) : null}
 
       <article className="certificate relative overflow-hidden rounded-2xl border-[10px] border-double border-accent/70 bg-[#fffdf8] px-6 py-12 text-center shadow-raised sm:px-14 sm:py-16">
         <span aria-hidden className="absolute inset-3 rounded-xl border border-accent/20" />

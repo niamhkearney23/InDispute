@@ -24,7 +24,9 @@ export default async function WelcomePage() {
 
   const open = await trainingOpen(profile.country);
   const who = {
-    trainee: profile.track === 'litigation_trainee',
+    // Only a confirmed trainee has rounds and the work board; until a coach
+    // confirms them, somebody who signed up as a trainee gets the general tour.
+    trainee: profile.track === 'litigation_trainee' && profile.traineeConfirmed,
     open,
     needsDiagnostic: !profile.diagnosticCompletedAt,
   };
