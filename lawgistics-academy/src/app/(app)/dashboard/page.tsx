@@ -143,6 +143,9 @@ export default async function DashboardPage() {
     : [null, null];
   const openNow = rounds ? openRound(rounds.rounds) : null;
   const nextUp = rounds ? nextOpening(rounds.rounds) : null;
+  // Rounds that closed before they were confirmed, or before questions were
+  // published, are neither done nor missed, so they are left out of "of 4".
+  const countedToday = rounds ? rounds.rounds.filter((r) => r.state !== 'not_applicable').length : 0;
   // Today's entry in the day plan, for the programme strip. Null outside a working day.
   const todayPlan = homework.state === 'day' ? programmeDay(homework.day) : null;
   // Which week of the month it is, for the programme strip. Null outside it.
@@ -407,10 +410,14 @@ export default async function DashboardPage() {
                   </p>
                   <p className="mt-2 text-sm text-paper/80">
                     {openNow
-                      ? `${openNow.answered} of ${ROUND_SIZE} done. It closes at ${closingLabel(openNow)}; after that it counts as missed.`
+                      ? `${openNow.answered} of ${ROUND_SIZE} done. It closes at ${closingLabel(openNow)}; after that it counts as missed. Only answers given before ${closingLabel(openNow)} count for it.`
                       : nextUp
                         ? `Ten questions, one round an hour from 7am to 11am. ${rounds.rounds.filter((r) => r.state === 'done').length} done so far today.`
-                        : `${rounds.rounds.filter((r) => r.state === 'done').length} of 4 rounds done. ${
+                        : `${
+                            countedToday === 0
+                              ? 'Your rounds had not started yet this morning.'
+                              : `${rounds.rounds.filter((r) => r.state === 'done').length} of ${countedToday} rounds done.`
+                          } ${
                             rounds.nextMorning
                               ? `The next round opens on ${rounds.nextMorning} at 7am.`
                               : 'That was the last morning of the programme.'
@@ -870,8 +877,14 @@ export default async function DashboardPage() {
           }
         />
         <Card>
+          {overview.areaScoresUnavailable ? (
+            <p className="text-sm text-slate">
+              Scores by area could not be read just now. Try again in a moment; your answers are
+              all still recorded.
+            </p>
+          ) : null}
           <div className="divide-y divide-rule">
-            {skillMap.map((entry) => (
+            {overview.areaScoresUnavailable ? null : skillMap.map((entry) => (
               <ScoreBar
                 key={entry.slug}
                 label={entry.name}

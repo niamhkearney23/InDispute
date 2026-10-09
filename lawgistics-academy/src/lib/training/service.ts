@@ -199,7 +199,9 @@ export async function resumeOrStartSession(
   /**
    * A trainee's round: how many questions it still needs, and when it
    * opened. A session left open from an earlier round is closed rather than
-   * resumed, because a session belongs to the round it was started in.
+   * resumed, because it was sized for that round. Whatever it was answered
+   * in this hour already counts towards `count` (rounds.ts counts answers by
+   * the hour they were given in), so the fresh one asks only for the rest.
    */
   round?: { count: number; opensAt: Date },
 ): Promise<{ sessionId: string } | { error: string }> {
@@ -328,10 +330,16 @@ export async function getSessionPlan(
 /* Grading an answer                                                          */
 /* -------------------------------------------------------------------------- */
 
-function sameSet(a: string[], b: string[]): boolean {
-  if (a.length !== b.length) return false;
+/**
+ * Whether two lists hold exactly the same ids. Compared as sets of equal
+ * size: a length check alone let ['a', 'a'] match ['a', 'b'], marking a
+ * two-answer question right with one of its answers sent twice.
+ */
+export function sameSet(a: string[], b: string[]): boolean {
+  const setA = new Set(a);
   const setB = new Set(b);
-  return a.every((value) => setB.has(value));
+  if (setA.size !== a.length || setB.size !== b.length || setA.size !== setB.size) return false;
+  return [...setA].every((value) => setB.has(value));
 }
 
 async function awardXp(
@@ -714,7 +722,7 @@ export async function submitAnswer(args: {
     sourceReference: version.source_reference,
     sourceUrl: version.source_url,
     xpAwarded,
-    nextReviewLabel: soonestReviewAt ? describeNextReview(soonestReviewAt, now) : null,
+    nextReviewLabel: soonestReviewAt ? describeNextReview(soonestReviewAt, now, learnerZone) : null,
     coachNote: null,
   };
 }

@@ -40,12 +40,71 @@ test('a round is open for its hour, done at ten answers, missed when the hour pa
   assert.equal(nextOpening(r)?.number, 4);
 });
 
-test('a session belongs to the round it was started in', () => {
-  // Started at 7:55 and finished after 8: it is round one's, not round two's.
+test('an answer counts for the round whose hour it was given in, whatever its session', () => {
+  // Started at 7:55, one answer every 30 seconds: nine before 8, the tenth at 8:00:00.
   const r = roundsFor(KL, DAY, [session(7, 55, 10)], at(8, 5));
-  assert.equal(r[0].state, 'done');
+  assert.equal(r[0].state, 'missed');
+  assert.equal(r[0].answered, 9);
   assert.equal(r[1].state, 'open');
-  assert.equal(r[1].answered, 0);
+  assert.equal(r[1].answered, 1);
+});
+
+test('a trainee answering across the hour is not marked missing for the next round', () => {
+  // The audit case: started at 7:50, an answer every three minutes to 8:18.
+  const steady = {
+    startedAt: at(7, 50).toISOString(),
+    answeredAt: Array.from({ length: 10 }, (_, i) => at(7, 51 + i * 3).toISOString()),
+    questionCount: 10,
+    completedAt: at(8, 19).toISOString(),
+  };
+  // 7:51, 7:54, 7:57 for 7am; 8:00 to 8:18 for 8am.
+  const during = roundsFor(KL, DAY, [steady], at(8, 30));
+  assert.equal(during[0].answered, 3);
+  assert.equal(during[1].answered, 7);
+  assert.equal(during[1].state, 'open');
+  // Three more in another session before 9 and the 8am round is done.
+  const more = { ...session(8, 40, 3), questionCount: 3 };
+  const after = roundsFor(KL, DAY, [steady, more], at(9, 0));
+  assert.equal(after[1].state, 'done');
+});
+
+test('the hour has no grace: 7:59:59 counts for 7am, 8:00:01 does not', () => {
+  const nineEarly = Array.from({ length: 9 }, (_, i) => at(7, 10 + i).toISOString());
+  const lastBefore = new Date(at(8).getTime() - 1000).toISOString();
+  const lastAfter = new Date(at(8).getTime() + 1000).toISOString();
+  const mk = (last: string) => ({
+    startedAt: at(7, 5).toISOString(),
+    answeredAt: [...nineEarly, last],
+    questionCount: 10,
+    completedAt: last,
+  });
+  assert.equal(roundsFor(KL, DAY, [mk(lastBefore)], at(8, 30))[0].state, 'done');
+  const late = roundsFor(KL, DAY, [mk(lastAfter)], at(8, 30));
+  assert.equal(late[0].state, 'missed');
+  assert.equal(late[1].answered, 1);
+});
+
+test('a round is open, never missed, until its hour has ended', () => {
+  const r = roundsFor(KL, DAY, [], new Date(at(8).getTime() - 1));
+  assert.equal(r[0].state, 'open');
+  assert.equal(roundsFor(KL, DAY, [], at(8))[0].state, 'missed');
+});
+
+test('rounds that closed before rounds started counting are not applicable, not missed', () => {
+  // Confirmed at 9:30: 7 and 8am could not have been done; 9am still could.
+  const confirmed = at(9, 30);
+  const r = roundsFor(KL, DAY, [], at(11, 0), confirmed);
+  assert.deepEqual(r.map((x) => x.state), ['not_applicable', 'not_applicable', 'missed', 'missed']);
+  // A round closing exactly at the moment is not applicable too.
+  const onTheHour = roundsFor(KL, DAY, [], at(9, 30), at(9, 0));
+  assert.deepEqual(onTheHour.map((x) => x.state), ['not_applicable', 'not_applicable', 'open', 'upcoming']);
+});
+
+test('a short session is done only when started, answered and finished inside one hour', () => {
+  // Six questions, started at 7:58, the last answers after 8: neither round is done by it.
+  const r = roundsFor(KL, DAY, [session(7, 58, 6, true, 6)], at(9, 0));
+  assert.equal(r[0].state, 'missed');
+  assert.equal(r[1].state, 'missed');
 });
 
 test('finishing a short session counts when the bank had fewer than ten', () => {
@@ -88,10 +147,23 @@ test('answers given long after the round closed do not count for it', () => {
   const r = roundsFor(KL, DAY, [late], at(11, 0));
   assert.equal(r[0].state, 'missed');
   assert.equal(r[0].answered, 0);
+  // They were given in the 10am hour, so they count for the 10am round.
+  assert.equal(r[3].state, 'done');
 });
 
-test('a round started near the end still counts if finished just after it closes', () => {
-  // Started at 7:55, the last answer at 8:00:30: inside the grace.
-  const r = roundsFor(KL, DAY, [session(7, 55, 10)], at(8, 30));
-  assert.equal(r[0].state, 'done');
+test('one test decides which days are rounds days, through the end date', async () => {
+  const { roundsDayNumber, lastRoundsDate } = await import('../src/lib/training/rounds');
+  const start = '2026-11-02'; // a Monday
+  assert.equal(roundsDayNumber(start, null, '2026-11-02'), 1);
+  assert.equal(roundsDayNumber(start, null, '2026-11-01'), null); // before the start
+  assert.equal(roundsDayNumber(start, null, '2026-11-07'), null); // Saturday
+  assert.equal(roundsDayNumber(start, null, '2026-11-09'), null); // Deepavali, skipped
+  assert.equal(roundsDayNumber(start, null, '2026-11-10'), 6);
+  // With no end date the rounds stop at working day twenty.
+  const twenty = lastRoundsDate(start, null);
+  assert.equal(roundsDayNumber(start, null, twenty), 20);
+  assert.equal(roundsDayNumber(start, null, '2026-12-31'), null);
+  // With one, they run to it, even past day twenty.
+  assert.equal(roundsDayNumber(start, '2026-12-04', '2026-12-04'), 24);
+  assert.equal(roundsDayNumber(start, '2026-12-04', '2026-12-07'), null);
 });

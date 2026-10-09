@@ -2,6 +2,7 @@ import 'server-only';
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/service';
+import { functionMissing } from '@/lib/supabase/errors';
 import { displayScore, rightShare } from '@/lib/learning/mastery';
 import { levelForXp, localDateString, type LevelInfo } from '@/lib/learning/progression';
 import { MASTERY } from '@/lib/learning/config';
@@ -71,6 +72,12 @@ export interface LearnerOverview {
   /** Sessions finished today. One means the session just finished was the first. */
   sessionsToday: number;
   skillMap: SkillMapEntry[];
+  /**
+   * The scores by area could not be read. The skill map then holds no
+   * answers, and the pages say the figures are unavailable rather than
+   * showing them as not asked yet.
+   */
+  areaScoresUnavailable: boolean;
   skillProfile: SkillMapEntry[];
   needsReview: string[];
   recentlyMastered: string[];
@@ -146,7 +153,7 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
     finishedRecently,
     answeredYesterdayRows,
   ] = await Promise.all([
-      supabase.from('xp_events').select('amount').eq('user_id', userId),
+      allXp(supabase, userId),
       supabase
         .from('xp_events')
         .select('amount')
@@ -226,7 +233,7 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
   const sum = (rows: Array<{ amount: number }> | null) =>
     (rows ?? []).reduce((total, row) => total + row.amount, 0);
 
-  const totalXp = sum(xpAll.data);
+  const totalXp = xpAll;
 
   /* --- skill map by domain ------------------------------------------------ */
   // What a learner sees is the share of their answers that were right: all
@@ -248,14 +255,19 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
   // Each answer once, by its question's own area (area_scores, 0036). A
   // question tagged with three concepts used to count three times when the
   // totals were added up per concept; that sum stays only as the fallback
-  // for a database that has not had 0036 yet.
+  // for a database that has not had 0036 yet. Any other failure (a timeout,
+  // a missing key) is not a reason to show the over-count, so the scores are
+  // marked unavailable instead.
   const { data: byArea, error: areaError } = await createServiceClient().rpc('area_scores', {
     uid: userId,
   });
+  let areaScoresUnavailable = false;
   if (!areaError && Array.isArray(byArea)) {
     for (const row of byArea as Array<{ domain_id: string; answered: number; right_answers: number }>) {
       domainTotals.set(row.domain_id, { correct: row.right_answers, attempts: row.answered });
     }
+  } else if (!functionMissing(areaError)) {
+    areaScoresUnavailable = true;
   } else {
     for (const row of conceptRows) {
       if (!row.concept || row.attempts === 0) continue;
@@ -323,11 +335,42 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
     ),
     longestStreak: (streak.data?.longest_streak as number) ?? 0,
     skillMap,
+    areaScoresUnavailable,
     skillProfile,
     needsReview,
     recentlyMastered,
     dueCount: due.data?.length ?? 0,
   };
+}
+
+const XP_PAGE = 1000;
+/** Fifty pages is fifty thousand awards, years of mornings at two or three an answer. */
+const XP_MAX_PAGES = 50;
+
+/**
+ * Every XP award one person has had, added up. A request returns at most a
+ * thousand rows, which a trainee passes inside a month (an answer can earn
+ * two awards), so this reads page by page as `answerMarks` does, rather than
+ * quietly totalling the first thousand and leaving the level stuck.
+ */
+async function allXp(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  userId: string,
+): Promise<number> {
+  let total = 0;
+  for (let page = 0; page < XP_MAX_PAGES; page++) {
+    const { data, error } = await supabase
+      .from('xp_events')
+      .select('amount')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: true })
+      .order('id', { ascending: true })
+      .range(page * XP_PAGE, page * XP_PAGE + XP_PAGE - 1);
+    if (error) break;
+    for (const row of data ?? []) total += (row.amount as number) ?? 0;
+    if ((data ?? []).length < XP_PAGE) break;
+  }
+  return total;
 }
 
 /**

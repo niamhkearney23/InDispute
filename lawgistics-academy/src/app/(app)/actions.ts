@@ -150,7 +150,9 @@ export async function beginSession(
   let outcome: { sessionId: string } | { error: string };
 
   // A trainee on a working morning trains in rounds: only while one is
-  // open, and only the questions that round still needs.
+  // open, and only the questions that round still needs. `open.answered` is
+  // every answer given in the round's hour, from any daily session, the same
+  // count that decides whether the round is done.
   let round: { count: number; opensAt: Date } | undefined;
   if (kind === 'daily') {
     // Reading the rounds is the first service-role call, so it fails here
@@ -224,7 +226,12 @@ export async function beginModule(slug: string): Promise<{ error: string } | und
 const answerSchema = z.object({
   sessionId: z.string().uuid(),
   questionVersionId: z.string().uuid(),
-  selectedOptionIds: z.array(z.string().max(40)).min(1).max(10),
+  // The same option twice is not a second answer; refused before grading.
+  selectedOptionIds: z
+    .array(z.string().max(40))
+    .min(1)
+    .max(10)
+    .refine((ids) => new Set(ids).size === ids.length, 'An option was chosen twice.'),
   confidence: z.enum(['guess', 'somewhat_sure', 'certain']).nullable(),
   responseMs: z.number().int().min(0).max(1000 * 60 * 60).nullable(),
 });

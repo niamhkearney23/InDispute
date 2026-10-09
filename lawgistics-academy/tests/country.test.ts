@@ -152,6 +152,7 @@ function fakeDb(rows: Row[]) {
       in: () => chain,
       order: () => chain,
       limit: () => chain,
+      range: () => chain,
       gte: () => chain,
       lte: () => chain,
       lt: () => chain,
