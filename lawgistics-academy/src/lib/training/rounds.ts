@@ -8,25 +8,35 @@
  * coach sees that. There is no timer on the questions themselves, only a
  * countdown to when the next round opens.
  *
- * Pure, so it is tested directly: given the clock, the learner's timezone
- * and what they have done today, say where each round stands.
+ * Those are the defaults. A trainee in a cohort (0041) runs on the cohort's
+ * timezone, round hours and holidays instead (`Schedule`), each round open
+ * for its own hour.
+ *
+ * Pure, so it is tested directly: given the clock, the schedule and what
+ * they have done today, say where each round stands.
  */
 import { localHour } from '@/lib/local-day';
 import { dateOfWorkingDay, isWorkingDay, workingDaysElapsed } from '@/lib/homework/rules';
 import { HOMEWORK_DAYS } from '@/content/seed/homework';
+import { DEFAULT_SCHEDULE, hourLabel, type Schedule } from './schedule';
 
 /**
- * The rounds run on Kuala Lumpur time, the firm's clock, for every trainee
- * whatever timezone their own account is set to.
+ * The rounds run on the cohort's clock, Kuala Lumpur time by default, for
+ * every trainee whatever timezone their own account is set to.
  */
-export const ROUNDS_TIMEZONE = 'Asia/Kuala_Lumpur';
+export const ROUNDS_TIMEZONE = DEFAULT_SCHEDULE.timezone;
 
-/** The local hours the rounds open at. */
-export const ROUND_HOURS = [7, 8, 9, 10] as const;
+/** The local hours the rounds open at, by default. */
+export const ROUND_HOURS = DEFAULT_SCHEDULE.roundHours;
 /** Questions in a round. */
 export const ROUND_SIZE = 10;
-/** When the last round closes. */
+/** When the last default round closes. */
 export const MORNING_ENDS = 11;
+
+/** A schedule, or just a timezone on the default hours and holidays. */
+function asSchedule(s: Schedule | string): Schedule {
+  return typeof s === 'string' ? { ...DEFAULT_SCHEDULE, timezone: s } : s;
+}
 
 /**
  * `not_applicable` is a round that closed before the trainee was confirmed
@@ -40,6 +50,10 @@ export interface Round {
   number: number;
   opensAt: Date;
   closesAt: Date;
+  /** "7am": when it opens, on the cohort's clock. */
+  opensLabel: string;
+  /** "8am": when it closes. */
+  closesLabel: string;
   state: RoundState;
   /** Answers given in this round's hour, at most ten. */
   answered: number;
@@ -55,12 +69,15 @@ export interface RoundSession {
   completedAt: string | null;
 }
 
-/** Each round's window on a local day. */
-export function roundWindows(timezone: string, localDate: string) {
-  return ROUND_HOURS.map((hour, i) => ({
+/** Each round's window on a local day: its own hour. */
+export function roundWindows(schedule: Schedule | string, localDate: string) {
+  const s = asSchedule(schedule);
+  return s.roundHours.map((hour, i) => ({
     number: i + 1,
-    opensAt: localHour(timezone, localDate, hour),
-    closesAt: localHour(timezone, localDate, ROUND_HOURS[i + 1] ?? MORNING_ENDS),
+    opensAt: localHour(s.timezone, localDate, hour),
+    closesAt: localHour(s.timezone, localDate, hour + 1),
+    opensLabel: hourLabel(hour),
+    closesLabel: hourLabel(hour + 1),
   }));
 }
 
@@ -84,13 +101,13 @@ export function roundWindows(timezone: string, localDate: string) {
  * it is not applicable rather than missed.
  */
 export function roundsFor(
-  timezone: string,
+  schedule: Schedule | string,
   localDate: string,
   sessions: RoundSession[],
   now: Date = new Date(),
   notBefore: Date | null = null,
 ): Round[] {
-  return roundWindows(timezone, localDate).map((w) => {
+  return roundWindows(schedule, localDate).map((w) => {
     const inHour = (iso: string) => {
       const t = new Date(iso).getTime();
       return t >= w.opensAt.getTime() && t < w.closesAt.getTime();
@@ -120,8 +137,12 @@ export function roundsFor(
 }
 
 /** The last day rounds can run: the end date, or working day twenty when none is set. */
-export function lastRoundsDate(startsOn: string, endsOn: string | null): string {
-  return endsOn ?? dateOfWorkingDay(startsOn, HOMEWORK_DAYS);
+export function lastRoundsDate(
+  startsOn: string,
+  endsOn: string | null,
+  holidays: Record<string, string> = DEFAULT_SCHEDULE.holidays,
+): string {
+  return endsOn ?? dateOfWorkingDay(startsOn, HOMEWORK_DAYS, holidays);
 }
 
 /**
@@ -135,13 +156,14 @@ export function roundsDayNumber(
   startsOn: string | null,
   endsOn: string | null,
   date: string,
+  holidays: Record<string, string> = DEFAULT_SCHEDULE.holidays,
 ): number | null {
-  if (!startsOn || date < startsOn || date > lastRoundsDate(startsOn, endsOn)) return null;
-  if (!isWorkingDay(date)) return null;
+  if (!startsOn || date < startsOn || date > lastRoundsDate(startsOn, endsOn, holidays)) return null;
+  if (!isWorkingDay(date, holidays)) return null;
   const elapsed = Math.round(
     (Date.parse(`${date}T00:00:00Z`) - Date.parse(`${startsOn}T00:00:00Z`)) / 86_400_000,
   );
-  return workingDaysElapsed(startsOn, elapsed);
+  return workingDaysElapsed(startsOn, elapsed, holidays);
 }
 
 /** The round open now and not yet done, if there is one. */
@@ -154,14 +176,12 @@ export function nextOpening(rounds: Round[]): Round | null {
   return rounds.find((r) => r.state === 'upcoming') ?? null;
 }
 
-const hourLabel = (hour: number) => `${hour > 12 ? hour - 12 : hour}${hour >= 12 ? 'pm' : 'am'}`;
-
 /** "7am", "10am": the local hour a round opens at, for the page. */
-export function roundLabel(round: { number: number }): string {
-  return hourLabel(ROUND_HOURS[round.number - 1]);
+export function roundLabel(round: { opensLabel: string }): string {
+  return round.opensLabel;
 }
 
 /** "8am", "11am": the local hour a round closes at. */
-export function closingLabel(round: { number: number }): string {
-  return hourLabel(ROUND_HOURS[round.number] ?? MORNING_ENDS);
+export function closingLabel(round: { closesLabel: string }): string {
+  return round.closesLabel;
 }

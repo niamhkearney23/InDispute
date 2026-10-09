@@ -1,3 +1,5 @@
+import { DEFAULT_SCHEDULE, roundCountWord, roundTimes, zoneName, type Schedule } from '@/lib/training/schedule';
+
 import { DIAGNOSTIC_QUESTION_COUNT } from '@/lib/learning/config';
 
 /**
@@ -34,9 +36,11 @@ export interface TourFor {
   open: boolean;
   /** Not yet sat the diagnostic. */
   needsDiagnostic: boolean;
+  /** Their cohort's clock, for the rounds card. The programme's own when left out. */
+  schedule?: Schedule;
 }
 
-export function tourSteps({ trainee, open }: TourFor): TourStep[] {
+export function tourSteps({ trainee, open, schedule = DEFAULT_SCHEDULE }: TourFor): TourStep[] {
   const steps: TourStep[] = [
     {
       key: 'today',
@@ -53,9 +57,9 @@ export function tourSteps({ trainee, open }: TourFor): TourStep[] {
     steps.push({
       key: 'rounds',
       where: 'On Today',
-      title: 'The morning rounds',
+      title: 'The daily rounds',
       body:
-        'Every working day, four rounds of ten questions open at 7, 8, 9 and 10am, Kuala Lumpur time. Each round is open for its hour. A round you miss stays missed, and your supervisor can see it. The clock in the bottom corner counts down to the next one.' +
+        `Every working day, ${roundCountWord(schedule)} ${schedule.roundHours.length === 1 ? 'round' : 'rounds'} of ten questions open at ${roundTimes(schedule)}, ${zoneName(schedule)}. Each round is open for its hour. A round you miss stays missed, and your supervisor can see it. The clock in the bottom corner counts down to the next one.` +
         (open ? '' : ' The rounds start once our lawyers have signed the questions off.'),
       icon: 'calendar',
     });

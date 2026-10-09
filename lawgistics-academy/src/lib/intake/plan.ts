@@ -28,10 +28,13 @@ export interface ScheduledDay {
   due: number[];
 }
 
-export function intakeSchedule(startsOn: string): ScheduledDay[] {
+export function intakeSchedule(
+  startsOn: string,
+  holidays?: Record<string, string>,
+): ScheduledDay[] {
   return PROGRAMME_DAYS.map((d) => ({
     day: d.day,
-    date: dateOfWorkingDay(startsOn, d.day),
+    date: dateOfWorkingDay(startsOn, d.day, holidays),
     title: d.title,
     video: d.video,
     concept: conceptForDay(d.day)?.concept ?? d.title,

@@ -33,9 +33,13 @@ function addDays(isoDate: string, days: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-/** Monday to Friday, and not a public holiday the programme skips. */
-export function isWorkingDay(isoDate: string): boolean {
-  return isoWeekday(isoDate) <= 5 && !(isoDate in HOLIDAYS);
+/**
+ * Monday to Friday, and not a public holiday the programme skips. The
+ * holidays are the person's cohort's (0041), or the programme's own for
+ * somebody in no cohort.
+ */
+export function isWorkingDay(isoDate: string, holidays: Record<string, string> = HOLIDAYS): boolean {
+  return isoWeekday(isoDate) <= 5 && !(isoDate in holidays);
 }
 
 /**
@@ -45,12 +49,16 @@ export function isWorkingDay(isoDate: string): boolean {
  * starts on a Monday is the following Monday, or the Tuesday when that
  * Monday is a holiday.
  */
-export function dateOfWorkingDay(startsOn: string, day: number): string {
+export function dateOfWorkingDay(
+  startsOn: string,
+  day: number,
+  holidays: Record<string, string> = HOLIDAYS,
+): string {
   let date = startsOn;
-  let counted = isWorkingDay(date) ? 1 : 0;
+  let counted = isWorkingDay(date, holidays) ? 1 : 0;
   while (counted < day) {
     date = addDays(date, 1);
-    if (isWorkingDay(date)) counted++;
+    if (isWorkingDay(date, holidays)) counted++;
   }
   return date;
 }
@@ -61,10 +69,14 @@ export function dateOfWorkingDay(startsOn: string, day: number): string {
  * a time: a placement is a few weeks, and a holiday has to be skipped
  * wherever it falls.
  */
-export function workingDaysElapsed(startsOn: string, calendarDaysElapsed: number): number {
+export function workingDaysElapsed(
+  startsOn: string,
+  calendarDaysElapsed: number,
+  holidays: Record<string, string> = HOLIDAYS,
+): number {
   let count = 0;
   for (let i = 0; i <= calendarDaysElapsed; i++) {
-    if (isWorkingDay(addDays(startsOn, i))) count++;
+    if (isWorkingDay(addDays(startsOn, i), holidays)) count++;
   }
   return count;
 }
@@ -74,6 +86,7 @@ export function homeworkDay(
   endsOn: string | null,
   timezone: string,
   now: Date = new Date(),
+  holidays: Record<string, string> = HOLIDAYS,
 ): HomeworkDay {
   if (!startsOn) return { state: 'none' };
 
@@ -85,12 +98,12 @@ export function homeworkDay(
 
   const calendarDaysElapsed = -daysUntilStart;
 
-  if (!isWorkingDay(today)) {
+  if (!isWorkingDay(today, holidays)) {
     let ahead = 1;
-    while (!isWorkingDay(addDays(today, ahead))) ahead++;
-    const nextDay = workingDaysElapsed(startsOn, calendarDaysElapsed + ahead);
+    while (!isWorkingDay(addDays(today, ahead), holidays)) ahead++;
+    const nextDay = workingDaysElapsed(startsOn, calendarDaysElapsed + ahead, holidays);
     if (nextDay > HOMEWORK_DAYS) return { state: 'finished' };
-    const holiday = HOLIDAYS[today];
+    const holiday = holidays[today];
     return {
       state: 'weekend',
       nextDay,
@@ -99,7 +112,7 @@ export function homeworkDay(
     };
   }
 
-  const day = workingDaysElapsed(startsOn, calendarDaysElapsed);
+  const day = workingDaysElapsed(startsOn, calendarDaysElapsed, holidays);
   return day > HOMEWORK_DAYS ? { state: 'finished' } : { state: 'day', day };
 }
 

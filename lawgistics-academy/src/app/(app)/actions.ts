@@ -2,6 +2,7 @@
 
 import { roundsToday } from '@/lib/training/rounds-service';
 import { ROUND_SIZE, nextOpening, openRound, roundLabel } from '@/lib/training/rounds';
+import { hourLabel, zoneName } from '@/lib/training/schedule';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
@@ -50,6 +51,7 @@ import {
 import type { AnswerFeedback, SessionKind } from '@/lib/types';
 import { hasAccess } from '@/lib/access/service';
 import { userFacingError } from '@/lib/env';
+import { scheduleForPerson } from '@/lib/training/cohorts';
 
 const GOAL_SLUGS = IMPROVEMENT_GOALS.map((g) => g.slug);
 
@@ -183,10 +185,10 @@ export async function beginSession(
         const next = nextOpening(today.rounds);
         return {
           error: next
-            ? `Round ${next.number} opens at ${roundLabel(next)}, Kuala Lumpur time.`
+            ? `Round ${next.number} opens at ${roundLabel(next)}, ${zoneName(today.schedule)}.`
             : today.nextMorning
-              ? `This morning’s rounds are over. The next opens on ${today.nextMorning} at 7am, Kuala Lumpur time.`
-              : 'This morning’s rounds are over, and that was the last morning of the programme.',
+              ? `Today’s rounds are over. The next opens on ${today.nextMorning} at ${hourLabel(today.schedule.roundHours[0])}, ${zoneName(today.schedule)}.`
+              : 'Today’s rounds are over, and that was the last day of the programme.',
         };
       }
       round = { count: ROUND_SIZE - open.answered, opensAt: open.opensAt };
@@ -349,7 +351,13 @@ export async function declareHomework(
   if (!profile) return { error: 'Your profile could not be found.' };
 
   const arrived = lastArrivedDay(
-    homeworkDay(profile.startsOn, profile.endsOn, profile.timezone),
+    homeworkDay(
+      profile.startsOn,
+      profile.endsOn,
+      profile.timezone,
+      new Date(),
+      (await scheduleForPerson(user.id)).holidays,
+    ),
   );
   if (parsed.data.day > arrived) {
     return { error: 'That day has not come round yet.' };

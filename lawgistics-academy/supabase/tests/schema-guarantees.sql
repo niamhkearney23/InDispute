@@ -3243,6 +3243,58 @@ select pg_temp.expect(
    where id = '11111111-1111-1111-1111-111111111111'),
   'the server clears "choose your own password" once the new one is saved');
 
+-- -----------------------------------------------------------------------------
+-- 0041: cohorts are the firm's, and nobody moves themselves between them
+-- -----------------------------------------------------------------------------
+insert into public.cohorts (id, name, starts_on, ends_on, timezone, round_hours, holidays)
+values ('cccc0041-0000-0000-0000-000000000001', 'November 2026', '2026-11-02', '2026-11-30',
+        'Asia/Kuala_Lumpur', '{7,8,9,10}', '[{"date":"2026-11-09","name":"Deepavali"}]');
+
+select pg_temp.expect_failure(
+  $$insert into public.cohorts (name, starts_on, ends_on, timezone, round_hours)
+    values ('Backwards', '2026-11-30', '2026-11-02', 'Asia/Kuala_Lumpur', '{7}')$$,
+  'a cohort cannot end before it starts');
+select pg_temp.expect_failure(
+  $$insert into public.cohorts (name, starts_on, ends_on, timezone, round_hours)
+    values ('Night shift', '2026-11-02', '2026-11-30', 'Asia/Kuala_Lumpur', '{2}')$$,
+  'a round cannot open in the middle of the night');
+select pg_temp.expect_failure(
+  $$insert into public.cohorts (name, starts_on, ends_on, timezone, round_hours)
+    values ('No rounds', '2026-11-02', '2026-11-30', 'Asia/Kuala_Lumpur', '{}')$$,
+  'a cohort has at least one round');
+
+set local role authenticated;
+set local request.jwt.claim.sub = '22222222-2222-2222-2222-222222222222';
+select pg_temp.expect(
+  (select count(*) from public.cohorts where id = 'cccc0041-0000-0000-0000-000000000001') = 1,
+  'a learner can read a cohort, for their own mornings');
+select pg_temp.expect_failure(
+  $$insert into public.cohorts (name, starts_on, ends_on, timezone, round_hours)
+    values ('Mine', '2026-11-02', '2026-11-30', 'Asia/Kuala_Lumpur', '{7}')$$,
+  'a learner cannot make a cohort');
+select pg_temp.expect_failure(
+  $$update public.cohorts set round_hours = '{12}' where id = 'cccc0041-0000-0000-0000-000000000001'$$,
+  'a learner cannot change a cohort''s round times');
+select pg_temp.expect_failure(
+  $$update public.profiles set cohort_id = 'cccc0041-0000-0000-0000-000000000001'
+    where id = '22222222-2222-2222-2222-222222222222'$$,
+  'a learner cannot put themselves in a cohort');
+reset role;
+
+set local role authenticated;
+set local request.jwt.claim.sub = 'aaaa0037-0000-0000-0000-000000000001';
+select pg_temp.expect_failure(
+  $$update public.cohorts set name = 'Renamed' where id = 'cccc0041-0000-0000-0000-000000000001'$$,
+  'a cohort is changed through the server, not a firm administrator''s own login');
+reset role;
+
+update public.profiles set cohort_id = 'cccc0041-0000-0000-0000-000000000001'
+  where id = '22222222-2222-2222-2222-222222222222';
+delete from public.cohorts where id = 'cccc0041-0000-0000-0000-000000000001';
+select pg_temp.expect(
+  (select cohort_id is null from public.profiles where id = '22222222-2222-2222-2222-222222222222'),
+  'removing a cohort leaves its people on the programme''s own clock');
+
 \echo ''
 \echo 'All schema guarantees hold.'
 

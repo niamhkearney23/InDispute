@@ -20,6 +20,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const all: Array<[string, string, boolean]> = [
     ['/admin', 'Questions', isAdmin],
     ['/admin/intake', 'Intake', true],
+    ['/admin/cohorts', 'Cohorts', isFirmAdmin],
     ['/admin/trainees', 'Trainees', true],
     ['/admin/review', 'Verify', isReviewer],
     ['/admin/lessons', 'Lessons', isReviewer],

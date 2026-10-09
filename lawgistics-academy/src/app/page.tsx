@@ -9,6 +9,9 @@ import { getCurrentUser } from '@/lib/supabase/server';
 import { publicEnv } from '@/lib/env';
 import { brand } from '@/lib/brand';
 import { PROGRAMME } from '@/content/programme';
+import { upcomingCohort } from '@/lib/training/cohorts';
+import { DEFAULT_SCHEDULE, monthYear } from '@/lib/training/schedule';
+import { todayIn } from '@/lib/onboarding/rules';
 import { paymentsOn } from '@/lib/access/service';
 import { PRICES, formatPrice, traineeValue } from '@/lib/access/rules';
 
@@ -57,7 +60,14 @@ export default async function LandingPage() {
   const user = await getCurrentUser();
   if (user) redirect('/dashboard');
   const payments = paymentsOn();
-  const intake = intakeStatus(PROGRAMME.intakeStartsOn, PROGRAMME.intakeEndsOn, new Date());
+  // The next intake the firm has set up, or the programme's own dates.
+  const cohort = await upcomingCohort(todayIn(DEFAULT_SCHEDULE.timezone)).catch(() => null);
+  const intake = intakeStatus(
+    cohort?.startsOn ?? PROGRAMME.intakeStartsOn,
+    cohort?.endsOn ?? PROGRAMME.intakeEndsOn,
+    new Date(),
+  );
+  const nextIntake = cohort ? monthYear(cohort.startsOn) : PROGRAMME.nextIntake;
 
   return (
     <div className="min-h-dvh bg-cream text-ink">
@@ -316,7 +326,7 @@ export default async function LandingPage() {
             <div className="relative z-10 px-4 py-20 sm:px-8 sm:py-24 md:w-1/2">
               <div className="flex flex-wrap items-center gap-3">
                 <p className="text-xs font-semibold tracking-[0.18em] text-mist uppercase">
-                  {PROGRAMME.nextIntake} cohort
+                  {nextIntake} cohort
                 </p>
                 {intake ? (
                   <p className="rounded-full border border-cream/20 px-3 py-1 text-xs font-medium">
