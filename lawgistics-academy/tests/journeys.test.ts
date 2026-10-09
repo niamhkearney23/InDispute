@@ -122,13 +122,20 @@ test('the round clock keeps its space before the time', () => {
   assert.match(source, /\\u00a0|&nbsp;/);
 });
 
-test('sign-in links and sign-out go to the site address when one is set', () => {
+test('sign-in links and sign-out go to the site address only when the app sees itself as localhost', () => {
   assert.equal(siteOrigin('http://localhost:3000', 'https://academy.example.com/'), 'https://academy.example.com');
   assert.equal(siteOrigin('http://localhost:3000', 'https://academy.example.com/x'), 'https://academy.example.com');
   assert.equal(siteOrigin('https://app.vercel.app', undefined), 'https://app.vercel.app');
   assert.equal(siteOrigin('https://app.vercel.app', ''), 'https://app.vercel.app');
   assert.equal(siteOrigin('https://app.vercel.app', 'not an address'), 'https://app.vercel.app');
   assert.equal(siteOrigin('https://app.vercel.app', 'javascript:alert(1)'), 'https://app.vercel.app');
+  // A real public origin is kept, so a stale setting or a preview link never
+  // sends somebody to another host where they are not signed in.
+  assert.equal(
+    siteOrigin('https://preview-abc.vercel.app', 'https://academy.example.com'),
+    'https://preview-abc.vercel.app',
+  );
+  assert.equal(siteOrigin('http://127.0.0.1:3000', 'https://academy.example.com'), 'https://academy.example.com');
 
   for (const route of ['src/app/auth/callback/route.ts', 'src/app/auth/sign-out/route.ts']) {
     const source = code(read(route));
