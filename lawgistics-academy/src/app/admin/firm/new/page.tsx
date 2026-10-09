@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
-import { requireAdmin } from '@/lib/admin/guard';
+import { requireFirmAdmin } from '@/lib/admin/guard';
 import { saveFirmModule } from '../actions';
 import { FirmModuleForm } from '../firm-module-form';
 
 export const metadata: Metadata = { title: 'New firm module' };
 
 export default async function NewFirmModulePage() {
-  await requireAdmin();
+  await requireFirmAdmin();
 
   return (
     <div className="space-y-6">

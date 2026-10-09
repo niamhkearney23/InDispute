@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { requireCoach } from '@/lib/admin/guard';
+import { requireReviewer } from '@/lib/admin/guard';
 import { entriesForTrainee, getTrainee } from '@/lib/certification/service';
 import { certificationBox } from '@/content/seed/certification-boxes';
 import { saveCertificationEntry } from '../../../actions';
@@ -14,7 +14,7 @@ export default async function EditEntryPage({
 }: {
   params: Promise<{ traineeId: string; entryId: string }>;
 }) {
-  await requireCoach();
+  await requireReviewer();
   const { traineeId, entryId } = await params;
 
   const trainee = await getTrainee(traineeId);

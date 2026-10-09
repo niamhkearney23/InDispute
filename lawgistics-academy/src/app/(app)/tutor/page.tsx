@@ -19,7 +19,7 @@ export default async function TutorPage() {
   const user = await getCurrentUser();
   if (!user) redirect('/login?next=/tutor');
   const profile = await getLearnerProfile(user.id);
-  if (!profile) redirect('/login');
+  if (!profile) redirect('/account-problem');
   if (!profile.onboardedAt) redirect('/onboarding');
 
   const [modules, recent, supervised] = await Promise.all([

@@ -7,14 +7,16 @@
  * typed, and everything is treated as untrusted text: it came from whoever
  * sent the email.
  */
-import { WORK_FILE_TYPES, isTrustedWorkLink } from './links';
+import { isTrustedWorkLink } from './links';
 
+/**
+ * What was attached, by name only. Attachments are not stored: nobody has
+ * declared them free of anything identifying a client, and a draft is not
+ * where that is decided. The reply tells the lawyer to add the file on the
+ * draft page, where the declaration is.
+ */
 export interface InboundAttachment {
   name: string;
-  contentType: string;
-  /** Base64, as the inbound service sends it. */
-  content: string;
-  size: number;
 }
 
 export interface InboundEmail {
@@ -23,11 +25,83 @@ export interface InboundEmail {
   subject: string;
   text: string;
   messageId: string;
-  /** Whether the sending domain's SPF check passed, if the service said. */
-  spfPass: boolean;
-  /** Whether a DKIM signature from the sender's own domain checked out. */
-  dkimPass: boolean;
+  /**
+   * What vouched for the From address, read from the receiving server's own
+   * Authentication-Results header: 'dmarc' when DMARC passed for the From
+   * domain, 'dkim' when a DKIM signature from the From domain itself passed,
+   * null when neither did. SPF is not on the list: it checks the envelope
+   * sender, which can be any domain at all, not the address people see.
+   */
+  verifiedBy: 'dmarc' | 'dkim' | null;
   attachments: InboundAttachment[];
+}
+
+/** One result in an Authentication-Results header, such as dkim=pass header.d=x. */
+interface AuthResult {
+  method: string;
+  result: string;
+  props: Map<string, string>;
+}
+
+/**
+ * The results in one Authentication-Results header value. The first part is
+ * the server that wrote it, then one result per semicolon. Comments in
+ * brackets are dropped before reading, so "(2048-bit key)" or a comment made
+ * to look like "header.d=firm.example" cannot be read as a property.
+ */
+export function parseAuthResults(value: string): AuthResult[] {
+  let plain = value;
+  // Brackets can nest in a comment; take the innermost out until none remain.
+  for (let i = 0; i < 10 && /\([^()]*\)/.test(plain); i++) plain = plain.replace(/\([^()]*\)/g, ' ');
+  const [, ...parts] = plain.split(';');
+  const results: AuthResult[] = [];
+  for (const part of parts) {
+    const words = part.trim().split(/\s+/).filter(Boolean);
+    const head = /^([a-z0-9-]+)=([a-z]+)$/i.exec(words[0] ?? '');
+    if (!head) continue;
+    const props = new Map<string, string>();
+    for (const word of words.slice(1)) {
+      const prop = /^([a-z0-9.-]+)=(.+)$/i.exec(word);
+      if (prop) props.set(prop[1].toLowerCase(), prop[2].replace(/^"|"$/g, '').toLowerCase());
+    }
+    results.push({ method: head[1].toLowerCase(), result: head[2].toLowerCase(), props });
+  }
+  return results;
+}
+
+/**
+ * What vouched for an email from `domain`, by the topmost
+ * Authentication-Results header only. That one is added by the server that
+ * received the email for us; every header under it arrived with the email,
+ * and anybody sending one can write "dkim=pass" in their own. Either DMARC
+ * passed for the From domain, or a DKIM signature whose signing domain is
+ * exactly the From domain passed. Nothing else counts, SPF included.
+ */
+export function senderVerifiedBy(
+  headers: Array<{ name: string; value: string }>,
+  domain: string,
+  /** When set, the topmost header must have been written by this server. */
+  authservId = '',
+): 'dmarc' | 'dkim' | null {
+  const top = headers.find((h) => h.name.toLowerCase() === 'authentication-results');
+  if (!top || !domain) return null;
+  if (authservId && top.value.split(';')[0].trim().split(/\s+/)[0]?.toLowerCase() !== authservId.toLowerCase()) {
+    return null;
+  }
+  const results = parseAuthResults(top.value);
+  const dmarc = results.some(
+    (r) =>
+      r.method === 'dmarc' &&
+      r.result === 'pass' &&
+      // The domain DMARC was checked for, when the server says, has to be the
+      // one the address is at.
+      (r.props.get('header.from') ?? domain) === domain,
+  );
+  if (dmarc) return 'dmarc';
+  const dkim = results.some(
+    (r) => r.method === 'dkim' && r.result === 'pass' && r.props.get('header.d') === domain,
+  );
+  return dkim ? 'dkim' : null;
 }
 
 interface PostmarkPayload {
@@ -38,7 +112,7 @@ interface PostmarkPayload {
   StrippedTextReply?: unknown;
   MessageID?: unknown;
   Headers?: Array<{ Name?: unknown; Value?: unknown }>;
-  Attachments?: Array<{ Name?: unknown; ContentType?: unknown; Content?: unknown; ContentLength?: unknown }>;
+  Attachments?: Array<{ Name?: unknown }>;
 }
 
 const str = (v: unknown): string => (typeof v === 'string' ? v : '');
@@ -50,18 +124,16 @@ export function bareAddress(value: string): string {
 }
 
 /** The inbound service's JSON as an email, or null when it is not one. */
-export function readPostmark(body: unknown): InboundEmail | null {
+export function readPostmark(body: unknown, authservId = ''): InboundEmail | null {
   if (!body || typeof body !== 'object') return null;
   const p = body as PostmarkPayload;
   const fromEmail = bareAddress(str(p.FromFull?.Email) || str(p.From));
   const messageId = str(p.MessageID).trim();
   if (!fromEmail.includes('@') || !messageId) return null;
 
-  const spf = (p.Headers ?? []).find((h) => str(h.Name).toLowerCase() === 'received-spf');
-  const auth = (p.Headers ?? [])
-    .filter((h) => str(h.Name).toLowerCase() === 'authentication-results')
-    .map((h) => str(h.Value))
-    .join(';');
+  // In the order the service gives them, which is the email's own order, so
+  // the first is the topmost: the one our receiving server wrote.
+  const headers = (p.Headers ?? []).map((h) => ({ name: str(h.Name), value: str(h.Value) }));
   const domain = fromEmail.split('@')[1] ?? '';
   return {
     fromEmail,
@@ -71,30 +143,11 @@ export function readPostmark(body: unknown): InboundEmail | null {
     // one; otherwise the whole text.
     text: (str(p.StrippedTextReply).trim() || str(p.TextBody)).trim(),
     messageId,
-    spfPass: /^\s*pass\b/i.test(str(spf?.Value)),
-    // dkim=pass for the From address's own domain, not just any signature.
-    dkimPass:
-      domain.length > 0 &&
-      new RegExp(`dkim=pass[^;]*header\\.d=${domain.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\w.-])`, 'i').test(auth),
+    verifiedBy: senderVerifiedBy(headers, domain, authservId),
     attachments: (p.Attachments ?? []).map((a) => ({
       name: str(a.Name).replace(/[\\/]/g, ' ').trim().slice(0, 200) || 'Attached file',
-      contentType: str(a.ContentType).split(';')[0].trim().toLowerCase(),
-      content: str(a.Content),
-      size: typeof a.ContentLength === 'number' ? a.ContentLength : 0,
     })),
   };
-}
-
-/** The first attachment the board can hold: a PDF, a Word file or an image. */
-export function usableAttachment(
-  attachments: InboundAttachment[],
-  maxBytes: number,
-): InboundAttachment | null {
-  return (
-    attachments.find(
-      (a) => WORK_FILE_TYPES[a.contentType] && a.content && a.size > 0 && a.size <= maxBytes,
-    ) ?? null
-  );
 }
 
 /** The first Google Drive or Docs link in the email, if there is one. */
@@ -128,46 +181,4 @@ export function plainDraft(email: InboundEmail): DraftPost {
     expectedMinutes: null,
     maxClaims: null,
   };
-}
-
-/**
- * What the AI is asked. It tidies the email into a post; it does not add
- * anything the lawyer did not write, and it is told to leave names in place
- * rather than guess, because the lawyer checks the draft before it goes up.
- */
-export const INBOUND_SYSTEM = [
-  'You turn a lawyer’s email into a piece of work for junior lawyers on a training board.',
-  'Use only what the email says. Do not add legal content, steps or facts of your own.',
-  'Reply with JSON only: {"title": string under 120 characters, "instructions": string, "dueOn": "YYYY-MM-DD" or null, "expectedMinutes": number or null, "maxClaims": number or null}.',
-  'instructions: the task in the lawyer’s words, tidied into short paragraphs or a list, without greetings, sign-offs or email signatures.',
-  'dueOn: only if the email gives a date. expectedMinutes: only if it says how long. maxClaims: only if it says how many people should do it.',
-].join(' ');
-
-export function inboundPrompt(email: InboundEmail, today: string): string {
-  return [`Today is ${today}.`, `Subject: ${email.subject}`, '', email.text.slice(0, 8000)].join('\n');
-}
-
-/** The AI's reply as a draft, or null when it is not usable. */
-export function parseDraft(reply: string, fallback: DraftPost): DraftPost | null {
-  const json = /\{[\s\S]*\}/.exec(reply)?.[0];
-  if (!json) return null;
-  try {
-    const raw = JSON.parse(json) as Record<string, unknown>;
-    const title = typeof raw.title === 'string' ? raw.title.trim().slice(0, 200) : '';
-    const instructions = typeof raw.instructions === 'string' ? raw.instructions.trim().slice(0, 8000) : '';
-    if (!title || !instructions) return null;
-    const dueOn =
-      typeof raw.dueOn === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(raw.dueOn) ? raw.dueOn : null;
-    const minutes = Number(raw.expectedMinutes);
-    const claims = Number(raw.maxClaims);
-    return {
-      title,
-      instructions,
-      dueOn,
-      expectedMinutes: Number.isInteger(minutes) && minutes >= 1 && minutes <= 6000 ? minutes : null,
-      maxClaims: Number.isInteger(claims) && claims >= 1 && claims <= 100 ? claims : fallback.maxClaims,
-    };
-  } catch {
-    return null;
-  }
 }

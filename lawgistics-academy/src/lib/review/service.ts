@@ -28,6 +28,8 @@ export interface ReviewItem {
   id: string;
   /** Present for questions: verification attaches to the version. */
   versionId: string | null;
+  /** When the words shown were last changed. A decision lands only on these. */
+  seenAt: string;
   slug: string;
   domainName: string | null;
 
@@ -140,6 +142,7 @@ export async function getReviewItems(order: ReviewOrder = 'riskiest'): Promise<R
         kind: 'question' as const,
         id: row.question_id as string,
         versionId: row.id as string,
+        seenAt: row.updated_at as string,
         slug: question.slug,
         domainName: first<{ name: string }>(question.domains)?.name ?? null,
         heading: row.stem as string,
@@ -180,6 +183,7 @@ export async function getReviewItems(order: ReviewOrder = 'riskiest'): Promise<R
     kind: 'fact' as const,
     id: row.id as string,
     versionId: null,
+    seenAt: row.updated_at as string,
     slug: row.slug as string,
     domainName: first<{ name: string }>(row.domains)?.name ?? null,
     heading: row.title as string,

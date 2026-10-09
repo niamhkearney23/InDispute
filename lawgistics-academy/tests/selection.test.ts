@@ -27,6 +27,7 @@ function stubClient(tables: Record<string, Row[]>): SupabaseClient {
       in: () => chain,
       order: () => chain,
       limit: () => chain,
+      range: () => chain,
       then: (resolve: (value: { data: Row[]; error: null }) => unknown) =>
         Promise.resolve({ data: rows, error: null }).then(resolve),
     };
@@ -235,6 +236,96 @@ test('stated interests bias selection without excluding anything', async () => {
     advocacyCount >= 4,
     `a stated interest should be well represented, got ${advocacyCount} of ${selected.length}`,
   );
+});
+
+/* -------------------------------------------------------------------------- */
+/* Questions got wrong                                                        */
+/* -------------------------------------------------------------------------- */
+
+const DAYS_AGO = (n: number) => new Date(Date.now() - n * 86_400_000).toISOString();
+
+test('a question got wrong comes back first, until it is answered right', async () => {
+  // q-30 was got wrong two days ago and q-31 right after an earlier miss.
+  // Both concepts are strong, so mastery alone would not bring either back.
+  const attempts: Row[] = [
+    { question_id: 'q-31', is_correct: false, answered_at: DAYS_AGO(3) },
+    { question_id: 'q-30', is_correct: false, answered_at: DAYS_AGO(2) },
+    { question_id: 'q-31', is_correct: true, answered_at: DAYS_AGO(2) },
+  ];
+  const db = stubClient({
+    v_question_delivery: BANK.delivery,
+    question_concepts: BANK.links,
+    user_concept_mastery: [
+      { concept_id: 'c-30', mastery: 90, attempts: 5 },
+      { concept_id: 'c-31', mastery: 90, attempts: 5 },
+    ],
+    review_schedule: [],
+    user_question_attempts: attempts,
+  });
+
+  const selected = await selectDailyQuestions(db, 'user-1', 10, { country: 'AU' });
+  assert.equal(selected[0].questionId, 'q-30', 'the missed question leads the session');
+  const { missedQuestions } = await import('../src/lib/learning/selection');
+  assert.deepEqual(
+    await missedQuestions(db, 'user-1', new Date(Date.now() - 20 * 3_600_000).toISOString()),
+    ['q-30'],
+    'a question answered right since is no longer in the missed pool',
+  );
+});
+
+test('a question got wrong inside the cooldown waits', async () => {
+  const db = stubClient({
+    v_question_delivery: BANK.delivery,
+    question_concepts: BANK.links,
+    user_concept_mastery: [],
+    review_schedule: [],
+    user_question_attempts: [{ question_id: 'q-5', is_correct: false, answered_at: DAYS_AGO(0.1) }],
+  });
+  const { missedQuestions } = await import('../src/lib/learning/selection');
+  const since = new Date(Date.now() - 20 * 3_600_000).toISOString();
+  assert.deepEqual(await missedQuestions(db, 'user-1', since), []);
+});
+
+test('the missed pool is oldest miss first and takes at most half the mix', async () => {
+  const attempts: Row[] = Array.from({ length: 8 }, (_, i) => ({
+    question_id: `q-${i}`,
+    is_correct: false,
+    answered_at: DAYS_AGO(10 - i),
+  }));
+  const db = stubClient({
+    v_question_delivery: BANK.delivery,
+    question_concepts: BANK.links,
+    user_concept_mastery: [],
+    review_schedule: [],
+    user_question_attempts: attempts,
+  });
+  const { missedQuestions } = await import('../src/lib/learning/selection');
+  const since = new Date(Date.now() - 20 * 3_600_000).toISOString();
+  assert.deepEqual(
+    await missedQuestions(db, 'user-1', since),
+    attempts.map((a) => a.question_id),
+  );
+
+  const selected = await selectDailyQuestions(db, 'user-1', 10, { country: 'AU' });
+  assert.deepEqual(
+    selected.slice(0, 5).map((q) => q.questionId),
+    ['q-0', 'q-1', 'q-2', 'q-3', 'q-4'],
+  );
+  assert.ok(selected.slice(0, 5).every((q) => q.reason === 'weakness'));
+});
+
+test('a missed question from the other country never comes back into this one', async () => {
+  // The bank here is Australian only; a Malaysian question got wrong is not in it.
+  const db = stubClient({
+    v_question_delivery: BANK.delivery,
+    question_concepts: BANK.links,
+    user_concept_mastery: [],
+    review_schedule: [],
+    user_question_attempts: [{ question_id: 'my-1', is_correct: false, answered_at: DAYS_AGO(3) }],
+  });
+  const selected = await selectDailyQuestions(db, 'user-1', 10, { country: 'AU' });
+  assert.ok(selected.every((q) => q.questionId !== 'my-1'));
+  assert.equal(selected.length, 10);
 });
 
 /* -------------------------------------------------------------------------- */

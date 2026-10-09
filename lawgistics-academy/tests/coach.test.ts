@@ -86,8 +86,27 @@ test('the admin-only list is real, not a list of paths that moved', () => {
 test('the pages a coach needs actually let a coach in', () => {
   // The other half. A split enforced by locking the coach out of everything is
   // not a split, it is a role nobody can use.
-  const shut = COACH_PAGES.filter((rel) => !/requireCoach\(/.test(read(rel)));
+  const shut = COACH_PAGES.filter((rel) => !/require(Coach|Reviewer)\(/.test(read(rel)));
   assert.deepEqual(shut, [], 'a coach signs off and watches their people');
+});
+
+/** Pages that write or publish content: administrators only, never a firm administrator. */
+const CONTENT_PAGES = [
+  'src/app/admin/page.tsx',
+  'src/app/admin/questions/new/page.tsx',
+  'src/app/admin/questions/[id]/page.tsx',
+  'src/app/admin/facts/page.tsx',
+  'src/app/admin/facts/new/page.tsx',
+  'src/app/admin/facts/[id]/page.tsx',
+  'src/app/admin/matters/new/page.tsx',
+  'src/app/admin/people/page.tsx',
+];
+
+test('a firm administrator cannot open any page that writes content', () => {
+  const open = CONTENT_PAGES.filter(
+    (rel) => !/requireAdmin\(/.test(read(rel)) || /require(Coach|FirmAdmin)\(/.test(read(rel)),
+  );
+  assert.deepEqual(open, [], 'content is written by an administrator only');
 });
 
 test('the area gate lets a coach through and each page decides the rest', () => {

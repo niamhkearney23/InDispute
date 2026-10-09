@@ -119,3 +119,16 @@ test('the product name is not hard-coded anywhere a firm would see it', () => {
     'read it from lib/brand instead, so another firm needs settings rather than a fork',
   );
 });
+
+test('a logo is an https address or a path on this site, and nothing else', async () => {
+  const { safeLogo } = await import('../src/lib/brand');
+  assert.equal(safeLogo('https://firm.com.my/logo.svg'), 'https://firm.com.my/logo.svg');
+  assert.equal(safeLogo('/brand/logo.png'), '/brand/logo.png');
+  assert.equal(safeLogo(undefined), null);
+  assert.equal(safeLogo(''), null);
+  assert.equal(safeLogo('http://firm.com.my/logo.svg'), null);
+  assert.equal(safeLogo('//evil.example/logo.svg'), null);
+  assert.equal(safeLogo('javascript:alert(1)'), null);
+  assert.equal(safeLogo('/logo.svg" onerror="alert(1)'), null);
+  assert.equal(safeLogo('data:image/svg+xml,<svg/>'), null);
+});

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { requireAdmin } from '@/lib/admin/guard';
+import { requireFirmAdmin } from '@/lib/admin/guard';
 import { listFirmModulesForAdmin } from '@/lib/firm/service';
 import { leaderboardEnabled } from '@/lib/leaderboard';
 import { LeaderboardToggle } from './leaderboard-toggle';
@@ -8,7 +8,7 @@ import { ButtonLink, Card, EmptyState, InlineLink, Pill, SectionHeading } from '
 export const metadata: Metadata = { title: 'Firm induction' };
 
 export default async function FirmModulesPage() {
-  await requireAdmin();
+  await requireFirmAdmin();
   const [modules, leaderboard] = await Promise.all([listFirmModulesForAdmin(), leaderboardEnabled()]);
 
   return (

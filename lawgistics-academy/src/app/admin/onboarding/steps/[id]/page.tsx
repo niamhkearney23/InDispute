@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { requireAdmin } from '@/lib/admin/guard';
+import { requireFirmAdmin } from '@/lib/admin/guard';
 import { getStepForAdmin } from '@/lib/onboarding/service';
 import { listFirmModulesForAdmin } from '@/lib/firm/service';
 import { saveStep } from '../../actions';
@@ -14,7 +14,7 @@ export default async function EditStepPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  await requireAdmin();
+  await requireFirmAdmin();
 
   const [step, modules] = await Promise.all([getStepForAdmin(id), listFirmModulesForAdmin()]);
   if (!step) notFound();

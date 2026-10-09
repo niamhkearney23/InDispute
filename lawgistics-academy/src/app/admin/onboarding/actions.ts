@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { checkAdmin, checkCoach } from '@/lib/admin/guard';
+import { checkCoach, checkFirmAdmin } from '@/lib/admin/guard';
 import { createServiceClient } from '@/lib/supabase/service';
 import { confirmStep, recordDecision, settleTrainee } from '@/lib/onboarding/service';
 import {
@@ -66,8 +66,8 @@ const stepSchema = z
   });
 
 export async function saveStep(_state: AdminState, formData: FormData): Promise<AdminState> {
-  const adminId = await checkAdmin();
-  if (!adminId) return { error: 'You are not signed in as an administrator.' };
+  const adminId = await checkFirmAdmin();
+  if (!adminId) return { error: 'You are not signed in as an administrator or firm administrator.' };
 
   const parsed = stepSchema.safeParse({
     stepId: formData.get('stepId') ?? '',
@@ -207,8 +207,8 @@ export async function setPlacementDates(
   _state: AdminState,
   formData: FormData,
 ): Promise<AdminState> {
-  const adminId = await checkAdmin();
-  if (!adminId) return { error: 'You are not signed in as an administrator.' };
+  const adminId = await checkFirmAdmin();
+  if (!adminId) return { error: 'You are not signed in as an administrator or firm administrator.' };
 
   const parsed = placementDatesSchema.safeParse({
     userId: formData.get('userId'),
@@ -245,7 +245,8 @@ export type InviteState = { error: string | null; link?: string; email?: string 
 
 const inviteSchema = z.object({
   email: z.string().trim().email('That does not look like an email address.').max(200),
-  displayName: z.string().trim().max(120).optional().or(z.literal('')),
+  // Eighty, as the database holds a display name to (0039).
+  displayName: z.string().trim().max(80, 'Keep the name to 80 characters.').optional().or(z.literal('')),
   startsOn: z
     .string()
     .trim()
@@ -264,8 +265,8 @@ const inviteSchema = z.object({
  * once and is not recoverable afterwards: only its hash is stored.
  */
 export async function invite(_state: InviteState, formData: FormData): Promise<InviteState> {
-  const adminId = await checkAdmin();
-  if (!adminId) return { error: 'You are not signed in as an administrator.' };
+  const adminId = await checkFirmAdmin();
+  if (!adminId) return { error: 'You are not signed in as an administrator or firm administrator.' };
 
   const parsed = inviteSchema.safeParse({
     email: formData.get('email'),
@@ -327,8 +328,8 @@ export async function createAccount(
   _state: AccountState,
   formData: FormData,
 ): Promise<AccountState> {
-  const adminId = await checkAdmin();
-  if (!adminId) return { error: 'You are not signed in as an administrator.' };
+  const adminId = await checkFirmAdmin();
+  if (!adminId) return { error: 'You are not signed in as an administrator or firm administrator.' };
 
   const parsed = inviteSchema.safeParse({
     email: formData.get('email'),
@@ -358,8 +359,8 @@ export async function createAccount(
 }
 
 export async function revoke(_state: AdminState, formData: FormData): Promise<AdminState> {
-  const adminId = await checkAdmin();
-  if (!adminId) return { error: 'You are not signed in as an administrator.' };
+  const adminId = await checkFirmAdmin();
+  if (!adminId) return { error: 'You are not signed in as an administrator or firm administrator.' };
 
   const id = String(formData.get('invitationId') ?? '');
   if (!id) return { error: 'That invitation could not be found.' };
@@ -430,8 +431,8 @@ export async function setIntakeDates(
   _state: AdminState,
   formData: FormData,
 ): Promise<AdminState> {
-  const adminId = await checkAdmin();
-  if (!adminId) return { error: 'You are not signed in as an administrator.' };
+  const adminId = await checkFirmAdmin();
+  if (!adminId) return { error: 'You are not signed in as an administrator or firm administrator.' };
   // The button names the intake it is for, so a page left open from an
   // earlier intake cannot apply this one's dates by accident.
   if (formData.get('intake') !== PROGRAMME.intakeStartsOn) {

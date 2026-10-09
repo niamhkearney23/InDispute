@@ -56,7 +56,8 @@ These come from the owner and are not up for renegotiation.
 - **Never expose** the Supabase service role key, the OpenAI or Anthropic keys,
   or admin credentials. Hiding an admin button is presentation, not security:
   authorisation happens server-side, in every action, before anything else.
-- **Two staff roles, and the line between them holds.** An administrator writes
+- **Staff roles, and the lines between them hold.** A firm administrator
+  (0037, below) runs the firm's own people and setup and never content. An administrator writes
   content and runs the firm's setup. A **coach** is the lawyer who supervises
   the juniors: they sign content off and record supervisor decisions, weekly,
   and they cannot write content. Editing a question mints a new version and
@@ -174,8 +175,8 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0036`. `supabase/UPDATE.sql` is the one-paste update for a
-  database that already exists; `SETUP.sql` is for a new one. Both are generated
+- Migrations run to `0040`.
+  `supabase/UPDATE.sql` is the one-paste update for a database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
   app does. Learners now only read their own training record (the server
@@ -223,8 +224,11 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   `/api/inbound/work` (off unless `INBOUND_EMAIL_TOKEN` is set, Basic auth,
   constant-time compare) turns it into an **unpublished draft** under their
   name, only if the sender's address matches a coach or administrator, and
-  answers every sender the same. The AI tidies the email into a post and adds
-  nothing; one draft per message id; the page reminds the lawyer to take
+  answers every sender the same. The draft is the subject and the email as
+  typed (since 0039 the AI no longer tidies it: an email may name a client,
+  and nothing goes to a third party before a lawyer has looked), attachments
+  are not stored (the reply says to add the file on the draft page, under the
+  declaration); one draft per message id; the page reminds the lawyer to take
   client names out before publishing.
 - `0030` is **who pays**. Somebody on their own pays (RM 349 a month or RM 2,990
   a year in Malaysia, A$209 or A$1,790 in Australia, in `src/lib/access/rules.ts`),
@@ -253,9 +257,14 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   its own box only while it still stands. A question taken back mid-test is
   skipped ("Carry on"), not marked. Every AI reply goes through
   `src/lib/tutor/guard.ts` first: anything law-shaped (sections, orders,
-  Acts, cases, citations, time limits) not in the checked words or the
-  learner's own is thrown away and replaced with fixed words. Learner text
-  is fenced (`quoted`) so it reads as words, never instructions. One answer
+  Acts, cases, citations, courts, money, time limits, matched as whole
+  tokens) not in the checked words is thrown away and replaced with fixed
+  words. The learner's own words come back only inside quotation marks, so
+  a learner cannot type a time limit and have the tutor hand it back as
+  fact, and "Explain it back" never tells them they are right or wrong
+  (0038 work). Learner text is fenced (`quoted`, every angle bracket and
+  invisible character stripped, lookalike speaker names caught) so it reads
+  as words, never instructions. One answer
   per question and one asking per question are unique indexes; the answer
   form names the question it shows, so an old tab cannot answer a new one.
   Staff read conversations through the server only (the RLS policies name
@@ -304,13 +313,60 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   `area_scores` counts each answer once by its question's area, so scores
   by area are the share of answers right, as the pages say (the app falls
   back to the old per-concept sum on a database without 0036). Inbound
-  email needs SPF or a DKIM signature from the sender's own domain before
-  the address is looked up. Rounds count only answers given in the round's
-  hour plus ten minutes (`ROUND_GRACE_MINUTES`): a round left at 7:59 cannot
-  be filled in at 10:45 or finished unanswered. The calendar starts at the
-  latest of the start date, the day the trainee was confirmed and the day
-  questions were first signed off, and ends on day twenty when no end date
-  is set.
+  email needs a check from the sender's own domain before the address is
+  looked up (0039 narrowed this to DMARC or aligned DKIM; see below). Rounds count only answers given in the round's
+  own hour, with no grace (the ten-minute grace 0036 shipped with was taken
+  out later): a round left at 7:59 cannot be filled in at 10:45 or finished
+  unanswered. The calendar starts at the later of the start date and the day
+  rounds start counting (see Rounds), and ends on day twenty when no end
+  date is set.
+- `0039` is the fourth audit, on uploads and email. A coach's file or voice
+  memo on a work post, and a learner's matter recording, carry the same
+  declaration an intern makes (`declared_clean`, `recording_declared_clean`);
+  the database refuses one without it. Rows from before were marked covered
+  rather than left to fail (a "not valid" check would have frozen them, see
+  0024), except unpublished email drafts, whose attachment was taken off.
+  Inbound email reads only the topmost Authentication-Results header (the one
+  the receiving server wrote; `INBOUND_AUTHSERV_ID` pins whose it must be) and
+  needs DMARC pass or DKIM from the From domain itself; SPF alone no longer
+  counts, `inbound_auth` records which, and older drafts are shown as
+  unconfirmed. A hand-in carries its form's nonce (`client_nonce`, unique) so
+  a double press is one submission, and a refused insert removes the file it
+  uploaded. Ten wrong access codes an hour per person (`code_attempts`,
+  server only). Display names are 1 to 80 characters and the signup trigger
+  cuts to fit. Every AI call aborts after 25 seconds (`AI_TIMEOUT_MS`), and a
+  tutor explanation is saved only with its reply. Learners never see a
+  database or storage message; only `MissingSettingError` (src/lib/env.ts) is
+  shown as written. Server settings live in `env-server.ts` (`server-only`).
+  Error pages: `global-error.tsx`, `(app)/error.tsx`, `admin/error.tsx`,
+  `not-found.tsx`.
+- `0037` is the **firm administrator** (`is_firm_admin`), the firm's own
+  person who runs their people: invitations, confirming trainees, the
+  joining checklist and the firm's documents, codes, programme dates, the
+  leaderboard switch, the work board and the firm's figures. In the
+  database they are a coach; in the app the ten setup actions ask
+  `checkFirmAdmin` and the six actions that are a lawyer's judgement
+  (signing off a question, matter or lesson, marking a matter, the
+  register) ask `checkReviewer`, which a firm administrator alone does not
+  pass. Only an administrator grants either staff flag, at Admin, Staff.
+  Each firm still gets its own copy: `docs/NEW-FIRM.md` is the setup, and
+  `NEXT_PUBLIC_BRAND_LOGO` puts its logo in the wordmark.
+- `0038` keeps each country's law in that country at the database too:
+  the delivery view and the daily brief's read policy filter by the
+  caller's country (`caller_country()`), staff and the service role read
+  both. A fact's jurisdiction change clears its sign-off; a question's
+  country moves only with its new version.
+- `0040` makes sign-offs hold at the database. Administrators read content
+  but write it only through the server; `guard_signoff` clears a sign-off
+  when the explanation, its supporting text or the source changes (a
+  fact's title, body, why it matters or jurisdiction), stamps the date
+  itself, refuses a signed-in caller signing in somebody else's name, and
+  keeps who wrote it. A sign-off, a fact sign-off and a matter decision
+  must name the `updated_at` the reviewer saw and fail if it moved. Nobody
+  marks their own hand-in or matter. Homework is written by the server
+  only. `/setup` needs `SETUP_TOKEN` and claims the first administrator in
+  one locked statement (`claim_first_admin`). A matter is handed in only
+  with every part done. Only the server clears `must_change_password`.
 - **Options are shown shuffled** (`src/lib/learning/option-order.ts`), fixed per
   question version or lesson screen, and the letter shown is the place on the
   screen, never the id. The bank was written with the right answer B three
@@ -330,13 +386,24 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 - **Rounds** (`src/lib/training/rounds.ts`): on a working day of the placement a
   confirmed trainee trains in four rounds of ten questions, opening at 7, 8, 9
   and 10am Kuala Lumpur time whatever their own timezone. A round is open for
-  its hour and missed for good after it; a session belongs to the round it was
-  started in. `beginSession` refuses a daily session outside an open round and
-  sizes it to what the round still needs. A corner clock counts down to the
-  next opening or the open round's close, Today shows the rounds and a little
-  calendar of every morning, and a coach sees the calendar and missed count on
-  Admin, Trainees. No rounds run until questions are published for the
-  trainee's country, so nothing is marked missed that could not be done.
+  exactly its hour and missed for good after it, with no grace: an answer
+  counts for the round whose hour it was given in by the server's clock
+  (`answered_at`), whatever session it belongs to, so 7:59:59 counts for 7am
+  and 8:00:01 for 8am, and somebody answering across the hour is never marked
+  missing. A round is done at ten answers in its hour, or a short session
+  (the bank had fewer than ten) started, answered and finished inside it.
+  `beginSession` refuses a daily session outside an open round and sizes it
+  to what the round still needs, by the same count. Which days have rounds
+  is one function, `roundsDayNumber` (working days from the start date to
+  the end date, or day twenty when none is set), used by today's rounds and
+  the calendar alike. Nothing is missed before rounds start counting
+  (`notBefore`: the later of `trainee_approved_at` and the first sign-off of
+  a published question for the country, since questions have no publication
+  time); a round that closed by then shows as not counted. A corner clock
+  counts down to the next opening or the open round's close, Today shows the
+  rounds and a little calendar of every morning, and a coach sees the
+  calendar and missed count on Admin, Trainees. No rounds run until
+  questions are published for the trainee's country.
 - **Score over time** (`src/lib/learning/score-history.ts`): the overall score
   is the share of every answer ever given that was right, drawn as a line with a
   point per day, on Progress for the learner and on Admin, Trainees for staff.
@@ -373,7 +440,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   grid, gold-free by the owner's choice). Admin has the same look. The front
   page and sign-in stay cream. The certificate and a matter's case file stay paper inside it.
   Use the tokens, never fixed Tailwind colours, or a page breaks in one look.
-- 401 tests, 329 schema guarantees against a real Postgres, 240 page and device
+- 458 tests, 396 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB

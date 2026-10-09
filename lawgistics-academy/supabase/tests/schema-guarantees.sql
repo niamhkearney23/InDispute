@@ -788,11 +788,21 @@ select pg_temp.expect(
   (select count(*) from public.homework_declarations) = 0,
   'and nobody can read it either');
 
--- Their own, as themselves.
+-- Their own, as themselves: since 0040 only through the server, which checks
+-- the day has come round first.
 set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000001';
 
+select pg_temp.expect_failure(
+  $$insert into public.homework_declarations (user_id, day, task_slug)
+    values ('aaaa1111-0000-0000-0000-000000000001', 20, 'handover')$$,
+  'a person cannot write their own homework declaration past the server');
+
+reset role;
+set local role service_role;
 insert into public.homework_declarations (user_id, day, task_slug)
 values ('aaaa1111-0000-0000-0000-000000000001', 2, 'the-file-anatomy');
+reset role;
+set local role authenticated;
 
 select pg_temp.expect(
   (select count(*) from public.homework_declarations) = 2,
@@ -2092,9 +2102,16 @@ select pg_temp.expect_failure(
   $$update public.matter_attempts set verdict = 'good'
     where id = 'aaaa0027-0000-0000-0000-000000000001'$$,
   'a learner cannot mark their own attempt');
+-- The server asks the follow-up questions; since 0040 a hand-in needs them
+-- answered.
+reset role;
+update public.matter_attempts set followup_questions = '["What happens next?"]'::jsonb
+where id = 'aaaa0027-0000-0000-0000-000000000001';
+set local role authenticated;
 update public.matter_attempts
 set draft_answer = 'My advice is to apply to set the demand aside.',
-    procedure_answer = 'Set aside the statutory demand.'
+    procedure_answer = 'Set aside the statutory demand.',
+    followup_answers = '["The creditor may petition."]'::jsonb
 where id = 'aaaa0027-0000-0000-0000-000000000001';
 insert into storage.objects (bucket_id, name, owner)
 values ('matter-recordings',
@@ -2656,10 +2673,10 @@ select pg_temp.expect(
   'a coach cannot delete a session, a register trainee or a work post');
 
 select pg_temp.expect_failure(
-  $$update public.work_posts set file_path = 'submissions/cccc0026-0000-0000-0000-000000000002/x.pdf'
+  $$update public.work_posts set file_path = 'submissions/cccc0026-0000-0000-0000-000000000002/x.pdf', declared_clean = true
     where id = 'bbbb0001-0000-0000-0000-000000000002'$$,
   'a work post cannot point at a file outside its own folder');
-update public.work_posts set file_path = 'posts/bbbb0001-0000-0000-0000-000000000002/a.pdf' where id = 'bbbb0001-0000-0000-0000-000000000002';
+update public.work_posts set file_path = 'posts/bbbb0001-0000-0000-0000-000000000002/a.pdf', declared_clean = true where id = 'bbbb0001-0000-0000-0000-000000000002';
 select pg_temp.expect(
   (select file_path = 'posts/bbbb0001-0000-0000-0000-000000000002/a.pdf' from public.work_posts where id = 'bbbb0001-0000-0000-0000-000000000002'),
   'a work post can point at a file in its own folder');
@@ -2668,10 +2685,10 @@ insert into public.matter_attempts (id, matter_id, user_id, deadline_at, snapsho
 values ('aaaa0036-0000-0000-0000-000000000003', 'ffff0027-0000-0000-0000-000000000001',
         '22222222-2222-2222-2222-222222222222', timestamptz '2100-01-01 00:00:00+00', '{}'::jsonb);
 select pg_temp.expect_failure(
-  $$update public.matter_attempts set recording_path = '11111111-1111-1111-1111-111111111111/x/1.webm'
+  $$update public.matter_attempts set recording_path = '11111111-1111-1111-1111-111111111111/x/1.webm', recording_declared_clean = true
     where id = 'aaaa0036-0000-0000-0000-000000000003'$$,
   'a recording cannot point at somebody else''s file');
-update public.matter_attempts set recording_path = '22222222-2222-2222-2222-222222222222/aaaa0036-0000-0000-0000-000000000003/1700000000.webm' where id = 'aaaa0036-0000-0000-0000-000000000003';
+update public.matter_attempts set recording_path = '22222222-2222-2222-2222-222222222222/aaaa0036-0000-0000-0000-000000000003/1700000000.webm', recording_declared_clean = true where id = 'aaaa0036-0000-0000-0000-000000000003';
 select pg_temp.expect(
   (select recording_path = '22222222-2222-2222-2222-222222222222/aaaa0036-0000-0000-0000-000000000003/1700000000.webm' from public.matter_attempts where id = 'aaaa0036-0000-0000-0000-000000000003'),
   'a recording can be the learner''s own, under that attempt');
@@ -2699,6 +2716,532 @@ select pg_temp.expect_failure(
   $$select * from public.area_scores('11111111-1111-1111-1111-111111111111')$$,
   'a learner cannot read anybody''s area scores through the database');
 reset role;
+
+-- The firm administrator (0037) -----------------------------------------------
+insert into auth.users (id, email, raw_user_meta_data)
+values ('aaaa0037-0000-0000-0000-000000000001', 'firmadmin@example.test', '{}');
+update public.profiles set is_firm_admin = true
+  where id = 'aaaa0037-0000-0000-0000-000000000001';
+
+set local role authenticated;
+set local request.jwt.claim.sub = '22222222-2222-2222-2222-222222222222';
+select pg_temp.expect_failure(
+  $$update public.profiles set is_firm_admin = true
+    where id = '22222222-2222-2222-2222-222222222222'$$,
+  'a learner cannot make themselves a firm administrator');
+select pg_temp.expect(not public.is_firm_admin(), 'a learner is not a firm administrator');
+reset role;
+
+set local role authenticated;
+set local request.jwt.claim.sub = 'aaaa0037-0000-0000-0000-000000000001';
+select pg_temp.expect(public.is_coach(), 'a firm administrator is a coach in the database');
+select pg_temp.expect(public.is_firm_admin(), 'a firm administrator is a firm administrator');
+select pg_temp.expect(not public.is_admin(), 'a firm administrator is not an administrator');
+select pg_temp.expect_failure(
+  $$update public.profiles set is_admin = true
+    where id = 'aaaa0037-0000-0000-0000-000000000001'$$,
+  'a firm administrator cannot promote themselves to administrator');
+select pg_temp.expect_failure(
+  $$update public.profiles set is_coach = true
+    where id = 'aaaa0037-0000-0000-0000-000000000001'$$,
+  'a firm administrator cannot make themselves a coach');
+update public.firm_settings set leaderboard_enabled = false where id;
+reset role;
+select pg_temp.expect(
+  (select not leaderboard_enabled and updated_by = 'aaaa0037-0000-0000-0000-000000000001'
+   from public.firm_settings where id),
+  'a firm administrator switches the leaderboard, and the record says who');
+
+set local role authenticated;
+set local request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+select pg_temp.expect(public.is_firm_admin(), 'an administrator answers as a firm administrator too');
+reset role;
+
+-- A firm administrator with XP this week is still not on the leaderboard.
+update public.firm_settings set leaderboard_enabled = true where id;
+insert into public.xp_events (user_id, amount, kind)
+values ('aaaa0037-0000-0000-0000-000000000001', 500, (select (enum_range(null::xp_kind))[1]));
+set local role authenticated;
+set local request.jwt.claim.sub = '22222222-2222-2222-2222-222222222222';
+select pg_temp.expect(
+  not exists (select 1 from public.weekly_leaderboard() where xp = 500),
+  'a firm administrator is not on the learners'' leaderboard');
+reset role;
+
+-- -----------------------------------------------------------------------------
+-- 0038: each country's law reaches only that country's learners
+-- -----------------------------------------------------------------------------
+-- The app filters by country with the service role, but a learner calling the
+-- database directly read both banks through the delivery view, and both
+-- countries' daily facts. A Malaysian learner must not be able to read
+-- Australian law, or the other way round; staff read both.
+insert into auth.users (id, email, raw_user_meta_data)
+values ('aaaa0038-0000-0000-0000-000000000001', 'my-0038@example.test', '{"country":"MY"}'::jsonb),
+       ('aaaa0038-0000-0000-0000-000000000002', 'au-0038@example.test', '{"country":"AU"}'::jsonb);
+
+insert into public.questions (id, slug, domain_id, status, country)
+values ('cccc0038-0000-0000-0000-000000000001', 'au-question-0038',
+        'aaaaaaaa-0000-0000-0000-000000000001', 'published', 'AU'),
+       ('cccc0038-0000-0000-0000-000000000002', 'my-question-0038',
+        'aaaaaaaa-0000-0000-0000-000000000001', 'published', 'MY');
+insert into public.question_versions
+  (question_id, version, question_type, stem, options, correct_option_ids,
+   explanation, difficulty, jurisdiction)
+values ('cccc0038-0000-0000-0000-000000000001', 1, 'multiple_choice', 'An Australian question?',
+        '[{"id":"a","text":"Yes"},{"id":"b","text":"No"}]'::jsonb, array['a'], 'Because yes.', 1, 'VIC'),
+       ('cccc0038-0000-0000-0000-000000000002', 1, 'multiple_choice', 'A Malaysian question?',
+        '[{"id":"a","text":"Yes"},{"id":"b","text":"No"}]'::jsonb, array['a'], 'Because yes.', 1, 'MY_FEDERAL');
+
+insert into public.daily_facts (slug, title, body, jurisdiction, status, country)
+values ('au-fact-0038', 'An Australian fact.',
+        'This one is Australian law, published, and long enough to be a real body of a daily fact.',
+        'VIC', 'published', 'AU'),
+       ('my-fact-0038', 'A Malaysian fact.',
+        'This one is Malaysian law, published, and long enough to be a real body of a daily fact.',
+        'MY_FEDERAL', 'published', 'MY');
+
+set local role authenticated;
+set local request.jwt.claim.sub = 'aaaa0038-0000-0000-0000-000000000001';
+select pg_temp.expect(
+  not exists (select 1 from public.v_question_delivery where country = 'AU'),
+  'a Malaysian learner cannot read an Australian question through the delivery view');
+select pg_temp.expect(
+  exists (select 1 from public.v_question_delivery
+          where question_id = 'cccc0038-0000-0000-0000-000000000002'),
+  'a Malaysian learner still reads Malaysian questions through the delivery view');
+select pg_temp.expect(
+  not exists (select 1 from public.daily_facts where country = 'AU'),
+  'a Malaysian learner cannot read an Australian daily fact');
+select pg_temp.expect(
+  exists (select 1 from public.daily_facts where slug = 'my-fact-0038'),
+  'a Malaysian learner still reads Malaysian daily facts');
+
+set local request.jwt.claim.sub = 'aaaa0038-0000-0000-0000-000000000002';
+select pg_temp.expect(
+  not exists (select 1 from public.v_question_delivery where country = 'MY')
+  and not exists (select 1 from public.daily_facts where country = 'MY'),
+  'an Australian learner cannot read Malaysian questions or facts');
+
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+select pg_temp.expect(
+  (select count(distinct country) from public.v_question_delivery
+   where question_id in ('cccc0038-0000-0000-0000-000000000001',
+                         'cccc0038-0000-0000-0000-000000000002')) = 2
+  and (select count(distinct country) from public.daily_facts
+       where slug in ('au-fact-0038', 'my-fact-0038')) = 2,
+  'a coach reads both countries'' questions and facts, to review them');
+reset role;
+
+set local role service_role;
+select pg_temp.expect(
+  (select count(distinct country) from public.v_question_delivery
+   where question_id in ('cccc0038-0000-0000-0000-000000000001',
+                         'cccc0038-0000-0000-0000-000000000002')) = 2,
+  'the server reads both countries through the delivery view, and filters by the learner itself');
+reset role;
+-- -----------------------------------------------------------------------------
+-- Uploads, email and names (0039)
+-- -----------------------------------------------------------------------------
+-- The promises: a coach's file or memo, and a learner's matter recording,
+-- carry the declaration that nothing in them identifies a client; a post with
+-- no file stays editable without one; one form makes one submission; wrong
+-- codes are counted where no learner can reach them; a display name is one to
+-- eighty characters, and signing up with a longer one still makes a profile.
+select pg_temp.expect_failure(
+  $$insert into public.work_posts (id, kind, title, posted_by, file_path)
+    values ('bbbb0039-0000-0000-0000-000000000001', 'task', 'Undeclared file',
+            '44444444-4444-4444-4444-444444444444',
+            'posts/bbbb0039-0000-0000-0000-000000000001/a.pdf')$$,
+  'a work post with a file and no declaration is refused');
+select pg_temp.expect_failure(
+  $$insert into public.work_posts (id, kind, title, posted_by, memo_path, memo_type)
+    values ('bbbb0039-0000-0000-0000-000000000002', 'task', 'Undeclared memo',
+            '44444444-4444-4444-4444-444444444444',
+            'posts/bbbb0039-0000-0000-0000-000000000002/memo-1.webm', 'audio/webm')$$,
+  'a work post with a voice memo and no declaration is refused');
+insert into public.work_posts (id, kind, title, posted_by, file_path, declared_clean)
+values ('bbbb0039-0000-0000-0000-000000000003', 'task', 'Declared file',
+        '44444444-4444-4444-4444-444444444444',
+        'posts/bbbb0039-0000-0000-0000-000000000003/a.pdf', true);
+select pg_temp.expect_failure(
+  $$update public.work_posts set declared_clean = false
+    where id = 'bbbb0039-0000-0000-0000-000000000003'$$,
+  'the declaration cannot be taken off a post while its file is there');
+update public.work_posts set title = 'Read the engagement letter, again', file_path = null, declared_clean = false
+  where id = 'bbbb0001-0000-0000-0000-000000000002';
+select pg_temp.expect(
+  (select title = 'Read the engagement letter, again' from public.work_posts
+   where id = 'bbbb0001-0000-0000-0000-000000000002'),
+  'a post with no file is still edited without any declaration');
+
+-- A recording, through the learner's own client.
+update public.matter_attempts set recording_path = null, recording_declared_clean = false
+  where id = 'aaaa0036-0000-0000-0000-000000000003';
+set local role authenticated;
+set local request.jwt.claim.sub = '22222222-2222-2222-2222-222222222222';
+select pg_temp.expect_failure(
+  $$update public.matter_attempts
+       set recording_path = '22222222-2222-2222-2222-222222222222/aaaa0036-0000-0000-0000-000000000003/1700000001.webm'
+     where id = 'aaaa0036-0000-0000-0000-000000000003'$$,
+  'a matter recording without the declaration is refused');
+update public.matter_attempts
+   set recording_path = '22222222-2222-2222-2222-222222222222/aaaa0036-0000-0000-0000-000000000003/1700000001.webm',
+       recording_declared_clean = true
+ where id = 'aaaa0036-0000-0000-0000-000000000003';
+reset role;
+select pg_temp.expect(
+  (select recording_declared_clean and recording_path like '%/1700000001.webm' from public.matter_attempts
+   where id = 'aaaa0036-0000-0000-0000-000000000003'),
+  'a learner saves their own recording with the declaration');
+update public.matter_attempts
+   set procedure_answer = 'Set it aside.', draft_answer = 'Apply within time.',
+       followup_questions = '["Why?"]'::jsonb, followup_answers = '["Because."]'::jsonb,
+       submitted_at = now()
+ where id = 'aaaa0036-0000-0000-0000-000000000003';
+select pg_temp.expect_failure(
+  $$update public.matter_attempts set recording_path = null, recording_declared_clean = false
+    where id = 'aaaa0036-0000-0000-0000-000000000003'$$,
+  'the declaration on a recording is frozen at hand-in with the rest');
+
+-- One form, one submission.
+set local role authenticated;
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000008';
+insert into public.work_submissions (post_id, user_id, file_path, declared_clean, client_nonce)
+values ('bbbb0001-0000-0000-0000-000000000002', 'aaaa1111-0000-0000-0000-000000000008',
+        'submissions/aaaa1111-0000-0000-0000-000000000008/bbbb0001-0000-0000-0000-000000000002/1.pdf', true,
+        'cccc0039-0000-0000-0000-000000000001');
+select pg_temp.expect_failure(
+  $$insert into public.work_submissions (post_id, user_id, file_path, declared_clean, client_nonce)
+    values ('bbbb0001-0000-0000-0000-000000000002', 'aaaa1111-0000-0000-0000-000000000008',
+            'submissions/aaaa1111-0000-0000-0000-000000000008/bbbb0001-0000-0000-0000-000000000002/2.pdf', true,
+            'cccc0039-0000-0000-0000-000000000001')$$,
+  'the same form cannot hand in twice');
+reset role;
+select pg_temp.expect_failure(
+  $$update public.work_submissions set client_nonce = null
+    where client_nonce = 'cccc0039-0000-0000-0000-000000000001'$$,
+  'a submission keeps the nonce it was handed in with');
+
+-- Wrong codes: server-written, out of every learner's reach.
+insert into public.code_attempts (user_id) values ('22222222-2222-2222-2222-222222222222');
+set local role authenticated;
+set local request.jwt.claim.sub = '22222222-2222-2222-2222-222222222222';
+select pg_temp.expect_failure(
+  $$select count(*) from public.code_attempts$$,
+  'a learner cannot read the count of wrong codes');
+select pg_temp.expect_failure(
+  $$delete from public.code_attempts where user_id = '22222222-2222-2222-2222-222222222222'$$,
+  'a learner cannot clear their wrong codes');
+reset role;
+select pg_temp.expect(
+  (select relrowsecurity from pg_class where oid = 'public.code_attempts'::regclass),
+  'wrong codes are a table with row level security on');
+
+-- Names.
+select pg_temp.expect_failure(
+  $$update public.profiles set display_name = '' where id = '22222222-2222-2222-2222-222222222222'$$,
+  'a display name cannot be empty');
+select pg_temp.expect_failure(
+  $$update public.profiles set display_name = repeat('a', 81) where id = '22222222-2222-2222-2222-222222222222'$$,
+  'a display name cannot be longer than eighty characters');
+update public.profiles set display_name = repeat('a', 80) where id = '22222222-2222-2222-2222-222222222222';
+insert into auth.users (id, email, raw_user_meta_data)
+values
+  ('aaaa0039-0000-0000-0000-000000000001', 'long-name@test', jsonb_build_object('display_name', repeat('b', 200))),
+  ('aaaa0039-0000-0000-0000-000000000002', 'blank-name@test', '{"display_name":"   "}'::jsonb);
+select pg_temp.expect(
+  (select display_name = repeat('b', 80) from public.profiles where id = 'aaaa0039-0000-0000-0000-000000000001')
+  and (select display_name = 'blank-name' from public.profiles where id = 'aaaa0039-0000-0000-0000-000000000002'),
+  'signing up with a long or blank name still makes a profile, with a name inside the rule');
+
+-- What vouched for an email.
+select pg_temp.expect_failure(
+  $$update public.work_posts set inbound_auth = 'spf' where id = 'bbbb0001-0000-0000-0000-000000000002'$$,
+  'a draft from email cannot record SPF as what vouched for it');
+-- -----------------------------------------------------------------------------
+-- A sign-off, a mark and a hand-in mean what they say (0040)
+-- -----------------------------------------------------------------------------
+-- The promises: content and invitations are written by the server only; new
+-- words clear a sign-off; the writer cannot be emptied; a sign-off is dated
+-- by the database and named for the person signed in; nobody marks their own
+-- work; a matter is handed in whole; the first administrator is made once;
+-- and "choose your own password" comes off only through the server.
+set local request.jwt.claim.sub = '';
+
+insert into public.questions (id, slug, domain_id, status, created_by)
+values ('cccc0040-0000-0000-0000-000000000001', 'signoff-question-0040',
+        'aaaaaaaa-0000-0000-0000-000000000001'::uuid, 'draft',
+        '33333333-3333-3333-3333-333333333333');
+insert into public.question_versions
+  (id, question_id, version, question_type, stem, options, correct_option_ids,
+   explanation, difficulty, jurisdiction, verification_status, created_by)
+values ('dddd0040-0000-0000-0000-000000000001', 'cccc0040-0000-0000-0000-000000000001', 1,
+        'multiple_choice', 'Signed off?', '[{"id":"a","text":"Yes"},{"id":"b","text":"No"}]',
+        array['a'], 'The words the coach read.', 2, 'MY_GENERAL', 'requires_review',
+        '33333333-3333-3333-3333-333333333333');
+insert into public.daily_facts (id, slug, title, body, jurisdiction, status, created_by)
+values ('eeee0040-0000-0000-0000-000000000001', 'signoff-fact-0040', 'A fact to sign off.',
+        'The words the coach read, long enough to stand as the body of a daily fact.',
+        'MY_GENERAL', 'draft', '33333333-3333-3333-3333-333333333333');
+
+-- Through the API an administrator reads content and invitations, and
+-- writes none of it.
+set local role authenticated;
+set local request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+select pg_temp.expect(
+  (select count(*) from public.question_versions where id = 'dddd0040-0000-0000-0000-000000000001') = 1
+  and (select count(*) from public.daily_facts where id = 'eeee0040-0000-0000-0000-000000000001') = 1,
+  'an administrator still reads question versions and facts through the API');
+select pg_temp.expect_failure(
+  $$update public.question_versions
+    set verification_status = 'human_verified',
+        verified_by = '44444444-4444-4444-4444-444444444444',
+        verified_at = timestamptz '2001-01-01 00:00:00+00'
+    where id = 'dddd0040-0000-0000-0000-000000000001'$$,
+  'an administrator cannot put a coach''s name and an old date on a sign-off through the API');
+select pg_temp.expect_failure(
+  $$update public.question_versions set created_by = null
+    where id = 'dddd0040-0000-0000-0000-000000000001'$$,
+  'an administrator cannot empty who wrote a version through the API');
+select pg_temp.expect_failure(
+  $$update public.daily_facts set body = 'Rewritten after sign-off by the API.'
+    where id = 'eeee0040-0000-0000-0000-000000000001'$$,
+  'an administrator cannot rewrite a fact through the API');
+select pg_temp.expect_failure(
+  $$delete from public.daily_facts where id = 'eeee0040-0000-0000-0000-000000000001'$$,
+  'an administrator cannot delete a fact through the API');
+select pg_temp.expect_failure(
+  $$insert into public.questions (slug, domain_id) values ('api-question-0040', 'aaaaaaaa-0000-0000-0000-000000000001')$$,
+  'an administrator cannot add a question through the API');
+select pg_temp.expect_failure(
+  $$insert into public.joiner_invitations (token_hash, email, invited_by, country, track)
+    values ('hash-0040', 'api-0040@example.test', '33333333-3333-3333-3333-333333333333', 'MY', 'general')$$,
+  'an administrator cannot write an invitation through the API');
+reset role;
+
+select pg_temp.expect(
+  not exists (
+    select 1 from pg_policies
+    where schemaname = 'public'
+      and tablename in ('questions', 'question_versions', 'daily_facts', 'joiner_invitations')
+      and cmd <> 'SELECT'),
+  'no policy lets anybody write content or invitations through the API');
+
+-- The server signs off for the coach it checked; the date is the database's.
+set local role service_role;
+update public.question_versions
+set verification_status = 'human_verified',
+    verified_by = '44444444-4444-4444-4444-444444444444',
+    verified_at = timestamptz '2001-01-01 00:00:00+00'
+where id = 'dddd0040-0000-0000-0000-000000000001';
+update public.questions set status = 'verified' where id = 'cccc0040-0000-0000-0000-000000000001';
+reset role;
+select pg_temp.expect(
+  (select verification_status = 'human_verified'
+          and verified_by = '44444444-4444-4444-4444-444444444444'
+          and verified_at > now() - interval '1 minute'
+   from public.question_versions where id = 'dddd0040-0000-0000-0000-000000000001'),
+  'the server signs off in the coach''s name, and the date is now, not the one sent');
+
+update public.question_versions set verified_at = timestamptz '2001-01-01 00:00:00+00', review_note = 'Read.'
+where id = 'dddd0040-0000-0000-0000-000000000001';
+select pg_temp.expect(
+  (select verified_at > now() - interval '1 minute'
+   from public.question_versions where id = 'dddd0040-0000-0000-0000-000000000001'),
+  'a sign-off already given cannot be backdated');
+
+update public.question_versions set updated_at = timestamptz '2001-01-01 00:00:00+00'
+where id = 'dddd0040-0000-0000-0000-000000000001';
+select pg_temp.expect(
+  (select updated_at > now() - interval '1 minute'
+   from public.question_versions where id = 'dddd0040-0000-0000-0000-000000000001'),
+  'a version''s updated-at is the database''s, so a sign-off can be made conditional on it');
+
+select pg_temp.expect_failure(
+  $$update public.question_versions set verified_by = created_by
+    where id = 'dddd0040-0000-0000-0000-000000000001'$$,
+  'nobody signs off a version they wrote, still (0022, 0024)');
+
+-- New words clear the sign-off, even from the server.
+set local role service_role;
+update public.question_versions set explanation = 'Different words nobody has read.'
+where id = 'dddd0040-0000-0000-0000-000000000001';
+reset role;
+select pg_temp.expect(
+  (select verification_status = 'requires_review' and verified_by is null
+          and verified_at is null and review_due_on is null
+   from public.question_versions where id = 'dddd0040-0000-0000-0000-000000000001')
+  and (select status = 'requires_review' from public.questions
+       where id = 'cccc0040-0000-0000-0000-000000000001'),
+  'rewording a signed-off explanation clears the sign-off and the question''s verified status');
+
+update public.question_versions
+set verification_status = 'human_verified', verified_by = '44444444-4444-4444-4444-444444444444'
+where id = 'dddd0040-0000-0000-0000-000000000001';
+update public.question_versions set source_reference = 'A different rule'
+where id = 'dddd0040-0000-0000-0000-000000000001';
+select pg_temp.expect(
+  (select verification_status = 'requires_review' and verified_by is null
+   from public.question_versions where id = 'dddd0040-0000-0000-0000-000000000001'),
+  'changing the source of a signed-off version clears the sign-off');
+
+set local role service_role;
+update public.daily_facts
+set verification_status = 'human_verified', status = 'verified',
+    verified_by = '44444444-4444-4444-4444-444444444444'
+where id = 'eeee0040-0000-0000-0000-000000000001';
+update public.daily_facts set body = 'New words for the fact, which the coach has not read yet at all.'
+where id = 'eeee0040-0000-0000-0000-000000000001';
+reset role;
+select pg_temp.expect(
+  (select verification_status = 'requires_review' and verified_by is null
+          and verified_at is null and status = 'requires_review'
+   from public.daily_facts where id = 'eeee0040-0000-0000-0000-000000000001'),
+  'rewording a signed-off fact clears the sign-off and its verified status');
+
+select pg_temp.expect_failure(
+  $$update public.daily_facts set created_by = null
+    where id = 'eeee0040-0000-0000-0000-000000000001'$$,
+  'who wrote a fact cannot be emptied, even by the server');
+select pg_temp.expect_failure(
+  $$update public.question_versions set created_by = null
+    where id = 'dddd0040-0000-0000-0000-000000000001'$$,
+  'who wrote a version cannot be emptied, even by the server');
+
+insert into auth.users (id, email) values ('aaaa0040-0000-0000-0000-000000000009', 'leaver@example.test');
+insert into public.daily_facts (slug, title, body, jurisdiction, created_by)
+values ('leaver-fact-0040', 'A leaver''s fact.',
+        'Written by somebody whose account is later removed, long enough to be a body.',
+        'MY_GENERAL', 'aaaa0040-0000-0000-0000-000000000009');
+delete from auth.users where id = 'aaaa0040-0000-0000-0000-000000000009';
+select pg_temp.expect(
+  (select created_by is null from public.daily_facts where slug = 'leaver-fact-0040'),
+  'removing an account still empties who wrote what, as the foreign key says');
+
+-- Behind the policies, the trigger holds for a signed-in caller as well: a
+-- write policy is opened for this check alone and closed again.
+create policy question_versions_test_0040 on public.question_versions
+  for all to authenticated using (true) with check (true);
+grant update on public.question_versions to authenticated;
+set local role authenticated;
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+select pg_temp.expect_failure(
+  $$update public.question_versions
+    set verification_status = 'human_verified', verified_by = '11111111-1111-1111-1111-111111111111'
+    where id = 'dddd0040-0000-0000-0000-000000000001'$$,
+  'a signed-in caller can only sign off in their own name');
+update public.question_versions
+set verification_status = 'human_verified', verified_by = '44444444-4444-4444-4444-444444444444',
+    verified_at = timestamptz '2001-01-01 00:00:00+00'
+where id = 'dddd0040-0000-0000-0000-000000000001';
+reset role;
+select pg_temp.expect(
+  (select verified_by = '44444444-4444-4444-4444-444444444444' and verified_at > now() - interval '1 minute'
+   from public.question_versions where id = 'dddd0040-0000-0000-0000-000000000001'),
+  'a signed-in caller''s own sign-off is dated now');
+drop policy question_versions_test_0040 on public.question_versions;
+revoke update on public.question_versions from authenticated;
+set local request.jwt.claim.sub = '';
+
+-- Nobody marks their own work.
+select pg_temp.expect_failure(
+  $$update public.work_submissions
+    set verdict = 'again', marked_by = 'aaaa1111-0000-0000-0000-000000000006'
+    where id = 'bbbb0002-0000-0000-0000-000000000001'$$,
+  'a coach cannot mark their own hand-in on the work board');
+select pg_temp.expect_failure(
+  $$update public.matter_attempts
+    set verdict = 'again', marked_by = 'cccc0026-0000-0000-0000-000000000002'
+    where id = 'aaaa0027-0000-0000-0000-000000000001'$$,
+  'a coach cannot mark their own matter');
+select pg_temp.expect(
+  (select count(*) from pg_constraint
+   where conname in ('work_submissions_not_self_marked', 'matter_attempts_not_self_marked')
+     and convalidated) = 2,
+  'the no-self-marking rules hold for every row, not only new ones');
+
+-- Homework is written by the server.
+select pg_temp.expect(
+  not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'homework_declarations' and cmd <> 'SELECT'),
+  'no policy lets a learner write a homework declaration');
+
+-- A matter is handed in whole.
+insert into public.matter_attempts (id, matter_id, user_id, deadline_at, snapshot)
+values ('aaaa0040-0000-0000-0000-000000000004', 'ffff0027-0000-0000-0000-000000000001',
+        '22222222-2222-2222-2222-222222222222', timestamptz '2100-01-01 00:00:00+00', '{}'::jsonb);
+select pg_temp.expect_failure(
+  $$update public.matter_attempts set submitted_at = now()
+    where id = 'aaaa0040-0000-0000-0000-000000000004'$$,
+  'an empty matter cannot be handed in');
+update public.matter_attempts
+set procedure_answer = 'Order 5.', draft_answer = 'Apply to set it aside.',
+    followup_questions = '["Why?", "When?"]'::jsonb, followup_answers = '["Because.", "  "]'::jsonb
+where id = 'aaaa0040-0000-0000-0000-000000000004';
+select pg_temp.expect_failure(
+  $$update public.matter_attempts set submitted_at = now()
+    where id = 'aaaa0040-0000-0000-0000-000000000004'$$,
+  'a matter cannot be handed in with a follow-up question unanswered');
+update public.matter_attempts set followup_answers = '["Because.", "Within 14 days."]'::jsonb,
+    submitted_at = now()
+where id = 'aaaa0040-0000-0000-0000-000000000004';
+select pg_temp.expect(
+  (select submitted_at is not null from public.matter_attempts
+   where id = 'aaaa0040-0000-0000-0000-000000000004'),
+  'a matter with every part done can be handed in');
+
+-- The first administrator is made once, by the server.
+set local role authenticated;
+set local request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+select pg_temp.expect_failure(
+  $$select public.claim_first_admin('11111111-1111-1111-1111-111111111111')$$,
+  'a signed-in person cannot call the first-administrator grant');
+reset role;
+set local request.jwt.claim.sub = '';
+set local role service_role;
+select pg_temp.expect(
+  not public.claim_first_admin('11111111-1111-1111-1111-111111111111'),
+  'the first-administrator grant does nothing once an administrator exists');
+reset role;
+update public.profiles set is_admin = false where is_admin;
+set local role service_role;
+select pg_temp.expect(
+  public.claim_first_admin('11111111-1111-1111-1111-111111111111')
+  and not public.claim_first_admin('22222222-2222-2222-2222-222222222222'),
+  'the first-administrator grant makes exactly one administrator');
+reset role;
+select pg_temp.expect(
+  (select array_agg(id) from public.profiles where is_admin)
+    = array['11111111-1111-1111-1111-111111111111'::uuid],
+  'and only the person it was called for');
+update public.profiles set is_admin = (id = '33333333-3333-3333-3333-333333333333')
+where is_admin or id = '33333333-3333-3333-3333-333333333333';
+
+-- "Choose your own password" comes off through the server only.
+update public.profiles set must_change_password = true
+where id in ('11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222');
+set local role authenticated;
+set local request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+update public.profiles set must_change_password = false
+where id = '11111111-1111-1111-1111-111111111111';
+set local request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+update public.profiles set must_change_password = false
+where id = '22222222-2222-2222-2222-222222222222';
+reset role;
+select pg_temp.expect(
+  (select bool_and(must_change_password) from public.profiles
+   where id in ('11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222')),
+  'neither the person nor an administrator can clear "choose your own password" through the API');
+set local request.jwt.claim.sub = '';
+set local role service_role;
+update public.profiles set must_change_password = false
+where id = '11111111-1111-1111-1111-111111111111';
+reset role;
+select pg_temp.expect(
+  (select not must_change_password from public.profiles
+   where id = '11111111-1111-1111-1111-111111111111'),
+  'the server clears "choose your own password" once the new one is saved');
 
 \echo ''
 \echo 'All schema guarantees hold.'

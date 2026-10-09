@@ -34,8 +34,11 @@ test('the list counts answers in the database, not from a capped page of rows', 
 test('staff are not listed as learners', () => {
   const service = read('src/lib/admin/answers.ts');
   assert.match(service, /\.eq\('is_admin', false\)\s*\.eq\('is_coach', false\)/);
-  assert.match(service, /filter\(\(p\) => !p\.is_admin && !p\.is_coach\)/);
-  assert.match(service, /if \(!profile \|\| profile\.is_admin \|\| profile\.is_coach\) return null;/);
+  assert.match(service, /filter\(\(p\) => !p\.is_admin && !p\.is_coach && !p\.is_firm_admin\)/);
+  assert.match(
+    service,
+    /if \(!profile \|\| profile\.is_admin \|\| profile\.is_coach \|\| profile\.is_firm_admin\) return null;/,
+  );
 });
 
 test('the tutor and the answers page share one rule for who is supervised', () => {

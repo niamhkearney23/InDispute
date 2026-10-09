@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { requireCoach } from '@/lib/admin/guard';
+import { requireReviewer } from '@/lib/admin/guard';
 import { rosterWithStatus } from '@/lib/certification/service';
 import { CERTIFICATION_BOXES_REQUIRED_COUNT } from '@/content/seed/certification-boxes';
 import { ButtonLink, Card, EmptyState, Pill } from '@/components/ui';
@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: 'Certification' };
 export const dynamic = 'force-dynamic';
 
 export default async function CertificationPage() {
-  await requireCoach();
+  await requireReviewer();
   const roster = await rosterWithStatus();
 
   return (

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { requireCoach } from '@/lib/admin/guard';
+import { requireReviewer } from '@/lib/admin/guard';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { localDateString } from '@/lib/learning/progression';
@@ -38,7 +38,7 @@ export default async function TraineeDetailPage({
 }: {
   params: Promise<{ traineeId: string }>;
 }) {
-  await requireCoach();
+  await requireReviewer();
   const { traineeId } = await params;
 
   const trainee = await getTrainee(traineeId);

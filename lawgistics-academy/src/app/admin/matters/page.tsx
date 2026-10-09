@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { requireCoach } from '@/lib/admin/guard';
+import { requireReviewer } from '@/lib/admin/guard';
 import { allMattersForStaff } from '@/lib/matters/service';
 import type { StaffMatterSummary } from '@/lib/matters/service';
 import { describeLimit, matterLabel } from '@/lib/matters/rules';
@@ -15,7 +15,7 @@ export const dynamic = 'force-dynamic';
  * administrator can write one.
  */
 export default async function AdminMattersPage() {
-  const { isAdmin } = await requireCoach();
+  const { isAdmin } = await requireReviewer();
   const all = await allMattersForStaff();
 
   const flagged = all.filter((m) => m.matter.reviewFlagged);

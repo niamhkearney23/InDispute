@@ -306,6 +306,13 @@ export function Wordmark({
 }) {
   return (
     <span className="inline-flex items-baseline gap-2">
+      {brand.logo ? (
+        // A firm's own logo, from an address checked in brand.ts. A plain img
+        // because it may live on the firm's own server, which next/image would
+        // need configuring for per deployment. Decorative: the name follows.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={brand.logo} alt="" className="h-6 w-auto self-center" />
+      ) : null}
       <span className="font-serif text-lg leading-none font-semibold tracking-tight">
         {brand.name}
       </span>

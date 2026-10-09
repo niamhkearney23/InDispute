@@ -10,41 +10,32 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // The floor for this whole area: a learner never gets past here. Which of the
   // two staff roles somebody has is decided by each page, because a coach may
   // open the review queue and the joiners list and nothing else.
-  const { isAdmin } = await requireCoach();
+  const { isAdmin, isFirmAdmin, isReviewer } = await requireCoach();
 
-  // A coach is shown the two things they can actually use. The pages refuse
-  // them anyway, so this is not the security boundary; it is not putting five
-  // links in front of somebody when four of them lead to a redirect.
-  const links: Array<[string, string]> = isAdmin
-    ? [
-        ['/admin', 'Questions'],
-        ['/admin/intake', 'Intake'],
-        ['/admin/trainees', 'Trainees'],
-        ['/admin/review', 'Verify'],
-        ['/admin/lessons', 'Lessons'],
-        ['/admin/matters', 'Matters'],
-        ['/admin/sessions', 'Sessions'],
-        ['/admin/work', 'Work'],
-        ['/admin/certification', 'Certification'],
-        ['/admin/facts', 'Daily brief'],
-        ['/admin/firm', 'Firm'],
-        ['/admin/onboarding', 'Joiners'],
-        ['/admin/access', 'Access'],
-        ['/admin/tutor', 'Tutor'],
-      ]
-    : [
-        ['/admin/intake', 'Intake'],
-        ['/admin/trainees', 'Trainees'],
-        ['/admin/review', 'Verify'],
-        ['/admin/lessons', 'Lessons'],
-        ['/admin/matters', 'Matters'],
-        ['/admin/sessions', 'Sessions'],
-        ['/admin/work', 'Work'],
-        ['/admin/certification', 'Certification'],
-        ['/admin/onboarding', 'Joiners'],
-        ['/admin/access', 'Access'],
-        ['/admin/tutor', 'Tutor'],
-      ];
+  // Each person is shown what they can actually use. The pages refuse them
+  // anyway, so this is not the security boundary; it is not putting links in
+  // front of somebody that lead to a redirect. A coach signs off and
+  // supervises; a firm administrator runs the firm's people and setup; an
+  // administrator also writes the content and decides who is staff.
+  const all: Array<[string, string, boolean]> = [
+    ['/admin', 'Questions', isAdmin],
+    ['/admin/intake', 'Intake', true],
+    ['/admin/trainees', 'Trainees', true],
+    ['/admin/review', 'Verify', isReviewer],
+    ['/admin/lessons', 'Lessons', isReviewer],
+    ['/admin/matters', 'Matters', isReviewer],
+    ['/admin/sessions', 'Sessions', true],
+    ['/admin/work', 'Work', true],
+    ['/admin/certification', 'Certification', isReviewer],
+    ['/admin/facts', 'Daily brief', isAdmin],
+    ['/admin/firm', 'Firm', isFirmAdmin],
+    ['/admin/onboarding', 'Joiners', true],
+    ['/admin/access', 'Access', true],
+    ['/admin/people', 'Staff', isAdmin],
+    ['/admin/tutor', 'Tutor', isReviewer],
+  ];
+  const links = all.filter(([, , shown]) => shown).map(([href, label]) => [href, label]);
+  const role = isAdmin ? 'Admin' : isFirmAdmin ? 'Firm admin' : 'Coach';
 
   return (
     <div className="theme-navy flex min-h-dvh flex-col">
@@ -56,7 +47,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Link href={links[0][0]} className="-mx-1 rounded-[5px] px-1 py-2">
               <Wordmark compact />
             </Link>
-            <span className="eyebrow">{isAdmin ? 'Admin' : 'Coach'}</span>
+            <span className="eyebrow">{role}</span>
           </div>
           <nav className="flex flex-wrap items-center gap-x-1 gap-y-0.5 text-sm">
             {links.map(([href, label]) => (

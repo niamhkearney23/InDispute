@@ -46,6 +46,10 @@
 --   0034_trainee_answer_summary.sql
 --   0035_relabel_questions.sql
 --   0036_third_audit.sql
+--   0037_firm_admin.sql
+--   0038_jurisdiction_and_tutor.sql
+--   0039_uploads_and_email.sql
+--   0040_signoff_integrity.sql
 -- =============================================================================
 
 
@@ -4634,4 +4638,804 @@ revoke all on function public.area_scores(uuid) from public;
 revoke all on function public.area_scores(uuid) from anon;
 revoke all on function public.area_scores(uuid) from authenticated;
 grant execute on function public.area_scores(uuid) to service_role;
+
+
+-- >>> 0037_firm_admin.sql -----------------------------------------
+
+-- =============================================================================
+-- The firm administrator: the firm's own person who runs their people
+-- =============================================================================
+-- Each firm gets its own copy of the academy: its own Vercel project and its
+-- own database, so one firm never shares a table with another. Inside a copy
+-- there were two staff flags. An administrator owns the product: writes the
+-- questions, matters and daily brief and publishes them. A coach is the lawyer
+-- who signs content off and supervises the juniors.
+--
+-- A firm buying this needs a third: somebody at the firm who runs their own
+-- people without being handed the question bank. They invite people and
+-- confirm trainees, run the joining checklist and the firm's own documents,
+-- make and switch off the firm's codes, set the programme dates, post and mark
+-- work, and see the firm's figures. They do not write or publish content.
+--
+-- In the database a firm administrator is a coach: everything is_coach()
+-- opens (the work board, the register, sessions, reading people's records)
+-- they need too. In the app they are not a reviewer: signing a question, a
+-- matter or a lesson off asks for the coach flag itself, so a firm
+-- administrator who is not a lawyer cannot sign legal content off. A firm
+-- administrator who is a lawyer is given both flags.
+--
+-- Only an administrator, the service role or the database owner may change
+-- the flag. guard_profile_privileges() is redefined whole here from its
+-- latest body (0016), with the new flag added to the first clause.
+-- =============================================================================
+
+alter table public.profiles
+  add column if not exists is_firm_admin boolean not null default false;
+
+comment on column public.profiles.is_firm_admin is
+  'Runs the firm''s own people: invitations, the joining checklist, codes, '
+  'programme dates, the work board and the firm''s figures. Never writes or '
+  'publishes content, and does not sign content off unless also a coach. '
+  'Read through public.is_firm_admin(), which an administrator also answers.';
+
+create or replace function public.is_coach()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(
+    (select p.is_coach or p.is_admin or p.is_firm_admin
+       from public.profiles p where p.id = auth.uid()),
+    false
+  );
+$$;
+
+create or replace function public.is_firm_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(
+    (select p.is_firm_admin or p.is_admin from public.profiles p where p.id = auth.uid()),
+    false
+  );
+$$;
+
+revoke all on function public.is_firm_admin() from public;
+revoke all on function public.is_firm_admin() from anon;
+grant execute on function public.is_firm_admin() to authenticated;
+
+create or replace function public.guard_profile_privileges()
+returns trigger language plpgsql set search_path = public as $$
+begin
+  if (new.is_admin is distinct from old.is_admin
+      or new.is_coach is distinct from old.is_coach
+      or new.is_firm_admin is distinct from old.is_firm_admin)
+     and current_user not in ('service_role', 'postgres', 'supabase_admin')
+     and not public.is_admin() then
+    raise exception 'is_admin, is_coach and is_firm_admin may only be changed by an administrator';
+  end if;
+
+  if new.starts_on is distinct from old.starts_on
+     and current_user not in ('service_role', 'postgres', 'supabase_admin')
+     and not public.is_admin() then
+    raise exception 'starts_on may only be changed by an administrator';
+  end if;
+
+  if new.ends_on is distinct from old.ends_on
+     and current_user not in ('service_role', 'postgres', 'supabase_admin')
+     and not public.is_admin() then
+    raise exception 'ends_on may only be changed by an administrator';
+  end if;
+
+  new.id := old.id;
+  return new;
+end;
+$$;
+
+-- The leaderboard is the firm's choice, so the firm administrator makes it.
+drop policy if exists firm_settings_admin on public.firm_settings;
+create policy firm_settings_admin on public.firm_settings
+  for update to authenticated using (public.is_firm_admin()) with check (public.is_firm_admin());
+
+-- A firm administrator is staff, so, like administrators and coaches, they
+-- are not on the learners' leaderboard. Redefined whole from its 0025 body.
+create or replace function public.weekly_leaderboard()
+returns table (place integer, first_name text, xp integer, is_me boolean)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  with totals as (
+    select
+      p.id,
+      -- A first name, or "Someone". A display name that is really the
+      -- email's local part (what sign-up fills in when no name is given)
+      -- is not a first name and would put the email on every dashboard.
+      case
+        when nullif(trim(p.display_name), '') is null then 'Someone'
+        when p.display_name like '%@%' then 'Someone'
+        when lower(trim(p.display_name)) = lower(split_part(coalesce(p.email, ''), '@', 1)) then 'Someone'
+        else split_part(trim(p.display_name), ' ', 1)
+      end as first_name,
+      coalesce(sum(x.amount), 0)::integer as xp
+    from public.profiles p
+    left join public.xp_events x
+      on x.user_id = p.id
+     and x.created_at >= now() - interval '7 days'
+    where not p.is_admin
+      and not coalesce(p.is_coach, false)
+      and not p.is_firm_admin
+      and not p.leaderboard_opt_out
+    group by p.id, p.display_name
+  ),
+  ranked as (
+    select id, first_name, xp,
+           rank() over (order by xp desc, first_name asc, id asc)::integer as place
+    from totals
+    where xp > 0
+  )
+  select place, first_name, xp, id = auth.uid() as is_me
+  from ranked
+  where auth.uid() is not null
+    and (select leaderboard_enabled from public.firm_settings where id)
+    and (place <= 10 or id = auth.uid())
+  order by place;
+$$;
+
+
+-- >>> 0038_jurisdiction_and_tutor.sql -----------------------------
+
+-- =============================================================================
+-- Each country's law reaches only that country's learners
+-- =============================================================================
+-- Australian and Malaysian law are kept strictly apart: a rule from the wrong
+-- one is not merely irrelevant, it is wrong. The app already filters by the
+-- learner's country, but two doors in the database did not:
+--
+-- 1. v_question_delivery showed every published question, from both
+--    countries, to anybody signed in. The app reads it with the service role,
+--    so it never relied on that; a learner calling the database directly
+--    could read the other country's bank. It now shows a learner only their
+--    own country's questions. Staff and the service role still see both.
+-- 2. The daily facts read policy was "published", with no country, so the
+--    same was true of the daily brief. It now checks the learner's country
+--    too, and staff still pass.
+--
+-- The view keeps its body from 0004 and only gains the condition, so its
+-- columns, its grants and everything that reads it are unchanged.
+-- =============================================================================
+
+-- The caller's own country. SECURITY DEFINER for the same reason is_coach()
+-- is: a policy calls it, and it must not depend on the caller being able to
+-- read their own profile through that table's RLS.
+create or replace function public.caller_country()
+returns country
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select p.country from public.profiles p where p.id = auth.uid();
+$$;
+
+revoke all on function public.caller_country() from public;
+grant execute on function public.caller_country() to authenticated, service_role;
+
+-- 1. The delivery view ---------------------------------------------------------
+
+-- A definer view runs as its owner, but current_user inside it is still the
+-- caller, which is how the service role is told apart from a learner here.
+create or replace view public.v_question_delivery
+with (security_invoker = false) as
+select
+  q.id                as question_id,
+  q.slug,
+  q.country,
+  q.domain_id,
+  d.slug              as domain_slug,
+  d.name              as domain_name,
+  qv.id               as question_version_id,
+  qv.version,
+  qv.question_type,
+  qv.scenario,
+  qv.stem,
+  qv.options,
+  qv.difficulty,
+  qv.jurisdiction,
+  qv.court
+from public.questions q
+join public.question_versions qv
+  on qv.question_id = q.id and qv.is_current
+join public.domains d on d.id = q.domain_id
+where q.status = 'published'
+  and (
+    current_user in ('service_role', 'postgres', 'supabase_admin')
+    or public.is_coach()
+    or q.country = public.caller_country()
+  );
+
+revoke all on public.v_question_delivery from anon, authenticated;
+grant select on public.v_question_delivery to authenticated;
+
+comment on view public.v_question_delivery is
+  'Questions as a learner may see them: no answer key, no explanation, and only '
+  'their own country''s. Staff and the service role see both countries. Country '
+  'is carried so a session can be filtered to one legal system without joining '
+  'back to a table learners cannot read.';
+
+-- 2. The daily brief -----------------------------------------------------------
+
+drop policy if exists daily_facts_read_published on public.daily_facts;
+create policy daily_facts_read_published on public.daily_facts
+  for select to authenticated using (
+    status = 'published'
+    and (public.is_coach() or country = public.caller_country())
+  );
+
+
+-- >>> 0039_uploads_and_email.sql ----------------------------------
+
+-- =============================================================================
+-- Uploads, email and names: the fourth audit
+-- =============================================================================
+-- 1. A coach's file or voice memo on a work post now carries the same
+--    declaration an intern makes when handing work in: nothing in it
+--    identifies a client. The database refuses a post with a file or a memo
+--    and no declaration.
+-- 2. A learner's recorded explanation on a matter carries it too.
+-- 3. A file handed in carries the nonce of the form it came from, so pressing
+--    the button twice, or a retry after a slow upload, makes one submission.
+-- 4. Entering a firm's code is limited: ten wrong codes in an hour and the
+--    form stops looking codes up, so the codes cannot be guessed by trying.
+-- 5. A display name is one to eighty characters, and the signup trigger
+--    shortens what arrives instead of failing on it.
+-- 6. A draft from email records what vouched for the sender: DMARC, or a
+--    DKIM signature from the From address's own domain. SPF on its own no
+--    longer lets an email in, because it checks the envelope sender, which
+--    is not the address anybody sees.
+--
+-- None of the checks here is "not valid" (see 0024: a not valid check is
+-- re-checked on every update of an old row, which froze rows solid). The old
+-- rows are brought into line first, below, and every check is then validated
+-- against everything already there.
+-- =============================================================================
+
+-- 1. A coach's upload carries a declaration ------------------------------------
+
+alter table public.work_posts
+  add column if not exists declared_clean boolean not null default false;
+
+-- Posts with a file or a memo from before the declaration existed. There was
+-- no box to tick when they went up, so these are marked as covered rather than
+-- left to fail the check below; without this, no old post with a file could
+-- be edited again, not even to take it down. The one exception is a draft
+-- that arrived by email and is not up: nobody may have looked at that
+-- attachment, so it is taken off the draft instead of being vouched for. The
+-- file itself stays in storage under the post's folder; the coach attaches
+-- it again, with the declaration, if they still want it.
+update public.work_posts
+   set file_path = null, file_name = null
+ where source = 'email' and not published
+   and file_path is not null and not declared_clean;
+
+update public.work_posts
+   set declared_clean = true
+ where not declared_clean
+   and (file_path is not null or memo_path is not null);
+
+alter table public.work_posts drop constraint if exists work_posts_files_declared_clean;
+alter table public.work_posts add constraint work_posts_files_declared_clean check (
+  (file_path is null and memo_path is null) or declared_clean
+);
+
+-- 2. A matter recording carries a declaration ----------------------------------
+
+alter table public.matter_attempts
+  add column if not exists recording_declared_clean boolean not null default false;
+
+-- Recordings from before the declaration existed, marked as covered for the
+-- same reason as the posts above: an attempt that cannot be updated cannot
+-- be marked. This runs before the guard below learns the column, so it
+-- reaches attempts already handed in as well.
+update public.matter_attempts
+   set recording_declared_clean = true
+ where recording_path is not null and not recording_declared_clean;
+
+alter table public.matter_attempts drop constraint if exists matter_attempts_recording_declared_clean;
+alter table public.matter_attempts add constraint matter_attempts_recording_declared_clean check (
+  recording_path is null or recording_declared_clean
+);
+
+-- The learner makes the declaration through their own client, with the
+-- recording, so they may write the column; the guard freezes it at hand-in.
+grant update (recording_declared_clean) on public.matter_attempts to authenticated;
+
+-- As in 0027, with the declaration added to what is frozen at hand-in.
+create or replace function public.guard_matter_attempt()
+returns trigger language plpgsql set search_path = public as $$
+begin
+  if new.matter_id is distinct from old.matter_id
+     or new.user_id is distinct from old.user_id
+     or new.started_at is distinct from old.started_at
+     or new.deadline_at is distinct from old.deadline_at
+     or new.snapshot is distinct from old.snapshot then
+    raise exception 'An attempt keeps the matter, the person and the clock it started with';
+  end if;
+
+  if old.submitted_at is not null then
+    if new.procedure_answer is distinct from old.procedure_answer
+       or new.draft_answer is distinct from old.draft_answer
+       or new.recording_path is distinct from old.recording_path
+       or new.recording_seconds is distinct from old.recording_seconds
+       or new.recording_declared_clean is distinct from old.recording_declared_clean
+       or new.followup_questions is distinct from old.followup_questions
+       or new.followup_answers is distinct from old.followup_answers
+       or new.followups_by_ai is distinct from old.followups_by_ai
+       or new.followups_asked_at is distinct from old.followups_asked_at
+       or new.submitted_at is distinct from old.submitted_at
+       or new.submitted_late is distinct from old.submitted_late then
+      raise exception 'What was handed in is not changed afterwards';
+    end if;
+  elsif new.submitted_at is not null then
+    new.submitted_at := now();
+    new.submitted_late := now() > old.deadline_at;
+  end if;
+
+  if new.verdict is distinct from old.verdict or new.feedback is distinct from old.feedback then
+    if old.submitted_at is null then
+      raise exception 'Only an attempt that has been handed in can be marked';
+    end if;
+    new.marked_at := now();
+  end if;
+  return new;
+end;
+$$;
+
+-- 3. One submission per form ----------------------------------------------------
+
+-- Made by the form when it is drawn. Null on everything handed in before.
+alter table public.work_submissions add column if not exists client_nonce uuid;
+
+create unique index if not exists work_submissions_client_nonce_once
+  on public.work_submissions (client_nonce) where client_nonce is not null;
+
+-- As in 0022, with the nonce added to what is handed in and never changes.
+create or replace function public.guard_work_mark()
+returns trigger language plpgsql set search_path = public as $$
+begin
+  if new.id is distinct from old.id
+     or new.post_id is distinct from old.post_id
+     or new.user_id is distinct from old.user_id
+     or new.file_path is distinct from old.file_path
+     or new.file_name is distinct from old.file_name
+     or new.note is distinct from old.note
+     or new.declared_clean is distinct from old.declared_clean
+     or new.client_nonce is distinct from old.client_nonce
+     or new.submitted_at is distinct from old.submitted_at then
+    raise exception 'A submission is what was handed in; only the marking may change';
+  end if;
+  if new.verdict is distinct from old.verdict
+     or new.feedback is distinct from old.feedback then
+    new.marked_at := now();
+    -- Through the API the marker is the person signed in, whatever the
+    -- request said. The server marks with the service role, where there is
+    -- no signed-in person, and names the coach from their session itself.
+    if auth.uid() is not null then
+      new.marked_by := auth.uid();
+    end if;
+  else
+    -- Nothing about the mark changed, so neither may its name or its date.
+    new.marked_at := old.marked_at;
+    new.marked_by := old.marked_by;
+  end if;
+  return new;
+end;
+$$;
+
+-- 4. Wrong codes, counted ---------------------------------------------------------
+
+-- One row per code entered that matched nothing. Written by the server with
+-- the service role and read by it; no learner policy, so a learner can
+-- neither read the count nor clear it.
+create table if not exists public.code_attempts (
+  id           uuid primary key default gen_random_uuid(),
+  user_id      uuid not null references auth.users (id) on delete cascade,
+  attempted_at timestamptz not null default now()
+);
+
+create index if not exists code_attempts_user_recent
+  on public.code_attempts (user_id, attempted_at desc);
+
+alter table public.code_attempts enable row level security;
+revoke all on public.code_attempts from anon, authenticated;
+
+-- 5. A display name is one to eighty characters ---------------------------------
+
+-- Anything already there is brought inside the rule first: spaces off both
+-- ends, cut to eighty, and a name that is nothing but spaces becomes no name.
+update public.profiles
+   set display_name = nullif(btrim(left(btrim(display_name), 80)), '')
+ where display_name is not null
+   and (display_name <> btrim(display_name) or char_length(display_name) > 80 or btrim(display_name) = '');
+
+alter table public.profiles drop constraint if exists profiles_display_name_length;
+alter table public.profiles add constraint profiles_display_name_length check (
+  display_name is null or char_length(display_name) between 1 and 80
+);
+
+-- As in 0018, with the name cut to the same rule. The name arrives from the
+-- browser and could be any length; a signup that failed on it would leave an
+-- auth user with no profile.
+create or replace function public.handle_new_user()
+returns trigger language plpgsql security definer set search_path = public as $$
+declare
+  chosen_track learner_track :=
+    case when new.raw_user_meta_data ->> 'track' = 'litigation_trainee'
+      then 'litigation_trainee' else 'general' end;
+begin
+  insert into public.profiles (id, email, display_name, country, track)
+  values (
+    new.id,
+    new.email,
+    coalesce(
+      nullif(btrim(left(btrim(new.raw_user_meta_data ->> 'display_name'), 80)), ''),
+      nullif(btrim(left(split_part(new.email, '@', 1), 80)), '')
+    ),
+    case
+      when chosen_track = 'litigation_trainee' then 'MY'
+      when new.raw_user_meta_data ->> 'country' = 'MY' then 'MY'
+      else 'AU'
+    end::country,
+    chosen_track
+  )
+  on conflict (id) do nothing;
+
+  insert into public.user_streaks (user_id) values (new.id)
+  on conflict (user_id) do nothing;
+
+  return new;
+end;
+$$;
+
+-- 6. What vouched for an email's sender -------------------------------------------
+
+-- 'dmarc' or 'dkim' (a signature from the From address's own domain). Null on
+-- drafts from before this, which were let in on SPF alone, and the page says
+-- so on those.
+alter table public.work_posts add column if not exists inbound_auth text;
+alter table public.work_posts drop constraint if exists work_posts_inbound_auth_known;
+alter table public.work_posts add constraint work_posts_inbound_auth_known check (
+  inbound_auth is null or inbound_auth in ('dmarc', 'dkim')
+);
+
+
+-- >>> 0040_signoff_integrity.sql ----------------------------------
+
+-- =============================================================================
+-- A sign-off, a mark and a hand-in mean what they say
+-- =============================================================================
+-- A fourth audit tried each record a firm relies on through the public API,
+-- with an ordinary sign-in token, and found these.
+--
+-- 1. An administrator could write question versions, daily facts, questions
+--    and invitations directly. Each had one "for all" policy, so an
+--    administrator could put somebody else's name on a sign-off and backdate
+--    it, empty "who wrote this" and then sign off their own words, rewrite a
+--    signed-off explanation or fact and keep the sign-off, or delete a
+--    signed-off fact. Every write the app makes to these tables goes through
+--    the server with the service role, after the role is checked, so the
+--    policies now only read. Triggers hold the rules for every caller,
+--    the server included: new words clear the sign-off, the writer cannot be
+--    emptied, and a sign-off is dated by the database.
+--
+-- 2. A coach could mark their own hand-in, on the work board or on a matter,
+--    and five matters they marked Good themselves issued a certificate.
+--
+-- 3. Question versions carry an "updated at", so the review card can say
+--    which words the reviewer read and the sign-off lands only on those.
+--
+-- 4. A learner could declare homework for a day that had not come yet by
+--    writing directly. The server writes it now, after its own checks.
+--
+-- 5. The first-run page granted administrator rights with a check and a
+--    write, so two people pressing it together could both be made one. One
+--    function now does both under a lock.
+--
+-- 6. A matter could be handed in empty by writing directly.
+--
+-- 7. A learner could clear "choose your own password" without choosing one.
+-- =============================================================================
+
+-- 1. Sign-offs ------------------------------------------------------------------
+
+drop policy if exists questions_admin on public.questions;
+drop policy if exists questions_admin_read on public.questions;
+create policy questions_admin_read on public.questions
+  for select to authenticated using (public.is_admin());
+
+drop policy if exists question_versions_admin on public.question_versions;
+drop policy if exists question_versions_admin_read on public.question_versions;
+create policy question_versions_admin_read on public.question_versions
+  for select to authenticated using (public.is_admin());
+
+-- Learners keep reading the published pool through daily_facts_read_published.
+drop policy if exists daily_facts_admin on public.daily_facts;
+drop policy if exists daily_facts_admin_read on public.daily_facts;
+create policy daily_facts_admin_read on public.daily_facts
+  for select to authenticated using (public.is_admin());
+
+drop policy if exists joiner_invitations_admin on public.joiner_invitations;
+drop policy if exists joiner_invitations_admin_read on public.joiner_invitations;
+create policy joiner_invitations_admin_read on public.joiner_invitations
+  for select to authenticated using (public.is_admin());
+
+-- The policies already refuse these; the rights go too, so a policy added by
+-- mistake later does not quietly reopen them. Truncate ignores policies.
+revoke insert, update, delete, truncate on public.questions from anon, authenticated;
+revoke insert, update, delete, truncate on public.question_versions from anon, authenticated;
+revoke insert, update, delete, truncate on public.daily_facts from anon, authenticated;
+revoke insert, update, delete, truncate on public.joiner_invitations from anon, authenticated;
+
+-- Which words the reviewer read. Touched on every change, so the server can
+-- make a sign-off conditional on it in the same statement.
+alter table public.question_versions
+  add column if not exists updated_at timestamptz not null default now();
+
+create or replace trigger question_versions_touch
+  before update on public.question_versions
+  for each row execute function public.touch_updated_at();
+
+-- One guard for both tables. The trigger's arguments are the columns a
+-- sign-off covers on that table; the stem, options and answer of a question
+-- are frozen already, so a version only lists what can change in place.
+--
+-- Not security definer: it has to see the caller in current_user. The
+-- service role and the database owner are the server and the migrations; an
+-- authenticated caller is somebody with a sign-in token.
+create or replace function public.guard_signoff()
+returns trigger language plpgsql set search_path = public as $$
+declare
+  server boolean := current_user in ('service_role', 'postgres', 'supabase_admin');
+  was jsonb;
+  now_is jsonb;
+  col text;
+  reworded boolean := false;
+  signing boolean;
+begin
+  if tg_op = 'UPDATE' then
+    -- Who wrote it is what stops them signing it off. It empties only when
+    -- the account itself is removed, which is the foreign key doing it.
+    if old.created_by is not null and new.created_by is null
+       and (not server or exists (select 1 from auth.users u where u.id = old.created_by)) then
+      raise exception 'Who wrote this is part of the record and cannot be cleared';
+    end if;
+
+    was := to_jsonb(old);
+    now_is := to_jsonb(new);
+    foreach col in array tg_argv loop
+      if now_is -> col is distinct from was -> col then
+        reworded := true;
+      end if;
+    end loop;
+
+    -- A sign-off was a statement about the words that were there. New words
+    -- have not been signed off by anybody, whatever the request said.
+    if reworded then
+      if new.verification_status = 'human_verified' then
+        new.verification_status := 'requires_review';
+      end if;
+      new.verified_by := null;
+      new.verified_at := null;
+      new.review_due_on := null;
+      if old.verification_status = 'human_verified' then
+        if tg_table_name = 'daily_facts' then
+          if new.status = 'verified' then
+            new.status := 'requires_review';
+          end if;
+        elsif new.is_current then
+          update public.questions set status = 'requires_review'
+          where id = new.question_id and status = 'verified';
+        end if;
+      end if;
+      return new;
+    end if;
+  end if;
+
+  -- Giving a sign-off: a new name, or the status coming back to verified.
+  signing := new.verified_by is not null and (
+    tg_op = 'INSERT'
+    or new.verified_by is distinct from old.verified_by
+    or (new.verification_status = 'human_verified'
+        and old.verification_status is distinct from 'human_verified')
+  );
+
+  if signing then
+    -- Through the API the name on a sign-off is the person signed in. The
+    -- server signs for the coach whose session it checked, and names them.
+    if not server and new.verified_by is distinct from auth.uid() then
+      raise exception 'A sign-off is in the name of the person giving it';
+    end if;
+    new.verified_at := now();
+  elsif not server and new.verification_status = 'human_verified'
+        and (tg_op = 'INSERT' or old.verification_status is distinct from 'human_verified') then
+    raise exception 'A sign-off is in the name of the person giving it';
+  elsif tg_op = 'UPDATE' then
+    -- No new sign-off, so its date stays as it was, or goes with the name.
+    new.verified_at := case when new.verified_by is null then null else old.verified_at end;
+  elsif new.verified_by is null then
+    new.verified_at := null;
+  end if;
+  return new;
+end;
+$$;
+
+-- Named to run after the freeze and before the expiry stamp, which then
+-- clears the expiry of anything this took the sign-off from.
+create or replace trigger question_versions_guard_signoff
+  before insert or update on public.question_versions
+  for each row execute function public.guard_signoff(
+    'explanation', 'why_it_matters', 'common_misconception', 'memory_trick',
+    'source_id', 'source_reference', 'source_url', 'source_checked_on'
+  );
+
+create or replace trigger daily_facts_guard_signoff
+  before insert or update on public.daily_facts
+  for each row execute function public.guard_signoff(
+    'title', 'body', 'why_it_matters', 'jurisdiction'
+  );
+
+-- 2. Nobody marks their own work ---------------------------------------------------
+-- Any self-mark already there is cleared first, so the rule can be checked
+-- against every row rather than added "not valid", which would freeze those
+-- rows (see 0024). Under this rule they were never marks: the work goes back
+-- to waiting for a coach, and a certificate already issued is left alone.
+update public.work_submissions
+set verdict = null, feedback = '', marked_by = null
+where marked_by is not null and marked_by = user_id;
+
+update public.matter_attempts
+set verdict = null, feedback = '', marked_by = null
+where marked_by is not null and marked_by = user_id;
+
+alter table public.work_submissions drop constraint if exists work_submissions_not_self_marked;
+alter table public.work_submissions
+  add constraint work_submissions_not_self_marked check (marked_by is null or marked_by <> user_id);
+
+alter table public.matter_attempts drop constraint if exists matter_attempts_not_self_marked;
+alter table public.matter_attempts
+  add constraint matter_attempts_not_self_marked check (marked_by is null or marked_by <> user_id);
+
+-- 4. Homework is declared through the server --------------------------------------
+-- The server checks the day has come round before writing. Learners still
+-- read their own through homework_declarations_select_own.
+drop policy if exists homework_declarations_insert_own on public.homework_declarations;
+revoke insert on public.homework_declarations from anon, authenticated;
+
+-- 5. One first administrator ------------------------------------------------------
+-- The check and the grant in one call, under a lock, so two people pressing
+-- the first-run button at once cannot both come away an administrator. True
+-- when this call made them one. The server alone may call it.
+create or replace function public.claim_first_admin(uid uuid)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  perform pg_advisory_xact_lock(hashtext('public.claim_first_admin'));
+  if exists (select 1 from public.profiles where is_admin) then
+    return false;
+  end if;
+  update public.profiles set is_admin = true where id = uid;
+  return found;
+end;
+$$;
+
+revoke all on function public.claim_first_admin(uuid) from public;
+revoke all on function public.claim_first_admin(uuid) from anon;
+revoke all on function public.claim_first_admin(uuid) from authenticated;
+grant execute on function public.claim_first_admin(uuid) to service_role;
+
+-- 6. A hand-in has its parts ------------------------------------------------------
+-- The same rule as missingForHandIn in src/lib/matters/rules.ts: the
+-- procedure, the advice, the follow-up questions asked, and an answer to
+-- every one of them. Text counts when it has something other than spaces.
+-- Redefined whole from its 0039 body, which also freezes the recording's
+-- declaration at hand-in.
+create or replace function public.guard_matter_attempt()
+returns trigger language plpgsql set search_path = public as $$
+begin
+  if new.matter_id is distinct from old.matter_id
+     or new.user_id is distinct from old.user_id
+     or new.started_at is distinct from old.started_at
+     or new.deadline_at is distinct from old.deadline_at
+     or new.snapshot is distinct from old.snapshot then
+    raise exception 'An attempt keeps the matter, the person and the clock it started with';
+  end if;
+
+  if old.submitted_at is not null then
+    if new.procedure_answer is distinct from old.procedure_answer
+       or new.draft_answer is distinct from old.draft_answer
+       or new.recording_path is distinct from old.recording_path
+       or new.recording_seconds is distinct from old.recording_seconds
+       or new.recording_declared_clean is distinct from old.recording_declared_clean
+       or new.followup_questions is distinct from old.followup_questions
+       or new.followup_answers is distinct from old.followup_answers
+       or new.followups_by_ai is distinct from old.followups_by_ai
+       or new.followups_asked_at is distinct from old.followups_asked_at
+       or new.submitted_at is distinct from old.submitted_at
+       or new.submitted_late is distinct from old.submitted_late then
+      raise exception 'What was handed in is not changed afterwards';
+    end if;
+  elsif new.submitted_at is not null then
+    if new.procedure_answer !~ '\S'
+       or new.draft_answer !~ '\S'
+       or jsonb_typeof(new.followup_questions) is distinct from 'array'
+       or jsonb_array_length(new.followup_questions) = 0
+       or jsonb_typeof(new.followup_answers) is distinct from 'array'
+       or exists (
+         select 1
+         from generate_series(0, jsonb_array_length(new.followup_questions) - 1) i
+         where coalesce(new.followup_answers ->> i, '') !~ '\S'
+       ) then
+      raise exception 'A matter is handed in with the procedure, the advice and an answer to every follow-up question';
+    end if;
+    new.submitted_at := now();
+    new.submitted_late := now() > old.deadline_at;
+  end if;
+
+  if new.verdict is distinct from old.verdict or new.feedback is distinct from old.feedback then
+    if old.submitted_at is null then
+      raise exception 'Only an attempt that has been handed in can be marked';
+    end if;
+    new.marked_at := now();
+  end if;
+  return new;
+end;
+$$;
+
+-- 7. Choosing your own password ---------------------------------------------------
+-- The flag comes off when the server has seen the new password saved, never
+-- because a request asked. Everything else is as 0024 left it.
+create or replace function public.guard_profile_identity()
+returns trigger language plpgsql set search_path = public as $$
+begin
+  if tg_op = 'UPDATE'
+     and old.must_change_password and not new.must_change_password
+     and current_user not in ('service_role', 'postgres', 'supabase_admin') then
+    new.must_change_password := true;
+  end if;
+
+  if current_user in ('service_role', 'postgres', 'supabase_admin') or public.is_admin() then
+    return new;
+  end if;
+
+  if tg_op = 'INSERT' then
+    -- Only reachable where the signup trigger did not make the row. Nothing
+    -- the firm decides may arrive with it.
+    new.starts_on := null;
+    new.ends_on := null;
+    new.must_change_password := false;
+    new.diagnostic_completed_at := null;
+    new.created_at := now();
+    return new;
+  end if;
+
+  new.email := old.email;
+  new.created_at := old.created_at;
+  -- Set by the server when the diagnostic is finished, not by the learner.
+  new.diagnostic_completed_at := old.diagnostic_completed_at;
+  -- Nor may a person set "choose your own password" on themselves.
+  if new.must_change_password and not old.must_change_password then
+    new.must_change_password := false;
+  end if;
+  return new;
+end;
+$$;
 

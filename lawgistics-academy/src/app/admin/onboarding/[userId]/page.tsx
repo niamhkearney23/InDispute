@@ -15,7 +15,7 @@ export default async function PersonOnboardingPage({
   params: Promise<{ userId: string }>;
 }) {
   const { userId } = await params;
-  const { userId: adminId, isAdmin } = await requireCoach();
+  const { userId: adminId, isFirmAdmin } = await requireCoach();
 
   const [person, history, me] = await Promise.all([
     onboardingForPerson(userId),
@@ -47,11 +47,11 @@ export default async function PersonOnboardingPage({
         {/* When somebody starts is a firm arrangement, not a supervisor's
             judgement, so the action refuses a coach and the form is not drawn
             for one. Confirming items and deciding readiness stay. */}
-        {isAdmin ? (
+        {isFirmAdmin ? (
           <PlacementDatesForm userId={userId} startsOn={state.startsOn} endsOn={state.endsOn} />
         ) : null}
         <p className="mt-3 text-xs text-muted">
-          Only an administrator can set this. It is the firm’s fact about somebody, not a
+          Only an administrator or the firm administrator can set this. It is the firm’s fact about somebody, not a
           setting they get to move, and the database refuses the change if they try.
         </p>
       </Card>

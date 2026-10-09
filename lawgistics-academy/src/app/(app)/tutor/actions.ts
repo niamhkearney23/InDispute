@@ -32,7 +32,7 @@ import {
   testPrompt,
   testSummary,
 } from '@/lib/tutor/rules';
-import { SAFE_EXPLAIN_REPLY, statesUncheckedLaw } from '@/lib/tutor/guard';
+import { SAFE_EXPLAIN_REPLY, judgesTheLaw, statesUncheckedLaw } from '@/lib/tutor/guard';
 import {
   addMessage,
   conversation,
@@ -60,6 +60,8 @@ const LIMIT_REACHED = `That is ${DAILY_LIMIT} messages to the tutor in a day, th
 const TOO_MANY_STARTED = `That is ${DAILY_CONVERSATIONS} conversations started today, the most the tutor takes. Carry on with one you have, or come back tomorrow.`;
 const AI_OFF = 'The tutor is not switched on at the moment, so it cannot reply. Try again later.';
 const NOT_FOUND = 'That conversation could not be found.';
+const OTHER_COUNTRY =
+  'This test is from the other country\u2019s questions, and your account has changed country since it started. Start a new test from your own modules.';
 const ALREADY_ANSWERED =
   'That question has already been answered, perhaps in another tab. The page now shows where the test is up to.';
 
@@ -183,9 +185,15 @@ export async function sendExplanation(_prev: TutorState, formData: FormData): Pr
   const provider = getProvider();
   if (!provider) return { error: AI_OFF, draft: body };
 
-  let history = await messages(convo.id);
+  // The learner's message is saved only once the tutor has replied to it.
+  // Saved first, a reply that failed or timed out left an explanation sitting
+  // in the conversation with nothing under it, counted against the day's
+  // limit; now a failure saves nothing and hands the words back to send again.
+  const history = await messages(convo.id);
   const last = history[history.length - 1];
   if (retry) {
+    // An explanation already saved with no reply: left only by a reply that
+    // could not be saved, or by a conversation from before this order.
     if (!last || last.role !== 'learner') return { error: null };
   } else {
     if (body.length < 2) return { error: 'Write your explanation first.', draft: body };
@@ -196,12 +204,8 @@ export async function sendExplanation(_prev: TutorState, formData: FormData): Pr
         draft: body,
       };
     }
-    if ((await addMessage(convo.id, { role: 'learner', body })) !== 'saved') {
-      return { error: 'That could not be saved. Please try again.', draft: body };
-    }
-    history = [...history, { role: 'learner', body } as (typeof history)[number]];
   }
-  revalidatePath(`/tutor/${convo.id}`);
+  const asked = retry ? history : [...history, { role: 'learner', body } as (typeof history)[number]];
 
   let reply = '';
   try {
@@ -210,7 +214,7 @@ export async function sendExplanation(_prev: TutorState, formData: FormData): Pr
         system: EXPLAIN_SYSTEM,
         prompt: explainPrompt(
           convo.topic,
-          history.map((m) => ({ role: m.role, body: m.body })),
+          asked.map((m) => ({ role: m.role, body: m.body })),
         ),
         maxTokens: 350,
         temperature: 0.4,
@@ -220,19 +224,31 @@ export async function sendExplanation(_prev: TutorState, formData: FormData): Pr
     reply = '';
   }
   if (!reply) {
-    return {
-      error:
-        'The tutor could not reply just now. What you wrote is saved; press "Ask again" in a minute.',
-    };
+    return retry
+      ? { error: 'The tutor could not reply just now. Press "Ask again" in a minute.' }
+      : {
+          error:
+            'The tutor could not reply just now, so nothing was saved. Your words are still in the box: send them again in a minute.',
+          draft: body,
+        };
   }
-  // The tutor may repeat the learner's own words back to them, and nothing
-  // else that looks like law: everything it says about the law comes from
-  // the lesson or a coach, never from the model.
-  const theirWords = [convo.topic, ...history.filter((m) => m.role === 'learner').map((m) => m.body)];
-  if (statesUncheckedLaw(reply, theirWords.join(' '))) reply = SAFE_EXPLAIN_REPLY;
+  // Nothing that looks like law: everything the learner hears about the law
+  // comes from the lesson or a coach, never from the model. The tutor may
+  // quote the learner's own words back to them, in quotation marks, but not
+  // repeat them as its own, or a learner could type a time limit and have
+  // the tutor hand it back as fact. Nor may it tell them they are right or
+  // wrong, which is a statement of law with no number in it.
+  const theirWords = [convo.topic, ...asked.filter((m) => m.role === 'learner').map((m) => m.body)];
+  if (statesUncheckedLaw(reply, '', theirWords) || judgesTheLaw(reply)) {
+    reply = SAFE_EXPLAIN_REPLY;
+  }
 
+  if (!retry && (await addMessage(convo.id, { role: 'learner', body })) !== 'saved') {
+    return { error: 'That could not be saved. Please try again.', draft: body };
+  }
   if ((await addMessage(convo.id, { role: 'tutor', body: reply })) !== 'saved') {
-    return { error: 'The tutor replied but it could not be saved. Press "Ask again".' };
+    revalidatePath(`/tutor/${convo.id}`);
+    return { error: 'Your explanation is saved, but the reply was not. Press "Ask again".' };
   }
   revalidatePath(`/tutor/${convo.id}`);
   return { error: null };
@@ -261,7 +277,14 @@ export async function answerTutorQuestion(
   if (!checked.ok) return { error: checked.error, ...keep };
   const { convo } = checked;
 
-  const history = await messages(convo.id);
+  // A test belongs to one country's module. Somebody who has changed
+  // country since starting it is not asked, or marked on, the other
+  // country's law; they start a test of their own country's instead.
+  const [profile, history] = await Promise.all([getLearnerProfile(user.id), messages(convo.id)]);
+  const testModule = convo.moduleSlug ? moduleBySlug(convo.moduleSlug) : null;
+  if (!profile) return { error: 'Your profile could not be read. Reload and try again.', ...keep };
+  if (!testModule) return { error: NOT_FOUND };
+  if (testModule.country !== profile.country) return { error: OTHER_COUNTRY };
   const progress = testProgress(history);
   // The page names the question it was showing. If that is no longer the
   // one waiting, this is a second press or another tab, and the answer was
@@ -272,7 +295,7 @@ export async function answerTutorQuestion(
   }
   const number = progress.asked.indexOf(progress.current) + 1;
 
-  const question = await verifiedQuestion(progress.current);
+  const question = await verifiedQuestion(progress.current, profile.country);
   let marked: { number: number; correct: boolean } | null = null;
   let problem = false;
 
@@ -327,9 +350,10 @@ export async function answerTutorQuestion(
         verdict = '';
       }
     }
-    // Anything that looks like law and is not in the checked words (or the
-    // learner's own reason) means the reply is not used.
-    if (verdict && statesUncheckedLaw(verdict, testAllowedText(question, reason))) verdict = '';
+    // Anything that looks like law and is not in the checked words means the
+    // reply is not used. The learner's reason is allowed back only where the
+    // reply quotes it, so law the learner typed is never repeated as checked.
+    if (verdict && statesUncheckedLaw(verdict, testAllowedText(question), reason)) verdict = '';
     const said = await addMessage(convo.id, {
       role: 'tutor',
       body: verdict ? `${correct ? 'Right.' : 'Not quite.'} ${verdict}` : plainVerdict(correct),
@@ -339,11 +363,8 @@ export async function answerTutorQuestion(
 
   const results = marked ? [...progress.results, marked] : progress.results;
   const total = convo.testLength ?? TEST_LENGTH;
-  const testModule = convo.moduleSlug ? moduleBySlug(convo.moduleSlug) : null;
   const pool =
-    testModule && progress.asked.length < total
-      ? await verifiedQuestions(testModule.country, testModule.slug)
-      : [];
+    progress.asked.length < total ? await verifiedQuestions(profile.country, testModule.slug) : [];
   const next = progress.asked.length < total ? nextQuestion(pool, progress.asked) : null;
   const ending = next
     ? await addMessage(convo.id, {

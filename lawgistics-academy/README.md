@@ -73,10 +73,16 @@ Your three keys are in Supabase under **Project Settings → API**:
 The service role key bypasses Row Level Security. Never give it a `NEXT_PUBLIC_` prefix,
 never commit it, never send it to a browser.
 
+Add one more, **`SETUP_TOKEN`**, set to a long random value you keep somewhere safe.
+It is required: `/setup` will not make anybody an administrator until it is set, and asks
+for it before it does. On Vercel it goes in the same place, **Settings → Environment
+Variables**, followed by a redeploy.
+
 ### 5. Open `/setup`
 
 Sign up, then go to **`/setup`**. It checks each step, tells you what is missing, and has
-one button that loads all the content and makes you an administrator.
+one button that asks for your `SETUP_TOKEN`, makes you an administrator and loads all the
+content.
 
 That's it; you're in.
 
@@ -94,9 +100,10 @@ prints the fix for whatever is missing.
 ### A note on `/setup`
 
 It grants administrator rights, so it closes permanently once one administrator exists.
-Between deploying and signing up for the first time, anyone who reaches that URL could
-claim it. On a public deployment, set a `SETUP_TOKEN` environment variable and the page
-will ask for it.
+It refuses to run at all until `SETUP_TOKEN` is set, because without it whoever reached the
+address first after deploying could claim the app. The check that nobody is an
+administrator yet and the grant happen in one database call, so two people pressing the
+button at once cannot both become one.
 
 To add further administrators afterwards:
 
@@ -270,7 +277,8 @@ Your mastery evolves. Your historical record does not get rewritten underneath y
 
 The `questions` and `question_versions` tables are admin-only under RLS. Learners read
 `v_question_delivery`, a view that omits the answer key and every piece of explanatory
-text. Grading happens server-side, in `submitAnswer`, against the base tables.
+text, and shows a learner only their own country's questions (staff and the service role
+see both). Grading happens server-side, in `submitAnswer`, against the base tables.
 
 There is no client-side path to a correct answer before it is submitted.
 

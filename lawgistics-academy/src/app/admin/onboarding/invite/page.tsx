@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { requireAdmin } from '@/lib/admin/guard';
+import { requireFirmAdmin } from '@/lib/admin/guard';
 import { listStepsForAdmin } from '@/lib/onboarding/service';
 import { brand } from '@/lib/brand';
 import { ButtonLink, InlineLink, Notice } from '@/components/ui';
@@ -8,7 +8,7 @@ import { InviteForm } from './invite-form';
 export const metadata: Metadata = { title: 'Invite somebody' };
 
 export default async function InvitePage() {
-  await requireAdmin();
+  await requireFirmAdmin();
 
   const steps = await listStepsForAdmin();
   const published = steps.filter((s) => s.published && s.required);

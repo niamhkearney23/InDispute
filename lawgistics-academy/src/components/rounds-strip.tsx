@@ -6,6 +6,8 @@ const WORD: Record<Round['state'], string> = {
   missed: 'Missed',
   open: 'Open now',
   upcoming: 'Not yet',
+  // Closed before they were confirmed or questions were published.
+  not_applicable: 'Not counted',
 };
 
 /**
@@ -25,7 +27,7 @@ export function RoundsStrip({ rounds }: { rounds: Round[] }) {
             // contrast. A dimmer ring says "gone" and the word says the rest.
             r.state === 'missed' && 'bg-paper/5 ring-paper/15',
             r.state === 'open' && 'bg-paper/20 ring-paper/60',
-            r.state === 'upcoming' && 'bg-black/10 ring-white/10',
+            (r.state === 'upcoming' || r.state === 'not_applicable') && 'bg-black/10 ring-white/10',
           )}
         >
           <p className="font-serif text-lg leading-none tabular-nums">{roundLabel(r)}</p>

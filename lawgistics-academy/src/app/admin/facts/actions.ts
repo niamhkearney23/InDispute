@@ -113,12 +113,20 @@ export async function updateFact(
 
   const { data: current } = await db
     .from('daily_facts')
-    .select('title, body, status')
+    .select('title, body, why_it_matters, status, jurisdiction')
     .eq('id', factId)
     .maybeSingle();
 
+  // A new jurisdiction is a substantive change too: the sign-off said these
+  // words are right for one place, and the country (which follows from the
+  // jurisdiction) decides whose daily brief the fact goes into.
   const substantiveChange =
-    current?.title !== parsed.data.title || current?.body !== parsed.data.body;
+    current?.title !== parsed.data.title ||
+    current?.body !== parsed.data.body ||
+    current?.jurisdiction !== parsed.data.jurisdiction ||
+    // Why it matters is read as part of the fact, and the database clears
+    // the sign-off when it changes (0040), so the message says so too.
+    (current?.why_it_matters ?? null) !== (parsed.data.whyItMatters || null);
 
   // Rewriting the substance means the sign-off no longer covers what is there,
   // whether or not it had been published yet: a fact signed off and then
@@ -154,8 +162,8 @@ export async function updateFact(
     ok: !substantiveChange
       ? 'Saved.'
       : current?.status === 'published'
-        ? 'Saved. The wording changed, so this fact has been unpublished and needs verifying again.'
-        : 'Saved. The wording changed, so it needs verifying again.',
+        ? 'Saved. The wording or jurisdiction changed, so this fact has been unpublished and needs verifying again.'
+        : 'Saved. The wording or jurisdiction changed, so it needs verifying again.',
   };
 }
 

@@ -89,8 +89,10 @@ export function AreaBreakdown({ areas }: { areas: Area[] }) {
                           band={masteryBand(concept.score)}
                           unit="%"
                           sublabel={
+                            // Counted only when the answer was marked Certain,
+                            // never Somewhat sure, so it says Certain.
                             concept.confidentAndWrong > 0
-                              ? `Sure and wrong ${concept.confidentAndWrong} time${concept.confidentAndWrong === 1 ? '' : 's'}`
+                              ? `Certain and wrong ${concept.confidentAndWrong} time${concept.confidentAndWrong === 1 ? '' : 's'}`
                               : `${concept.correct} of ${concept.attempts} right`
                           }
                         />

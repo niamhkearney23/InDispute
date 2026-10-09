@@ -55,6 +55,7 @@ interface ProfileRow {
   track: string | null;
   is_admin: boolean | null;
   is_coach: boolean | null;
+  is_firm_admin: boolean | null;
   avatar_style: unknown;
   avatar_url: string | null;
 }
@@ -73,7 +74,7 @@ export async function learnerList(isAdmin: boolean): Promise<LearnerList> {
   const db = createServiceClient();
   let query = db
     .from('profiles')
-    .select('id, display_name, email, country, track, is_admin, is_coach, avatar_style, avatar_url')
+    .select('*')
     .eq('is_admin', false)
     .eq('is_coach', false)
     .order('display_name')
@@ -86,7 +87,7 @@ export async function learnerList(isAdmin: boolean): Promise<LearnerList> {
   const { data, error } = await query.limit(LIST_LIMIT + 1);
   if (error) return { rows: [], more: false, failed: true };
   const all = (data ?? []) as ProfileRow[];
-  const people = all.slice(0, LIST_LIMIT).filter((p) => !p.is_admin && !p.is_coach);
+  const people = all.slice(0, LIST_LIMIT).filter((p) => !p.is_admin && !p.is_coach && !p.is_firm_admin);
   if (people.length === 0) return { rows: [], more: false, failed: false };
 
   const since = new Date(Date.now() - RECENT_DAYS * 24 * 60 * 60 * 1000).toISOString();
@@ -165,11 +166,11 @@ export async function learnerDetail(userId: string, isAdmin: boolean): Promise<L
   const db = createServiceClient();
   const { data: p } = await db
     .from('profiles')
-    .select('id, display_name, email, country, track, is_admin, is_coach, avatar_style, avatar_url')
+    .select('*')
     .eq('id', userId)
     .maybeSingle();
   const profile = p as ProfileRow | null;
-  if (!profile || profile.is_admin || profile.is_coach) return null;
+  if (!profile || profile.is_admin || profile.is_coach || profile.is_firm_admin) return null;
 
   const [total, right, mastery, wrongRows, modules, marks] = await Promise.all([
     db.from('user_question_attempts').select('id', { count: 'exact', head: true }).eq('user_id', userId),

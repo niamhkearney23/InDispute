@@ -93,9 +93,11 @@ export function seesTraineeVideos(profile: {
   traineeConfirmed: boolean;
   isCoach: boolean;
   isAdmin: boolean;
+  isFirmAdmin?: boolean;
 }): boolean {
   return (
     profile.isCoach ||
+    Boolean(profile.isFirmAdmin) ||
     profile.isAdmin ||
     (profile.track === 'litigation_trainee' && profile.traineeConfirmed)
   );

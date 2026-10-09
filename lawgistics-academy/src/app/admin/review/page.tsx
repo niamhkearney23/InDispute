@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { requireCoach } from '@/lib/admin/guard';
+import { requireReviewer } from '@/lib/admin/guard';
 import Link from 'next/link';
 import { asReviewOrder, getReviewItems, summarise } from '@/lib/review/service';
 import { Card, Notice, Stat, cn } from '@/components/ui';
@@ -15,7 +15,7 @@ export default async function ReviewPage({
 }: {
   searchParams: Promise<{ order?: string; country?: string }>;
 }) {
-  const { isAdmin } = await requireCoach();
+  const { isAdmin } = await requireReviewer();
 
   const { order: requested, country: askedCountry } = await searchParams;
   const order = asReviewOrder(requested);

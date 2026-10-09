@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { createSupabaseServerClient, getCurrentUser } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/service';
 import { strictCartoon } from '@/lib/avatar/cartoon';
 
 export type AvatarState = { error: string | null };
@@ -46,7 +47,8 @@ export async function uploadAvatar(
   const { error: uploadError } = await supabase.storage
     .from('avatars')
     .upload(path, file, { upsert: true, contentType: file.type });
-  if (uploadError) return { error: uploadError.message };
+  // Storage's own words are not for the person: say what happened instead.
+  if (uploadError) return { error: 'The photo could not be uploaded. Please try again.' };
 
   const {
     data: { publicUrl },
@@ -59,7 +61,7 @@ export async function uploadAvatar(
     .from('profiles')
     .update({ avatar_url: `${publicUrl}?v=${Date.now()}` })
     .eq('id', user.id);
-  if (profileError) return { error: profileError.message };
+  if (profileError) return { error: 'The photo could not be saved. Please try again.' };
 
   revalidatePath('/dashboard');
   revalidatePath('/account');
@@ -85,7 +87,7 @@ export async function removeAvatar(_prev: AvatarState, _formData: FormData): Pro
     .from('profiles')
     .update({ avatar_url: null })
     .eq('id', user.id);
-  if (error) return { error: error.message };
+  if (error) return { error: 'The photo could not be removed. Please try again.' };
 
   revalidatePath('/dashboard');
   revalidatePath('/account');
@@ -157,9 +159,9 @@ const passwordSchema = z
  * Choosing your own password.
  *
  * Through the person's own session, so it can only ever be their own
- * account. Clearing the first-password flag afterwards is theirs to do
- * too: the flag is a convenience that keeps the choice in front of them,
- * not a right, and nothing else in the app turns on it.
+ * account. The first-password flag is then cleared by the server, and only
+ * once the new password is saved: since 0040 the database refuses the flag
+ * coming off any other way, so it cannot be cleared without a new password.
  */
 export async function changePassword(
   _prev: PasswordState,
@@ -186,7 +188,7 @@ export async function changePassword(
     };
   }
 
-  const { error: flagError } = await supabase
+  const { error: flagError } = await createServiceClient()
     .from('profiles')
     .update({ must_change_password: false })
     .eq('id', user.id);

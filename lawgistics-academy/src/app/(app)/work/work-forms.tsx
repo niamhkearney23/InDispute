@@ -31,7 +31,16 @@ export function ClaimForm({ postId, everyone }: { postId: string; everyone: bool
  * box is a statement the person is making and they should be able to read
  * what they are saying. It is not pre-ticked.
  */
-export function SubmitForm({ postId, again }: { postId: string; again: boolean }) {
+export function SubmitForm({
+  postId,
+  again,
+  nonce,
+}: {
+  postId: string;
+  again: boolean;
+  /** Made when the page is drawn; the action treats a repeat of it as done. */
+  nonce: string;
+}) {
   const [state, formAction, pending] = useActionState(submitWork, { error: null });
   // Checked here, before anything is sent: a file over the limit is refused
   // by the host with a blank error page, not by the app with a sentence.
@@ -50,6 +59,7 @@ export function SubmitForm({ postId, again }: { postId: string; again: boolean }
       className="mt-4 space-y-4"
     >
       <input type="hidden" name="postId" value={postId} />
+      <input type="hidden" name="nonce" value={nonce} />
 
       <div>
         <label htmlFor="file" className="mb-1.5 block text-sm font-medium">

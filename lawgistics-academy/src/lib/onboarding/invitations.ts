@@ -2,7 +2,7 @@ import 'server-only';
 
 import { createHash, randomBytes } from 'node:crypto';
 import { createServiceClient } from '@/lib/supabase/service';
-import { asTrack } from '@/lib/types';
+import { asCountry, asTrack } from '@/lib/types';
 import type { Country, LearnerTrack } from '@/lib/types';
 
 /**
@@ -259,6 +259,31 @@ export async function acceptInvitation(
   }
 
   return { email: invitation.email, error: null };
+}
+
+/**
+ * The country and programme of the invitation this person joined by, or null
+ * when they did not join by one.
+ *
+ * The firm chose both when it invited them, so the settings page shows them
+ * as given rather than as a switch, and saveOnboarding keeps them whatever
+ * the form sends. Read with the service client because learners cannot read
+ * invitations; every caller passes the signed-in user's own id, never one
+ * from a form.
+ */
+export async function acceptedInvitationFor(
+  userId: string,
+): Promise<{ country: Country; track: LearnerTrack } | null> {
+  const db = createServiceClient();
+  const { data } = await db
+    .from('joiner_invitations')
+    .select('country, track')
+    .eq('accepted_by', userId)
+    .order('accepted_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (!data) return null;
+  return { country: asCountry(data.country as string), track: asTrack(data.track as string | null) };
 }
 
 export function problemMessage(problem: InvitationProblem): string {

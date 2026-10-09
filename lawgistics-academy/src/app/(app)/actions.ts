@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { createSupabaseServerClient, getCurrentUser } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/service';
 import {
   completeSession,
   getCoachNote,
@@ -17,6 +18,7 @@ import { moduleBySlug } from '@/content/seed/modules';
 import { HOMEWORK_DAYS, homeworkForDay } from '@/content/seed/homework';
 import { homeworkDay, lastArrivedDay } from '@/lib/homework/rules';
 import { getLearnerProfile } from '@/lib/learner-overview';
+import { acceptedInvitationFor } from '@/lib/onboarding/invitations';
 import {
   COMMENT_MAX_LENGTH,
   WORK_FILE_TYPES,
@@ -47,6 +49,7 @@ import {
 } from '@/lib/types';
 import type { AnswerFeedback, SessionKind } from '@/lib/types';
 import { hasAccess } from '@/lib/access/service';
+import { userFacingError } from '@/lib/env';
 
 const GOAL_SLUGS = IMPROVEMENT_GOALS.map((g) => g.slug);
 
@@ -85,9 +88,18 @@ export async function saveOnboarding(
     return { error: 'Please answer all five questions before continuing.' };
   }
 
+  // Somebody who joined by a firm's invitation keeps the country and
+  // programme the firm chose for them. The settings page does not offer the
+  // switch, but this action is a public endpoint, and an intern recorded as
+  // Australian by their own hand would be trained on the wrong law with the
+  // firm's invitation saying otherwise.
+  const invited = await acceptedInvitationFor(user.id);
+  const country = invited?.country ?? parsed.data.country;
+  const track = invited?.track ?? parsed.data.track;
+
   // The database refuses this pair too. Checked here so the person gets a
   // sentence rather than a constraint name.
-  if (parsed.data.track === 'litigation_trainee' && parsed.data.country !== 'MY') {
+  if (track === 'litigation_trainee' && country !== 'MY') {
     return { error: 'The litigation trainee programme is a Malaysian one.' };
   }
 
@@ -96,7 +108,6 @@ export async function saveOnboarding(
   // Malaysian with a Victorian home jurisdiction would be shown Malaysian
   // questions labelled with an Australian State, which is exactly the confusion
   // the whole country split exists to prevent.
-  const { country } = parsed.data;
   if (JURISDICTION_COUNTRY[parsed.data.homeJurisdiction] !== country) {
     return { error: 'That jurisdiction does not belong to the country you chose.' };
   }
@@ -120,14 +131,16 @@ export async function saveOnboarding(
       improvement_goals: goals,
       daily_goal_minutes: parsed.data.dailyGoalMinutes,
       country,
-      track: parsed.data.track,
+      track,
       home_jurisdiction: parsed.data.homeJurisdiction,
       // Changing settings is not joining again: the date they started stays.
       ...(editing ? {} : { onboarded_at: new Date().toISOString() }),
     })
     .eq('id', user.id);
 
-  if (error) return { error: error.message };
+  // The database's own words name constraints and columns; the person needs
+  // to know only that it did not save.
+  if (error) return { error: 'Your answers could not be saved. Please try again.' };
 
   revalidatePath('/dashboard');
   // Somebody joining goes to the tour, which ends on the diagnostic when there
@@ -150,7 +163,9 @@ export async function beginSession(
   let outcome: { sessionId: string } | { error: string };
 
   // A trainee on a working morning trains in rounds: only while one is
-  // open, and only the questions that round still needs.
+  // open, and only the questions that round still needs. `open.answered` is
+  // every answer given in the round's hour, from any daily session, the same
+  // count that decides whether the round is done.
   let round: { count: number; opensAt: Date } | undefined;
   if (kind === 'daily') {
     // Reading the rounds is the first service-role call, so it fails here
@@ -159,7 +174,8 @@ export async function beginSession(
     try {
       today = await roundsToday(user.id);
     } catch (caught) {
-      return { error: caught instanceof Error ? caught.message : 'Could not start the session.' };
+      console.error('[beginSession] rounds could not be read', caught);
+      return { error: userFacingError(caught, 'The session could not be started. Please try again.') };
     }
     if (today) {
       const open = openRound(today.rounds);
@@ -185,8 +201,11 @@ export async function beginSession(
     // earlier. Left unhandled, the thrown error reaches the browser as a
     // scrubbed server error and the button simply sits there saying
     // "Preparing", which is indistinguishable from nothing happening at all.
+    // That one message names the fix and is shown; anything else is logged
+    // and replaced, because a database error is not for the learner to read.
+    console.error('[beginSession] could not start', caught);
     outcome = {
-      error: caught instanceof Error ? caught.message : 'Could not start the session.',
+      error: userFacingError(caught, 'The session could not be started. Please try again.'),
     };
   }
 
@@ -211,8 +230,9 @@ export async function beginModule(slug: string): Promise<{ error: string } | und
   try {
     outcome = await startModuleSession(user.id, definition.domains);
   } catch (caught) {
+    console.error('[beginModule] could not start', caught);
     outcome = {
-      error: caught instanceof Error ? caught.message : 'Could not start the module.',
+      error: userFacingError(caught, 'The module could not be started. Please try again.'),
     };
   }
 
@@ -224,7 +244,12 @@ export async function beginModule(slug: string): Promise<{ error: string } | und
 const answerSchema = z.object({
   sessionId: z.string().uuid(),
   questionVersionId: z.string().uuid(),
-  selectedOptionIds: z.array(z.string().max(40)).min(1).max(10),
+  // The same option twice is not a second answer; refused before grading.
+  selectedOptionIds: z
+    .array(z.string().max(40))
+    .min(1)
+    .max(10)
+    .refine((ids) => new Set(ids).size === ids.length, 'An option was chosen twice.'),
   confidence: z.enum(['guess', 'somewhat_sure', 'certain']).nullable(),
   responseMs: z.number().int().min(0).max(1000 * 60 * 60).nullable(),
 });
@@ -333,10 +358,11 @@ export async function declareHomework(
   const task = homeworkForDay(parsed.data.day);
   if (!task) return { error: 'That day could not be found.' };
 
-  // A learner recording their own homework needs no elevated privilege, go
-  // through RLS, exactly as saveOnboarding does above.
-  const supabase = await createSupabaseServerClient();
-  const { error } = await supabase
+  // Written by the server, after the checks above. Through RLS a learner
+  // could declare a day that has not come round yet by writing directly, so
+  // since 0040 learners only read this table. The user is the session's and
+  // the day was checked, so nothing here comes from the request unchecked.
+  const { error } = await createServiceClient()
     .from('homework_declarations')
     .insert({ user_id: user.id, day: parsed.data.day, task_slug: task.slug });
 
@@ -397,6 +423,8 @@ export async function claimWork(_prev: WorkState, formData: FormData): Promise<W
 const submitSchema = z.object({
   postId: z.string().uuid(),
   note: z.string().trim().max(2000),
+  // Optional only so a page open since before the nonce existed still works.
+  nonce: z.string().uuid().nullable(),
 });
 
 /**
@@ -419,6 +447,7 @@ export async function submitWork(_prev: WorkState, formData: FormData): Promise<
   const parsed = submitSchema.safeParse({
     postId: formData.get('postId'),
     note: formData.get('note') ?? '',
+    nonce: formData.get('nonce') || null,
   });
   if (!parsed.success) return { error: 'That could not be read.' };
 
@@ -447,6 +476,20 @@ export async function submitWork(_prev: WorkState, formData: FormData): Promise<
     .maybeSingle();
   if (!claim) return { error: 'Put your name on the work before handing it in.' };
 
+  // The same form pressed twice, or sent again after a slow upload: the
+  // first one is already in, so this one is that success, not a second copy.
+  // Checked before the upload so a repeat stores nothing.
+  const { nonce } = parsed.data;
+  if (nonce) {
+    const { data: already } = await supabase
+      .from('work_submissions')
+      .select('id')
+      .eq('client_nonce', nonce)
+      .eq('user_id', user.id)
+      .maybeSingle();
+    if (already) return handedIn(parsed.data.postId);
+  }
+
   const path = `submissions/${user.id}/${parsed.data.postId}/${Date.now()}.${WORK_FILE_TYPES[file.type]}`;
 
   const { error: uploadError } = await supabase.storage
@@ -461,17 +504,34 @@ export async function submitWork(_prev: WorkState, formData: FormData): Promise<
     file_name: file.name.replace(/[\\/]/g, ' ').trim().slice(0, 200) || 'Handed in',
     note: parsed.data.note,
     declared_clean: true,
+    client_nonce: nonce,
   });
 
   if (error) {
+    // The file went up first, so a row that did not go in leaves a file
+    // nobody will ever open. Taken out again, best effort: the learner may
+    // not delete in the bucket, so this is the server's client, on the path
+    // built above from the session, never one from the form.
+    try {
+      await createServiceClient().storage.from('work').remove([path]);
+    } catch {
+      // Left behind; the hand-in itself is what the learner is told about.
+    }
+    // Two presses racing past the check above: the unique index let one in.
+    if (error.code === '23505' && nonce) return handedIn(parsed.data.postId);
     return { error: 'That could not be handed in. Put your name on the work first.' };
   }
 
+  return handedIn(parsed.data.postId);
+}
+
+/** What a successful hand-in, first time or repeated, refreshes and says. */
+function handedIn(postId: string): WorkState {
   revalidatePath('/work');
-  revalidatePath(`/work/${parsed.data.postId}`);
+  revalidatePath(`/work/${postId}`);
   revalidatePath('/dashboard');
   revalidatePath('/admin/work');
-  revalidatePath(`/admin/work/${parsed.data.postId}`);
+  revalidatePath(`/admin/work/${postId}`);
   return { error: null, ok: 'Handed in.' };
 }
 
@@ -737,6 +797,16 @@ export async function uploadMatterRecording(
   if (!(file instanceof File) || file.size === 0) return { error: 'Record something first.' };
   const problem = workMemoProblem(file);
   if (problem) return { error: problem };
+  // The same declaration as for work handed in: a coach listens to this,
+  // and an explanation of a real file can name the client without meaning
+  // to. The database refuses a recording without it too.
+  if (formData.get('recordingDeclaredClean') !== 'on') {
+    return {
+      error:
+        'Tick the box to confirm there is nothing in the recording that identifies a client. ' +
+        'If there is, record it again without it.',
+    };
+  }
 
   const attempt = await attemptForCaller(attemptId.data);
   if (!attempt || attempt.userId !== user.id) return { error: 'That attempt could not be found.' };
@@ -756,6 +826,7 @@ export async function uploadMatterRecording(
     .from('matter_attempts')
     .update({
       recording_path: path,
+      recording_declared_clean: true,
       recording_seconds:
         Number.isFinite(seconds) && seconds >= 1 ? Math.min(Math.round(seconds), SPEAK_MAX_SECONDS) : null,
     })

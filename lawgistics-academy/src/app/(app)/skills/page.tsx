@@ -31,7 +31,7 @@ export default async function SkillsPage() {
   if (!user) redirect('/login');
 
   const overview = await getLearnerOverview(user.id);
-  if (!overview) redirect('/login');
+  if (!overview) redirect('/account-problem');
 
   const supabase = await createSupabaseServerClient();
   const { profile, level } = overview;
@@ -178,20 +178,29 @@ export default async function SkillsPage() {
         </section>
       ) : null}
 
+      {/* Somebody who has sat the diagnostic is not offered it again here:
+          their scores come from training as well, so the way on is today's
+          training, not a second diagnostic. */}
       {!hasData ? (
         <EmptyState
           title="Nothing measured yet"
           description={
-            open
-              ? 'Complete the diagnostic and your first few sessions, and this page fills in.'
-              : 'This fills in once the questions are open and you have trained on them.'
+            !open
+              ? 'This fills in once the questions are open and you have trained on them.'
+              : profile.diagnosticCompletedAt
+                ? 'Your diagnostic is done, but no scores have come through yet. They fill in as you train.'
+                : 'Complete the diagnostic and your first few sessions, and this page fills in.'
           }
           action={
-            open ? (
+            !open ? undefined : profile.diagnosticCompletedAt ? (
+              <ButtonLink href="/dashboard" variant="accent">
+                Go to today
+              </ButtonLink>
+            ) : (
               <ButtonLink href="/diagnostic" variant="accent">
                 Take the diagnostic
               </ButtonLink>
-            ) : undefined
+            )
           }
         />
       ) : null}
@@ -220,7 +229,14 @@ export default async function SkillsPage() {
               The share of your answers that were right. Get them all right and it stays at 100%;
               each wrong answer brings it down.
             </p>
-            <AreaBreakdown areas={areas} />
+            {overview.areaScoresUnavailable ? (
+              <p className="max-w-2xl text-sm text-slate">
+                Scores by area could not be read just now. Try again in a moment; your answers
+                are all still recorded.
+              </p>
+            ) : (
+              <AreaBreakdown areas={areas} />
+            )}
           </section>
 
           {/* No "by skill" scores. Every question carries skill tags, but they
@@ -235,12 +251,12 @@ export default async function SkillsPage() {
             <section>
               <SectionHeading
                 eyebrow="Worth your attention"
-                title="Confident and wrong"
+                title="Certain and wrong"
               />
               <Card>
                 <p className="mb-4 text-sm text-slate">
                   On these concepts you have answered incorrectly while marking yourself
-                  certain. That is a belief that needs correcting rather than a gap that
+                  Certain (not Somewhat sure). That is a belief that needs correcting rather than a gap that
                   needs filling, and it is weighted accordingly in your training.
                 </p>
                 <ul className="divide-y divide-rule">

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { longAnswerCue } from '@/lib/review/answer-cue';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { requireCoach } from '@/lib/admin/guard';
+import { requireReviewer } from '@/lib/admin/guard';
 import { lessonBySlug } from '@/content/seed/lessons';
 import { moduleBySlug } from '@/content/seed/modules';
 import { currentSignOffs, lessonHash } from '@/lib/lessons/signoff';
@@ -19,7 +19,7 @@ export const dynamic = 'force-dynamic';
  * sees it, and the sign-off.
  */
 export default async function AdminLessonPage({ params }: { params: Promise<{ slug: string }> }) {
-  await requireCoach();
+  await requireReviewer();
   const { slug } = await params;
   const lesson = lessonBySlug(slug);
   if (!lesson) notFound();

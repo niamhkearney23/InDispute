@@ -157,13 +157,38 @@ export function scheduleNextReview(
   };
 }
 
-/** Human-readable "you'll see this again..." string for the feedback panel. */
-export function describeNextReview(nextReviewAt: Date, now: Date = new Date()): string {
-  const startOfToday = new Date(now.getTime());
-  startOfToday.setUTCHours(0, 0, 0, 0);
-  const days = Math.round(
-    (nextReviewAt.getTime() - startOfToday.getTime()) / (1000 * 60 * 60 * 24),
-  );
+/** A moment's calendar date in a zone, as days since 1970, for counting whole days. */
+function localDayNumber(at: Date, timeZone: string): number {
+  try {
+    const [y, m, d] = new Intl.DateTimeFormat('en-CA', {
+      timeZone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    })
+      .format(at)
+      .split('-')
+      .map(Number);
+    return Date.UTC(y, m - 1, d) / 86_400_000;
+  } catch {
+    return Math.floor(at.getTime() / 86_400_000);
+  }
+}
+
+/**
+ * Human-readable "you'll see this again..." string for the feedback panel.
+ *
+ * Counted in calendar days where the learner is. It used to count from UTC
+ * midnight, which is 8am in Kuala Lumpur: a question got wrong at 7:30am,
+ * due back at midnight there, was "Back in 2 days" while the scheduler meant
+ * tomorrow. Without a zone it counts UTC days, as before.
+ */
+export function describeNextReview(
+  nextReviewAt: Date,
+  now: Date = new Date(),
+  timeZone: string = 'UTC',
+): string {
+  const days = localDayNumber(nextReviewAt, timeZone) - localDayNumber(now, timeZone);
 
   if (days <= 0) return 'Back later today';
   if (days === 1) return 'Back tomorrow';

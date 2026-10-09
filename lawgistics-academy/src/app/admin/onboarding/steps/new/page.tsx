@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { requireAdmin } from '@/lib/admin/guard';
+import { requireFirmAdmin } from '@/lib/admin/guard';
 import { listFirmModulesForAdmin } from '@/lib/firm/service';
 import { saveStep } from '../../actions';
 import { StepForm } from '../step-form';
@@ -7,7 +7,7 @@ import { StepForm } from '../step-form';
 export const metadata: Metadata = { title: 'Add an item' };
 
 export default async function NewStepPage() {
-  await requireAdmin();
+  await requireFirmAdmin();
   const modules = await listFirmModulesForAdmin();
 
   return (

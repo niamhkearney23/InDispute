@@ -1,10 +1,15 @@
 import 'server-only';
 import { createServiceClient } from '@/lib/supabase/service';
-import { dateOfWorkingDay, homeworkDay, isWorkingDay } from '@/lib/homework/rules';
-import { HOMEWORK_DAYS } from '@/content/seed/homework';
 import { localMidnight, shiftLocalDate } from '@/lib/local-day';
 import { todayIn } from '@/lib/onboarding/rules';
-import { ROUNDS_TIMEZONE, roundsFor, type Round, type RoundSession } from './rounds';
+import {
+  ROUNDS_TIMEZONE,
+  lastRoundsDate,
+  roundsDayNumber,
+  roundsFor,
+  type Round,
+  type RoundSession,
+} from './rounds';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { trainingOpen } from './service';
 import { JURISDICTION_COUNTRY, asCountry, type Country, type Jurisdiction } from '@/lib/types';
@@ -14,7 +19,9 @@ type SessionRow = { id: string; started_at: string; planned_question_count: numb
 /**
  * Daily sessions since a moment, each with when its answers were given, so a
  * round counts only answers given in its hour. Answers are read a thousand at
- * a time: a month of mornings is about eight hundred.
+ * a time: a month of mornings is about eight hundred. Sessions are read from
+ * a day earlier than the answers, so one started the evening before and
+ * answered after midnight still has its answers counted where they fell.
  */
 async function roundSessions(db: SupabaseClient, userId: string, since: string): Promise<RoundSession[]> {
   const { data: sessions } = await db
@@ -22,7 +29,7 @@ async function roundSessions(db: SupabaseClient, userId: string, since: string):
     .select('id, started_at, planned_question_count, completed_at')
     .eq('user_id', userId)
     .eq('kind', 'daily')
-    .gte('started_at', since)
+    .gte('started_at', new Date(new Date(since).getTime() - 86_400_000).toISOString())
     .limit(1000);
   const rows = (sessions ?? []) as SessionRow[];
   if (rows.length === 0) return [];
@@ -51,23 +58,51 @@ async function roundSessions(db: SupabaseClient, userId: string, since: string):
 }
 
 /**
- * The day questions were first signed off for a country, as near as the
- * record says: before it, no round could have been done, so none is missed.
+ * When questions were first signed off for a country, as near as the record
+ * says: before it, no round could have been done, so none is missed.
+ *
+ * Questions carry no publication time, so this is the earliest sign-off
+ * (`verified_at`) among the current, published versions. It can be early,
+ * when a question was signed off some time before it was published, and it
+ * can be late, when the first question published has since been edited and
+ * signed off again. Late only excuses rounds; early can still show a round
+ * missed that nobody could have done, which only a recorded publication time
+ * would fix.
  */
-async function firstQuestionDay(db: SupabaseClient, country: Country, timezone: string): Promise<string | null> {
+async function firstQuestionAt(db: SupabaseClient, country: Country): Promise<Date | null> {
   const { data } = await db
     .from('question_versions')
-    .select('verified_at, jurisdiction, questions!inner(status)')
+    .select('verified_at, jurisdiction, questions!inner(status, country)')
     .eq('is_current', true)
     .eq('verification_status', 'human_verified')
     .eq('questions.status', 'published')
+    // Filtered in the query: the first two hundred sign-offs could all be the
+    // other country's, and then this country's first day was never found.
+    .eq('questions.country', country)
     .not('verified_at', 'is', null)
     .order('verified_at', { ascending: true })
-    .limit(200);
+    .limit(1);
+  // Checked again by jurisdiction, so a question whose country and
+  // jurisdiction disagree does not start the other country's calendar.
   const first = ((data ?? []) as Array<{ verified_at: string; jurisdiction: Jurisdiction }>).find(
     (v) => JURISDICTION_COUNTRY[v.jurisdiction] === country,
   );
-  return first ? todayIn(timezone, new Date(first.verified_at)) : null;
+  return first ? new Date(first.verified_at) : null;
+}
+
+/**
+ * The instant rounds start counting for this person: the later of when they
+ * were confirmed and when questions were first signed off. A round that
+ * closes at or before it is not applicable, never missed.
+ */
+async function roundsNotBefore(
+  db: SupabaseClient,
+  country: Country,
+  approvedAt: string,
+): Promise<Date> {
+  const confirmed = new Date(approvedAt);
+  const opened = await firstQuestionAt(db, country);
+  return opened && opened > confirmed ? opened : confirmed;
 }
 
 export interface RoundsToday {
@@ -83,9 +118,9 @@ export interface RoundsToday {
 }
 
 function nextMorningAfter(date: string, startsOn: string, endsOn: string | null): string | null {
-  const end = endsOn ?? dateOfWorkingDay(startsOn, HOMEWORK_DAYS);
+  const end = lastRoundsDate(startsOn, endsOn);
   let next = shiftLocalDate(date, 1);
-  while (!isWorkingDay(next) && next <= end) next = shiftLocalDate(next, 1);
+  while (roundsDayNumber(startsOn, endsOn, next) === null && next <= end) next = shiftLocalDate(next, 1);
   if (next > end) return null;
   return new Date(`${next}T00:00:00Z`).toLocaleDateString('en-GB', {
     weekday: 'long',
@@ -97,9 +132,11 @@ function nextMorningAfter(date: string, startsOn: string, endsOn: string | null)
 
 /**
  * Today's rounds for this person, or null when they are not on rounds: not
- * a confirmed litigation trainee, not a working day of their placement, or
- * no questions published yet for their country (a round nobody could do is
- * not a round missed).
+ * a confirmed litigation trainee, not a rounds day of their placement
+ * (`roundsDayNumber`, the same test the calendar uses), or no questions
+ * published yet for their country (a round nobody could do is not a round
+ * missed). A round that closed before they were confirmed or before
+ * questions were first signed off is not applicable.
  * Everybody else trains to their own daily goal, as before.
  *
  * Service client, so every caller passes the signed-in user's own id.
@@ -112,18 +149,24 @@ export async function roundsToday(userId: string, now: Date = new Date()): Promi
     .eq('id', userId)
     .maybeSingle();
   if (!p || p.track !== 'litigation_trainee' || !p.trainee_approved_at) return null;
-  if (!(await trainingOpen(asCountry(p.country)))) return null;
+  const country = asCountry(p.country);
+  if (!(await trainingOpen(country))) return null;
 
   const timezone = ROUNDS_TIMEZONE;
-  if (homeworkDay(p.starts_on, p.ends_on, timezone, now).state !== 'day') return null;
-
   const date = todayIn(timezone, now);
-  const sessions = await roundSessions(db, userId, localMidnight(timezone, date).toISOString());
+  const startsOn = p.starts_on as string | null;
+  const endsOn = p.ends_on as string | null;
+  if (!startsOn || roundsDayNumber(startsOn, endsOn, date) === null) return null;
+
+  const [sessions, notBefore] = await Promise.all([
+    roundSessions(db, userId, localMidnight(timezone, date).toISOString()),
+    roundsNotBefore(db, country, p.trainee_approved_at as string),
+  ]);
   return {
     timezone,
     date,
-    rounds: roundsFor(timezone, date, sessions, now),
-    nextMorning: nextMorningAfter(date, p.starts_on as string, p.ends_on as string | null),
+    rounds: roundsFor(timezone, date, sessions, now, notBefore),
+    nextMorning: nextMorningAfter(date, startsOn, endsOn),
   };
 }
 
@@ -156,21 +199,24 @@ export async function roundsHistory(
 
   const timezone = ROUNDS_TIMEZONE;
   const today = todayIn(timezone, now);
-  // The calendar starts on the latest of the start date, the day they were
-  // confirmed and the day questions first opened, because a round before
-  // any of those could not have been done. It ends on the last working day
-  // of the placement, which is day twenty when no end date was set.
-  const confirmed = todayIn(timezone, new Date(p.trainee_approved_at as string));
-  const opened = await firstQuestionDay(db, country, timezone);
-  const first = [p.starts_on as string, confirmed, opened ?? p.starts_on].sort().at(-1)!;
-  const end = (p.ends_on as string | null) ?? dateOfWorkingDay(p.starts_on as string, HOMEWORK_DAYS);
+  // The calendar starts on the later of the start date and the day rounds
+  // start counting (confirmed, and questions first signed off), because a
+  // round before either could not have been done. On that first day the
+  // rounds that closed before it are not applicable rather than missed. It
+  // ends on the last rounds day, which is day twenty when no end date was set.
+  const startsOn = p.starts_on as string;
+  const endsOn = p.ends_on as string | null;
+  const notBefore = await roundsNotBefore(db, country, p.trainee_approved_at as string);
+  const counting = todayIn(timezone, notBefore);
+  const first = counting > startsOn ? counting : startsOn;
+  const end = lastRoundsDate(startsOn, endsOn);
   const last = end < today ? end : today;
 
   const all = await roundSessions(db, userId, localMidnight(timezone, first).toISOString());
   const days: RoundDay[] = [];
   for (let date = first; date <= last; date = shiftLocalDate(date, 1)) {
-    if (!isWorkingDay(date)) continue;
-    days.push({ date, rounds: roundsFor(timezone, date, all, now) });
+    if (roundsDayNumber(startsOn, endsOn, date) === null) continue;
+    days.push({ date, rounds: roundsFor(timezone, date, all, now, notBefore) });
   }
-  return { startsOn: p.starts_on as string, endsOn: (p.ends_on as string | null) ?? end, days };
+  return { startsOn, endsOn: endsOn ?? end, days };
 }

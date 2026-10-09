@@ -16,7 +16,7 @@ import { DEFAULT_TIMEZONE } from '@/lib/types';
 export const metadata: Metadata = { title: 'Before they begin' };
 
 export default async function OnboardingRosterPage() {
-  const { userId: adminId, isAdmin } = await requireCoach();
+  const { userId: adminId, isFirmAdmin } = await requireCoach();
   const me = await getLearnerProfile(adminId);
   // The supervisor's own clock, so "starts soon" means soon where they are.
   const timezone = me?.timezone ?? DEFAULT_TIMEZONE;
@@ -48,7 +48,7 @@ export default async function OnboardingRosterPage() {
               firm asks of people. A coach reads this list and records decisions
               about the people on it; they do not decide who joins. Both pages
               refuse them anyway. */}
-          {isAdmin ? (
+          {isFirmAdmin ? (
             <div className="flex flex-wrap gap-2">
               <ButtonLink href="/admin/onboarding/steps" variant="outline">
                 The checklist
@@ -85,7 +85,7 @@ export default async function OnboardingRosterPage() {
           title="The checklist is empty"
           description="Add what a new joiner has to have read, signed or set up before their first day. Until something is published here there is nothing to check off, but the people below are still here."
           action={
-            isAdmin ? (
+            isFirmAdmin ? (
               <ButtonLink href="/admin/onboarding/steps/new" variant="accent">
                 Add the first item
               </ButtonLink>

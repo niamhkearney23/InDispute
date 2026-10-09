@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { checkCoach } from '@/lib/admin/guard';
+import { checkReviewer } from '@/lib/admin/guard';
 import { lessonBySlug } from '@/content/seed/lessons';
 import { lessonHash, signOff } from '@/lib/lessons/signoff';
 
@@ -19,7 +19,7 @@ export async function signOffLesson(
   _prev: LessonSignOffState,
   formData: FormData,
 ): Promise<LessonSignOffState> {
-  const reviewerId = await checkCoach();
+  const reviewerId = await checkReviewer();
   if (!reviewerId) return { error: 'You are not signed in as a coach or administrator.' };
   if (formData.get('confirm') !== 'yes') {
     return { error: 'Tick the box to say you have read every screen.' };

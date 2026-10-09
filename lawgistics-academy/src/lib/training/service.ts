@@ -130,7 +130,10 @@ export async function startSession(
     .single();
 
   if (error || !session) {
-    return { error: error?.message ?? 'Could not start a session.' };
+    // The database's words are logged, not shown: they are for whoever reads
+    // the logs, and a learner can do nothing with a constraint name.
+    if (error) console.error('[training] session could not be made', error);
+    return { error: 'The session could not be started. Please try again.' };
   }
 
   const rows = selected.map((q, index) => ({
@@ -144,7 +147,8 @@ export async function startSession(
   const { error: insertError } = await db.from('training_session_questions').insert(rows);
   if (insertError) {
     await db.from('training_sessions').delete().eq('id', session.id);
-    return { error: insertError.message };
+    console.error('[training] session questions could not be saved', insertError);
+    return { error: 'The session could not be started. Please try again.' };
   }
 
   return { sessionId: session.id as string };
@@ -199,7 +203,9 @@ export async function resumeOrStartSession(
   /**
    * A trainee's round: how many questions it still needs, and when it
    * opened. A session left open from an earlier round is closed rather than
-   * resumed, because a session belongs to the round it was started in.
+   * resumed, because it was sized for that round. Whatever it was answered
+   * in this hour already counts towards `count` (rounds.ts counts answers by
+   * the hour they were given in), so the fresh one asks only for the rest.
    */
   round?: { count: number; opensAt: Date },
 ): Promise<{ sessionId: string } | { error: string }> {
@@ -255,14 +261,18 @@ export async function getSessionPlan(
 ): Promise<SessionPlan | null> {
   const db = createServiceClient();
 
-  const { data: session } = await db
-    .from('training_sessions')
-    .select('id, kind, user_id, status')
-    .eq('id', sessionId)
-    .maybeSingle();
+  const [{ data: session }, { data: profile }] = await Promise.all([
+    db.from('training_sessions').select('id, kind, user_id, status').eq('id', sessionId).maybeSingle(),
+    db.from('profiles').select('country').eq('id', userId).maybeSingle(),
+  ]);
 
   // Ownership is enforced here because the service client bypasses RLS.
   if (!session || session.user_id !== userId) return null;
+  // A session holds the questions of the country the learner had when it
+  // started. Somebody who has since changed country must not be shown the
+  // other country's law on resuming it, so those drop out like a question
+  // withdrawn mid-session. With no country to go on, nothing is shown.
+  if (!profile?.country) return null;
 
   const { data: rows } = await db
     .from('training_session_questions')
@@ -275,6 +285,7 @@ export async function getSessionPlan(
   const { data: delivery } = await db
     .from('v_question_delivery')
     .select('*')
+    .eq('country', profile.country)
     .in(
       'question_version_id',
       rows.map((r) => r.question_version_id),
@@ -328,10 +339,16 @@ export async function getSessionPlan(
 /* Grading an answer                                                          */
 /* -------------------------------------------------------------------------- */
 
-function sameSet(a: string[], b: string[]): boolean {
-  if (a.length !== b.length) return false;
+/**
+ * Whether two lists hold exactly the same ids. Compared as sets of equal
+ * size: a length check alone let ['a', 'a'] match ['a', 'b'], marking a
+ * two-answer question right with one of its answers sent twice.
+ */
+export function sameSet(a: string[], b: string[]): boolean {
+  const setA = new Set(a);
   const setB = new Set(b);
-  return a.every((value) => setB.has(value));
+  if (setA.size !== a.length || setB.size !== b.length || setA.size !== setB.size) return false;
+  return [...setA].every((value) => setB.has(value));
 }
 
 async function awardXp(
@@ -471,7 +488,8 @@ export async function submitAnswer(args: {
       .from('training_session_questions')
       .update({ answered_at: null })
       .eq('id', slot.id);
-    return { error: attemptError?.message ?? 'Could not record your answer.' };
+    if (attemptError) console.error('[training] answer could not be recorded', attemptError);
+    return { error: 'Your answer could not be recorded. Please try again.' };
   }
 
   const conceptIds = (conceptLinks ?? []).map((link) => link.concept_id as string);
@@ -714,7 +732,7 @@ export async function submitAnswer(args: {
     sourceReference: version.source_reference,
     sourceUrl: version.source_url,
     xpAwarded,
-    nextReviewLabel: soonestReviewAt ? describeNextReview(soonestReviewAt, now) : null,
+    nextReviewLabel: soonestReviewAt ? describeNextReview(soonestReviewAt, now, learnerZone) : null,
     coachNote: null,
   };
 }
@@ -1114,7 +1132,10 @@ export async function startModuleSession(
     .select('id')
     .single();
 
-  if (error || !session) return { error: error?.message ?? 'Could not start the module.' };
+  if (error || !session) {
+    if (error) console.error('[training] module session could not be made', error);
+    return { error: 'The module could not be started. Please try again.' };
+  }
 
   const { error: insertError } = await db.from('training_session_questions').insert(
     selected.map((q, index) => ({
@@ -1128,7 +1149,8 @@ export async function startModuleSession(
 
   if (insertError) {
     await db.from('training_sessions').delete().eq('id', session.id);
-    return { error: insertError.message };
+    console.error('[training] session questions could not be saved', insertError);
+    return { error: 'The session could not be started. Please try again.' };
   }
 
   return { sessionId: session.id as string };

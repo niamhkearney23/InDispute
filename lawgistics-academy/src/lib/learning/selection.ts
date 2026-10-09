@@ -63,8 +63,12 @@ async function loadBank(db: SupabaseClient, country: Country): Promise<BankQuest
     db.from('question_concepts').select('question_id, concept_id'),
   ]);
 
-  if (error) throw new Error(`Failed to load question bank: ${error.message}`);
-  if (linkError) throw new Error(`Failed to load concept links: ${linkError.message}`);
+  // The detail goes to the log; what is thrown is a plain sentence, because
+  // a thrown message can travel all the way to the button that was pressed.
+  if (error || linkError) {
+    console.error('[selection] the question bank could not be read', error ?? linkError);
+    throw new Error('The questions could not be loaded just now.');
+  }
 
   const conceptsByQuestion = new Map<string, string[]>();
   for (const link of links ?? []) {
@@ -88,6 +92,50 @@ interface LearnerState {
   dueConceptIds: Set<string>;
   recentQuestionIds: Set<string>;
   seenQuestionIds: Set<string>;
+  /** Questions last answered wrong, outside the cooldown, the longest-waiting first. */
+  missedQuestionIds: string[];
+}
+
+const ATTEMPT_PAGE = 1000;
+const ATTEMPT_PAGES = 50;
+
+/**
+ * Questions this learner's latest answer to was wrong, and which they have
+ * not been asked inside the cooldown, oldest miss first.
+ *
+ * Read page by page, as `answerMarks` is: a busy learner passes the thousand
+ * rows a request returns, and a cut-off history would hide a later right
+ * answer or an early wrong one. Rows come oldest first, so the last one kept
+ * for a question is its latest. Answering that same question right takes it
+ * out; nothing else does.
+ */
+export async function missedQuestions(
+  db: SupabaseClient,
+  userId: string,
+  cooldownSince: string,
+): Promise<string[]> {
+  const latest = new Map<string, { correct: boolean; at: string }>();
+  for (let page = 0; page < ATTEMPT_PAGES; page++) {
+    const { data, error } = await db
+      .from('user_question_attempts')
+      .select('question_id, is_correct, answered_at')
+      .eq('user_id', userId)
+      .order('answered_at', { ascending: true })
+      .order('id', { ascending: true })
+      .range(page * ATTEMPT_PAGE, page * ATTEMPT_PAGE + ATTEMPT_PAGE - 1);
+    if (error) return [];
+    for (const row of (data ?? []) as Array<{ question_id: string; is_correct: boolean; answered_at: string }>) {
+      latest.delete(row.question_id);
+      latest.set(row.question_id, { correct: row.is_correct === true, at: row.answered_at });
+    }
+    if ((data ?? []).length < ATTEMPT_PAGE) break;
+  }
+  const cutoff = new Date(cooldownSince).getTime();
+  // Re-inserting on every row keeps the map in order of each question's
+  // latest answer, so the longest-waiting miss comes first.
+  return [...latest.entries()]
+    .filter(([, a]) => !a.correct && typeof a.at === 'string' && new Date(a.at).getTime() < cutoff)
+    .map(([id]) => id);
 }
 
 async function loadLearnerState(
@@ -98,7 +146,7 @@ async function loadLearnerState(
     Date.now() - REPEAT_COOLDOWN_HOURS * 60 * 60 * 1000,
   ).toISOString();
 
-  const [mastery, due, recent, seen] = await Promise.all([
+  const [mastery, due, recent, seen, missed] = await Promise.all([
     db
       .from('user_concept_mastery')
       .select('concept_id, mastery, attempts')
@@ -114,6 +162,7 @@ async function loadLearnerState(
       .eq('user_id', userId)
       .gte('answered_at', cooldownSince),
     db.from('user_question_attempts').select('question_id').eq('user_id', userId),
+    missedQuestions(db, userId, cooldownSince),
   ]);
 
   return {
@@ -126,6 +175,7 @@ async function loadLearnerState(
     dueConceptIds: new Set((due.data ?? []).map((r) => r.concept_id as string)),
     recentQuestionIds: new Set((recent.data ?? []).map((r) => r.question_id as string)),
     seenQuestionIds: new Set((seen.data ?? []).map((r) => r.question_id as string)),
+    missedQuestionIds: missed,
   };
 }
 
@@ -238,12 +288,38 @@ export async function selectDailyQuestions(
     }
   };
 
+  // A question got wrong comes back, first, until that same question is
+  // answered right. Mastery alone did not do this: one right answer on a
+  // concept could lift it out of "weak" while the question itself, still
+  // wrong, never returned. Only questions in this country's bank, so the
+  // country filter holds. Up to half the session, so new material still
+  // arrives for somebody with a long list; the rest come back in the spill
+  // below, before anything else, and in later sessions. Recorded as
+  // weakness, the nearest reason the database has.
+  const bankById = new Map(bank.map((q) => [q.questionId, q]));
+  const missed = state.missedQuestionIds
+    .map((id) => bankById.get(id))
+    .filter((q): q is BankQuestion => q !== undefined);
+  const takeMissed = (wanted: number) => {
+    for (const q of missed) {
+      if (chosen.length >= count || wanted <= 0) return;
+      if (usedIds.has(q.questionId)) continue;
+      usedIds.add(q.questionId);
+      chosen.push({ questionId: q.questionId, questionVersionId: q.questionVersionId, reason: 'weakness' });
+      wanted -= 1;
+    }
+  };
+  takeMissed(Math.ceil(count / 2));
+
+  // The mix shares out what is left, so new material keeps its share.
+  const rest = count - chosen.length;
   for (const bucket of MIX_FALLBACK_ORDER) {
-    take(bucket, Math.round(TRAINING_MIX[bucket] * count), false);
+    take(bucket, Math.round(TRAINING_MIX[bucket] * rest), false);
   }
 
   // Spill: whatever the mix could not fill, take from the other buckets in
   // priority order rather than shipping a short session.
+  takeMissed(count - chosen.length);
   for (const bucket of MIX_FALLBACK_ORDER) {
     take(bucket, count - chosen.length, false);
   }

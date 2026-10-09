@@ -35,6 +35,9 @@ export function RoundsCalendar({
   }
   while (week.length < 5) week.push(null);
   weeks.push(week);
+  // Only the first morning can have rounds that closed before rounds started
+  // counting, so the key mentions them only when there are some.
+  const anyNotCounted = days.some((d) => d.rounds.some((r) => r.state === 'not_applicable'));
 
   return (
     <div>
@@ -50,6 +53,7 @@ export function RoundsCalendar({
               if (!day) return <span key={j} aria-hidden />;
               const done = day.rounds.filter((r) => r.state === 'done').length;
               const missed = day.rounds.filter((r) => r.state === 'missed').length;
+              const counted = day.rounds.filter((r) => r.state !== 'not_applicable').length;
               const isToday = day.date === today;
               return (
                 <div
@@ -57,13 +61,15 @@ export function RoundsCalendar({
                   className={cn(
                     'rounded-md border px-1 py-1.5 text-center',
                     isToday ? 'border-accent' : 'border-rule',
-                    done === 4 && 'bg-verdict-correct-wash',
+                    counted > 0 && done === counted && 'bg-verdict-correct-wash',
                   )}
                 >
                   {/* aria-label on a plain div is not read out, so the
                       description is text a screen reader reaches. */}
                   <span className="sr-only">
-                    {`${day.date}: ${done} of 4 rounds done${missed ? `, ${missed} missed` : ''}`}
+                    {`${day.date}: ${done} of ${counted} rounds done${missed ? `, ${missed} missed` : ''}${
+                      counted < 4 ? `, ${4 - counted} before rounds started` : ''
+                    }`}
                   </span>
                   <p className="text-xs tabular-nums" aria-hidden>
                     {Number(day.date.slice(8))}
@@ -73,7 +79,13 @@ export function RoundsCalendar({
                       <RoundMark
                         key={r.number}
                         state={
-                          r.state === 'done' ? 'done' : r.state === 'missed' ? 'missed' : 'to-come'
+                          r.state === 'done'
+                            ? 'done'
+                            : r.state === 'missed'
+                              ? 'missed'
+                              : r.state === 'not_applicable'
+                                ? 'not-counted'
+                                : 'to-come'
                         }
                       />
                     ))}
@@ -95,6 +107,11 @@ export function RoundsCalendar({
         <span className="inline-flex items-center gap-1">
           <RoundMark state="to-come" /> a hollow grey ring, still to come
         </span>
+        {anyNotCounted ? (
+          <span className="inline-flex items-center gap-1">
+            <RoundMark state="not-counted" /> a grey dash, before rounds started
+          </span>
+        ) : null}
       </p>
     </div>
   );
@@ -102,13 +119,16 @@ export function RoundsCalendar({
 
 /**
  * One round, told apart by shape as well as colour: filled when done, a
- * cross when missed, hollow while it is still to come.
+ * cross when missed, hollow while it is still to come, and a dash when it
+ * closed before rounds started counting for this person.
  */
-function RoundMark({ state }: { state: 'done' | 'missed' | 'to-come' }) {
+function RoundMark({ state }: { state: 'done' | 'missed' | 'to-come' | 'not-counted' }) {
   return (
     <svg viewBox="0 0 8 8" className="size-2 shrink-0" aria-hidden>
       {state === 'done' ? (
         <circle cx="4" cy="4" r="3.5" className="fill-verdict-correct" />
+      ) : state === 'not-counted' ? (
+        <path d="M1.5 4h5" className="stroke-rule-strong" strokeWidth="1.4" strokeLinecap="round" fill="none" />
       ) : state === 'missed' ? (
         <path
           d="M1.5 1.5l5 5M6.5 1.5l-5 5"

@@ -36,7 +36,7 @@ export default async function WorkBoardPage() {
   if (!user) redirect('/login?next=/work');
 
   const profile = await getLearnerProfile(user.id);
-  if (!profile) redirect('/login');
+  if (!profile) redirect('/account-problem');
 
   const items = await workBoardFor(user.id);
   const today = new Intl.DateTimeFormat('en-CA', {

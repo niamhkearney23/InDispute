@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { requireCoach } from '@/lib/admin/guard';
+import { requireReviewer } from '@/lib/admin/guard';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { DEFAULT_TIMEZONE } from '@/lib/types';
 import { matterForStaff, signedUrlForRecording } from '@/lib/matters/service';
@@ -28,7 +28,7 @@ function when(iso: string, timeZone: string): string {
  * an administrator, the form to change it.
  */
 export default async function AdminMatterPage({ params }: { params: Promise<{ id: string }> }) {
-  const { userId, isAdmin } = await requireCoach();
+  const { userId, isAdmin } = await requireReviewer();
   const { id } = await params;
   const me = await getLearnerProfile(userId);
   const timeZone = me?.timezone ?? DEFAULT_TIMEZONE;
