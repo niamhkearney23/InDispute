@@ -2738,6 +2738,76 @@ select pg_temp.expect(
 set local role authenticated;
 set local request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
 select pg_temp.expect(public.is_firm_admin(), 'an administrator answers as a firm administrator too');
+-- -----------------------------------------------------------------------------
+-- 0038: each country's law reaches only that country's learners
+-- -----------------------------------------------------------------------------
+-- The app filters by country with the service role, but a learner calling the
+-- database directly read both banks through the delivery view, and both
+-- countries' daily facts. A Malaysian learner must not be able to read
+-- Australian law, or the other way round; staff read both.
+insert into auth.users (id, email, raw_user_meta_data)
+values ('aaaa0038-0000-0000-0000-000000000001', 'my-0038@example.test', '{"country":"MY"}'::jsonb),
+       ('aaaa0038-0000-0000-0000-000000000002', 'au-0038@example.test', '{"country":"AU"}'::jsonb);
+
+insert into public.questions (id, slug, domain_id, status, country)
+values ('cccc0038-0000-0000-0000-000000000001', 'au-question-0038',
+        'aaaaaaaa-0000-0000-0000-000000000001', 'published', 'AU'),
+       ('cccc0038-0000-0000-0000-000000000002', 'my-question-0038',
+        'aaaaaaaa-0000-0000-0000-000000000001', 'published', 'MY');
+insert into public.question_versions
+  (question_id, version, question_type, stem, options, correct_option_ids,
+   explanation, difficulty, jurisdiction)
+values ('cccc0038-0000-0000-0000-000000000001', 1, 'multiple_choice', 'An Australian question?',
+        '[{"id":"a","text":"Yes"},{"id":"b","text":"No"}]'::jsonb, array['a'], 'Because yes.', 1, 'VIC'),
+       ('cccc0038-0000-0000-0000-000000000002', 1, 'multiple_choice', 'A Malaysian question?',
+        '[{"id":"a","text":"Yes"},{"id":"b","text":"No"}]'::jsonb, array['a'], 'Because yes.', 1, 'MY_FEDERAL');
+
+insert into public.daily_facts (slug, title, body, jurisdiction, status, country)
+values ('au-fact-0038', 'An Australian fact.',
+        'This one is Australian law, published, and long enough to be a real body of a daily fact.',
+        'VIC', 'published', 'AU'),
+       ('my-fact-0038', 'A Malaysian fact.',
+        'This one is Malaysian law, published, and long enough to be a real body of a daily fact.',
+        'MY_FEDERAL', 'published', 'MY');
+
+set local role authenticated;
+set local request.jwt.claim.sub = 'aaaa0038-0000-0000-0000-000000000001';
+select pg_temp.expect(
+  not exists (select 1 from public.v_question_delivery where country = 'AU'),
+  'a Malaysian learner cannot read an Australian question through the delivery view');
+select pg_temp.expect(
+  exists (select 1 from public.v_question_delivery
+          where question_id = 'cccc0038-0000-0000-0000-000000000002'),
+  'a Malaysian learner still reads Malaysian questions through the delivery view');
+select pg_temp.expect(
+  not exists (select 1 from public.daily_facts where country = 'AU'),
+  'a Malaysian learner cannot read an Australian daily fact');
+select pg_temp.expect(
+  exists (select 1 from public.daily_facts where slug = 'my-fact-0038'),
+  'a Malaysian learner still reads Malaysian daily facts');
+
+set local request.jwt.claim.sub = 'aaaa0038-0000-0000-0000-000000000002';
+select pg_temp.expect(
+  not exists (select 1 from public.v_question_delivery where country = 'MY')
+  and not exists (select 1 from public.daily_facts where country = 'MY'),
+  'an Australian learner cannot read Malaysian questions or facts');
+
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+select pg_temp.expect(
+  (select count(distinct country) from public.v_question_delivery
+   where question_id in ('cccc0038-0000-0000-0000-000000000001',
+                         'cccc0038-0000-0000-0000-000000000002')) = 2
+  and (select count(distinct country) from public.daily_facts
+       where slug in ('au-fact-0038', 'my-fact-0038')) = 2,
+  'a coach reads both countries'' questions and facts, to review them');
+reset role;
+
+set local role service_role;
+select pg_temp.expect(
+  (select count(distinct country) from public.v_question_delivery
+   where question_id in ('cccc0038-0000-0000-0000-000000000001',
+                         'cccc0038-0000-0000-0000-000000000002')) = 2,
+  'the server reads both countries through the delivery view, and filters by the learner itself');
 reset role;
 
 \echo ''

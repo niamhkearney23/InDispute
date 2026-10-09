@@ -270,7 +270,8 @@ Your mastery evolves. Your historical record does not get rewritten underneath y
 
 The `questions` and `question_versions` tables are admin-only under RLS. Learners read
 `v_question_delivery`, a view that omits the answer key and every piece of explanatory
-text. Grading happens server-side, in `submitAnswer`, against the base tables.
+text, and shows a learner only their own country's questions (staff and the service role
+see both). Grading happens server-side, in `submitAnswer`, against the base tables.
 
 There is no client-side path to a correct answer before it is submitted.
 

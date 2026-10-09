@@ -104,15 +104,48 @@ export function cleanReply(reply: string): string {
 export const EXPLAIN_OPENING =
   'Explain it to me as if I were ten years old, in your own words. I will stop you whenever you use a term without saying what it means, skip a step, or make it so simple it is no longer true.';
 
+// Characters that show as nothing, so "T\u200bUTOR:" looks like "TUTOR:" to a
+// reader while slipping past a plain match.
+const INVISIBLE = /[\u00ad\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\ufeff]/g;
+
+// Letters a speaker's name can be disguised with: digits and symbols that
+// read as letters, and the Cyrillic and Greek letters that look Latin. Each
+// character in the first string reads as the letter in the same place in
+// the second.
+const LOOKALIKE_FROM = '0134578@$|!\u0430\u0435\u043e\u0440\u0441\u0443\u0445\u0456\u0455\u0442\u043c\u043d\u043a\u0432\u03b1\u03b5\u03bf\u03c1\u03c4\u03c5\u03b9\u03ba\u03bd\u03bc';
+const LOOKALIKE_TO = 'oleastbasliaeopcyxistmhkbaeoptuikvm';
+
+const SPEAKERS = new Set(['tutor', 'learner', 'system', 'assistant', 'user', 'human']);
+
+function looksLikeSpeaker(name: string): boolean {
+  const plain = [...name.toLowerCase()]
+    .map((c) => {
+      const at = LOOKALIKE_FROM.indexOf(c);
+      return at === -1 ? c : LOOKALIKE_TO[at];
+    })
+    .join('')
+    .replace(/[^a-z]/g, '');
+  // "1" is read as l above, but it can stand for i or even o, so "ASS1STANT"
+  // and "TUT1R" are tried those ways too.
+  return SPEAKERS.has(plain) || SPEAKERS.has(plain.replace(/l/g, 'i')) || SPEAKERS.has(plain.replace(/l/g, 'o'));
+}
+
 /**
  * The learner's own words, fenced so the model reads them as words to look
  * at rather than instructions, and so a line typed as "TUTOR: ..." cannot
- * pass for the tutor.
+ * pass for the tutor. Every < and > goes, not just runs of three, because
+ * taking "<<<" out of ">><<<>" leaves a fresh ">>>" behind; and a line that
+ * starts with something that reads as a speaker's name, however it is
+ * spelt, is rewritten as a report of what that speaker said.
  */
 export function quoted(text: string): string {
   const fenced = text
-    .replace(/<<<|>>>/g, '')
-    .replace(/^\s*(tutor|learner|system|assistant)\s*:/gim, '($1 said):');
+    .normalize('NFKC')
+    .replace(INVISIBLE, '')
+    .replace(/[<>]/g, '')
+    .replace(/^[^\S\r\n]*([^:\r\n\u2028\u2029]{1,40}):/gm, (line, name: string) =>
+      looksLikeSpeaker(name) ? `(${name.trim()} said):` : line,
+    );
   return `<<<${fenced}>>>`;
 }
 
@@ -247,12 +280,12 @@ export function testPrompt(input: {
 
 /**
  * Everything a "Test me" reply may repeat without counting as the tutor
- * stating law: the checked words, and the learner's own reason.
+ * stating law: the checked words only. The learner's reason is not among
+ * them, because whatever law a learner types is unchecked; the guard allows
+ * it back only where the reply quotes it.
  */
-export function testAllowedText(q: VerifiedQuestion, reason: string): string {
-  return [q.scenario ?? '', q.stem, ...q.options.map((o) => o.text), q.explanation, q.misconception ?? '', reason].join(
-    ' ',
-  );
+export function testAllowedText(q: VerifiedQuestion): string {
+  return [q.scenario ?? '', q.stem, ...q.options.map((o) => o.text), q.explanation, q.misconception ?? ''].join(' ');
 }
 
 /**
