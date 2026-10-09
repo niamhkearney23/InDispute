@@ -84,7 +84,14 @@ export function WorkPostForm({
         const form = event.currentTarget;
         const size = (name: string) =>
           (form.elements.namedItem(name) as HTMLInputElement | null)?.files?.[0]?.size ?? 0;
-        const problem = uploadTooLarge([size('file'), size('memo')]);
+        // The declaration is needed whenever something is attached, and only
+        // then: changing a title needs no statement about a file.
+        const declared = (form.elements.namedItem('declaredClean') as HTMLInputElement | null)?.checked;
+        const problem =
+          uploadTooLarge([size('file'), size('memo')]) ??
+          ((size('file') > 0 || size('memo') > 0) && !declared
+            ? 'Tick the box to confirm there is nothing in the file or the recording that identifies a client.'
+            : null);
         setTooLarge(problem);
         if (problem) event.preventDefault();
       }}
@@ -207,6 +214,24 @@ export function WorkPostForm({
           </div>
 
           <VoiceRecorder existing={initial.hasMemo} />
+
+          {/* The same declaration an intern makes when handing work in, because
+              whoever the post is for can open what is attached. Not pre-ticked. */}
+          <div className="rounded-md border border-rule bg-paper-sunk px-4 py-3 text-sm">
+            <p className="text-slate">
+              <strong className="font-medium text-ink">Nothing that identifies a client.</strong>{' '}
+              No names, no company names, no file numbers, no addresses, no dates that would pick
+              a matter out. If the work is on a real file, take those out before you attach it or
+              record over it. Needed whenever you attach a file or a recording.
+            </p>
+            <label className="mt-3 flex items-start gap-2.5 py-2">
+              <input type="checkbox" name="declaredClean" className="mt-0.5 size-5" />
+              <span>
+                I have checked, and there is nothing in this file or recording that identifies a
+                client.
+              </span>
+            </label>
+          </div>
         </div>
       </Card>
 

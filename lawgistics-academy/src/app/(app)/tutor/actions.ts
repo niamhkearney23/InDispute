@@ -185,9 +185,15 @@ export async function sendExplanation(_prev: TutorState, formData: FormData): Pr
   const provider = getProvider();
   if (!provider) return { error: AI_OFF, draft: body };
 
-  let history = await messages(convo.id);
+  // The learner's message is saved only once the tutor has replied to it.
+  // Saved first, a reply that failed or timed out left an explanation sitting
+  // in the conversation with nothing under it, counted against the day's
+  // limit; now a failure saves nothing and hands the words back to send again.
+  const history = await messages(convo.id);
   const last = history[history.length - 1];
   if (retry) {
+    // An explanation already saved with no reply: left only by a reply that
+    // could not be saved, or by a conversation from before this order.
     if (!last || last.role !== 'learner') return { error: null };
   } else {
     if (body.length < 2) return { error: 'Write your explanation first.', draft: body };
@@ -198,12 +204,8 @@ export async function sendExplanation(_prev: TutorState, formData: FormData): Pr
         draft: body,
       };
     }
-    if ((await addMessage(convo.id, { role: 'learner', body })) !== 'saved') {
-      return { error: 'That could not be saved. Please try again.', draft: body };
-    }
-    history = [...history, { role: 'learner', body } as (typeof history)[number]];
   }
-  revalidatePath(`/tutor/${convo.id}`);
+  const asked = retry ? history : [...history, { role: 'learner', body } as (typeof history)[number]];
 
   let reply = '';
   try {
@@ -212,7 +214,7 @@ export async function sendExplanation(_prev: TutorState, formData: FormData): Pr
         system: EXPLAIN_SYSTEM,
         prompt: explainPrompt(
           convo.topic,
-          history.map((m) => ({ role: m.role, body: m.body })),
+          asked.map((m) => ({ role: m.role, body: m.body })),
         ),
         maxTokens: 350,
         temperature: 0.4,
@@ -222,10 +224,13 @@ export async function sendExplanation(_prev: TutorState, formData: FormData): Pr
     reply = '';
   }
   if (!reply) {
-    return {
-      error:
-        'The tutor could not reply just now. What you wrote is saved; press "Ask again" in a minute.',
-    };
+    return retry
+      ? { error: 'The tutor could not reply just now. Press "Ask again" in a minute.' }
+      : {
+          error:
+            'The tutor could not reply just now, so nothing was saved. Your words are still in the box: send them again in a minute.',
+          draft: body,
+        };
   }
   // Nothing that looks like law: everything the learner hears about the law
   // comes from the lesson or a coach, never from the model. The tutor may
@@ -233,13 +238,17 @@ export async function sendExplanation(_prev: TutorState, formData: FormData): Pr
   // repeat them as its own, or a learner could type a time limit and have
   // the tutor hand it back as fact. Nor may it tell them they are right or
   // wrong, which is a statement of law with no number in it.
-  const theirWords = [convo.topic, ...history.filter((m) => m.role === 'learner').map((m) => m.body)];
+  const theirWords = [convo.topic, ...asked.filter((m) => m.role === 'learner').map((m) => m.body)];
   if (statesUncheckedLaw(reply, '', theirWords) || judgesTheLaw(reply)) {
     reply = SAFE_EXPLAIN_REPLY;
   }
 
+  if (!retry && (await addMessage(convo.id, { role: 'learner', body })) !== 'saved') {
+    return { error: 'That could not be saved. Please try again.', draft: body };
+  }
   if ((await addMessage(convo.id, { role: 'tutor', body: reply })) !== 'saved') {
-    return { error: 'The tutor replied but it could not be saved. Press "Ask again".' };
+    revalidatePath(`/tutor/${convo.id}`);
+    return { error: 'Your explanation is saved, but the reply was not. Press "Ask again".' };
   }
   revalidatePath(`/tutor/${convo.id}`);
   return { error: null };

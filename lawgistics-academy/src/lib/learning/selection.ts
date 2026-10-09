@@ -63,8 +63,12 @@ async function loadBank(db: SupabaseClient, country: Country): Promise<BankQuest
     db.from('question_concepts').select('question_id, concept_id'),
   ]);
 
-  if (error) throw new Error(`Failed to load question bank: ${error.message}`);
-  if (linkError) throw new Error(`Failed to load concept links: ${linkError.message}`);
+  // The detail goes to the log; what is thrown is a plain sentence, because
+  // a thrown message can travel all the way to the button that was pressed.
+  if (error || linkError) {
+    console.error('[selection] the question bank could not be read', error ?? linkError);
+    throw new Error('The questions could not be loaded just now.');
+  }
 
   const conceptsByQuestion = new Map<string, string[]>();
   for (const link of links ?? []) {

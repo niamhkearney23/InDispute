@@ -90,7 +90,7 @@ test('the tutor never asks or marks a question from the other country', () => {
 });
 
 test('the first day of questions is found by country in the query', () => {
-  const body = functionBody(read('src/lib/training/rounds-service.ts'), 'firstQuestionDay');
+  const body = functionBody(read('src/lib/training/rounds-service.ts'), 'firstQuestionAt');
   assert.match(body, /\.eq\('questions\.country', country\)/);
   assert.doesNotMatch(body, /\.limit\(200\)/);
 });

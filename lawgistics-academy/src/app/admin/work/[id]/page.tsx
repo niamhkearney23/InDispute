@@ -93,10 +93,15 @@ export default async function WorkPostAdminPage({
           <div className="mt-3">
             <Notice tone="warn">
               Made from an email from {emailInfo.from}
-              {emailInfo.verified === false
-                ? ', which the sender\u2019s email service could not confirm came from them'
-                : ''}
+              {emailInfo.auth === 'dmarc'
+                ? ', confirmed by their domain\u2019s DMARC check'
+                : emailInfo.auth === 'dkim'
+                  ? ', confirmed by a signature from their own domain'
+                  : // From before senders had to be confirmed by their own
+                    // domain: SPF only checks the envelope, which anybody sets.
+                    '. It came in before senders were checked properly, so nothing confirms it really came from them: ask them before you publish it'}
               . Read it through, take out any client names, then publish it below.
+              {post.fileName ? null : ' Files are not taken from email: add one below if the work needs it.'}
             </Notice>
           </div>
         ) : null}

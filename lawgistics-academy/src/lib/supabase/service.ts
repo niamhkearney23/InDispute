@@ -1,7 +1,8 @@
 import 'server-only';
 
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { publicEnv, requireServiceRoleKey } from '@/lib/env';
+import { publicEnv } from '@/lib/env';
+import { requireServiceRoleKey } from '@/lib/env-server';
 
 let cached: SupabaseClient | null = null;
 

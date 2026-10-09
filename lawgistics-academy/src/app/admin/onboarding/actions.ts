@@ -245,7 +245,8 @@ export type InviteState = { error: string | null; link?: string; email?: string 
 
 const inviteSchema = z.object({
   email: z.string().trim().email('That does not look like an email address.').max(200),
-  displayName: z.string().trim().max(120).optional().or(z.literal('')),
+  // Eighty, as the database holds a display name to (0039).
+  displayName: z.string().trim().max(80, 'Keep the name to 80 characters.').optional().or(z.literal('')),
   startsOn: z
     .string()
     .trim()

@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { createSupabaseServerClient, getCurrentUser } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/service';
 import {
   completeSession,
   getCoachNote,
@@ -47,6 +48,7 @@ import {
 } from '@/lib/types';
 import type { AnswerFeedback, SessionKind } from '@/lib/types';
 import { hasAccess } from '@/lib/access/service';
+import { userFacingError } from '@/lib/env';
 
 const GOAL_SLUGS = IMPROVEMENT_GOALS.map((g) => g.slug);
 
@@ -127,7 +129,9 @@ export async function saveOnboarding(
     })
     .eq('id', user.id);
 
-  if (error) return { error: error.message };
+  // The database's own words name constraints and columns; the person needs
+  // to know only that it did not save.
+  if (error) return { error: 'Your answers could not be saved. Please try again.' };
 
   revalidatePath('/dashboard');
   // Somebody joining goes to the tour, which ends on the diagnostic when there
@@ -161,7 +165,8 @@ export async function beginSession(
     try {
       today = await roundsToday(user.id);
     } catch (caught) {
-      return { error: caught instanceof Error ? caught.message : 'Could not start the session.' };
+      console.error('[beginSession] rounds could not be read', caught);
+      return { error: userFacingError(caught, 'The session could not be started. Please try again.') };
     }
     if (today) {
       const open = openRound(today.rounds);
@@ -187,8 +192,11 @@ export async function beginSession(
     // earlier. Left unhandled, the thrown error reaches the browser as a
     // scrubbed server error and the button simply sits there saying
     // "Preparing", which is indistinguishable from nothing happening at all.
+    // That one message names the fix and is shown; anything else is logged
+    // and replaced, because a database error is not for the learner to read.
+    console.error('[beginSession] could not start', caught);
     outcome = {
-      error: caught instanceof Error ? caught.message : 'Could not start the session.',
+      error: userFacingError(caught, 'The session could not be started. Please try again.'),
     };
   }
 
@@ -213,8 +221,9 @@ export async function beginModule(slug: string): Promise<{ error: string } | und
   try {
     outcome = await startModuleSession(user.id, definition.domains);
   } catch (caught) {
+    console.error('[beginModule] could not start', caught);
     outcome = {
-      error: caught instanceof Error ? caught.message : 'Could not start the module.',
+      error: userFacingError(caught, 'The module could not be started. Please try again.'),
     };
   }
 
@@ -404,6 +413,8 @@ export async function claimWork(_prev: WorkState, formData: FormData): Promise<W
 const submitSchema = z.object({
   postId: z.string().uuid(),
   note: z.string().trim().max(2000),
+  // Optional only so a page open since before the nonce existed still works.
+  nonce: z.string().uuid().nullable(),
 });
 
 /**
@@ -426,6 +437,7 @@ export async function submitWork(_prev: WorkState, formData: FormData): Promise<
   const parsed = submitSchema.safeParse({
     postId: formData.get('postId'),
     note: formData.get('note') ?? '',
+    nonce: formData.get('nonce') || null,
   });
   if (!parsed.success) return { error: 'That could not be read.' };
 
@@ -454,6 +466,20 @@ export async function submitWork(_prev: WorkState, formData: FormData): Promise<
     .maybeSingle();
   if (!claim) return { error: 'Put your name on the work before handing it in.' };
 
+  // The same form pressed twice, or sent again after a slow upload: the
+  // first one is already in, so this one is that success, not a second copy.
+  // Checked before the upload so a repeat stores nothing.
+  const { nonce } = parsed.data;
+  if (nonce) {
+    const { data: already } = await supabase
+      .from('work_submissions')
+      .select('id')
+      .eq('client_nonce', nonce)
+      .eq('user_id', user.id)
+      .maybeSingle();
+    if (already) return handedIn(parsed.data.postId);
+  }
+
   const path = `submissions/${user.id}/${parsed.data.postId}/${Date.now()}.${WORK_FILE_TYPES[file.type]}`;
 
   const { error: uploadError } = await supabase.storage
@@ -468,17 +494,34 @@ export async function submitWork(_prev: WorkState, formData: FormData): Promise<
     file_name: file.name.replace(/[\\/]/g, ' ').trim().slice(0, 200) || 'Handed in',
     note: parsed.data.note,
     declared_clean: true,
+    client_nonce: nonce,
   });
 
   if (error) {
+    // The file went up first, so a row that did not go in leaves a file
+    // nobody will ever open. Taken out again, best effort: the learner may
+    // not delete in the bucket, so this is the server's client, on the path
+    // built above from the session, never one from the form.
+    try {
+      await createServiceClient().storage.from('work').remove([path]);
+    } catch {
+      // Left behind; the hand-in itself is what the learner is told about.
+    }
+    // Two presses racing past the check above: the unique index let one in.
+    if (error.code === '23505' && nonce) return handedIn(parsed.data.postId);
     return { error: 'That could not be handed in. Put your name on the work first.' };
   }
 
+  return handedIn(parsed.data.postId);
+}
+
+/** What a successful hand-in, first time or repeated, refreshes and says. */
+function handedIn(postId: string): WorkState {
   revalidatePath('/work');
-  revalidatePath(`/work/${parsed.data.postId}`);
+  revalidatePath(`/work/${postId}`);
   revalidatePath('/dashboard');
   revalidatePath('/admin/work');
-  revalidatePath(`/admin/work/${parsed.data.postId}`);
+  revalidatePath(`/admin/work/${postId}`);
   return { error: null, ok: 'Handed in.' };
 }
 
@@ -744,6 +787,16 @@ export async function uploadMatterRecording(
   if (!(file instanceof File) || file.size === 0) return { error: 'Record something first.' };
   const problem = workMemoProblem(file);
   if (problem) return { error: problem };
+  // The same declaration as for work handed in: a coach listens to this,
+  // and an explanation of a real file can name the client without meaning
+  // to. The database refuses a recording without it too.
+  if (formData.get('recordingDeclaredClean') !== 'on') {
+    return {
+      error:
+        'Tick the box to confirm there is nothing in the recording that identifies a client. ' +
+        'If there is, record it again without it.',
+    };
+  }
 
   const attempt = await attemptForCaller(attemptId.data);
   if (!attempt || attempt.userId !== user.id) return { error: 'That attempt could not be found.' };
@@ -763,6 +816,7 @@ export async function uploadMatterRecording(
     .from('matter_attempts')
     .update({
       recording_path: path,
+      recording_declared_clean: true,
       recording_seconds:
         Number.isFinite(seconds) && seconds >= 1 ? Math.min(Math.round(seconds), SPEAK_MAX_SECONDS) : null,
     })

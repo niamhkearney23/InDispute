@@ -214,7 +214,16 @@ export default async function WorkPostPage({ params }: { params: Promise<{ id: s
           )}
 
           {canClaim ? <ClaimForm postId={post.id} everyone={post.maxClaims === null} /> : null}
-          {canSubmit ? <SubmitForm postId={post.id} again={state === 'again'} /> : null}
+          {canSubmit ? (
+            <SubmitForm
+              postId={post.id}
+              again={state === 'again'}
+              // Fresh on every render of the page, including the one after a
+              // hand-in, so a second press of the same form is one submission
+              // and a deliberate next go is another.
+              nonce={crypto.randomUUID()}
+            />
+          ) : null}
         </Card>
       ) : null}
 

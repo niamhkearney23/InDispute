@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import { userFacingError } from '@/lib/env';
 import { Button, Notice, Wordmark, cn } from '@/components/ui';
 import { brand } from '@/lib/brand';
 import { RotatingMaxim } from '@/components/rotating-maxim';
@@ -14,6 +15,41 @@ import {
   type Country,
   type PracticeChoice,
 } from '@/lib/types';
+
+/**
+ * After a sign-up, whether the address was new or already had an account.
+ * Worded so it is true either way: an address with an account already is
+ * told nothing more, and its owner can sign in or reset the password.
+ */
+const CHECK_INBOX =
+  'Nearly there. If that address can be used, we have sent it an email: open it and press ' +
+  'the link to finish signing up. If it has not arrived in a few minutes, check your junk ' +
+  'folder. Already have an account? Sign in instead.';
+
+/** Sign-up problems in our words, by Supabase's error code, never its message. */
+function signUpProblem(code: string | undefined): string {
+  if (code === 'weak_password') {
+    return 'That password is too easy to guess. Choose a longer one, at least 10 characters.';
+  }
+  if (code === 'over_email_send_rate_limit' || code === 'over_request_rate_limit') {
+    return 'Too many attempts just now. Wait a few minutes and try again.';
+  }
+  if (code === 'email_address_invalid') return 'That email address cannot be used. Check it and try again.';
+  return 'Your account could not be created just now. Please try again.';
+}
+
+/**
+ * Sign-in problems in our words. A wrong password and an unknown address get
+ * the same sentence, as Supabase itself intends, so the form cannot be used
+ * to find out who has an account.
+ */
+function signInProblem(code: string | undefined): string {
+  if (code === 'email_not_confirmed') {
+    return 'Your email address is not confirmed yet. Open the link in the email we sent when you signed up.';
+  }
+  if (code === 'over_request_rate_limit') return 'Too many attempts just now. Wait a few minutes and try again.';
+  return 'That email and password do not match an account here. Check them, or reset your password.';
+}
 
 export function AuthForm({
   mode,
@@ -77,9 +113,7 @@ export function AuthForm({
       // clicking a disabled button with no explanation. The likeliest cause is
       // a deployment built without the Supabase environment variables, since
       // NEXT_PUBLIC_ values are inlined at build time rather than read at boot.
-      setError(
-        caught instanceof Error ? caught.message : 'Something went wrong. Please try again.',
-      );
+      setError(userFacingError(caught, 'Something went wrong. Please try again.'));
       setPending(false);
     }
   }
@@ -123,7 +157,16 @@ export function AuthForm({
       });
 
       if (signUpError) {
-        setError(signUpError.message);
+        // Supabase says "User already registered" when the address has an
+        // account, which would let anybody find out who has one by trying
+        // addresses here. That case gets the same words as a new sign-up
+        // waiting on its email, and an address that already has an account
+        // gets no email it did not ask for.
+        if (signUpError.code === 'user_already_exists' || /already registered/i.test(signUpError.message)) {
+          setNotice(CHECK_INBOX);
+        } else {
+          setError(signUpProblem(signUpError.code));
+        }
         setPending(false);
         return;
       }
@@ -134,10 +177,7 @@ export function AuthForm({
       // What an administrator can do when the email never arrives lives in
       // the setup notes, not here: somebody signing up cannot act on it.
       if (!data.session) {
-        setNotice(
-          'Nearly there. We have sent you an email: open it and press the link to finish ' +
-            'signing up. If it has not arrived in a few minutes, check your junk folder.',
-        );
+        setNotice(CHECK_INBOX);
         setPending(false);
         return;
       }
@@ -148,7 +188,7 @@ export function AuthForm({
       });
 
       if (signInError) {
-        setError(signInError.message);
+        setError(signInProblem(signInError.code));
         setPending(false);
         return;
       }
@@ -244,6 +284,8 @@ export function AuthForm({
                 type="text"
                 value={displayName}
                 autoComplete="name"
+                // The most a display name holds; the database cuts anything longer.
+                maxLength={80}
                 onChange={setDisplayName}
                 placeholder="How should we greet you?"
               />

@@ -2656,10 +2656,10 @@ select pg_temp.expect(
   'a coach cannot delete a session, a register trainee or a work post');
 
 select pg_temp.expect_failure(
-  $$update public.work_posts set file_path = 'submissions/cccc0026-0000-0000-0000-000000000002/x.pdf'
+  $$update public.work_posts set file_path = 'submissions/cccc0026-0000-0000-0000-000000000002/x.pdf', declared_clean = true
     where id = 'bbbb0001-0000-0000-0000-000000000002'$$,
   'a work post cannot point at a file outside its own folder');
-update public.work_posts set file_path = 'posts/bbbb0001-0000-0000-0000-000000000002/a.pdf' where id = 'bbbb0001-0000-0000-0000-000000000002';
+update public.work_posts set file_path = 'posts/bbbb0001-0000-0000-0000-000000000002/a.pdf', declared_clean = true where id = 'bbbb0001-0000-0000-0000-000000000002';
 select pg_temp.expect(
   (select file_path = 'posts/bbbb0001-0000-0000-0000-000000000002/a.pdf' from public.work_posts where id = 'bbbb0001-0000-0000-0000-000000000002'),
   'a work post can point at a file in its own folder');
@@ -2668,10 +2668,10 @@ insert into public.matter_attempts (id, matter_id, user_id, deadline_at, snapsho
 values ('aaaa0036-0000-0000-0000-000000000003', 'ffff0027-0000-0000-0000-000000000001',
         '22222222-2222-2222-2222-222222222222', timestamptz '2100-01-01 00:00:00+00', '{}'::jsonb);
 select pg_temp.expect_failure(
-  $$update public.matter_attempts set recording_path = '11111111-1111-1111-1111-111111111111/x/1.webm'
+  $$update public.matter_attempts set recording_path = '11111111-1111-1111-1111-111111111111/x/1.webm', recording_declared_clean = true
     where id = 'aaaa0036-0000-0000-0000-000000000003'$$,
   'a recording cannot point at somebody else''s file');
-update public.matter_attempts set recording_path = '22222222-2222-2222-2222-222222222222/aaaa0036-0000-0000-0000-000000000003/1700000000.webm' where id = 'aaaa0036-0000-0000-0000-000000000003';
+update public.matter_attempts set recording_path = '22222222-2222-2222-2222-222222222222/aaaa0036-0000-0000-0000-000000000003/1700000000.webm', recording_declared_clean = true where id = 'aaaa0036-0000-0000-0000-000000000003';
 select pg_temp.expect(
   (select recording_path = '22222222-2222-2222-2222-222222222222/aaaa0036-0000-0000-0000-000000000003/1700000000.webm' from public.matter_attempts where id = 'aaaa0036-0000-0000-0000-000000000003'),
   'a recording can be the learner''s own, under that attempt');
@@ -2809,6 +2809,121 @@ select pg_temp.expect(
                          'cccc0038-0000-0000-0000-000000000002')) = 2,
   'the server reads both countries through the delivery view, and filters by the learner itself');
 reset role;
+-- -----------------------------------------------------------------------------
+-- Uploads, email and names (0039)
+-- -----------------------------------------------------------------------------
+-- The promises: a coach's file or memo, and a learner's matter recording,
+-- carry the declaration that nothing in them identifies a client; a post with
+-- no file stays editable without one; one form makes one submission; wrong
+-- codes are counted where no learner can reach them; a display name is one to
+-- eighty characters, and signing up with a longer one still makes a profile.
+select pg_temp.expect_failure(
+  $$insert into public.work_posts (id, kind, title, posted_by, file_path)
+    values ('bbbb0039-0000-0000-0000-000000000001', 'task', 'Undeclared file',
+            '44444444-4444-4444-4444-444444444444',
+            'posts/bbbb0039-0000-0000-0000-000000000001/a.pdf')$$,
+  'a work post with a file and no declaration is refused');
+select pg_temp.expect_failure(
+  $$insert into public.work_posts (id, kind, title, posted_by, memo_path, memo_type)
+    values ('bbbb0039-0000-0000-0000-000000000002', 'task', 'Undeclared memo',
+            '44444444-4444-4444-4444-444444444444',
+            'posts/bbbb0039-0000-0000-0000-000000000002/memo-1.webm', 'audio/webm')$$,
+  'a work post with a voice memo and no declaration is refused');
+insert into public.work_posts (id, kind, title, posted_by, file_path, declared_clean)
+values ('bbbb0039-0000-0000-0000-000000000003', 'task', 'Declared file',
+        '44444444-4444-4444-4444-444444444444',
+        'posts/bbbb0039-0000-0000-0000-000000000003/a.pdf', true);
+select pg_temp.expect_failure(
+  $$update public.work_posts set declared_clean = false
+    where id = 'bbbb0039-0000-0000-0000-000000000003'$$,
+  'the declaration cannot be taken off a post while its file is there');
+update public.work_posts set title = 'Read the engagement letter, again', file_path = null, declared_clean = false
+  where id = 'bbbb0001-0000-0000-0000-000000000002';
+select pg_temp.expect(
+  (select title = 'Read the engagement letter, again' from public.work_posts
+   where id = 'bbbb0001-0000-0000-0000-000000000002'),
+  'a post with no file is still edited without any declaration');
+
+-- A recording, through the learner's own client.
+update public.matter_attempts set recording_path = null, recording_declared_clean = false
+  where id = 'aaaa0036-0000-0000-0000-000000000003';
+set local role authenticated;
+set local request.jwt.claim.sub = '22222222-2222-2222-2222-222222222222';
+select pg_temp.expect_failure(
+  $$update public.matter_attempts
+       set recording_path = '22222222-2222-2222-2222-222222222222/aaaa0036-0000-0000-0000-000000000003/1700000001.webm'
+     where id = 'aaaa0036-0000-0000-0000-000000000003'$$,
+  'a matter recording without the declaration is refused');
+update public.matter_attempts
+   set recording_path = '22222222-2222-2222-2222-222222222222/aaaa0036-0000-0000-0000-000000000003/1700000001.webm',
+       recording_declared_clean = true
+ where id = 'aaaa0036-0000-0000-0000-000000000003';
+reset role;
+select pg_temp.expect(
+  (select recording_declared_clean and recording_path like '%/1700000001.webm' from public.matter_attempts
+   where id = 'aaaa0036-0000-0000-0000-000000000003'),
+  'a learner saves their own recording with the declaration');
+update public.matter_attempts set submitted_at = now() where id = 'aaaa0036-0000-0000-0000-000000000003';
+select pg_temp.expect_failure(
+  $$update public.matter_attempts set recording_path = null, recording_declared_clean = false
+    where id = 'aaaa0036-0000-0000-0000-000000000003'$$,
+  'the declaration on a recording is frozen at hand-in with the rest');
+
+-- One form, one submission.
+set local role authenticated;
+set local request.jwt.claim.sub = 'aaaa1111-0000-0000-0000-000000000008';
+insert into public.work_submissions (post_id, user_id, file_path, declared_clean, client_nonce)
+values ('bbbb0001-0000-0000-0000-000000000002', 'aaaa1111-0000-0000-0000-000000000008',
+        'submissions/aaaa1111-0000-0000-0000-000000000008/bbbb0001-0000-0000-0000-000000000002/1.pdf', true,
+        'cccc0039-0000-0000-0000-000000000001');
+select pg_temp.expect_failure(
+  $$insert into public.work_submissions (post_id, user_id, file_path, declared_clean, client_nonce)
+    values ('bbbb0001-0000-0000-0000-000000000002', 'aaaa1111-0000-0000-0000-000000000008',
+            'submissions/aaaa1111-0000-0000-0000-000000000008/bbbb0001-0000-0000-0000-000000000002/2.pdf', true,
+            'cccc0039-0000-0000-0000-000000000001')$$,
+  'the same form cannot hand in twice');
+reset role;
+select pg_temp.expect_failure(
+  $$update public.work_submissions set client_nonce = null
+    where client_nonce = 'cccc0039-0000-0000-0000-000000000001'$$,
+  'a submission keeps the nonce it was handed in with');
+
+-- Wrong codes: server-written, out of every learner's reach.
+insert into public.code_attempts (user_id) values ('22222222-2222-2222-2222-222222222222');
+set local role authenticated;
+set local request.jwt.claim.sub = '22222222-2222-2222-2222-222222222222';
+select pg_temp.expect_failure(
+  $$select count(*) from public.code_attempts$$,
+  'a learner cannot read the count of wrong codes');
+select pg_temp.expect_failure(
+  $$delete from public.code_attempts where user_id = '22222222-2222-2222-2222-222222222222'$$,
+  'a learner cannot clear their wrong codes');
+reset role;
+select pg_temp.expect(
+  (select relrowsecurity from pg_class where oid = 'public.code_attempts'::regclass),
+  'wrong codes are a table with row level security on');
+
+-- Names.
+select pg_temp.expect_failure(
+  $$update public.profiles set display_name = '' where id = '22222222-2222-2222-2222-222222222222'$$,
+  'a display name cannot be empty');
+select pg_temp.expect_failure(
+  $$update public.profiles set display_name = repeat('a', 81) where id = '22222222-2222-2222-2222-222222222222'$$,
+  'a display name cannot be longer than eighty characters');
+update public.profiles set display_name = repeat('a', 80) where id = '22222222-2222-2222-2222-222222222222';
+insert into auth.users (id, email, raw_user_meta_data)
+values
+  ('aaaa0039-0000-0000-0000-000000000001', 'long-name@test', jsonb_build_object('display_name', repeat('b', 200))),
+  ('aaaa0039-0000-0000-0000-000000000002', 'blank-name@test', '{"display_name":"   "}'::jsonb);
+select pg_temp.expect(
+  (select display_name = repeat('b', 80) from public.profiles where id = 'aaaa0039-0000-0000-0000-000000000001')
+  and (select display_name = 'blank-name' from public.profiles where id = 'aaaa0039-0000-0000-0000-000000000002'),
+  'signing up with a long or blank name still makes a profile, with a name inside the rule');
+
+-- What vouched for an email.
+select pg_temp.expect_failure(
+  $$update public.work_posts set inbound_auth = 'spf' where id = 'bbbb0001-0000-0000-0000-000000000002'$$,
+  'a draft from email cannot record SPF as what vouched for it');
 
 \echo ''
 \echo 'All schema guarantees hold.'
