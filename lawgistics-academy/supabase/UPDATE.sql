@@ -4742,6 +4742,52 @@ drop policy if exists firm_settings_admin on public.firm_settings;
 create policy firm_settings_admin on public.firm_settings
   for update to authenticated using (public.is_firm_admin()) with check (public.is_firm_admin());
 
+-- A firm administrator is staff, so, like administrators and coaches, they
+-- are not on the learners' leaderboard. Redefined whole from its 0025 body.
+create or replace function public.weekly_leaderboard()
+returns table (place integer, first_name text, xp integer, is_me boolean)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  with totals as (
+    select
+      p.id,
+      -- A first name, or "Someone". A display name that is really the
+      -- email's local part (what sign-up fills in when no name is given)
+      -- is not a first name and would put the email on every dashboard.
+      case
+        when nullif(trim(p.display_name), '') is null then 'Someone'
+        when p.display_name like '%@%' then 'Someone'
+        when lower(trim(p.display_name)) = lower(split_part(coalesce(p.email, ''), '@', 1)) then 'Someone'
+        else split_part(trim(p.display_name), ' ', 1)
+      end as first_name,
+      coalesce(sum(x.amount), 0)::integer as xp
+    from public.profiles p
+    left join public.xp_events x
+      on x.user_id = p.id
+     and x.created_at >= now() - interval '7 days'
+    where not p.is_admin
+      and not coalesce(p.is_coach, false)
+      and not p.is_firm_admin
+      and not p.leaderboard_opt_out
+    group by p.id, p.display_name
+  ),
+  ranked as (
+    select id, first_name, xp,
+           rank() over (order by xp desc, first_name asc, id asc)::integer as place
+    from totals
+    where xp > 0
+  )
+  select place, first_name, xp, id = auth.uid() as is_me
+  from ranked
+  where auth.uid() is not null
+    and (select leaderboard_enabled from public.firm_settings where id)
+    and (place <= 10 or id = auth.uid())
+  order by place;
+$$;
+
 
 -- >>> 0038_jurisdiction_and_tutor.sql -----------------------------
 

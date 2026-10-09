@@ -56,7 +56,8 @@ These come from the owner and are not up for renegotiation.
 - **Never expose** the Supabase service role key, the OpenAI or Anthropic keys,
   or admin credentials. Hiding an admin button is presentation, not security:
   authorisation happens server-side, in every action, before anything else.
-- **Two staff roles, and the line between them holds.** An administrator writes
+- **Staff roles, and the lines between them hold.** A firm administrator
+  (0037, below) runs the firm's own people and setup and never content. An administrator writes
   content and runs the firm's setup. A **coach** is the lawyer who supervises
   the juniors: they sign content off and record supervisor decisions, weekly,
   and they cannot write content. Editing a question mints a new version and
@@ -174,7 +175,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0039` (`0037` and `0038` are another engineer's).
+- Migrations run to `0040`.
   `supabase/UPDATE.sql` is the one-paste update for a database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -256,9 +257,14 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   its own box only while it still stands. A question taken back mid-test is
   skipped ("Carry on"), not marked. Every AI reply goes through
   `src/lib/tutor/guard.ts` first: anything law-shaped (sections, orders,
-  Acts, cases, citations, time limits) not in the checked words or the
-  learner's own is thrown away and replaced with fixed words. Learner text
-  is fenced (`quoted`) so it reads as words, never instructions. One answer
+  Acts, cases, citations, courts, money, time limits, matched as whole
+  tokens) not in the checked words is thrown away and replaced with fixed
+  words. The learner's own words come back only inside quotation marks, so
+  a learner cannot type a time limit and have the tutor hand it back as
+  fact, and "Explain it back" never tells them they are right or wrong
+  (0038 work). Learner text is fenced (`quoted`, every angle bracket and
+  invisible character stripped, lookalike speaker names caught) so it reads
+  as words, never instructions. One answer
   per question and one asking per question are unique indexes; the answer
   form names the question it shows, so an old tab cannot answer a new one.
   Staff read conversations through the server only (the RLS policies name
@@ -334,6 +340,33 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   shown as written. Server settings live in `env-server.ts` (`server-only`).
   Error pages: `global-error.tsx`, `(app)/error.tsx`, `admin/error.tsx`,
   `not-found.tsx`.
+- `0037` is the **firm administrator** (`is_firm_admin`), the firm's own
+  person who runs their people: invitations, confirming trainees, the
+  joining checklist and the firm's documents, codes, programme dates, the
+  leaderboard switch, the work board and the firm's figures. In the
+  database they are a coach; in the app the ten setup actions ask
+  `checkFirmAdmin` and the six actions that are a lawyer's judgement
+  (signing off a question, matter or lesson, marking a matter, the
+  register) ask `checkReviewer`, which a firm administrator alone does not
+  pass. Only an administrator grants either staff flag, at Admin, Staff.
+  Each firm still gets its own copy: `docs/NEW-FIRM.md` is the setup, and
+  `NEXT_PUBLIC_BRAND_LOGO` puts its logo in the wordmark.
+- `0038` keeps each country's law in that country at the database too:
+  the delivery view and the daily brief's read policy filter by the
+  caller's country (`caller_country()`), staff and the service role read
+  both. A fact's jurisdiction change clears its sign-off; a question's
+  country moves only with its new version.
+- `0040` makes sign-offs hold at the database. Administrators read content
+  but write it only through the server; `guard_signoff` clears a sign-off
+  when the explanation, its supporting text or the source changes (a
+  fact's title, body, why it matters or jurisdiction), stamps the date
+  itself, refuses a signed-in caller signing in somebody else's name, and
+  keeps who wrote it. A sign-off, a fact sign-off and a matter decision
+  must name the `updated_at` the reviewer saw and fail if it moved. Nobody
+  marks their own hand-in or matter. Homework is written by the server
+  only. `/setup` needs `SETUP_TOKEN` and claims the first administrator in
+  one locked statement (`claim_first_admin`). A matter is handed in only
+  with every part done. Only the server clears `must_change_password`.
 - **Options are shown shuffled** (`src/lib/learning/option-order.ts`), fixed per
   question version or lesson screen, and the letter shown is the place on the
   screen, never the id. The bank was written with the right answer B three
@@ -407,7 +440,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   grid, gold-free by the owner's choice). Admin has the same look. The front
   page and sign-in stay cream. The certificate and a matter's case file stay paper inside it.
   Use the tokens, never fixed Tailwind colours, or a page breaks in one look.
-- 425 tests, 352 schema guarantees against a real Postgres, 240 page and device
+- 449 tests, 396 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB

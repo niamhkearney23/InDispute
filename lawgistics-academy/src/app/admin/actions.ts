@@ -174,7 +174,7 @@ export async function updateQuestion(
   const { data: current } = await db
     .from('question_versions')
     .select(
-      'id, version, question_type, scenario, stem, options, correct_option_ids, jurisdiction, explanation, why_it_matters, common_misconception, memory_trick, verification_status',
+      'id, version, question_type, scenario, stem, options, correct_option_ids, jurisdiction, explanation, why_it_matters, common_misconception, memory_trick, source_reference, source_url, source_checked_on, verification_status',
     )
     .eq('question_id', questionId)
     .eq('is_current', true)
@@ -209,7 +209,13 @@ export async function updateQuestion(
       (current.explanation ?? '') !== data.explanation ||
       (current.why_it_matters ?? '') !== (empty(data.whyItMatters) ?? '') ||
       (current.common_misconception ?? '') !== (empty(data.commonMisconception) ?? '') ||
-      (current.memory_trick ?? '') !== (empty(data.memoryTrick) ?? '');
+      (current.memory_trick ?? '') !== (empty(data.memoryTrick) ?? '') ||
+      // The source is what the sign-off checked the words against, so the
+      // database clears it when the source changes too (0040). Saying so
+      // here keeps the message true and the writer recorded.
+      (current.source_reference ?? '') !== (empty(data.sourceReference) ?? '') ||
+      (current.source_url ?? '') !== (empty(data.sourceUrl) ?? '') ||
+      (current.source_checked_on ?? '') !== (empty(data.sourceCheckedOn) ?? '');
     const losesSignOff = explanationChanged && current.verification_status === 'human_verified';
 
     // Explanatory text and provenance may be corrected on the existing version;

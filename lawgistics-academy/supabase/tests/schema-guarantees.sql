@@ -2757,6 +2757,17 @@ set local request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
 select pg_temp.expect(public.is_firm_admin(), 'an administrator answers as a firm administrator too');
 reset role;
 
+-- A firm administrator with XP this week is still not on the leaderboard.
+update public.firm_settings set leaderboard_enabled = true where id;
+insert into public.xp_events (user_id, amount, kind)
+values ('aaaa0037-0000-0000-0000-000000000001', 500, (select (enum_range(null::xp_kind))[1]));
+set local role authenticated;
+set local request.jwt.claim.sub = '22222222-2222-2222-2222-222222222222';
+select pg_temp.expect(
+  not exists (select 1 from public.weekly_leaderboard() where xp = 500),
+  'a firm administrator is not on the learners'' leaderboard');
+reset role;
+
 -- -----------------------------------------------------------------------------
 -- 0038: each country's law reaches only that country's learners
 -- -----------------------------------------------------------------------------
