@@ -60,6 +60,7 @@ export default async function SetupPage() {
   ];
 
   const ready = status.envConfigured && status.serviceKeyConfigured && status.schemaReady;
+  const tokenSet = Boolean(process.env.SETUP_TOKEN);
   const finished = status.contentLoaded && status.adminExists;
 
   return (
@@ -125,12 +126,19 @@ export default async function SetupPage() {
         </>
       ) : null}
 
-      {!finished && ready && user ? (
-        <SetupForm
-          tokenRequired={Boolean(process.env.SETUP_TOKEN)}
-          questionCount={QUESTIONS.length}
-          factCount={FACTS.length}
-        />
+      {/* Without a token, whoever signed in first became the administrator,
+          so the button is not offered until one is set. */}
+      {!finished && ready && user && !tokenSet ? (
+        <Notice tone="warn">
+          Setup is locked until a setup token is set. In Vercel, open this project, then
+          Settings, then Environment Variables. Add one called{' '}
+          <code className="font-mono">SETUP_TOKEN</code> with a long random value, save it,
+          redeploy, and reload this page. You will be asked for the same value here.
+        </Notice>
+      ) : null}
+
+      {!finished && ready && user && tokenSet ? (
+        <SetupForm questionCount={QUESTIONS.length} factCount={FACTS.length} />
       ) : null}
 
       {!finished && ready && !user ? (
@@ -153,10 +161,9 @@ export default async function SetupPage() {
 
       <p className="mt-10 border-t border-rule pt-5 text-xs text-muted">
         This page grants administrator rights, so it closes permanently once one
-        administrator exists. Between deploying and signing up for the first time, anyone
-        who reaches this URL could claim it. If your deployment is publicly reachable, set
-        a <code className="font-mono">SETUP_TOKEN</code> environment variable and this page
-        will ask for it.
+        administrator exists, and it works only once a{' '}
+        <code className="font-mono">SETUP_TOKEN</code> environment variable is set. It
+        asks for that value, so reaching this address is not enough to claim the app.
       </p>
     </div>
   );

@@ -230,6 +230,15 @@ export async function markSubmission(
   if (!parsed.success) return { error: 'Choose a verdict before saving.' };
 
   const db = createServiceClient();
+  // Nobody marks their own hand-in; the database refuses it too.
+  const { data: handIn } = await db
+    .from('work_submissions')
+    .select('user_id')
+    .eq('id', parsed.data.id)
+    .maybeSingle();
+  if (handIn?.user_id === coachId) {
+    return { error: 'This is your own hand-in, so somebody else has to mark it.' };
+  }
   const { data, error } = await db
     .from('work_submissions')
     .update({
@@ -238,10 +247,11 @@ export async function markSubmission(
       marked_by: coachId,
     })
     .eq('id', parsed.data.id)
+    .neq('user_id', coachId)
     .select('post_id')
     .maybeSingle();
 
-  if (error) return { error: 'That could not be saved.' };
+  if (error || !data) return { error: 'That could not be saved.' };
 
   const postId = (data as { post_id: string } | null)?.post_id;
   revalidatePath('/admin/work');

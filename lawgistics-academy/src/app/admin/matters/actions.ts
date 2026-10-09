@@ -128,6 +128,9 @@ const decisionSchema = z.object({
   id: z.string().uuid(),
   decision: z.enum(['verify', 'flag']),
   note: z.string().trim().max(2000),
+  // When the words on the coach's screen were last changed. Required: a
+  // decision lands on those words or not at all.
+  updatedAt: z.string().min(1).max(64),
 });
 
 /**
@@ -143,27 +146,22 @@ export async function decideMatter(_prev: AdminState, formData: FormData): Promi
     id: formData.get('id'),
     decision: formData.get('decision'),
     note: formData.get('note') ?? '',
+    updatedAt: formData.get('updatedAt'),
   });
   if (!parsed.success) return { error: 'That decision could not be read.' };
-  const { id, decision, note } = parsed.data;
+  const { id, decision, note, updatedAt } = parsed.data;
   if (decision === 'flag' && !note) return { error: 'Say what is wrong with it.' };
 
   const db = createServiceClient();
   const { data: matter } = await db
     .from('matters')
-    .select('created_by, updated_at')
+    .select('created_by')
     .eq('id', id)
     .maybeSingle();
   if (!matter) return { error: 'That matter could not be found.' };
   if (decision === 'verify' && matter.created_by === coachId) {
     return { error: 'You wrote this, so somebody else has to sign it off.' };
   }
-  // A decision is about the words on the screen. If they changed since the
-  // page was opened, the coach reads them again first.
-  if (formData.get('updatedAt') && formData.get('updatedAt') !== matter.updated_at) {
-    return { error: 'This matter was changed while you had it open. Reload the page to read it again.' };
-  }
-
   const now = new Date().toISOString();
   const patch =
     decision === 'verify'
@@ -181,8 +179,19 @@ export async function decideMatter(_prev: AdminState, formData: FormData): Promi
           reviewed_by: coachId,
           reviewed_at: now,
         };
-  const { error } = await db.from('matters').update(patch).eq('id', id);
+  // A decision is about the words on the screen. The update lands only while
+  // they are still the ones the page was drawn with, checked in the same
+  // statement, so an edit in between cannot slip under the sign-off.
+  const { data: saved, error } = await db
+    .from('matters')
+    .update(patch)
+    .eq('id', id)
+    .eq('updated_at', updatedAt)
+    .select('id');
   if (error) return { error: 'That decision could not be saved.' };
+  if (!saved || saved.length === 0) {
+    return { error: 'This changed while you were reading it. Read it again.' };
+  }
   revalidateMatter(id);
   return { error: null, ok: decision === 'verify' ? 'Signed off.' : 'Flagged and taken down.' };
 }
@@ -226,6 +235,16 @@ export async function markMatterAttempt(_prev: AdminState, formData: FormData): 
   if (!parsed.success) return { error: 'Choose Good or Needs another go.' };
 
   const db = createServiceClient();
+  // Nobody marks their own work: a coach who took a matter themselves is
+  // marked by somebody else. The database refuses it too.
+  const { data: attempt } = await db
+    .from('matter_attempts')
+    .select('user_id')
+    .eq('id', parsed.data.attemptId)
+    .maybeSingle();
+  if (attempt?.user_id === coachId) {
+    return { error: 'This is your own attempt, so somebody else has to mark it.' };
+  }
   const { data, error } = await db
     .from('matter_attempts')
     .update({
@@ -234,6 +253,7 @@ export async function markMatterAttempt(_prev: AdminState, formData: FormData): 
       marked_by: coachId,
     })
     .eq('id', parsed.data.attemptId)
+    .neq('user_id', coachId)
     .not('submitted_at', 'is', null)
     .select('matter_id')
     .maybeSingle();

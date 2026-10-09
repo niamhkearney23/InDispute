@@ -16,11 +16,13 @@ import { getSetupStatus } from '@/lib/setup/status';
  *   1. you must be signed in, so there is a named account to grant them to;
  *   2. there must be no administrator yet; once one exists this is closed
  *      permanently, and the only way to make another is the command line;
- *   3. if SETUP_TOKEN is set, it must match. That is optional, for a deployment
- *      is publicly reachable before you have had a chance to claim it.
+ *   3. SETUP_TOKEN must be set, and must match. Without it, whoever signed
+ *      in first on a new deployment became its administrator, so setup now
+ *      refuses to run at all until the token is set.
  *
- * The window this leaves open is between deploying and signing up for the first
- * time. On a public URL, set SETUP_TOKEN and close it.
+ * The check that no administrator exists and the grant are one database call
+ * (claim_first_admin, 0040), under a lock, so two people pressing the button
+ * at the same moment cannot both come away an administrator.
  */
 
 export type SetupResult =
@@ -53,33 +55,52 @@ export async function completeSetup(formData: FormData): Promise<SetupResult> {
   }
 
   const requiredToken = process.env.SETUP_TOKEN;
+  if (!requiredToken) {
+    return {
+      ok: false,
+      error:
+        'Setup is locked until a setup token is set. In Vercel, open the project, then Settings, then Environment Variables, add SETUP_TOKEN with a long random value, redeploy, and come back here with it.',
+    };
+  }
   // Compared as hashes in constant time, so the response time says nothing
   // about how much of a guess was right.
   const digest = (v: string) => createHash('sha256').update(v).digest();
-  if (requiredToken && !timingSafeEqual(digest(String(formData.get('token') ?? '')), digest(requiredToken))) {
+  if (!timingSafeEqual(digest(String(formData.get('token') ?? '')), digest(requiredToken))) {
     return { ok: false, error: 'That setup token is not right.' };
   }
 
   const db = createServiceClient();
+
+  // Administrator rights first, in one call that refuses if anybody already
+  // has them. Loading the content comes after, so somebody who loses the race
+  // does no work on a database that is no longer theirs to set up.
+  const { data: granted, error: adminError } = await db.rpc('claim_first_admin', {
+    uid: user.id,
+  });
+  if (adminError) {
+    return {
+      ok: false,
+      error: `Granting administrator rights failed: ${adminError.message}. If it says the function does not exist, run supabase/UPDATE.sql in the Supabase SQL editor first.`,
+    };
+  }
+  if (granted !== true) {
+    return {
+      ok: false,
+      error:
+        'This installation already has an administrator, so setup is closed. To add another, run: npx tsx scripts/make-admin.ts <email>',
+    };
+  }
 
   let loaded = status.publishedQuestions;
   try {
     const summary = await seedContent(db, { publish: formData.get('publish') !== 'no' });
     loaded = summary.questionsCreated + summary.questionsUnchanged + summary.questionsReversioned;
   } catch (error) {
+    revalidatePath('/', 'layout');
     return {
       ok: false,
-      error: `Could not load the content: ${error instanceof Error ? error.message : 'unknown error'}`,
+      error: `You are now the administrator, but the content could not be loaded: ${error instanceof Error ? error.message : 'unknown error'}. Load it from the Admin page with "Load the missing content".`,
     };
-  }
-
-  const { error: adminError } = await db
-    .from('profiles')
-    .update({ is_admin: true })
-    .eq('id', user.id);
-
-  if (adminError) {
-    return { ok: false, error: `Content loaded, but granting admin failed: ${adminError.message}` };
   }
 
   revalidatePath('/', 'layout');

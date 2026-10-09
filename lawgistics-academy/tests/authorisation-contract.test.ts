@@ -473,6 +473,50 @@ test('the first-run setup action cannot be used to seize admin on a live install
     setup.body.indexOf('getCurrentUser(') < setup.body.indexOf('createServiceClient('),
     'must establish the caller before reaching for the service-role client',
   );
+
+  // Without a token, whoever signed in first on a new deployment became its
+  // administrator. Setup refuses outright when it is unset, before the
+  // service-role client is reached, and never merely skips the comparison.
+  const body = stripComments(setup.body);
+  const refusal = /if \(!requiredToken\) \{\s*return \{\s*ok: false/.exec(body);
+  assert.ok(refusal, 'must refuse to run when SETUP_TOKEN is not set');
+  assert.ok(
+    refusal.index < body.indexOf('createServiceClient('),
+    'must refuse an unset token before reaching for the service-role client',
+  );
+  assert.doesNotMatch(
+    body,
+    /requiredToken &&/,
+    'the token comparison must not be skippable when the token is unset',
+  );
+
+  // Checking for an administrator and then granting the flag is two steps,
+  // and two people pressing the button together could both pass the first.
+  // The grant is the one database call that does both under a lock, and its
+  // answer is what decides.
+  assert.match(body, /\.rpc\('claim_first_admin'/, 'must grant through claim_first_admin');
+  assert.match(body, /granted !== true/, 'must refuse when claim_first_admin did not grant');
+  assert.doesNotMatch(
+    body,
+    /is_admin:\s*true/,
+    'must not set is_admin directly, where a race could make two administrators',
+  );
+  assert.ok(
+    body.indexOf("rpc('claim_first_admin'") < body.indexOf('seedContent('),
+    'must claim the installation before loading content into it',
+  );
+});
+
+test('the first administrator is granted by one locked database call, for the server only', () => {
+  const sql = fs.readFileSync(
+    path.join(ROOT, 'supabase/migrations/0040_signoff_integrity.sql'),
+    'utf8',
+  );
+  const fn = sql.slice(sql.indexOf('function public.claim_first_admin'));
+  assert.match(fn, /pg_advisory_xact_lock/);
+  assert.match(fn, /if exists \(select 1 from public\.profiles where is_admin\)/);
+  assert.match(sql, /revoke all on function public\.claim_first_admin\(uuid\) from authenticated/);
+  assert.match(sql, /grant execute on function public\.claim_first_admin\(uuid\) to service_role/);
 });
 
 test('the service-role client is never imported into a client component', () => {

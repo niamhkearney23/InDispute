@@ -12,11 +12,9 @@ import { completeSetup } from './actions';
  * right.
  */
 export function SetupForm({
-  tokenRequired,
   questionCount,
   factCount,
 }: {
-  tokenRequired: boolean;
   questionCount: number;
   factCount: number;
 }) {
@@ -57,23 +55,21 @@ export function SetupForm({
           </p>
         </div>
 
-        {tokenRequired ? (
-          <div>
-            <label htmlFor="token" className="mb-1.5 block text-sm font-medium">
-              Setup token
-            </label>
-            <input
-              id="token"
-              name="token"
-              type="password"
-              required
-              className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3.5 text-base outline-none focus:border-accent"
-            />
-            <p className="mt-1 text-xs text-muted">
-              The value of your SETUP_TOKEN environment variable.
-            </p>
-          </div>
-        ) : null}
+        <div>
+          <label htmlFor="token" className="mb-1.5 block text-sm font-medium">
+            Setup token
+          </label>
+          <input
+            id="token"
+            name="token"
+            type="password"
+            required
+            className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3.5 text-base outline-none focus:border-accent"
+          />
+          <p className="mt-1 text-xs text-muted">
+            The value of your SETUP_TOKEN environment variable.
+          </p>
+        </div>
 
         <label className="flex items-start gap-2 text-sm">
           <input
