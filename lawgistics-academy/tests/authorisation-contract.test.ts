@@ -115,6 +115,7 @@ test('the server actions were actually found', () => {
     'answerQuestion',
     'answerTutorQuestion',
     'askFollowUps',
+    'assignCohort',
     'beginModule',
     'beginSession',
     'changePassword',
@@ -150,6 +151,7 @@ test('the server actions were actually found', () => {
     'saveAccessCode',
     'saveCartoon',
     'saveCertificationEntry',
+    'saveCohort',
     'saveFirmModule',
     'saveMatter',
     'saveMatterWork',
@@ -375,12 +377,15 @@ const FIRM_ADMIN_ACTIONS = new Set([
   'setAccessCodeActive',
   'saveFirmModule',
   'setLeaderboardEnabled',
+  // Cohorts (0041): an intake's dates, clock and holidays, and who is in it.
+  'saveCohort',
+  'assignCohort',
 ]);
 
 test('the reviewer actions are coach actions, and the firm list is separate', () => {
   for (const name of REVIEWER_ACTIONS) assert.ok(COACH_ACTIONS.has(name), name);
   for (const name of FIRM_ADMIN_ACTIONS) assert.ok(!COACH_ACTIONS.has(name), name);
-  assert.equal(FIRM_ADMIN_ACTIONS.size, 10, 'adding to the firm administrator is a visible act');
+  assert.equal(FIRM_ADMIN_ACTIONS.size, 12, 'adding to the firm administrator is a visible act');
 });
 
 test('signing off, marking a matter and grading ask for a reviewer, never just a coach', () => {

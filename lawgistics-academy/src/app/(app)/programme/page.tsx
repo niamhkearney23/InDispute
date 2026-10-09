@@ -11,6 +11,7 @@ import { TRAINING_FILE } from '@/content/training-file';
 import { brand } from '@/lib/brand';
 import { ButtonLink, Card, Pill, cn } from '@/components/ui';
 import { requireAccess } from '@/lib/access/service';
+import { scheduleForPerson } from '@/lib/training/cohorts';
 
 export const metadata: Metadata = { title: 'The month' };
 
@@ -33,7 +34,13 @@ export default async function ProgrammePage() {
   if (!profile) redirect('/account-problem');
   if (profile.track !== 'litigation_trainee') redirect('/dashboard');
 
-  const homework = homeworkDay(profile.startsOn, profile.endsOn, profile.timezone);
+  const homework = homeworkDay(
+      profile.startsOn,
+      profile.endsOn,
+      profile.timezone,
+      new Date(),
+      (await scheduleForPerson(user.id)).holidays,
+    );
   const currentWeek =
     homework.state === 'day'
       ? weekOfDay(homework.day)

@@ -6,6 +6,18 @@ import { ArrowIcon, BookIcon, BriefcaseIcon, CheckIcon, SparkIcon } from '@/comp
 import { getCurrentUser } from '@/lib/supabase/server';
 import { brand } from '@/lib/brand';
 import { PROGRAMME } from '@/content/programme';
+import { upcomingCohort } from '@/lib/training/cohorts';
+import {
+  DEFAULT_SCHEDULE,
+  monthYear,
+  roundCountWord,
+  roundTimes,
+  zoneName,
+  type Schedule,
+} from '@/lib/training/schedule';
+import { todayIn } from '@/lib/onboarding/rules';
+
+const capitalise = (word: string) => word.charAt(0).toUpperCase() + word.slice(1);
 import { trainingOpen } from '@/lib/training/service';
 import { PROGRAMME_WEEKS, boxesForWeek } from '@/content/programme-plan';
 import { paymentsOn } from '@/lib/access/service';
@@ -30,7 +42,7 @@ export const metadata: Metadata = {
  * month at a firm. This page says what that month is, in the firm's own
  * voice, and then offers the sign-up.
  */
-const partsFor = (questionsOpen: boolean) => [
+const partsFor = (questionsOpen: boolean, schedule: Schedule) => [
   {
     icon: CheckIcon,
     when: 'Day one',
@@ -41,11 +53,11 @@ const partsFor = (questionsOpen: boolean) => [
   },
   {
     icon: SparkIcon,
-    when: 'Every working morning',
-    title: 'Four rounds of ten questions',
+    when: 'Every working day',
+    title: `${capitalise(roundCountWord(schedule))} ${schedule.roundHours.length === 1 ? 'round' : 'rounds'} of ten questions`,
     body: questionsOpen
-      ? 'At 7, 8, 9 and 10am, Kuala Lumpur time, on Malaysian procedure, evidence and drafting. Each round is open for its hour. Anything you get wrong comes back until you’ve got it. There’s also a short homework task each day about how the firm runs a file.'
-      : 'At 7, 8, 9 and 10am, Kuala Lumpur time, on Malaysian procedure, evidence and drafting, once our lawyers have signed the questions off. Anything you get wrong comes back until you’ve got it. The short daily homework on how the firm runs a file starts on day one.',
+      ? `At ${roundTimes(schedule)}, ${zoneName(schedule)}, on Malaysian procedure, evidence and drafting. Each round is open for its hour. Anything you get wrong comes back until you’ve got it. There’s also a short homework task each day about how the firm runs a file.`
+      : `At ${roundTimes(schedule)}, ${zoneName(schedule)}, on Malaysian procedure, evidence and drafting, once our lawyers have signed the questions off. Anything you get wrong comes back until you’ve got it. The short daily homework on how the firm runs a file starts on day one.`,
   },
   {
     icon: BriefcaseIcon,
@@ -70,7 +82,11 @@ export default async function TraineeProgrammePage() {
   // day, because the person who signs up on the strength of that arrives to
   // a dashboard saying none have been published yet.
   const questionsOpen = await trainingOpen('MY');
-  const PARTS = partsFor(questionsOpen);
+  // The next intake the firm has set up, or the programme's own words when
+  // it has set up none: its start month and its clock.
+  const cohort = await upcomingCohort(todayIn(DEFAULT_SCHEDULE.timezone)).catch(() => null);
+  const nextIntake = cohort ? monthYear(cohort.startsOn) : PROGRAMME.nextIntake;
+  const PARTS = partsFor(questionsOpen, cohort?.schedule ?? DEFAULT_SCHEDULE);
   const payments = paymentsOn();
   const value = traineeValue(payments);
 
@@ -103,7 +119,7 @@ export default async function TraineeProgrammePage() {
             </h1>
             <p className="rise-up delay-2 mt-6 max-w-lg text-lg leading-relaxed text-cream/80">
               Four weeks on live files with the lawyers at {brand.firm}, starting{' '}
-              {PROGRAMME.nextIntake}.
+              {nextIntake}.
             </p>
 
             <div className="rise-up delay-3 mt-9">
@@ -220,7 +236,7 @@ export default async function TraineeProgrammePage() {
         <section className="border-t border-rule py-12 sm:py-16">
           <div className="flex flex-col items-start gap-5 rounded-xl bg-accent-wash p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
             <div>
-              <h2 className="text-2xl sm:text-3xl">Joining us in {PROGRAMME.nextIntake}?</h2>
+              <h2 className="text-2xl sm:text-3xl">Joining us in {nextIntake}?</h2>
               <p className="mt-2 text-slate">
                 {questionsOpen
                   ? 'Sign up now, and you’ll start with the diagnostic quiz on your first day.'

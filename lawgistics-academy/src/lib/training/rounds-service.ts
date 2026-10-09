@@ -3,7 +3,6 @@ import { createServiceClient } from '@/lib/supabase/service';
 import { localMidnight, shiftLocalDate } from '@/lib/local-day';
 import { todayIn } from '@/lib/onboarding/rules';
 import {
-  ROUNDS_TIMEZONE,
   lastRoundsDate,
   roundsDayNumber,
   roundsFor,
@@ -12,6 +11,8 @@ import {
 } from './rounds';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { trainingOpen } from './service';
+import { scheduleForCohort } from './cohorts';
+import type { Schedule } from './schedule';
 import { JURISDICTION_COUNTRY, asCountry, type Country, type Jurisdiction } from '@/lib/types';
 
 type SessionRow = { id: string; started_at: string; planned_question_count: number; completed_at: string | null };
@@ -106,6 +107,8 @@ async function roundsNotBefore(
 }
 
 export interface RoundsToday {
+  /** The cohort's clock: its timezone, round hours and holidays. */
+  schedule: Schedule;
   timezone: string;
   date: string;
   rounds: Round[];
@@ -117,10 +120,15 @@ export interface RoundsToday {
   nextMorning: string | null;
 }
 
-function nextMorningAfter(date: string, startsOn: string, endsOn: string | null): string | null {
-  const end = lastRoundsDate(startsOn, endsOn);
+function nextMorningAfter(
+  date: string,
+  startsOn: string,
+  endsOn: string | null,
+  holidays: Record<string, string>,
+): string | null {
+  const end = lastRoundsDate(startsOn, endsOn, holidays);
   let next = shiftLocalDate(date, 1);
-  while (roundsDayNumber(startsOn, endsOn, next) === null && next <= end) next = shiftLocalDate(next, 1);
+  while (roundsDayNumber(startsOn, endsOn, next, holidays) === null && next <= end) next = shiftLocalDate(next, 1);
   if (next > end) return null;
   return new Date(`${next}T00:00:00Z`).toLocaleDateString('en-GB', {
     weekday: 'long',
@@ -145,28 +153,31 @@ export async function roundsToday(userId: string, now: Date = new Date()): Promi
   const db = createServiceClient();
   const { data: p } = await db
     .from('profiles')
-    .select('track, trainee_approved_at, starts_on, ends_on, country')
+    // Every column, so a database without 0041's cohort_id still answers.
+    .select('*')
     .eq('id', userId)
     .maybeSingle();
   if (!p || p.track !== 'litigation_trainee' || !p.trainee_approved_at) return null;
   const country = asCountry(p.country);
   if (!(await trainingOpen(country))) return null;
 
-  const timezone = ROUNDS_TIMEZONE;
+  const schedule = await scheduleForCohort(db, p.cohort_id as string | null | undefined);
+  const timezone = schedule.timezone;
   const date = todayIn(timezone, now);
   const startsOn = p.starts_on as string | null;
   const endsOn = p.ends_on as string | null;
-  if (!startsOn || roundsDayNumber(startsOn, endsOn, date) === null) return null;
+  if (!startsOn || roundsDayNumber(startsOn, endsOn, date, schedule.holidays) === null) return null;
 
   const [sessions, notBefore] = await Promise.all([
     roundSessions(db, userId, localMidnight(timezone, date).toISOString()),
     roundsNotBefore(db, country, p.trainee_approved_at as string),
   ]);
   return {
+    schedule,
     timezone,
     date,
-    rounds: roundsFor(timezone, date, sessions, now, notBefore),
-    nextMorning: nextMorningAfter(date, startsOn, endsOn),
+    rounds: roundsFor(schedule, date, sessions, now, notBefore),
+    nextMorning: nextMorningAfter(date, startsOn, endsOn, schedule.holidays),
   };
 }
 
@@ -184,11 +195,12 @@ export interface RoundDay {
 export async function roundsHistory(
   userId: string,
   now: Date = new Date(),
-): Promise<{ startsOn: string; endsOn: string | null; days: RoundDay[] } | null> {
+): Promise<{ startsOn: string; endsOn: string | null; days: RoundDay[]; schedule: Schedule } | null> {
   const db = createServiceClient();
   const { data: p } = await db
     .from('profiles')
-    .select('track, trainee_approved_at, starts_on, ends_on, country')
+    // Every column, so a database without 0041's cohort_id still answers.
+    .select('*')
     .eq('id', userId)
     .maybeSingle();
   // Only a confirmed trainee is on rounds, as in roundsToday.
@@ -197,7 +209,8 @@ export async function roundsHistory(
   const country = asCountry(p.country);
   if (!(await trainingOpen(country))) return null;
 
-  const timezone = ROUNDS_TIMEZONE;
+  const schedule = await scheduleForCohort(db, p.cohort_id as string | null | undefined);
+  const timezone = schedule.timezone;
   const today = todayIn(timezone, now);
   // The calendar starts on the later of the start date and the day rounds
   // start counting (confirmed, and questions first signed off), because a
@@ -209,14 +222,14 @@ export async function roundsHistory(
   const notBefore = await roundsNotBefore(db, country, p.trainee_approved_at as string);
   const counting = todayIn(timezone, notBefore);
   const first = counting > startsOn ? counting : startsOn;
-  const end = lastRoundsDate(startsOn, endsOn);
+  const end = lastRoundsDate(startsOn, endsOn, schedule.holidays);
   const last = end < today ? end : today;
 
   const all = await roundSessions(db, userId, localMidnight(timezone, first).toISOString());
   const days: RoundDay[] = [];
   for (let date = first; date <= last; date = shiftLocalDate(date, 1)) {
-    if (roundsDayNumber(startsOn, endsOn, date) === null) continue;
-    days.push({ date, rounds: roundsFor(timezone, date, all, now, notBefore) });
+    if (roundsDayNumber(startsOn, endsOn, date, schedule.holidays) === null) continue;
+    days.push({ date, rounds: roundsFor(schedule, date, all, now, notBefore) });
   }
-  return { startsOn, endsOn: endsOn ?? end, days };
+  return { startsOn, endsOn: endsOn ?? end, days, schedule };
 }

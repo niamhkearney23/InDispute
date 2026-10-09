@@ -23,6 +23,7 @@ import { RoundsStrip } from '@/components/rounds-strip';
 import { RoundsCalendar } from '@/components/rounds-calendar';
 import { roundsHistory, roundsToday } from '@/lib/training/rounds-service';
 import { ROUND_SIZE, closingLabel, nextOpening, openRound, roundLabel } from '@/lib/training/rounds';
+import { hourLabel, roundTimes, zoneName } from '@/lib/training/schedule';
 import {
   BookIcon,
   BriefcaseIcon,
@@ -61,6 +62,7 @@ import { CountUp } from '@/components/count-up';
 import { LeaderboardCard } from '@/components/leaderboard-card';
 import { weeklyLeaderboard } from '@/lib/leaderboard';
 import { requireAccess } from '@/lib/access/service';
+import { scheduleForPerson } from '@/lib/training/cohorts';
 
 export const metadata: Metadata = { title: 'Today' };
 
@@ -135,7 +137,13 @@ export default async function DashboardPage() {
   const assignedTopicSlug = diagnosticSittings.data?.[0]?.essay_topic_slug as string | undefined;
   const assignedTopic = assignedTopicSlug ? essayTopic(assignedTopicSlug) : undefined;
 
-  const homework = homeworkDay(profile.startsOn, profile.endsOn, profile.timezone);
+  const homework = homeworkDay(
+      profile.startsOn,
+      profile.endsOn,
+      profile.timezone,
+      new Date(),
+      (await scheduleForPerson(user.id)).holidays,
+    );
   // A confirmed trainee's working morning is four rounds of ten (rounds.ts),
   // in place of the daily goal; the calendar shows every morning so far.
   const isTrainee = profile.track === 'litigation_trainee' && profile.traineeConfirmed;
@@ -424,28 +432,28 @@ export default async function DashboardPage() {
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="mb-1.5 text-[0.6875rem] font-semibold tracking-[0.16em] text-paper/70 uppercase">
-                    This morning, Kuala Lumpur time
+                    Today’s rounds, {zoneName(rounds.schedule)}
                   </p>
                   <p className="font-serif text-2xl leading-snug sm:text-3xl">
                     {openNow
                       ? `Round ${openNow.number} is open`
                       : nextUp
                         ? `Round ${nextUp.number} opens at ${roundLabel(nextUp)}`
-                        : 'This morning is over'}
+                        : 'Today’s rounds are over'}
                   </p>
                   <p className="mt-2 text-sm text-paper/80">
                     {openNow
                       ? `${openNow.answered} of ${ROUND_SIZE} done. It closes at ${closingLabel(openNow)}; after that it counts as missed. Only answers given before ${closingLabel(openNow)} count for it.`
                       : nextUp
-                        ? `Ten questions, one round an hour from 7am to 11am. ${rounds.rounds.filter((r) => r.state === 'done').length} done so far today.`
+                        ? `Ten questions a round, at ${roundTimes(rounds.schedule)}. ${rounds.rounds.filter((r) => r.state === 'done').length} done so far today.`
                         : `${
                             countedToday === 0
-                              ? 'Your rounds had not started yet this morning.'
+                              ? 'Your rounds had not started yet today.'
                               : `${rounds.rounds.filter((r) => r.state === 'done').length} of ${countedToday} rounds done.`
                           } ${
                             rounds.nextMorning
-                              ? `The next round opens on ${rounds.nextMorning} at 7am.`
-                              : 'That was the last morning of the programme.'
+                              ? `The next round opens on ${rounds.nextMorning} at ${hourLabel(rounds.schedule.roundHours[0])}.`
+                              : 'That was the last day of the programme.'
                           }`}
                   </p>
                 </div>
@@ -735,8 +743,8 @@ export default async function DashboardPage() {
       ) : null}
 
       {/* The coach's own session comes before the daily brief and before the
-          stats. The training runs 7am to 11am and this is the thing with a
-          time on it; the questions will still be there at nine. */}
+          stats. The rounds run at set hours and this is the thing with a
+          time on it; the questions will still be there later. */}
       {lead ? (
         <SessionCard session={lead} more={sessions.length - 1} materials={leadMaterials} />
       ) : null}

@@ -87,6 +87,11 @@ Then press **Deploy**.
    code under **Admin, Access**, sends invitations under **Admin, Joiners**,
    and fills in the joining checklist and the firm's documents under
    **Admin, Firm**.
+4. For each intake, the firm administrator makes a cohort under
+   **Admin, Cohorts**: its name, first and last day, the city whose clock
+   the rounds run on, the round times and the public holidays to skip. Then
+   they put each confirmed trainee in it from the cohort's page. A trainee
+   in no cohort runs on Kuala Lumpur time at 7, 8, 9 and 10am.
 
 ## 6. Questions in the new copy
 

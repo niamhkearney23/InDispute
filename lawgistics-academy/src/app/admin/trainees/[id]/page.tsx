@@ -11,6 +11,7 @@ import { Card, Pill, ScoreBar, SectionHeading } from '@/components/ui';
 import { Avatar } from '@/components/avatar';
 import { RoundsCalendar } from '@/components/rounds-calendar';
 import { roundsHistory } from '@/lib/training/rounds-service';
+import { roundTimes, zoneName } from '@/lib/training/schedule';
 import { scoreOverTime } from '@/lib/learning/score-history';
 import { ScoreHistoryChart } from '@/components/score-history-chart';
 
@@ -75,7 +76,7 @@ export default async function AdminTraineePage({ params }: { params: Promise<{ i
       {mornings && mornings.days.length > 0 ? (
         <section>
           <SectionHeading
-            eyebrow="Rounds, 7am to 11am Kuala Lumpur time"
+            eyebrow={`Rounds at ${roundTimes(mornings.schedule)}, ${zoneName(mornings.schedule)}`}
             title={missed === 0 ? 'No rounds missed' : `${missed} round${missed === 1 ? '' : 's'} missed`}
           />
           <Card>

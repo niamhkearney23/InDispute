@@ -125,9 +125,20 @@ test('7am is 7am on the morning the clocks change in Melbourne', () => {
   assert.equal(seven.toISOString(), '2026-10-03T20:00:00.000Z'); // 7am AEDT is UTC+11
 });
 
-test('each round closes when the next opens, and the last at 11', async () => {
-  const { closingLabel } = await import('../src/lib/training/rounds');
-  assert.deepEqual([1, 2, 3, 4].map((number) => closingLabel({ number })), ['8am', '9am', '10am', '11am']);
+test('each round closes when the next opens, and the last at 11', () => {
+  const rounds = roundsFor(KL, DAY, [], at(6, 0));
+  assert.deepEqual(rounds.map((r) => r.opensLabel), ['7am', '8am', '9am', '10am']);
+  assert.deepEqual(rounds.map((r) => r.closesLabel), ['8am', '9am', '10am', '11am']);
+});
+
+test('a cohort on its own clock: three rounds at 9am, 1pm and 4pm in Sydney', () => {
+  const sydney = { timezone: 'Australia/Sydney', roundHours: [9, 13, 16], holidays: {} };
+  // 1:30pm in Sydney on 10 November 2026 (AEDT, UTC+11) is 02:30 UTC.
+  const rounds = roundsFor(sydney, '2026-11-10', [], new Date('2026-11-10T02:30:00Z'));
+  assert.deepEqual(rounds.map((r) => r.state), ['missed', 'open', 'upcoming']);
+  assert.deepEqual(rounds.map((r) => r.opensLabel), ['9am', '1pm', '4pm']);
+  // Each round is open for its own hour, not until the next one opens.
+  assert.equal(rounds[1].closesAt.toISOString(), '2026-11-10T03:00:00.000Z');
 });
 
 test('finishing a session without answering it does not do the round', () => {

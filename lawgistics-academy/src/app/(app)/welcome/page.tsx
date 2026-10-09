@@ -5,6 +5,7 @@ import { getLearnerProfile } from '@/lib/learner-overview';
 import { trainingOpen } from '@/lib/training/service';
 import { requireAccess } from '@/lib/access/service';
 import { tourFinish, tourSteps } from '@/content/tour';
+import { scheduleForPerson } from '@/lib/training/cohorts';
 import { Tour } from '@/components/tour';
 
 export const metadata: Metadata = { title: 'How it works' };
@@ -29,6 +30,7 @@ export default async function WelcomePage() {
     trainee: profile.track === 'litigation_trainee' && profile.traineeConfirmed,
     open,
     needsDiagnostic: !profile.diagnosticCompletedAt,
+    schedule: await scheduleForPerson(user.id),
   };
 
   return (

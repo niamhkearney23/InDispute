@@ -10,6 +10,7 @@ import { HomeworkForm } from '../homework-form';
 import { Materials } from '@/components/materials';
 import { postsForHomeworkDays } from '@/lib/work/service';
 import { requireAccess } from '@/lib/access/service';
+import { scheduleForPerson } from '@/lib/training/cohorts';
 
 export const metadata: Metadata = { title: 'Homework' };
 
@@ -28,7 +29,13 @@ export default async function HomeworkPage() {
     .eq('user_id', user.id);
   const declaredDays = new Set((rows ?? []).map((r) => r.day as number));
 
-  const homework = homeworkDay(profile.startsOn, profile.endsOn, profile.timezone);
+  const homework = homeworkDay(
+      profile.startsOn,
+      profile.endsOn,
+      profile.timezone,
+      new Date(),
+      (await scheduleForPerson(user.id)).holidays,
+    );
   const arrivedDay = lastArrivedDay(homework);
   const materials = await postsForHomeworkDays();
 
