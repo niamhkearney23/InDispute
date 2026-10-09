@@ -25,7 +25,7 @@ export default async function ModulePage({
   if (!user) redirect('/login');
 
   const profile = await getLearnerProfile(user.id);
-  if (!profile) redirect('/login');
+  if (!profile) redirect('/account-problem');
 
   const entry = await getModule(user.id, profile.country, slug);
   if (!entry) notFound();

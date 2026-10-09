@@ -61,7 +61,10 @@ export function NextRoundClock({
       role="timer"
       aria-live="off"
     >
-      <span className="text-slate">{label} in </span>
+      {/* A non-breaking space, not a plain one: the box is a flex row, and
+          a flex item's trailing space is dropped, which printed "closes
+          in44:59". */}
+      <span className="text-slate">{label} in{'\u00a0'}</span>
       <span className="font-semibold tabular-nums">{clock}</span>
       <button
         type="button"

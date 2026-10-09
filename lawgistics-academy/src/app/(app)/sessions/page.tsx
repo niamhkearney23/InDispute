@@ -38,7 +38,7 @@ export default async function LearnerSessionsPage() {
   if (!user) redirect('/login?next=/sessions');
 
   const profile = await getLearnerProfile(user.id);
-  if (!profile) redirect('/login');
+  if (!profile) redirect('/account-problem');
 
   const all = await sessionsForLearner(profile.country, seesTraineeVideos(profile));
 

@@ -23,7 +23,7 @@ export default async function PricingPage({
   const user = await getCurrentUser();
   if (!user) redirect('/login?next=/pricing');
   const profile = await getLearnerProfile(user.id);
-  if (!profile) redirect('/login');
+  if (!profile) redirect('/account-problem');
   // The price depends on the country they train in, which onboarding asks.
   if (!profile.onboardedAt) redirect('/onboarding');
 

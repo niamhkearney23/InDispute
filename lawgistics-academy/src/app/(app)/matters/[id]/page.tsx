@@ -48,7 +48,7 @@ export default async function MatterPage({ params }: { params: Promise<{ id: str
   const { id } = await params;
   if (!user) redirect(`/login?next=/matters/${id}`);
   const profile = await getLearnerProfile(user.id);
-  if (!profile) redirect('/login');
+  if (!profile) redirect('/account-problem');
 
   const found = await matterForLearner(id, user.id);
   if (!found) notFound();

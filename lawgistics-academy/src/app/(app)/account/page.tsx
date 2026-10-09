@@ -14,7 +14,7 @@ export default async function AccountPage() {
   if (!user) redirect('/login');
 
   const profile = await getLearnerProfile(user.id);
-  if (!profile) redirect('/login');
+  if (!profile) redirect('/account-problem');
 
   return (
     <div className="space-y-6">

@@ -24,7 +24,7 @@ export default async function CourtsPage() {
   if (!user) redirect('/login');
 
   const profile = await getLearnerProfile(user.id);
-  if (!profile) redirect('/login');
+  if (!profile) redirect('/account-problem');
 
   const hierarchy = COURT_HIERARCHIES[profile.country];
   const quizSlug = QUIZ_MODULE[profile.country];

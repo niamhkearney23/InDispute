@@ -19,7 +19,7 @@ export default async function WelcomePage() {
   const user = await getCurrentUser();
   if (!user) redirect('/login');
   const profile = await getLearnerProfile(user.id);
-  if (!profile) redirect('/login');
+  if (!profile) redirect('/account-problem');
   if (!profile.onboardedAt) redirect('/onboarding');
 
   const open = await trainingOpen(profile.country);

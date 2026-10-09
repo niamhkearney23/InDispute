@@ -45,6 +45,16 @@ export const QUESTIONS_PER_MINUTE_GOAL: Record<number, number> = {
 
 export const DIAGNOSTIC_QUESTION_COUNT = 30;
 
+/**
+ * About how long the diagnostic takes, in minutes: a minute and a half a
+ * question, to the nearest five. Worked out from the count rather than
+ * written down, because the page used to say fifteen minutes for thirty
+ * questions and nobody changed one when the other moved.
+ */
+export function diagnosticMinutes(questions: number = DIAGNOSTIC_QUESTION_COUNT): number {
+  return Math.max(5, Math.round((questions * 1.5) / 5) * 5);
+}
+
 /** Don't serve the same question again within this window unless it's due. */
 export const REPEAT_COOLDOWN_HOURS = 20;
 

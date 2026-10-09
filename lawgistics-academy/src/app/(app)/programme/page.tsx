@@ -30,7 +30,7 @@ export default async function ProgrammePage() {
   if (!user) redirect('/login');
 
   const profile = await getLearnerProfile(user.id);
-  if (!profile) redirect('/login');
+  if (!profile) redirect('/account-problem');
   if (profile.track !== 'litigation_trainee') redirect('/dashboard');
 
   const homework = homeworkDay(profile.startsOn, profile.endsOn, profile.timezone);

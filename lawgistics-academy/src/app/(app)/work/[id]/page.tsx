@@ -54,7 +54,7 @@ export default async function WorkPostPage({ params }: { params: Promise<{ id: s
   if (!user) redirect(`/login?next=/work/${id}`);
 
   const profile = await getLearnerProfile(user.id);
-  if (!profile) redirect('/login');
+  if (!profile) redirect('/account-problem');
 
   const found = await workPostFor(id, user.id);
   if (!found) notFound();

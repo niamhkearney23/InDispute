@@ -32,6 +32,13 @@ const PUBLIC_PATHS = [
   '/api/stripe/webhook',
 ];
 
+// Pages for somebody who is not signed in yet. A signed-in person asking for
+// one is sent to /dashboard instead. That is why no learner page may send a
+// signed-in person here: a page that does, for a reason /dashboard shares
+// (no profile row, say), makes a loop the browser gives up on. A test reads
+// this list and holds every learner page to it.
+const SIGNED_OUT_ONLY = ['/login', '/signup', '/trainee', '/trainee/signup'];
+
 function isPublic(pathname: string) {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
@@ -75,13 +82,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (
-    user &&
-    (pathname === '/login' ||
-      pathname === '/signup' ||
-      pathname === '/trainee' ||
-      pathname === '/trainee/signup')
-  ) {
+  if (user && SIGNED_OUT_ONLY.includes(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = '/dashboard';
     url.search = '';

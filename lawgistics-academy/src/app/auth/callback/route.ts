@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { safeNext } from '@/lib/safe-next';
+import { siteOrigin } from '@/lib/site-origin';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { classifyLinkFailure, type LinkFailure } from '@/lib/auth/link-failures';
 
@@ -21,7 +22,10 @@ import { classifyLinkFailure, type LinkFailure } from '@/lib/auth/link-failures'
  * `lib/auth/link-failures`.
  */
 export async function GET(request: NextRequest) {
-  const { searchParams, origin } = request.nextUrl;
+  const { searchParams } = request.nextUrl;
+  // The site's own address when the deployment names one, so a proxy that
+  // reaches the app as localhost does not send the person there.
+  const origin = siteOrigin(request.nextUrl.origin);
   const nextParam = searchParams.get('next');
   const next = safeNext(nextParam, '/onboarding');
 

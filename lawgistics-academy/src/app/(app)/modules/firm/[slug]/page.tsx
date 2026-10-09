@@ -23,7 +23,7 @@ export default async function FirmModulePage({
   if (!user) redirect('/login');
 
   const profile = await getLearnerProfile(user.id);
-  if (!profile) redirect('/login');
+  if (!profile) redirect('/account-problem');
 
   const definition = await getFirmModuleForLearner(user.id, profile.country, slug);
   if (!definition) notFound();

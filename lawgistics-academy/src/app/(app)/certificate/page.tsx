@@ -32,7 +32,7 @@ export default async function CertificatePage() {
   const user = await getCurrentUser();
   if (!user) redirect('/login?next=/certificate');
   const profile = await getLearnerProfile(user.id);
-  if (!profile) redirect('/login');
+  if (!profile) redirect('/account-problem');
 
   const status = await certificateStatus(user.id, profile.country);
   const name = profile.displayName?.trim() || profile.email;
