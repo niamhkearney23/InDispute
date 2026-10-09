@@ -33,7 +33,7 @@ export async function startCheckout(formData: FormData): Promise<void> {
   if (!plan) redirect('/pricing');
 
   const profile = await getLearnerProfile(user.id);
-  if (!profile) redirect('/login');
+  if (!profile) redirect('/account-problem');
   const price = PRICES[profile.country][plan];
   const state = await accessFor(user.id);
   const origin = await siteOrigin();

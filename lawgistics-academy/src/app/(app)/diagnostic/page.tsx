@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
-import { DIAGNOSTIC_QUESTION_COUNT } from '@/lib/learning/config';
+import { DIAGNOSTIC_QUESTION_COUNT, diagnosticMinutes } from '@/lib/learning/config';
 import { ButtonLink, Card } from '@/components/ui';
 import { BeginSessionButton } from '../begin-session-button';
 import { trainingOpen } from '@/lib/training/service';
@@ -16,7 +16,7 @@ export default async function DiagnosticPage() {
   if (!user) redirect('/login');
 
   const profile = await getLearnerProfile(user.id);
-  if (!profile) redirect('/login');
+  if (!profile) redirect('/account-problem');
   if (!profile.onboardedAt) redirect('/onboarding');
 
   const retaking = Boolean(profile.diagnosticCompletedAt);
@@ -42,7 +42,7 @@ export default async function DiagnosticPage() {
             The questions run from court hierarchy to statutory interpretation. That is
             expected.
           </Point>
-          <Point title="About fifteen minutes.">
+          <Point title={`About ${diagnosticMinutes()} minutes.`}>
             You can stop partway through and pick it up later. Your place is kept.
           </Point>
         </ul>
@@ -54,11 +54,12 @@ export default async function DiagnosticPage() {
             kind="diagnostic"
             label={retaking ? 'Start a new diagnostic' : 'Begin the diagnostic'}
           />
-          {retaking ? (
-            <ButtonLink href="/dashboard" size="lg" variant="outline">
-              Back to today
-            </ButtonLink>
-          ) : null}
+          {/* Always, not only on a retake. Today no longer sends anybody here,
+              but somebody who came from its card should not have to find
+              the way back through the menu. */}
+          <ButtonLink href="/dashboard" size="lg" variant="outline">
+            Back to today
+          </ButtonLink>
         </div>
       ) : (
         // The Malaysian bank publishes only when a person publishes it, so

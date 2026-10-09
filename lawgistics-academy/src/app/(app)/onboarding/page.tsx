@@ -5,6 +5,8 @@ import { getLearnerProfile } from '@/lib/learner-overview';
 import { brand } from '@/lib/brand';
 import { OnboardingForm } from './onboarding-form';
 import { AccentSurface } from '@/components/accent-surface';
+import { acceptedInvitationFor } from '@/lib/onboarding/invitations';
+import { trainingOpen } from '@/lib/training/service';
 
 export const metadata: Metadata = { title: 'Getting started' };
 
@@ -17,13 +19,29 @@ export default async function OnboardingPage({
   if (!user) redirect('/login');
 
   const profile = await getLearnerProfile(user.id);
+  // Without a profile row the answers below would save to nothing and the
+  // tour after them would have nobody to show, so say so here instead.
+  if (!profile) redirect('/account-problem');
 
   // Reachable again with ?edit=1, because someone who trained on Australian
   // law and is now starting at a Malaysian firm has to be able to say so, and
   // that is the ordinary case here rather than an edge one.
   const { edit } = await searchParams;
   const editing = edit === '1';
-  if (profile?.onboardedAt && !editing) redirect('/dashboard');
+  if (profile.onboardedAt && !editing) redirect('/dashboard');
+
+  // The firm's invitation decided the country, so it is what the form shows
+  // and what saveOnboarding keeps.
+  const invitation = await acceptedInvitationFor(user.id);
+  const country = invitation?.country ?? profile.country;
+  const track = invitation?.track ?? profile.track;
+
+  // What comes after the button, as it is: the tour, then the diagnostic
+  // when there are questions to sit it with. The button used to say "Start
+  // my diagnostic" and led to the tour.
+  const steps = (await trainingOpen(country))
+    ? ['Five questions', 'A quick tour', 'Diagnostic']
+    : ['Five questions', 'A quick tour'];
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -35,7 +53,7 @@ export default async function OnboardingPage({
           <h1 className="text-[2.25rem] leading-[1.05] sm:text-5xl">
             {editing ? 'Change what you are training on' : 'Train like a lawyer.'}
           </h1>
-          {editing ? (
+          {editing && !invitation ? (
             <p className="mt-4 max-w-xl text-paper/85">
               Changing country changes which questions you are shown, because Australian and
               Malaysian law are different bodies of law. Everything you have already answered is
@@ -44,7 +62,7 @@ export default async function OnboardingPage({
           ) : null}
           {editing ? null : (
             <ol className="mt-6 flex flex-wrap gap-2 text-sm" aria-label="What happens next">
-              {['Five questions', 'Diagnostic', 'Your skill map'].map((step, i) => (
+              {steps.map((step, i) => (
                 <li
                   key={step}
                   className={
@@ -62,19 +80,17 @@ export default async function OnboardingPage({
       </AccentSurface>
 
       <OnboardingForm
-        defaultName={profile?.displayName ?? ''}
-        // Malaysia when there is no profile to read, because that is where
-        // most of the people using this are. It is only which button starts
-        // pressed: the question is asked, and the answer is theirs.
-        defaultCountry={profile?.country ?? 'MY'}
-        defaultTrack={profile?.track ?? 'general'}
-        defaultJurisdiction={profile?.homeJurisdiction ?? 'MY_MALAYA'}
+        defaultName={profile.displayName ?? ''}
+        defaultCountry={country}
+        defaultTrack={track}
+        defaultJurisdiction={profile.homeJurisdiction}
         // What they chose last time, when they are changing it. These were
         // fixed values, so changing country quietly reset the rest.
-        defaultStage={editing ? (profile?.careerStage ?? undefined) : undefined}
-        defaultGoals={editing ? profile?.improvementGoals : undefined}
-        defaultMinutes={editing ? profile?.dailyGoalMinutes : undefined}
+        defaultStage={editing ? (profile.careerStage ?? undefined) : undefined}
+        defaultGoals={editing ? profile.improvementGoals : undefined}
+        defaultMinutes={editing ? profile.dailyGoalMinutes : undefined}
         editing={editing}
+        invited={Boolean(invitation)}
       />
     </div>
   );

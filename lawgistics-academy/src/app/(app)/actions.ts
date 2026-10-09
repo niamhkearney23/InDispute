@@ -18,6 +18,7 @@ import { moduleBySlug } from '@/content/seed/modules';
 import { HOMEWORK_DAYS, homeworkForDay } from '@/content/seed/homework';
 import { homeworkDay, lastArrivedDay } from '@/lib/homework/rules';
 import { getLearnerProfile } from '@/lib/learner-overview';
+import { acceptedInvitationFor } from '@/lib/onboarding/invitations';
 import {
   COMMENT_MAX_LENGTH,
   WORK_FILE_TYPES,
@@ -87,9 +88,18 @@ export async function saveOnboarding(
     return { error: 'Please answer all five questions before continuing.' };
   }
 
+  // Somebody who joined by a firm's invitation keeps the country and
+  // programme the firm chose for them. The settings page does not offer the
+  // switch, but this action is a public endpoint, and an intern recorded as
+  // Australian by their own hand would be trained on the wrong law with the
+  // firm's invitation saying otherwise.
+  const invited = await acceptedInvitationFor(user.id);
+  const country = invited?.country ?? parsed.data.country;
+  const track = invited?.track ?? parsed.data.track;
+
   // The database refuses this pair too. Checked here so the person gets a
   // sentence rather than a constraint name.
-  if (parsed.data.track === 'litigation_trainee' && parsed.data.country !== 'MY') {
+  if (track === 'litigation_trainee' && country !== 'MY') {
     return { error: 'The litigation trainee programme is a Malaysian one.' };
   }
 
@@ -98,7 +108,6 @@ export async function saveOnboarding(
   // Malaysian with a Victorian home jurisdiction would be shown Malaysian
   // questions labelled with an Australian State, which is exactly the confusion
   // the whole country split exists to prevent.
-  const { country } = parsed.data;
   if (JURISDICTION_COUNTRY[parsed.data.homeJurisdiction] !== country) {
     return { error: 'That jurisdiction does not belong to the country you chose.' };
   }
@@ -122,7 +131,7 @@ export async function saveOnboarding(
       improvement_goals: goals,
       daily_goal_minutes: parsed.data.dailyGoalMinutes,
       country,
-      track: parsed.data.track,
+      track,
       home_jurisdiction: parsed.data.homeJurisdiction,
       // Changing settings is not joining again: the date they started stays.
       ...(editing ? {} : { onboarded_at: new Date().toISOString() }),

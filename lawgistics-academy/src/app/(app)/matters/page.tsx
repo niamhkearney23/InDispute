@@ -31,7 +31,7 @@ export default async function MattersPage() {
   const user = await getCurrentUser();
   if (!user) redirect('/login?next=/matters');
   const profile = await getLearnerProfile(user.id);
-  if (!profile) redirect('/login');
+  if (!profile) redirect('/account-problem');
 
   const items = await mattersForLearner(user.id);
   const good = items.filter((i) => i.everGood).length;

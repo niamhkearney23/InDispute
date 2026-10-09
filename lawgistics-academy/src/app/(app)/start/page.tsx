@@ -17,7 +17,7 @@ export default async function BeforeYouBeginPage() {
   if (!user) redirect('/login');
 
   const profile = await getLearnerProfile(user.id);
-  if (!profile) redirect('/login');
+  if (!profile) redirect('/account-problem');
 
   const { startsOn, steps, outstanding, decision, cleared } = await beforeYouBegin(
     user.id,

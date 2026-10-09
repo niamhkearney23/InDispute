@@ -64,6 +64,7 @@ export function OnboardingForm({
   defaultGoals,
   defaultMinutes,
   editing = false,
+  invited = false,
 }: {
   defaultName: string;
   defaultCountry: Country;
@@ -73,6 +74,11 @@ export function OnboardingForm({
   defaultGoals?: string[];
   defaultMinutes?: number;
   editing?: boolean;
+  /**
+   * Joined by a firm's invitation, which settled the country. The defaults
+   * are then the invitation's, and the country is shown rather than asked.
+   */
+  invited?: boolean;
 }) {
   const [state, formAction, pending] = useActionState(saveOnboarding, initialState);
   const [stage, setStage] = useState<CareerStage>(
@@ -134,6 +140,20 @@ export function OnboardingForm({
             <div>
               <p className="eyebrow">Your programme</p>
               <p className="text-lg">Litigation trainee, Malaysia</p>
+            </div>
+          </div>
+        </Card>
+      ) : invited ? (
+        // The same for somebody the firm invited: the firm chose the country
+        // when it sent the invitation, and a switch here would let an intern
+        // train on the other country's law with the firm none the wiser.
+        // saveOnboarding keeps the invitation's country whatever is sent.
+        <Card>
+          <div className="flex items-center gap-3">
+            <StepNumber n={1} done />
+            <div>
+              <p className="eyebrow">Your country, from your invitation</p>
+              <p className="text-lg">{choice.label}</p>
             </div>
           </div>
         </Card>
@@ -304,7 +324,7 @@ export function OnboardingForm({
         disabled={pending}
         className="group h-14 w-full rounded-lg text-[1.0625rem] sm:w-auto sm:px-10"
       >
-        {pending ? 'Saving…' : editing ? 'Save changes' : 'Start my diagnostic'}
+        {pending ? 'Saving…' : editing ? 'Save changes' : 'Continue'}
         {pending ? null : (
           <ArrowIcon className="size-4 transition-transform group-hover:translate-x-0.5" />
         )}

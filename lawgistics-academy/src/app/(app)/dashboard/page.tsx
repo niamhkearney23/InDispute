@@ -7,13 +7,14 @@ import { masteryBand } from '@/lib/learning/mastery';
 import { outstandingRequired } from '@/lib/modules/service';
 import { outstandingFirmModules } from '@/lib/firm/service';
 import { beforeYouBegin } from '@/lib/onboarding/service';
+import { acceptedInvitationFor } from '@/lib/onboarding/invitations';
 import { greeting, greetingName } from '@/lib/greeting';
 import { longDate } from '@/lib/onboarding/rules';
 import { essayTopic } from '@/content/seed/essay-topics';
 import { homeworkForDay } from '@/content/seed/homework';
 import { homeworkDay, lastArrivedDay } from '@/lib/homework/rules';
 import { HomeworkForm } from '../homework-form';
-import { QUESTIONS_PER_MINUTE_GOAL } from '@/lib/learning/config';
+import { DIAGNOSTIC_QUESTION_COUNT, QUESTIONS_PER_MINUTE_GOAL } from '@/lib/learning/config';
 import { TOP_LEVEL_NAME } from '@/lib/learning/progression';
 import { GoalRing } from '@/components/goal-ring';
 import { AccentSurface } from '@/components/accent-surface';
@@ -70,25 +71,28 @@ export default async function DashboardPage() {
   if (!user) redirect('/login');
 
   const overview = await getLearnerOverview(user.id);
-  if (!overview) redirect('/login');
+  if (!overview) redirect('/account-problem');
   if (!overview.profile.onboardedAt) redirect('/onboarding');
 
-  // Only sent to the diagnostic when there are questions to sit it with.
-  // Without them it cannot be finished, and redirecting there would hold a
-  // new learner on a page they cannot get past, with their homework, work
-  // and coach's sessions all waiting on the other side of it.
+  // Somebody who has not sat the diagnostic is asked to, at the top of the
+  // page, rather than sent to it. Today used to redirect them there, which
+  // held a new learner on the diagnostic with their homework, the work board,
+  // their coach's sessions, the list of things to do before they begin and a
+  // trainee's "waiting for your supervisor" all on the other side of it. Only
+  // when there are questions to sit it with: without them it cannot be done.
   const open = await trainingOpen(overview.profile.country);
-  if (open && !overview.profile.diagnosticCompletedAt) {
-    // Except a trainee while a round is open: the round's button is on this
-    // page and the hour does not wait, so the diagnostic can come after it.
-    const roundOpen =
-      overview.profile.track === 'litigation_trainee' && overview.profile.traineeConfirmed
-        ? Boolean(openRound((await roundsToday(user.id).catch(() => null))?.rounds ?? []))
-        : false;
-    if (!roundOpen) redirect('/diagnostic');
-  }
+  const needsDiagnostic = open && !overview.profile.diagnosticCompletedAt;
   const staff =
     overview.profile.isAdmin || overview.profile.isCoach || overview.profile.isFirmAdmin;
+  // Somebody with a supervisor: on the trainee programme, or invited by the
+  // firm. Only they are told a supervisor will set their start date, because
+  // a learner on their own has nobody who will. Read only for the card that
+  // says it, since the invitation lookup is a query of its own.
+  const supervised =
+    !open && !staff && !overview.profile.startsOn
+      ? overview.profile.track === 'litigation_trainee' ||
+        Boolean(await acceptedInvitationFor(user.id))
+      : false;
   const countryName = overview.profile.country === 'MY' ? 'Malaysia' : 'Australia';
 
   const { profile, level, skillMap } = overview;
@@ -201,6 +205,25 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
+      {needsDiagnostic ? (
+        <Card className="ring-2 ring-accent">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="eyebrow mb-1.5">Start here</p>
+              <h2 className="text-2xl">Take the diagnostic</h2>
+              <p className="mt-1.5 text-sm text-slate">
+                About {DIAGNOSTIC_QUESTION_COUNT} questions across every area, with no pass mark.
+                It sets what your daily training covers. Everything else on this page works in
+                the meantime.
+              </p>
+            </div>
+            <ButtonLink href="/diagnostic" variant="accent" size="lg" className="shrink-0">
+              Take the diagnostic
+            </ButtonLink>
+          </div>
+        </Card>
+      ) : null}
+
       {/* Above the training prompt, and its own notice rather than folded into
           the count below it. An unread firm policy is not one more module
           outstanding, it is the firm's own rules not yet in front of the person
@@ -383,7 +406,9 @@ export default async function DashboardPage() {
                     : `${profile.country === 'MY' ? 'Malaysian questions are published only once a lawyer has signed them off, and none have been yet.' : 'No questions have been published yet.'}${
                         profile.startsOn
                           ? ' Your homework and anything your coach has posted are below.'
-                          : ' Anything your coach posts for you will appear below, and your homework starts once your supervisor sets your start date.'
+                          : supervised
+                            ? ' Anything your coach posts for you will appear below, and your homework starts once your supervisor sets your start date.'
+                            : ' Anything posted for you will appear below.'
                       }`}
               </p>
               {staff ? (

@@ -369,7 +369,16 @@ export function AuthForm({
                 ? 'Remembered it? '
                 : 'No account yet? '}
             <Link
-              href={isSignup || isReset ? '/login' : '/signup'}
+              // Signing in instead of signing up keeps where they were going.
+              // Without it, somebody sent to sign up from a link to a work
+              // post who already had an account landed on Today instead.
+              href={
+                isSignup
+                  ? `/login${next ? `?next=${encodeURIComponent(next)}` : ''}`
+                  : isReset
+                    ? '/login'
+                    : '/signup'
+              }
               // Negative margin keeps the sentence on one line while the padding
               // grows the tap target to something a thumb can actually hit.
               className="-my-2 inline-block rounded-[5px] px-1 py-2 font-semibold text-accent underline underline-offset-4"

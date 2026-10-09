@@ -17,7 +17,7 @@ export default async function ModulesPage() {
   if (!user) redirect('/login');
 
   const profile = await getLearnerProfile(user.id);
-  if (!profile) redirect('/login');
+  if (!profile) redirect('/account-problem');
 
   const [progress, firmModules] = await Promise.all([
     getModuleProgress(user.id, profile.country),
