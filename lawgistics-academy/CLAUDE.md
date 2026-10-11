@@ -175,7 +175,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0041`.
+- Migrations run to `0042`.
   `supabase/UPDATE.sql` is the one-paste update for a database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -381,6 +381,20 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   `cohort_id` is changed only by the server or an administrator. The public
   trainee page and the front page describe the next unfinished cohort, or
   `PROGRAMME` when there is none.
+- `0042` is **firm reports** (Admin, Reports, the firm administrator's):
+  active people per month, which is what a firm is invoiced on (somebody
+  counts once a month when they answered, ticked homework, handed in work or
+  started a matter; `firm_activity`, service role only), each person's
+  progress (homework, rounds, work and matters marked Good, certificate) and
+  the certification register, each as CSV or a branded PDF from
+  `/admin/reports/export/<kind>`, which checks `checkFirmAdmin` before it
+  reads anything. Only the people the firm supervises are counted, staff
+  left out. PDFs are made with pdf-lib (`src/lib/reports/pdf.ts`) in the
+  firm's colour with its name and, when it is a PNG or JPEG, its logo; the
+  built-in fonts cover Western European letters, so other characters fall
+  back to plain letters in the PDF while the CSV keeps them. CSV cells that
+  start like a formula get an apostrophe. A learner downloads their own
+  certificate of completion as a PDF from `/certificate/pdf`.
 - **Options are shown shuffled** (`src/lib/learning/option-order.ts`), fixed per
   question version or lesson screen, and the letter shown is the place on the
   screen, never the id. The bank was written with the right answer B three
@@ -454,7 +468,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   grid, gold-free by the owner's choice). Admin has the same look. The front
   page and sign-in stay cream. The certificate and a matter's case file stay paper inside it.
   Use the tokens, never fixed Tailwind colours, or a page breaks in one look.
-- 466 tests, 405 schema guarantees against a real Postgres, 240 page and device
+- 473 tests, 409 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB

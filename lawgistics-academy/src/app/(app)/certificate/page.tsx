@@ -5,7 +5,7 @@ import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { certificateStatus } from '@/lib/certificate/service';
 import { brand } from '@/lib/brand';
-import { Card, Pill } from '@/components/ui';
+import { Card, Pill, buttonClasses } from '@/components/ui';
 import { CheckIcon } from '@/components/icons';
 import { PrintButton } from './print-button';
 import { requireAccess } from '@/lib/access/service';
@@ -108,7 +108,13 @@ export default async function CertificatePage() {
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
         <p className="eyebrow">Certificate</p>
-        <PrintButton />
+        <div className="flex flex-wrap gap-2">
+          {/* A plain link: the PDF is a file from the server, not a page. */}
+          <a href="/certificate/pdf" className={buttonClasses('accent')}>
+            Download the PDF
+          </a>
+          <PrintButton />
+        </div>
       </div>
       {profile.track === 'litigation_trainee' ? (
         <p className="text-sm text-slate print:hidden">

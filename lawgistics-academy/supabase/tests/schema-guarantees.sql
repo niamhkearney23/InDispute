@@ -3295,6 +3295,34 @@ select pg_temp.expect(
   (select cohort_id is null from public.profiles where id = '22222222-2222-2222-2222-222222222222'),
   'removing a cohort leaves its people on the programme''s own clock');
 
+-- -----------------------------------------------------------------------------
+-- 0042: active people by month, once each, for the server only
+-- -----------------------------------------------------------------------------
+set local role service_role;
+select pg_temp.expect(
+  (select count(*) >= 1 and count(*) = count(distinct (user_id, month))
+   from public.firm_activity(array['22222222-2222-2222-2222-222222222222'::uuid],
+                             now() - interval '5 years', now() + interval '1 day')),
+  'a person counts once a month however much they did');
+select pg_temp.expect(
+  (select count(*) = 0
+   from public.firm_activity(array['22222222-2222-2222-2222-222222222222'::uuid],
+                             now() + interval '1 day', now() + interval '2 days')),
+  'nobody counts for a month they did nothing in');
+select pg_temp.expect(
+  not exists (select 1
+   from public.firm_activity(array['11111111-1111-1111-1111-111111111111'::uuid],
+                             now() - interval '5 years', now() + interval '1 day')
+   where user_id <> '11111111-1111-1111-1111-111111111111'),
+  'only the people asked about are counted');
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '22222222-2222-2222-2222-222222222222';
+select pg_temp.expect_failure(
+  $$select * from public.firm_activity(array['11111111-1111-1111-1111-111111111111'::uuid], now() - interval '1 year', now())$$,
+  'a learner cannot read who was active');
+reset role;
+
 \echo ''
 \echo 'All schema guarantees hold.'
 

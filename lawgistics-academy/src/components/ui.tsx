@@ -31,6 +31,17 @@ const BUTTON_SIZES = {
   lg: 'h-13 px-6 text-base w-full sm:w-auto',
 } as const;
 
+/**
+ * The button look on a plain link, for a file download: a route that returns
+ * a file is not a page, so it must not go through client-side navigation.
+ */
+export function buttonClasses(
+  variant: keyof typeof BUTTON_VARIANTS = 'primary',
+  size: keyof typeof BUTTON_SIZES = 'md',
+): string {
+  return cn(BUTTON_BASE, BUTTON_VARIANTS[variant], BUTTON_SIZES[size]);
+}
+
 export interface ButtonProps extends ComponentProps<'button'> {
   variant?: keyof typeof BUTTON_VARIANTS;
   size?: keyof typeof BUTTON_SIZES;

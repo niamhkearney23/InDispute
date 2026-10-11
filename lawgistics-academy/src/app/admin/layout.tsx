@@ -32,6 +32,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     ['/admin/firm', 'Firm', isFirmAdmin],
     ['/admin/onboarding', 'Joiners', true],
     ['/admin/access', 'Access', true],
+    ['/admin/reports', 'Reports', isFirmAdmin],
     ['/admin/people', 'Staff', isAdmin],
     ['/admin/tutor', 'Tutor', isReviewer],
   ];
