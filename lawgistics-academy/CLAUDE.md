@@ -175,7 +175,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0041`.
+- Migrations run to `0042`.
   `supabase/UPDATE.sql` is the one-paste update for a database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -381,6 +381,26 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   `cohort_id` is changed only by the server or an administrator. The public
   trainee page and the front page describe the next unfinished cohort, or
   `PROGRAMME` when there is none.
+- `0042` is the **academy on a phone** (docs/PHONE-APP.md): an installable web
+  app (manifest, home-screen icons, `public/sw.js`, an offline page) and web
+  push. Three things notify: a round about to open (five to ten minutes
+  before, `roundDueForReminder` in `src/lib/push/rules.ts`, built from the
+  rounds' own `roundsDayNumber` and `roundWindows` so it never announces a
+  round Today would not show), a coach marking a hand-in, and a coach putting
+  up new work (once per post, `work_posts.announced_at`). `push_devices` is
+  read by its owner only and written by the server only; `push_round_reminders`
+  is the server's note so no reminder goes twice. Who hears about a post is
+  `work_visible_to(post, person)`, which `work_visible` now calls with the
+  caller, so the board and the notices share one rule. A device address must
+  be at a known push service (`isPushServiceAddress`), because the server
+  sends a request to it. Off unless `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` and
+  `VAPID_SUBJECT` are set; round reminders also need `CRON_SECRET` and a
+  scheduler calling `/api/push/rounds` every five minutes (Supabase pg_cron,
+  because Vercel's free plan runs crons once a day). Admin, Phones makes the
+  keys in the browser and shows counts. The service worker caches nothing but
+  the offline page, on purpose: every other page is somebody's own record.
+  Store apps (step 2 of the brief) are not built; Apple needs in-app account
+  deletion first, which needs the owner's decision on what a firm keeps.
 - **Options are shown shuffled** (`src/lib/learning/option-order.ts`), fixed per
   question version or lesson screen, and the letter shown is the place on the
   screen, never the id. The bank was written with the right answer B three
@@ -454,7 +474,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   grid, gold-free by the owner's choice). Admin has the same look. The front
   page and sign-in stay cream. The certificate and a matter's case file stay paper inside it.
   Use the tokens, never fixed Tailwind colours, or a page breaks in one look.
-- 466 tests, 405 schema guarantees against a real Postgres, 240 page and device
+- 480 tests, 425 schema guarantees against a real Postgres, 390 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB

@@ -3295,6 +3295,144 @@ select pg_temp.expect(
   (select cohort_id is null from public.profiles where id = '22222222-2222-2222-2222-222222222222'),
   'removing a cohort leaves its people on the programme''s own clock');
 
+-- -----------------------------------------------------------------------------
+-- Phone notifications (0042)
+-- -----------------------------------------------------------------------------
+-- A confirmed Malaysian trainee, a Malaysian intern, and two Malaysian
+-- coaches, each with a phone that agreed to notifications. The first coach
+-- writes the posts; the second does not, so leaving staff out is checked on
+-- its own and not hidden behind leaving the author out. Their own people, so
+-- these checks do not lean on what earlier sections left behind.
+insert into auth.users (id, email) values
+  ('aaaa0042-0000-0000-0000-000000000001', 'phone-trainee@example.test'),
+  ('aaaa0042-0000-0000-0000-000000000002', 'phone-intern@example.test'),
+  ('aaaa0042-0000-0000-0000-000000000003', 'phone-coach@example.test'),
+  ('aaaa0042-0000-0000-0000-000000000004', 'phone-other-coach@example.test');
+update public.profiles set country = 'MY'
+  where id in ('aaaa0042-0000-0000-0000-000000000001', 'aaaa0042-0000-0000-0000-000000000002',
+               'aaaa0042-0000-0000-0000-000000000003', 'aaaa0042-0000-0000-0000-000000000004');
+update public.profiles set track = 'litigation_trainee', trainee_approved_at = now()
+  where id = 'aaaa0042-0000-0000-0000-000000000001';
+update public.profiles set is_coach = true
+  where id in ('aaaa0042-0000-0000-0000-000000000003', 'aaaa0042-0000-0000-0000-000000000004');
+
+insert into public.push_devices (user_id, endpoint, p256dh, auth_secret) values
+  ('aaaa0042-0000-0000-0000-000000000001', 'https://fcm.googleapis.com/fcm/send/trainee-0042', repeat('A', 87), repeat('b', 22)),
+  ('aaaa0042-0000-0000-0000-000000000002', 'https://fcm.googleapis.com/fcm/send/intern-0042', repeat('A', 87), repeat('b', 22)),
+  ('aaaa0042-0000-0000-0000-000000000003', 'https://fcm.googleapis.com/fcm/send/coach-0042', repeat('A', 87), repeat('b', 22)),
+  ('aaaa0042-0000-0000-0000-000000000004', 'https://fcm.googleapis.com/fcm/send/other-coach-0042', repeat('A', 87), repeat('b', 22));
+
+select pg_temp.expect_failure(
+  $$insert into public.push_devices (user_id, endpoint, p256dh, auth_secret)
+    values ('aaaa0042-0000-0000-0000-000000000001', 'http://fcm.googleapis.com/fcm/send/plain', repeat('A', 87), repeat('b', 22))$$,
+  'a device address is https');
+select pg_temp.expect_failure(
+  $$insert into public.push_devices (user_id, endpoint, p256dh, auth_secret)
+    values ('aaaa0042-0000-0000-0000-000000000002', 'https://fcm.googleapis.com/fcm/send/trainee-0042', repeat('A', 87), repeat('b', 22))$$,
+  'one address is one device, never two people''s');
+
+set local role authenticated;
+set local request.jwt.claim.sub = 'aaaa0042-0000-0000-0000-000000000002';
+select pg_temp.expect(
+  (select count(*) from public.push_devices) = 1
+  and (select bool_and(user_id = 'aaaa0042-0000-0000-0000-000000000002') from public.push_devices),
+  'a person reads their own devices and nobody else''s');
+select pg_temp.expect_failure(
+  $$insert into public.push_devices (user_id, endpoint, p256dh, auth_secret)
+    values ('aaaa0042-0000-0000-0000-000000000002', 'https://fcm.googleapis.com/fcm/send/mine', repeat('A', 87), repeat('b', 22))$$,
+  'a person cannot save a device directly; the server does, after checking who they are');
+select pg_temp.expect_failure(
+  $$update public.push_devices set user_id = 'aaaa0042-0000-0000-0000-000000000002'
+    where endpoint = 'https://fcm.googleapis.com/fcm/send/trainee-0042'$$,
+  'a person cannot take over somebody else''s phone');
+select pg_temp.expect_failure(
+  $$delete from public.push_devices where user_id = 'aaaa0042-0000-0000-0000-000000000002'$$,
+  'a person cannot delete a device directly either');
+select pg_temp.expect_failure(
+  $$select count(*) from public.push_round_reminders$$,
+  'nobody but the server reads which reminders went');
+select pg_temp.expect_failure(
+  $$select * from public.push_devices_for_work_post('bbbb0001-0000-0000-0000-000000000001')$$,
+  'a person cannot list whose phones hear about a post');
+select pg_temp.expect_failure(
+  $$select public.work_visible_to(w, 'aaaa0042-0000-0000-0000-000000000001') from public.work_posts w limit 1$$,
+  'a person cannot ask what somebody else can see');
+reset role;
+
+set local role anon;
+select pg_temp.expect(
+  (select count(*) from public.push_devices) = 0,
+  'somebody signed out sees no devices at all');
+reset role;
+
+-- The server again, with nobody signed in: left set, the author stamp on
+-- work_posts would record the last signed-in person as every post's author.
+set local request.jwt.claim.sub = '';
+
+insert into public.push_round_reminders (user_id, opens_at)
+  values ('aaaa0042-0000-0000-0000-000000000001', '2026-11-03T00:00:00Z');
+select pg_temp.expect_failure(
+  $$insert into public.push_round_reminders (user_id, opens_at)
+    values ('aaaa0042-0000-0000-0000-000000000001', '2026-11-03T00:00:00Z')$$,
+  'a round reminder is noted once per person per round');
+
+insert into public.work_posts (id, kind, title, max_claims, trainees_only, country, published, posted_by)
+values
+  ('bbbb0042-0000-0000-0000-000000000001', 'task', 'For trainees', null, true, 'MY', true,
+   'aaaa0042-0000-0000-0000-000000000003'),
+  ('bbbb0042-0000-0000-0000-000000000002', 'task', 'For everybody in Malaysia', null, false, 'MY', true,
+   'aaaa0042-0000-0000-0000-000000000003'),
+  ('bbbb0042-0000-0000-0000-000000000003', 'task', 'For Australia', null, false, 'AU', true,
+   'aaaa0042-0000-0000-0000-000000000003'),
+  ('bbbb0042-0000-0000-0000-000000000004', 'task', 'Still a draft', null, false, 'MY', false,
+   'aaaa0042-0000-0000-0000-000000000003');
+
+select pg_temp.expect(
+  (select announced_at is null from public.work_posts where id = 'bbbb0042-0000-0000-0000-000000000002'),
+  'a new post starts unannounced');
+select pg_temp.expect(
+  (select array_agg(user_id order by user_id) from public.push_devices_for_work_post('bbbb0042-0000-0000-0000-000000000001'))
+    = array['aaaa0042-0000-0000-0000-000000000001']::uuid[],
+  'a post for trainees is announced to confirmed trainees only, never to staff');
+select pg_temp.expect(
+  (select array_agg(user_id order by user_id) from public.push_devices_for_work_post('bbbb0042-0000-0000-0000-000000000002'))
+    = array['aaaa0042-0000-0000-0000-000000000001', 'aaaa0042-0000-0000-0000-000000000002']::uuid[],
+  'a post for everybody in a country reaches everybody there with a phone, not its author and not other staff');
+-- Posts are written by staff, so the author is normally left out as staff.
+-- Somebody whose coach role was taken away after posting is not staff any
+-- more, and is still not told about their own post.
+insert into public.work_posts (id, kind, title, max_claims, trainees_only, country, published, posted_by)
+values ('bbbb0042-0000-0000-0000-000000000005', 'task', 'Posted before their role was taken away', null, false, 'MY', true,
+        'aaaa0042-0000-0000-0000-000000000001');
+select pg_temp.expect(
+  (select array_agg(user_id order by user_id) from public.push_devices_for_work_post('bbbb0042-0000-0000-0000-000000000005'))
+    = array['aaaa0042-0000-0000-0000-000000000002']::uuid[],
+  'nobody is told about their own post, staff or not');
+select pg_temp.expect(
+  (select count(*) from public.push_devices_for_work_post('bbbb0042-0000-0000-0000-000000000003')) = 0,
+  'a post for the other country is announced to nobody here');
+select pg_temp.expect(
+  (select count(*) from public.push_devices_for_work_post('bbbb0042-0000-0000-0000-000000000004')) = 0,
+  'a draft is announced to nobody');
+
+-- The board reads the same rule, through work_visible, for the caller.
+set local role authenticated;
+set local request.jwt.claim.sub = 'aaaa0042-0000-0000-0000-000000000002';
+select pg_temp.expect(
+  (select count(*) from public.work_posts where id = 'bbbb0042-0000-0000-0000-000000000001') = 0
+  and (select count(*) from public.work_posts where id = 'bbbb0042-0000-0000-0000-000000000002') = 1,
+  'the board still hides a post for trainees from an intern and shows them one for everybody');
+set local request.jwt.claim.sub = 'aaaa0042-0000-0000-0000-000000000001';
+select pg_temp.expect(
+  (select count(*) from public.work_posts where id = 'bbbb0042-0000-0000-0000-000000000001') = 1,
+  'and shows the post for trainees to a confirmed trainee');
+reset role;
+
+delete from auth.users where id = 'aaaa0042-0000-0000-0000-000000000002';
+select pg_temp.expect(
+  (select count(*) from public.push_devices where user_id = 'aaaa0042-0000-0000-0000-000000000002') = 0,
+  'a device goes when its account goes');
+
 \echo ''
 \echo 'All schema guarantees hold.'
 

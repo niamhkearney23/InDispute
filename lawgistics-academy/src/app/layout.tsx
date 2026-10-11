@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Fraunces, Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { brand } from '@/lib/brand';
+import { ServiceWorker } from '@/components/service-worker';
 
 const display = Fraunces({
   subsets: ['latin'],
@@ -31,6 +32,13 @@ export const metadata: Metadata = {
   },
   description:
     'Adaptive litigation training for law students and junior lawyers: PLT students in Australia, pupils and interns in Malaysia. Train like a lawyer.',
+  // Added to an iPhone's home screen, it opens in its own window under the
+  // brand's name. The icon is app/apple-icon.tsx, the manifest app/manifest.ts.
+  appleWebApp: {
+    capable: true,
+    title: brand.name,
+    statusBarStyle: 'default',
+  },
 };
 
 export const viewport: Viewport = {
@@ -54,6 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         }
       >
         {children}
+        <ServiceWorker />
       </body>
     </html>
   );

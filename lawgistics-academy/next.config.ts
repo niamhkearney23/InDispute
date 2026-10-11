@@ -34,6 +34,15 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        // The service worker is checked for a new version on every visit
+        // rather than kept for a day, so a fix to it reaches phones at once.
+        source: '/sw.js',
+        headers: [
+          { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
+          { key: 'Content-Type', value: 'application/javascript; charset=utf-8' },
+        ],
+      },
+      {
         // A cartoon opened on its own is an SVG document: nothing in it may
         // run or load anything. Listed after the rule above, so it wins.
         source: '/cartoon/:code*',

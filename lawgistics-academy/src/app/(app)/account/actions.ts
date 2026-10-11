@@ -1,11 +1,14 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { createSupabaseServerClient, getCurrentUser } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/service';
 import { strictCartoon } from '@/lib/avatar/cartoon';
+import { deviceLabel, isPushServiceAddress, readSubscription } from '@/lib/push/rules';
+import { forgetDevice as forgetDeviceRow, pushConfigured, saveDevice as saveDeviceRow } from '@/lib/push/service';
 
 export type AvatarState = { error: string | null };
 
@@ -233,4 +236,41 @@ export async function setLeaderboardOptOut(
     error: null,
     ok: optOut ? 'You are off the leaderboard.' : 'You are back on the leaderboard.',
   };
+}
+
+export type DeviceState = { error: string | null; ok?: string };
+
+/**
+ * Turning notifications on for the phone in your hand. The browser has
+ * already asked the person and subscribed; this saves what it handed over,
+ * checked first, against the signed-in account and nobody else's.
+ */
+export async function saveDevice(subscription: string): Promise<DeviceState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: 'You are not signed in.' };
+  if (!pushConfigured()) return { error: 'Notifications are not set up on this academy yet.' };
+
+  const keys = readSubscription(subscription);
+  if (!keys) return { error: 'This phone did not give a usable address for notifications. Please try again.' };
+
+  const label = deviceLabel((await headers()).get('user-agent'));
+  if (!(await saveDeviceRow(user.id, keys, label))) {
+    return { error: 'That could not be saved. Please try again.' };
+  }
+  revalidatePath('/account');
+  return { error: null, ok: 'Notifications are on for this phone.' };
+}
+
+/** Turning them off again for the phone in your hand. Only ever your own. */
+export async function forgetDevice(endpoint: string): Promise<DeviceState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: 'You are not signed in.' };
+  if (typeof endpoint !== 'string' || !isPushServiceAddress(endpoint)) {
+    return { error: 'That could not be turned off. Please try again.' };
+  }
+  if (!(await forgetDeviceRow(user.id, endpoint))) {
+    return { error: 'That could not be turned off. Please try again.' };
+  }
+  revalidatePath('/account');
+  return { error: null, ok: 'Notifications are off for this phone.' };
 }

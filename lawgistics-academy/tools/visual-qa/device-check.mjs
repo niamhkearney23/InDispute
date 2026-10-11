@@ -111,6 +111,8 @@ const PAGES = [
   { name: 'pricing', path: '/pricing', auth: true, as: 'learner@lawgistics.test' },
   { name: 'pricing-trainee', path: '/pricing', auth: true, as: 'trainee@lawgistics.test' },
   { name: 'admin-access', path: '/admin/access', auth: true },
+  // The phone settings page, with its key maker (0042).
+  { name: 'admin-phone', path: '/admin/phone', auth: true },
   { name: 'tutor', path: '/tutor', auth: true },
   { name: 'tutor-explain', path: '/tutor/cccc0031-0000-4000-8000-000000000001', auth: true },
   { name: 'tutor-test', path: '/tutor/cccc0031-0000-4000-8000-000000000002', auth: true },

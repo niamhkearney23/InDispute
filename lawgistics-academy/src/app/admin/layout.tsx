@@ -33,6 +33,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     ['/admin/onboarding', 'Joiners', true],
     ['/admin/access', 'Access', true],
     ['/admin/people', 'Staff', isAdmin],
+    ['/admin/phone', 'Phones', isAdmin],
     ['/admin/tutor', 'Tutor', isReviewer],
   ];
   const links = all.filter(([, , shown]) => shown).map(([href, label]) => [href, label]);

@@ -6,6 +6,8 @@ import { Card, InlineLink } from '@/components/ui';
 import { AvatarForm } from './avatar-form';
 import { CartoonMaker } from './cartoon-maker';
 import { LeaderboardForm } from './leaderboard-form';
+import { PhoneApp } from './phone-app';
+import { pushPublicKey } from '@/lib/push/service';
 
 export const metadata: Metadata = { title: 'Your account' };
 
@@ -52,6 +54,13 @@ export default async function AccountPage() {
           You can stay off it.
         </p>
         <LeaderboardForm optedOut={profile.leaderboardOptOut} />
+      </Card>
+
+      <Card>
+        <section id="phone" className="scroll-mt-24">
+          <p className="eyebrow mb-2">On your phone</p>
+          <PhoneApp publicKey={pushPublicKey()} />
+        </section>
       </Card>
 
       <Card>

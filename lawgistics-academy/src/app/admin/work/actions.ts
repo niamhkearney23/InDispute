@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { after } from 'next/server';
 import { z } from 'zod';
 import { checkCoach } from '@/lib/admin/guard';
 import { createServiceClient } from '@/lib/supabase/service';
@@ -14,6 +15,7 @@ import {
   workMemoProblem,
 } from '@/lib/work/links';
 import { estimateWorkMinutes } from '@/lib/ai/work-estimate';
+import { notifyMarked, notifyNewWorkPost } from '@/lib/push/service';
 import type { AdminState } from '../actions';
 
 /**
@@ -198,6 +200,10 @@ export async function saveWorkPost(
   if (fields.session_id) revalidatePath('/sessions');
   if (fields.homework_day) revalidatePath('/homework');
 
+  // Once the page has its answer: the people this post is for hear about it
+  // on their phones, the first time it is put up and never again on an edit.
+  if (values.published) after(() => notifyNewWorkPost(id));
+
   return { error: null, ok: values.published ? 'Put up.' : 'Saved as a draft.' };
 }
 
@@ -261,6 +267,10 @@ export async function markSubmission(
     revalidatePath(`/admin/work/${postId}`);
     revalidatePath(`/work/${postId}`);
   }
+
+  // Once the page has its answer, the person whose work it was hears about it.
+  const submissionId = parsed.data.id;
+  after(() => notifyMarked(submissionId));
 
   return { error: null, ok: 'Marked.' };
 }

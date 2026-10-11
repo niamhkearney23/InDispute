@@ -497,6 +497,19 @@ joiner cannot move their own start date. For invitations: one live invitation pe
 address, an expiry the caller cannot choose, no column that could carry a password
 or grant rights, and a signed-in learner cannot see that anybody is joining at all.
 
+## On a phone
+
+The academy installs to a phone's home screen from the browser and can send
+notifications: a reminder before each round on the trainee's own cohort clock,
+a notice when a coach marks their work, and a notice when new work goes up.
+No app store is involved. It is off until an administrator adds the keys from
+**Admin, Phones**; [`docs/PHONE-APP.md`](docs/PHONE-APP.md) has the steps, what
+is sent, and how to test it on a real phone.
+
+The service worker keeps nothing but its offline page. Every other page carries
+somebody's own record, and a phone that cached them would show yesterday's
+rounds, or one person's page to whoever signs in next.
+
 ---
 
 ## Deploying

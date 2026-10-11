@@ -17,7 +17,8 @@ type CookiesToSet = Array<{ name: string; value: string; options: CookieOptions 
 // is configured; putting the whole of /api here would make every future route
 // public by default, which is the wrong way round.
 // /api/inbound/work likewise: the inbound email service has no session, and
-// the route checks its own token before reading anything.
+// the route checks its own token before reading anything. /api/push/rounds
+// is called by a scheduler with no session and checks CRON_SECRET the same way.
 const PUBLIC_PATHS = [
   '/',
   '/login',
@@ -29,6 +30,7 @@ const PUBLIC_PATHS = [
   '/join',
   '/api/digest',
   '/api/inbound/work',
+  '/api/push/rounds',
   '/api/stripe/webhook',
 ];
 
@@ -97,8 +99,15 @@ export async function middleware(request: NextRequest) {
 // served at /icon with no extension, so without this line a signed-out visitor
 // gets a redirect to /login where the browser expected an image. `mp4` is the
 // front page's video, which is for people who have not signed in yet.
+//
+// The rest make the academy installable on a phone. A browser fetches the
+// manifest without the sign-in cookie, so gated it would get the login page
+// where it expected the app's name and icons, and installing would quietly
+// fail. The service worker and its offline page are fetched the same way.
+// None of them carries anything about anybody: the manifest and icons are
+// the brand, and the offline page is fixed words.
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|icon$|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|icon$|apple-icon$|app-icon/|manifest\\.webmanifest$|sw\\.js$|offline\\.html$|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4)$).*)',
   ],
 };

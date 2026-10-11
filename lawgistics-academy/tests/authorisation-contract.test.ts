@@ -133,6 +133,7 @@ test('the server actions were actually found', () => {
     'declare',
     'declareHomework',
     'finishSession',
+    'forgetDevice',
     'invite',
     'join',
     'loadNewContent',
@@ -152,6 +153,7 @@ test('the server actions were actually found', () => {
     'saveCartoon',
     'saveCertificationEntry',
     'saveCohort',
+    'saveDevice',
     'saveFirmModule',
     'saveMatter',
     'saveMatterWork',
@@ -577,6 +579,7 @@ test('privileged modules are marked server-only', () => {
     'src/lib/training/rounds-service.ts',
     'src/lib/learning/score-history-service.ts',
     'src/lib/tutor/service.ts',
+    'src/lib/push/service.ts',
   ];
 
   for (const relative of mustBeServerOnly) {
