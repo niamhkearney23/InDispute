@@ -8,7 +8,9 @@
 import http from 'node:http';
 import fs from 'node:fs';
 
-const PORT = 54321;
+// MOCK_PORT lets a second copy run beside one already on the usual port; the
+// app must then be built with NEXT_PUBLIC_SUPABASE_URL pointing at it.
+const PORT = Number(process.env.MOCK_PORT ?? 54321);
 
 // The database is up to date in the mock, so the admin pages show no
 // "needs updating" notice.
@@ -66,7 +68,9 @@ const TRAINEE_USER = {
 
 const EXP = Math.floor(Date.now() / 1000) + 60 * 60 * 24;
 
-function tokenFor(user) {
+// `aal` is what two-step sign-in reads: aal1 after a password, aal2 once a
+// code from an authenticator app has been typed.
+function tokenFor(user, aal = 'aal1') {
   return [
     b64url({ alg: 'HS256', typ: 'JWT' }),
     b64url({
@@ -75,14 +79,15 @@ function tokenFor(user) {
       aud: 'authenticated',
       exp: EXP,
       email: user.email,
+      aal,
     }),
     'signature-not-verified-by-this-mock',
   ].join('.');
 }
 
-function sessionFor(user) {
+function sessionFor(user, aal = 'aal1') {
   return {
-    access_token: tokenFor(user),
+    access_token: tokenFor(user, aal),
     token_type: 'bearer',
     expires_in: 86400,
     expires_at: EXP,
@@ -101,17 +106,56 @@ const LEARNER_USER = {
   user_metadata: { display_name: 'Wei' },
 };
 
-const USERS = [USER, NEW_USER, TRAINEE_USER, LEARNER_USER];
+// A coach who has already set up two-step sign-in, so the code step
+// (/two-step) has somebody to draw it for. Signing in gives an aal1 session;
+// the code 123456 turns it into aal2.
+const STAFF2_USER_ID = '66666666-6666-6666-6666-666666666666';
+const STAFF2_USER = {
+  ...USER,
+  id: STAFF2_USER_ID,
+  email: 'coach2step@lawgistics.test',
+  user_metadata: { display_name: 'Farah' },
+  factors: [
+    {
+      id: 'f2f2f2f2-0000-4000-8000-000000000001',
+      friendly_name: 'Authenticator app added 1 Oct 2026',
+      factor_type: 'totp',
+      status: 'verified',
+      created_at: '2026-10-01T00:00:00Z',
+      updated_at: '2026-10-01T00:00:00Z',
+    },
+  ],
+};
+
+const USERS = [USER, NEW_USER, TRAINEE_USER, LEARNER_USER, STAFF2_USER];
+
+// Authenticator apps added while the mock runs, by user id. Kept in memory so
+// the setup page can be pressed through from start to finish; gone on restart.
+const addedFactors = new Map();
+
+function withFactors(user) {
+  const added = addedFactors.get(user.id) ?? [];
+  return added.length ? { ...user, factors: [...(user.factors ?? []), ...added] } : user;
+}
 
 /** Reads the subject out of an unsigned mock token. */
 function userFromToken(token) {
   try {
     const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString());
-    return USERS.find((u) => u.id === payload.sub) ?? null;
+    const user = USERS.find((u) => u.id === payload.sub);
+    return user ? withFactors(user) : null;
   } catch {
     return null;
   }
 }
+
+// A stand-in QR picture: a few dark squares on white. It encodes nothing; it
+// is there so the setup page has something the size of a real one to draw.
+const MOCK_QR =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21 21" shape-rendering="crispEdges">' +
+  '<rect width="21" height="21" fill="#ffffff"/>' +
+  '<path fill="#000000" d="M0 0h7v7H0zM14 0h7v7h-7zM0 14h7v7H0zM9 9h3v3H9zM15 15h2v2h-2z"/>' +
+  '</svg>';
 const SESSION = sessionFor(USER);
 
 /* -------------------------------------------------------------------------- */
@@ -631,6 +675,23 @@ const TABLES = {
       onboarded_at: '2026-02-01T00:00:00Z',
       diagnostic_completed_at: '2026-02-01T00:20:00Z',
       is_admin: false,
+    },
+    {
+      // A coach with an authenticator app already set up (STAFF2_USER).
+      id: STAFF2_USER_ID,
+      email: STAFF2_USER.email,
+      display_name: 'Farah',
+      career_stage: 'junior_lawyer',
+      improvement_goals: ['litigation_knowledge'],
+      daily_goal_minutes: 10,
+      country: 'MY',
+      track: 'general',
+      home_jurisdiction: 'MY_GENERAL',
+      timezone: 'Asia/Kuala_Lumpur',
+      onboarded_at: '2026-02-01T00:00:00Z',
+      diagnostic_completed_at: '2026-02-01T00:20:00Z',
+      is_admin: false,
+      is_coach: true,
     },
   ],
   homework_declarations: [
@@ -1241,11 +1302,75 @@ const server = http.createServer((req, res) => {
         /* a malformed body just signs in the default learner */
       }
       const user = USERS.find((u) => u.email.toLowerCase() === email.toLowerCase()) ?? USER;
-      return send(200, sessionFor(user));
+      return send(200, sessionFor(withFactors(user)));
     }
     if (url.pathname === '/auth/v1/user') {
       const bearer = (req.headers.authorization ?? '').replace('Bearer ', '');
       return send(200, userFromToken(bearer) ?? USER);
+    }
+
+    // Two-step sign-in. Just enough for the setup page and the code step to
+    // be drawn and pressed through: any factor accepts the code 123456 and
+    // nothing else, and none of it survives a restart.
+    if (url.pathname.startsWith('/auth/v1/factors')) {
+      const bearer = (req.headers.authorization ?? '').replace('Bearer ', '');
+      const caller = userFromToken(bearer) ?? USER;
+      const [, factorId, step] = url.pathname.replace('/auth/v1/factors', '').split('/');
+      let input = {};
+      try {
+        input = JSON.parse(body || '{}');
+      } catch {
+        /* an empty body is fine for these */
+      }
+
+      if (!factorId && req.method === 'POST') {
+        const factor = {
+          id: `f0f0f0f0-0000-4000-8000-${String(Date.now()).slice(-12).padStart(12, '0')}`,
+          friendly_name: input.friendly_name,
+          factor_type: 'totp',
+          status: 'unverified',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        addedFactors.set(caller.id, [...(addedFactors.get(caller.id) ?? []), factor]);
+        return send(200, {
+          id: factor.id,
+          type: 'totp',
+          friendly_name: factor.friendly_name,
+          totp: {
+            qr_code: MOCK_QR,
+            secret: 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
+            uri: 'otpauth://totp/mock?secret=JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
+          },
+        });
+      }
+      if (factorId && req.method === 'DELETE') {
+        addedFactors.set(
+          caller.id,
+          (addedFactors.get(caller.id) ?? []).filter((f) => f.id !== factorId),
+        );
+        return send(200, { id: factorId });
+      }
+      if (step === 'challenge') {
+        return send(200, {
+          id: `c0c0c0c0-0000-4000-8000-${String(Date.now()).slice(-12).padStart(12, '0')}`,
+          type: 'totp',
+          expires_at: Math.floor(Date.now() / 1000) + 300,
+        });
+      }
+      if (step === 'verify') {
+        if (input.code !== '123456') {
+          return send(422, {
+            code: 422,
+            error_code: 'mfa_verification_failed',
+            msg: 'Invalid TOTP code entered',
+          });
+        }
+        for (const f of addedFactors.get(caller.id) ?? []) {
+          if (f.id === factorId) f.status = 'verified';
+        }
+        return send(200, sessionFor(userFromToken(bearer) ?? caller, 'aal2'));
+      }
     }
     if (url.pathname === '/auth/v1/signup') return send(200, { ...SESSION, ...USER });
     if (url.pathname === '/auth/v1/logout') return send(204, {});

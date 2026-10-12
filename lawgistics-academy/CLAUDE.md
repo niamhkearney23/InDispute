@@ -444,6 +444,18 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   signed out (`signInRefused`, in `getCurrentUser` and the middleware) and a
   deleted person lands on `/goodbye`. Reports keep counting the months they
   were active; the leaderboard leaves them off.
+- **Two-step sign-in for staff** (no migration; Supabase Auth's own TOTP).
+  Every function in `src/lib/admin/guard.ts` asks for it once the role check
+  passes: staff with no authenticator app are sent to `/account/two-step`,
+  staff whose session is not `aal2` to `/two-step`, and the check functions
+  refuse. The level is read with `getClaims` (a verified token), the devices
+  from the user `getUser` returned. The middleware sends anybody with an app,
+  learner or staff, to the code step first. Up to two devices, because
+  Supabase keeps no recovery codes; an administrator removes a lost one in
+  the Supabase dashboard (`docs/NEW-FIRM.md`). `STAFF_TWO_STEP=off` turns it
+  off for local work and the visual check's mock only; unset is on, and a
+  Vercel production deployment ignores it. Rules and tests:
+  `src/lib/auth/two-step.ts`, `tests/two-step.test.ts`.
 - **Options are shown shuffled** (`src/lib/learning/option-order.ts`), fixed per
   question version or lesson screen, and the letter shown is the place on the
   screen, never the id. The bank was written with the right answer B three
@@ -524,7 +536,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   (a video site, a logo, a payment page) needs adding there, and frame-src is
   built from `src/lib/lessons/embed.ts`. Downloads and the cartoon keep their
   own stricter policy in `next.config.ts`.
-- 494 tests, 450 schema guarantees against a real Postgres, 240 page and device
+- 523 tests, 450 schema guarantees against a real Postgres, 394 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB

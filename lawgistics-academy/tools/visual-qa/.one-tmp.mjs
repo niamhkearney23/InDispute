@@ -1,0 +1,16 @@
+import { chromium } from 'playwright';
+const BASE='http://127.0.0.1:3123', S='/tmp/claude-0/-home-user-InDispute/faf92b61-2ad7-59b1-ba1a-8a66d002c384/scratchpad/';
+const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
+const page=await b.newPage({viewport:{width:390,height:844}});
+const v=[];page.on('console',m=>{if(/Content Security Policy|Refused/.test(m.text()))v.push(page.url()+' '+m.text())});
+page.on('pageerror',e=>v.push('ERR '+e.message));
+await page.goto(BASE+'/login',{waitUntil:'networkidle'});
+await page.fill('#email','demo@lawgistics.test');await page.fill('#password','password123');
+await Promise.all([page.waitForURL(u=>!u.pathname.includes('/login'),{timeout:15000}).catch(()=>{}),page.click('button[type=submit]')]);
+await page.goto(BASE+'/admin/review',{waitUntil:'networkidle'});
+console.log('admin ->', page.url().replace(BASE,''));
+await page.screenshot({path:S+'twostep.png',fullPage:true});
+await page.click('text=Set up an authenticator app'); await page.waitForTimeout(2500); await page.screenshot({path:S+'twostep2.png',fullPage:true}); const img=await page.$('main img, main svg');
+console.log('qr shown', !!img);
+console.log('violations',v.length,v.slice(0,5));
+await b.close();

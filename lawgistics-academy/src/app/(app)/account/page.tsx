@@ -72,6 +72,17 @@ export default async function AccountPage() {
       </Card>
 
       <Card>
+        <p className="eyebrow mb-2">Two-step sign-in</p>
+        <p className="text-sm text-slate">
+          A code from your phone after your password.{' '}
+          {profile.isAdmin || profile.isCoach || profile.isFirmAdmin
+            ? 'Staff need it for the staff pages.'
+            : 'Optional for you.'}{' '}
+          <InlineLink href="/account/two-step">Set it up or add a device</InlineLink>
+        </p>
+      </Card>
+
+      <Card>
         <p className="eyebrow mb-2">How it works</p>
         <p className="text-sm text-slate">
           What each part of the academy is, and where to find it.{' '}

@@ -73,6 +73,9 @@ test('every training page sends somebody who has not paid to the pricing page', 
   const open = new Set([
     'account/page.tsx',
     'account/password/page.tsx',
+    // Two-step sign-in, like the password: securing an account is never
+    // behind a payment, and staff are sent here before anything else.
+    'account/two-step/page.tsx',
     'onboarding/page.tsx',
     'pricing/page.tsx',
   ]);

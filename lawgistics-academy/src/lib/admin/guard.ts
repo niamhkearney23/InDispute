@@ -1,8 +1,21 @@
 import 'server-only';
 
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import type { User } from '@supabase/supabase-js';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
+import { verifiedAal } from '@/lib/auth/two-step-server';
+import {
+  REQUEST_PATH_HEADER,
+  codePathFor,
+  setupPathFor,
+  staffReturnPath,
+  twoStepDecision,
+  twoStepEnforced,
+  verifiedFactors,
+  type TwoStepDecision,
+} from '@/lib/auth/two-step';
 
 /**
  * Server-side authorisation for the three staff roles.
@@ -37,7 +50,49 @@ import { getLearnerProfile } from '@/lib/learner-overview';
  * the work board; signing off, marking a matter and grading the register ask
  * `checkReviewer`, which only an administrator or a coach passes. Nothing asks
  * "is this person only a coach".
+ *
+ * Every one of them also asks for two-step sign-in (`src/lib/auth/two-step.ts`)
+ * once the role check has passed: a staff member with no authenticator app is
+ * sent to add one, and one whose session has only had a password is sent to
+ * type today's code. The check functions refuse instead, so an action returns
+ * its error. This is the control; the middleware's redirect to the code step
+ * only saves a page load.
  */
+
+/**
+ * Where this staff member stands on two-step sign-in. Called only once the
+ * role check has passed, so the person is staff.
+ *
+ * The devices come from the user Supabase just returned to `getCurrentUser`,
+ * not from the cookie, and the level comes from the signed token
+ * (`verifiedAal`), so neither can be written by the browser.
+ */
+async function staffTwoStep(user: User): Promise<TwoStepDecision> {
+  const enforced = twoStepEnforced();
+  if (!enforced) return 'allow';
+  const verifiedFactorCount = verifiedFactors(user.factors).length;
+  // With no device the answer is "add one" whatever the level says, so the
+  // token is not read at all.
+  const aal = verifiedFactorCount > 0 ? await verifiedAal(user.id) : null;
+  return twoStepDecision({ isStaff: true, verifiedFactorCount, aal, enforced });
+}
+
+/**
+ * For the page guards: sends staff to add a device or type a code, then back
+ * to the staff page they asked for, or to `home` when that cannot be told.
+ */
+async function requireStaffTwoStep(user: User, home: string): Promise<void> {
+  const decision = await staffTwoStep(user);
+  if (decision === 'allow') return;
+  const back = staffReturnPath((await headers()).get(REQUEST_PATH_HEADER), home);
+  if (decision === 'setup') redirect(setupPathFor(back));
+  if (decision === 'code') redirect(codePathFor(back));
+}
+
+/** For the action guards: true only when this staff member may act now. */
+async function passesStaffTwoStep(user: User): Promise<boolean> {
+  return (await staffTwoStep(user)) === 'allow';
+}
 
 /** Administrator: may write content and change the firm's setup. */
 export async function requireAdmin(): Promise<{ userId: string }> {
@@ -46,6 +101,7 @@ export async function requireAdmin(): Promise<{ userId: string }> {
 
   const profile = await getLearnerProfile(user.id);
   if (!profile?.isAdmin) redirect('/dashboard');
+  await requireStaffTwoStep(user, '/admin');
 
   return { userId: user.id };
 }
@@ -56,7 +112,8 @@ export async function checkAdmin(): Promise<string | null> {
   if (!user) return null;
 
   const profile = await getLearnerProfile(user.id);
-  return profile?.isAdmin ? user.id : null;
+  if (!profile?.isAdmin) return null;
+  return (await passesStaffTwoStep(user)) ? user.id : null;
 }
 
 /**
@@ -81,6 +138,7 @@ export async function requireCoach(): Promise<{
 
   const profile = await getLearnerProfile(user.id);
   if (!profile?.isAdmin && !profile?.isCoach && !profile?.isFirmAdmin) redirect('/dashboard');
+  await requireStaffTwoStep(user, '/admin/work');
 
   return {
     userId: user.id,
@@ -96,7 +154,8 @@ export async function checkCoach(): Promise<string | null> {
   if (!user) return null;
 
   const profile = await getLearnerProfile(user.id);
-  return profile?.isAdmin || profile?.isCoach || profile?.isFirmAdmin ? user.id : null;
+  if (!profile?.isAdmin && !profile?.isCoach && !profile?.isFirmAdmin) return null;
+  return (await passesStaffTwoStep(user)) ? user.id : null;
 }
 
 /**
@@ -105,6 +164,7 @@ export async function checkCoach(): Promise<string | null> {
  * never a firm administrator on that flag alone.
  */
 export async function requireReviewer(): Promise<{ userId: string; isAdmin: boolean }> {
+  // requireCoach has already asked for two-step sign-in.
   const staff = await requireCoach();
   if (!staff.isReviewer) redirect('/admin/trainees');
   return { userId: staff.userId, isAdmin: staff.isAdmin };
@@ -116,7 +176,8 @@ export async function checkReviewer(): Promise<string | null> {
   if (!user) return null;
 
   const profile = await getLearnerProfile(user.id);
-  return profile?.isAdmin || profile?.isCoach ? user.id : null;
+  if (!profile?.isAdmin && !profile?.isCoach) return null;
+  return (await passesStaffTwoStep(user)) ? user.id : null;
 }
 
 /**
@@ -129,6 +190,7 @@ export async function requireFirmAdmin(): Promise<{ userId: string; isAdmin: boo
 
   const profile = await getLearnerProfile(user.id);
   if (!profile?.isAdmin && !profile?.isFirmAdmin) redirect('/dashboard');
+  await requireStaffTwoStep(user, '/admin/work');
 
   return { userId: user.id, isAdmin: Boolean(profile?.isAdmin) };
 }
@@ -139,5 +201,6 @@ export async function checkFirmAdmin(): Promise<string | null> {
   if (!user) return null;
 
   const profile = await getLearnerProfile(user.id);
-  return profile?.isAdmin || profile?.isFirmAdmin ? user.id : null;
+  if (!profile?.isAdmin && !profile?.isFirmAdmin) return null;
+  return (await passesStaffTwoStep(user)) ? user.id : null;
 }

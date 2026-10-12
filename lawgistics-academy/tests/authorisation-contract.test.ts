@@ -124,6 +124,7 @@ test('the server actions were actually found', () => {
     'completeSetup',
     'confirm',
     'confirmTrainee',
+    'confirmTwoStepSetup',
     'createAccount',
     'createFact',
     'createQuestion',
@@ -147,6 +148,7 @@ test('the server actions were actually found', () => {
     'redactTutorMessage',
     'redeemCode',
     'removeAvatar',
+    'removeTwoStepDevice',
     'requestCoachNote',
     'revoke',
     'saveAccessCode',
@@ -175,6 +177,7 @@ test('the server actions were actually found', () => {
     'startCheckout',
     'startMatter',
     'startTutor',
+    'startTwoStepSetup',
     'submitWork',
     'suggestWorkTime',
     'transitionFact',
@@ -183,6 +186,7 @@ test('the server actions were actually found', () => {
     'updateQuestion',
     'uploadAvatar',
     'uploadMatterRecording',
+    'verifyTwoStepCode',
   ]);
 });
 
@@ -592,6 +596,7 @@ test('privileged modules are marked server-only', () => {
     'src/lib/training/service.ts',
     'src/lib/learning/selection.ts',
     'src/lib/admin/guard.ts',
+    'src/lib/auth/two-step-server.ts',
     'src/lib/facts/service.ts',
     'src/lib/ai/provider.ts',
     'src/lib/ai/legal-coach.ts',

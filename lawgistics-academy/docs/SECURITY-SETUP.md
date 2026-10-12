@@ -50,14 +50,22 @@ a host, a port, a username and a password.
 ## 2. Two-step sign-in for staff
 
 Coaches, firm administrators and administrators can see trainees' records,
-so their accounts should need a code from a phone app as well as a password.
+so the academy asks them for a six-digit code from a phone app as well as
+their password. This is already built in and switched on. Before it goes
+live:
 
-1. In Supabase, click **Authentication**, then **Multi-Factor**.
-2. Make sure **TOTP (App Authenticator)** is enabled. Click **Save** if you
-   changed it.
-3. Each member of staff then follows the academy's own prompt the next time
-   they sign in: scan the code with an authenticator app (Microsoft
-   Authenticator, Google Authenticator or 1Password) and type the six digits.
+1. Tell every member of staff, yourself included, to install an
+   authenticator app first (Microsoft Authenticator, Google Authenticator or
+   1Password). The next time they open Admin, the academy walks them through
+   scanning a code with it. It takes about two minutes.
+2. Ask each of them to add a second device as a spare when it offers.
+   Supabase keeps no backup codes.
+3. Check it is switched on in Supabase: **Authentication**, then
+   **Multi-Factor**. Under **TOTP (App Authenticator)** both enrolling and
+   verifying should say **Enabled**. It is on by default.
+
+When somebody loses their phone, `docs/NEW-FIRM.md` ("When somebody loses
+their phone") has the steps. Check by phone that it is really them first.
 
 ---
 
