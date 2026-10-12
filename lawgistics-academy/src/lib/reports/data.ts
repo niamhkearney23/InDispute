@@ -41,6 +41,7 @@ type ProfileRow = {
   is_admin: boolean | null;
   is_coach: boolean | null;
   is_firm_admin?: boolean | null;
+  erased_at?: string | null;
 };
 
 /** The firm's people, staff left out, by name. */
@@ -56,8 +57,10 @@ export async function firmPeople(): Promise<Person[]> {
     .filter((p) => !p.is_admin && !p.is_coach && !p.is_firm_admin)
     .map((p) => ({
       id: p.id,
+      // A deleted account (0043) still counts for the months it was active,
+      // under its new name, but its placeholder address is nobody's to show.
       name: p.display_name?.trim() || p.email || 'Unnamed',
-      email: p.email,
+      email: p.erased_at ? null : p.email,
       role:
         p.track === 'litigation_trainee'
           ? p.trainee_approved_at

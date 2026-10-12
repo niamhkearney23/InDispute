@@ -175,7 +175,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0042`.
+- Migrations run to `0043`.
   `supabase/UPDATE.sql` is the one-paste update for a database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -274,8 +274,8 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   which. Messages are never changed or deleted, except that an administrator
   may blank one once (`redactTutorMessage`, admin only, the database checks
   the words and stamps who and when); deletes only arrive by cascade from the
-  account going. Sixty learner messages and twenty conversations a day each,
-  forty messages per "Explain it back"; a count that cannot be read counts as
+  account going, or from its erasure (0043). Sixty learner messages and
+  twenty conversations a day each, forty messages per "Explain it back"; a count that cannot be read counts as
   the limit reached. More
   modes (sprint, error simulator, learning path) were proposed and deferred
   until matters and questions are signed off.
@@ -395,6 +395,34 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   back to plain letters in the PDF while the CSV keeps them. CSV cells that
   start like a formula get an apostrophe. A learner downloads their own
   certificate of completion as a PDF from `/certificate/pdf`.
+- `0043` is **deleting an account** (PDPA erasure, and Apple's rule should a
+  phone app be built). The owner's decision: **anonymise, do not destroy what
+  the firm relies on.** A learner deletes their own on the Account page
+  (typing DELETE and their own address; the id is the session's), an
+  administrator deletes a learner at Admin, Trainees, [id] (`eraseLearner`,
+  `checkAdmin` only). Staff are refused, by the page and by the database:
+  take the role off at Admin, Staff first. `src/lib/account/erasure.ts` runs
+  `erase_account` (service role only, one transaction), then changes the
+  sign-in address to `erased-<id>@invalid.invalid`, sets a password nobody
+  knows (64 characters; Supabase refuses more than 72) and bans the account
+  for a hundred years, then deletes the photo and recordings from storage.
+  **Goes:** name (now "Deleted account"), email, photo and cartoon, timezone,
+  goals, career stage, tutor conversations, `code_attempts`, an undecided
+  code request, matter recordings (even handed in), and the name and address
+  on the accepted invitation. **Stays, under the anonymised id:** answers,
+  homework, work claims, submissions and their files, work-board messages
+  and comments, matter attempts and marks, onboarding records, certificates,
+  XP and mastery. That split is the owner's to change, in the migration and
+  here. The certification register is typed by a coach and linked to no
+  account, so it is untouched. `erased_at` is set only inside the function
+  and never cleared or moved, and an erased name, address and picture stay
+  cleared. The guards on handed-in recordings and tutor conversations let
+  erasure through only when `app.erasing` names the row's person **and** the
+  caller is running as `erase_account`'s owner (`erasing()`), so a client
+  setting the same value is still refused. A banned account counts as
+  signed out (`signInRefused`, in `getCurrentUser` and the middleware) and a
+  deleted person lands on `/goodbye`. Reports keep counting the months they
+  were active; the leaderboard leaves them off.
 - **Options are shown shuffled** (`src/lib/learning/option-order.ts`), fixed per
   question version or lesson screen, and the letter shown is the place on the
   screen, never the id. The bank was written with the right answer B three
@@ -468,7 +496,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   grid, gold-free by the owner's choice). Admin has the same look. The front
   page and sign-in stay cream. The certificate and a matter's case file stay paper inside it.
   Use the tokens, never fixed Tailwind colours, or a page breaks in one look.
-- 473 tests, 409 schema guarantees against a real Postgres, 240 page and device
+- 485 tests, 439 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB

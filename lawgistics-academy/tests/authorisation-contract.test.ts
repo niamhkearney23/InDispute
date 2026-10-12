@@ -132,6 +132,8 @@ test('the server actions were actually found', () => {
     'decideMatter',
     'declare',
     'declareHomework',
+    'deleteMyAccount',
+    'eraseLearner',
     'finishSession',
     'invite',
     'join',
@@ -440,6 +442,34 @@ test('nothing outside the named list settles for a coach', () => {
   );
 });
 
+test('deleting somebody else\'s account is an administrator\'s, and nobody else\'s', () => {
+  // Erasure (0043) cannot be undone, so the one action that does it to
+  // another person asks checkAdmin and settles for no lesser role, and is
+  // on neither the coach list nor the firm administrator's.
+  const erase = ACTIONS.find((a) => a.name === 'eraseLearner');
+  assert.ok(erase, 'eraseLearner should exist');
+  assert.equal(erase.file, path.join('src', 'app', 'admin', 'trainees', 'actions.ts'));
+  assert.match(erase.body, /checkAdmin\(/);
+  assert.doesNotMatch(erase.body, /check(Coach|FirmAdmin|Reviewer)\(|require(Coach|FirmAdmin|Reviewer)\(/);
+  assert.ok(!COACH_ACTIONS.has('eraseLearner') && !FIRM_ADMIN_ACTIONS.has('eraseLearner'));
+  const body = stripComments(erase.body);
+  assert.ok(
+    body.indexOf('checkAdmin(') < body.indexOf('eraseAccount('),
+    'the administrator is established before anything is erased',
+  );
+});
+
+test('a person deletes only their own account', () => {
+  const own = ACTIONS.find((a) => a.name === 'deleteMyAccount');
+  assert.ok(own, 'deleteMyAccount should exist');
+  const body = stripComments(own.body);
+  assert.match(body, /getCurrentUser\(/);
+  // The id is the session's. Nothing in the form names an account.
+  assert.match(body, /eraseAccount\(user\.id\)/);
+  assert.doesNotMatch(body, /formData\.get\(['"](id|userId|learnerId|uid)['"]\)/);
+  assert.ok(body.indexOf('getCurrentUser(') < body.indexOf('eraseAccount('));
+});
+
 test('the admin authorisation check is the first thing an admin action does', () => {
   // A check that runs after the write has already happened is not a check.
   const late = ACTIONS.filter((a) => a.file.includes('app/admin'))
@@ -577,6 +607,7 @@ test('privileged modules are marked server-only', () => {
     'src/lib/training/rounds-service.ts',
     'src/lib/learning/score-history-service.ts',
     'src/lib/tutor/service.ts',
+    'src/lib/account/erasure.ts',
   ];
 
   for (const relative of mustBeServerOnly) {

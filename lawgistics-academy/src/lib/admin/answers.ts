@@ -58,6 +58,8 @@ interface ProfileRow {
   is_firm_admin: boolean | null;
   avatar_style: unknown;
   avatar_url: string | null;
+  /** Deleted (0043): the name already reads "Deleted account". */
+  erased_at?: string | null;
 }
 
 const nameOf = (p: Pick<ProfileRow, 'display_name' | 'email'>) =>
@@ -145,6 +147,8 @@ export interface LearnerDetail {
   trainee: boolean;
   cartoon: CartoonStyle | null;
   avatarUrl: string | null;
+  /** When the account was deleted (0043); its record stays. */
+  erasedAt: string | null;
   totalAnswered: number;
   totalRight: number;
   /** Every answer, when and whether right, for the score over time. Null if unreadable. */
@@ -208,6 +212,7 @@ export async function learnerDetail(userId: string, isAdmin: boolean): Promise<L
     trainee: profile.track === 'litigation_trainee',
     cartoon: readCartoon(profile.avatar_style),
     avatarUrl: profile.avatar_url,
+    erasedAt: profile.erased_at ?? null,
     totalAnswered: total.count ?? 0,
     totalRight: right.count ?? 0,
     marks,

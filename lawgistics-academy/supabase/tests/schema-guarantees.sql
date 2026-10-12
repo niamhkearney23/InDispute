@@ -3323,6 +3323,222 @@ select pg_temp.expect_failure(
   'a learner cannot read who was active');
 reset role;
 
+-- -----------------------------------------------------------------------------
+-- 0043: erasing an account keeps the firm's record and nothing of the person
+-- -----------------------------------------------------------------------------
+-- The promise: only the server erases, and it clears who somebody was while
+-- their answers and work stay; erased stays erased; and the path erasure
+-- takes through the frozen records cannot be taken by anybody else.
+reset role;
+set local request.jwt.claim.sub = '';
+insert into auth.users (id, email, raw_user_meta_data)
+values ('eeee0043-0000-0000-0000-000000000001', 'leaving@example.test', '{"display_name":"Leah Leaving","country":"MY"}');
+update public.profiles
+set avatar_url = 'https://x.supabase.co/storage/v1/object/public/avatars/eeee0043-0000-0000-0000-000000000001/avatar.png',
+    avatar_style = '{"skin":"light","top":"bob"}',
+    improvement_goals = '{procedure}',
+    career_stage = 'graduate',
+    timezone = 'Asia/Kuching'
+where id = 'eeee0043-0000-0000-0000-000000000001';
+
+insert into public.user_question_attempts
+  (user_id, question_id, question_version_id, selected_option_ids, is_correct)
+values ('eeee0043-0000-0000-0000-000000000001', 'cccccccc-0000-0000-0000-000000000001',
+        'dddddddd-0000-0000-0000-000000000001', array['a'], true);
+insert into public.homework_declarations (user_id, day, task_slug)
+values ('eeee0043-0000-0000-0000-000000000001', 1, 'find-your-way');
+insert into public.xp_events (user_id, kind, amount)
+values ('eeee0043-0000-0000-0000-000000000001', 'correct_answer', 7043);
+insert into public.tutor_conversations (id, user_id, mode, topic)
+values ('77770043-0000-0000-0000-000000000001', 'eeee0043-0000-0000-0000-000000000001',
+        'explain', 'Something personal');
+insert into public.tutor_messages (conversation_id, role, body)
+values ('77770043-0000-0000-0000-000000000001', 'learner', 'My name is Leah and I live in Kuching.');
+insert into public.code_attempts (user_id) values ('eeee0043-0000-0000-0000-000000000001');
+insert into public.access_grants (user_id, code_id)
+values ('eeee0043-0000-0000-0000-000000000001', 'acce0030-0000-0000-0000-000000000001');
+-- Made unaccepted, as every invitation is, then taken up.
+insert into public.joiner_invitations (token_hash, email, display_name, invited_by)
+values ('hash-0043', 'leaving@example.test', 'Leah Leaving', '33333333-3333-3333-3333-333333333333');
+update public.joiner_invitations
+set accepted_at = now(), accepted_by = 'eeee0043-0000-0000-0000-000000000001'
+where token_hash = 'hash-0043';
+insert into public.matter_attempts (id, matter_id, user_id, deadline_at, snapshot)
+values ('aaaa0043-0000-0000-0000-000000000001', 'ffff0027-0000-0000-0000-000000000001',
+        'eeee0043-0000-0000-0000-000000000001', now(), '{}'::jsonb);
+update public.matter_attempts
+set procedure_answer = 'Order 5.', draft_answer = 'My advice, in my words.',
+    recording_path = 'eeee0043-0000-0000-0000-000000000001/aaaa0043-0000-0000-0000-000000000001/1.webm',
+    recording_seconds = 90, recording_declared_clean = true,
+    followup_questions = '["Why?"]'::jsonb, followup_answers = '["Because."]'::jsonb,
+    submitted_at = now()
+where id = 'aaaa0043-0000-0000-0000-000000000001';
+
+select pg_temp.expect(
+  (select prosecdef from pg_proc where oid = 'public.erase_account(uuid)'::regprocedure)
+  and has_function_privilege('service_role', 'public.erase_account(uuid)', 'execute')
+  and not has_function_privilege('authenticated', 'public.erase_account(uuid)', 'execute')
+  and not has_function_privilege('anon', 'public.erase_account(uuid)', 'execute'),
+  'erasing an account is one security definer function, and only the server may run it');
+
+-- Nobody signed in can erase, themselves or anybody else.
+set local role authenticated;
+set local request.jwt.claim.sub = 'eeee0043-0000-0000-0000-000000000001';
+select pg_temp.expect_failure(
+  $$select public.erase_account('eeee0043-0000-0000-0000-000000000001')$$,
+  'a learner cannot run the erasure, even on their own account');
+select pg_temp.expect_failure(
+  $$update public.profiles set erased_at = now() where id = 'eeee0043-0000-0000-0000-000000000001'$$,
+  'a learner cannot mark their own account erased');
+reset role;
+set local role anon;
+select pg_temp.expect_failure(
+  $$select public.erase_account('eeee0043-0000-0000-0000-000000000001')$$,
+  'nobody signed out can run the erasure');
+reset role;
+set local request.jwt.claim.sub = '';
+
+-- The way erasure gets through the frozen records is closed to a client
+-- that names itself as the one being erased. A write policy is opened for
+-- the signed-in check alone, so it is the trigger that refuses, not RLS.
+create policy matter_attempts_test_0043 on public.matter_attempts
+  for update to authenticated using (true) with check (true);
+set local role authenticated;
+set local request.jwt.claim.sub = 'eeee0043-0000-0000-0000-000000000001';
+select set_config('app.erasing', 'eeee0043-0000-0000-0000-000000000001', true);
+select pg_temp.expect(
+  not public.erasing('eeee0043-0000-0000-0000-000000000001'),
+  'a signed-in client that sets the erasing setting is still not erasing');
+select pg_temp.expect_failure(
+  $$update public.matter_attempts set recording_path = null
+    where id = 'aaaa0043-0000-0000-0000-000000000001'$$,
+  'a signed-in client cannot use the erasing setting to empty a handed-in recording');
+select pg_temp.expect_failure(
+  $$update public.profiles set erased_at = now() where id = 'eeee0043-0000-0000-0000-000000000001'$$,
+  'nor to mark itself erased');
+reset role;
+drop policy matter_attempts_test_0043 on public.matter_attempts;
+set local role service_role;
+select pg_temp.expect(
+  not public.erasing('eeee0043-0000-0000-0000-000000000001'),
+  'the server setting it directly is not erasing either');
+select pg_temp.expect_failure(
+  $$update public.matter_attempts set recording_path = null
+    where id = 'aaaa0043-0000-0000-0000-000000000001'$$,
+  'the server cannot empty a handed-in recording except through the erasure');
+select pg_temp.expect_failure(
+  $$delete from public.tutor_conversations where id = '77770043-0000-0000-0000-000000000001'$$,
+  'nor delete a tutor conversation except through the erasure');
+select pg_temp.expect_failure(
+  $$update public.profiles set erased_at = now() where id = 'eeee0043-0000-0000-0000-000000000001'$$,
+  'nor mark an account erased except through the erasure');
+select set_config('app.erasing', '', true);
+reset role;
+select pg_temp.expect(
+  (select recording_path is not null from public.matter_attempts
+   where id = 'aaaa0043-0000-0000-0000-000000000001')
+  and (select erased_at is null from public.profiles
+       where id = 'eeee0043-0000-0000-0000-000000000001'),
+  'and so the recording and the account are as they were');
+
+-- Staff are taken off staff first.
+set local role service_role;
+select pg_temp.expect_failure(
+  $$select public.erase_account('44444444-4444-4444-4444-444444444444')$$,
+  'a staff account is not erased this way');
+select pg_temp.expect_failure(
+  $$select public.erase_account('eeee0043-0000-0000-0000-0000000000ff')$$,
+  'an account that does not exist is not erased');
+
+select pg_temp.expect(
+  public.erase_account('eeee0043-0000-0000-0000-000000000001')
+    = array['eeee0043-0000-0000-0000-000000000001/aaaa0043-0000-0000-0000-000000000001/1.webm'],
+  'the server erases an account, and is told which recordings to delete from storage');
+select pg_temp.expect(
+  coalesce(current_setting('app.erasing', true), '') = '',
+  'the erasing setting does not outlive the erasure');
+reset role;
+
+select pg_temp.expect(
+  (select display_name = 'Deleted account'
+          and email = 'erased-eeee0043-0000-0000-0000-000000000001@invalid.invalid'
+          and avatar_url is null and avatar_style is null
+          and improvement_goals = '{}' and career_stage is null
+          and timezone = 'Asia/Kuala_Lumpur'
+          and leaderboard_opt_out
+          and erased_at > now() - interval '1 minute'
+   from public.profiles where id = 'eeee0043-0000-0000-0000-000000000001'),
+  'erasure clears the name, email, picture, goals and timezone, and records when');
+select pg_temp.expect(
+  not exists (select 1 from public.tutor_conversations where user_id = 'eeee0043-0000-0000-0000-000000000001')
+  and not exists (select 1 from public.tutor_messages where conversation_id = '77770043-0000-0000-0000-000000000001')
+  and not exists (select 1 from public.code_attempts where user_id = 'eeee0043-0000-0000-0000-000000000001')
+  and not exists (select 1 from public.access_grants where user_id = 'eeee0043-0000-0000-0000-000000000001'),
+  'erasure deletes the tutor conversations, wrong-code attempts and an undecided code request');
+select pg_temp.expect(
+  (select email = 'erased-eeee0043-0000-0000-0000-000000000001@invalid.invalid' and display_name = ''
+   from public.joiner_invitations where token_hash = 'hash-0043'),
+  'the invitation they accepted stays, without their name or address');
+select pg_temp.expect(
+  (select count(*) = 1 from public.user_question_attempts
+   where user_id = 'eeee0043-0000-0000-0000-000000000001')
+  and (select count(*) = 1 from public.homework_declarations
+       where user_id = 'eeee0043-0000-0000-0000-000000000001'),
+  'their answers and homework stay, as the firm''s training record');
+select pg_temp.expect(
+  (select recording_path is null and draft_answer = 'My advice, in my words.'
+          and submitted_at is not null and recording_seconds = 90
+   from public.matter_attempts where id = 'aaaa0043-0000-0000-0000-000000000001'),
+  'a handed-in matter keeps its written work and loses only the recording');
+
+set local role service_role;
+select pg_temp.expect(
+  public.erase_account('eeee0043-0000-0000-0000-000000000001') = '{}'::text[],
+  'erasing again is safe and finds nothing left to clear');
+reset role;
+
+-- Erased stays erased, for everybody.
+select pg_temp.expect_failure(
+  $$update public.profiles set erased_at = null where id = 'eeee0043-0000-0000-0000-000000000001'$$,
+  'an erased account cannot be un-erased, even by the database owner');
+select pg_temp.expect_failure(
+  $$update public.profiles set erased_at = now() - interval '1 year'
+    where id = 'eeee0043-0000-0000-0000-000000000001'$$,
+  'nor its erasure moved');
+set local role service_role;
+select pg_temp.expect_failure(
+  $$update public.profiles set display_name = 'Leah Leaving' where id = 'eeee0043-0000-0000-0000-000000000001'$$,
+  'an erased account''s name cannot be put back');
+select pg_temp.expect_failure(
+  $$update public.profiles set email = 'leaving@example.test' where id = 'eeee0043-0000-0000-0000-000000000001'$$,
+  'nor its email');
+select pg_temp.expect_failure(
+  $$update public.profiles set is_coach = true where id = 'eeee0043-0000-0000-0000-000000000001'$$,
+  'an erased account cannot be made staff');
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = 'eeee0043-0000-0000-0000-000000000001';
+select pg_temp.expect_failure(
+  $$update public.profiles set erased_at = null where id = 'eeee0043-0000-0000-0000-000000000001'$$,
+  'a learner cannot clear their own erasure');
+reset role;
+
+-- An erased account is on no leaderboard, opted out or not.
+update public.profiles set leaderboard_opt_out = false
+where id = 'eeee0043-0000-0000-0000-000000000001';
+update public.firm_settings set leaderboard_enabled = true where id;
+set local role authenticated;
+set local request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+select pg_temp.expect(
+  not exists (select 1 from public.weekly_leaderboard() where xp = 7043 or first_name like 'Deleted%'),
+  'an erased account is not on the leaderboard');
+reset role;
+set local request.jwt.claim.sub = '';
+select pg_temp.expect(
+  public.shown_first_name('Deleted account', 'erased-eeee0043-0000-0000-0000-000000000001@invalid.invalid')
+    = 'Deleted account',
+  'on the work board an erased person reads as a deleted account');
+
 \echo ''
 \echo 'All schema guarantees hold.'
 

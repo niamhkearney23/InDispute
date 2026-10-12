@@ -3,6 +3,7 @@ import 'server-only';
 import { cookies } from 'next/headers';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { publicEnv, requirePublicEnv } from '@/lib/env';
+import { signInRefused } from '@/lib/auth/refused';
 
 type CookiesToSet = Array<{ name: string; value: string; options: CookieOptions }>;
 
@@ -40,6 +41,9 @@ export async function createSupabaseServerClient() {
  * Returns null rather than throwing when Supabase is not configured, so a fresh
  * clone renders the landing page and the setup instructions instead of a stack
  * trace.
+ *
+ * A deleted account is banned (0043) and counts as nobody, so every action,
+ * all of which start here, refuses it even while its last token is valid.
  */
 export async function getCurrentUser() {
   if (!publicEnv.supabaseUrl || !publicEnv.supabaseAnonKey) return null;
@@ -48,5 +52,5 @@ export async function getCurrentUser() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  return user;
+  return signInRefused(user) ? null : user;
 }

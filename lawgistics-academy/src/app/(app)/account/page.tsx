@@ -6,6 +6,7 @@ import { Card, InlineLink } from '@/components/ui';
 import { AvatarForm } from './avatar-form';
 import { CartoonMaker } from './cartoon-maker';
 import { LeaderboardForm } from './leaderboard-form';
+import { DeleteAccountForm } from './delete-account-form';
 
 export const metadata: Metadata = { title: 'Your account' };
 
@@ -76,6 +77,29 @@ export default async function AccountPage() {
           What each part of the academy is, and where to find it.{' '}
           <InlineLink href="/welcome">See the tour again</InlineLink>
         </p>
+      </Card>
+
+      <Card>
+        <p className="eyebrow mb-2">Delete your account</p>
+        {profile.isAdmin || profile.isCoach || profile.isFirmAdmin ? (
+          <p className="text-sm text-slate">
+            A staff account cannot be deleted here, because your name is on what you signed off and
+            decided. Ask an administrator.
+          </p>
+        ) : (
+          <>
+            <p className="mb-2 max-w-xl text-sm text-slate">
+              Your name, email address, photo and cartoon, your tutor conversations and any recordings
+              you made go, and you will not be able to sign in again. This cannot be undone.
+            </p>
+            <p className="mb-2 max-w-xl text-sm text-slate">
+              Your answers, homework, the work and matters you handed in and their marks, what you
+              signed while joining, and any certificate stay with the firm as its training record,
+              under &ldquo;Deleted account&rdquo; with nothing to say it was you.
+            </p>
+            <DeleteAccountForm />
+          </>
+        )}
       </Card>
     </div>
   );
