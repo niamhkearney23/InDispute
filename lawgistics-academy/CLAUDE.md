@@ -395,6 +395,18 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   back to plain letters in the PDF while the CSV keeps them. CSV cells that
   start like a formula get an apostrophe. A learner downloads their own
   certificate of completion as a PDF from `/certificate/pdf`.
+- **Two-step sign-in for staff** (no migration; Supabase Auth's own TOTP).
+  Every function in `src/lib/admin/guard.ts` asks for it once the role check
+  passes: staff with no authenticator app are sent to `/account/two-step`,
+  staff whose session is not `aal2` to `/two-step`, and the check functions
+  refuse. The level is read with `getClaims` (a verified token), the devices
+  from the user `getUser` returned. The middleware sends anybody with an app,
+  learner or staff, to the code step first. Up to two devices, because
+  Supabase keeps no recovery codes; an administrator removes a lost one in
+  the Supabase dashboard (`docs/NEW-FIRM.md`). `STAFF_TWO_STEP=off` turns it
+  off for local work and the visual check's mock only; unset is on, and a
+  Vercel production deployment ignores it. Rules and tests:
+  `src/lib/auth/two-step.ts`, `tests/two-step.test.ts`.
 - **Options are shown shuffled** (`src/lib/learning/option-order.ts`), fixed per
   question version or lesson screen, and the letter shown is the place on the
   screen, never the id. The bank was written with the right answer B three
@@ -468,7 +480,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   grid, gold-free by the owner's choice). Admin has the same look. The front
   page and sign-in stay cream. The certificate and a matter's case file stay paper inside it.
   Use the tokens, never fixed Tailwind colours, or a page breaks in one look.
-- 473 tests, 409 schema guarantees against a real Postgres, 240 page and device
+- 502 tests, 409 schema guarantees against a real Postgres, 394 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB

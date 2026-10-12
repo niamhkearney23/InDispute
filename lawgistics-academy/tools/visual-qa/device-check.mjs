@@ -2,8 +2,9 @@ import { chromium } from 'playwright';
 import fs from 'node:fs';
 
 const EXE = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
-const BASE = 'http://127.0.0.1:3000';
-const MOCK = 'http://127.0.0.1:54321';
+// Overridable for a second copy running beside one on the usual ports.
+const BASE = process.env.QA_BASE ?? 'http://127.0.0.1:3000';
+const MOCK = `http://127.0.0.1:${process.env.MOCK_PORT ?? 54321}`;
 const OUT = process.env.QA_OUT ?? '/tmp/lawgistics-qa';
 const SESSION_ID = '99999999-9999-9999-9999-999999999999';
 
@@ -73,6 +74,10 @@ const PAGES = [
   { name: 'account', path: '/account', auth: true },
   { name: 'welcome', path: '/welcome', auth: true },
   { name: 'account-password', path: '/account/password', auth: true },
+  // Two-step sign-in: the setup page as an administrator with no app yet, and
+  // the code step as the coach who has one and has only typed a password.
+  { name: 'account-two-step', path: '/account/two-step?next=%2Fadmin', auth: true },
+  { name: 'two-step', path: '/two-step?next=%2Fadmin%2Fwork', auth: true, as: 'coach2step@lawgistics.test' },
   { name: 'modules', path: '/modules', auth: true },
   { name: 'module', path: '/modules/ai-ethics-au', auth: true },
   { name: 'firm-module', path: '/modules/firm/ai-policy', auth: true },

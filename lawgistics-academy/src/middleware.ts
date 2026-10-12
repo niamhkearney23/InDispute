@@ -1,6 +1,14 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { publicEnv } from '@/lib/env';
+import {
+  codePathFor,
+  needsCodeNow,
+  REQUEST_PATH_HEADER,
+  TWO_STEP_CODE_PATH,
+  twoStepEnforced,
+  verifiedFactors,
+} from '@/lib/auth/two-step';
 
 type CookiesToSet = Array<{ name: string; value: string; options: CookieOptions }>;
 
@@ -44,6 +52,12 @@ function isPublic(pathname: string) {
 }
 
 export async function middleware(request: NextRequest) {
+  // Set before the response is made, so the pages see it. Always set, so a
+  // value the browser sent under the same name never survives.
+  request.headers.set(
+    REQUEST_PATH_HEADER,
+    `${request.nextUrl.pathname}${request.nextUrl.search}`,
+  );
   let response = NextResponse.next({ request });
 
   if (!publicEnv.supabaseUrl || !publicEnv.supabaseAnonKey) {
@@ -80,6 +94,41 @@ export async function middleware(request: NextRequest) {
     url.pathname = '/login';
     url.searchParams.set('next', pathname);
     return NextResponse.redirect(url);
+  }
+
+  // Somebody with an authenticator app who has only typed a password is sent
+  // to type today's code before any signed-in page, staff or learner. For a
+  // learner who chose to add an app, this is what holds them to it. For staff
+  // it is the quick path, not the control: the admin guard checks the signed
+  // token again, and also catches staff who have no app yet, which needs
+  // their profile and so cannot be told here. The devices are the ones
+  // getUser just fetched from Supabase; the level is read from the token that
+  // getUser has just accepted, without another request.
+  if (
+    user &&
+    !isPublic(pathname) &&
+    pathname !== TWO_STEP_CODE_PATH &&
+    twoStepEnforced() &&
+    verifiedFactors(user.factors).length > 0
+  ) {
+    const { data: level } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (
+      needsCodeNow({
+        verifiedFactorCount: verifiedFactors(user.factors).length,
+        aal: level?.currentLevel ?? null,
+        enforced: true,
+      })
+    ) {
+      const url = request.nextUrl.clone();
+      const target = codePathFor(`${pathname}${request.nextUrl.search}`);
+      url.pathname = TWO_STEP_CODE_PATH;
+      url.search = target.slice(target.indexOf('?'));
+      // Carry over a session getUser has just refreshed, or the code step
+      // would start from the old one and its refresh would be spent twice.
+      const redirect = NextResponse.redirect(url);
+      for (const cookie of response.cookies.getAll()) redirect.cookies.set(cookie);
+      return redirect;
+    }
   }
 
   if (user && SIGNED_OUT_ONLY.includes(pathname)) {

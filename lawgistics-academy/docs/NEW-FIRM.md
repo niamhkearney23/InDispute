@@ -59,6 +59,10 @@ Add each of these in Vercel, under **Settings, Environment Variables**:
 Leave `PAYMENTS` unset: payments stay off and the firm's people get in through
 the firm's code or an invitation.
 
+Leave `STAFF_TWO_STEP` unset too. Unset, every staff member needs a code from
+an authenticator app on their phone to open the staff pages (see "Two-step
+sign-in" below). It exists only for a developer's own computer.
+
 Then press **Deploy**.
 
 ## 4. Become the administrator of the new copy
@@ -83,6 +87,11 @@ Then press **Deploy**.
    - **Coach** for each supervising lawyer: they sign content off, mark
      work, grade the certification register and supervise.
    - Somebody can be both.
+
+   Tell each of them to have an authenticator app on their phone: the first
+   time they open a staff page, they are asked to set up two-step sign-in
+   (see "Two-step sign-in for staff" below). You are asked too, the next
+   time you open Admin after step 4.
 3. From here the firm runs itself: their firm administrator makes the firm's
    code under **Admin, Access**, sends invitations under **Admin, Joiners**,
    and fills in the joining checklist and the firm's documents under
@@ -101,6 +110,51 @@ lawyer signs each one off in that copy and an administrator presses
 **Publish everything signed off**. The diagnostic and the rounds switch on by
 themselves once questions are published, and no morning before that counts as
 missed.
+
+## Two-step sign-in for staff
+
+Administrators, coaches and firm administrators type a six-digit code from an
+authenticator app (Google Authenticator, Microsoft Authenticator, 1Password
+and the like) after their password before any staff page opens. The first time
+a staff member opens a staff page, they are taken to **Account, Two-step
+sign-in** to set it up, which takes about two minutes. Learners can turn it on
+for themselves there too, and are then asked for a code at every sign-in; for
+them it is optional.
+
+**In Supabase, check it is switched on.** It is on by default for every new
+Supabase project, but check once:
+
+1. Open the project at <https://supabase.com/dashboard>.
+2. Choose **Authentication** in the left-hand menu.
+3. Open **Multi-Factor** (on some versions of the dashboard it sits under
+   **Sign In / Providers**).
+4. Under **TOTP (App Authenticator)**, both enrolling and verifying should be
+   **Enabled**. If either is off, nobody on staff can set it up or get in,
+   and the setup page says "Two-step sign-in is switched off for this site in
+   Supabase".
+
+**When somebody loses their phone.** Supabase keeps no backup codes for an
+authenticator app, so the setup page asks everybody to add a second device
+(up to two) as a spare. When every device is gone, an administrator removes
+them, and the person then signs in with their password alone and sets up the
+new phone:
+
+1. Sign in at <https://supabase.com/dashboard> and open this firm's project.
+2. Choose **Authentication** in the left-hand menu, then **Users**.
+3. Find the person by their email address and click their row.
+4. In the panel that opens, press **Remove MFA factors**, and confirm.
+
+Check it is really them first, for example by phone: removing the device is
+exactly what somebody who has stolen a password would ask for.
+
+If the dashboard has moved that button, the SQL Editor does the same thing.
+Press **New query**, paste this with the person's email in place of the
+example, and press **Run**:
+
+```sql
+delete from auth.mfa_factors
+where user_id = (select id from auth.users where email = 'them@theirfirm.com');
+```
 
 ## Before the first sale
 

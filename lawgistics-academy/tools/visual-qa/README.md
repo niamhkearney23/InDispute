@@ -53,6 +53,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=mock-anon-key
 SUPABASE_SERVICE_ROLE_KEY=mock-service-role-key
 NEXT_PUBLIC_SITE_URL=http://127.0.0.1:3000
 AI_PROVIDER=none
+STAFF_TWO_STEP=off
 ENV
 npm run build && npx next start -p 3000
 
@@ -62,6 +63,21 @@ node tools/visual-qa/device-check.mjs
 
 Screenshots and a `report.json` land in `/tmp/lawgistics-qa` (override with
 `QA_OUT`).
+
+> **Set `STAFF_TWO_STEP=off`** as above. Staff need a code from an
+> authenticator app to open anything under `/admin`, and the stand-in cannot
+> hand real ones out, so without the line every admin page in the sweep is a
+> redirect to the setup page and the check reports on the wrong page. Never
+> set it on a real deployment; a Vercel production deployment ignores it.
+>
+> The stand-in does fake just enough of it to draw the two new pages and press
+> through them by hand: `coach2step@lawgistics.test` is a coach with an app
+> already set up, and the code `123456` is the only one any app accepts.
+> Leave the line out to watch the staff pages ask for it.
+
+`MOCK_PORT` and `QA_BASE` move the stand-in and the app off 54321 and 3000
+when something else is already there; build the app with
+`NEXT_PUBLIC_SUPABASE_URL` pointing at the new port.
 
 > Use a **production build**, not `next dev`. The dev server's HMR client can
 > fail to load in sandboxed environments. When it does, React never hydrates
