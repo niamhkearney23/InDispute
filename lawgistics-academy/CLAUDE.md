@@ -517,7 +517,14 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   grid, gold-free by the owner's choice). Admin has the same look. The front
   page and sign-in stay cream. The certificate and a matter's case file stay paper inside it.
   Use the tokens, never fixed Tailwind colours, or a page breaks in one look.
-- 483 tests, 450 schema guarantees against a real Postgres, 240 page and device
+- **Content security policy** (`src/lib/security/csp.ts`, set by
+  `src/middleware.ts`): scripts run only with a nonce minted per request, so
+  every page must render per request (the root layout awaits `connection()`);
+  a page built ahead of time shows but nothing on it works. A new outside host
+  (a video site, a logo, a payment page) needs adding there, and frame-src is
+  built from `src/lib/lessons/embed.ts`. Downloads and the cartoon keep their
+  own stricter policy in `next.config.ts`.
+- 494 tests, 450 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB
