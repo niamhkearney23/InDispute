@@ -1,6 +1,8 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { publicEnv } from '@/lib/env';
+import { safeLogo } from '@/lib/brand';
+import { buildCsp, makeNonce } from '@/lib/security/csp';
 
 type CookiesToSet = Array<{ name: string; value: string; options: CookieOptions }>;
 
@@ -43,11 +45,41 @@ function isPublic(pathname: string) {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
 
+// Route handlers that send a file. Their own, stricter policy is set in
+// next.config.ts, and a header set here would replace it, so the page policy
+// is left off these. A test holds every route that sends a download to this
+// list and to next.config.ts.
+const OWN_POLICY = ['/admin/reports/export', '/certificate/pdf'];
+
 export async function middleware(request: NextRequest) {
+  // A fresh nonce for every request. Next reads it back out of the request's
+  // own Content-Security-Policy header while it renders and puts it on every
+  // script it writes, so the header has to be on the request before any
+  // NextResponse.next() below copies the request across.
+  const csp = buildCsp({
+    nonce: makeNonce(),
+    dev: process.env.NODE_ENV === 'development',
+    supabaseUrl: publicEnv.supabaseUrl,
+    logo: safeLogo(process.env.NEXT_PUBLIC_BRAND_LOGO),
+    // Behind a host's proxy the request may arrive as http with the original
+    // scheme in x-forwarded-proto; either says the visitor is on HTTPS.
+    upgradeInsecure:
+      request.nextUrl.protocol === 'https:' || request.headers.get('x-forwarded-proto') === 'https',
+  });
+  request.headers.set('Content-Security-Policy', csp);
+
+  const ownPolicy = OWN_POLICY.some(
+    (p) => request.nextUrl.pathname === p || request.nextUrl.pathname.startsWith(`${p}/`),
+  );
+  const respond = (res: NextResponse) => {
+    if (!ownPolicy) res.headers.set('Content-Security-Policy', csp);
+    return res;
+  };
+
   let response = NextResponse.next({ request });
 
   if (!publicEnv.supabaseUrl || !publicEnv.supabaseAnonKey) {
-    return response;
+    return respond(response);
   }
 
   const supabase = createServerClient(publicEnv.supabaseUrl, publicEnv.supabaseAnonKey, {
@@ -89,7 +121,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  return response;
+  return respond(response);
 }
 
 // `icon$` is the tab icon. It used to be a checked-in file at /icon.svg and was

@@ -7,8 +7,11 @@
  *
  * Kept out of the player component so it is a plain function: importable by a
  * test without dragging React and the Next router in behind it.
+ *
+ * The content security policy's frame-src is built from this same list, so a
+ * host added here is one the browser will also agree to frame.
  */
-const EMBED_HOSTS = new Set([
+export const EMBED_HOSTS = new Set([
   'www.youtube-nocookie.com',
   'youtube-nocookie.com',
   'www.youtube.com',

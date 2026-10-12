@@ -15,6 +15,10 @@ const nextConfig: NextConfig = {
   // Nothing else may show these pages inside a frame of its own. A framed
   // staff page is how somebody gets a coach to press "Confirm" or "Verify"
   // without knowing it; nothing legitimate embeds the app anywhere.
+  //
+  // Pages get their full policy, script nonce and all, from src/middleware.ts,
+  // which replaces the one-line policy below. This one still covers what the
+  // middleware never sees: static files, images, the videos.
   async headers() {
     return [
       {
@@ -44,6 +48,20 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      // Downloads: the firm's reports and a learner's certificate. They are
+      // files, not pages, and if a browser ever shows one inline rather than
+      // saving it, nothing in it may run or load anything. A header set by a
+      // route handler loses to one set here, so the policy lives here, and
+      // src/middleware.ts leaves these paths out of the page policy.
+      ...['/admin/reports/export/:kind*', '/certificate/pdf'].map((source) => ({
+        source,
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src 'none'; frame-ancestors 'none'; sandbox",
+          },
+        ],
+      })),
     ];
   },
 };

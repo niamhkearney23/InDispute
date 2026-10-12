@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { connection } from 'next/server';
 import { Fraunces, Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { brand } from '@/lib/brand';
@@ -40,7 +41,13 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Every page carries a script nonce minted for its own request (see
+  // src/middleware.ts), and a page built once ahead of time has no request to
+  // take one from: its scripts would be refused. Waiting on the connection
+  // here makes every page under this layout render per request, including the
+  // few that read no cookies of their own, like the not-found page.
+  await connection();
   return (
     <html lang="en-AU" className={`${display.variable} ${body.variable} ${code.variable}`}>
       <body
