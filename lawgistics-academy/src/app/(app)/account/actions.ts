@@ -6,6 +6,9 @@ import { z } from 'zod';
 import { createSupabaseServerClient, getCurrentUser } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/service';
 import { strictCartoon } from '@/lib/avatar/cartoon';
+import { getLearnerProfile } from '@/lib/learner-overview';
+import { eraseAccount } from '@/lib/account/erasure';
+import { CONFIRM_WORD, confirmsErasure } from '@/lib/account/erasure-rules';
 
 export type AvatarState = { error: string | null };
 
@@ -204,6 +207,41 @@ export async function changePassword(
   revalidatePath('/dashboard');
   revalidatePath('/account');
   redirect('/dashboard');
+}
+
+export type DeleteAccountState = { error: string | null };
+
+/**
+ * Deleting your own account (0043). Always the signed-in person's own: the
+ * id comes from the session and nowhere else, and the form only carries the
+ * word and the address that say yes. Staff are sent to an administrator,
+ * because a staff account signed things off and its name has to stay on them.
+ */
+export async function deleteMyAccount(
+  _prev: DeleteAccountState,
+  formData: FormData,
+): Promise<DeleteAccountState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: 'You are not signed in.' };
+
+  const profile = await getLearnerProfile(user.id);
+  if (!profile) return { error: 'Your account could not be read. Please try again.' };
+  if (profile.isAdmin || profile.isCoach || profile.isFirmAdmin) {
+    return { error: 'A staff account cannot be deleted here. Ask an administrator.' };
+  }
+
+  if (!confirmsErasure(formData.get('confirmWord'), formData.get('confirmEmail'), user.email)) {
+    return { error: `Type ${CONFIRM_WORD} and your own email address to delete your account.` };
+  }
+
+  const result = await eraseAccount(user.id);
+  if (!result.ok) return { error: result.error };
+
+  // Every session, on every device. The account is already banned, so if
+  // the auth server will not hear this the cookies here still go.
+  const supabase = await createSupabaseServerClient();
+  await supabase.auth.signOut({ scope: 'global' }).catch(() => undefined);
+  redirect('/goodbye');
 }
 
 export type LeaderboardState = { error: string | null; ok?: string };

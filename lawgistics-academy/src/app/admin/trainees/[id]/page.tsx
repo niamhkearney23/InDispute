@@ -14,6 +14,7 @@ import { roundsHistory } from '@/lib/training/rounds-service';
 import { roundTimes, zoneName } from '@/lib/training/schedule';
 import { scoreOverTime } from '@/lib/learning/score-history';
 import { ScoreHistoryChart } from '@/components/score-history-chart';
+import { EraseForm } from './erase-form';
 
 export const metadata: Metadata = { title: 'Trainee' };
 export const dynamic = 'force-dynamic';
@@ -57,6 +58,12 @@ export default async function AdminTraineePage({ params }: { params: Promise<{ i
           <h1 className="text-3xl">{person.name}</h1>
           {person.trainee ? <Pill tone="accent">Trainee</Pill> : null}
         </div>
+        {person.erasedAt ? (
+          <p className="mt-2 text-sm text-slate">
+            This account was deleted on {day(person.erasedAt)}. What they answered and handed in stays
+            as the firm&rsquo;s record, with nothing to say who it was.
+          </p>
+        ) : null}
         <p className="mt-2 text-slate tabular-nums">
           {person.totalAnswered === 0
             ? 'Has not answered any questions yet.'
@@ -156,6 +163,22 @@ export default async function AdminTraineePage({ params }: { params: Promise<{ i
           </ul>
         )}
       </section>
+
+      {/* Administrators only: the action asks checkAdmin again, this only
+          decides what is drawn. */}
+      {isAdmin ? (
+        <section>
+          <SectionHeading eyebrow="If they ask, or the firm must" title="Delete this account" />
+          <Card>
+            <p className="mb-2 text-sm text-slate">
+              {person.erasedAt
+                ? 'Already deleted. Pressing again removes any stored file that was left behind, and changes nothing else.'
+                : 'Their name, email, photo, tutor conversations and recordings go, and they can never sign in again. Answers, homework, work, matters, joining records and certificates stay, under "Deleted account". This cannot be undone.'}
+            </p>
+            <EraseForm learnerId={person.id} erased={Boolean(person.erasedAt)} />
+          </Card>
+        </section>
+      ) : null}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { publicEnv } from '@/lib/env';
+import { signInRefused } from '@/lib/auth/refused';
 
 type CookiesToSet = Array<{ name: string; value: string; options: CookieOptions }>;
 
@@ -18,6 +19,7 @@ type CookiesToSet = Array<{ name: string; value: string; options: CookieOptions 
 // public by default, which is the wrong way round.
 // /api/inbound/work likewise: the inbound email service has no session, and
 // the route checks its own token before reading anything.
+// /goodbye is where somebody lands after deleting their account, signed out.
 const PUBLIC_PATHS = [
   '/',
   '/login',
@@ -27,6 +29,7 @@ const PUBLIC_PATHS = [
   '/auth',
   '/setup',
   '/join',
+  '/goodbye',
   '/api/digest',
   '/api/inbound/work',
   '/api/stripe/webhook',
@@ -70,8 +73,12 @@ export async function middleware(request: NextRequest) {
   // Refreshes the auth token cookie. Do not remove: Server Components cannot
   // write cookies, so without this the session silently expires mid-use.
   const {
-    data: { user },
+    data: { user: signedIn },
   } = await supabase.auth.getUser();
+  // A deleted account is banned and counts as signed out, the same as in
+  // getCurrentUser. Were the two to disagree, /login would send it to
+  // /dashboard and /dashboard back to /login, for good.
+  const user = signInRefused(signedIn) ? null : signedIn;
 
   const { pathname } = request.nextUrl;
 

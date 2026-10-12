@@ -446,7 +446,7 @@ it as a secret.
 ## Testing
 
 ```bash
-npm run test        # 471 tests: engine, content, triage, and the contract tests below
+npm run test        # 483 tests: engine, content, triage, and the contract tests below
 npm run typecheck
 npm run lint
 npm run build
@@ -489,7 +489,7 @@ The schema's own guarantees are tested against a real Postgres:
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/schema-guarantees.sql
 ```
 
-420 checks, run inside a transaction that rolls itself back. Among them: a learner cannot
+450 checks, run inside a transaction that rolls itself back. Among them: a learner cannot
 make themselves an administrator; cannot read another learner's attempts; cannot read the
 question versions table where the answers live; cannot forge XP; cannot write to the daily
 brief; cannot see unpublished facts. And: question content cannot be rewritten in place,
