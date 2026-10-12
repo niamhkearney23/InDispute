@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { requireCoach } from '@/lib/admin/guard';
 import { Wordmark } from '@/components/ui';
-import { NavLink } from '@/components/nav-link';
+import { AdminNav, type AdminNavGroup, type AdminNavItem } from '@/components/admin-nav';
 
 /** Auth-gated and per-request. Never prerender anything under /admin. */
 export const dynamic = 'force-dynamic';
@@ -16,27 +16,55 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // anyway, so this is not the security boundary; it is not putting links in
   // front of somebody that lead to a redirect. A coach signs off and
   // supervises; a firm administrator runs the firm's people and setup; an
-  // administrator also writes the content and decides who is staff.
-  const all: Array<[string, string, boolean]> = [
-    ['/admin', 'Questions', isAdmin],
-    ['/admin/intake', 'Intake', true],
-    ['/admin/cohorts', 'Cohorts', isFirmAdmin],
-    ['/admin/trainees', 'Trainees', true],
-    ['/admin/review', 'Verify', isReviewer],
-    ['/admin/lessons', 'Lessons', isReviewer],
-    ['/admin/matters', 'Matters', isReviewer],
-    ['/admin/sessions', 'Sessions', true],
-    ['/admin/work', 'Work', true],
-    ['/admin/certification', 'Certification', isReviewer],
-    ['/admin/facts', 'Daily brief', isAdmin],
-    ['/admin/firm', 'Firm', isFirmAdmin],
-    ['/admin/onboarding', 'Joiners', true],
-    ['/admin/access', 'Access', true],
-    ['/admin/reports', 'Reports', isFirmAdmin],
-    ['/admin/people', 'Staff', isAdmin],
-    ['/admin/tutor', 'Tutor', isReviewer],
-  ];
-  const links = all.filter(([, , shown]) => shown).map(([href, label]) => [href, label]);
+  // administrator also writes the content and decides who is staff. The
+  // pages sit in four groups so the menu is a handful of words, not
+  // seventeen; a group with nothing in it for this person is left out.
+  const groups: AdminNavGroup[] = (
+    [
+      {
+        label: 'People',
+        items: [
+          { href: '/admin/trainees', label: 'Trainees', shown: true },
+          { href: '/admin/onboarding', label: 'Joining', shown: true },
+          { href: '/admin/intake', label: 'Intake', shown: true },
+          { href: '/admin/cohorts', label: 'Cohorts', shown: isFirmAdmin },
+          { href: '/admin/access', label: 'Access codes', shown: true },
+          { href: '/admin/people', label: 'Staff', shown: isAdmin },
+        ],
+      },
+      {
+        label: 'Teaching',
+        items: [
+          { href: '/admin/work', label: 'Work board', shown: true },
+          { href: '/admin/sessions', label: 'Sessions', shown: true },
+          { href: '/admin/certification', label: 'Certification', shown: isReviewer },
+          { href: '/admin/tutor', label: 'Tutor chats', shown: isReviewer },
+        ],
+      },
+      {
+        label: 'Content',
+        items: [
+          { href: '/admin/review', label: 'Sign off', shown: isReviewer },
+          { href: '/admin', label: 'Questions', shown: isAdmin, also: ['/admin/questions'] },
+          { href: '/admin/lessons', label: 'Lessons', shown: isReviewer },
+          { href: '/admin/matters', label: 'Matters', shown: isReviewer },
+          { href: '/admin/facts', label: 'Daily brief', shown: isAdmin },
+        ],
+      },
+      {
+        label: 'Firm',
+        items: [
+          { href: '/admin/reports', label: 'Reports', shown: isFirmAdmin },
+          { href: '/admin/firm', label: 'Documents', shown: isFirmAdmin },
+        ],
+      },
+    ] as Array<{ label: string; items: Array<AdminNavItem & { shown: boolean }> }>
+  )
+    .map((g) => ({
+      label: g.label,
+      items: g.items.filter((i) => i.shown).map(({ href, label, also }) => ({ href, label, also })),
+    }))
+    .filter((g) => g.items.length > 0);
   const role = isAdmin ? 'Admin' : isFirmAdmin ? 'Firm admin' : 'Coach';
 
   return (
@@ -46,26 +74,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <div className="flex items-baseline gap-3">
             {/* Home is the first thing this person can actually open. Pointing a
                 coach at /admin sends them to a redirect from the masthead. */}
-            <Link href={links[0][0]} className="-mx-1 rounded-[5px] px-1 py-2">
+            <Link href={groups[0].items[0].href} className="-mx-1 rounded-[5px] px-1 py-2">
               <Wordmark compact />
             </Link>
             <span className="eyebrow">{role}</span>
           </div>
-          <nav className="flex flex-wrap items-center gap-x-1 gap-y-0.5 text-sm">
-            {links.map(([href, label]) => (
-              // /admin is the questions page and also the prefix of every other
-              // admin address, so it alone matches exactly.
-              <NavLink key={href} href={href} exact={href === '/admin'} className="hover:bg-paper">
-                {label}
-              </NavLink>
-            ))}
-            <Link
-              href="/dashboard"
-              className="rounded-[5px] px-2.5 py-2 whitespace-nowrap text-slate hover:bg-paper hover:text-ink"
-            >
-              Back to app
-            </Link>
-          </nav>
+          <AdminNav groups={groups} />
         </div>
       </header>
 
