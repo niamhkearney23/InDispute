@@ -111,7 +111,8 @@ export default async function SetupPage() {
           <Notice tone="neutral">
             Setup is complete. {status.publishedQuestions} questions and{' '}
             {status.publishedFacts} daily facts are published to learners, and{' '}
-            {status.reviewOutstanding} items still need to be verified by a person.
+            {status.reviewOutstanding} items are waiting for a lawyer to sign them off.
+            Learners see an item only once it is signed off and published.
             Anything loaded but withdrawn is not counted here; the review queue
             has the full picture.
           </Notice>

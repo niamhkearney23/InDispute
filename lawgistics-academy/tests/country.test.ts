@@ -236,32 +236,34 @@ test('an Australian learner is unaffected by the Malaysian bank existing', async
 /* Publication                                                                */
 /* -------------------------------------------------------------------------- */
 
-test('the seeder cannot be asked to publish the Malaysian bank', () => {
-  // The flag on the setup page publishes the Australian content so a fresh
-  // install works out of the box. It must not be able to reach content that no
-  // Malaysian-qualified person has ever read.
+test('loading content never publishes anything, in either country', () => {
+  // It once published the Australian bank so a fresh install had a working
+  // training loop, which put questions no lawyer had checked in front of
+  // learners. Every item now loads waiting for a sign-off, and 0044 makes
+  // the database refuse an unsigned publish as well.
   const source = fs.readFileSync(path.join(ROOT, 'src/lib/setup/seed-content.ts'), 'utf8');
 
-  assert.match(
-    source,
-    /const statusFor = \(country: Country, tentative = false\) =>[\s\S]{0,140}?'requires_review'/,
-    'the Malaysian override is gone; check seed-content.ts',
+  assert.match(source, /const status = 'requires_review';/, 'everything loads for review');
+  assert.doesNotMatch(source, /publish\?:/, 'the loader has no option to publish');
+  // The only places 'published' may appear are reads and the step that takes
+  // a re-worded item back to review.
+  const writes = [...source.matchAll(/status:\s*'published'|(?<![=!])=\s*'published'/g)];
+  assert.deepEqual(
+    writes.map((m) => m[0]),
+    [],
+    'seed-content.ts writes a published status',
   );
 
-  // Every write of a status must go through the override. Matching on the
-  // exact insert text was not enough: adding one field to the object slipped
-  // the raw status past the check, which is precisely the mistake that would
-  // publish 41 unread Malaysian questions.
+  // Every status written is the one constant, or the step back to review.
   const statusWrites = [...source.matchAll(/\bstatus(?::\s*([^,\n}]+))?[,\n}]/g)]
     .map((m) => (m[1] ?? 'status').trim())
-    .filter((value) => value !== 'status: string' && !value.startsWith('options'));
-
-  const raw = statusWrites.filter((value) => value === 'status');
-  assert.deepEqual(
-    raw,
-    [],
-    'a status is written without statusFor(country); the Malaysian bank could be published',
-  );
+    .filter((value) => value !== 'status: string');
+  for (const value of statusWrites) {
+    assert.ok(
+      value === 'status' || value === "'requires_review'",
+      `seed-content.ts writes status ${value}`,
+    );
+  }
 });
 
 test('the Malaysian bank says plainly that nobody qualified has read it', () => {

@@ -47,9 +47,8 @@ export interface SeedQuestion {
   /**
    * Written ahead of the research that would stand it up.
    *
-   * Tentative content loads as a draft whatever the setup page is asked for,
-   * the same way the Malaysian bank does. The difference from ordinary
-   * unverified content is that this is not merely unchecked, it is content the
+   * All content loads as a draft awaiting a lawyer's sign-off. The difference
+   * between tentative and ordinary unverified content is that this is not merely unchecked, it is content the
    * author already suspects needs work. It exists so it can be read and
    * corrected, not so it can be answered.
    */

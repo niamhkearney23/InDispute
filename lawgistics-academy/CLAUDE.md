@@ -175,7 +175,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0042`.
+- Migrations run to `0044` (`0043` is kept for account erasure).
   `supabase/UPDATE.sql` is the one-paste update for a database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -395,6 +395,15 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   back to plain letters in the PDF while the CSV keeps them. CSV cells that
   start like a formula get an apostrophe. A learner downloads their own
   certificate of completion as a PDF from `/certificate/pdf`.
+- `0044` is the **publication gate**: nothing reaches a learner until a
+  lawyer has signed it off, in either country. Loading content publishes
+  nothing (`seedContent` writes only `requires_review`; there is no publish
+  option and no "withdraw all / put back" pair any more). The database
+  refuses to publish an unsigned question or fact, takes a published item
+  back to review when its current wording loses its sign-off, and
+  `v_question_delivery` and the daily brief's read policy check
+  `human_verified` as well as the status. Fixtures in schema-guarantees sign
+  off before they publish.
 - **Options are shown shuffled** (`src/lib/learning/option-order.ts`), fixed per
   question version or lesson screen, and the letter shown is the place on the
   screen, never the id. The bank was written with the right answer B three
@@ -468,7 +477,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   grid, gold-free by the owner's choice). Admin has the same look. The front
   page and sign-in stay cream. The certificate and a matter's case file stay paper inside it.
   Use the tokens, never fixed Tailwind colours, or a page breaks in one look.
-- 473 tests, 409 schema guarantees against a real Postgres, 240 page and device
+- 470 tests, 418 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB

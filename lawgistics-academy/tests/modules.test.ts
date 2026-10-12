@@ -109,28 +109,10 @@ test('a module is never described as complete without every question behind it',
   assert.equal(complete(0, 16), false);
 });
 
-test('tentative content can never be published by the setup page', () => {
-  // Tentative is stronger than unverified. Unverified content ships published
-  // so the app works out of the box, with the review queue visibly waiting.
-  // Tentative content is written ahead of the research that would stand it up,
-  // so it must not be answerable by anyone until a person publishes it
-  // deliberately, one item at a time.
-  const source = fs.readFileSync(
-    path.join(__dirname, '..', 'src/lib/setup/seed-content.ts'),
-    'utf8',
-  );
-
-  assert.match(
-    source,
-    /country === 'MY' \|\| tentative \? 'requires_review' : status/,
-    'the tentative override is gone; check seed-content.ts',
-  );
-  assert.match(
-    source,
-    /status: statusFor\(country, q\.tentative\)/,
-    'questions are inserted without passing the tentative flag through',
-  );
-
+test('tentative content is marked so a reviewer knows before reading', () => {
+  // Nothing loads published any more (see country.test.ts), so tentative no
+  // longer changes what learners see. It still tells the lawyer reading it
+  // that the author already suspects it needs work.
   // And the flag is actually being used, or the guard above guards nothing.
   const tentative = QUESTIONS.filter((q) => q.tentative);
   assert.ok(tentative.length >= 5, `only ${tentative.length} tentative questions`);

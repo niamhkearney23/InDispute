@@ -84,10 +84,9 @@ export default async function ReviewPage({
             {stats.liveUnverified} item{stats.liveUnverified === 1 ? ' is' : 's are'} live to
             learners without having been verified by a person.
           </strong>{' '}
-          That is how the seed content ships so the product works out of the box. If you
-          would rather nothing unreviewed were servable while you work through this, use
-          “Withdraw everything unverified” below; it is reversible, and publishing is one
-          click once an item is signed off.
+          This should not happen: the database takes back anything that loses its sign-off.
+          Withdraw each item below, or run the latest UPDATE.sql, which takes back everything
+          unsigned at once.
         </Notice>
       ) : null}
 
@@ -113,18 +112,6 @@ export default async function ReviewPage({
           outstanding again until somebody looks. Rules of court get amended and practice
           notes get reissued; a sign-off that never expired would quietly turn into the least
           trustworthy thing here.
-        </Notice>
-      ) : null}
-
-      {stats.withdrawn > 0 ? (
-        <Notice tone="warn">
-          <strong>
-            {stats.withdrawn} item{stats.withdrawn === 1 ? ' is' : 's are'} withdrawn and not
-            in front of learners.
-          </strong>{' '}
-          Training will be thin or empty until {stats.withdrawn === 1 ? 'it goes' : 'they go'}{' '}
-          back. Use “Put everything back in front of learners” below; it changes only what is
-          servable and records nothing about anybody having checked it.
         </Notice>
       ) : null}
 
@@ -157,18 +144,14 @@ export default async function ReviewPage({
         </ul>
       </Card>
 
-      {/* Publishing, withdrawing and restoring move the whole bank at once and
-          stay with the administrator. A coach decides whether an item is sound;
+      {/* Publishing moves the whole bank at once and stays with the
+          administrator. A coach decides whether an item is sound;
           deciding what ships to learners is a different call and belongs to
           whoever owns the deployment. The actions refuse a coach on the server
           too, so this is only about not showing somebody a button that will
           turn them down. */}
       {isAdmin ? (
-        <BulkActions
-          verifiedCount={allStats.verified}
-          liveUnverifiedCount={allStats.liveUnverified}
-          withdrawnCount={allStats.withdrawn}
-        />
+        <BulkActions verifiedCount={allStats.verified} />
       ) : null}
 
       <ReviewQueue items={items} />

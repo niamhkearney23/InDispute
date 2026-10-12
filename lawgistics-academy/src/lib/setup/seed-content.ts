@@ -3,7 +3,6 @@ import 'server-only';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { CONCEPTS, DOMAINS, FACTS, QUESTIONS, SKILLS, validateSeed } from '@/content/seed';
 import { JURISDICTION_COUNTRY } from '@/lib/types';
-import type { Country } from '@/lib/types';
 import type { SeedQuestion } from '@/content/seed/types';
 
 /**
@@ -60,31 +59,20 @@ function versionFingerprint(row: {
   });
 }
 
-export async function seedContent(
-  db: SupabaseClient,
-  options: { publish?: boolean } = {},
-): Promise<SeedSummary> {
+export async function seedContent(db: SupabaseClient): Promise<SeedSummary> {
   const errors = validateSeed();
   if (errors.length > 0) {
     throw new Error(`Seed content failed validation:\n- ${errors.join('\n- ')}`);
   }
 
-  // Published by default so a fresh install has a working training loop, but
-  // every item still carries requires_review until a person signs it off.
-  const status = options.publish === false ? 'requires_review' : 'published';
-
   /**
-   * The Malaysian bank never publishes itself, whatever was asked for.
-   *
-   * The Australian content ships published because an empty app is useless and
-   * the review queue is visibly waiting. The Malaysian content is different in
-   * kind: it was drafted without a Malaysian-qualified reader anywhere in the
-   * loop, and its most checkable claims are exactly the ones a student would
-   * take away and rely on. So the flag on the setup page cannot reach it. It
-   * publishes when a person publishes it, one item at a time.
+   * Everything loads waiting for review, in both countries. Nothing here has
+   * been signed off by a lawyer, and nothing reaches a learner until one has:
+   * the database refuses to publish a question or fact without a sign-off
+   * (0044), so loading cannot publish even if it tried. A person signs each
+   * item off on the review page, then publishes it.
    */
-  const statusFor = (country: Country, tentative = false) =>
-    country === 'MY' || tentative ? 'requires_review' : status;
+  const status = 'requires_review';
 
   /* --- taxonomy ---------------------------------------------------------- */
   const { error: domainError } = await db.from('domains').upsert(
@@ -154,7 +142,7 @@ export async function seedContent(
     if (!questionId) {
       const { data: inserted, error } = await db
         .from('questions')
-        .insert({ slug: q.slug, domain_id: domainId, status: statusFor(country, q.tentative), country })
+        .insert({ slug: q.slug, domain_id: domainId, status, country })
         .select('id')
         .single();
       if (error) throw error;
@@ -243,8 +231,8 @@ export async function seedContent(
     // A new wording is unchecked, whatever the old one was. Editing a question
     // on its page already takes it out of training until somebody signs it
     // off; loading a release with new wording has to do the same, or a
-    // Malaysian question a lawyer signed and published would go on being
-    // served in words nobody has read.
+    // question a lawyer signed and published would go on being served in
+    // words nobody has read.
     if (nextVersion > 1) {
       const { error: withdrawError } = await db
         .from('questions')
@@ -298,7 +286,7 @@ export async function seedContent(
         slug: fact.slug,
         ...content,
         ...placement,
-        status: statusFor(country),
+        status,
         verification_status: 'requires_review',
       });
       if (error) throw error;
@@ -319,11 +307,8 @@ export async function seedContent(
               verified_by: null,
               verified_at: null,
               review_due_on: null,
-              // A Malaysian fact is never live unchecked, and a new wording
-              // is unchecked.
-              ...(country === 'MY' && here.status === 'published'
-                ? { status: 'requires_review' }
-                : {}),
+              // A new wording is unchecked, so it is not live.
+              ...(here.status === 'published' ? { status: 'requires_review' } : {}),
             }
           : placement,
       )

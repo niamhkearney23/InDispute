@@ -93,7 +93,7 @@ values ('bbbbbbbb-0000-0000-0000-000000000001',
 
 insert into public.questions (id, slug, domain_id, status)
 values ('cccccccc-0000-0000-0000-000000000001', 'test-question',
-        'aaaaaaaa-0000-0000-0000-000000000001', 'published'),
+        'aaaaaaaa-0000-0000-0000-000000000001', 'requires_review'),
        ('cccccccc-0000-0000-0000-000000000002', 'draft-question',
         'aaaaaaaa-0000-0000-0000-000000000001', 'draft');
 
@@ -110,14 +110,14 @@ values
    '[{"id":"a","text":"Yes"},{"id":"b","text":"No"}]', array['a'],
    'Because yes.', 2, 'NSW');
 
-insert into public.daily_facts (slug, title, body, jurisdiction, status)
+insert into public.daily_facts (slug, title, body, jurisdiction, status, verification_status)
 values
   ('published-fact', 'A published fact.',
    'This one is visible to learners because it has been published, and it is long enough to be a real body.',
-   'VIC', 'published'),
+   'VIC', 'published', 'human_verified'),
   ('draft-fact', 'A draft fact.',
    'This one must stay invisible to learners because it is still a draft, and it is long enough to be a real body.',
-   'NSW', 'draft');
+   'NSW', 'draft', 'unverified');
 
 -- -----------------------------------------------------------------------------
 -- Content immutability
@@ -147,6 +147,13 @@ select pg_temp.expect(
   (select explanation from public.question_versions
    where id = 'dddddddd-0000-0000-0000-000000000001') = 'A clearer explanation.',
   'explanation and verification status can still be corrected in place');
+
+-- The fixture question is signed off and then published, the only order the
+-- database allows (0044).
+update public.question_versions set verification_status = 'human_verified'
+where id = 'dddddddd-0000-0000-0000-000000000001';
+update public.questions set status = 'published'
+where id = 'cccccccc-0000-0000-0000-000000000001';
 
 -- -----------------------------------------------------------------------------
 -- One current version per question
@@ -400,15 +407,16 @@ select pg_temp.expect(
 
 insert into public.questions (id, slug, domain_id, status, country)
 values ('cccccccc-0000-0000-0000-000000000009', 'my-question',
-        'aaaaaaaa-0000-0000-0000-000000000001', 'published', 'MY');
+        'aaaaaaaa-0000-0000-0000-000000000001', 'requires_review', 'MY');
 
 insert into public.question_versions
   (question_id, version, question_type, stem, options, correct_option_ids,
-   explanation, difficulty, jurisdiction)
+   explanation, difficulty, jurisdiction, verification_status)
 values ('cccccccc-0000-0000-0000-000000000009', 1, 'multiple_choice',
         'Which court is the apex court of Malaysia?',
         '[{"id":"a","text":"Federal Court"},{"id":"b","text":"Court of Appeal"}]'::jsonb,
-        array['a'], 'The Federal Court.', 1, 'MY_FEDERAL');
+        array['a'], 'The Federal Court.', 1, 'MY_FEDERAL', 'human_verified');
+update public.questions set status = 'published' where id = 'cccccccc-0000-0000-0000-000000000009';
 
 select pg_temp.expect(
   (select country from public.v_question_delivery
@@ -2781,24 +2789,26 @@ values ('aaaa0038-0000-0000-0000-000000000001', 'my-0038@example.test', '{"count
 
 insert into public.questions (id, slug, domain_id, status, country)
 values ('cccc0038-0000-0000-0000-000000000001', 'au-question-0038',
-        'aaaaaaaa-0000-0000-0000-000000000001', 'published', 'AU'),
+        'aaaaaaaa-0000-0000-0000-000000000001', 'requires_review', 'AU'),
        ('cccc0038-0000-0000-0000-000000000002', 'my-question-0038',
-        'aaaaaaaa-0000-0000-0000-000000000001', 'published', 'MY');
+        'aaaaaaaa-0000-0000-0000-000000000001', 'requires_review', 'MY');
 insert into public.question_versions
   (question_id, version, question_type, stem, options, correct_option_ids,
-   explanation, difficulty, jurisdiction)
+   explanation, difficulty, jurisdiction, verification_status)
 values ('cccc0038-0000-0000-0000-000000000001', 1, 'multiple_choice', 'An Australian question?',
-        '[{"id":"a","text":"Yes"},{"id":"b","text":"No"}]'::jsonb, array['a'], 'Because yes.', 1, 'VIC'),
+        '[{"id":"a","text":"Yes"},{"id":"b","text":"No"}]'::jsonb, array['a'], 'Because yes.', 1, 'VIC', 'human_verified'),
        ('cccc0038-0000-0000-0000-000000000002', 1, 'multiple_choice', 'A Malaysian question?',
-        '[{"id":"a","text":"Yes"},{"id":"b","text":"No"}]'::jsonb, array['a'], 'Because yes.', 1, 'MY_FEDERAL');
+        '[{"id":"a","text":"Yes"},{"id":"b","text":"No"}]'::jsonb, array['a'], 'Because yes.', 1, 'MY_FEDERAL', 'human_verified');
+update public.questions set status = 'published'
+ where id in ('cccc0038-0000-0000-0000-000000000001', 'cccc0038-0000-0000-0000-000000000002');
 
-insert into public.daily_facts (slug, title, body, jurisdiction, status, country)
+insert into public.daily_facts (slug, title, body, jurisdiction, status, country, verification_status)
 values ('au-fact-0038', 'An Australian fact.',
         'This one is Australian law, published, and long enough to be a real body of a daily fact.',
-        'VIC', 'published', 'AU'),
+        'VIC', 'published', 'AU', 'human_verified'),
        ('my-fact-0038', 'A Malaysian fact.',
         'This one is Malaysian law, published, and long enough to be a real body of a daily fact.',
-        'MY_FEDERAL', 'published', 'MY');
+        'MY_FEDERAL', 'published', 'MY', 'human_verified');
 
 set local role authenticated;
 set local request.jwt.claim.sub = 'aaaa0038-0000-0000-0000-000000000001';
@@ -3321,6 +3331,94 @@ set local request.jwt.claim.sub = '22222222-2222-2222-2222-222222222222';
 select pg_temp.expect_failure(
   $$select * from public.firm_activity(array['11111111-1111-1111-1111-111111111111'::uuid], now() - interval '1 year', now())$$,
   'a learner cannot read who was active');
+reset role;
+
+-- -----------------------------------------------------------------------------
+-- 0044: nothing reaches a learner until a lawyer has signed it off
+-- -----------------------------------------------------------------------------
+insert into public.questions (id, slug, domain_id, status, country)
+values ('cccc0044-0000-0000-0000-000000000001', 'unsigned-0044',
+        'aaaaaaaa-0000-0000-0000-000000000001', 'requires_review', 'AU');
+insert into public.question_versions
+  (id, question_id, version, question_type, stem, options, correct_option_ids,
+   explanation, difficulty, jurisdiction, verification_status)
+values ('dddd0044-0000-0000-0000-000000000001', 'cccc0044-0000-0000-0000-000000000001', 1,
+        'multiple_choice', 'Unsigned question?',
+        '[{"id":"a","text":"Yes"},{"id":"b","text":"No"}]'::jsonb, array['a'], 'Because yes.', 1,
+        'VIC', 'requires_review');
+
+select pg_temp.expect_failure(
+  $$update public.questions set status = 'published' where id = 'cccc0044-0000-0000-0000-000000000001'$$,
+  'a question cannot be published before a lawyer signs it off');
+select pg_temp.expect_failure(
+  $$insert into public.questions (slug, domain_id, status, country)
+    values ('born-published-0044', 'aaaaaaaa-0000-0000-0000-000000000001', 'published', 'AU')$$,
+  'a question cannot be loaded already published');
+select pg_temp.expect_failure(
+  $$insert into public.daily_facts (slug, title, body, jurisdiction, status, country)
+    values ('unsigned-fact-0044', 'An unsigned fact.',
+            'This fact has no sign-off and must not be loaded straight into the daily brief for learners.',
+            'VIC', 'published', 'AU')$$,
+  'a daily fact cannot be published before a lawyer signs it off');
+
+-- Signed off, then published: allowed. Then the sign-off is cleared, and the
+-- question leaves learners in the same statement.
+update public.question_versions set verification_status = 'human_verified'
+ where id = 'dddd0044-0000-0000-0000-000000000001';
+update public.questions set status = 'published' where id = 'cccc0044-0000-0000-0000-000000000001';
+select pg_temp.expect(
+  (select status = 'published' from public.questions where id = 'cccc0044-0000-0000-0000-000000000001'),
+  'a signed-off question can be published');
+update public.question_versions set verification_status = 'requires_review'
+ where id = 'dddd0044-0000-0000-0000-000000000001';
+select pg_temp.expect(
+  (select status = 'requires_review' from public.questions where id = 'cccc0044-0000-0000-0000-000000000001'),
+  'a published question that loses its sign-off goes back to review');
+
+-- A published fact whose wording changes loses its sign-off and leaves learners.
+insert into public.daily_facts (slug, title, body, jurisdiction, status, country, verification_status)
+values ('signed-fact-0044', 'A signed fact.',
+        'This fact was signed off by a lawyer and published, and it is long enough to be a real body.',
+        'VIC', 'published', 'AU', 'human_verified');
+update public.daily_facts
+   set body = 'Reworded after the sign-off, so the sign-off no longer covers what a learner would read here.'
+ where slug = 'signed-fact-0044';
+select pg_temp.expect(
+  (select status = 'requires_review' and verification_status <> 'human_verified'
+     from public.daily_facts where slug = 'signed-fact-0044'),
+  'a published fact that is reworded goes back to review');
+
+-- Defence in depth: even a row forced to published past the triggers (a
+-- restore from an old backup, say) does not reach a learner unsigned.
+set local session_replication_role = replica;
+insert into public.questions (id, slug, domain_id, status, country)
+values ('cccc0044-0000-0000-0000-000000000002', 'forced-0044',
+        'aaaaaaaa-0000-0000-0000-000000000001', 'published', 'AU');
+insert into public.question_versions
+  (question_id, version, question_type, stem, options, correct_option_ids,
+   explanation, difficulty, jurisdiction, verification_status)
+values ('cccc0044-0000-0000-0000-000000000002', 1, 'multiple_choice', 'Forced question?',
+        '[{"id":"a","text":"Yes"},{"id":"b","text":"No"}]'::jsonb, array['a'], 'Because yes.', 1,
+        'VIC', 'requires_review');
+insert into public.daily_facts (slug, title, body, jurisdiction, status, country, verification_status)
+values ('forced-fact-0044', 'A forced fact.',
+        'This fact was forced to published without a sign-off and must never reach a learner at all.',
+        'VIC', 'published', 'AU', 'requires_review');
+set local session_replication_role = origin;
+
+select pg_temp.expect(
+  not exists (select 1 from public.v_question_delivery
+              where question_id = 'cccc0044-0000-0000-0000-000000000002'),
+  'the delivery view gives out only signed-off questions, whatever the status says');
+set local role authenticated;
+set local request.jwt.claim.sub = 'aaaa0038-0000-0000-0000-000000000002';
+select pg_temp.expect(
+  not exists (select 1 from public.daily_facts where slug = 'forced-fact-0044'),
+  'a learner reads only signed-off daily facts, whatever the status says');
+select pg_temp.expect(
+  not exists (select 1 from public.v_question_delivery
+              where question_id = 'cccc0044-0000-0000-0000-000000000002'),
+  'a learner never receives an unsigned question');
 reset role;
 
 \echo ''

@@ -146,7 +146,6 @@ test('the server actions were actually found', () => {
     'redeemCode',
     'removeAvatar',
     'requestCoachNote',
-    'restoreAllWithdrawn',
     'revoke',
     'saveAccessCode',
     'saveCartoon',
@@ -182,7 +181,6 @@ test('the server actions were actually found', () => {
     'updateQuestion',
     'uploadAvatar',
     'uploadMatterRecording',
-    'withdrawAllUnverified',
   ]);
 });
 

@@ -71,22 +71,10 @@ export function SetupForm({
           </p>
         </div>
 
-        <label className="flex items-start gap-2 text-sm">
-          <input
-            type="checkbox"
-            name="publish"
-            value="no"
-            className="mt-1 size-5 shrink-0 accent-accent"
-          />
-          <span>
-            Hold everything back until I have verified it.
-            <span className="mt-0.5 block text-xs text-muted">
-              Stricter, and safer. Training sessions stay empty until you publish from the
-              verification queue. Leave unticked to have a working app immediately, with
-              every item still marked as needing review.
-            </span>
-          </span>
-        </label>
+        <p className="text-sm text-muted">
+          The questions and daily facts load waiting for a lawyer to check them. Learners see
+          nothing until each item is signed off and published from the review page.
+        </p>
 
         {error ? <Notice tone="error">{error}</Notice> : null}
 

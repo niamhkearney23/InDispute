@@ -3,9 +3,9 @@ import { TRUE_FALSE_OPTIONS, type SeedQuestion } from '../types';
 /**
  * AI compliance. TENTATIVE, all of it.
  *
- * Every question in this file is marked `tentative`, which means it loads as a
- * draft whatever the setup page is asked for and cannot reach a learner until
- * someone publishes it deliberately. That is not the usual "unverified" caveat.
+ * Every question in this file is marked `tentative`. Like all content it loads
+ * as a draft and cannot reach a learner until a lawyer signs it off and it is
+ * published. Tentative is more than the usual "unverified" caveat.
  * This is content written ahead of the research that would stand it up, and put
  * here to be read and corrected rather than answered.
  *

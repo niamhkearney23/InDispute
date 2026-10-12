@@ -93,7 +93,7 @@ export async function completeSetup(formData: FormData): Promise<SetupResult> {
 
   let loaded = status.publishedQuestions;
   try {
-    const summary = await seedContent(db, { publish: formData.get('publish') !== 'no' });
+    const summary = await seedContent(db);
     loaded = summary.questionsCreated + summary.questionsUnchanged + summary.questionsReversioned;
   } catch (error) {
     revalidatePath('/', 'layout');

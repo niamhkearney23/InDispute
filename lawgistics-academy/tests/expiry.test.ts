@@ -258,75 +258,6 @@ test('content that was never published is not "withdrawn", so it cannot be put b
   assert.equal(stats.withdrawn, 0);
 });
 
-test('restoring puts content back without claiming anybody checked it', () => {
-  const source = fs.readFileSync(
-    path.join(ROOT, 'src/app/admin/review/actions.ts'),
-    'utf8',
-  );
-  const start = source.indexOf('export async function restoreAllWithdrawn');
-  assert.ok(start > -1, 'the restore action should exist');
-  const body = source.slice(start);
-
-  // The whole point: it moves what is servable and touches nothing else. If it
-  // ever wrote a verification it would be a bulk "verify" wearing a different
-  // label, which is the one thing this workflow exists to prevent.
-  for (const forbidden of ['verification_status', 'human_verified', 'verified_by', 'verified_at']) {
-    assert.ok(
-      !body.includes(forbidden),
-      `restoreAllWithdrawn writes ${forbidden}: restoring must not verify anything`,
-    );
-  }
-
-  assert.ok(body.includes('checkAdmin('), 'and it is still an administrator-only action');
-});
-
-test('restoring only puts back what a person withdrew, never what was never published', () => {
-  const source = fs.readFileSync(
-    path.join(ROOT, 'src/app/admin/review/actions.ts'),
-    'utf8',
-  );
-  const body = source.slice(source.indexOf('export async function restoreAllWithdrawn'));
-  assert.match(
-    body,
-    /from\('questions'\)[\s\S]*?\.not\('withdrawn_at', 'is', null\)/,
-    'questions must be limited to the ones a person withdrew',
-  );
-  assert.match(
-    body,
-    /from\('daily_facts'\)[\s\S]*?\.not\('withdrawn_at', 'is', null\)/,
-    'facts must be limited to the ones a person withdrew',
-  );
-});
-
-test('restoring never resurrects something a person flagged as wrong', () => {
-  const source = fs.readFileSync(
-    path.join(ROOT, 'src/app/admin/review/actions.ts'),
-    'utf8',
-  );
-  const body = source.slice(source.indexOf('export async function restoreAllWithdrawn'));
-
-  // Facts carry the flag on the row, so a filter is enough.
-  assert.match(
-    body,
-    /from\('daily_facts'\)[\s\S]*?\.eq\('review_flagged', false\)/,
-    'flagged facts must be excluded by filter',
-  );
-
-  // Questions carry it on the current version, so the ids have to be looked up
-  // and excluded. A filter on `questions` would silently match nothing and
-  // restore every flagged question, which is the failure worth a test.
-  assert.match(
-    body,
-    /from\('question_versions'\)[\s\S]*?\.eq\('review_flagged', true\)/,
-    'flagged question ids must be looked up from the versions table',
-  );
-  assert.match(
-    body,
-    /\.not\('id', 'in', `\(\$\{flaggedIds\.join\(','\)\}\)`\)/,
-    'and excluded from the update',
-  );
-});
-
 test('loading content again never resets what a person decided about a fact', () => {
   // It once upserted every fact on each load, which wiped every sign-off and
   // republished facts somebody had withdrawn. A fact already there is updated
@@ -339,7 +270,7 @@ test('loading content again never resets what a person decided about a fact', ()
   const actions = fs.readFileSync(path.join(ROOT, 'src/app/admin/actions.ts'), 'utf8');
   assert.match(
     actions,
-    /seedContent\(createServiceClient\(\), \{ publish: false \}\)/,
-    'content loaded after the first run arrives unpublished',
+    /seedContent\(createServiceClient\(\)\)/,
+    'content loaded after the first run goes through the same loader',
   );
 });

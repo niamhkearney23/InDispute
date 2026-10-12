@@ -5,7 +5,6 @@
  * rather use a terminal. Both call the same implementation.
  *
  *   npm run seed
- *   npm run seed -- --drafts-only
  *
  * IMPORTANT: read before going live:
  * Every question and fact ships with verification_status = 'requires_review'.
@@ -13,8 +12,9 @@
  * Australian legal practitioner, and no automated process can do that. Work
  * through the queue at /admin/review before real learners use this.
  *
- * By default the content is published so a fresh install has a working training
- * loop. Pass --drafts-only to hold everything back until you have signed it off.
+ * Nothing is published by loading. A question or fact reaches learners only
+ * once a lawyer has signed it off and it has been published; the database
+ * refuses anything else.
  */
 
 import { config } from 'dotenv';
@@ -35,8 +35,6 @@ if (!url || !serviceKey) {
   process.exit(1);
 }
 
-const draftsOnly = process.argv.includes('--drafts-only');
-
 const db = createClient(url, serviceKey, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
@@ -44,7 +42,7 @@ const db = createClient(url, serviceKey, {
 async function main() {
   console.log('Loading content…\n');
 
-  const summary = await seedContent(db, { publish: !draftsOnly });
+  const summary = await seedContent(db);
 
   console.log(
     `Taxonomy: ${summary.domains} domains, ${summary.concepts} concepts, ${summary.skills} skills.`,
@@ -56,11 +54,8 @@ async function main() {
 
   console.log(
     `\nDone.\n\n` +
-      (draftsOnly
-        ? '  Content was loaded as drafts. Verify and publish it at /admin/review.\n' +
-          '  Until you do, training sessions will be empty.\n'
-        : `  ${summary.awaitingVerification} published question(s) still await human verification.\n` +
-          '  Sign them off at /admin/review before real learners use this.\n'),
+      `  ${summary.awaitingVerification} question(s) await a lawyer's sign-off.\n` +
+      '  Nothing reaches a learner until it is signed off and published at /admin/review.\n',
   );
 }
 

@@ -136,11 +136,12 @@ Draft → Requires review → Verified → Published → Superseded/Retired
   and it drops back to requiring review; nobody inherits someone else's sign-off.
 - The AI layer can only ever produce drafts. It has no route to `published`.
 
-The one deliberate compromise: `npm run seed` marks seed questions `published` so a fresh
-install has a working training loop, while every one of them still carries
-`requires_review`. If you would rather nothing be servable until a person has approved it,
-either seed with `--drafts-only`, or press **Withdraw everything unverified** in the
-verification queue: one click, and reversible.
+Loading the content (`npm run seed`, or the setup page) publishes nothing. Every
+question and daily fact arrives as `requires_review`, in both countries, and training
+stays closed until a lawyer signs items off and publishes them. The database enforces
+this as well (`0044`): it refuses to publish a question or fact without a sign-off, takes
+an item back to review when its wording changes, and the delivery view and the daily
+brief serve only signed-off content whatever the status says.
 
 ### Reviewing without the mouse
 
@@ -442,7 +443,7 @@ it as a secret.
 ## Testing
 
 ```bash
-npm run test        # 299 tests: engine, content, triage, and the contract tests below
+npm run test        # 470 tests: engine, content, triage, and the contract tests below
 npm run typecheck
 npm run lint
 npm run build
@@ -485,7 +486,7 @@ The schema's own guarantees are tested against a real Postgres:
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/schema-guarantees.sql
 ```
 
-208 checks, run inside a transaction that rolls itself back. Among them: a learner cannot
+418 checks, run inside a transaction that rolls itself back. Among them: a learner cannot
 make themselves an administrator; cannot read another learner's attempts; cannot read the
 question versions table where the answers live; cannot forge XP; cannot write to the daily
 brief; cannot see unpublished facts. And: question content cannot be rewritten in place,

@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Card, Notice } from '@/components/ui';
-import { publishAllVerified, restoreAllWithdrawn, withdrawAllUnverified } from './actions';
+import { publishAllVerified } from './actions';
 
 /**
  * The bulk operations that are safe to offer.
@@ -13,46 +13,25 @@ import { publishAllVerified, restoreAllWithdrawn, withdrawAllUnverified } from '
  * asserts that two hundred times over is exactly the thing this whole workflow
  * exists to prevent.
  *
- * Restoring is a different matter and is safe for the same reason: it changes
- * what learners can see, not what anybody is recorded as having checked. It
- * exists because withdrawing without it was a one-way door.
+ * There used to be a "withdraw everything unverified" and its undo. Since 0044
+ * nothing unverified can be published at all, so both had nothing to act on.
  */
-export function BulkActions({
-  verifiedCount,
-  liveUnverifiedCount,
-  withdrawnCount,
-}: {
-  verifiedCount: number;
-  liveUnverifiedCount: number;
-  withdrawnCount: number;
-}) {
+export function BulkActions({ verifiedCount }: { verifiedCount: number }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  function run(action: 'publish' | 'withdraw' | 'restore') {
+  function run() {
     setMessage(null);
     setError(null);
     startTransition(async () => {
-      const result =
-        action === 'publish'
-          ? await publishAllVerified()
-          : action === 'withdraw'
-            ? await withdrawAllUnverified()
-            : await restoreAllWithdrawn();
-
+      const result = await publishAllVerified();
       if (!result.ok) {
         setError(result.error);
         return;
       }
-      setMessage(
-        action === 'publish'
-          ? 'Everything signed off is now published.'
-          : action === 'withdraw'
-            ? 'Unverified content has been withdrawn. Learners will only see items you have signed off.'
-            : 'Everything withdrawn is back in front of learners. Nothing has been marked as verified; anything flagged stayed where it was.',
-      );
+      setMessage('Everything signed off is now published.');
       router.refresh();
     });
   }
@@ -66,34 +45,16 @@ export function BulkActions({
           size="sm"
           variant="primary"
           disabled={pending || verifiedCount === 0}
-          onClick={() => run('publish')}
+          onClick={run}
         >
           Publish everything signed off ({verifiedCount})
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          disabled={pending || liveUnverifiedCount === 0}
-          onClick={() => run('withdraw')}
-        >
-          Withdraw everything unverified ({liveUnverifiedCount})
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          disabled={pending || withdrawnCount === 0}
-          onClick={() => run('restore')}
-        >
-          Put everything back in front of learners ({withdrawnCount})
         </Button>
       </div>
 
       <p className="mt-3 text-xs text-muted">
         There is no bulk “verify”, on purpose. Publishing acts only on items that already
         carry a named sign-off, so it cannot be used to wave anything through unread.
-        Putting things back is the undo for withdrawing: it changes what learners can see
-        and records nothing about anybody having checked it. Items you flagged stay
-        withdrawn either way.
+        Items flagged as wrong stay withdrawn.
       </p>
 
       {message ? (

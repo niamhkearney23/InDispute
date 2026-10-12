@@ -158,9 +158,9 @@ export async function startSession(
  * Whether there is anything to train on, for one country.
  *
  * Asked before a training button is drawn rather than after it is pressed.
- * The Malaysian bank never publishes itself (see seedContent), so until a
- * person signs questions off and publishes them there is nothing to serve a
- * Malaysian, and a button that always answers "there are no questions" reads
+ * Nothing publishes itself (see seedContent and 0044), so until a lawyer
+ * signs questions off and they are published there is nothing to serve in
+ * that country, and a button that always answers "there are no questions" reads
  * as the app being broken. It also decides whether a new learner is sent to
  * the diagnostic, which would otherwise hold them on a page they cannot get
  * past.

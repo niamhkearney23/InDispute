@@ -124,9 +124,9 @@ function asChecked(row: CheckedRow, today: string): VerifiedQuestion | null {
 /**
  * Every question the tutor may ask in a country, each with its domain:
  * the current version of a published question, signed off by a person,
- * not flagged and not lapsed, with exactly one right answer. Published
- * alone is not enough, because the seed content ships published before
- * anybody has checked it.
+ * not flagged and not lapsed, with exactly one right answer. Since 0044 the
+ * database will not publish an unsigned question, and this checks the
+ * sign-off again rather than rely on that alone.
  */
 async function checkedPool(
   country: Country,
