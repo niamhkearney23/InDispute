@@ -6479,3 +6479,10 @@ create or replace trigger daily_facts_publish_gate
   before insert or update on public.daily_facts
   for each row execute function public.fact_publish_gate();
 
+-- >>> schema version (generated) ---------------------------------------------
+
+create or replace function public.schema_version()
+returns text language sql immutable set search_path = public as $$ select '0044'::text $$;
+
+revoke all on function public.schema_version() from public, anon, authenticated;
+grant execute on function public.schema_version() to service_role;

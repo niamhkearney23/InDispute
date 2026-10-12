@@ -37,12 +37,15 @@ instead. `SETUP.sql` starts by creating tables outright and fails on a database 
 them; `UPDATE.sql` is everything from `0004` onward, every statement guarded, so it can
 be pasted again without anybody having to work out which migrations they already ran.
 
-### 3. Turn off email confirmation
+### 3. Email confirmation
 
-**Authentication → Sign In / Providers → Email** → switch off *Confirm email*.
+For a first look, **Authentication → Sign In / Providers → Email** → switch off *Confirm
+email*. Left on without a mail provider, signing up appears to do nothing, because
+Supabase's own allowance is a few emails an hour.
 
-This is the step that most often makes it look broken: leave it on without a mail
-provider configured, and signing up appears to do nothing at all.
+Before real trainees use it, connect a mail provider and switch *Confirm email* back on,
+or anybody can sign up as somebody else's address. `docs/SECURITY-SETUP.md` has the
+steps, with the other settings only an account owner can change.
 
 ### 4. Start the app
 
@@ -443,7 +446,7 @@ it as a secret.
 ## Testing
 
 ```bash
-npm run test        # 470 tests: engine, content, triage, and the contract tests below
+npm run test        # 471 tests: engine, content, triage, and the contract tests below
 npm run typecheck
 npm run lint
 npm run build
@@ -486,7 +489,7 @@ The schema's own guarantees are tested against a real Postgres:
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/schema-guarantees.sql
 ```
 
-418 checks, run inside a transaction that rolls itself back. Among them: a learner cannot
+420 checks, run inside a transaction that rolls itself back. Among them: a learner cannot
 make themselves an administrator; cannot read another learner's attempts; cannot read the
 question versions table where the answers live; cannot forge XP; cannot write to the daily
 brief; cannot see unpublished facts. And: question content cannot be rewritten in place,

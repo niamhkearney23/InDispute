@@ -3421,6 +3421,17 @@ select pg_temp.expect(
   'a learner never receives an unsigned question');
 reset role;
 
+-- Schema version ---------------------------------------------------------------
+-- The admin pages compare this with the version the code expects.
+
+select pg_temp.expect(
+  public.schema_version() ~ '^[0-9]{4}$' and public.schema_version() >= '0044',
+  'the database records which version it is at');
+select pg_temp.expect(
+  not has_function_privilege('authenticated', 'public.schema_version()', 'execute')
+  and not has_function_privilege('anon', 'public.schema_version()', 'execute'),
+  'only the server can ask the database its version');
+
 \echo ''
 \echo 'All schema guarantees hold.'
 

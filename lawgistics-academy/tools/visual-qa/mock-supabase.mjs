@@ -6,8 +6,15 @@
  * device viewports -- it deliberately does NOT validate query correctness.
  */
 import http from 'node:http';
+import fs from 'node:fs';
 
 const PORT = 54321;
+
+// The database is up to date in the mock, so the admin pages show no
+// "needs updating" notice.
+const SCHEMA_VERSION = /'(\d{4})'/.exec(
+  fs.readFileSync(new URL('../../src/lib/schema-version.ts', import.meta.url), 'utf8'),
+)[1];
 
 /** ISO date, days from now. Used for homework fixtures so the sweep always
  *  lands mid-placement regardless of which calendar day it actually runs on. */
@@ -878,6 +885,7 @@ const TABLES = {
       weakest: 'Which court hears what',
     },
   ],
+  'rpc/schema_version': SCHEMA_VERSION,
   'rpc/weekly_leaderboard': [
     { place: 1, first_name: 'Aisyah', xp: 640, is_me: false },
     { place: 2, first_name: 'Niamh', xp: 480, is_me: true },

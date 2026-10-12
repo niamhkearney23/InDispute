@@ -62,33 +62,45 @@ export function EntryForm({
             </select>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label htmlFor="caseNo" className="mb-1.5 block text-sm font-medium">
-                Case number
-              </label>
-              <input
-                id="caseNo"
-                name="caseNo"
-                defaultValue={initial.caseNo}
-                required
-                maxLength={200}
-                className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10"
-              />
-            </div>
+          <div>
+            <label htmlFor="caseNo" className="mb-1.5 block text-sm font-medium">
+              Your firm&apos;s matter reference
+            </label>
+            <input
+              id="caseNo"
+              name="caseNo"
+              defaultValue={initial.caseNo}
+              required
+              maxLength={200}
+              aria-describedby="caseNo-hint"
+              className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10"
+            />
+            <p id="caseNo-hint" className="mt-1 text-xs text-muted">
+              The internal reference your firm uses for the matter. Not the court case number
+              or the client&apos;s name, so the register never carries client details.
+            </p>
+          </div>
+
+          {/* The court file reference is no longer asked for. An entry made
+              before keeps its field so the reference can be seen and cleared. */}
+          {initial.courtFileRef ? (
             <div>
               <label htmlFor="courtFileRef" className="mb-1.5 block text-sm font-medium">
-                Court / file ref
+                Court file reference (from an older entry)
               </label>
               <input
                 id="courtFileRef"
                 name="courtFileRef"
                 defaultValue={initial.courtFileRef}
                 maxLength={200}
+                aria-describedby="courtFileRef-hint"
                 className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10"
               />
+              <p id="courtFileRef-hint" className="mt-1 text-xs text-muted">
+                No longer needed. Clear it and save to remove it from the register.
+              </p>
             </div>
-          </div>
+          ) : null}
 
           <div>
             <label htmlFor="caseTypeStage" className="mb-1.5 block text-sm font-medium">

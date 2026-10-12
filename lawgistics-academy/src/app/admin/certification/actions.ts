@@ -71,7 +71,7 @@ const entrySchema = z.object({
   id: z.string().uuid().optional().or(z.literal('')),
   traineeId: z.string().uuid(),
   boxNumber: z.coerce.number().int().min(1).max(15),
-  caseNo: z.string().trim().min(1, 'Give it a case number or reference.').max(200),
+  caseNo: z.string().trim().min(1, "Give it your firm's matter reference.").max(200),
   courtFileRef: z.string().trim().max(200).optional().or(z.literal('')),
   caseTypeStage: z.string().trim().max(200).optional().or(z.literal('')),
   dateIn: z

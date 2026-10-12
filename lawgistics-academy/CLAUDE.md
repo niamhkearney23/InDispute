@@ -404,6 +404,18 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   `v_question_delivery` and the daily brief's read policy check
   `human_verified` as well as the status. Fixtures in schema-guarantees sign
   off before they publish.
+- **Schema version.** `npm run build:sql` ends both SQL files with
+  `schema_version()` (the newest migration's number, service role only) and
+  writes `src/lib/schema-version.ts`. The admin layout shows an administrator
+  "The database needs updating" when the database reports less, or has no
+  such function. The mock answers `rpc/schema_version` from the same file.
+- **Certification register** asks for the firm's internal matter reference
+  (`case_no`), never the court case number, and no longer asks for a court
+  file reference; an older entry that has one shows it so it can be cleared.
+- `docs/SECURITY-SETUP.md` is the click-by-click for what only an account
+  owner can switch on: SMTP and Confirm email, staff two-step sign-in,
+  account 2FA, backups and a test restore, UPDATE.sql in step, repository
+  visibility, PDPA and AI data terms, an independent test.
 - **Options are shown shuffled** (`src/lib/learning/option-order.ts`), fixed per
   question version or lesson screen, and the letter shown is the place on the
   screen, never the id. The bank was written with the right answer B three
@@ -477,7 +489,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   grid, gold-free by the owner's choice). Admin has the same look. The front
   page and sign-in stay cream. The certificate and a matter's case file stay paper inside it.
   Use the tokens, never fixed Tailwind colours, or a page breaks in one look.
-- 470 tests, 418 schema guarantees against a real Postgres, 240 page and device
+- 471 tests, 420 schema guarantees against a real Postgres, 240 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB

@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import ts from 'typescript';
 
-import { buildCombinedSql, buildUpdateSql } from '../scripts/build-combined-sql';
+import { buildCombinedSql, buildUpdateSql, buildVersionTs, latestMigration } from '../scripts/build-combined-sql';
 
 /**
  * The database contract.
@@ -498,6 +498,27 @@ test('the one-paste SETUP.sql matches the migrations', () => {
     buildCombinedSql(),
     'supabase/SETUP.sql is out of date; run `npm run build:sql` and commit the result',
   );
+});
+
+test('the code and both SQL files agree on the database version', () => {
+  // The admin pages warn when the database is behind the code. That only
+  // works if the version the code expects and the one UPDATE.sql records are
+  // the same number, and it is the newest migration.
+  const committed = fs.readFileSync(path.join(ROOT, 'src/lib/schema-version.ts'), 'utf8');
+  assert.equal(
+    committed,
+    buildVersionTs(),
+    'src/lib/schema-version.ts is out of date; run `npm run build:sql` and commit the result',
+  );
+  for (const file of ['SETUP.sql', 'UPDATE.sql']) {
+    const sql = fs.readFileSync(path.join(ROOT, 'supabase', file), 'utf8');
+    const stamp = /function public\.schema_version\(\)[\s\S]*?select '(\d{4})'::text/.exec(sql);
+    assert.equal(stamp?.[1], latestMigration(), `${file} records the wrong version`);
+    assert.ok(
+      sql.trimEnd().endsWith('grant execute on function public.schema_version() to service_role;'),
+      `${file} must record its version last, so a run that fails part way does not claim it`,
+    );
+  }
 });
 
 test('the update file matches the migrations, and only contains re-runnable ones', () => {

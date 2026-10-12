@@ -109,7 +109,8 @@ missed.
   the account really is theirs, for example by asking them to sign in while
   you are on the phone. The lasting fix is to connect an email provider in
   Supabase (Authentication, Emails, SMTP settings) and switch **Confirm
-  email** back on.
+  email** back on. `docs/SECURITY-SETUP.md` walks through it, with staff
+  two-step sign-in, backups and the rest.
 - **One code base, many copies.** Every copy runs the same code, so a fix
   reaches every firm the next time each Vercel project deploys, which happens
   by itself on every merge. A database change (a new `UPDATE.sql`) has to be

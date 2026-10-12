@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { requireCoach } from '@/lib/admin/guard';
 import { Wordmark } from '@/components/ui';
 import { AdminNav, type AdminNavGroup, type AdminNavItem } from '@/components/admin-nav';
+import { SchemaBehind } from '@/components/schema-behind';
 
 /** Auth-gated and per-request. Never prerender anything under /admin. */
 export const dynamic = 'force-dynamic';
@@ -83,7 +84,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-5xl flex-1 px-5 py-8 sm:px-8">{children}</main>
+      <main className="mx-auto w-full max-w-5xl flex-1 px-5 py-8 sm:px-8">
+        {/* Only an administrator can run UPDATE.sql, so only they are told. */}
+        {isAdmin ? <SchemaBehind /> : null}
+        {children}
+      </main>
     </div>
   );
 }
