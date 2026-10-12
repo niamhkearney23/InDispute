@@ -34,12 +34,12 @@ export const ACCENT = hexToRgb(brand.accent ?? DEFAULT_ACCENT);
 /** Text the built-in fonts can draw. */
 export function pdfText(value: unknown): string {
   return String(value ?? '')
-    .replace(/[‘’]/g, "'")
-    .replace(/[“”]/g, '"')
-    .replace(/[–—]/g, '-')
-    .replace(/…/g, '...')
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201c\u201d]/g, '"')
+    .replace(/[\u2013\u2014]/g, '-')
+    .replace(/\u2026/g, '...')
     .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
+    .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^\x20-\x7e\xa0-\xff]/g, '?');
 }
 
