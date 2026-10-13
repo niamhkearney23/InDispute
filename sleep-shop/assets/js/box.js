@@ -67,8 +67,8 @@
         UI.preorderCta(BOX.id, BOX.price) +
       '</div>' +
       '<p class="mt-1"><a class="link-quiet" href="gifting.html">How gifting works</a></p>' +
-      '<p class="callout mt-1">Free delivery Australia-wide. Ordered before 2pm on a weekday, it ' +
-        'leaves Melbourne the same afternoon.</p>');
+      '<p class="callout mt-1">Free delivery Australia-wide. Pre-orders are packed by hand and ' +
+        'leave Melbourne from ' + UI.escapeHtml(global.SLEEP_CONFIG.preorderShipsFrom) + '.</p>');
 
     if (used) doc.querySelector('[data-message]').value = used;
     renderCount();

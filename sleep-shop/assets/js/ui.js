@@ -190,6 +190,24 @@
     return '<button class="btn btn--lg" type="button" disabled>Pre-order, opening soon</button>';
   }
 
+  /* Hand-written links opt in with data-preorder="<product id>". With a live
+     Stripe link they go straight to it; without one they keep their own href,
+     the product page, so nothing ever points nowhere. */
+  function wirePreorder(scope) {
+    var root = scope || doc;
+    var links = CONFIG.preorderLinks || {};
+    root.querySelectorAll('[data-preorder]').forEach(function (a) {
+      var url = links[a.getAttribute('data-preorder')];
+      if (!url) return;
+      a.href = url;
+      a.target = '_blank';
+      a.rel = 'noopener';
+    });
+    root.querySelectorAll('[data-ships-from]').forEach(function (el) {
+      el.textContent = CONFIG.preorderShipsFrom;
+    });
+  }
+
   /* ------------------------------------------------------------- pieces */
 
   function pieceCard(piece) {
@@ -270,6 +288,7 @@
     renderFooter();
     applyTheme(doc.documentElement.getAttribute('data-theme') || preferredTheme());
     bindGlobalEvents();
+    wirePreorder();
     revealOnScroll();
   }
 
@@ -278,6 +297,7 @@
     pieceCard: pieceCard,
     productCard: productCard,
     preorderCta: preorderCta,
+    wirePreorder: wirePreorder,
     groundForRibbon: groundForRibbon,
     ribbonSwatch: ribbonSwatch,
     escapeHtml: escapeHtml,

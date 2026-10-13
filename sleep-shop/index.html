@@ -36,139 +36,90 @@
 <div data-site-header></div>
 <noscript><p class="noscript">Pre-order needs JavaScript. Everything else on this page reads fine without it.</p></noscript>
 
-<main id="main">
+<main id="main" class="home">
 
-  <section class="hero">
-    <div class="hero__copy">
-      <p class="eyebrow">Melbourne</p>
+  <section class="h-hero">
+    <div class="h-hero__copy">
+      <p class="h-eyebrow">A bedside gift, packed by hand in Melbourne</p>
       <h1>Give the gift <span class="script">of sleep</span></h1>
-      <p class="lede mt-1">Beautiful things for better nights, slower mornings and the bedside in
-        between. One gift box and four pieces, packed by hand.</p>
-      <div class="hero__actions">
-        <a class="btn btn--lg" href="box.html">Gift sleep</a>
-        <a class="btn btn--ghost btn--lg" href="shop.html">Shop sleep</a>
+      <p class="h-hero__note">The four pieces, a ritual card, and your message on a card written by hand.</p>
+      <a class="h-btn" data-preorder="gift-of-sleep-box" href="box.html">Pre-order the box, $149
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M14 6l6 6-6 6"/></svg></a>
+      <p class="h-micro">Ships from <span data-ships-from>1 December</span>. Free delivery Australia-wide.</p>
+    </div>
+    <div class="h-hero__art" data-hero-art></div>
+  </section>
+
+  <section class="h-manifesto">
+    <p class="h-eyebrow">A quieter gesture</p>
+    <h2 class="h-giant">Instead of <span class="script">flowers.</span></h2>
+    <p class="h-manifesto__note">Flowers last a week. The box stays on the bedside table.</p>
+  </section>
+
+  <section class="h-box" id="inside">
+    <div class="h-box__head">
+      <p class="h-eyebrow">The complete gift</p>
+      <h2 class="h-title">Everything for the bedside.</h2>
+    </div>
+    <div class="h-box__art" data-box-art></div>
+    <div class="h-box__list">
+      <p class="h-label">Inside the box</p>
+      <ul data-box-list></ul>
+      <div class="h-box__buy">
+        <span class="h-price">$149</span>
+        <a class="h-btn" data-preorder="gift-of-sleep-box" href="box.html">Pre-order
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M14 6l6 6-6 6"/></svg></a>
       </div>
-      <p class="hero__meta">
-        <span>Free delivery</span>
-        <span>Handwritten card</span>
-        <span>Packed in Melbourne</span>
-      </p>
-    </div>
-    <div class="hero__art" data-hero-art></div>
-  </section>
-
-  <section class="section section--tight">
-    <div class="wrap">
-      <div class="tilegrid" data-tile-grid aria-hidden="true"></div>
+      <a class="h-link" href="inside.html">Every piece, in detail
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M14 6l6 6-6 6"/></svg></a>
     </div>
   </section>
 
-  <section class="section">
-    <div class="wrap split">
-      <div class="split__art" data-box-art></div>
+  <section class="h-pieces" id="pieces">
+    <div class="h-pieces__intro">
       <div>
-        <p class="eyebrow">01 / The gift of sleep</p>
-        <h2>Instead of flowers</h2>
-        <p class="lede">For the person who needs absolutely nothing except a good night's sleep.
-          A silk mask and pillowcase cut from the same run, a journal for either end of the day,
-          and a lavender wrap with a good weight to it.</p>
-        <p class="muted">A ritual card sits on top of the tissue, and your message is written on
-          the card by hand. Flowers last a week. The box stays on the bedside table.</p>
-        <div class="cluster mt-2">
-          <a class="btn btn--lg" href="box.html">Send sleep, $149</a>
-          <a class="btn btn--quiet" href="inside.html">What is inside</a>
-        </div>
+        <p class="h-eyebrow">Four bedside pieces</p>
+        <h2 class="h-title">The ritual, in parts.</h2>
       </div>
+      <p class="h-pieces__note">Every piece in the box is also sold on its own. Each ships from
+        <span data-ships-from>1 December</span>, paid securely by Stripe.</p>
     </div>
+    <p class="h-label h-swipe" aria-hidden="true">Swipe to see all four</p>
+    <div class="h-rail" data-pieces></div>
+    <a class="h-link" href="shop.html">Everything in the shop
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M14 6l6 6-6 6"/></svg></a>
   </section>
 
-  <section class="section section--alt">
-    <div class="wrap">
-      <div class="section__head">
-        <div>
-          <p class="eyebrow">02 / Shop sleep</p>
-          <h2>Shop the bedside</h2>
-        </div>
-        <p class="muted small">The pieces from the box, on their own.</p>
-      </div>
-      <div class="grid grid--4" data-products-grid></div>
-      <div class="cluster mt-2">
-        <a class="btn btn--ghost" href="shop.html">Everything in the shop</a>
-      </div>
+  <section class="h-dispatch" id="delivery">
+    <p class="h-eyebrow">Before you order</p>
+    <div>
+      <h2 class="h-title">Straight to their door.</h2>
+      <p class="h-copy">Pre-orders leave Melbourne from <span data-ships-from>1 December</span>, with free
+        delivery anywhere in Australia. Each box is packed by hand, and your message is written on the
+        card before the lid goes on. There is no invoice inside and no price on the outside, so it can
+        go straight to them.</p>
     </div>
+    <a class="h-link" href="gifting.html#delivery">Delivery and returns
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M14 6l6 6-6 6"/></svg></a>
   </section>
 
-  <section class="section section--powder">
-    <div class="wrap split">
-      <div>
-        <p class="eyebrow">03 / Tonight, try this</p>
-        <h2 class="mt-0">The 15-minute night reset</h2>
-        <div class="ritual-lines mt-2">
-          <p>Phone down.</p>
-          <p>Lights low.</p>
-          <p>Write down what is still in your head.</p>
-          <p>Put your mask on.</p>
-          <p class="script">Goodnight.</p>
-        </div>
-        <div class="cluster mt-2">
-          <a class="btn" href="rituals.html#night-reset">Try the ritual</a>
-          <a class="btn btn--quiet" href="rituals.html">All the rituals</a>
-        </div>
+  <section class="h-ritual">
+    <div class="h-ritual__art" data-ritual-art></div>
+    <div class="h-ritual__copy">
+      <p class="h-eyebrow">Tonight, try this</p>
+      <ol class="h-steps">
+        <li>Phone down, somewhere else.</li>
+        <li>Lights low.</li>
+        <li>Write down what is still in your head.</li>
+        <li>Put your mask on.</li>
+      </ol>
+      <p class="h-goodnight"><span class="script">Goodnight.</span></p>
+      <div class="h-ritual__actions">
+        <a class="h-btn" data-preorder="gift-of-sleep-box" href="box.html">Pre-order the box, $149
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M14 6l6 6-6 6"/></svg></a>
+        <a class="h-link" href="rituals.html#night-reset">The whole ritual
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M14 6l6 6-6 6"/></svg></a>
       </div>
-      <div class="split__art" data-ritual-art></div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="wrap">
-      <div class="section__head">
-        <div>
-          <p class="eyebrow">04 / Personalise your gift</p>
-          <h2>Made theirs before it ships</h2>
-        </div>
-      </div>
-      <div class="grid grid--3">
-        <div class="card">
-          <h3>A message, written by hand</h3>
-          <p class="muted small">Up to 250 characters on a letterpress card, written as you typed
-            it and placed on top of the tissue. It is the first thing they see.</p>
-        </div>
-        <div class="card">
-          <h3>Initials, soon</h3>
-          <p class="muted small">Monogramming on the silk is coming. We would rather add it
-            properly than quickly, so for now the message carries the personal part.</p>
-        </div>
-        <div class="card">
-          <h3>Straight to their door</h3>
-          <p class="muted small">No invoice in the box and no pricing on the outside. Put their
-            address at checkout and it arrives as a gift, not a parcel.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section section--cocoa">
-    <div class="wrap--narrow center">
-      <p class="script" style="font-size:1.9rem;color:var(--cream)">Someone you love is tired</p>
-      <h2 style="color:var(--cream)">Send them sleep</h2>
-      <div class="cluster mt-2" style="justify-content:center">
-        <a class="btn btn--lg" href="box.html">The Gift of Sleep Box, $149</a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="wrap--narrow center">
-      <p class="eyebrow">Keep in touch</p>
-      <p class="script" style="font-size:1.8rem">One email when something changes</p>
-      <p class="muted mt-1">A new piece on the shelf, a new ritual, the occasional early access
-        before a run sells through. Nothing else, and you can leave in one click.</p>
-      <form class="signup mt-2" style="margin-inline:auto" data-signup novalidate>
-        <label class="visually-hidden" for="signup-email">Email address</label>
-        <input id="signup-email" type="email" name="email" placeholder="you@example.com" autocomplete="email" required>
-        <button class="btn" type="submit">Sign up</button>
-      </form>
-      <p class="form-error center mt-1" data-signup-msg role="status"></p>
     </div>
   </section>
 
