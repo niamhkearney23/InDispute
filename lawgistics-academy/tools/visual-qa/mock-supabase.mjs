@@ -26,6 +26,11 @@ function isoDateFromNow(days) {
   return new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 }
 
+/** ISO timestamp, hours before now. */
+function isoHoursAgo(hours) {
+  return new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
+}
+
 function b64url(obj) {
   return Buffer.from(JSON.stringify(obj))
     .toString('base64')
@@ -1335,6 +1340,36 @@ const TABLES = {
       created_at: '2026-10-08T09:30:00Z',
     },
   ],
+  // The nightly deletion check (0049), newest first as the app asks for it,
+  // timed from now so the newest is always inside the thirty-six hours and
+  // the admin pages show the deletion notice rather than "not running".
+  operational_runs: [
+    {
+      id: 'eeee0049-0000-0000-0000-000000000001', job: 'erasure-retry',
+      started_at: isoHoursAgo(4), finished_at: isoHoursAgo(4), status: 'escalate',
+      outstanding: 1, tried: 1, completed: 0, still_failing: 1, not_attempted: 0,
+      repeatedly_failing: 1, oldest_outstanding_hours: 75, alert_sent: true, alert_error: null,
+    },
+    {
+      id: 'eeee0049-0000-0000-0000-000000000002', job: 'erasure-retry',
+      started_at: isoHoursAgo(28), finished_at: isoHoursAgo(28), status: 'warning',
+      outstanding: 1, tried: 1, completed: 0, still_failing: 1, not_attempted: 0,
+      repeatedly_failing: 0, oldest_outstanding_hours: 51, alert_sent: false,
+      alert_error: 'The webhook answered 404.',
+    },
+    {
+      id: 'eeee0049-0000-0000-0000-000000000003', job: 'erasure-retry',
+      started_at: isoHoursAgo(52), finished_at: isoHoursAgo(52), status: 'escalate',
+      outstanding: 2, tried: 2, completed: 1, still_failing: 1, not_attempted: 1,
+      repeatedly_failing: 0, oldest_outstanding_hours: 27, alert_sent: true, alert_error: null,
+    },
+    {
+      id: 'eeee0049-0000-0000-0000-000000000004', job: 'erasure-retry',
+      started_at: isoHoursAgo(76), finished_at: isoHoursAgo(76), status: 'ok',
+      outstanding: 0, tried: 0, completed: 0, still_failing: 0, not_attempted: 0,
+      repeatedly_failing: 0, oldest_outstanding_hours: null, alert_sent: false, alert_error: null,
+    },
+  ],
   'rpc/erasure_identifying_records': [
     {
       kind: 'work_message',
@@ -1534,12 +1569,19 @@ const server = http.createServer((req, res) => {
       // multi-row array and resolves to null, which the app correctly reads as
       // "not found" -- a mock artefact that looks exactly like an app bug.
       const RESERVED = new Set(['select', 'order', 'limit', 'offset', 'on_conflict', 'columns']);
+      // is.null is honoured only where a page counts by it: the deletion
+      // notice counts unfinished deletions (completed_at is null), and
+      // counting the finished fixture too would draw a wrong number. Other
+      // tables keep the old behaviour so the sweep draws what it always drew.
+      const IS_NULL_HONOURED = new Set(['account_erasures']);
       for (const [key, value] of url.searchParams) {
         if (RESERVED.has(key)) continue;
         // A filter on an embedded table (access_codes.active), which the
         // fixtures already carry inside the row.
         if (key.includes('.')) continue;
-        if (value.startsWith('eq.')) {
+        if (value === 'is.null' && IS_NULL_HONOURED.has(table)) {
+          rows = rows.filter((r) => r[key] === null || r[key] === undefined);
+        } else if (value.startsWith('eq.')) {
           const want = value.slice(3);
           rows = rows.filter((r) => String(r[key]) === want);
         } else if (value.startsWith('in.(') && value.endsWith(')')) {

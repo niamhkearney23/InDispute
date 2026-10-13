@@ -3,6 +3,7 @@ import 'server-only';
 import { createServiceClient } from '@/lib/supabase/service';
 import { ERASED_NAME } from './erasure-rules';
 import { JOB_SELECT, toJob, type ErasureJob } from './erasure';
+import { readRecentRuns, type RecordedRun } from './erasure-monitor-store';
 
 /**
  * What Admin, Deletions reads (0045). Service role, so every page that calls
@@ -296,3 +297,19 @@ export function recordHref(record: IdentifyingRecord, userId: string): string | 
 
 /** The name a deleted account shows, for the page heading. */
 export const DELETED_LABEL = ERASED_NAME;
+
+/** How many of the nightly check's runs Admin, Deletions shows. */
+export const RECENT_RUNS = 7;
+
+/**
+ * The nightly check's last few runs (0049), newest first. `error` is true
+ * when they could not be read, so the page says so rather than "none".
+ */
+export async function listNightlyRuns(): Promise<{ runs: RecordedRun[]; error: boolean }> {
+  try {
+    return { runs: await readRecentRuns(RECENT_RUNS), error: false };
+  } catch (error) {
+    console.error('reading the nightly runs failed:', error);
+    return { runs: [], error: true };
+  }
+}

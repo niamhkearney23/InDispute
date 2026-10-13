@@ -182,7 +182,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0048`.
+- Migrations run to `0049`.
   `supabase/UPDATE.sql` is the one-paste update for a database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -565,6 +565,35 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   failed with "permission denied for table users". It now asks
   `account_exists(uuid)` (security definer). Never read `auth.users` from a
   function that runs as the caller; found only by the integration tests.
+- `0049` makes **an unfinished deletion impossible to miss** (the owner's
+  finding: the nightly route answered 200 with jobs still incomplete). After
+  retrying, `/api/cron/erasure-retry` reads back every job not completed and
+  judges the run (`assessErasureRun`, `src/lib/account/erasure-monitoring.ts`,
+  pure, where every threshold lives): **ok** nothing outstanding, **warning**
+  outstanding but every one tried tonight and none failing repeatedly,
+  **escalate** any failing repeatedly (attempts >= 3, or waiting more than 72
+  hours) or any **not attempted** (outstanding and not tried: the batch limit,
+  `ERASURE_RETRY_LIMIT` 1 to 100 else 25, or the 45-second deadline), or the
+  read failing. HTTP 200 only at ok, 503 otherwise (500 at ok when the
+  retention period, the retry or the record failed), so Vercel's cron view
+  shows the failure. The body has counts, ages and levels only. Every run is
+  a row in `operational_runs` (service role select and insert only, no
+  policy for anybody, update, delete and truncate refused by trigger even for
+  the owner, `ok` only with `outstanding = 0`, carries 0045's restrictive
+  policy). `ALERT_WEBHOOK_URL` (https only, five seconds, never thrown, never
+  echoed) gets `{text, level, counts}` at warning and escalate and one
+  `resolved` on the first ok after a run that was not; `alert_sent` and
+  `alert_error` record what happened. Every admin page shows administrators
+  (not coaches) `adminErasureNotices`: N not finished, and at escalate how
+  many failed repeatedly, were not attempted last night and how long the
+  oldest waited; "The nightly deletion check is not running" when
+  `CRON_SECRET` is unset or no run is recorded in 36 hours; and says so when
+  it cannot read, never nothing (`readAdminErasureNotices`,
+  `src/lib/account/erasure-monitor-store.ts`). Admin, Deletions lists the
+  last seven runs. The escalation procedure is `docs/SECURITY-SETUP.md`,
+  section 7a. `handleErasureCron(request, secret, work, { env, fetch, now })`
+  takes everything it touches, and `erasureRunStore(db)` is the real
+  database half, for the integration tests.
 - **Integration tests on a throwaway Supabase** (`tools/integration`,
   `tests-integration`, Docker): Supabase's own Postgres image, Auth,
   PostgREST and Storage, pinned. `npm run it:up`, `npm run test:integration`,
@@ -656,7 +685,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   (a video site, a logo, a payment page) needs adding there, and frame-src is
   built from `src/lib/lessons/embed.ts`. Downloads and the cartoon keep their
   own stricter policy in `next.config.ts`.
-- 573 tests, 551 schema guarantees against a real Postgres (fresh, and SETUP
+- 615 tests, 570 schema guarantees against a real Postgres (fresh, and SETUP
   then UPDATE again), 477 page and device combinations (the five-device sweep in October
   2026, after 0045 to 0048) and 33 accessibility combinations checked, and 20 integration tests on a throwaway Supabase
   (`npm run test:integration`). Contract tests are
