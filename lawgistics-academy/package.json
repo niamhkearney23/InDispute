@@ -24,7 +24,8 @@
     "build:sql": "tsx scripts/build-combined-sql.ts",
     "test:integration": "set -a && . tools/integration/.env.it && set +a && NEXT_PUBLIC_SUPABASE_URL=$SUPABASE_IT_URL NEXT_PUBLIC_SUPABASE_ANON_KEY=$SUPABASE_IT_ANON_KEY SUPABASE_SERVICE_ROLE_KEY=$SUPABASE_IT_SERVICE_KEY tsx --conditions=react-server --test --test-concurrency=1 tests-integration/*.it.test.ts",
     "it:up": "tools/integration/stack.sh up",
-    "it:down": "tools/integration/stack.sh down"
+    "it:down": "tools/integration/stack.sh down",
+    "test:staging": "IT_TARGET=staging tsx --conditions=react-server --test --test-concurrency=1 tests-integration/*.it.test.ts"
   },
   "dependencies": {
     "@dicebear/avataaars": "^9.4.2",

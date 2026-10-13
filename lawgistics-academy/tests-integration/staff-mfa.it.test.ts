@@ -7,6 +7,7 @@
  * Supabase's API and read the database directly, never touching the
  * website. A staff role must count only once the code has been typed.
  */
+import './target-guard';
 import { before, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { person, signIn, totp, service, asToken } from './helpers';

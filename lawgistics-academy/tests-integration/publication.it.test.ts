@@ -4,6 +4,7 @@
  * through the REST API with the learner's own token, the way the browser
  * and the server's user client ask.
  */
+import './target-guard';
 import { before, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { seedContent } from '../src/lib/setup/seed-content';

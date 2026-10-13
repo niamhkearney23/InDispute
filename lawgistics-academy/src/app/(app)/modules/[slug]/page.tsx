@@ -53,7 +53,14 @@ export default async function ModulePage({
             {entry.complete ? <Pill tone="correct">Complete</Pill> : null}
           </div>
           <h1 className="text-3xl sm:text-4xl">{definition.name}</h1>
-          <p className="mt-3 text-slate">{definition.rationale}</p>
+          {/* Why the module exists. It states law in places ("two High Courts
+              of equal standing") and nobody signs it off, so learners do not
+              see it (0046's rule); staff do, marked as unchecked. */}
+          {staff ? (
+            <p className="mt-3 text-slate">
+              <Pill tone="warn">Not yet checked by a lawyer</Pill> {definition.rationale}
+            </p>
+          ) : null}
         </div>
         <ModuleArt
           kind={artFor(definition.slug)}

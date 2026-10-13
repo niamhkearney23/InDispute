@@ -3,18 +3,18 @@
  * against real Supabase Auth. Needs the app built and started against the
  * integration stack (`tools/integration/app.sh`), at IT_APP_URL.
  */
+import './target-guard';
 import { after, before, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { chromium, type Browser, type Page } from 'playwright';
 import { PASSWORD, person, totp } from './helpers';
+import { browserOptions } from './helpers';
 
 const APP = process.env.IT_APP_URL ?? 'http://127.0.0.1:3124';
 let browser: Browser;
 
 before(async () => {
-  browser = await chromium.launch({
-    executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
-  });
+  browser = await chromium.launch(browserOptions());
 });
 after(async () => browser?.close());
 

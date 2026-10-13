@@ -409,3 +409,13 @@ test('signing off a court map or essay topic asks for a lawyer and pins the word
   assert.match(body, /formData\.get\('hash'\) !== referenceHash\(item\)/);
   assert.doesNotMatch(body, /checkCoach\(|checkFirmAdmin\(/);
 });
+
+test('a module page shows why the module exists to staff only', () => {
+  // The rationale states law in places ("two High Courts of equal standing")
+  // and has no sign-off, so it is not shown to learners. Found by the
+  // integration test that searches every learner page for unsigned wording.
+  const source = fs.readFileSync(path.join(ROOT, 'src/app/(app)/modules/[slug]/page.tsx'), 'utf8');
+  const at = source.indexOf('definition.rationale');
+  assert.ok(at > -1);
+  assert.match(source.slice(Math.max(0, at - 400), at), /\{staff \? \(/, 'the rationale must sit inside {staff ? ( ... )}');
+});

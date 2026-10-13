@@ -3,10 +3,12 @@
  * Supabase, and the nightly retry the way Vercel calls it. Needs the app from
  * `tools/integration/app.sh up` at IT_APP_URL.
  */
+import './target-guard';
 import { after, before, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { chromium, type Browser, type Page } from 'playwright';
 import { PASSWORD, anon, person, service, service_container, waitUntilUp, type Person } from './helpers';
+import { browserOptions, TARGET } from './helpers';
 
 const APP = process.env.IT_APP_URL ?? 'http://127.0.0.1:3124';
 const CRON_SECRET = 'it-cron-secret-not-a-real-one-0123456789';
@@ -17,9 +19,7 @@ const PNG = Buffer.from(
 let browser: Browser;
 
 before(async () => {
-  browser = await chromium.launch({
-    executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
-  });
+  browser = await chromium.launch(browserOptions());
 });
 after(async () => {
   await browser?.close();
@@ -64,7 +64,10 @@ test('deleting your own account on the website: told it is done, and locked out'
   assert.ok((await anon().auth.signInWithPassword({ email: learner.email, password: PASSWORD })).error);
 });
 
-test('with Storage down, the website says what is unfinished, and the nightly retry finishes it', async () => {
+// A hosted Storage cannot be stopped, and the website has no way to make it
+// fail on purpose (nor should it); on staging this runs in deletion.it.test.ts
+// with the failure injected into the deletion code instead.
+test('with Storage down, the website says what is unfinished, and the nightly retry finishes it', { skip: TARGET !== 'local' && 'needs the local stack to stop Storage' }, async () => {
   const learner = await person('learner', 'AU');
   const { error } = await service()
     .storage.from('avatars')

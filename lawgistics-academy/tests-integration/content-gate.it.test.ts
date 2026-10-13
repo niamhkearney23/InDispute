@@ -4,6 +4,7 @@
  * itself. Lessons and court maps live in the code and are gated on the
  * server; their tests are in tests/content-gate.test.ts.
  */
+import './target-guard';
 import { before, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { asToken, person, service, type Person } from './helpers';

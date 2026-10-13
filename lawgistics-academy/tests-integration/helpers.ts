@@ -13,7 +13,25 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 const ENV_FILE = path.join(__dirname, '..', 'tools', 'integration', '.env.it');
 
-function readEnv(): Record<string, string> {
+/**
+ * Where the tests run.
+ *
+ * `local` (the default): the throwaway Supabase from stack.sh, which the
+ * tests may stop and start to make Auth or Storage fail for real.
+ *
+ * `staging` (IT_TARGET=staging): a hosted Supabase project restored from a
+ * backup and prepared with supabase/staging/prepare-staging.sql. Its address
+ * and keys come from STAGING_SUPABASE_URL, STAGING_SUPABASE_ANON_KEY and
+ * STAGING_SUPABASE_SERVICE_ROLE_KEY, set in the environment, never in a file
+ * here. Before anything runs, `ensureTarget` asks the database whether it has
+ * been marked as staging and refuses to go on unless it says yes, so the
+ * tests cannot be pointed at the live project by mistake. Outages there are
+ * made by failing one call in the app's own code, since a hosted service
+ * cannot be stopped.
+ */
+export const TARGET: 'local' | 'staging' = process.env.IT_TARGET === 'staging' ? 'staging' : 'local';
+
+function readLocalEnv(): Record<string, string> {
   if (!fs.existsSync(ENV_FILE)) {
     throw new Error('Start the integration Supabase first: tools/integration/stack.sh up');
   }
@@ -25,13 +43,45 @@ function readEnv(): Record<string, string> {
   return env;
 }
 
-export const IT = readEnv();
-if (!/^http:\/\/127\.0\.0\.1:/.test(IT.SUPABASE_IT_URL ?? '')) {
-  throw new Error('The integration tests only run against a Supabase on this machine.');
+function stagingEnv(): Record<string, string> {
+  const need = ['STAGING_SUPABASE_URL', 'STAGING_SUPABASE_ANON_KEY', 'STAGING_SUPABASE_SERVICE_ROLE_KEY'];
+  const missing = need.filter((k) => !process.env[k]);
+  if (missing.length) throw new Error(`IT_TARGET=staging needs ${missing.join(', ')} in the environment`);
+  const url = process.env.STAGING_SUPABASE_URL!.replace(/\/+$/, '');
+  if (!/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(url)) {
+    throw new Error('STAGING_SUPABASE_URL must be a hosted project address, https://<ref>.supabase.co');
+  }
+  const live = process.env.PRODUCTION_SUPABASE_URL?.replace(/\/+$/, '');
+  if (live && live === url) throw new Error('STAGING_SUPABASE_URL is the live project. Refusing.');
+  return {
+    SUPABASE_IT_URL: url,
+    SUPABASE_IT_ANON_KEY: process.env.STAGING_SUPABASE_ANON_KEY!,
+    SUPABASE_IT_SERVICE_KEY: process.env.STAGING_SUPABASE_SERVICE_ROLE_KEY!,
+  };
+}
+
+export const IT = TARGET === 'staging' ? stagingEnv() : readLocalEnv();
+if (TARGET === 'local' && !/^http:\/\/127\.0\.0\.1:/.test(IT.SUPABASE_IT_URL ?? '')) {
+  throw new Error('Local integration tests only run against a Supabase on this machine.');
 }
 export const URL = IT.SUPABASE_IT_URL;
 export const ANON_KEY = IT.SUPABASE_IT_ANON_KEY;
 export const SERVICE_KEY = IT.SUPABASE_IT_SERVICE_KEY;
+
+let checked: Promise<void> | null = null;
+/** Refuses to run unless the database says it is staging (or is the local stack). */
+export function ensureTarget(): Promise<void> {
+  if (TARGET === 'local') return Promise.resolve();
+  checked ??= (async () => {
+    const { data, error } = await service().rpc('is_staging');
+    if (error || data !== true) {
+      throw new Error(
+        'This database has not been marked as staging (supabase/staging/prepare-staging.sql). Refusing to run.',
+      );
+    }
+  })();
+  return checked;
+}
 
 const noSession = { auth: { persistSession: false, autoRefreshToken: false } };
 
@@ -51,8 +101,9 @@ export function asToken(accessToken: string): SupabaseClient {
   });
 }
 
-/** SQL as the postgres user, which is what the Supabase SQL editor runs as. */
+/** SQL as the postgres user, which is what the Supabase SQL editor runs as. Local only. */
 export function sql(query: string): string {
+  if (TARGET !== 'local') throw new Error('sql() is only for the local stack');
   return execFileSync(
     'psql',
     [IT.SUPABASE_IT_DB_URL, '-v', 'ON_ERROR_STOP=1', '-At', '-c', query],
@@ -62,10 +113,12 @@ export function sql(query: string): string {
 
 /** Stop or start one of the Supabase services, to see what happens when it fails. */
 export function service_container(name: 'auth' | 'storage' | 'rest', action: 'stop' | 'start') {
+  if (TARGET !== 'local') throw new Error('Services can only be stopped on the local stack');
   execFileSync('docker', [action, `lawg-it-${name}`], { stdio: 'ignore' });
 }
 
 export async function waitUntilUp(name: 'auth' | 'storage' | 'rest') {
+  if (TARGET !== 'local') return;
   const probe = { auth: '/auth/v1/health', storage: '/storage/v1/status', rest: '/rest/v1/' }[name];
   for (let i = 0; i < 60; i++) {
     try {
@@ -150,4 +203,17 @@ export function totp(secretBase32: string, at = Date.now()): string {
   const offset = hmac[hmac.length - 1] & 0xf;
   const code = (hmac.readUInt32BE(offset) & 0x7fffffff) % 1_000_000;
   return code.toString().padStart(6, '0');
+}
+
+/**
+ * How to start Chromium for the browser tests. Against hosted staging the
+ * browser reaches Supabase through this machine's outbound proxy, and the
+ * app on 127.0.0.1 directly.
+ */
+export function browserOptions() {
+  const proxy = process.env.HTTPS_PROXY;
+  return {
+    executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
+    ...(TARGET === 'staging' && proxy ? { proxy: { server: proxy, bypass: '127.0.0.1,localhost' } } : {}),
+  };
 }

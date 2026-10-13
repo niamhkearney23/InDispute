@@ -17,10 +17,22 @@ down() { fuser -k 3124/tcp >/dev/null 2>&1 || true; sleep 1; }
 
 up() {
   down
-  set -a; . "$HERE/.env.it"; set +a
-  export NEXT_PUBLIC_SUPABASE_URL="$SUPABASE_IT_URL"
-  export NEXT_PUBLIC_SUPABASE_ANON_KEY="$SUPABASE_IT_ANON_KEY"
-  export SUPABASE_SERVICE_ROLE_KEY="$SUPABASE_IT_SERVICE_KEY"
+  if [ "${IT_TARGET:-}" = staging ]; then
+    # The hosted staging project: keys come from the environment only.
+    : "${STAGING_SUPABASE_URL:?}" "${STAGING_SUPABASE_ANON_KEY:?}" "${STAGING_SUPABASE_SERVICE_ROLE_KEY:?}"
+    export NEXT_PUBLIC_SUPABASE_URL="$STAGING_SUPABASE_URL"
+    export NEXT_PUBLIC_SUPABASE_ANON_KEY="$STAGING_SUPABASE_ANON_KEY"
+    export SUPABASE_SERVICE_ROLE_KEY="$STAGING_SUPABASE_SERVICE_ROLE_KEY"
+  else
+    set -a; . "$HERE/.env.it"; set +a
+    export NEXT_PUBLIC_SUPABASE_URL="$SUPABASE_IT_URL"
+    export NEXT_PUBLIC_SUPABASE_ANON_KEY="$SUPABASE_IT_ANON_KEY"
+    export SUPABASE_SERVICE_ROLE_KEY="$SUPABASE_IT_SERVICE_KEY"
+  fi
+  # Nothing outside the test can be reached from this build: no AI, no
+  # payments, no email-in, no alert webhook.
+  export AI_PROVIDER=none
+  unset PAYMENTS STRIPE_SECRET_KEY INBOUND_EMAIL_TOKEN ALERT_WEBHOOK_URL OPENAI_API_KEY ANTHROPIC_API_KEY
   export NEXT_PUBLIC_SITE_URL=http://127.0.0.1:3124
   export SETUP_TOKEN=it-setup-token
   export CRON_SECRET=it-cron-secret-not-a-real-one-0123456789
