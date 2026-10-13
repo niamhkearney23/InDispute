@@ -9,7 +9,7 @@
 import './target-guard';
 import { after, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { runErasure, retryIncompleteErasures, serviceErasureDeps, type ErasureDeps } from '../src/lib/account/erasure';
+import { runErasure, retryIncompleteErasures, serviceErasureDeps } from '../src/lib/account/erasure';
 import { goodbyePath } from '../src/lib/account/erasure-rules';
 import {
   ANON_KEY,
@@ -21,6 +21,7 @@ import {
   person,
   service,
   service_container,
+  outage,
   waitUntilUp,
   type Person,
 } from './helpers';
@@ -39,32 +40,6 @@ after(async () => {
   await waitUntilUp('storage');
 });
 
-/**
- * Auth or Storage failing part way through a deletion. On the local stack the
- * service is really stopped. On hosted staging, which cannot be stopped, the
- * one call the app makes to that service fails instead, with everything else
- * real; the returned deps are what the deletion runs with during the outage.
- */
-function outage(kind: 'auth' | 'storage', real: ErasureDeps): { deps: ErasureDeps; end: () => Promise<void> } {
-  if (TARGET === 'local') {
-    service_container(kind, 'stop');
-    return {
-      deps: real,
-      end: async () => {
-        service_container(kind, 'start');
-        await waitUntilUp(kind);
-      },
-    };
-  }
-  const down = async () => {
-    throw new Error(`${kind} is not answering (injected for the staging run)`);
-  };
-  const deps: ErasureDeps =
-    kind === 'auth'
-      ? { ...real, closeSignIn: down }
-      : { ...real, listFolder: down, removeFiles: down };
-  return { deps, end: async () => {} };
-}
 
 async function learnerWithPhoto(): Promise<Person> {
   const learner = await person('learner', 'MY');

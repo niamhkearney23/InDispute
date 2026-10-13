@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { DAY_CONCEPTS } from '@/content/programme-concepts';
 
 /**
  * The programme's twenty one-line rules, one at a time, turning over every
@@ -10,18 +9,32 @@ import { DAY_CONCEPTS } from '@/content/programme-concepts';
  * month. Paused for anybody who has asked for less motion, and the current
  * line is announced politely rather than on every change.
  */
-const RULES = DAY_CONCEPTS.map((c) => ({ day: c.day, concept: c.concept, line: c.remember }));
 
-export function RotatingMaxim({ className }: { className?: string }) {
+/** One rule, as the server hands it over once it is signed off. */
+export interface MaximRule {
+  day: number;
+  concept: string;
+  line: string;
+}
+
+/**
+ * The rules come from the server, and only once a lawyer has signed off
+ * their wording (0046's rule); this file never imports them, or every
+ * visitor's browser would be sent them signed or not.
+ */
+export function RotatingMaxim({ className, rules }: { className?: string; rules: MaximRule[] }) {
+  const RULES = rules;
+  const count = rules.length;
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const timer = window.setInterval(() => setIndex((i) => (i + 1) % RULES.length), 5200);
+    const timer = window.setInterval(() => setIndex((i) => (i + 1) % count), 5200);
     return () => window.clearInterval(timer);
-  }, []);
+  }, [count]);
 
   const rule = RULES[index];
+  if (!rule) return null;
 
   return (
     <figure className={className}>

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { signedMaxims } from '@/lib/content/service';
 import { AuthForm } from '../../auth-form';
 import { safeNext } from '@/lib/safe-next';
 
@@ -16,5 +17,5 @@ export default async function TraineeSignupPage({
   searchParams: Promise<{ next?: string }>;
 }) {
   const { next } = await searchParams;
-  return <AuthForm mode="signup" trainee next={safeNext(next, '/onboarding')} />;
+  return <AuthForm maxims={await signedMaxims()} mode="signup" trainee next={safeNext(next, '/onboarding')} />;
 }

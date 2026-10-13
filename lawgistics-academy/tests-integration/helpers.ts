@@ -10,6 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import type { ErasureDeps } from '../src/lib/account/erasure';
 
 const ENV_FILE = path.join(__dirname, '..', 'tools', 'integration', '.env.it');
 
@@ -216,4 +217,31 @@ export function browserOptions() {
     executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
     ...(TARGET === 'staging' && proxy ? { proxy: { server: proxy, bypass: '127.0.0.1,localhost' } } : {}),
   };
+}
+
+/**
+ * Auth or Storage failing part way through a deletion. On the local stack the
+ * service is really stopped. On hosted staging, which cannot be stopped, the
+ * one call the app makes to that service fails instead, with everything else
+ * real; the returned deps are what the deletion runs with during the outage.
+ */
+export function outage(kind: 'auth' | 'storage', real: ErasureDeps): { deps: ErasureDeps; end: () => Promise<void> } {
+  if (TARGET === 'local') {
+    service_container(kind, 'stop');
+    return {
+      deps: real,
+      end: async () => {
+        service_container(kind, 'start');
+        await waitUntilUp(kind);
+      },
+    };
+  }
+  const down = async () => {
+    throw new Error(`${kind} is not answering (injected for the staging run)`);
+  };
+  const deps: ErasureDeps =
+    kind === 'auth'
+      ? { ...real, closeSignIn: down }
+      : { ...real, listFolder: down, removeFiles: down };
+  return { deps, end: async () => {} };
 }

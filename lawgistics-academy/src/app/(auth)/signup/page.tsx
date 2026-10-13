@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { signedMaxims } from '@/lib/content/service';
 import { AuthForm } from '../auth-form';
 import { COUNTRIES, type Country } from '@/lib/types';
 import { safeNext } from '@/lib/safe-next';
@@ -11,7 +12,7 @@ export default async function SignupPage({
   searchParams: Promise<{ next?: string; country?: string }>;
 }) {
   const { next, country } = await searchParams;
-  return <AuthForm mode="signup" next={safeNext(next, '/onboarding')} defaultCountry={safeCountry(country)} />;
+  return <AuthForm maxims={await signedMaxims()} mode="signup" next={safeNext(next, '/onboarding')} defaultCountry={safeCountry(country)} />;
 }
 
 /**

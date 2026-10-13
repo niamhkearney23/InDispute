@@ -18,6 +18,7 @@ import { ALL_LESSONS, lessonContent } from '../src/content/seed/lessons';
 import { COURT_HIERARCHIES } from '../src/content/seed/court-hierarchies';
 import { ESSAY_TOPICS } from '../src/content/seed/essay-topics';
 import { MODULES } from '../src/content/seed/modules';
+import { DAY_CONCEPTS } from '../src/content/programme-concepts';
 import { courtMapKey, courtMapWording, essayWording, referenceByKey, referenceHash } from '../src/lib/content/wording';
 import { seedContent } from '../src/lib/setup/seed-content';
 import { PASSWORD, browserOptions, person, service, type Person } from './helpers';
@@ -65,6 +66,10 @@ async function unsignedCorpus(): Promise<Corpus[]> {
     corpus.push({ source: `court map ${country}`, runs: windows(courtMapWording(map)) });
   }
   for (const topic of ESSAY_TOPICS) corpus.push({ source: `essay ${topic.slug}`, runs: windows(essayWording(topic)) });
+  // The twenty rules for the sign-in pages, and the coach's notes behind them.
+  for (const c of DAY_CONCEPTS) {
+    corpus.push({ source: `programme rule ${c.day}`, runs: windows([c.remember, ...c.talkingPoints].join(' ')) });
+  }
   // Why each module exists: it states law in places and nobody signs it off.
   for (const m of MODULES) corpus.push({ source: `module rationale ${m.slug}`, runs: windows(m.rationale) });
 
@@ -115,6 +120,10 @@ async function signedRuns(): Promise<Set<string>> {
   for (const v of versions ?? []) {
     for (const w of windows([v.stem, v.scenario, v.explanation, v.why_it_matters].filter(Boolean).join(' '))) runs.add(w);
   }
+  const { data: facts } = await db.from('daily_facts').select('title, body').eq('verification_status', 'human_verified');
+  for (const f of facts ?? []) for (const w of windows(`${f.title} ${f.body}`)) runs.add(w);
+  const { data: matters } = await db.from('matters').select('brief, model_answer').not('verified_by', 'is', null);
+  for (const m of matters ?? []) for (const w of windows(`${m.brief} ${m.model_answer}`)) runs.add(w);
   return runs;
 }
 
@@ -200,15 +209,35 @@ test('no unsigned legal content on any learner page, in either country', async (
   }
 });
 
+test('nor on the public pages, signed out', async () => {
+  const corpus = await unsignedCorpus();
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  const pages = new Map<string, string>();
+  for (const where of ['/', '/login', '/signup', '/trainee', '/trainee/signup', '/forgot-password']) {
+    const res = await page.goto(`${APP}${where}`, { waitUntil: 'networkidle' });
+    pages.set(where, `${res ? await res.text() : ''}\n${await page.content()}`);
+  }
+  assert.deepEqual(leaks(pages, corpus), [], 'unsigned legal content on a public page');
+  await context.close();
+});
+
 test('the search finds a court map once a lawyer has signed it off', async () => {
   // The control: if this did not find the signed map, the test above would
   // prove nothing.
   const coach = await person('coach');
   const item = referenceByKey(courtMapKey('MY'))!;
-  const { error } = await service()
+  const { data: already } = await service()
     .from('content_signoffs')
-    .insert({ content_key: item.key, content_hash: referenceHash(item), signed_by: coach.id });
-  if (error) throw error;
+    .select('id')
+    .eq('content_key', item.key)
+    .eq('content_hash', referenceHash(item));
+  if ((already ?? []).length === 0) {
+    const { error } = await service()
+      .from('content_signoffs')
+      .insert({ content_key: item.key, content_hash: referenceHash(item), signed_by: coach.id });
+    if (error) throw error;
+  }
 
   // Only the runs that belong to one map and not the other.
   const myRuns = windows(courtMapWording(COURT_HIERARCHIES.MY));

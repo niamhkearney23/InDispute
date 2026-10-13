@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { requireReviewer } from '@/lib/admin/guard';
 import { COURT_HIERARCHIES } from '@/content/seed/court-hierarchies';
 import { essayTopic } from '@/content/seed/essay-topics';
-import { referenceByKey, referenceHash } from '@/lib/content/wording';
+import { maxims, referenceByKey, referenceHash } from '@/lib/content/wording';
 import { currentReferenceSignOffs } from '@/lib/content/signoff';
 import { CourtMap } from '@/components/court-map';
 import { Card, Pill } from '@/components/ui';
@@ -29,6 +29,7 @@ export default async function AdminReferenceItemPage({
   const signOff = (await currentReferenceSignOffs()).get(item.key);
   const hierarchy = item.kind === 'courts' && item.country ? COURT_HIERARCHIES[item.country] : null;
   const topic = item.kind === 'essay' ? essayTopic(item.key.replace(/^essay-/, '')) : undefined;
+  const rules = item.kind === 'maxims' ? maxims() : null;
   const byslug = new Map((hierarchy?.courts ?? []).map((c) => [c.slug, c]));
   const nameOf = (slug: string | null | undefined) =>
     slug ? (byslug.get(slug)?.name ?? slug) : null;
@@ -100,6 +101,19 @@ export default async function AdminReferenceItemPage({
           <p className="eyebrow mb-2">The topic, as a learner reads it</p>
           <p className="leading-relaxed">{topic.prompt}</p>
         </Card>
+      ) : rules ? (
+        <ol className="space-y-3">
+          {rules.map((rule) => (
+            <li key={rule.day}>
+              <Card>
+                <p className="eyebrow mb-1">
+                  Rule {rule.day}: {rule.concept}
+                </p>
+                <p className="leading-relaxed">{rule.line}</p>
+              </Card>
+            </li>
+          ))}
+        </ol>
       ) : null}
 
       <section className="border-t border-rule pt-6">
@@ -114,7 +128,9 @@ export default async function AdminReferenceItemPage({
             confirmText={
               hierarchy
                 ? 'I have read every court above, its note, the row it sits on and where its appeals go, and the law in it is correct.'
-                : 'I have read the topic above, and what it says about the law is correct.'
+                : rules
+                  ? 'I have read all twenty rules above, and what they say about the law and practice is correct.'
+                  : 'I have read the topic above, and what it says about the law is correct.'
             }
           />
         )}

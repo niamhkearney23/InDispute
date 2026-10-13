@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { signedMaxims } from '@/lib/content/service';
 import { AuthForm } from '../auth-form';
 import { AuthFragmentHandler } from '../auth-fragment-handler';
 import { asLinkFailure, LINK_FAILURES } from '@/lib/auth/link-failures';
@@ -18,7 +19,7 @@ export default async function LoginPage({
   return (
     <>
       <AuthFragmentHandler next={target} />
-      <AuthForm
+      <AuthForm maxims={await signedMaxims()}
         mode="login"
         next={target}
         problem={reason ? LINK_FAILURES[reason] : undefined}

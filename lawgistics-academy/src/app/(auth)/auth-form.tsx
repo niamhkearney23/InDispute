@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { userFacingError } from '@/lib/env';
 import { Button, Notice, Wordmark, cn } from '@/components/ui';
 import { brand } from '@/lib/brand';
-import { RotatingMaxim } from '@/components/rotating-maxim';
+import { RotatingMaxim, type MaximRule } from '@/components/rotating-maxim';
 import { ArrowIcon, CheckIcon } from '@/components/icons';
 import {
   PRACTICE_CHOICES,
@@ -58,7 +58,10 @@ export function AuthForm({
   welcome,
   defaultCountry = 'MY',
   trainee = false,
+  maxims = null,
 }: {
+  /** The twenty rules for the side panel, only once signed off; otherwise none. */
+  maxims?: MaximRule[] | null;
   /** 'reset' is the forgotten-password form: an email, and a link sent to it. */
   mode: 'login' | 'signup' | 'reset';
   /**
@@ -200,7 +203,7 @@ export function AuthForm({
 
   return (
     <div className="min-h-dvh md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
-      <BrandPanel isSignup={isSignup} trainee={trainee} />
+      <BrandPanel isSignup={isSignup} trainee={trainee} maxims={maxims} />
 
       <main className="flex items-start justify-center px-5 pt-8 pb-12 sm:px-10 md:items-center md:py-16">
         <div className="rise-in w-full max-w-md">
@@ -403,7 +406,15 @@ export function AuthForm({
  * the questions are verified, because the review queue has not been through
  * a lawyer yet, and a sign-up page is the worst place to overstate that.
  */
-function BrandPanel({ isSignup, trainee }: { isSignup: boolean; trainee: boolean }) {
+function BrandPanel({
+  isSignup,
+  trainee,
+  maxims,
+}: {
+  isSignup: boolean;
+  trainee: boolean;
+  maxims: MaximRule[] | null;
+}) {
   const points: Array<[string, string]> = trainee
     ? [
         [
@@ -470,9 +481,9 @@ function BrandPanel({ isSignup, trainee }: { isSignup: boolean; trainee: boolean
                 </li>
               ))}
             </ul>
-          ) : (
-            <RotatingMaxim className="rise-up delay-2 mt-10 hidden max-w-md md:block" />
-          )}
+          ) : maxims && maxims.length > 0 ? (
+            <RotatingMaxim className="rise-up delay-2 mt-10 hidden max-w-md md:block" rules={maxims} />
+          ) : null}
         </div>
 
         <p className="mt-10 hidden text-sm text-paper/60 md:block">{brand.tagline}</p>

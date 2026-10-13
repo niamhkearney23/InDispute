@@ -6,7 +6,7 @@ import { essayTopic, type EssayTopic } from '@/content/seed/essay-topics';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { currentSignOffs } from '@/lib/lessons/signoff';
 import { currentReferenceSignOffs } from '@/lib/content/signoff';
-import { courtMapKey, essayKey } from '@/lib/content/wording';
+import { MAXIMS_KEY, courtMapKey, essayKey, maxims, type Maxim } from '@/lib/content/wording';
 import { forViewer, isStaff, lessonForViewer, type LessonForViewer, type Shown } from '@/lib/content/gate';
 import type { Country } from '@/lib/types';
 
@@ -66,4 +66,18 @@ export async function essayFor(slug: string | null | undefined, staff: boolean):
   const signed = await referenceSignOffs();
   const shown = forViewer(topic, signed.has(essayKey(topic.slug)), staff);
   return { topic: shown, waiting: shown === null };
+}
+
+/**
+ * The twenty rules for the sign-in pages, only once a lawyer has signed off
+ * their wording. Those pages are seen signed out, so nobody is staff there:
+ * unsigned, or if the sign-offs cannot be read, there are no rules at all.
+ */
+export async function signedMaxims(): Promise<Maxim[] | null> {
+  try {
+    const signed = await referenceSignOffs();
+    return signed.has(MAXIMS_KEY) ? maxims() : null;
+  } catch {
+    return null;
+  }
 }

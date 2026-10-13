@@ -419,3 +419,24 @@ test('a module page shows why the module exists to staff only', () => {
   assert.ok(at > -1);
   assert.match(source.slice(Math.max(0, at - 400), at), /\{staff \? \(/, 'the rationale must sit inside {staff ? ( ... )}');
 });
+
+test('the twenty sign-in rules reach a visitor only once signed off', () => {
+  const service = read('src/lib/content/service.ts');
+  assert.match(service, /signed\.has\(MAXIMS_KEY\) \? maxims\(\) : null/);
+  for (const page of ['login', 'signup', 'trainee/signup', 'forgot-password']) {
+    assert.match(read(`src/app/(auth)/${page}/page.tsx`), /maxims=\{await signedMaxims\(\)\}/, `${page} does not ask`);
+  }
+  const panel = read('src/app/(auth)/auth-form.tsx');
+  assert.match(panel, /maxims && maxims\.length > 0 \? \(\s*<RotatingMaxim/);
+  // Pages show only the day's title from it, on the server. No browser file
+  // may import the rules, or every visitor would be sent them.
+  const walk = (dir: string): string[] =>
+    fs.readdirSync(path.join(ROOT, dir), { withFileTypes: true }).flatMap((e) =>
+      e.isDirectory() ? walk(path.join(dir, e.name)) : /\.tsx?$/.test(e.name) ? [path.join(dir, e.name)] : [],
+    );
+  const clientImports = walk('src').filter((f) => {
+    const text = read(f);
+    return /^['"]use client['"]/m.test(text) && /programme-concepts/.test(text);
+  });
+  assert.deepEqual(clientImports, []);
+});

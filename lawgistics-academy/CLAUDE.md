@@ -444,6 +444,12 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   check's stand-in signs the Malaysian map and the Australian court lesson
   (`tools/visual-qa/signed-fixtures.ts`); `MOCK_NOTHING_SIGNED=1` draws a
   fresh install, and pages can say what text must and must not be on them.
+  Two more were found by the integration crawl (October 2026) and gated: a
+  module's `rationale` (it states law in places) is shown to staff only, and
+  the twenty rules on the sign-in pages (the programme concepts' `remember`
+  lines) are a reference item, `programme-maxims`, sent to the page by
+  `signedMaxims()` only once signed off; `RotatingMaxim` takes them as a prop
+  and no browser file may import `programme-concepts.ts`.
   Not gated, because they state no law: module names and summaries, the
   programme plan, days and concepts (coach prompts and practice maxims,
   marked not yet reviewed by the firm), the training file (invented facts),

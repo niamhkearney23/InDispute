@@ -1,3 +1,4 @@
+import { DAY_CONCEPTS } from '@/content/programme-concepts';
 import { createHash } from 'node:crypto';
 import { COURT_HIERARCHIES } from '@/content/seed/court-hierarchies';
 import type { CourtHierarchy } from '@/content/seed/court-shape';
@@ -34,7 +35,7 @@ export function lessonHash(lesson: SeedLesson): string {
 /* Reference content: court maps and essay topics (0046)                      */
 /* -------------------------------------------------------------------------- */
 
-export type ReferenceKind = 'courts' | 'essay';
+export type ReferenceKind = 'courts' | 'essay' | 'maxims';
 
 export interface ReferenceItem {
   /** What the sign-off is recorded under. Lowercase letters, digits and hyphens. */
@@ -78,6 +79,26 @@ export function courtMapWording(hierarchy: CourtHierarchy): string {
   });
 }
 
+/** The sign-off key for the twenty rules shown on the sign-in pages. */
+export const MAXIMS_KEY = 'programme-maxims';
+
+/** One rule as the sign-in page shows it. */
+export interface Maxim {
+  day: number;
+  concept: string;
+  line: string;
+}
+
+/** The twenty rules, from the programme's day concepts. */
+export function maxims(): Maxim[] {
+  return DAY_CONCEPTS.map((c) => ({ day: c.day, concept: c.concept, line: c.remember }));
+}
+
+/** Every word of the rules a visitor can read. */
+export function maximsWording(): string {
+  return JSON.stringify(maxims());
+}
+
 export function essayWording(topic: EssayTopic): string {
   return JSON.stringify({ slug: topic.slug, domain: topic.domain, prompt: topic.prompt });
 }
@@ -99,6 +120,13 @@ export const REFERENCE_ITEMS: ReferenceItem[] = [
     country: null,
     wording: essayWording(topic),
   })),
+  {
+    key: MAXIMS_KEY,
+    kind: 'maxims' as const,
+    title: 'The twenty rules on the sign-in pages',
+    country: null,
+    wording: maximsWording(),
+  },
 ];
 
 export function referenceByKey(key: string): ReferenceItem | null {
