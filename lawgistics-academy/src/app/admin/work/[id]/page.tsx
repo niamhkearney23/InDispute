@@ -24,6 +24,7 @@ import { saveWorkPost } from '../actions';
 import { WorkPostForm } from '../work-post-form';
 import { MarkForm } from '../mark-form';
 import { CopyLink } from '../copy-link';
+import { KeepForm } from '../keep-form';
 
 export const metadata: Metadata = { title: 'Work' };
 export const dynamic = 'force-dynamic';
@@ -48,7 +49,7 @@ export default async function WorkPostAdminPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { userId } = await requireCoach();
+  const { userId, isReviewer } = await requireCoach();
   const { id } = await params;
   // The coach's own clock, for every time on the page and for "late".
   const me = await getLearnerProfile(userId);
@@ -57,7 +58,9 @@ export default async function WorkPostAdminPage({
   const [found, fromEmail] = await Promise.all([workPostForCoach(id), emailDrafts()]);
   const emailInfo = fromEmail.get(id) ?? null;
   if (!found) notFound();
-  const { post, claims, submissions, threads, names } = found;
+  const { post, claims, submissions, threads, names, commentState } = found;
+  // A few words of a message, to choose it by in the keep form.
+  const short = (text: string) => (text.length > 60 ? `${text.slice(0, 57)}...` : text);
 
   const [sessions, comments, fileUrl, memoUrl, ...submissionUrls] = await Promise.all([
     allSessions(),
@@ -227,10 +230,19 @@ export default async function WorkPostAdminPage({
                         body: m.body,
                         sentAt: m.sentAt,
                         mine: m.senderId === userId,
-                        from: m.fromCoach ? `${m.senderName} (coach)` : m.senderName,
+                        from: `${m.fromCoach ? `${m.senderName} (coach)` : m.senderName}${m.kept ? ', kept for supervision' : ''}`,
                       }))}
                       empty="No messages yet."
                     />
+                    {isReviewer ? (
+                      <KeepForm
+                        postId={post.id}
+                        kind="message"
+                        choices={thread
+                          .filter((m) => !m.fromCoach && !m.removed)
+                          .map((m) => ({ id: m.id, label: short(m.body), kept: m.kept }))}
+                      />
+                    ) : null}
                     <MessageForm
                       postId={post.id}
                       threadUserId={personId}
@@ -253,6 +265,19 @@ export default async function WorkPostAdminPage({
         <Card>
           <PostComments comments={comments} timeZone={timeZone} />
           <CommentForm postId={post.id} staff />
+          {isReviewer ? (
+            <KeepForm
+              postId={post.id}
+              kind="comment"
+              choices={comments
+                .filter((c) => commentState.get(c.id)?.byLearner && !commentState.get(c.id)?.removed)
+                .map((c) => ({
+                  id: c.id,
+                  label: `${c.firstName}: ${short(c.body)}`,
+                  kept: Boolean(commentState.get(c.id)?.kept),
+                }))}
+            />
+          ) : null}
         </Card>
       </section>
 

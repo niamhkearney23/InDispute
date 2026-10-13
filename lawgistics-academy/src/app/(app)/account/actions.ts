@@ -7,8 +7,8 @@ import { createSupabaseServerClient, getCurrentUser } from '@/lib/supabase/serve
 import { createServiceClient } from '@/lib/supabase/service';
 import { strictCartoon } from '@/lib/avatar/cartoon';
 import { getLearnerProfile } from '@/lib/learner-overview';
-import { eraseAccount } from '@/lib/account/erasure';
-import { CONFIRM_WORD, confirmsErasure } from '@/lib/account/erasure-rules';
+import { runErasure } from '@/lib/account/erasure';
+import { CONFIRM_WORD, confirmsErasure, goodbyePath } from '@/lib/account/erasure-rules';
 
 export type AvatarState = { error: string | null };
 
@@ -234,14 +234,18 @@ export async function deleteMyAccount(
     return { error: `Type ${CONFIRM_WORD} and your own email address to delete your account.` };
   }
 
-  const result = await eraseAccount(user.id);
-  if (!result.ok) return { error: result.error };
+  const outcome = await runErasure(user.id, { requestedBy: user.id });
+  // Refused means nothing changed: the account is still theirs to use.
+  if (outcome.kind === 'refused') return { error: outcome.error };
 
-  // Every session, on every device. The account is already banned, so if
-  // the auth server will not hear this the cookies here still go.
+  // From here the database refuses the account whatever else happened, and
+  // its sessions are already gone there. Signing out here clears this
+  // browser's cookies even if the auth server no longer knows the session.
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut({ scope: 'global' }).catch(() => undefined);
-  redirect('/goodbye');
+  // "Deleted" only when every step finished; otherwise /goodbye says what is
+  // still outstanding and that the firm will finish it.
+  redirect(goodbyePath(outcome));
 }
 
 export type LeaderboardState = { error: string | null; ok?: string };

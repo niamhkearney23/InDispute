@@ -48,6 +48,19 @@ export function latestMigration(): string {
 function versionStamp(): string {
   const version = latestMigration();
   return `
+-- >>> deleted accounts refused everywhere (generated) ------------------------
+-- 0045 puts a restrictive policy refusing a deleted account on every table
+-- with Row Level Security. Run again here, after every migration, so a table
+-- a later migration adds is covered in the same run.
+
+do $$
+begin
+  if to_regprocedure('public.refuse_erased_callers()') is not null then
+    perform public.refuse_erased_callers();
+  end if;
+end
+$$;
+
 -- >>> schema version (generated) ---------------------------------------------
 
 create or replace function public.schema_version()

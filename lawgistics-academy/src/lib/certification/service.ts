@@ -26,6 +26,8 @@ export interface Trainee {
   country: Country;
   notes: string;
   createdAt: string;
+  /** The account this record belongs to, when an administrator linked one (0045). */
+  profileId: string | null;
 }
 
 export interface CertificationEntry {
@@ -112,6 +114,7 @@ function toTrainee(row: Record<string, unknown>): Trainee {
     country: asCountry(row.country as string | null),
     notes: (row.notes as string) ?? '',
     createdAt: row.created_at as string,
+    profileId: (row.profile_id as string | null) ?? null,
   };
 }
 
@@ -145,6 +148,20 @@ export async function getTrainee(id: string): Promise<Trainee | null> {
   const db = createServiceClient();
   const { data } = await db.from('certification_trainees').select('*').eq('id', id).maybeSingle();
   return data ? toTrainee(data) : null;
+}
+
+/**
+ * The sign-in address of the account a register record is linked to (0045),
+ * for the administrator's link form. Null when unlinked or not found.
+ */
+export async function linkedAccountEmail(profileId: string | null): Promise<string | null> {
+  if (!profileId) return null;
+  const { data } = await createServiceClient()
+    .from('profiles')
+    .select('email')
+    .eq('id', profileId)
+    .maybeSingle();
+  return (data?.email as string | null | undefined) ?? null;
 }
 
 export async function entriesForTrainee(traineeId: string): Promise<CertificationEntry[]> {

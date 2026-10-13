@@ -152,6 +152,9 @@ const POST_SELECT =
 
 const MESSAGE_SELECT = 'id, post_id, thread_user_id, sender_id, body, sent_at';
 
+/** The coach's side also needs whether a message is kept or removed (0045). */
+const COACH_MESSAGE_SELECT = `${MESSAGE_SELECT}, kept_for_supervision, redacted_at`;
+
 const SUBMISSION_SELECT =
   'id, post_id, user_id, file_name, note, submitted_at, verdict, feedback, marked_at';
 
@@ -536,6 +539,18 @@ export interface NamedMessage extends WorkMessage {
   senderName: string;
   /** Written by a coach rather than by the intern whose thread it is. */
   fromCoach: boolean;
+  /** A coach or administrator marked it kept for supervision (0045). */
+  kept: boolean;
+  /** Its text has been replaced with a notice (0045). */
+  removed: boolean;
+}
+
+/** Whether each comment on a post is kept, removed, and a learner's (0045). */
+export interface CommentKeepState {
+  kept: boolean;
+  removed: boolean;
+  /** Written by somebody who is not staff, so it may be kept or removed. */
+  byLearner: boolean;
 }
 
 /** One post with every name on it and everything handed in, for marking. */
@@ -547,10 +562,12 @@ export async function workPostForCoach(postId: string): Promise<{
   threads: Map<string, NamedMessage[]>;
   /** Names for everybody who appears anywhere above. */
   names: Map<string, string>;
+  /** Kept and removed, for each comment under the post, by comment id. */
+  commentState: Map<string, CommentKeepState>;
 } | null> {
   const db = createServiceClient();
 
-  const [post, claims, submissions, messages] = await Promise.all([
+  const [post, claims, submissions, messages, comments] = await Promise.all([
     db.from('work_posts').select(POST_SELECT).eq('id', postId).maybeSingle(),
     db
       .from('work_claims')
@@ -564,9 +581,13 @@ export async function workPostForCoach(postId: string): Promise<{
       .order('submitted_at', { ascending: false }),
     db
       .from('work_messages')
-      .select(MESSAGE_SELECT)
+      .select(COACH_MESSAGE_SELECT)
       .eq('post_id', postId)
       .order('sent_at', { ascending: true }),
+    db
+      .from('work_comments')
+      .select('id, author_id, kept_for_supervision, redacted_at')
+      .eq('post_id', postId),
   ]);
 
   if (!post.data) return null;
@@ -575,7 +596,19 @@ export async function workPostForCoach(postId: string): Promise<{
   const submissionRows = ((submissions.data ?? []) as unknown as SubmissionRow[]).map(
     toSubmission,
   );
-  const messageRows = ((messages.data ?? []) as unknown as MessageRow[]).map(toMessage);
+  const rawMessages = (messages.data ?? []) as unknown as Array<
+    MessageRow & { kept_for_supervision: boolean | null; redacted_at: string | null }
+  >;
+  const keptState = new Map(
+    rawMessages.map((r) => [r.id, { kept: Boolean(r.kept_for_supervision), removed: Boolean(r.redacted_at) }]),
+  );
+  const messageRows = rawMessages.map(toMessage);
+  const commentRows = (comments.data ?? []) as Array<{
+    id: string;
+    author_id: string | null;
+    kept_for_supervision: boolean | null;
+    redacted_at: string | null;
+  }>;
 
   const ids = [
     ...new Set([
@@ -605,9 +638,39 @@ export async function workPostForCoach(postId: string): Promise<{
       ...m,
       senderName: names.get(m.senderId) ?? 'Somebody',
       fromCoach: m.senderId !== m.threadUserId,
+      kept: keptState.get(m.id)?.kept ?? false,
+      removed: keptState.get(m.id)?.removed ?? false,
     };
     threads.set(m.threadUserId, [...(threads.get(m.threadUserId) ?? []), named]);
   }
+
+  // Which comment authors are staff, so the keep form offers only learners'.
+  const authors = [...new Set(commentRows.map((c) => c.author_id).filter((a): a is string => !!a))];
+  const staff = new Set<string>();
+  if (authors.length > 0) {
+    const { data } = await db
+      .from('profiles')
+      .select('id, is_admin, is_coach, is_firm_admin')
+      .in('id', authors);
+    for (const p of (data ?? []) as Array<{
+      id: string;
+      is_admin: boolean;
+      is_coach: boolean | null;
+      is_firm_admin: boolean;
+    }>) {
+      if (p.is_admin || p.is_coach || p.is_firm_admin) staff.add(p.id);
+    }
+  }
+  const commentState = new Map<string, CommentKeepState>(
+    commentRows.map((c) => [
+      c.id,
+      {
+        kept: Boolean(c.kept_for_supervision),
+        removed: Boolean(c.redacted_at),
+        byLearner: Boolean(c.author_id) && !staff.has(c.author_id as string),
+      },
+    ]),
+  );
 
   return {
     post: toPost(post.data as unknown as PostRow),
@@ -619,6 +682,7 @@ export async function workPostForCoach(postId: string): Promise<{
     submissions: submissionRows.map((s) => ({ ...s, name: names.get(s.userId) ?? 'Somebody' })),
     threads,
     names,
+    commentState,
   };
 }
 

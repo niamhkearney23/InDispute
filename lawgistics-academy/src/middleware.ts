@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { publicEnv } from '@/lib/env';
-import { signInRefused } from '@/lib/auth/refused';
+import { erasedByCheck, signInRefused } from '@/lib/auth/refused';
 import { safeLogo } from '@/lib/brand';
 import { buildCsp, makeNonce } from '@/lib/security/csp';
 import {
@@ -30,6 +30,8 @@ type CookiesToSet = Array<{ name: string; value: string; options: CookieOptions 
 // /api/inbound/work likewise: the inbound email service has no session, and
 // the route checks its own token before reading anything.
 // /goodbye is where somebody lands after deleting their account, signed out.
+// /api/cron/erasure-retry is called by Vercel's scheduler, which has no
+// session; the route refuses anything without the CRON_SECRET bearer token.
 const PUBLIC_PATHS = [
   '/',
   '/login',
@@ -43,6 +45,7 @@ const PUBLIC_PATHS = [
   '/api/digest',
   '/api/inbound/work',
   '/api/stripe/webhook',
+  '/api/cron/erasure-retry',
 ];
 
 // Pages for somebody who is not signed in yet. A signed-in person asking for
@@ -121,10 +124,14 @@ export async function middleware(request: NextRequest) {
   const {
     data: { user: signedIn },
   } = await supabase.auth.getUser();
-  // A deleted account is banned and counts as signed out, the same as in
-  // getCurrentUser. Were the two to disagree, /login would send it to
-  // /dashboard and /dashboard back to /login, for good.
-  const user = signInRefused(signedIn) ? null : signedIn;
+  // A deleted account counts as signed out, the same as in getCurrentUser:
+  // banned at the auth server (0043), or erased in the database even if the
+  // ban never happened (0045). Were the two to disagree, /login would send it
+  // to /dashboard and /dashboard back to /login, for good. The database is
+  // asked only for somebody signed in, and only once.
+  const notBanned = signInRefused(signedIn) ? null : signedIn;
+  const erased = notBanned ? await supabase.rpc('caller_erased') : null;
+  const user = erased && erasedByCheck(erased.data, erased.error) ? null : notBanned;
 
   const { pathname } = request.nextUrl;
 

@@ -172,9 +172,19 @@ export default async function AdminTraineePage({ params }: { params: Promise<{ i
           <Card>
             <p className="mb-2 text-sm text-slate">
               {person.erasedAt
-                ? 'Already deleted. Pressing again removes any stored file that was left behind, and changes nothing else.'
-                : 'Their name, email, photo, tutor conversations and recordings go, and they can never sign in again. Answers, homework, work, matters, joining records and certificates stay, under "Deleted account". This cannot be undone.'}
+                ? 'Already deleted. Pressing again finishes any step that did not finish (closing sign-in, deleting stored files), and changes nothing else. Admin, Deletions shows each step.'
+                : 'Their name, email, photo, tutor conversations and recordings go, their own work-board messages and comments are replaced with a notice unless kept for supervision, and they can never sign in again. Answers, homework, work handed in, matters, joining records, certificates and certification records stay under "Deleted account". Their name is off them, but what they wrote may still identify them: Admin, Deletions lists what to review. This cannot be undone.'}
             </p>
+            {person.erasedAt ? (
+              <p className="mb-2 text-sm">
+                <Link
+                  href={`/admin/deletions/${person.id}`}
+                  className="inline-flex min-h-11 items-center text-accent underline underline-offset-2"
+                >
+                  See this deletion and its review
+                </Link>
+              </p>
+            ) : null}
             <EraseForm learnerId={person.id} erased={Boolean(person.erasedAt)} />
           </Card>
         </section>

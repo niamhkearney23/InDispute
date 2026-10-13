@@ -149,7 +149,70 @@ uploaded recordings. Before a firm's trainees use it:
    training on your data, where it is processed, how long it is kept) and
    keep a copy.
 4. **Privacy notice.** Trainees should be told all of the above before they
-   sign up. This is the privacy policy still to be added to the sign-up page.
+   sign up, and what section 7a says about deleting an account and how long
+   things are kept. This is the privacy policy still to be added to the
+   sign-up page.
+
+---
+
+## 7a. Deleting an account, and how long things are kept
+
+What the privacy notice should say, in substance, and what the academy
+actually does. Have the firm's data protection adviser confirm it before it is
+published.
+
+**When somebody deletes their account** (Account page, or an administrator at
+Admin, Trainees):
+
+- Their name, email address, photo and cartoon, timezone, goals, tutor
+  conversations, wrong-code attempts and any recordings are removed.
+- They are signed out on every device and cannot use the account again. This
+  is enforced by the database itself, even if the sign-in service is
+  unavailable at that moment.
+- Their own messages and comments on the work board are replaced with
+  "Removed when the account was deleted.", unless a supervising lawyer kept a
+  particular one because supervision needs it, and recorded why.
+- What the firm keeps as its training record stays: answers, homework, work
+  handed in with its files, matter answers and marks, joining records,
+  certificates and certification records. **These are not anonymous.** The
+  name is taken off them, but what somebody wrote or handed in may still
+  identify them. An administrator reviews them at Admin, Deletions, removes
+  work-board text that is not needed, and decides each certification record:
+  redact the identifying details (grades, dates and box numbers stay) or
+  retain, with a reason such as a regulatory record.
+- If a step does not finish (the sign-in service or file storage fails), the
+  person is told the truth: they are signed out and cannot use the account,
+  their details are removed from the database, and the firm will finish the
+  rest. It is retried automatically every day and shown to administrators.
+
+**How long work-board messages are kept:** messages and comments on a piece
+of work are replaced with "Removed at the end of the retention period." once
+the work closed (its last activity, or its due date if later) more than
+**24 months** ago, unless a supervising lawyer kept them for supervision. The
+number is `WORK_BOARD_RETENTION_MONTHS` in `src/lib/account/retention.ts`;
+changing it is the owner's decision and needs a developer.
+
+**Turning on the daily retry (once per firm):**
+
+1. Make a secret: on any computer with a terminal, `openssl rand -base64 32`,
+   or ask whoever set up Vercel. It must be at least 16 characters.
+2. In **Vercel**, open the firm's project, then **Settings**, then
+   **Environment Variables**.
+3. Add a variable named `CRON_SECRET` with the secret as its value, for
+   **Production**. Save.
+4. Open **Deployments**, choose the latest one, and **Redeploy** so it takes
+   effect.
+5. Check **Settings**, **Cron Jobs**: `/api/cron/erasure-retry` should be
+   listed, once a day. Until `CRON_SECRET` is set the job is off, and an
+   administrator has to press **Retry** at Admin, Deletions instead.
+
+**One database setting to check after running UPDATE.sql:** the update tells
+the database's API to refuse deleted accounts before every request. In
+Supabase, **SQL Editor**, run
+`select rolconfig from pg_roles where rolname = 'authenticator';` and check
+the answer includes `pgrst.db_pre_request=public.check_request`. If the
+project already used a pre-request function of its own, this replaced it:
+tell the developer.
 
 ---
 

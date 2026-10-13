@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { checkCoach } from '@/lib/admin/guard';
+import { checkCoach, checkReviewer } from '@/lib/admin/guard';
 import { createServiceClient } from '@/lib/supabase/service';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import {
@@ -303,4 +303,58 @@ export async function suggestWorkTime(
     };
   }
   return { minutes, error: null };
+}
+
+const keepSchema = z.object({
+  kind: z.enum(['message', 'comment']),
+  id: z.string().uuid(),
+  postId: z.string().uuid(),
+  keep: z.enum(['keep', 'release']),
+  reason: z.string().trim().min(3, 'Say why, in a few words.').max(500),
+});
+
+/**
+ * Marking a work-board message or comment kept for supervision (0045), or
+ * no longer kept. When somebody deletes their account, their own messages
+ * and comments are replaced with a notice, and the retention period removes
+ * old ones, except those a lawyer has kept because supervision needs them.
+ * A decision about a person's words, under the lawyer's name with a reason,
+ * so a reviewer's (a coach or administrator), never a firm administrator's
+ * alone. The database checks again that whoever is named is a coach or
+ * administrator, requires the reason, and stamps the time.
+ */
+export async function keepForSupervision(_state: AdminState, formData: FormData): Promise<AdminState> {
+  const reviewerId = await checkReviewer();
+  if (!reviewerId) return { error: 'You are not signed in as a coach or administrator.' };
+
+  const parsed = keepSchema.safeParse({
+    kind: formData.get('kind'),
+    id: formData.get('id'),
+    postId: formData.get('postId'),
+    keep: formData.get('keep'),
+    reason: formData.get('reason') ?? '',
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? 'Choose a message and say why.' };
+  }
+  const { kind, id, postId, keep, reason } = parsed.data;
+
+  const { data, error } = await createServiceClient()
+    .from(kind === 'message' ? 'work_messages' : 'work_comments')
+    .update({ kept_for_supervision: keep === 'keep', kept_by: reviewerId, kept_reason: reason })
+    .eq('id', id)
+    .eq('post_id', postId)
+    .is('redacted_at', null)
+    .select('id');
+  if (error) {
+    console.error('keeping a work-board message failed:', error.message);
+    return { error: 'That could not be saved.' };
+  }
+  if (!data || data.length === 0) return { error: 'That message is no longer there to keep.' };
+
+  revalidatePath(`/admin/work/${postId}`);
+  return {
+    error: null,
+    ok: keep === 'keep' ? 'Kept for supervision, with your reason.' : 'No longer kept.',
+  };
 }
