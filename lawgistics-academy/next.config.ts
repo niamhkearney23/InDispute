@@ -1,6 +1,8 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  // The integration tests build a copy of their own (tools/integration/app.sh).
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   reactStrictMode: true,
   experimental: {
     serverActions: {

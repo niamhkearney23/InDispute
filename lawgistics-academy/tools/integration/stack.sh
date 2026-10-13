@@ -116,7 +116,9 @@ SQL
   # editor as the postgres user, and later UPDATE.sql on top.
   if [ -n "$base" ]; then
     git -C "$APP" show "$base:lawgistics-academy/supabase/SETUP.sql" | psql_postgres -f - >/dev/null
-    psql_postgres -f "$APP/supabase/UPDATE.sql" >/dev/null
+    # SKIP_UPDATE=1 leaves the database as the base commit made it, for the
+    # migration rehearsal to fill with data and then update.
+    if [ "${SKIP_UPDATE:-}" != 1 ]; then psql_postgres -f "$APP/supabase/UPDATE.sql" >/dev/null; fi
   else
     psql_postgres -f "$APP/supabase/SETUP.sql" >/dev/null
   fi

@@ -5,7 +5,7 @@ const config = [
   ...coreWebVitals,
   ...typescriptConfig,
   {
-    ignores: ['.next/**', 'node_modules/**', 'next-env.d.ts', 'video/*/assets/**'],
+    ignores: ['.next/**', '.next-it/**', 'node_modules/**', 'next-env.d.ts', 'video/*/assets/**'],
   },
 ];
 

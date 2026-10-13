@@ -35,7 +35,13 @@ filled in.
 2. Set **Root Directory** to `lawgistics-academy`.
 3. Name the project after the firm, for example `academy-acme`. Its address
    will be `academy-acme.vercel.app` until the firm wants its own domain.
-4. Do not deploy yet: open **Environment Variables** first (step 3).
+4. Do not deploy yet. First put the server in the same place as the
+   database: open **Settings, Functions, Function Region** and choose
+   **Singapore (sin1)** for a Malaysian firm or **Sydney (syd1)** for an
+   Australian one, matching the region chosen in Supabase in step 1. Left
+   alone, Vercel runs the server in Washington, D.C., which is slower and
+   sends the firm's people's details to the United States on every page.
+5. Then open **Environment Variables** (step 3).
 
 ## 3. The settings
 
@@ -54,6 +60,8 @@ Add each of these in Vercel, under **Settings, Environment Variables**:
 | `NEXT_PUBLIC_BRAND_TAGLINE` | One line under the front page heading |
 | `NEXT_PUBLIC_BRAND_ACCENT` | The firm's colour, six characters, for example `1f3a6b` |
 | `NEXT_PUBLIC_BRAND_LOGO` | A link to the logo starting `https://`, or leave it out |
+| `EXPECTED_FUNCTION_REGION` | `sin1` for a Malaysian firm, `syd1` for an Australian one: the same as the Function Region. Admin shows a warning when the server is running anywhere else |
+| `CRON_SECRET` | A long random password you make up. Vercel sends it when it runs the nightly clean-up (finishing account deletions) |
 | `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` | Only if this firm has the AI features |
 
 Leave `PAYMENTS` unset: payments stay off and the firm's people get in through

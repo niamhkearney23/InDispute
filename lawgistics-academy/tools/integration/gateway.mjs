@@ -9,8 +9,25 @@ const ROUTES = [
   ['/storage/v1', 5998],
 ];
 
+// What Supabase's gateway adds so a browser on the app's own address may call
+// it: answer the preflight, and name the caller's origin on every response.
+function cors(req) {
+  return {
+    'access-control-allow-origin': req.headers.origin ?? '*',
+    'access-control-allow-credentials': 'true',
+    'access-control-allow-methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS,HEAD',
+    'access-control-allow-headers': req.headers['access-control-request-headers'] ?? '*',
+    'access-control-expose-headers': 'content-range, x-total-count, content-length',
+    'access-control-max-age': '600',
+  };
+}
+
 http
   .createServer((req, res) => {
+    if (req.method === 'OPTIONS') {
+      res.writeHead(204, cors(req)).end();
+      return;
+    }
     const route = ROUTES.find(([prefix]) => req.url === prefix || req.url.startsWith(`${prefix}/`) || req.url.startsWith(`${prefix}?`));
     if (!route) {
       res.writeHead(404).end();
@@ -26,7 +43,7 @@ http
         headers: { ...req.headers, host: `127.0.0.1:${port}` },
       },
       (up) => {
-        res.writeHead(up.statusCode ?? 502, up.headers);
+        res.writeHead(up.statusCode ?? 502, { ...up.headers, ...cors(req) });
         up.pipe(res);
       },
     );
