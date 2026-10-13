@@ -1,4 +1,4 @@
-import { tiersOf, type Court, type CourtHierarchy } from '@/content/seed/court-hierarchies';
+import { tiersOf, type Court, type CourtHierarchy } from '@/content/seed/court-shape';
 import { cn } from '@/components/ui';
 
 /**

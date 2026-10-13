@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { requireReviewer } from '@/lib/admin/guard';
-import { ALL_LESSONS, DRAFT_LESSONS } from '@/content/seed/lessons';
+import { ALL_LESSONS } from '@/content/seed/lessons';
 import { moduleBySlug } from '@/content/seed/modules';
 import { currentSignOffs } from '@/lib/lessons/signoff';
 import { Pill } from '@/components/ui';
@@ -10,16 +10,16 @@ export const metadata: Metadata = { title: 'Lessons' };
 export const dynamic = 'force-dynamic';
 
 /**
- * Every lesson and whether a lawyer has signed it off as it stands. A
- * rewrite waiting here is shown to no learner until it is signed off; the
- * lessons already live show learners that they are not yet checked.
+ * Every lesson and whether a lawyer has signed it off as it stands. No
+ * lesson reaches a learner until it is signed off (0046); a signed-off
+ * rewrite takes its original's place.
  */
 export default async function AdminLessonsPage() {
   await requireReviewer();
   const signed = await currentSignOffs();
   const day = (iso: string) =>
     new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-  const waiting = DRAFT_LESSONS.filter((l) => !signed.has(l.slug));
+  const waiting = ALL_LESSONS.filter((l) => !signed.has(l.slug));
 
   return (
     <div className="space-y-6">
@@ -28,10 +28,11 @@ export default async function AdminLessonsPage() {
         <h1 className="text-3xl">Lessons to read and sign off</h1>
         <p className="mt-3 max-w-2xl text-slate">
           The teaching before each module&rsquo;s questions. Open one, read every screen, and sign
-          it off if the law in it is right. A rewrite reaches learners only once it is signed off;
-          changing any word afterwards means it needs signing again.
+          it off if the law in it is right. Learners see a lesson only once it is signed off, in
+          Australia and Malaysia alike; changing any word afterwards takes it away from them until
+          it is signed again.
           {waiting.length > 0
-            ? ` ${waiting.length} ${waiting.length === 1 ? 'rewrite is' : 'rewrites are'} waiting.`
+            ? ` ${waiting.length} ${waiting.length === 1 ? 'is' : 'are'} waiting.`
             : ''}
         </p>
       </section>
@@ -59,10 +60,8 @@ export default async function AdminLessonsPage() {
                     <Pill tone="correct">
                       Signed off by {signOff.name}, {day(signOff.signedAt)}
                     </Pill>
-                  ) : draft ? (
-                    <Pill tone="warn">Waiting: not shown to learners</Pill>
                   ) : (
-                    <Pill tone="neutral">Live, not yet checked</Pill>
+                    <Pill tone="warn">Waiting: not shown to learners</Pill>
                   )}
                 </span>
               </Link>

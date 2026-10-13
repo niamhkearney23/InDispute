@@ -6,6 +6,7 @@ import { requireReviewer } from '@/lib/admin/guard';
 import { lessonBySlug } from '@/content/seed/lessons';
 import { moduleBySlug } from '@/content/seed/modules';
 import { currentSignOffs, lessonHash } from '@/lib/lessons/signoff';
+import { courtMapFor } from '@/lib/content/service';
 import { Card, Notice, Pill, cn } from '@/components/ui';
 import { LessonPlayer } from '@/app/(app)/modules/[slug]/lesson-player';
 import { SignOffForm } from './sign-off-form';
@@ -23,7 +24,12 @@ export default async function AdminLessonPage({ params }: { params: Promise<{ sl
   const { slug } = await params;
   const lesson = lessonBySlug(slug);
   if (!lesson) notFound();
-  const signOff = (await currentSignOffs()).get(lesson.slug);
+  const [signOffs, diagram] = await Promise.all([
+    currentSignOffs(),
+    // Staff see the court map whether or not it is signed off, labelled.
+    courtMapFor(lesson.country, true),
+  ]);
+  const signOff = signOffs.get(lesson.slug);
   const replaced = lesson.replaces ? lessonBySlug(lesson.replaces) : null;
 
   return (
@@ -52,10 +58,12 @@ export default async function AdminLessonPage({ params }: { params: Promise<{ sl
             </Pill>
           ) : lesson.replaces ? (
             <Pill tone="warn">
-              Not signed off: learners still see &ldquo;{replaced?.title}&rdquo;
+              {replaced && signOffs.has(replaced.slug)
+                ? <>Not signed off: learners see &ldquo;{replaced.title}&rdquo; instead</>
+                : 'Not signed off: learners see no lesson for this module yet'}
             </Pill>
           ) : (
-            <Pill tone="neutral">Live, not yet checked by a lawyer</Pill>
+            <Pill tone="warn">Not signed off: learners do not see it</Pill>
           )}
         </div>
       </section>
@@ -118,7 +126,7 @@ export default async function AdminLessonPage({ params }: { params: Promise<{ sl
         <h2 className="mb-3 text-xl">As a learner sees it</h2>
         <LessonPlayer
           lesson={lesson}
-          country={lesson.country}
+          diagram={diagram ? { hierarchy: diagram.item, checked: diagram.checked } : null}
           moduleSlug={lesson.moduleSlug}
           quizLabel=""
           preview

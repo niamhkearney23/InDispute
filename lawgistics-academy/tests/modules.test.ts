@@ -11,8 +11,8 @@ import {
   LESSONS,
   lessonContent,
   lessonForModule,
-  lessonToShow,
 } from '../src/content/seed/lessons';
+import { lessonForViewer } from '../src/lib/content/gate';
 import { COURT_HIERARCHIES } from '../src/content/seed/court-hierarchies';
 import { isEmbeddable } from '../src/lib/lessons/embed';
 import { DOMAINS } from '../src/content/seed/taxonomy';
@@ -265,11 +265,17 @@ test('every guess has two to four options and marks exactly one of them right', 
 });
 
 test("an unsigned rewrite reaches nobody; a signed one takes the original's place", () => {
+  const shown = (moduleSlug: string, signed: (slug: string) => boolean, staff: boolean) =>
+    lessonForViewer(moduleSlug, signed, staff).lesson?.item.slug;
   for (const draft of DRAFT_LESSONS) {
-    assert.equal(lessonToShow(draft.moduleSlug, () => false)?.slug, draft.replaces);
-    assert.equal(lessonToShow(draft.moduleSlug, (s) => s === draft.slug)?.slug, draft.slug);
-    // Signing the original does not bring in the rewrite.
-    assert.equal(lessonToShow(draft.moduleSlug, (s) => s === draft.replaces)?.slug, draft.replaces);
+    for (const staff of [true, false]) {
+      assert.equal(shown(draft.moduleSlug, (s) => s === draft.slug, staff), draft.slug);
+      // Signing the original does not bring in the rewrite.
+      assert.equal(shown(draft.moduleSlug, (s) => s === draft.replaces, staff), draft.replaces);
+    }
+    // Nothing signed: staff read the original, labelled; a learner gets none.
+    assert.equal(shown(draft.moduleSlug, () => false, true), draft.replaces);
+    assert.equal(shown(draft.moduleSlug, () => false, false), undefined);
   }
 });
 

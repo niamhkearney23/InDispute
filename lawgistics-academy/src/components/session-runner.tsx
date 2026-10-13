@@ -4,7 +4,8 @@ import { optionLetter } from '@/lib/learning/option-order';
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { answerQuestion, finishSession, requestCoachNote } from '@/app/(app)/actions';
 import { CourtHierarchyDiagram } from '@/components/court-hierarchy-diagram';
-import { JURISDICTION_COUNTRY } from '@/lib/types';
+import { JURISDICTION_COUNTRY, type Country } from '@/lib/types';
+import type { CourtHierarchy } from '@/content/seed/court-shape';
 import { Button, Notice, Pill, cn } from '@/components/ui';
 import { CountUp } from '@/components/count-up';
 import {
@@ -24,11 +25,18 @@ export function SessionRunner({
   kind,
   questions,
   startIndex,
+  courtMaps = {},
 }: {
   sessionId: string;
   kind: SessionKind;
   questions: DeliveredQuestion[];
   startIndex: number;
+  /**
+   * The court maps this person may see, from the server: a country's map is
+   * here only once a lawyer has signed it off (or for staff, with `checked`
+   * false). Without one, a court question is answered from a plain list.
+   */
+  courtMaps?: Partial<Record<Country, { hierarchy: CourtHierarchy; checked: boolean }>>;
 }) {
   const [index, setIndex] = useState(Math.min(startIndex, questions.length - 1));
   const [selected, setSelected] = useState<string[]>([]);
@@ -56,6 +64,7 @@ export function SessionRunner({
   const awaitingCoachNoteFor = useRef<string | null>(null);
 
   const question = questions[index];
+  const courtMap = question ? courtMaps[JURISDICTION_COUNTRY[question.jurisdiction]] : undefined;
   const isLast = index === questions.length - 1;
   const answered = feedback !== null;
 
@@ -194,9 +203,16 @@ export function SessionRunner({
           {question.stem}
         </h1>
 
-        {question.questionType === 'court_hierarchy' ? (
+        {question.questionType === 'court_hierarchy' && courtMap ? (
+          <>
+          {!courtMap.checked ? (
+            <p className="mb-3 text-xs text-slate">
+              Court diagram not yet checked by a lawyer. Learners answer from a list until a
+              lawyer signs off the court map.
+            </p>
+          ) : null}
           <CourtHierarchyDiagram
-            country={JURISDICTION_COUNTRY[question.jurisdiction]}
+            hierarchy={courtMap.hierarchy}
             options={question.options}
             selected={selected}
             correctOptionIds={feedback?.correctOptionIds ?? null}
@@ -204,6 +220,7 @@ export function SessionRunner({
             disabled={answered || pending}
             onSelect={(optionId) => setSelected([optionId])}
           />
+          </>
         ) : (
         <div className="space-y-2.5" role="group" aria-label="Answer options">
           {question.options.map((option, index) => {
@@ -385,7 +402,14 @@ function FeedbackPanel({
         ) : null}
 
         <div className="space-y-5 text-base leading-relaxed sm:text-[1.0625rem]">
-          <p>{feedback.explanation}</p>
+          {feedback.explanationChecked ? (
+            <p>{feedback.explanation}</p>
+          ) : (
+            <p className="text-slate">
+              The explanation for this question is being revised and is waiting for a
+              lawyer&rsquo;s check.
+            </p>
+          )}
 
           {!feedback.isCorrect && feedback.commonMisconception ? (
             <Block label="What this is often confused with">

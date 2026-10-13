@@ -6,8 +6,8 @@ import { getModule } from '@/lib/modules/service';
 import { ButtonLink, Card, Notice, Pill, ScoreBar, SectionHeading } from '@/components/ui';
 import { StartModuleButton } from '../start-module-button';
 import { LessonPlayer } from './lesson-player';
-import { lessonToShow } from '@/content/seed/lessons';
-import { currentSignOffs } from '@/lib/lessons/signoff';
+import { courtMapFor, lessonFor } from '@/lib/content/service';
+import { isStaff } from '@/lib/content/gate';
 import { ModuleArt, artFor } from '@/components/module-art';
 import { requireAccess } from '@/lib/access/service';
 
@@ -32,9 +32,16 @@ export default async function ModulePage({
 
   const { module: definition } = entry;
   const percent = entry.total === 0 ? 0 : Math.round((entry.correctOnce / entry.total) * 100);
-  const signOffs = await currentSignOffs();
-  const lesson = lessonToShow(definition.slug, (s) => signOffs.has(s));
-  const lessonChecked = lesson ? signOffs.has(lesson.slug) : false;
+  // Decided on the server: a learner is sent a lesson only once a lawyer has
+  // signed off its current wording, and the court diagram on its screens
+  // only once that country's map is signed off. Staff see both, labelled.
+  const staff = isStaff(profile);
+  const [{ lesson: shownLesson, waiting: lessonWaiting }, diagram] = await Promise.all([
+    lessonFor(definition.slug, staff),
+    courtMapFor(profile.country, staff),
+  ]);
+  const lesson = shownLesson?.item ?? null;
+  const lessonChecked = shownLesson?.checked ?? false;
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">
@@ -85,15 +92,16 @@ export default async function ModulePage({
             eyebrow={`Lesson, about ${lesson.minutes} minutes`}
             title={lesson.title}
           />
-          {/* Unchecked content should look unchecked. */}
+          {/* Only staff ever see an unchecked lesson, and it says so. */}
           {!lessonChecked ? (
             <p className="-mt-2 mb-4 text-sm text-slate">
-              <Pill tone="neutral">Not yet checked by a lawyer</Pill>
+              <Pill tone="warn">Not yet checked by a lawyer</Pill> Learners do not see this
+              lesson until a lawyer signs it off.
             </p>
           ) : null}
           <LessonPlayer
             lesson={lesson}
-            country={profile.country}
+            diagram={diagram ? { hierarchy: diagram.item, checked: diagram.checked } : null}
             moduleSlug={definition.slug}
             quizLabel={
               entry.complete
@@ -104,6 +112,13 @@ export default async function ModulePage({
             }
           />
         </section>
+      ) : null}
+
+      {lessonWaiting && entry.total > 0 ? (
+        <Notice>
+          The lesson for this module is waiting for a lawyer&rsquo;s check. It appears here once a
+          qualified lawyer has signed it off. The questions are ready now.
+        </Notice>
       ) : null}
 
       <div className="flex flex-col gap-3 sm:flex-row">

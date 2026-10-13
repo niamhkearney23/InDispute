@@ -3637,11 +3637,147 @@ select pg_temp.expect(
   'a learner never receives an unsigned question');
 reset role;
 
+-- -----------------------------------------------------------------------------
+-- 0046: lessons, court maps and the rest reach learners only once signed off
+-- -----------------------------------------------------------------------------
+-- The promise: a court map or essay topic is signed off only by a coach or an
+-- administrator, in their own name, at the database's time, once per wording,
+-- and the record is never changed or removed; nobody reaches the records
+-- through the database. A learner receives the lawyer's approach to a matter
+-- only while the matter's current wording is signed off, reads a matter only
+-- when it is published and signed off, and reads no unsigned legal sources.
+reset role;
+set local request.jwt.claim.sub = '';
+insert into public.content_signoffs (content_key, content_hash, signed_by, signed_at)
+values ('courts-my', repeat('a', 64), '44444444-4444-4444-4444-444444444444',
+        timestamptz '2001-01-01 00:00:00+00');
+select pg_temp.expect(
+  (select signed_at > timestamptz '2020-01-01' from public.content_signoffs
+   where content_key = 'courts-my'),
+  'a court map sign-off carries the time it was actually given');
+insert into public.content_signoffs (content_key, content_hash, signed_by)
+values ('courts-au', repeat('a', 64), '33333333-3333-3333-3333-333333333333');
+select pg_temp.expect(
+  (select count(*) = 2 from public.content_signoffs),
+  'a coach or an administrator signs off a court map');
+select pg_temp.expect_failure(
+  $$insert into public.content_signoffs (content_key, content_hash, signed_by)
+    values ('courts-my', repeat('b', 64), '11111111-1111-1111-1111-111111111111')$$,
+  'a learner cannot sign off a court map, even through the server');
+select pg_temp.expect_failure(
+  $$insert into public.content_signoffs (content_key, content_hash, signed_by)
+    values ('courts-my', repeat('b', 64), 'aaaa0037-0000-0000-0000-000000000001')$$,
+  'a firm administrator who is not a lawyer signs off no court map');
+select pg_temp.expect_failure(
+  $$insert into public.content_signoffs (content_key, content_hash, signed_by)
+    values ('courts-my', repeat('a', 64), '44444444-4444-4444-4444-444444444444')$$,
+  'one sign-off per wording of a court map');
+select pg_temp.expect_failure(
+  $$insert into public.content_signoffs (content_key, content_hash, signed_by)
+    values ('courts-my', 'not-a-hash', '44444444-4444-4444-4444-444444444444')$$,
+  'a court map sign-off is pinned to a real fingerprint of the wording');
+select pg_temp.expect_failure(
+  $$insert into public.content_signoffs (content_key, content_hash, signed_by)
+    values ('Courts MY!', repeat('c', 64), '44444444-4444-4444-4444-444444444444')$$,
+  'a sign-off names its content in the agreed form');
+select pg_temp.expect_failure(
+  $$update public.content_signoffs set content_hash = repeat('c', 64) where content_key = 'courts-my'$$,
+  'a court map sign-off cannot be moved to other wording');
+select pg_temp.expect_failure(
+  $$delete from public.content_signoffs$$,
+  'a court map sign-off cannot be deleted, even by the server');
+set local request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+select pg_temp.expect_failure(
+  $$insert into public.content_signoffs (content_key, content_hash, signed_by)
+    values ('essay-pleadings-au-my', repeat('d', 64), '44444444-4444-4444-4444-444444444444')$$,
+  'nobody signs off a court map or essay topic in somebody else''s name');
+set local request.jwt.claim.sub = '';
+
+set local role authenticated;
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+select pg_temp.expect_failure(
+  $$select count(*) from public.content_signoffs$$,
+  'court map sign-offs are read through the server, not the database');
+select pg_temp.expect_failure(
+  $$insert into public.content_signoffs (content_key, content_hash, signed_by)
+    values ('courts-my', repeat('e', 64), '44444444-4444-4444-4444-444444444444')$$,
+  'nobody signs off a court map from the browser, coaches included');
+reset role;
+
+-- The lawyer's approach to a matter. At this point test-statutory-demand has
+-- been reworded since hafiz handed in (its sign-off was cleared above).
+set local role authenticated;
+set local request.jwt.claim.sub = 'cccc0026-0000-0000-0000-000000000002';
+select pg_temp.expect(
+  (select count(*) from public.matter_model_answer('aaaa0027-0000-0000-0000-000000000001')) = 0,
+  'a learner does not receive the lawyer''s approach once the matter''s wording has lost its sign-off');
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+select pg_temp.expect(
+  (select model_answer from public.matter_model_answer('aaaa0027-0000-0000-0000-000000000001'))
+    = 'MODEL ANSWER TEXT',
+  'staff still read an unsigned lawyer''s approach, to review it');
+reset role;
+
+update public.matters set verified_by = '44444444-4444-4444-4444-444444444444'
+ where slug = 'test-statutory-demand';
+set local role authenticated;
+set local request.jwt.claim.sub = 'cccc0026-0000-0000-0000-000000000002';
+select pg_temp.expect(
+  (select model_answer from public.matter_model_answer('aaaa0027-0000-0000-0000-000000000001'))
+    = 'MODEL ANSWER TEXT',
+  'signed off again, the learner who handed in sees the lawyer''s approach');
+reset role;
+
+update public.matters set review_flagged = true, review_note = 'Check the time limit.'
+ where slug = 'test-statutory-demand';
+set local role authenticated;
+set local request.jwt.claim.sub = 'cccc0026-0000-0000-0000-000000000002';
+select pg_temp.expect(
+  (select count(*) from public.matter_model_answer('aaaa0027-0000-0000-0000-000000000001')) = 0,
+  'a flagged matter''s lawyer''s approach is not given to learners');
+reset role;
+
+-- Defence in depth: even a matter forced to published without a sign-off
+-- (the check that normally refuses it taken away for the test) is not read
+-- by a learner.
+alter table public.matters drop constraint matters_published_only_when_verified;
+update public.matters set review_flagged = false, verified_by = null, published = true
+ where slug = 'test-statutory-demand';
+set local role authenticated;
+set local request.jwt.claim.sub = 'cccc0026-0000-0000-0000-000000000002';
+select pg_temp.expect(
+  not exists (select 1 from public.matters where slug = 'test-statutory-demand'),
+  'a learner never reads a matter that is not signed off, whatever it says about publishing');
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+select pg_temp.expect(
+  exists (select 1 from public.matters where slug = 'test-statutory-demand'),
+  'staff still read a matter that is not signed off, to review it');
+reset role;
+update public.matters set published = false where slug = 'test-statutory-demand';
+alter table public.matters
+  add constraint matters_published_only_when_verified check (
+    not published or (verified_by is not null and not review_flagged)
+  );
+
+-- Legal sources carry no sign-off: staff only.
+insert into public.legal_sources (id, title, citation, jurisdiction)
+values ('5ce50046-0000-0000-0000-000000000001', 'Rules of Court 2012', 'P.U.(A) 205/2012', 'MY_GENERAL');
+set local role authenticated;
+set local request.jwt.claim.sub = 'cccc0026-0000-0000-0000-000000000002';
+select pg_temp.expect(
+  not exists (select 1 from public.legal_sources),
+  'a learner reads no unsigned legal sources');
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+select pg_temp.expect(
+  exists (select 1 from public.legal_sources where id = '5ce50046-0000-0000-0000-000000000001'),
+  'staff read the legal sources');
+reset role;
+
 -- Schema version ---------------------------------------------------------------
 -- The admin pages compare this with the version the code expects.
 
 select pg_temp.expect(
-  public.schema_version() ~ '^[0-9]{4}$' and public.schema_version() >= '0044',
+  public.schema_version() ~ '^[0-9]{4}$' and public.schema_version() >= '0046',
   'the database records which version it is at');
 select pg_temp.expect(
   not has_function_privilege('authenticated', 'public.schema_version()', 'execute')

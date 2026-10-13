@@ -4,6 +4,7 @@ import { getCurrentUser } from '@/lib/supabase/server';
 import { completeSession, getSessionPlan } from '@/lib/training/service';
 import { SessionRunner } from '@/components/session-runner';
 import { requireAccess } from '@/lib/access/service';
+import { courtMapsFor, viewerIsStaff } from '@/lib/content/service';
 
 export const metadata: Metadata = { title: 'Training' };
 
@@ -34,12 +35,26 @@ export default async function TrainPage({
     );
   }
 
+  // The court diagram for a court question is the court map, so it is sent
+  // only when a lawyer has signed that map off; otherwise the question is
+  // answered from a plain list of the courts it offers.
+  const maps = plan.questions.some((q) => q.questionType === 'court_hierarchy')
+    ? await courtMapsFor(await viewerIsStaff(user.id))
+    : {};
+  const courtMaps = Object.fromEntries(
+    Object.entries(maps).map(([country, map]) => [
+      country,
+      { hierarchy: map.item, checked: map.checked },
+    ]),
+  );
+
   return (
     <SessionRunner
       sessionId={plan.sessionId}
       kind={plan.kind}
       questions={plan.questions}
       startIndex={plan.resumeIndex}
+      courtMaps={courtMaps}
     />
   );
 }

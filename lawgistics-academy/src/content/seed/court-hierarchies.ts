@@ -18,41 +18,23 @@ import type { Country } from '@/lib/types';
  *
  * NOT VERIFIED. Same standing as every other piece of content here: drafted
  * without a qualified reader, and to be checked before anyone learns from it.
+ * A learner sees a country's courts only once a lawyer has signed off that
+ * country's map at Admin, Reference, and the sign-off is pinned to every word
+ * here (courtMapWording in src/lib/content/wording.ts), so changing a court,
+ * a note or an appeal route takes it away from learners until it is signed
+ * again. Import this only from server code: a component that runs in the
+ * browser takes a hierarchy as a prop (shapes are in court-shape.ts).
  */
 
-export interface Court {
-  /** Stable id, used as the option id on a diagram question. */
-  slug: string;
-  name: string;
-  /** Shown under the name when the full name is too long for a small screen. */
-  short?: string;
-  tier: number;
-  /** Where an appeal from this court ordinarily goes. Null at the apex. */
-  appealsTo: string | null;
-  /**
-   * A second court its appeals go to, depending on where it sits. The
-   * Malaysian Sessions Court appeals to whichever High Court has its
-   * territory, and drawing only one of them taught the wrong thing.
-   */
-  alsoAppealsTo?: string;
-  note?: string;
-}
-
-export interface CourtHierarchy {
-  country: Country;
-  name: string;
-  courts: Court[];
-  /**
-   * What each drawn row is, in two or three words, beside the row. Only for
-   * reading the picture: the label says what kind of court sits on that rung,
-   * never that the courts on it are interchangeable.
-   */
-  tierLabels: Record<number, string>;
-}
+export type { Court, CourtHierarchy } from './court-shape';
+export { tiersOf } from './court-shape';
+import type { CourtHierarchy } from './court-shape';
 
 const AUSTRALIA: CourtHierarchy = {
   country: 'AU',
   name: 'Australian courts',
+  legend:
+    'Lines are appeal routes and run upwards. Courts drawn side by side do not hear appeals from each other, though they may not rank equally.',
   tierLabels: {
     0: 'Apex court',
     1: 'Superior courts, two parallel ladders',
@@ -114,6 +96,8 @@ const AUSTRALIA: CourtHierarchy = {
 const MALAYSIA: CourtHierarchy = {
   country: 'MY',
   name: 'Malaysian courts',
+  legend:
+    'Lines are appeal routes and run upwards. Courts drawn side by side do not hear appeals from each other, though they may not rank equally.',
   tierLabels: {
     0: 'Apex court',
     1: 'Intermediate appellate court',
@@ -182,14 +166,3 @@ export const COURT_HIERARCHIES: Record<Country, CourtHierarchy> = {
   AU: AUSTRALIA,
   MY: MALAYSIA,
 };
-
-/** Courts grouped into the rows they are drawn in, apex first. */
-export function tiersOf(hierarchy: CourtHierarchy): Court[][] {
-  const byTier = new Map<number, Court[]>();
-  for (const court of hierarchy.courts) {
-    const row = byTier.get(court.tier) ?? [];
-    row.push(court);
-    byTier.set(court.tier, row);
-  }
-  return [...byTier.entries()].sort((a, b) => a[0] - b[0]).map(([, row]) => row);
-}

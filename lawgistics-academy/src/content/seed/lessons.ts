@@ -963,15 +963,6 @@ export function lessonContent(lesson: SeedLesson): string {
   });
 }
 
-/**
- * The lesson a module shows, given which lessons are signed off as they
- * stand now. A signed-off rewrite takes its original's place; an unsigned
- * one is shown to nobody but staff, from Admin, Lessons.
- */
-export function lessonToShow(
-  moduleSlug: string,
-  signedOff: (slug: string) => boolean,
-): SeedLesson | null {
-  const rewrite = DRAFT_LESSONS.find((l) => l.moduleSlug === moduleSlug && signedOff(l.slug));
-  return rewrite ?? lessonForModule(moduleSlug);
-}
+// Which lesson a person is shown, and whether they are shown it at all, is
+// decided in src/lib/content/gate.ts (lessonForViewer): a learner sees a
+// lesson only once a lawyer has signed off its current wording.

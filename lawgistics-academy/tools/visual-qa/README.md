@@ -84,5 +84,21 @@ when something else is already there; build the app with
 > and every interactive control silently falls back to a native form submit, which
 > looks exactly like a broken app.
 
+### Signed and unsigned content
+
+Lessons, court maps and essay topics reach a learner only once a lawyer has
+signed them off (0046). The stand-in signs off the Malaysian court map and
+the Australian court lesson and nothing else (`signed-fixtures.ts`, worked out
+from the code with the app's own fingerprints), so the sweep draws both sides:
+the map and the lesson where they are signed, "waiting for a lawyer's check"
+where they are not, and the labelled staff view. Pages in the list can name
+text that must and must not be in them (`signed` / `unsigned`), so the sweep
+fails if waiting content is in the page at all, not only if it is visible.
+
+To draw a fresh install, where nothing is signed yet, start both the
+stand-in and the check with `MOCK_NOTHING_SIGNED=1`. `QA_DEVICES` and
+`QA_PAGES` (comma-separated names from the lists in `device-check.mjs`) run a
+subset, for example `QA_DEVICES=galaxy-s24,iphone-se` for phone width only.
+
 The script signs in through the real login form rather than injecting a cookie,
 so the auth flow is exercised too.

@@ -53,6 +53,14 @@ const DEVICES = [
   },
 ];
 
+// Run only some devices or pages: QA_DEVICES=galaxy-s24,iphone-se and
+// QA_PAGES=courts,courts-my (names as in the lists here).
+const only = (value) => (value ? new Set(value.split(',').map((v) => v.trim())) : null);
+const ONLY_DEVICES = only(process.env.QA_DEVICES);
+const ONLY_PAGES = only(process.env.QA_PAGES);
+// Which side of the sign-off rule the stand-in is on (see signed-fixtures.ts).
+const NOTHING_SIGNED = process.env.MOCK_NOTHING_SIGNED === '1';
+
 const PAGES = [
   { name: 'landing', path: '/', auth: false },
   { name: 'login', path: '/login', auth: false },
@@ -69,8 +77,89 @@ const PAGES = [
   { name: 'onboarding', path: '/onboarding', auth: true, as: 'new@lawgistics.test' },
   { name: 'dashboard', path: '/dashboard', auth: true },
   { name: 'skills', path: '/skills', auth: true },
-  { name: 'courts', path: '/courts', auth: true },
-  { name: 'courts-my', path: '/courts', auth: true, as: 'trainee@lawgistics.test' },
+  // The court map, three ways (0046). The stand-in signs off the Malaysian
+  // map and not the Australian one (signed-fixtures.ts), so: an Australian
+  // administrator sees the unsigned map labelled, a Malaysian trainee sees
+  // the signed map, and an Australian learner sees only that it is waiting.
+  // `signed` and `unsigned` say what each page must and must not contain,
+  // with those fixtures and on a fresh install (MOCK_NOTHING_SIGNED=1).
+  {
+    name: 'courts',
+    path: '/courts',
+    auth: true,
+    signed: { present: ['Not yet checked by a lawyer', 'High Court of Australia'] },
+    unsigned: { present: ['Not yet checked by a lawyer', 'High Court of Australia'] },
+  },
+  {
+    name: 'courts-my',
+    path: '/courts',
+    auth: true,
+    as: 'trainee@lawgistics.test',
+    signed: { present: ['Federal Court of Malaysia'], absent: ['Not yet checked by a lawyer'] },
+    unsigned: { present: ['waiting for a lawyer'], absent: ['Federal Court of Malaysia', 'co-ordinate jurisdiction'] },
+  },
+  {
+    name: 'courts-au-learner',
+    path: '/courts',
+    auth: true,
+    as: 'aulearner@lawgistics.test',
+    signed: { present: ['waiting for a lawyer'], absent: ['High Court of Australia', 'Special leave'] },
+    unsigned: { present: ['waiting for a lawyer'], absent: ['High Court of Australia', 'Special leave'] },
+  },
+  // Nothing in the menu or on Learn leads an Australian learner to the map.
+  {
+    name: 'dashboard-au-learner',
+    path: '/dashboard',
+    auth: true,
+    as: 'aulearner@lawgistics.test',
+    signed: { absent: ['href="/courts"'] },
+    unsigned: { absent: ['href="/courts"'] },
+  },
+  {
+    name: 'modules-au-learner',
+    path: '/modules',
+    auth: true,
+    as: 'aulearner@lawgistics.test',
+    signed: { absent: ['href="/courts"', 'Open the court map'] },
+    unsigned: { absent: ['href="/courts"', 'Open the court map'] },
+  },
+  {
+    name: 'modules-my-trainee',
+    path: '/modules',
+    auth: true,
+    as: 'trainee@lawgistics.test',
+    signed: { present: ['Open the court map'] },
+    unsigned: { absent: ['href="/courts"', 'Open the court map'] },
+  },
+  // A signed lesson for a learner, and an unsigned one: waiting for them,
+  // labelled for staff.
+  {
+    name: 'module-au-learner',
+    path: '/modules/courts-au',
+    auth: true,
+    as: 'aulearner@lawgistics.test',
+    signed: { present: ['How the courts fit together'], absent: ['Not yet checked by a lawyer'] },
+    unsigned: { present: ['waiting for a lawyer'], absent: ['How the courts fit together', 'Why there is an order at all'] },
+  },
+  {
+    name: 'module-au-learner-waiting',
+    path: '/modules/litigation-support-au',
+    auth: true,
+    as: 'aulearner@lawgistics.test',
+    signed: { present: ['waiting for a lawyer'], absent: ['What running a file actually involves'] },
+    unsigned: { present: ['waiting for a lawyer'], absent: ['What running a file actually involves'] },
+  },
+  {
+    name: 'module-staff-unsigned',
+    path: '/modules/litigation-support-au',
+    auth: true,
+    signed: { present: ['Not yet checked by a lawyer', 'What running a file actually involves'] },
+    unsigned: { present: ['Not yet checked by a lawyer', 'What running a file actually involves'] },
+  },
+  { name: 'welcome-au-learner', path: '/welcome', auth: true, as: 'aulearner@lawgistics.test' },
+  { name: 'diagnostic-au-learner', path: '/diagnostic', auth: true, as: 'aulearner@lawgistics.test' },
+  { name: 'admin-reference', path: '/admin/reference', auth: true },
+  { name: 'admin-reference-courts', path: '/admin/reference/courts-au', auth: true },
   { name: 'account', path: '/account', auth: true },
   { name: 'welcome', path: '/welcome', auth: true },
   { name: 'account-password', path: '/account/password', auth: true },
@@ -297,6 +386,7 @@ const browser = await chromium.launch({ executablePath: EXE });
 const report = [];
 
 for (const device of DEVICES) {
+  if (ONLY_DEVICES && !ONLY_DEVICES.has(device.name)) continue;
   /**
  * Nothing in this sweep is allowed to touch the internet.
  *
@@ -345,6 +435,7 @@ const context = await browser.newContext({
   const signedIn = !page.url().includes('/login');
 
   for (const target of PAGES) {
+    if (ONLY_PAGES && !ONLY_PAGES.has(target.name)) continue;
     // Two kinds of page need their own browser context: one that must be
     // viewed signed out, and one that must be viewed as a different account.
     // Both were previously visited on the shared signed-in page, so the
@@ -400,6 +491,18 @@ const context = await browser.newContext({
         await view.waitForTimeout(1200);
       }
 
+      // What the page must and must not contain, for pages that say. This is
+      // how the sweep checks that legal content waiting for a lawyer is not
+      // in the page at all, not merely out of sight (0046).
+      const expected = NOTHING_SIGNED ? target.unsigned : target.signed;
+      const missingText = [];
+      const unwantedText = [];
+      if (expected) {
+        const html = await view.content();
+        for (const text of expected.present ?? []) if (!html.includes(text)) missingText.push(text);
+        for (const text of expected.absent ?? []) if (html.includes(text)) unwantedText.push(text);
+      }
+
       const probe = await view.evaluate(OVERFLOW_PROBE);
       await view.screenshot({
         path: `${OUT}/${device.name}--${target.name}.png`,
@@ -411,6 +514,8 @@ const context = await browser.newContext({
         page: target.name,
         url: view.url().replace(BASE, ''),
         redirectedTo: redirected ? landed : null,
+        missingText,
+        unwantedText,
         ...probe,
         consoleErrors: [...consoleErrors],
       });
@@ -443,12 +548,16 @@ const problems = report.filter(
     (r.collisions && r.collisions.length) ||
     (r.smallTargets && r.smallTargets.length) ||
     r.redirectedTo ||
+    (r.missingText && r.missingText.length) ||
+    (r.unwantedText && r.unwantedText.length) ||
     (r.zoomers && r.zoomers.length) ||
     (r.consoleErrors && r.consoleErrors.length),
 );
 
 console.log(`\nRendered ${report.filter((r) => r.docWidth).length} page/device combinations.`);
-console.log(`Signed in OK on: ${report.filter((r) => r.signedIn).length}/${DEVICES.length} devices\n`);
+console.log(
+  `Signed in OK on: ${report.filter((r) => r.signedIn).length}/${ONLY_DEVICES ? ONLY_DEVICES.size : DEVICES.length} devices\n`,
+);
 
 if (problems.length === 0) {
   console.log('No layout problems found.');
@@ -457,6 +566,8 @@ if (problems.length === 0) {
     console.log(`--- ${p.device} :: ${p.page}`);
     if (p.error) console.log(`    ERROR ${p.error}`);
     if (p.redirectedTo) console.log(`    NOT RENDERED: redirected to ${p.redirectedTo}`);
+    for (const t of p.missingText ?? []) console.log(`    MISSING TEXT "${t}"`);
+    for (const t of p.unwantedText ?? []) console.log(`    TEXT THAT MUST NOT BE THERE "${t}"`);
     if (p.horizontalScroll) console.log(`    HORIZONTAL SCROLL ${p.scrollWidth} > ${p.docWidth}`);
     for (const o of p.offenders ?? []) console.log(`      overflow: <${o.tag}> "${o.text}" [${o.left}..${o.right}] ${o.cls}`);
     for (const c of p.collisions ?? []) console.log(`      overlapping text by ${c.by}px: "${c.a}" over "${c.b}"`);

@@ -404,7 +404,7 @@ export async function submitAnswer(args: {
     db
       .from('question_versions')
       .select(
-        'id, question_id, question_type, stem, scenario, options, correct_option_ids, explanation, why_it_matters, common_misconception, memory_trick, difficulty, jurisdiction, court, source_reference, source_url',
+        'id, question_id, question_type, stem, scenario, options, correct_option_ids, explanation, why_it_matters, common_misconception, memory_trick, difficulty, jurisdiction, court, source_reference, source_url, verification_status',
       )
       .eq('id', args.questionVersionId)
       .maybeSingle(),
@@ -719,18 +719,25 @@ export async function submitAnswer(args: {
   // anything at all: on a deployment with the coach turned on, up to
   // TIMEOUT_MS on every single question. Nothing above this line depends on
   // it, and the explanation the learner actually needs is already in hand.
+  // The explanation is legal content in its own right. It was signed off
+  // when the question was given out, but a change of wording since (an
+  // explanation corrected in place clears the sign-off, 0040) means it is
+  // no longer what a lawyer checked, so it is not shown: the answer is
+  // still marked, and the page says the explanation is waiting (0046).
+  const explained = version.verification_status === 'human_verified';
   return {
     isCorrect,
     correctOptionIds,
     selectedOptionIds: args.selectedOptionIds,
-    explanation: version.explanation,
-    whyItMatters: version.why_it_matters,
-    commonMisconception: version.common_misconception,
-    memoryTrick: version.memory_trick,
+    explanationChecked: explained,
+    explanation: explained ? version.explanation : '',
+    whyItMatters: explained ? version.why_it_matters : null,
+    commonMisconception: explained ? version.common_misconception : null,
+    memoryTrick: explained ? version.memory_trick : null,
     jurisdiction: version.jurisdiction,
     court: version.court,
-    sourceReference: version.source_reference,
-    sourceUrl: version.source_url,
+    sourceReference: explained ? version.source_reference : null,
+    sourceUrl: explained ? version.source_url : null,
     xpAwarded,
     nextReviewLabel: soonestReviewAt ? describeNextReview(soonestReviewAt, now, learnerZone) : null,
     coachNote: null,
@@ -811,13 +818,16 @@ export async function getCoachNote(
     db
       .from('question_versions')
       .select(
-        'question_id, stem, scenario, options, correct_option_ids, explanation, common_misconception, jurisdiction',
+        'question_id, stem, scenario, options, correct_option_ids, explanation, common_misconception, jurisdiction, verification_status',
       )
       .eq('id', questionVersionId)
       .maybeSingle(),
   ]);
 
   if (!attempt || !version) return { error: 'Could not load that question.' };
+  // The note is written from the checked explanation. One no longer signed
+  // off is not handed to the AI to paraphrase for a learner (0046).
+  if (version.verification_status !== 'human_verified') return { coachNote: null };
 
   const { data: conceptLinks } = await db
     .from('question_concepts')

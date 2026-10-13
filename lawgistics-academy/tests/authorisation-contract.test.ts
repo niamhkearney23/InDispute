@@ -174,6 +174,7 @@ test('the server actions were actually found', () => {
     'setPublished',
     'setStaffRole',
     'signOffLesson',
+    'signOffReference',
     'startCheckout',
     'startMatter',
     'startTutor',
@@ -348,6 +349,11 @@ const COACH_ACTIONS = new Set([
   // to the exact wording so any later change needs signing again. Writing
   // lessons stays in the code, with nobody's account able to edit them.
   'signOffLesson',
+  // Signing off a court map or an essay topic (0046): the same judgement as
+  // a lesson, for the other legal content written in the code. A learner
+  // sees neither until it is signed, and the sign-off is pinned to the
+  // wording, so any change needs signing again.
+  'signOffReference',
 ]);
 
 /**
@@ -359,6 +365,7 @@ const REVIEWER_ACTIONS = new Set([
   'recordReviewDecision',
   'decideMatter',
   'signOffLesson',
+  'signOffReference',
   'markMatterAttempt',
   'saveTrainee',
   'saveCertificationEntry',

@@ -10,7 +10,8 @@ import { beforeYouBegin } from '@/lib/onboarding/service';
 import { acceptedInvitationFor } from '@/lib/onboarding/invitations';
 import { greeting, greetingName } from '@/lib/greeting';
 import { longDate } from '@/lib/onboarding/rules';
-import { essayTopic } from '@/content/seed/essay-topics';
+import { essayFor } from '@/lib/content/service';
+import { isStaff } from '@/lib/content/gate';
 import { homeworkForDay } from '@/content/seed/homework';
 import { homeworkDay, lastArrivedDay } from '@/lib/homework/rules';
 import { HomeworkForm } from '../homework-form';
@@ -135,7 +136,9 @@ export default async function DashboardPage() {
 
   const sittingCount = diagnosticSittings.data?.length ?? 0;
   const assignedTopicSlug = diagnosticSittings.data?.[0]?.essay_topic_slug as string | undefined;
-  const assignedTopic = assignedTopicSlug ? essayTopic(assignedTopicSlug) : undefined;
+  // The essay topic is legal content written in the code: a learner is shown
+  // it only once a lawyer has signed off its wording (0046).
+  const essay = await essayFor(assignedTopicSlug, isStaff(profile));
 
   const homework = homeworkDay(
       profile.startsOn,
@@ -658,9 +661,20 @@ export default async function DashboardPage() {
             {profile.startsOn && profile.endsOn ? ' ' : ''}
             {profile.endsOn ? `Ends ${longDate(profile.endsOn)}.` : ''}
           </p>
-          {assignedTopic ? (
+          {essay.topic ? (
             <p className="mt-3 text-sm text-slate">
-              <strong>Your comparison essay:</strong> {assignedTopic.prompt}
+              <strong>Your comparison essay:</strong> {essay.topic.item.prompt}
+              {!essay.topic.checked ? (
+                <span className="mt-1 block text-xs">
+                  Not yet checked by a lawyer. Learners do not see this topic until a lawyer
+                  signs it off.
+                </span>
+              ) : null}
+            </p>
+          ) : essay.waiting ? (
+            <p className="mt-3 text-sm text-slate">
+              <strong>Your comparison essay:</strong> the topic is waiting for a lawyer&rsquo;s
+              check, and appears here once it is signed off.
             </p>
           ) : null}
           {sittingCount >= 2 ? (
