@@ -114,8 +114,12 @@ $$;
 
 revoke all on function public.question_version_publish_gate() from public;
 
+-- Fires on every update, not only on updates that name these columns: a
+-- sign-off cleared by guard_signoff (a corrected explanation) changes
+-- verification_status without the statement naming it, and a trigger "of"
+-- columns would never see it.
 create or replace trigger question_versions_publish_gate
-  after insert or update of is_current, verification_status on public.question_versions
+  after insert or update on public.question_versions
   for each row execute function public.question_version_publish_gate();
 
 -- Named to sort after daily_facts_guard_signoff (0040), so it sees a sign-off

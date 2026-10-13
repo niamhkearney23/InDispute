@@ -3591,6 +3591,18 @@ select pg_temp.expect(
   (select status = 'requires_review' from public.questions where id = 'cccc0044-0000-0000-0000-000000000001'),
   'a published question that loses its sign-off goes back to review');
 
+-- The same when the sign-off is cleared by a corrected explanation, which
+-- never names verification_status in the statement (found by the
+-- integration tests against real Supabase).
+update public.question_versions set verification_status = 'human_verified'
+ where id = 'dddd0044-0000-0000-0000-000000000001';
+update public.questions set status = 'published' where id = 'cccc0044-0000-0000-0000-000000000001';
+update public.question_versions set explanation = 'A corrected explanation nobody has signed off yet.'
+ where id = 'dddd0044-0000-0000-0000-000000000001';
+select pg_temp.expect(
+  (select status = 'requires_review' from public.questions where id = 'cccc0044-0000-0000-0000-000000000001'),
+  'a published question whose explanation is corrected goes back to review');
+
 -- A published fact whose wording changes loses its sign-off and leaves learners.
 insert into public.daily_facts (slug, title, body, jurisdiction, status, country, verification_status)
 values ('signed-fact-0044', 'A signed fact.',
@@ -3636,6 +3648,38 @@ select pg_temp.expect(
               where question_id = 'cccc0044-0000-0000-0000-000000000002'),
   'a learner never receives an unsigned question');
 reset role;
+
+-- 0047: a staff role counts only once the code has been typed ------------------
+-- Supabase puts aal1 (password alone) or aal2 (code typed) in every token.
+
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+set local request.jwt.claims = '{"sub":"44444444-4444-4444-4444-444444444444","aal":"aal1","role":"authenticated"}';
+select pg_temp.expect(not public.is_coach(), 'a coach with a password alone is not staff to the database');
+select pg_temp.expect(
+  not exists (select 1 from public.certification_trainees),
+  'a coach with a password alone cannot read the certification register');
+set local request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+set local request.jwt.claims = '{"sub":"33333333-3333-3333-3333-333333333333","aal":"aal1","role":"authenticated"}';
+select pg_temp.expect(not public.is_admin() and not public.is_firm_admin(),
+  'an administrator with a password alone is not an administrator to the database');
+select pg_temp.expect(
+  (select count(*) from public.profiles) = 1,
+  'an administrator with a password alone reads only their own profile');
+set local request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+set local request.jwt.claims = '{"sub":"33333333-3333-3333-3333-333333333333","aal":"aal2","role":"authenticated"}';
+select pg_temp.expect(public.is_admin() and public.is_coach() and public.is_firm_admin(),
+  'once the code is typed the administrator counts as one');
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+set local request.jwt.claims = '{"sub":"44444444-4444-4444-4444-444444444444","aal":"aal2","role":"authenticated"}';
+select pg_temp.expect(public.is_coach(), 'once the code is typed the coach counts as one');
+set local request.jwt.claim.sub = '22222222-2222-2222-2222-222222222222';
+set local request.jwt.claims = '{"sub":"22222222-2222-2222-2222-222222222222","aal":"aal2","role":"authenticated"}';
+select pg_temp.expect(not public.is_coach() and not public.is_admin(),
+  'typing a code makes nobody staff who is not');
+reset role;
+set local request.jwt.claims = '';
 
 -- Schema version ---------------------------------------------------------------
 -- The admin pages compare this with the version the code expects.

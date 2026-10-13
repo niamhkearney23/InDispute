@@ -21,7 +21,10 @@
     "plan:review": "tsx --conditions=react-server scripts/review-plan.ts",
     "review:pack": "tsx --conditions=react-server scripts/review-pack.ts",
     "doctor": "tsx --conditions=react-server scripts/doctor.ts",
-    "build:sql": "tsx scripts/build-combined-sql.ts"
+    "build:sql": "tsx scripts/build-combined-sql.ts",
+    "test:integration": "tsx --conditions=react-server --test --test-concurrency=1 tests-integration/*.it.test.ts",
+    "it:up": "tools/integration/stack.sh up",
+    "it:down": "tools/integration/stack.sh down"
   },
   "dependencies": {
     "@dicebear/avataaars": "^9.4.2",
