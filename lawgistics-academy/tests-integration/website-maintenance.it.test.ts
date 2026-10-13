@@ -14,7 +14,7 @@ import './target-guard';
 import { after, before, test } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
-import { spawn, type ChildProcess } from 'node:child_process';
+import { execFileSync, spawn, type ChildProcess } from 'node:child_process';
 import { chromium, type Browser, type BrowserContext, type Page } from 'playwright';
 import { IT, PASSWORD, TARGET, browserOptions, person, service, totp, type Person } from './helpers';
 
@@ -27,7 +27,18 @@ const APP_DIR = path.join(__dirname, '..');
 let browser: Browser;
 const servers: ChildProcess[] = [];
 
+/** Stops whatever holds a port: a copy left from an earlier run serves an old build. */
+function freePort(port: number) {
+  try {
+    execFileSync('fuser', ['-k', `${port}/tcp`], { stdio: 'ignore' });
+  } catch {
+    // nothing was there
+  }
+}
+
 async function startApp(port: number, siteAccess: string) {
+  freePort(port);
+  await new Promise((r) => setTimeout(r, 500));
   const child = spawn('npx', ['next', 'start', '-p', String(port)], {
     cwd: APP_DIR,
     env: {
@@ -41,6 +52,7 @@ async function startApp(port: number, siteAccess: string) {
       SITE_ACCESS: siteAccess,
     },
     stdio: 'ignore',
+    detached: true,
   });
   servers.push(child);
   for (let i = 0; i < 60; i++) {
@@ -60,7 +72,17 @@ before(async () => {
 });
 after(async () => {
   await browser?.close();
-  for (const s of servers) s.kill('SIGTERM');
+  // npx starts next, which starts next-server: stop the whole group, then
+  // make sure the ports are free.
+  for (const s of servers) {
+    try {
+      if (s.pid) process.kill(-s.pid, 'SIGTERM');
+    } catch {
+      // already gone
+    }
+  }
+  freePort(3126);
+  freePort(3127);
 });
 
 async function signIn(context: BrowserContext, base: string, p: Person): Promise<Page> {
