@@ -6,6 +6,7 @@ import { getCurrentUser } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/service';
 import { seedContent } from '@/lib/setup/seed-content';
 import { getSetupStatus } from '@/lib/setup/status';
+import { siteAccess, staffAreaOpen } from '@/lib/security/site-access';
 
 /**
  * First-run setup.
@@ -30,6 +31,11 @@ export type SetupResult =
   | { ok: false; error: string };
 
 export async function completeSetup(formData: FormData): Promise<SetupResult> {
+  // Making the first administrator is staff-only, so it is closed with the
+  // staff area (src/lib/security/site-access.ts), before anything is read.
+  if (!staffAreaOpen(siteAccess())) {
+    return { ok: false, error: 'The staff area is closed for maintenance. Please try again later.' };
+  }
   const user = await getCurrentUser();
   if (!user) {
     return { ok: false, error: 'Create an account first, then come back to this page.' };

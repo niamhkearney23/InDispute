@@ -565,6 +565,27 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   failed with "permission denied for table users". It now asks
   `account_exists(uuid)` (security definer). Never read `auth.users` from a
   function that runs as the caller; found only by the integration tests.
+- **Rollback is fail secure** (the owner's decision, after rejecting a
+  rollback that put back password-only staff access in the database): restrict
+  access first, then fix forward; never deploy a build without two-step
+  sign-in (`b0161d8` or earlier), never undo `0043` to `0048`.
+  `docs/ROLLBACK.md` is the owner's guide and lists every security control
+  with the only conditions under which one may be relaxed (exceptions are
+  recorded in `docs/SECURITY-EXCEPTIONS.md`). The switch is `SITE_ACCESS`,
+  read at runtime by `src/lib/security/site-access.ts`: unset or `open` is
+  normal; `staff-closed` closes /admin, `/api/inbound/work`, `/api/digest`
+  and `/setup` (503 maintenance page from the middleware) and every guard in
+  `src/lib/admin/guard.ts` refuses first (`require*` redirect to
+  `/maintenance`, `check*` return null), because a server action can be
+  posted to any page's address; `closed` makes the middleware answer 503
+  everywhere except `/api/cron/erasure-retry` (and not that with a
+  `Next-Action` header), `getCurrentUser` answers nobody, and `join` refuses.
+  Any other value counts as `closed`. The switch can only refuse: no value
+  touches two-step sign-in. Tests call every server action and the real
+  middleware under each value (`tests/site-access*.test.ts`), and the
+  authorisation contract holds every guard and `getCurrentUser` to asking it
+  first. The old SQL file that undid `0047` is withdrawn; do not write
+  another.
 - **Integration tests on a throwaway Supabase** (`tools/integration`,
   `tests-integration`, Docker): Supabase's own Postgres image, Auth,
   PostgREST and Storage, pinned. `npm run it:up`, `npm run test:integration`,
@@ -656,7 +677,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   (a video site, a logo, a payment page) needs adding there, and frame-src is
   built from `src/lib/lessons/embed.ts`. Downloads and the cartoon keep their
   own stricter policy in `next.config.ts`.
-- 573 tests, 551 schema guarantees against a real Postgres (fresh, and SETUP
+- 602 tests, 551 schema guarantees against a real Postgres (fresh, and SETUP
   then UPDATE again), 477 page and device combinations (the five-device sweep in October
   2026, after 0045 to 0048) and 33 accessibility combinations checked, and 20 integration tests on a throwaway Supabase
   (`npm run test:integration`). Contract tests are

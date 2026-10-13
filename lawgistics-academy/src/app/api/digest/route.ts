@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { timingSafeEqual } from 'node:crypto';
 import { onboardingRoster } from '@/lib/onboarding/service';
 import { daysUntil } from '@/lib/onboarding/rules';
+import { siteAccess, staffAreaOpen } from '@/lib/security/site-access';
 
 /**
  * A read-only digest of who is joining, for n8n or anything else that wants to
@@ -39,6 +40,11 @@ function tokenMatches(presented: string, expected: string): boolean {
 }
 
 export async function GET(request: NextRequest) {
+  // A list of everybody joining is for staff, so it closes with the staff
+  // area (src/lib/security/site-access.ts). The middleware answers first.
+  if (!staffAreaOpen(siteAccess())) {
+    return new NextResponse('Closed for maintenance', { status: 503 });
+  }
   const expected = process.env.DIGEST_TOKEN ?? '';
 
   // Not configured is not an error, it is off. A 404 says nothing about whether
