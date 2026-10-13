@@ -1,7 +1,7 @@
 import 'server-only';
-import { createHash } from 'node:crypto';
 import { createServiceClient } from '@/lib/supabase/service';
-import { ALL_LESSONS, lessonContent, type SeedLesson } from '@/content/seed/lessons';
+import { ALL_LESSONS, type SeedLesson } from '@/content/seed/lessons';
+import { lessonHash } from '@/lib/content/wording';
 
 /**
  * Lesson sign-offs: which lessons a lawyer has read and signed, as they
@@ -10,9 +10,7 @@ import { ALL_LESSONS, lessonContent, type SeedLesson } from '@/content/seed/less
  */
 
 /** The fingerprint a sign-off is pinned to. */
-export function lessonHash(lesson: SeedLesson): string {
-  return createHash('sha256').update(lessonContent(lesson)).digest('hex');
-}
+export { lessonHash };
 
 export interface LessonSignOff {
   name: string;

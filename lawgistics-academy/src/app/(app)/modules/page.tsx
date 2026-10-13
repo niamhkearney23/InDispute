@@ -8,6 +8,8 @@ import { listFirmModulesForLearner } from '@/lib/firm/service';
 import { ButtonLink, Card, Pill, SectionHeading } from '@/components/ui';
 import { ModuleArt, artFor } from '@/components/module-art';
 import { requireAccess } from '@/lib/access/service';
+import { courtMapFor } from '@/lib/content/service';
+import { isStaff } from '@/lib/content/gate';
 
 export const metadata: Metadata = { title: 'Modules' };
 
@@ -19,9 +21,10 @@ export default async function ModulesPage() {
   const profile = await getLearnerProfile(user.id);
   if (!profile) redirect('/account-problem');
 
-  const [progress, firmModules] = await Promise.all([
+  const [progress, firmModules, courtMap] = await Promise.all([
     getModuleProgress(user.id, profile.country),
     listFirmModulesForLearner(user.id, profile.country),
+    courtMapFor(profile.country, isStaff(profile)),
   ]);
 
   return (
@@ -38,15 +41,19 @@ export default async function ModulesPage() {
 
       {/* One line in, not a whole section: this is a shortcut for somebody who
           already knows what they want, not the main thing on this page. */}
-      <Card className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="font-medium">Which court does this go in?</p>
-          <p className="text-sm text-slate">Tap through the hierarchy and see where an appeal goes.</p>
-        </div>
-        <ButtonLink href="/courts" variant="outline" size="sm">
-          Open the court map
-        </ButtonLink>
-      </Card>
+      {/* Offered only once a lawyer has signed off this country's map, so
+          the card never leads a learner to a page with nothing on it. */}
+      {courtMap ? (
+        <Card className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="font-medium">Which court does this go in?</p>
+            <p className="text-sm text-slate">Tap through the hierarchy and see where an appeal goes.</p>
+          </div>
+          <ButtonLink href="/courts" variant="outline" size="sm">
+            Open the court map
+          </ButtonLink>
+        </Card>
+      ) : null}
 
       <Card className="flex flex-wrap items-center justify-between gap-3">
         <div>

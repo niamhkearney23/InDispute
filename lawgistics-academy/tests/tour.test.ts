@@ -5,8 +5,18 @@ import { tourFinish, tourSteps } from '../src/content/tour';
 const keys = (who: Parameters<typeof tourSteps>[0]) => tourSteps(who).map((s) => s.key);
 
 test('everybody is shown each part of the menu', () => {
-  const general = keys({ trainee: false, open: true, needsDiagnostic: true });
+  const general = keys({ trainee: false, open: true, needsDiagnostic: true, courts: true });
   for (const key of ['today', 'learn', 'skills', 'courts', 'account']) assert.ok(general.includes(key), key);
+});
+
+test('the court map is in the tour only once a lawyer has signed it off', () => {
+  // The menu has no Courts item until then, so the tour must not send
+  // anybody looking for it (0046).
+  for (const trainee of [true, false]) {
+    assert.ok(!keys({ trainee, open: true, needsDiagnostic: false }).includes('courts'));
+    assert.ok(!keys({ trainee, open: true, needsDiagnostic: false, courts: false }).includes('courts'));
+    assert.ok(keys({ trainee, open: true, needsDiagnostic: false, courts: true }).includes('courts'));
+  }
 });
 
 test('only trainees are told about the rounds, the work board and the month', () => {
@@ -36,7 +46,7 @@ const DASHES = new RegExp(`[${String.fromCharCode(0x2013)}${String.fromCharCode(
 
 test('no em or en dashes in the tour', () => {
   const all = [true, false].flatMap((trainee) =>
-    tourSteps({ trainee, open: false, needsDiagnostic: true }).flatMap((s) => [s.where, s.title, s.body]),
+    tourSteps({ trainee, open: false, needsDiagnostic: true, courts: true }).flatMap((s) => [s.where, s.title, s.body]),
   );
   for (const text of all) assert.doesNotMatch(text, DASHES);
 });

@@ -2,10 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { COURT_HIERARCHIES, type Court } from '@/content/seed/court-hierarchies';
+import type { Court, CourtHierarchy } from '@/content/seed/court-shape';
 import { CourtTiers } from '@/components/court-tiers';
 import { cn } from '@/components/ui';
-import type { Country } from '@/lib/types';
 
 /**
  * A picture of a building for each court, so the map reads as a place rather
@@ -43,16 +42,20 @@ const COURT_PICTURES: Record<string, string> = {
  * one: press a court and it opens, showing what it actually does and, because
  * that is the thing a hierarchy is *for*, the path an appeal from it takes on
  * the way to the top, drawn as one line up through the picture.
+ *
+ * The courts arrive as a prop from the server, which hands them over only
+ * once a lawyer has signed the map off (or to staff, labelled). This file
+ * must never import the courts itself: whatever a browser component imports
+ * is sent to every browser, whether the page shows it or not.
  */
 export function CourtMap({
-  country,
+  hierarchy,
   quizHref,
 }: {
-  country: Country;
+  hierarchy: CourtHierarchy;
   /** Where "Test yourself" leads. Omitted if there is nowhere to send them. */
   quizHref: string | null;
 }) {
-  const hierarchy = COURT_HIERARCHIES[country];
   const bySlug = new Map(hierarchy.courts.map((c) => [c.slug, c]));
 
   const [open, setOpen] = useState<string | null>(null);
@@ -110,8 +113,7 @@ export function CourtMap({
       </div>
 
       <p className="mt-4 text-xs text-slate">
-        Lines are appeal routes and run upwards. Courts drawn side by side do not hear appeals
-        from each other, though they may not rank equally. Choose a court to see what it does.
+        {hierarchy.legend} Choose a court to see what it does.
       </p>
 
       {quizHref ? (

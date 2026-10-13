@@ -49,6 +49,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           { href: '/admin/review', label: 'Sign off', shown: isReviewer },
           { href: '/admin', label: 'Questions', shown: isAdmin, also: ['/admin/questions'] },
           { href: '/admin/lessons', label: 'Lessons', shown: isReviewer },
+          { href: '/admin/reference', label: 'Courts and essays', shown: isReviewer },
           { href: '/admin/matters', label: 'Matters', shown: isReviewer },
           { href: '/admin/facts', label: 'Daily brief', shown: isAdmin },
         ],

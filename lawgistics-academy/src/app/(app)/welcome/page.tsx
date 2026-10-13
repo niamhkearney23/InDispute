@@ -7,6 +7,8 @@ import { requireAccess } from '@/lib/access/service';
 import { tourFinish, tourSteps } from '@/content/tour';
 import { scheduleForPerson } from '@/lib/training/cohorts';
 import { Tour } from '@/components/tour';
+import { courtMapFor } from '@/lib/content/service';
+import { isStaff } from '@/lib/content/gate';
 
 export const metadata: Metadata = { title: 'How it works' };
 
@@ -31,6 +33,8 @@ export default async function WelcomePage() {
     open,
     needsDiagnostic: !profile.diagnosticCompletedAt,
     schedule: await scheduleForPerson(user.id),
+    // The tour mentions the court map only when there is one to open.
+    courts: Boolean(await courtMapFor(profile.country, isStaff(profile))),
   };
 
   return (

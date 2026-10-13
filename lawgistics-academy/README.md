@@ -146,6 +146,20 @@ this as well (`0044`): it refuses to publish a question or fact without a sign-o
 an item back to review when its wording changes, and the delivery view and the daily
 brief serve only signed-off content whatever the status says.
 
+The same rule covers the legal teaching that lives in the code (`0046`): the
+lessons, each country's court map (`/courts`, and the court diagram on lesson screens
+and court questions) and the comparison essay topics. A learner sees one only once a
+lawyer has signed off its current wording, at Admin, Lessons or Admin, Courts and
+essays. A sign-off records a fingerprint of every word, so changing a word in the code
+takes the item away from learners until it is signed again; nobody has to remember to
+withdraw it. Until then the learner is told the part is waiting for a lawyer's check,
+and the menu, the Learn page and the tour do not point to a court map they cannot
+open. Staff still see everything, marked "Not yet checked by a lawyer". The content is
+handed to the browser only from the server after that check, never imported by
+browser code, so it is not in the page at all. A question's explanation reworded after
+the question was given out is not shown, and the lawyer's approach to a matter reaches
+a learner only while the matter is signed off. Loading content signs nothing off.
+
 ### Reviewing without the mouse
 
 The queue is driven by the keyboard, because 233 items reviewed a click at a
@@ -446,7 +460,7 @@ it as a secret.
 ## Testing
 
 ```bash
-npm run test        # 523 tests: engine, content, triage, and the contract tests below
+npm run test        # 543 tests: engine, content, triage, and the contract tests below
 npm run typecheck
 npm run lint
 npm run build

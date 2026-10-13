@@ -4,9 +4,9 @@ import { useState } from 'react';
 import { CourtHierarchyDiagram } from '@/components/court-hierarchy-diagram';
 import { Button, Card, cn } from '@/components/ui';
 import type { SeedLesson } from '@/content/seed/lessons';
+import type { CourtHierarchy } from '@/content/seed/court-shape';
 import { isEmbeddable } from '@/lib/lessons/embed';
 import { deliveryOrder, optionLetter } from '@/lib/learning/option-order';
-import type { Country } from '@/lib/types';
 import { StartModuleButton } from '../start-module-button';
 
 /**
@@ -28,13 +28,18 @@ import { StartModuleButton } from '../start-module-button';
  */
 export function LessonPlayer({
   lesson,
-  country,
+  diagram,
   moduleSlug,
   quizLabel,
   preview = false,
 }: {
   lesson: SeedLesson;
-  country: Country;
+  /**
+   * The court map drawn on a diagram screen, handed over by the server only
+   * once a lawyer has signed it off (or to staff, with `checked` false).
+   * Null when this person may not see it yet.
+   */
+  diagram: { hierarchy: CourtHierarchy; checked: boolean } | null;
   moduleSlug: string;
   quizLabel: string;
   /** Staff reading it before sign-off: no button that starts the questions. */
@@ -162,10 +167,16 @@ export function LessonPlayer({
                 </figure>
               ) : null}
 
-              {step.diagram ? (
+              {step.diagram && diagram ? (
                 <div className="mt-6 border-t border-rule pt-6">
+                  {!diagram.checked ? (
+                    <p className="mb-3 text-xs text-slate">
+                      Court diagram not yet checked by a lawyer. Learners do not see it until a
+                      lawyer signs off the court map.
+                    </p>
+                  ) : null}
                   <CourtHierarchyDiagram
-                    country={country}
+                    hierarchy={diagram.hierarchy}
                     options={[]}
                     selected={[]}
                     correctOptionIds={null}
@@ -174,6 +185,10 @@ export function LessonPlayer({
                     onSelect={() => {}}
                   />
                 </div>
+              ) : step.diagram ? (
+                <p className="mt-6 border-t border-rule pt-6 text-sm text-slate">
+                  The court diagram for this screen is waiting for a lawyer&rsquo;s check.
+                </p>
               ) : null}
 
               {step.takeaway ? (

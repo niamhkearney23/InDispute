@@ -10,6 +10,8 @@ import { FirstPassword } from './account/password-form';
 import { NextRoundClock } from '@/components/next-round-clock';
 import { roundsToday } from '@/lib/training/rounds-service';
 import { nextOpening, openRound } from '@/lib/training/rounds';
+import { courtMapFor } from '@/lib/content/service';
+import { isStaff } from '@/lib/content/gate';
 
 /**
  * Every page under this layout is per-learner and auth-gated. Say so explicitly
@@ -65,6 +67,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     }
   }
 
+  // The menu offers the court map only to somebody who may open it: until a
+  // lawyer signs off their country's map, a learner has no Courts link to
+  // follow to a page with nothing on it. Staff always have it.
+  const courtsShown = profile
+    ? Boolean(await courtMapFor(profile.country, isStaff(profile)).catch(() => null))
+    : false;
+
   return (
     <div className="theme-navy flex min-h-dvh flex-col">
       <header className="sticky top-0 z-20 border-b border-rule bg-paper/95 backdrop-blur-sm print:hidden">
@@ -99,9 +108,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <NavLink href="/skills" className="hover:bg-paper-sunk">
               Skills
             </NavLink>
-            <NavLink href="/courts" className="hover:bg-paper-sunk">
-              Courts
-            </NavLink>
+            {courtsShown ? (
+              <NavLink href="/courts" className="hover:bg-paper-sunk">
+                Courts
+              </NavLink>
+            ) : null}
             {profile?.isAdmin ? (
               <NavLink href="/admin" className="hover:bg-paper-sunk">
                 Admin

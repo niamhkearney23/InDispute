@@ -64,8 +64,8 @@ These come from the owner and are not up for renegotiation.
   clears its sign-off, so an account that could edit and verify could sign its
   own rewrite with the audit trail showing an ordinary review. A coach who
   thinks an item is wrong flags it with a note; somebody else changes it.
-  Exactly fifteen actions accept a coach, named in `tests/authorisation-contract`,
-  and a test fails if a sixteenth quietly does. Two of the fifteen are the coach's
+  Exactly sixteen actions accept a coach, named in `tests/authorisation-contract`,
+  and a test fails if a seventeenth quietly does. Two of the sixteen are the coach's
   own **sessions**: they record something, paste a YouTube or Vimeo link, and
   it leads the dashboard the morning it is for. That is not an exception to
   the rule, it is outside it: a session has no version chain, no answer key,
@@ -103,7 +103,9 @@ These come from the owner and are not up for renegotiation.
   off codes stays with an administrator. The fifteenth is **signing off a
   lesson** (0032): lessons are written in the code, and a sign-off is pinned
   to a SHA-256 of every word a learner sees, so any change needs signing
-  again.
+  again. The sixteenth is **signing off a court map or an essay topic**
+  (0046, `signOffReference`): the same judgement for the other legal content
+  written in the code, asking `checkReviewer` like the lesson one.
 - **AI never publishes legal content.** It may draft. A named person signs off,
   and that sign-off is a statement they are answerable for.
 - **Say what is true.** The product's whole value is a record a firm can rely
@@ -175,7 +177,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0044`.
+- Migrations run to `0047`.
   `supabase/UPDATE.sql` is the one-paste update for a database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -282,8 +284,8 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 - `0032` is **lesson sign-offs**. Lessons live in `src/content/seed/lessons.ts`;
   `DRAFT_LESSONS` are rewrites (a client story, a guess before each screen)
   that replace a live lesson only once signed off at Admin, Lessons, and are
-  shown to no learner before. Live lessons nobody has signed show learners
-  "Not yet checked by a lawyer". A sign-off covers one wording
+  shown to no learner before. Since 0046 no lesson reaches a learner
+  unsigned (see below). A sign-off covers one wording
   (`lessonContent` hashed); the table is insert-only, server-written, staff
   only.
 - `0033` is a **cartoon of yourself**: a person builds a face on the Account
@@ -404,6 +406,44 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   `v_question_delivery` and the daily brief's read policy check
   `human_verified` as well as the status. Fixtures in schema-guarantees sign
   off before they publish.
+- `0046` is the **content gate**, the owner's decision: "Hide unverified
+  lessons and legal courts content until a qualified lawyer approves them.
+  Apply the same rule to Australia and Malaysia." A learner sees a lesson,
+  a country's court map (`/courts`, the court diagram on lesson screens and
+  on court questions) or a comparison essay topic only once a lawyer has
+  signed off its current wording. The rule is one function,
+  `forViewer` in `src/lib/content/gate.ts`; pages ask
+  `src/lib/content/service.ts` (`lessonFor`, `courtMapFor`, `courtMapsFor`,
+  `essayFor`) and never import the content themselves. Browser components
+  take the courts as a prop (shapes in `court-shape.ts`); a test follows
+  every import from every `'use client'` file and fails if one reaches
+  `court-hierarchies.ts`, `lessons.ts`, `essay-topics.ts` or
+  `src/lib/content/wording.ts`, because a browser import ships the text to
+  everybody. Sign-offs of court maps and essays are in `content_signoffs`
+  (insert-only, server-written, a coach or administrator only and never a
+  firm administrator alone, never in somebody else's name, no browser access
+  at all), signed at Admin, Courts and essays (`/admin/reference`). Each is
+  pinned to a SHA-256 of the wording (`src/lib/content/wording.ts`), so
+  editing the code withdraws it. A sign-off that cannot be read counts as
+  none. Learners are told the part is waiting for a lawyer's check; the
+  Courts menu item, the court map card on Learn and the tour's courts card
+  appear only when the map is there to open; a court question without a
+  signed map is answered from a plain list. Staff (administrator, coach,
+  firm administrator) see everything, marked "Not yet checked by a lawyer".
+  In the database: `matter_model_answer` gives a learner the lawyer's
+  approach only while the matter is signed off and not flagged,
+  `matters_read` asks for the sign-off as well as published, and
+  `legal_sources` (unsigned, unused by learner pages) is staff only. In the
+  app: an answer's explanation is withheld, and no AI note written, when the
+  version lost its sign-off after the question was given out. The visual
+  check's stand-in signs the Malaysian map and the Australian court lesson
+  (`tools/visual-qa/signed-fixtures.ts`); `MOCK_NOTHING_SIGNED=1` draws a
+  fresh install, and pages can say what text must and must not be on them.
+  Not gated, because they state no law: module names and summaries, the
+  programme plan, days and concepts (coach prompts and practice maxims,
+  marked not yet reviewed by the firm), the training file (invented facts),
+  homework, the tour, coach sessions and work posts (the coach's own
+  teaching under their name), and the firm's own documents.
 - **Schema version.** `npm run build:sql` ends both SQL files with
   `schema_version()` (the newest migration's number, service role only) and
   writes `src/lib/schema-version.ts`. The admin layout shows an administrator
@@ -456,6 +496,23 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   off for local work and the visual check's mock only; unset is on, and a
   Vercel production deployment ignores it. Rules and tests:
   `src/lib/auth/two-step.ts`, `tests/two-step.test.ts`.
+- `0047` makes **a staff role count in the database only once the code has
+  been typed**: `is_admin`, `is_coach` and `is_firm_admin` are true only on
+  an `aal2` token (`staff_session_checked`; no `aal` claim at all, as in the
+  SQL editor or the service role, changes nothing). Before it, a coach's
+  password alone read the certification register straight through the API,
+  around the website's two-step check. Found by the integration tests.
+- **Integration tests on a throwaway Supabase** (`tools/integration`,
+  `tests-integration`, Docker): Supabase's own Postgres image, Auth,
+  PostgREST and Storage, pinned. `npm run it:up`, `npm run test:integration`,
+  `tools/integration/app.sh up` for the browser tests, and
+  `tools/integration/rehearse-update.sh <live commit>` rehearses UPDATE.sql
+  on the live site's schema with production-like data, using
+  `supabase/checks/before-update.sql` and `after-update.sql`.
+- **Server region per firm.** `vercel.json` pins no region; each firm's Vercel
+  project sets its Function Region to match its database (sin1 or syd1) and
+  names it in `EXPECTED_FUNCTION_REGION`; Admin warns when they differ
+  (`src/lib/region.ts`).
 - **Options are shown shuffled** (`src/lib/learning/option-order.ts`), fixed per
   question version or lesson screen, and the letter shown is the place on the
   screen, never the id. The bank was written with the right answer B three
@@ -536,8 +593,11 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   (a video site, a logo, a payment page) needs adding there, and frame-src is
   built from `src/lib/lessons/embed.ts`. Downloads and the cartoon keep their
   own stricter policy in `next.config.ts`.
-- 523 tests, 450 schema guarantees against a real Postgres, 394 page and device
-  combinations and 33 accessibility combinations checked. Contract tests are
+- 545 tests, 478 schema guarantees against a real Postgres (fresh, and SETUP
+  then UPDATE again), 394 page and device combinations (the five-device
+  sweep as last run before 0046; 0046 added thirteen pages, checked at phone
+  width both with some content signed and with nothing signed) and 33
+  accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB
   before the app sees it; the forms check before sending. Larger files would

@@ -109,6 +109,12 @@ export interface AnswerFeedback {
   isCorrect: boolean;
   correctOptionIds: string[];
   selectedOptionIds: string[];
+  /**
+   * False when the question's explanation is no longer signed off by a
+   * lawyer (it was reworded after the question was given out). The answer
+   * is still marked, but none of the explanation is sent (0046).
+   */
+  explanationChecked: boolean;
   explanation: string;
   whyItMatters: string | null;
   commonMisconception: string | null;

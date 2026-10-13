@@ -1,9 +1,9 @@
 'use client';
 
-import { COURT_HIERARCHIES, type Court } from '@/content/seed/court-hierarchies';
+import type { Court, CourtHierarchy } from '@/content/seed/court-shape';
 import { CourtTiers } from '@/components/court-tiers';
 import { cn } from '@/components/ui';
-import type { Country, QuestionOption } from '@/lib/types';
+import type { QuestionOption } from '@/lib/types';
 
 /**
  * The court hierarchy, drawn, with the courts as the answer options.
@@ -14,9 +14,13 @@ import type { Country, QuestionOption } from '@/lib/types';
  *
  * Once answered, the appeal route from the correct court to the apex lights
  * up, so the explanation that follows has the picture it is talking about.
+ *
+ * The courts arrive as a prop from the server, only once a lawyer has signed
+ * the map off (or to staff, labelled). Never import them here: a browser
+ * component's imports reach every browser.
  */
 export function CourtHierarchyDiagram({
-  country,
+  hierarchy,
   options,
   selected,
   correctOptionIds,
@@ -24,7 +28,7 @@ export function CourtHierarchyDiagram({
   disabled,
   onSelect,
 }: {
-  country: Country;
+  hierarchy: CourtHierarchy;
   options: QuestionOption[];
   selected: string[];
   correctOptionIds: string[] | null;
@@ -32,7 +36,6 @@ export function CourtHierarchyDiagram({
   disabled: boolean;
   onSelect: (optionId: string) => void;
 }) {
-  const hierarchy = COURT_HIERARCHIES[country];
   const selectable = new Map(options.map((option) => [option.id, option.text]));
   const bySlug = new Map(hierarchy.courts.map((c) => [c.slug, c]));
 
@@ -69,10 +72,7 @@ export function CourtHierarchyDiagram({
         )}
       />
 
-      <p className="mt-4 text-xs text-muted">
-        Lines are appeal routes and run upwards. Courts drawn side by side do not hear appeals
-        from each other, though they may not rank equally.
-      </p>
+      <p className="mt-4 text-xs text-muted">{hierarchy.legend}</p>
     </div>
   );
 }

@@ -38,9 +38,19 @@ export interface TourFor {
   needsDiagnostic: boolean;
   /** Their cohort's clock, for the rounds card. The programme's own when left out. */
   schedule?: Schedule;
+  /**
+   * Their country's court map is signed off by a lawyer, so the Courts menu
+   * item is there to find. Left out, the tour does not mention it.
+   */
+  courts?: boolean;
 }
 
-export function tourSteps({ trainee, open, schedule = DEFAULT_SCHEDULE }: TourFor): TourStep[] {
+export function tourSteps({
+  trainee,
+  open,
+  schedule = DEFAULT_SCHEDULE,
+  courts = false,
+}: TourFor): TourStep[] {
   const steps: TourStep[] = [
     {
       key: 'today',
@@ -77,7 +87,7 @@ export function tourSteps({ trainee, open, schedule = DEFAULT_SCHEDULE }: TourFo
       key: 'learn',
       where: 'Menu: Learn',
       title: 'Learn',
-      body: 'Modules: a few minutes of teaching, then questions. Unlike daily training, a module has a finishing line: it is done when you have got every question in it right at least once.',
+      body: 'Modules: a few minutes of teaching, then questions. A lesson appears once a lawyer has checked it. Unlike daily training, a module has a finishing line: it is done when you have got every question in it right at least once.',
       icon: 'book',
     },
     {
@@ -94,13 +104,17 @@ export function tourSteps({ trainee, open, schedule = DEFAULT_SCHEDULE }: TourFo
       body: 'Your score in each area is the share of your answers that were right. It starts at 100% and only a wrong answer brings it down. You also see your score over time, and anything you were certain about and got wrong.',
       icon: 'level',
     },
-    {
-      key: 'courts',
-      where: 'Menu: Courts',
-      title: 'Courts',
-      body: 'The court map: where a matter starts, and where it goes if somebody appeals. Tap any court to open it.',
-      icon: 'arrow',
-    },
+    ...(courts
+      ? [
+          {
+            key: 'courts',
+            where: 'Menu: Courts',
+            title: 'Courts',
+            body: 'The court map: where a matter starts, and where it goes if somebody appeals. Tap any court to open it.',
+            icon: 'arrow' as const,
+          },
+        ]
+      : []),
     {
       key: 'matters',
       where: 'On Today, when one is ready',

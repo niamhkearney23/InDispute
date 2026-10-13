@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getCurrentUser, createSupabaseServerClient } from '@/lib/supabase/server';
 import { masteryBand } from '@/lib/learning/mastery';
-import { essayTopic } from '@/content/seed/essay-topics';
-import { ButtonLink, Card, Notice, ScoreBar, SectionHeading } from '@/components/ui';
+import { essayFor, viewerIsStaff } from '@/lib/content/service';
+import { ButtonLink, Card, Notice, Pill, ScoreBar, SectionHeading } from '@/components/ui';
 import { requireAccess } from '@/lib/access/service';
 
 export const metadata: Metadata = { title: 'Day one against the last day' };
@@ -68,7 +68,11 @@ export default async function DiagnosticComparePage() {
       };
     });
 
-  const topic = first.essay_topic_slug ? essayTopic(first.essay_topic_slug as string) : undefined;
+  // Shown only once a lawyer has signed off the topic's wording (0046).
+  const essay = await essayFor(
+    first.essay_topic_slug as string | null,
+    await viewerIsStaff(user.id),
+  );
 
   const formatDate = (value: string | null) =>
     value
@@ -88,11 +92,26 @@ export default async function DiagnosticComparePage() {
         </p>
       </section>
 
-      {topic ? (
+      {essay.topic || essay.waiting ? (
         <section>
           <SectionHeading eyebrow="Assigned on day one" title="Your comparison essay" />
           <Card>
-            <p className="text-slate">{topic.prompt}</p>
+            {essay.topic ? (
+              <>
+                <p className="text-slate">{essay.topic.item.prompt}</p>
+                {!essay.topic.checked ? (
+                  <p className="mt-3 text-sm text-slate">
+                    <Pill tone="warn">Not yet checked by a lawyer</Pill> Learners do not see this
+                    topic until a lawyer signs it off.
+                  </p>
+                ) : null}
+              </>
+            ) : (
+              <p className="text-slate">
+                The topic is waiting for a lawyer&rsquo;s check, and appears here once it is
+                signed off.
+              </p>
+            )}
           </Card>
         </section>
       ) : null}

@@ -7,6 +7,8 @@
  */
 import http from 'node:http';
 import fs from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
 // MOCK_PORT lets a second copy run beside one already on the usual port; the
 // app must then be built with NEXT_PUBLIC_SUPABASE_URL pointing at it.
@@ -127,7 +129,37 @@ const STAFF2_USER = {
   ],
 };
 
-const USERS = [USER, NEW_USER, TRAINEE_USER, LEARNER_USER, STAFF2_USER];
+// An Australian learner, not staff, so the court map, a lesson and the menu
+// can be drawn as a learner sees them when some legal content is signed off
+// and some is not (0046; see signed-fixtures.ts).
+const AU_LEARNER_ID = '77777777-7777-7777-7777-777777777777';
+const AU_LEARNER = {
+  ...USER,
+  id: AU_LEARNER_ID,
+  email: 'aulearner@lawgistics.test',
+  user_metadata: { display_name: 'Jack' },
+};
+
+const USERS = [USER, NEW_USER, TRAINEE_USER, LEARNER_USER, STAFF2_USER, AU_LEARNER];
+
+// Which lessons, court maps and essay topics count as signed off, worked out
+// from the code with the app's own fingerprints. If it cannot be worked out,
+// nothing is signed, which is what a fresh install looks like.
+// MOCK_NOTHING_SIGNED=1 draws a fresh install instead, where nobody has
+// signed anything yet.
+let SIGNED = { content_signoffs: [], lesson_signoffs: [] };
+if (process.env.MOCK_NOTHING_SIGNED !== '1') {
+  try {
+    SIGNED = JSON.parse(
+      execFileSync('npx', ['tsx', fileURLToPath(new URL('./signed-fixtures.ts', import.meta.url))], {
+        cwd: fileURLToPath(new URL('../..', import.meta.url)),
+        encoding: 'utf8',
+      }),
+    );
+  } catch (error) {
+    process.stderr.write(`signed-fixtures.ts failed, so nothing is signed off: ${error.message}\n`);
+  }
+}
 
 // Authenticator apps added while the mock runs, by user id. Kept in memory so
 // the setup page can be pressed through from start to finish; gone on restart.
@@ -340,6 +372,8 @@ const STEP_SIGN_ID = 'aaaaaaaa-0000-0000-0000-000000000002';
 const STEP_TASK_ID = 'aaaaaaaa-0000-0000-0000-000000000003';
 
 const TABLES = {
+  content_signoffs: SIGNED.content_signoffs,
+  lesson_signoffs: SIGNED.lesson_signoffs,
   /* The tutor: one "Explain it back" a few turns in, and one "Test me"
      with a question answered (wrongly, so the checked explanation shows) and
      the next one waiting. Both belong to the default signed-in user. */
@@ -672,6 +706,21 @@ const TABLES = {
       track: 'general',
       home_jurisdiction: 'MY_GENERAL',
       timezone: 'Asia/Kuala_Lumpur',
+      onboarded_at: '2026-02-01T00:00:00Z',
+      diagnostic_completed_at: '2026-02-01T00:20:00Z',
+      is_admin: false,
+    },
+    {
+      id: AU_LEARNER_ID,
+      email: AU_LEARNER.email,
+      display_name: 'Jack',
+      career_stage: 'law_student',
+      improvement_goals: ['litigation_knowledge'],
+      daily_goal_minutes: 10,
+      country: 'AU',
+      track: 'general',
+      home_jurisdiction: 'VIC',
+      timezone: 'Australia/Melbourne',
       onboarded_at: '2026-02-01T00:00:00Z',
       diagnostic_completed_at: '2026-02-01T00:20:00Z',
       is_admin: false,
