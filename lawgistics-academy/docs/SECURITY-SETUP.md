@@ -119,16 +119,37 @@ ahead of the database.
 
 ## 6. Who can see the code
 
-The GitHub repository is public, so anybody can read and copy the code and
-the draft questions. Unless you mean to give it away, make it private:
+The GitHub repository `niamhkearney23/InDispute` is public, so anybody can
+read and copy the code and the draft questions. Checked on 13 October 2026:
+it belongs to your personal GitHub account (not an organisation), it has no
+licence file (so nobody was given a right to reuse it, though copies already
+taken cannot be called back), and nobody has forked it.
 
-1. Open the repository on **github.com**.
-2. Click **Settings** (the gear, top right of the repository).
-3. Scroll to **Danger Zone** at the bottom of **General**.
-4. Click **Change visibility**, choose **Private**, and confirm.
+Three things to sort out first, in this order:
 
-Vercel keeps deploying a private repository as long as its GitHub
-connection stays in place. Check the next merge still deploys.
+1. **The default branch.** GitHub's default is an old branch,
+   `claude/paralegal-application-review-FCor4`, not `main`. Vercel deploys
+   from `main`. New pull requests aim at the default, so change it:
+   repository **Settings, General, Default branch**, the two-arrows button,
+   choose `main`, **Update**.
+2. **GitHub Pages.** There is a `gh-pages` branch. If it serves a website
+   (repository **Settings, Pages** shows the address), a free GitHub
+   account cannot serve Pages from a private repository, so that site would
+   go offline. Move it first, or upgrade to GitHub Pro.
+3. **Vercel's free (Hobby) plan.** Vercel deploys a private repository on
+   Hobby only for commits by the Vercel account's owner. The merges into
+   `main` are yours, so production should keep deploying, but previews of
+   commits written by Claude may be blocked, and some people have reported
+   blocks they did not expect. Have a way back ready (step 5).
+
+Then:
+
+4. Repository **Settings**, scroll to **Danger Zone**, **Change visibility**,
+   **Private**, confirm.
+5. Make a small merge into `main` (or redeploy in Vercel) and check all three
+   Vercel projects (`litigation-training`, `in-dispute-bxzc`,
+   `lawgistics-marketing`) deploy. If one is blocked, either make the
+   repository public again for now or move to Vercel Pro.
 
 ---
 

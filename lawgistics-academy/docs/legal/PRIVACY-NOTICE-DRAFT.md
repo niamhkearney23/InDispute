@@ -83,9 +83,10 @@ work-board posts you take part in.
 
 - **Your account and training record:** while you have an account. When it
   is deleted, see below.
-- **Work-board messages and comments:** removed **[24 months]** after the
-  piece of work closes, unless a supervisor has marked a message as needed
-  for supervision, with a reason. **[Confirm period.]**
+- **Work-board messages and comments:** the text is removed **[24 months]**
+  after the piece of work closed (its last activity or its due date,
+  whichever is later), unless a supervising lawyer has marked the message as
+  needed for supervision, with a reason. **[Confirm period.]**
 - **Supervision and certification records:** **[period, e.g. as long as the
   firm's regulatory or employment record-keeping obligations require]**.
 - **Backups:** our database provider keeps backups for **[7 / 14 / 30]**
@@ -105,8 +106,10 @@ You can delete your account yourself on the Account page, or ask
   their files, marks, certificates, supervision decisions) because it relies
   on them. They are no longer linked to your name, **but they may still
   identify you**, for example through what you wrote or uploaded, or a
-  certification entry a coach made. Those are reviewed by an administrator,
-  who either removes identifying details or records why they must be kept.
+  certification entry a coach made. An administrator reviews them: each
+  certification record is either stripped of identifying details (your
+  name, notes and the matter reference; grades and dates stay) or kept with
+  a recorded reason, and messages that mention you can be removed.
 
 If any part of the deletion cannot finish straight away (for example, a
 file cannot be removed), you are told, and it is retried until it is done.
