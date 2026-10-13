@@ -3,7 +3,8 @@ import Link from 'next/link';
 import { requireAdmin } from '@/lib/admin/guard';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { DEFAULT_TIMEZONE } from '@/lib/types';
-import { listDeletions } from '@/lib/account/erasure-admin';
+import { listDeletions, listNightlyRuns } from '@/lib/account/erasure-admin';
+import { NightlyRuns } from './nightly-runs';
 import { STEP_LABEL } from '@/lib/account/erasure-rules';
 import { Card, Notice, Pill, SectionHeading } from '@/components/ui';
 import { RetryForm } from './forms';
@@ -21,7 +22,7 @@ export const dynamic = 'force-dynamic';
 export default async function DeletionsPage() {
   const { userId } = await requireAdmin();
   const timeZone = (await getLearnerProfile(userId))?.timezone ?? DEFAULT_TIMEZONE;
-  const { rows, error } = await listDeletions();
+  const [{ rows, error }, nightly] = await Promise.all([listDeletions(), listNightlyRuns()]);
   const day = (iso: string) =>
     new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone });
 
@@ -96,6 +97,7 @@ export default async function DeletionsPage() {
       </div>
       {error ? <Notice tone="warn">The deletions could not be read just now. Reload to try again.</Notice> : null}
       {section('Not finished', 'Needs attention', unfinished, 'Every deletion has finished.')}
+      <NightlyRuns runs={nightly.runs} error={nightly.error} timeZone={timeZone} />
       {section('Finished, review open', 'To review', toReview, 'No review is waiting.')}
       {section('Finished and reviewed', 'Last ninety days', done, 'None in the last ninety days.')}
     </div>

@@ -4376,6 +4376,115 @@ select pg_temp.expect(
   (select prosecdef from pg_proc where proname = 'account_exists'),
   'the account lookup runs as its owner, who may read auth.users');
 
+-- 0049: a record of every nightly deletion check ------------------------------
+-- The route answers 200 only when nothing is unfinished and writes a row for
+-- every run. The rows are the server's alone and are never rewritten.
+
+reset role;
+set local request.jwt.claim.sub = '';
+set local request.jwt.claims = '';
+select pg_temp.expect(
+  (select relrowsecurity from pg_class where oid = 'public.operational_runs'::regclass)
+  and not has_table_privilege('authenticated', 'public.operational_runs', 'select')
+  and not has_table_privilege('authenticated', 'public.operational_runs', 'insert')
+  and not has_table_privilege('authenticated', 'public.operational_runs', 'update')
+  and not has_table_privilege('authenticated', 'public.operational_runs', 'delete')
+  and not has_table_privilege('anon', 'public.operational_runs', 'select')
+  and not has_table_privilege('anon', 'public.operational_runs', 'insert')
+  and not has_table_privilege('anon', 'public.operational_runs', 'update')
+  and not has_table_privilege('anon', 'public.operational_runs', 'delete')
+  and not exists (select 1 from pg_policies
+                  where schemaname = 'public' and tablename = 'operational_runs'
+                    and permissive = 'PERMISSIVE'),
+  'nightly run records are for the server only: no table right and no policy for anybody signed in or out');
+select pg_temp.expect(
+  exists (select 1 from pg_policies
+           where schemaname = 'public' and tablename = 'operational_runs'
+             and policyname = 'erased_account_refused' and permissive = 'RESTRICTIVE'),
+  'run records carry the rule refusing a deleted account, like every other table');
+select pg_temp.expect(
+  has_table_privilege('service_role', 'public.operational_runs', 'select')
+  and has_table_privilege('service_role', 'public.operational_runs', 'insert')
+  and not has_table_privilege('service_role', 'public.operational_runs', 'update')
+  and not has_table_privilege('service_role', 'public.operational_runs', 'delete')
+  and not has_table_privilege('service_role', 'public.operational_runs', 'truncate'),
+  'the server may read and add run records, and nothing else');
+
+set local role service_role;
+insert into public.operational_runs
+  (job, started_at, finished_at, status, outstanding, tried, completed, still_failing,
+   not_attempted, repeatedly_failing, oldest_outstanding_hours, alert_sent, alert_error)
+values
+  ('erasure-retry', now() - interval '2 minutes', now(), 'escalate', 3, 1, 0, 1, 2, 1, 80, false,
+   'The webhook answered 500.'),
+  ('erasure-retry', now() - interval '1 minute', now(), 'ok', 0, 3, 3, 0, 0, 0, null, true, null);
+select pg_temp.expect(
+  (select count(*) from public.operational_runs where job = 'erasure-retry') = 2,
+  'the server records each nightly run');
+select pg_temp.expect_failure(
+  $$update public.operational_runs set status = 'ok', outstanding = 0 where status = 'escalate'$$,
+  'a run record cannot be changed afterwards, even by the server');
+select pg_temp.expect_failure(
+  $$delete from public.operational_runs$$,
+  'a run record cannot be deleted, even by the server');
+select pg_temp.expect_failure(
+  $$insert into public.operational_runs (job, started_at, status, outstanding, tried, completed)
+    values ('erasure-retry', now(), 'ok', 2, 0, 0)$$,
+  'a run is recorded as ok only when nothing was left unfinished');
+select pg_temp.expect_failure(
+  $$insert into public.operational_runs (job, started_at, status, outstanding, tried, completed)
+    values ('erasure-retry', now(), 'ok', null, 0, 0)$$,
+  'a run whose unfinished deletions could not be read is never recorded as ok');
+select pg_temp.expect_failure(
+  $$insert into public.operational_runs (job, started_at, status, outstanding, tried, completed)
+    values ('erasure-retry', now(), 'fine', 0, 0, 0)$$,
+  'a run''s level is ok, warning or escalate and nothing else');
+select pg_temp.expect_failure(
+  $$insert into public.operational_runs (job, started_at, status, outstanding, tried, completed, not_attempted)
+    values ('erasure-retry', now(), 'escalate', 1, 0, 0, -1)$$,
+  'a run''s counts are never negative');
+select pg_temp.expect_failure(
+  $$insert into public.operational_runs (job, started_at, status, outstanding, tried, completed)
+    values ('erasure-retry', now(), 'warning', 1, 1, 2)$$,
+  'a run never finishes more deletions than it tried');
+select pg_temp.expect_failure(
+  $$insert into public.operational_runs (job, started_at, finished_at, status, outstanding, tried, completed)
+    values ('erasure-retry', now(), now() - interval '1 hour', 'ok', 0, 0, 0)$$,
+  'a run never finishes before it started');
+select pg_temp.expect_failure(
+  $$insert into public.operational_runs (job, started_at, status, outstanding, tried, completed)
+    values ('Erasure Retry!', now(), 'ok', 0, 0, 0)$$,
+  'a run names its job in the agreed form');
+reset role;
+select pg_temp.expect_failure(
+  $$update public.operational_runs set alert_sent = true$$,
+  'nor can the table''s owner change a run record');
+select pg_temp.expect_failure(
+  $$delete from public.operational_runs$$,
+  'nor delete one');
+select pg_temp.expect_failure(
+  $$truncate public.operational_runs$$,
+  'nor empty the table');
+
+set local role authenticated;
+set local request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+set local request.jwt.claims = '{"sub":"33333333-3333-3333-3333-333333333333","aal":"aal2","role":"authenticated"}';
+select pg_temp.expect_failure(
+  $$select count(*) from public.operational_runs$$,
+  'not even an administrator reads run records through the API');
+select pg_temp.expect_failure(
+  $$insert into public.operational_runs (job, started_at, status, outstanding, tried, completed)
+    values ('erasure-retry', now(), 'ok', 0, 0, 0)$$,
+  'nobody signed in can add a run record, so "the check ran" cannot be forged from a browser');
+reset role;
+set local role anon;
+select pg_temp.expect_failure(
+  $$select count(*) from public.operational_runs$$,
+  'nor anybody signed out');
+reset role;
+set local request.jwt.claim.sub = '';
+set local request.jwt.claims = '';
+
 -- Schema version ---------------------------------------------------------------
 -- The admin pages compare this with the version the code expects.
 

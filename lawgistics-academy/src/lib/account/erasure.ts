@@ -5,6 +5,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServiceClient } from '@/lib/supabase/service';
 import { ERASED_BAN, erasedEmail, type ErasureOutcome, type ErasureStep } from './erasure-rules';
 import { WORK_BOARD_RETENTION_MONTHS } from './retention';
+import { DEFAULT_RETRY_LIMIT } from './erasure-monitoring';
 
 /**
  * A password nobody knows: 64 characters drawn from 48 random bytes. The
@@ -372,22 +373,35 @@ export async function runErasure(
 /**
  * The daily job: retries unfinished deletions, the longest untried first,
  * until `limit` have been tried or `deadline` (milliseconds since the epoch)
- * passes. Each runs on its own, so one failing does not stop the rest.
+ * passes. Each runs on its own, so one failing does not stop the rest. What
+ * the limit or the deadline left untried is counted by the route from the
+ * database afterwards (0049), never assumed done.
  */
 export async function retryIncompleteErasures(
   options: { deps?: ErasureDeps; limit?: number; deadline?: number } = {},
-): Promise<{ tried: number; completed: number; stillIncomplete: number }> {
+): Promise<RetrySummary> {
   const deps = options.deps ?? serviceErasureDeps();
-  const ids = await deps.incompleteJobs(options.limit ?? 25);
-  let tried = 0;
+  const ids = await deps.incompleteJobs(options.limit ?? DEFAULT_RETRY_LIMIT);
+  const triedIds: string[] = [];
   let completed = 0;
   for (const id of ids) {
     if (options.deadline && Date.now() > options.deadline) break;
-    tried += 1;
+    triedIds.push(id);
     const outcome = await runErasure(id, { deps });
     if (outcome.kind === 'complete') completed += 1;
   }
-  return { tried, completed, stillIncomplete: tried - completed };
+  return { tried: triedIds.length, completed, stillIncomplete: triedIds.length - completed, triedIds };
+}
+
+/**
+ * What one retry did. `triedIds` is for the nightly route to tell what it
+ * tried from what it never reached (0049); it never leaves the server.
+ */
+export interface RetrySummary {
+  tried: number;
+  completed: number;
+  stillIncomplete: number;
+  triedIds: string[];
 }
 
 /**

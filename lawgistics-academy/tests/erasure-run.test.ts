@@ -362,12 +362,13 @@ test('the daily retry finishes what is unfinished', async () => {
   await runErasure(USER, { deps: w.deps });
   assert.equal(w.job()!.completedAt, null);
   const summary = await retryIncompleteErasures({ deps: w.deps });
-  assert.deepEqual(summary, { tried: 1, completed: 1, stillIncomplete: 0 });
+  assert.deepEqual(summary, { tried: 1, completed: 1, stillIncomplete: 0, triedIds: [USER] });
   assert.ok(w.job()!.completedAt);
   assert.deepEqual(await retryIncompleteErasures({ deps: w.deps }), {
     tried: 0,
     completed: 0,
     stillIncomplete: 0,
+    triedIds: [],
   });
 });
 

@@ -10,8 +10,8 @@
 
 with checks(n, what, ok) as (
   values
-  (1, 'The database is at the version the website expects (0048)',
-     (select public.schema_version()) = '0048'),
+  (1, 'The database is at the version the website expects (0049)',
+     (select public.schema_version()) = '0049'),
 
   (2, 'No question is published without a lawyer''s sign-off on its current wording',
      not exists (
@@ -73,7 +73,12 @@ with checks(n, what, ok) as (
 
   (13, 'A matter reaches learners only with a lawyer''s sign-off',
      exists (select 1 from pg_policies where tablename = 'matters' and policyname = 'matters_read'
-              and qual like '%verified_by%'))
+              and qual like '%verified_by%')),
+
+  (14, 'Every nightly deletion check is recorded, and only the server can read the record',
+     to_regclass('public.operational_runs') is not null
+     and not has_table_privilege('authenticated', 'public.operational_runs', 'select')
+     and not has_table_privilege('anon', 'public.operational_runs', 'select'))
 )
 select n as "#", what as "check", case when ok then 'OK' else 'NOT OK' end as result
 from checks

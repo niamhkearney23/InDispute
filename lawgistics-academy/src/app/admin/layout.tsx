@@ -4,6 +4,7 @@ import { Wordmark } from '@/components/ui';
 import { AdminNav, type AdminNavGroup, type AdminNavItem } from '@/components/admin-nav';
 import { SchemaBehind } from '@/components/schema-behind';
 import { RegionCheck } from '@/components/region-check';
+import { ErasureAlert } from '@/components/erasure-alert';
 
 /** Auth-gated and per-request. Never prerender anything under /admin. */
 export const dynamic = 'force-dynamic';
@@ -91,6 +92,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         {/* Only an administrator can run UPDATE.sql, so only they are told. */}
         {isAdmin ? <SchemaBehind /> : null}
         {isAdmin ? <RegionCheck /> : null}
+        {/* Unfinished deletions and a nightly check that is not running (0049).
+            Deletions are an administrator's, so only they are told. */}
+        {isAdmin ? <ErasureAlert /> : null}
         {children}
       </main>
     </div>

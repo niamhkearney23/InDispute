@@ -227,6 +227,100 @@ changing it is the owner's decision and needs a developer.
    listed, once a day. Until `CRON_SECRET` is set the job is off, and an
    administrator has to press **Retry** at Admin, Deletions instead.
 
+**How you find out a deletion is stuck.** Every night the job retries the
+unfinished deletions (up to 25, for at most 45 seconds), then reads back from
+the database what is still unfinished and gives the night one of three levels:
+
+| Level | What it means |
+| --- | --- |
+| **ok** | Nothing is unfinished. |
+| **warning** | Something is unfinished, but it was tried tonight and has not yet failed repeatedly. Usually a passing fault; tomorrow night will most likely finish it. |
+| **escalate** | At least one deletion has **failed repeatedly** (tried 3 times or more, or unfinished for more than **72 hours**), or was **not attempted** tonight because the nightly limit or time ran out, or the job could not read the deletions at all. A person has to look. |
+
+The thresholds are in `src/lib/account/erasure-monitoring.ts` and nowhere
+else. You are told in three places:
+
+- **Vercel.** The job answers success (200) only at **ok**. At warning or
+  escalate it answers 503, so **Settings**, **Cron Jobs** (and the project's
+  **Logs**) show that night's run as failed.
+- **Every admin page**, for administrators: "N deletions are not finished",
+  and at escalate also how many failed repeatedly, how many were not
+  attempted last night and how long the oldest has waited, with a link to
+  Admin, Deletions. The same place says **"The nightly deletion check is not
+  running"** when `CRON_SECRET` is not set, or when the job has not run for
+  more than 36 hours. Admin, Deletions lists the last seven nights under
+  **The nightly check**.
+- **An alert, if you set one up (optional).** Every night that is not ok
+  posts a message, and the first ok night after one that was not posts one
+  "resolved" message. It carries counts only, never a name, email or id, and
+  links to Admin, Deletions.
+
+**Setting up the alert (once per firm, optional):**
+
+1. **Slack:** in Slack, open **Tools**, **Apps** (or go to api.slack.com/apps),
+   **Create New App**, **From scratch**, name it "Academy alerts", choose the
+   workspace. Open **Incoming Webhooks**, switch it **On**, press **Add New
+   Webhook to Workspace**, choose the channel the administrators read, and
+   **Copy** the address (it starts `https://hooks.slack.com/`).
+2. **Microsoft Teams instead:** in the channel, open **...**, **Workflows**,
+   and choose the template **Post to a channel when a webhook request is
+   received**. Finish the template, then open the workflow in Power
+   Automate, and in the step that posts the message set the message to the
+   `text` field of the request (in the expression box:
+   `triggerBody()?['text']`). Save, and copy the address the first step
+   shows (it starts `https://`). If the template insists on an "adaptive
+   card", ask whoever looks after the firm's Microsoft 365 to make the step
+   post the `text` field as a plain message.
+3. In **Vercel**, the firm's project, **Settings**, **Environment
+   Variables**: add `ALERT_WEBHOOK_URL` with that address, for
+   **Production**. It must start `https://`; anything else is refused and no
+   alert is sent. Treat it as a secret: anybody with it can post in that
+   channel.
+4. **Redeploy** the latest deployment.
+5. To see one arrive without waiting for a real failure, ask the developer
+   to run the job once against a test project with `ERASURE_RETRY_LIMIT=1`
+   and two unfinished deletions, which is always **escalate** (one not
+   attempted). Each night's row on Admin, Deletions says **Alert sent**, or
+   why not (for example "The webhook answered 404").
+
+**What the administrator does (the escalation procedure):**
+
+1. **Warning.** Open Admin, Deletions and press **Retry** on the unfinished
+   deletion. If it finishes, nothing more is needed. If not, leave it for the
+   next night; the person is already told the deletion is being finished.
+2. **Escalate, or a warning that comes back the next night.** Open Admin,
+   Deletions and read **Last error** on each unfinished deletion, then press
+   **Retry** on each.
+   - If the error is about **Files** (storage) or **Sign-in** (the sign-in
+     service), check the Supabase status page (status.supabase.com) and
+     your project's dashboard (**Project Settings**, **Infrastructure**, or a
+     paused project notice). If Supabase has an incident, Retry once it is
+     resolved.
+   - If some were **not attempted**, pressing **Retry** on each one now
+     finishes them; if it happens night after night, tell the developer so
+     the nightly limit can be looked at.
+   - If the page says **the nightly deletion check is not running**, follow
+     what it says: set `CRON_SECRET` (above), or check **Settings**, **Cron
+     Jobs** in Vercel and the job's last run in **Logs**.
+3. **Still unfinished after 72 hours.** Tell the **owner** (the firm's data
+   protection officer, or whoever answers for personal data) the same day.
+   Tell **the person who asked** for the deletion, in writing, that their
+   account is closed and can no longer be used, their details are removed
+   from the database, and the remaining step (named in plain words, such as
+   "deleting a stored photo") is still being finished; give a date you will
+   confirm by. Under PDPA (Malaysia) and the Privacy Act (Australia) the
+   firm must be able to show it acted; do not wait for it to fix itself.
+4. **Record it.** Keep a short note in the firm's own records: the date,
+   the deletion (Admin, Deletions shows "Deleted account" and the first
+   eight characters of the id; never copy the person's name into chat), what
+   failed, what was done, who was told and when, and the date it finished.
+   The nightly check's own record (`operational_runs`, shown on Admin,
+   Deletions) cannot be changed or deleted by anybody, so it backs your note
+   up.
+5. **Resolved.** When the alert says "every account deletion is finished
+   again" (or the notice disappears from the admin pages), confirm to the
+   person that the deletion is complete, and add that date to the note.
+
 **One database setting to check after running UPDATE.sql:** the update tells
 the database's API to refuse deleted accounts before every request. In
 Supabase, **SQL Editor**, run
