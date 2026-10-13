@@ -2,23 +2,33 @@
   "generatedDate": "2026-10-13",
   "jobs": [
     {
-      "employer": "The Law Society of NSW (scheme-wide — all participating firms/organisations)",
-      "program": "Summer Clerkship Recruitment Program 2027",
+      "employer": "The Law Society of New South Wales (coordinated scheme covering participating NSW firms, incl. HSF Kramer, Allens, Ashurst, MinterEllison, KWM, Clayton Utz, Corrs, Gilbert + Tobin, DLA Piper, Gadens)",
+      "program": "Summer Clerkship 2027/28 recruitment cycle (NSW Clerkship Recruitment Program)",
       "jurisdiction": "NSW",
       "opens": "2027-06-09",
       "closes": null,
-      "notes": "Scheme opens 9:00am AEST Wed 9 June 2027; the Law Society publishes two alternative closing dates (Sun 4 July and Sun 11 July 2027, 11:59pm AEST) with each participating firm choosing one, so a single scheme-wide close date cannot be confirmed — offers can be made from 9:00am Wed 8 September 2027, and eligibility is normally penultimate year of your law degree.",
+      "notes": "Open date is confirmed on the Law Society page (9:00am AEST, Wed 9 June 2027) and offers can be made from Wed 8 September 2027, but the page lists two alternative closing dates (Sunday 4 and Sunday 11 July 2027) depending on the employer, so a single close date cannot be confirmed; eligibility is penultimate-year students, with exceptions at each firm's discretion.",
       "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Clerkship-Recruitment-Program",
       "verifiedDate": "2026-10-13"
     },
     {
-      "employer": "The Law Society of NSW (scheme-wide — all participating firms/organisations)",
-      "program": "Graduate Recruitment Program 2027 (open market offers)",
+      "employer": "The Law Society of New South Wales (coordinated scheme covering participating NSW legal employers)",
+      "program": "Graduate Program 2027 recruitment cycle (NSW Graduate Recruitment Program, market offers)",
       "jurisdiction": "NSW",
       "opens": "2027-02-22",
       "closes": "2027-04-04",
-      "notes": "Open-market graduate applications open 9:00am AEST Mon 22 February 2027 and close 11:59pm AEST Sun 4 April 2027, with interviews commencing Tue 27 April 2027; individual participating firms set their own application portals within these scheme dates.",
+      "notes": "Official page lists market-offer dates as applications open Monday 22 February 9:00am AEST, close Sunday 4 April 11:59pm AEST, interviews from Tuesday 27 April, offers from Wednesday 2 June and acceptance by 1:00pm Thursday 3 June — the weekdays match the 2027 calendar, but the page states the days without printing the year, so confirm the year directly with the Law Society before relying on it.",
       "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Graduate-Recruitment-Program",
+      "verifiedDate": "2026-10-13"
+    },
+    {
+      "employer": "Allens",
+      "program": "Program commencing May 2027 (stream not specified on the firm's programs page)",
+      "jurisdiction": "National",
+      "opens": null,
+      "closes": null,
+      "notes": "Allens' own graduate programs page states applications for its May 2027 program will open in March 2027 and that the 2026/2027 Sydney clerkship round is closed, but no exact open or close date (and no clear program label) is published, so both dates are left null.",
+      "url": "https://graduates.allens.com.au/our-programs/",
       "verifiedDate": "2026-10-13"
     }
   ]
