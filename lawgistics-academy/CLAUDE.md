@@ -182,7 +182,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0047`.
+- Migrations run to `0048`.
   `supabase/UPDATE.sql` is the one-paste update for a database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -558,6 +558,13 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   SQL editor or the service role, changes nothing). Before it, a coach's
   password alone read the certification register straight through the API,
   around the website's two-step check. Found by the integration tests.
+- `0048`: `guard_signoff` (0040) looked accounts up in `auth.users`, which
+  the server's role may not read on real Supabase. Postgres checks table
+  rights when it plans the statement, and once a connection switched to a
+  generic plan every server update to a fact, question version or matter
+  failed with "permission denied for table users". It now asks
+  `account_exists(uuid)` (security definer). Never read `auth.users` from a
+  function that runs as the caller; found only by the integration tests.
 - **Integration tests on a throwaway Supabase** (`tools/integration`,
   `tests-integration`, Docker): Supabase's own Postgres image, Auth,
   PostgREST and Storage, pinned. `npm run it:up`, `npm run test:integration`,
@@ -649,9 +656,10 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   (a video site, a logo, a payment page) needs adding there, and frame-src is
   built from `src/lib/lessons/embed.ts`. Downloads and the cartoon keep their
   own stricter policy in `next.config.ts`.
-- 572 tests, 548 schema guarantees against a real Postgres (fresh, and SETUP
+- 573 tests, 551 schema guarantees against a real Postgres (fresh, and SETUP
   then UPDATE again), 394 page and device combinations and 33 accessibility
-  combinations and 33 accessibility combinations checked. Contract tests are
+  combinations checked, and 20 integration tests on a throwaway Supabase
+  (`npm run test:integration`). Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB
   before the app sees it; the forms check before sending. Larger files would

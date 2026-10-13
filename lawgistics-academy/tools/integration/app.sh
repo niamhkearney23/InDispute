@@ -11,7 +11,9 @@ set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 APP="$(cd "$HERE/../.." && pwd)"
 
-down() { pkill -f "[n]ext start -p 3124" >/dev/null 2>&1 || true; pkill -f "[n]ext-server.*3124" >/dev/null 2>&1 || true; }
+# Whatever holds the port, which after a restart is a "next-server" process
+# whose command line no longer says which port.
+down() { fuser -k 3124/tcp >/dev/null 2>&1 || true; sleep 1; }
 
 up() {
   down
@@ -21,6 +23,7 @@ up() {
   export SUPABASE_SERVICE_ROLE_KEY="$SUPABASE_IT_SERVICE_KEY"
   export NEXT_PUBLIC_SITE_URL=http://127.0.0.1:3124
   export SETUP_TOKEN=it-setup-token
+  export CRON_SECRET=it-cron-secret-not-a-real-one-0123456789
   # Two-step sign-in is on: this is what is being tested.
   unset STAFF_TWO_STEP
   cd "$APP"
@@ -30,6 +33,7 @@ up() {
   cp /tmp/lawg-it-tsconfig.json tsconfig.json
   (NEXT_DIST_DIR=.next-it npx next start -p 3124 >/tmp/lawg-it-app.log 2>&1 &)
   for _ in $(seq 1 60); do curl -fsS -o /dev/null http://127.0.0.1:3124/login && break; sleep 1; done
+  if grep -q EADDRINUSE /tmp/lawg-it-app.log; then echo "port 3124 was taken; an old copy is running" >&2; exit 1; fi
   echo "App on http://127.0.0.1:3124"
 }
 

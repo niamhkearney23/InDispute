@@ -4361,6 +4361,21 @@ select pg_temp.expect(not public.is_coach() and not public.is_admin(),
 reset role;
 set local request.jwt.claims = '';
 
+-- 0048: the sign-off guard does not read auth.users itself ---------------------
+-- Real Supabase does not let the server's role read auth.users, and Postgres
+-- checks that when it plans the guard, whether or not the lookup runs.
+select pg_temp.expect(
+  (select prosrc from pg_proc where proname = 'guard_signoff') not like '%auth.users%',
+  'the sign-off guard looks accounts up through account_exists, never auth.users directly');
+select pg_temp.expect(
+  has_function_privilege('service_role', 'public.account_exists(uuid)', 'execute')
+  and has_function_privilege('authenticated', 'public.account_exists(uuid)', 'execute')
+  and not has_function_privilege('anon', 'public.account_exists(uuid)', 'execute'),
+  'everybody who may update signed content may run the account lookup, and nobody signed out');
+select pg_temp.expect(
+  (select prosecdef from pg_proc where proname = 'account_exists'),
+  'the account lookup runs as its owner, who may read auth.users');
+
 -- Schema version ---------------------------------------------------------------
 -- The admin pages compare this with the version the code expects.
 

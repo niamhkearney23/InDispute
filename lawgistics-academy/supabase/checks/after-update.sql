@@ -10,8 +10,8 @@
 
 with checks(n, what, ok) as (
   values
-  (1, 'The database is at the version the website expects (0047)',
-     (select public.schema_version()) = '0047'),
+  (1, 'The database is at the version the website expects (0048)',
+     (select public.schema_version()) = '0048'),
 
   (2, 'No question is published without a lawyer''s sign-off on its current wording',
      not exists (
@@ -47,7 +47,33 @@ with checks(n, what, ok) as (
      and not has_function_privilege('anon', 'public.erase_account(uuid)', 'execute')),
 
   (8, 'Every table has row level security switched on',
-     not exists (select 1 from pg_tables where schemaname = 'public' and not rowsecurity))
+     not exists (select 1 from pg_tables where schemaname = 'public' and not rowsecurity)),
+
+  (9, 'A deleted account is refused on every request, whatever sign-in says',
+     exists (select 1 from pg_roles
+              where rolname = 'authenticator'
+                and 'pgrst.db_pre_request=public.check_request' = any (rolconfig))),
+
+  (10, 'Every table also refuses a deleted account (the backstop rule)',
+     not exists (
+       select 1 from pg_tables t
+        where t.schemaname = 'public' and t.rowsecurity
+          and not exists (select 1 from pg_policies p
+                           where p.schemaname = 'public' and p.tablename = t.tablename
+                             and p.policyname = 'erased_account_refused' and p.permissive = 'RESTRICTIVE'))),
+
+  (11, 'Deletions are recorded step by step, and only the server can read them',
+     to_regclass('public.account_erasures') is not null
+     and not has_table_privilege('authenticated', 'public.account_erasures', 'select')
+     and not has_table_privilege('anon', 'public.account_erasures', 'select')),
+
+  (12, 'Lessons, court maps and essays have their lawyer sign-off record',
+     to_regclass('public.content_signoffs') is not null
+     and not has_table_privilege('anon', 'public.content_signoffs', 'select')),
+
+  (13, 'A matter reaches learners only with a lawyer''s sign-off',
+     exists (select 1 from pg_policies where tablename = 'matters' and policyname = 'matters_read'
+              and qual like '%verified_by%'))
 )
 select n as "#", what as "check", case when ok then 'OK' else 'NOT OK' end as result
 from checks

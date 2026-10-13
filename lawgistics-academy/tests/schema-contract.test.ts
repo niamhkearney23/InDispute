@@ -593,3 +593,14 @@ test('learner-facing code never reads the tables that hold answer keys', () => {
     'learner-facing pages must go through v_question_delivery or the training service',
   );
 });
+
+test('the after-update checks expect the version this release ends at', () => {
+  // supabase/checks/after-update.sql is what a person runs in the SQL editor
+  // to confirm an update took. A stale version number there would report a
+  // finished update as NOT OK, or the other way round.
+  const checks = fs.readFileSync(path.join(ROOT, 'supabase/checks/after-update.sql'), 'utf8');
+  const versions = [...checks.matchAll(/'(\d{4})'/g)].map((m) => m[1]);
+  assert.ok(versions.length > 0);
+  for (const v of versions) assert.equal(v, latestMigration(), 'update the version in supabase/checks/after-update.sql');
+  assert.match(checks, new RegExp(`expects \\(${latestMigration()}\\)`));
+});
