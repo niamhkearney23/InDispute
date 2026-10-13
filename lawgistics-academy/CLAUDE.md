@@ -657,8 +657,8 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   built from `src/lib/lessons/embed.ts`. Downloads and the cartoon keep their
   own stricter policy in `next.config.ts`.
 - 573 tests, 551 schema guarantees against a real Postgres (fresh, and SETUP
-  then UPDATE again), 394 page and device combinations and 33 accessibility
-  combinations checked, and 20 integration tests on a throwaway Supabase
+  then UPDATE again), 477 page and device combinations (the five-device sweep in October
+  2026, after 0045 to 0048) and 33 accessibility combinations checked, and 20 integration tests on a throwaway Supabase
   (`npm run test:integration`). Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB

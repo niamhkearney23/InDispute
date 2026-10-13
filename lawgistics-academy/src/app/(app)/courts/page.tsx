@@ -86,7 +86,7 @@ export default async function CourtsPage() {
                 at{' '}
                 <Link
                   href="/admin/reference"
-                  className="underline underline-offset-2 hover:text-ink"
+                  className="inline-block py-1.5 underline underline-offset-2 hover:text-ink"
                 >
                   Admin, Reference
                 </Link>

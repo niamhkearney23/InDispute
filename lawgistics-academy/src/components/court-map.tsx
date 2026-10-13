@@ -206,18 +206,18 @@ function CourtNode({
             ) : null}
             {court.note ? <p className="mt-1">{court.note}</p> : null}
             <dl className="mt-2.5 space-y-1 border-t border-accent/15 pt-2.5 text-xs">
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-x-2">
                 <dt className="shrink-0 text-muted">Appeals go to</dt>
-                <dd className="text-ink">
+                <dd className="min-w-0 text-ink">
                   {appealsTo.length === 0
                     ? 'Nowhere. This is the top.'
                     : appealsTo.map((c) => c.short ?? c.name).join(', or ')}
                 </dd>
               </div>
               {hearsFrom.length > 0 ? (
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-x-2">
                   <dt className="shrink-0 text-muted">Hears appeals from</dt>
-                  <dd className="text-ink">{hearsFrom.map((c) => c.short ?? c.name).join(', ')}</dd>
+                  <dd className="min-w-0 text-ink">{hearsFrom.map((c) => c.short ?? c.name).join(', ')}</dd>
                 </div>
               ) : null}
             </dl>
