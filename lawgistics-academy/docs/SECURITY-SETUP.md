@@ -206,12 +206,16 @@ Admin, Trainees):
   their details are removed from the database, and the firm will finish the
   rest. It is retried automatically every day and shown to administrators.
 
-**How long work-board messages are kept:** messages and comments on a piece
-of work are replaced with "Removed at the end of the retention period." once
-the work closed (its last activity, or its due date if later) more than
-**24 months** ago, unless a supervising lawyer kept them for supervision. The
-number is `WORK_BOARD_RETENTION_MONTHS` in `src/lib/account/retention.ts`;
-changing it is the owner's decision and needs a developer.
+**How long work-board messages are kept: PENDING LEGAL APPROVAL.** The
+proposed period is **24 months** after the work closed (its last activity, or
+its due date if later), after which messages and comments would be replaced
+with "Removed at the end of the retention period." unless a supervising lawyer
+kept them for supervision. Until the period is approved, the daily job removes
+nothing by it (`WORK_BOARD_RETENTION_APPROVED = false` in
+`src/lib/account/retention.ts`), because a removal cannot be undone. Removing
+a deleted person's own messages at deletion is separate and does happen.
+Approving it, or changing the number, is the owner's decision and needs a
+developer.
 
 **Turning on the daily retry (once per firm):**
 

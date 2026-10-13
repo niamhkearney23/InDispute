@@ -382,3 +382,14 @@ test('the unfinished page shows only steps that exist, and says deleted only whe
     assert.doesNotMatch(all, /anonym|nothing to say it was you/i);
   }
 });
+
+test('the work-board retention period is pending legal approval, so the daily job removes nothing by it', async () => {
+  const { WORK_BOARD_RETENTION_APPROVED } = await import('../src/lib/account/retention');
+  assert.equal(WORK_BOARD_RETENTION_APPROVED, false, 'the owner has not approved the retention period');
+  const { applyWorkBoardRetention } = await import('../src/lib/account/erasure');
+  let called = false;
+  const db = { rpc: async () => { called = true; return { data: 5, error: null }; } } as never;
+  assert.equal(await applyWorkBoardRetention(db), 0);
+  assert.equal(called, false, 'the retention function ran without approval');
+  assert.equal(await applyWorkBoardRetention(db, true), 5, 'once approved it runs');
+});

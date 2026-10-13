@@ -86,7 +86,7 @@ work-board posts you take part in.
 - **Work-board messages and comments:** the text is removed **[24 months]**
   after the piece of work closed (its last activity or its due date,
   whichever is later), unless a supervising lawyer has marked the message as
-  needed for supervision, with a reason. **[Confirm period.]**
+  needed for supervision, with a reason. **[Proposed period, pending legal approval; nothing is removed by it until approved.]**
 - **Supervision and certification records:** **[period, e.g. as long as the
   firm's regulatory or employment record-keeping obligations require]**.
 - **Backups:** our database provider keeps backups for **[7 / 14 / 30]**

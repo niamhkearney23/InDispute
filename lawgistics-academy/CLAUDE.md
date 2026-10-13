@@ -526,8 +526,10 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   or administrator kept one for supervision, with a reason; text on work
   that closed (last activity or due date) more than **24 months** ago
   (`WORK_BOARD_RETENTION_MONTHS` in `src/lib/account/retention.ts`, the only
-  place the number lives) is replaced the same way by the daily job unless
-  kept. Only `redact_*` functions can change the text (`redacting()`, the
+  place the number lives) would be replaced the same way by the daily job
+  unless kept. **The period is pending legal approval**:
+  `WORK_BOARD_RETENTION_APPROVED = false` makes the daily job remove nothing
+  by it until the owner approves it in writing. Only `redact_*` functions can change the text (`redacting()`, the
   same two-part test as `erasing()`). **Review:** the job keeps the former
   display name only until the review closes, so `erasure_identifying_records`
   can list what may still identify them (kept messages, words naming them,

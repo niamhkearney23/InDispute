@@ -4,7 +4,7 @@ import { randomBytes } from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServiceClient } from '@/lib/supabase/service';
 import { ERASED_BAN, erasedEmail, type ErasureOutcome, type ErasureStep } from './erasure-rules';
-import { WORK_BOARD_RETENTION_MONTHS } from './retention';
+import { WORK_BOARD_RETENTION_APPROVED, WORK_BOARD_RETENTION_MONTHS } from './retention';
 import { DEFAULT_RETRY_LIMIT } from './erasure-monitoring';
 
 /**
@@ -410,7 +410,11 @@ export interface RetrySummary {
  */
 export async function applyWorkBoardRetention(
   db: SupabaseClient = createServiceClient(),
+  approved: boolean = WORK_BOARD_RETENTION_APPROVED,
 ): Promise<number> {
+  // Pending legal approval: nothing is removed by the period until it is
+  // approved (retention.ts).
+  if (!approved) return 0;
   const { data, error } = await db.rpc('redact_expired_work_board', {
     months: WORK_BOARD_RETENTION_MONTHS,
   });

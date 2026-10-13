@@ -18,6 +18,15 @@
 export const WORK_BOARD_RETENTION_MONTHS = 24;
 
 /**
+ * Whether the retention period has been approved. **Pending legal
+ * approval** (the owner, October 2026): until it is, the daily job applies
+ * nothing, because what it removes cannot be put back. Removing a deleted
+ * person's own messages at deletion is separate and still happens. Set to
+ * true only on the owner's written approval of the period above.
+ */
+export const WORK_BOARD_RETENTION_APPROVED = false;
+
+/**
  * What a removed message or comment reads afterwards, by why it was removed.
  * The same words are in `public.redacted_text()`; a test holds the two
  * together, and the database refuses any other text in a removed row.

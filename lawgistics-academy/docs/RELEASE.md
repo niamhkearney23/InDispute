@@ -28,32 +28,103 @@ The file ends by recording the version (`schema_version()` returns `0048`).
 
 ## 1. Rehearse on a restored copy (staging)
 
-This is the step that proves the update on your real data, not on test
-data. It needs a paid Supabase plan, which you need for backups anyway.
+This proves the update on your real data. It needs a paid Supabase plan,
+which you need for backups anyway. Do every part, in order.
 
-1. In Supabase, open the live project, then **Database, Backups**.
-2. Choose the most recent backup and **Restore to a new project** (name it
-   `academy-staging`). If the option is not offered on your plan, upgrade
-   the plan first; do not restore over the live project.
-3. When the new project is ready, open its **SQL Editor, New query**, paste
-   `supabase/checks/before-update.sql`, press **Run**, and keep the result.
-4. New query, paste the whole of `supabase/UPDATE.sql`, press **Run**. It
-   should end with "Success. No rows returned".
-5. New query, paste `supabase/checks/after-update.sql`, press **Run**. All
-   thirteen checks must say **OK**. Compare the counts with step 3: all the
-   same, except "published questions" and "published daily facts", which
-   drop to the number that carry a lawyer's sign-off.
-6. Paste `UPDATE.sql` again and run it, then `after-update.sql` again: the
-   same result. This proves a second paste is harmless.
-7. Optional but recommended: point a Vercel **Preview** deployment of the
-   release branch at the staging project (Vercel, the project, **Settings,
-   Environment Variables**, set the three Supabase values for **Preview**
-   only, to the staging project's), open the preview, sign in as staff
-   (you will be asked to set up the authenticator app), and click through
-   Admin and a learner's Today page.
+### 1a. What a restored copy has, and what it does not
 
-If any check says NOT OK, or the update stops with an error, stop: send the
-error and the check results, and do not touch the live project.
+Supabase's **Restore to a new project** copies the database, including the
+sign-in accounts. It does **not** copy:
+
+- the **files** in Storage (photos, recordings, handed-in work): the bucket
+  settings come back from the database, the files themselves do not;
+- the **Auth settings** (site address, redirect addresses, email sending,
+  two-step sign-in);
+- the **API keys**: the copy has its own address and keys.
+
+And anything the database runs on its own (scheduled jobs, database
+webhooks) comes back with it and could start running. This app uses neither
+today; 1c switches them off in case.
+
+### 1b. Make the copy
+
+1. Supabase, the live project, **Database, Backups**, the latest backup,
+   **Restore to a new project**. Name it `academy-staging`, same region as
+   the live project. If the option is not offered, upgrade the plan; never
+   restore over the live project.
+2. In the new project, **Project Settings, Team**: make sure only you have
+   access. The copy holds your people's real names and records.
+
+### 1c. Isolate it, before anything else
+
+1. New project, **SQL Editor, New query**: paste the whole of
+   `supabase/staging/prepare-staging.sql` and **Run**. It replaces every
+   email address and phone number with one that cannot receive mail, removes
+   the sessions copied from the live project, switches off any scheduled jobs
+   and database webhooks, and marks the database as staging. The last table
+   it shows must say 0 on every line.
+2. **Authentication, URL Configuration**: set **Site URL** to
+   `http://127.0.0.1:3124` and remove every other redirect address. Nothing
+   in the copy then points at the live website.
+3. **Authentication, Emails**: leave the built-in email sender; do **not**
+   enter the live email provider. Every address is now unreachable anyway.
+4. **Authentication, Multi-Factor** (or **Sign In / Providers**): make sure
+   **TOTP (App Authenticator)** enrolling and verifying are **Enabled**, as on
+   the live project.
+5. **Storage**: leave the files missing. The tests upload their own; no live
+   file is needed or copied.
+6. **Project Settings, API**: these keys belong to the copy only. Never put
+   them in a production setting anywhere.
+
+### 1d. Keep everything else away from it
+
+- **Vercel**: if you point a Preview deployment at the copy, set the three
+  Supabase values for **Preview** only, never Production, and for Preview
+  also set `AI_PROVIDER=none` and leave `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`,
+  `INBOUND_EMAIL_TOKEN`, `ALERT_WEBHOOK_URL`, `PAYMENTS` and `SITE_ACCESS`
+  unset for Preview. Vercel runs the nightly job only for Production
+  deployments, so a Preview never calls it.
+- No email-in forwarding, AI keys, payment keys or alert webhooks are ever
+  set against the copy.
+
+### 1e. The update itself
+
+1. **SQL Editor, New query**: `supabase/checks/before-update.sql`, **Run**,
+   keep the result.
+2. New query: the whole of `supabase/UPDATE.sql`, **Run**. It ends with
+   "Success. No rows returned".
+3. New query: `supabase/checks/after-update.sql`, **Run**. All fourteen
+   checks say **OK**. Counts as before, except "published questions" and
+   "published daily facts", which drop to the number with a lawyer's sign-off.
+4. Paste `UPDATE.sql` again, then `after-update.sql` again: the same result.
+
+Send me the two check results (they hold counts only, no names).
+
+### 1f. The automated tests against the copy
+
+So the tests can reach the copy, in this session's cloud environment
+settings (the environment menu in the session's title bar, then **Edit**):
+
+1. **Network access**: add the copy's address, `<ref>.supabase.co` (the
+   `<ref>` is in the copy's **Project Settings, General**), under Allowed
+   domains, keeping "Allow package managers" ticked.
+2. **Environment variables**: add `STAGING_SUPABASE_URL`
+   (`https://<ref>.supabase.co`), `STAGING_SUPABASE_ANON_KEY` and
+   `STAGING_SUPABASE_SERVICE_ROLE_KEY` (from the copy's **Project Settings,
+   API**), and `PRODUCTION_SUPABASE_URL` (the live project's address, so the
+   tests refuse it). Never paste keys into the chat.
+3. Start a new session (settings reach new sessions) and say "run the
+   staging tests". The tests refuse to run unless the database says it is
+   staging.
+
+### 1g. Afterwards
+
+Delete the copy (**Project Settings, General, Delete project**) and remove
+the four environment variables. It holds personal data and has no further
+use once the evidence is written down.
+
+If any check says NOT OK, a test fails, or the update stops with an error:
+stop, and do not touch the live project.
 
 ## 2. Back up the live project
 
@@ -70,7 +141,7 @@ Immediately before:
 
 1. **SQL Editor, New query**, paste `before-update.sql`, **Run**, keep it.
 2. New query, paste the whole of `UPDATE.sql`, **Run**.
-3. New query, paste `after-update.sql`, **Run**. Thirteen OK; counts as
+3. New query, paste `after-update.sql`, **Run**. Fourteen OK; counts as
    expected.
 
 The live website keeps working while the database is ahead of it. Checked
