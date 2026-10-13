@@ -16,6 +16,7 @@ import {
   verifiedFactors,
   type TwoStepDecision,
 } from '@/lib/auth/two-step';
+import { MAINTENANCE_PATH, siteAccess, staffAreaOpen } from '@/lib/security/site-access';
 
 /**
  * Server-side authorisation for the three staff roles.
@@ -57,7 +58,21 @@ import {
  * type today's code. The check functions refuse instead, so an action returns
  * its error. This is the control; the middleware's redirect to the code step
  * only saves a page load.
+ *
+ * Before any of that, every one of them asks the site access switch
+ * (`src/lib/security/site-access.ts`). When the owner has closed the staff
+ * area (`SITE_ACCESS` is `staff-closed`, `closed` or anything unrecognised),
+ * the page guards send the person to the maintenance page and the check
+ * functions refuse, whoever is asking. The middleware closes /admin too, but
+ * a server action can be posted to any page's address, so this is the check
+ * that holds for actions. It only ever refuses: nothing here is skipped
+ * because of it.
  */
+
+/** Whether the owner has closed the staff area. Asked first by every guard. */
+function staffAreaClosed(): boolean {
+  return !staffAreaOpen(siteAccess());
+}
 
 /**
  * Where this staff member stands on two-step sign-in. Called only once the
@@ -96,6 +111,7 @@ async function passesStaffTwoStep(user: User): Promise<boolean> {
 
 /** Administrator: may write content and change the firm's setup. */
 export async function requireAdmin(): Promise<{ userId: string }> {
+  if (staffAreaClosed()) redirect(MAINTENANCE_PATH);
   const user = await getCurrentUser();
   if (!user) redirect('/login?next=/admin');
 
@@ -108,6 +124,7 @@ export async function requireAdmin(): Promise<{ userId: string }> {
 
 /** Non-redirecting variant, for server actions that return an error instead. */
 export async function checkAdmin(): Promise<string | null> {
+  if (staffAreaClosed()) return null;
   const user = await getCurrentUser();
   if (!user) return null;
 
@@ -133,6 +150,7 @@ export async function requireCoach(): Promise<{
   /** May sign content off: an administrator or a coach, never a firm administrator alone. */
   isReviewer: boolean;
 }> {
+  if (staffAreaClosed()) redirect(MAINTENANCE_PATH);
   const user = await getCurrentUser();
   if (!user) redirect('/login?next=/admin/review');
 
@@ -150,6 +168,7 @@ export async function requireCoach(): Promise<{
 
 /** Non-redirecting variant, for server actions that return an error instead. */
 export async function checkCoach(): Promise<string | null> {
+  if (staffAreaClosed()) return null;
   const user = await getCurrentUser();
   if (!user) return null;
 
@@ -164,6 +183,7 @@ export async function checkCoach(): Promise<string | null> {
  * never a firm administrator on that flag alone.
  */
 export async function requireReviewer(): Promise<{ userId: string; isAdmin: boolean }> {
+  if (staffAreaClosed()) redirect(MAINTENANCE_PATH);
   // requireCoach has already asked for two-step sign-in.
   const staff = await requireCoach();
   if (!staff.isReviewer) redirect('/admin/trainees');
@@ -172,6 +192,7 @@ export async function requireReviewer(): Promise<{ userId: string; isAdmin: bool
 
 /** Non-redirecting variant, for server actions that return an error instead. */
 export async function checkReviewer(): Promise<string | null> {
+  if (staffAreaClosed()) return null;
   const user = await getCurrentUser();
   if (!user) return null;
 
@@ -185,6 +206,7 @@ export async function checkReviewer(): Promise<string | null> {
  * An administrator passes too.
  */
 export async function requireFirmAdmin(): Promise<{ userId: string; isAdmin: boolean }> {
+  if (staffAreaClosed()) redirect(MAINTENANCE_PATH);
   const user = await getCurrentUser();
   if (!user) redirect('/login?next=/admin');
 
@@ -197,6 +219,7 @@ export async function requireFirmAdmin(): Promise<{ userId: string; isAdmin: boo
 
 /** Non-redirecting variant, for server actions that return an error instead. */
 export async function checkFirmAdmin(): Promise<string | null> {
+  if (staffAreaClosed()) return null;
   const user = await getCurrentUser();
   if (!user) return null;
 

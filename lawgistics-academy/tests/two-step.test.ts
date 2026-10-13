@@ -282,9 +282,14 @@ test('every require function sends staff to two-step sign-in, after the role che
     const fn = all.find((f) => f.name === name);
     assert.ok(fn, name);
     // requireReviewer is requireCoach plus a narrower role: it inherits the
-    // ask by calling it first, before returning anything.
+    // ask by calling it first, before returning anything (after the site
+    // access check every guard opens with, which only ever refuses).
     if (name === 'requireReviewer') {
-      assert.match(fn.body, /^\{\s*const staff = await requireCoach\(\);/, name);
+      assert.match(
+        fn.body,
+        /^\{\s*if \(staffAreaClosed\(\)\) redirect\(MAINTENANCE_PATH\);\s*const staff = await requireCoach\(\);/,
+        name,
+      );
       continue;
     }
     const ask = fn.body.indexOf('await requireStaffTwoStep(user,');

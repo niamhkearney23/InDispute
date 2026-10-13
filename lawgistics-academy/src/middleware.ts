@@ -2,8 +2,9 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { publicEnv } from '@/lib/env';
 import { erasedByCheck, signInRefused } from '@/lib/auth/refused';
-import { safeLogo } from '@/lib/brand';
+import { brand, safeLogo } from '@/lib/brand';
 import { buildCsp, makeNonce } from '@/lib/security/csp';
+import { maintenanceHtml, pathDecision, siteAccess, type SiteAccess } from '@/lib/security/site-access';
 import {
   codePathFor,
   needsCodeNow,
@@ -65,6 +66,23 @@ function isPublic(pathname: string) {
 // list and to next.config.ts.
 const OWN_POLICY = ['/admin/reports/export', '/certificate/pdf'];
 
+/**
+ * The maintenance page, status 503, for a request the site access switch
+ * refuses (src/lib/security/site-access.ts). Not cached, so the page goes
+ * away the moment the switch is put back.
+ */
+function maintenanceResponse(mode: SiteAccess, csp: string): NextResponse {
+  return new NextResponse(maintenanceHtml(mode, brand.fullName), {
+    status: 503,
+    headers: {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-store',
+      'Retry-After': '3600',
+      'Content-Security-Policy': csp,
+    },
+  });
+}
+
 export async function middleware(request: NextRequest) {
   // A fresh nonce for every request. Next reads it back out of the request's
   // own Content-Security-Policy header while it renders and puts it on every
@@ -89,6 +107,20 @@ export async function middleware(request: NextRequest) {
     if (!ownPolicy) res.headers.set('Content-Security-Policy', csp);
     return res;
   };
+
+  // The site access switch, before anything else: a refused request reads no
+  // session and reaches no page, route or action. It can only refuse; a
+  // request it lets through meets every check below exactly as when it is
+  // open. A server action can be posted to any page's address, which is why
+  // the staff guards and getCurrentUser ask the switch as well.
+  const access = siteAccess();
+  if (
+    pathDecision(access, request.nextUrl.pathname, {
+      serverAction: request.headers.has('next-action'),
+    }) === 'maintenance'
+  ) {
+    return maintenanceResponse(access, csp);
+  }
 
   // Set before the response is made, so the pages see it. Always set, so a
   // value the browser sent under the same name never survives.

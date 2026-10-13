@@ -213,6 +213,55 @@ test('every server action establishes who the caller is', () => {
   );
 });
 
+/** The first statement of an exported function's body, as written. */
+function firstStatement(relative: string, name: string): string {
+  const file = path.join(ROOT, relative);
+  const source = ts.createSourceFile(file, fs.readFileSync(file, 'utf8'), ts.ScriptTarget.Latest, true);
+  for (const statement of source.statements) {
+    if (ts.isFunctionDeclaration(statement) && statement.name?.text === name && statement.body) {
+      const first = statement.body.statements[0];
+      assert.ok(first, `${name} has an empty body`);
+      return first.getText().replace(/\s+/g, ' ');
+    }
+  }
+  throw new Error(`${name} not found in ${relative}`);
+}
+
+test('every function an action starts from asks the site access switch first', () => {
+  // The test above holds every action to one of AUTH_CALLS (or its named
+  // capability check). This holds every one of those to the site access
+  // switch (src/lib/security/site-access.ts), as its very first statement,
+  // so no action has a path around it: with the staff area closed the staff
+  // guards refuse, and with the site closed nobody is signed in at all.
+  const where: Record<string, string> = { getCurrentUser: 'src/lib/supabase/server.ts' };
+  for (const name of AUTH_CALLS) {
+    const first = firstStatement(where[name] ?? 'src/lib/admin/guard.ts', name);
+    if (name === 'getCurrentUser') {
+      assert.equal(first, 'if (!signedInUseOpen(siteAccess())) return null;', name);
+    } else if (name.startsWith('require')) {
+      assert.equal(first, 'if (staffAreaClosed()) redirect(MAINTENANCE_PATH);', name);
+    } else {
+      assert.equal(first, 'if (staffAreaClosed()) return null;', name);
+    }
+  }
+  assert.equal(
+    firstStatement('src/lib/admin/guard.ts', 'staffAreaClosed'),
+    'return !staffAreaOpen(siteAccess());',
+  );
+  // The capability-authenticated action does not start from getCurrentUser,
+  // so it asks the switch itself, first.
+  for (const name of Object.keys(CAPABILITY_AUTHENTICATED)) {
+    const action = ACTIONS.find((a) => a.name === name);
+    assert.ok(action, name);
+    assert.match(firstStatement(action.file, name), /^if \(!signedInUseOpen\(siteAccess\(\)\)\) \{ return \{/);
+  }
+  // Making the first administrator is staff-only, so it closes with the staff area.
+  assert.match(
+    firstStatement('src/app/setup/actions.ts', 'completeSetup'),
+    /^if \(!staffAreaOpen\(siteAccess\(\)\)\) \{ return \{ ok: false/,
+  );
+});
+
 test('the invitation action cannot hand out anything but an ordinary account', () => {
   // The joining path is the only way into this app without an existing session,
   // so it is the one place where a stray write would be reachable by anybody

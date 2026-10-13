@@ -128,7 +128,8 @@ test('an administrator is a coach as well', () => {
 
   const requireCoach = guard.slice(guard.indexOf('export async function requireCoach'));
   assert.match(
-    requireCoach.slice(0, 500),
+    // Room for the signature and the site access check that opens it.
+    requireCoach.slice(0, 600),
     /profile\?\.isAdmin/,
     'requireCoach must let an administrator through',
   );

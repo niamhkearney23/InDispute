@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { timingSafeEqual } from 'node:crypto';
 import { readPostmark } from '@/lib/work/inbound';
 import { draftFromEmail } from '@/lib/work/inbound-service';
+import { siteAccess, staffAreaOpen } from '@/lib/security/site-access';
 
 /**
  * Where the inbound email service delivers work that lawyers email in.
@@ -37,6 +38,12 @@ function basicPassword(header: string): string {
 }
 
 export async function POST(request: NextRequest) {
+  // Closed with the staff area (src/lib/security/site-access.ts). The
+  // middleware answers first; this holds if it ever does not. A 503 makes
+  // the email service try again later rather than drop the message.
+  if (!staffAreaOpen(siteAccess())) {
+    return new NextResponse('Closed for maintenance', { status: 503 });
+  }
   const expected = process.env.INBOUND_EMAIL_TOKEN ?? '';
   if (expected.length < 24) {
     return new NextResponse('Not found', { status: 404 });

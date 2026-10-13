@@ -102,25 +102,22 @@ or "server region" warning.
 
 ## Rolling back
 
-**The website:** Vercel, the project, **Deployments**, the previous
-production deployment, **Promote to Production** (Instant Rollback). Then,
-because the older website has no two-step sign-in, run
-`supabase/rollback/ROLLBACK-0047.sql` in the SQL Editor so its staff pages
-work again. The rest of the database changes stay: they only refuse things,
-and the older website works with them. Running `UPDATE.sql` again later puts
-`0047` back.
+Follow `docs/ROLLBACK.md`. In short: restrict access first (`SITE_ACCESS`
+set to `staff-closed` or `closed` in Vercel, then Redeploy), then fix
+forward. The website is never put back to a build that does not ask staff
+for the code (commit `b0161d8` or earlier), and no database change from
+`0043` to `0048` is ever undone.
 
 **The data:** the update's only change to existing rows is taking unsigned
 questions and facts back to review (0044), which a lawyer reverses by
-signing them off and publishing them. To undo everything, including that,
-restore the backup from step 2 (Database, Backups, restore; with Point in
-Time Recovery, choose the time noted). A restore also loses anything done
-since, so it is the last resort.
+signing them off and publishing them. Restoring the backup from step 2 is
+the last resort, because it also loses anything done since; how to do it
+with the website closed until `UPDATE.sql` has been run again is section 4
+of `docs/ROLLBACK.md`.
 
 ## Tested without a real project
 
 `tools/integration/rehearse-update.sh b0161d8` runs steps 1.3 to 1.6 on a
 throwaway Supabase built from the live site's own SETUP.sql with
-production-like data, checks the rollback restores the staff checks
-exactly, and re-applies the update. It does not replace step 1: it is not
+production-like data, and re-applies the update. It does not replace step 1: it is not
 your data, and not Supabase's hosted platform.

@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { acceptInvitation } from '@/lib/onboarding/invitations';
+import { signedInUseOpen, siteAccess } from '@/lib/security/site-access';
 
 /**
  * Taking up an invitation.
@@ -34,6 +35,11 @@ const schema = z.object({
 });
 
 export async function join(_state: JoinState, formData: FormData): Promise<JoinState> {
+  // The one action that does not start from getCurrentUser, so it asks the
+  // site access switch itself: nobody joins while the site is closed.
+  if (!signedInUseOpen(siteAccess())) {
+    return { error: 'The academy is closed for maintenance. Please try again later.' };
+  }
   const parsed = schema.safeParse({
     token: formData.get('token'),
     password: formData.get('password'),

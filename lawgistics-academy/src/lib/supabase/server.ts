@@ -5,6 +5,7 @@ import { cookies } from 'next/headers';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { publicEnv, requirePublicEnv } from '@/lib/env';
 import { erasedByCheck, signInRefused } from '@/lib/auth/refused';
+import { signedInUseOpen, siteAccess } from '@/lib/security/site-access';
 
 type CookiesToSet = Array<{ name: string; value: string; options: CookieOptions }>;
 
@@ -59,8 +60,15 @@ const accountErased = cache(async (): Promise<boolean> => {
  * auth server's ban (0043), and the profile's `erased_at` (0045), which is
  * set even when the call to the auth server failed and the ban never
  * happened.
+ *
+ * While the owner has closed the whole site (`SITE_ACCESS=closed`, or any
+ * value it does not recognise; src/lib/security/site-access.ts) it answers
+ * nobody before reading anything, so every server action refuses, wherever
+ * it was posted. The middleware shows the maintenance page as well; this is
+ * the check that holds for an action posted to an address it lets through.
  */
 export async function getCurrentUser() {
+  if (!signedInUseOpen(siteAccess())) return null;
   if (!publicEnv.supabaseUrl || !publicEnv.supabaseAnonKey) return null;
 
   const supabase = await createSupabaseServerClient();
