@@ -64,8 +64,8 @@ These come from the owner and are not up for renegotiation.
   clears its sign-off, so an account that could edit and verify could sign its
   own rewrite with the audit trail showing an ordinary review. A coach who
   thinks an item is wrong flags it with a note; somebody else changes it.
-  Exactly fifteen actions accept a coach, named in `tests/authorisation-contract`,
-  and a test fails if a sixteenth quietly does. Two of the fifteen are the coach's
+  Exactly sixteen actions accept a coach, named in `tests/authorisation-contract`,
+  and a test fails if a seventeenth quietly does. Two of the sixteen are the coach's
   own **sessions**: they record something, paste a YouTube or Vimeo link, and
   it leads the dashboard the morning it is for. That is not an exception to
   the rule, it is outside it: a session has no version chain, no answer key,
@@ -103,7 +103,11 @@ These come from the owner and are not up for renegotiation.
   off codes stays with an administrator. The fifteenth is **signing off a
   lesson** (0032): lessons are written in the code, and a sign-off is pinned
   to a SHA-256 of every word a learner sees, so any change needs signing
-  again.
+  again. The sixteenth is **keeping a work-board message for supervision**
+  (`keepForSupervision`, 0045, `checkReviewer`): a lawyer marks a learner's
+  message or comment kept, with a reason, so it survives the learner deleting
+  their account and the retention period. A decision about a person's words
+  under the lawyer's name; it touches no content.
 - **AI never publishes legal content.** It may draft. A named person signs off,
   and that sign-off is a statement they are answerable for.
 - **Say what is true.** The product's whole value is a record a firm can rely
@@ -175,7 +179,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0044`.
+- Migrations run to `0045`.
   `supabase/UPDATE.sql` is the one-paste update for a database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -417,8 +421,10 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   account 2FA, backups and a test restore, UPDATE.sql in step, repository
   visibility, PDPA and AI data terms, an independent test.
 - `0043` is **deleting an account** (PDPA erasure, and Apple's rule should a
-  phone app be built). The owner's decision: **anonymise, do not destroy what
-  the firm relies on.** A learner deletes their own on the Account page
+  phone app be built). The owner's decision: **remove the name, email and
+  photo, do not destroy what the firm relies on.** What stays is not
+  anonymous and nothing may say it is: written answers, messages, files and
+  certification records can still identify somebody. A learner deletes their own on the Account page
   (typing DELETE and their own address; the id is the session's), an
   administrator deletes a learner at Admin, Trainees, [id] (`eraseLearner`,
   `checkAdmin` only). Staff are refused, by the page and by the database:
@@ -430,12 +436,13 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   **Goes:** name (now "Deleted account"), email, photo and cartoon, timezone,
   goals, career stage, tutor conversations, `code_attempts`, an undecided
   code request, matter recordings (even handed in), and the name and address
-  on the accepted invitation. **Stays, under the anonymised id:** answers,
-  homework, work claims, submissions and their files, work-board messages
-  and comments, matter attempts and marks, onboarding records, certificates,
-  XP and mastery. That split is the owner's to change, in the migration and
-  here. The certification register is typed by a coach and linked to no
-  account, so it is untouched. `erased_at` is set only inside the function
+  on the accepted invitation. **Stays, under the same id now named "Deleted
+  account":** answers, homework, work claims, submissions and their files,
+  work-board messages and comments that were kept for supervision (0045
+  replaces the rest), matter attempts and marks, onboarding records,
+  certificates, XP and mastery. That split is the owner's to change, in the
+  migration and here. The certification register is reviewed through 0045's
+  link. `erased_at` is set only inside the function
   and never cleared or moved, and an erased name, address and picture stay
   cleared. The guards on handed-in recordings and tutor conversations let
   erasure through only when `app.erasing` names the row's person **and** the
@@ -444,6 +451,54 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   signed out (`signInRefused`, in `getCurrentUser` and the middleware) and a
   deleted person lands on `/goodbye`. Reports keep counting the months they
   were active; the leaderboard leaves them off.
+- `0045` makes deletion **safe to rely on** (the owner's review of 0043).
+  **Access ends in the database**, whatever Supabase Auth does: `erase_account`
+  deletes `auth.sessions` and `auth.refresh_tokens` rows in its own
+  transaction (guarded by `to_regclass`); PostgREST runs `check_request()`
+  before every request (`alter role authenticator set pgrst.db_pre_request`,
+  registered by `register_request_check()` only where that role exists), which
+  raises 42501 for a caller whose profile is erased and never errors for
+  anybody else; and every RLS table in `public`, plus `storage.objects`, has
+  a restrictive policy `erased_account_refused` (`refuse_erased_callers()`,
+  run by 0045 and again at the end of SETUP.sql and UPDATE.sql, so later
+  tables are covered). The policy calls `caller_erased()` directly, not as
+  `(select ...)`: as a subquery Postgres reports infinite recursion on
+  tables reached from another table's policy (work_claims from work_posts).
+  `getCurrentUser` and the middleware also ask `caller_erased` with the
+  person's own session (`erasedByCheck`), so the app signs out an erased
+  profile even when the ban never happened. **Deletion is a job**
+  (`account_erasures`, one row per person, service role only): who asked and
+  when, when each step finished (database, sessions, sign-in, files),
+  attempts, last error, `completed_at` (a constraint refuses it while a step
+  is missing). `runErasure` (`src/lib/account/erasure.ts`, every Supabase call
+  through `ErasureDeps`, `serviceErasureDeps(client)` for the real thing)
+  resumes whatever is unfinished. Files are listed page by page and a step
+  fails on any listing or deletion error, on fewer removed than asked, or if
+  a fresh listing is not empty; then the person sees "the deletion is being
+  finished", never "deleted" (`goodbyeCopy`), and the administrator a
+  warning (`adminErasureMessage`). Admin, Deletions (`/admin/deletions`,
+  administrators) lists unfinished and recent jobs with each step and Retry.
+  `/api/cron/erasure-retry` (Vercel cron, daily, `Authorization: Bearer
+  $CRON_SECRET`, 404 when unset, constant-time compare) retries and applies
+  the retention period. **Work board:** on deletion the person's own messages
+  and comments become "Removed when the account was deleted." unless a coach
+  or administrator kept one for supervision, with a reason; text on work
+  that closed (last activity or due date) more than **24 months** ago
+  (`WORK_BOARD_RETENTION_MONTHS` in `src/lib/account/retention.ts`, the only
+  place the number lives) is replaced the same way by the daily job unless
+  kept. Only `redact_*` functions can change the text (`redacting()`, the
+  same two-part test as `erasing()`). **Review:** the job keeps the former
+  display name only until the review closes, so `erasure_identifying_records`
+  can list what may still identify them (kept messages, words naming them,
+  hand-ins, matter answers, notes, certificate, register) with Redact for
+  work-board text. **Certification:** an administrator links a register record
+  to an account (`certification_trainees.profile_id`,
+  `linkCertificationTrainee`); a deletion queues the record and each entry
+  (`erasure_review_items`) to redact (names and free text cleared; grades,
+  dates, boxes and firm kept) or retain with a reason. The review closes only
+  when every item is decided, and closing clears the former name. Accounts
+  deleted under 0043 get a job on upgrade with sessions revoked; the daily
+  job then makes sure sign-in is closed and files are gone.
 - **Two-step sign-in for staff** (no migration; Supabase Auth's own TOTP).
   Every function in `src/lib/admin/guard.ts` asks for it once the role check
   passes: staff with no authenticator app are sent to `/account/two-step`,
@@ -536,7 +591,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   (a video site, a logo, a payment page) needs adding there, and frame-src is
   built from `src/lib/lessons/embed.ts`. Downloads and the cartoon keep their
   own stricter policy in `next.config.ts`.
-- 523 tests, 450 schema guarantees against a real Postgres, 394 page and device
+- 550 tests, 520 schema guarantees against a real Postgres, 394 page and device
   combinations and 33 accessibility combinations checked. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB

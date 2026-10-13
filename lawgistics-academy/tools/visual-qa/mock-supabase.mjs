@@ -947,6 +947,8 @@ const TABLES = {
     },
   ],
   'rpc/schema_version': SCHEMA_VERSION,
+  // Nobody in the stand-in data has deleted their account (0045).
+  'rpc/caller_erased': false,
   'rpc/weekly_leaderboard': [
     { place: 1, first_name: 'Aisyah', xp: 640, is_me: false },
     { place: 2, first_name: 'Niamh', xp: 480, is_me: true },

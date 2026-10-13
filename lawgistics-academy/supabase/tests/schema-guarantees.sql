@@ -553,10 +553,13 @@ select pg_temp.expect_failure(
   $$delete from public.firm_modules where id = 'bbbb2222-0000-0000-0000-000000000001'$$,
   'and neither can the module it belongs to, so unpublishing is the only way out');
 
+-- Only permissive policies grant anything. A restrictive one (0045 puts one
+-- on every table, refusing a deleted account) can only take access away, so
+-- the catalog checks for "no policy grants" count permissive policies.
 select pg_temp.expect(
   not exists (
     select 1 from pg_policies
-    where schemaname = 'public'
+    where permissive = 'PERMISSIVE' and schemaname = 'public'
       and tablename = 'firm_module_acknowledgements'
       and cmd in ('UPDATE', 'DELETE', 'ALL')),
   'no policy grants update or delete on an acknowledgement, to anyone including an administrator');
@@ -688,7 +691,7 @@ select pg_temp.expect_failure(
 select pg_temp.expect(
   not exists (
     select 1 from pg_policies
-    where schemaname = 'public'
+    where permissive = 'PERMISSIVE' and schemaname = 'public'
       and tablename in ('firm_step_declarations', 'firm_step_confirmations',
                         'onboarding_decisions')
       and cmd in ('UPDATE', 'DELETE', 'ALL')),
@@ -779,7 +782,7 @@ select pg_temp.expect_failure(
 select pg_temp.expect(
   not exists (
     select 1 from pg_policies
-    where schemaname = 'public' and tablename = 'homework_declarations'
+    where permissive = 'PERMISSIVE' and schemaname = 'public' and tablename = 'homework_declarations'
       and cmd in ('UPDATE', 'DELETE', 'ALL')),
   'no policy grants update or delete on a homework record, administrators included');
 
@@ -1094,14 +1097,14 @@ select pg_temp.expect_failure(
 select pg_temp.expect(
   not exists (
     select 1 from pg_policies
-    where schemaname = 'public' and tablename = 'work_claims'
+    where permissive = 'PERMISSIVE' and schemaname = 'public' and tablename = 'work_claims'
       and cmd in ('UPDATE', 'DELETE', 'ALL')),
   'no policy grants update or delete on a claim, administrators included');
 
 select pg_temp.expect(
   not exists (
     select 1 from pg_policies
-    where schemaname = 'public' and tablename = 'work_submissions'
+    where permissive = 'PERMISSIVE' and schemaname = 'public' and tablename = 'work_submissions'
       and cmd in ('DELETE', 'ALL')),
   'no policy grants delete on a submission, administrators included');
 
@@ -1239,7 +1242,7 @@ select pg_temp.expect(
 select pg_temp.expect(
   not exists (
     select 1 from pg_policies
-    where schemaname = 'public' and tablename = 'work_messages'
+    where permissive = 'PERMISSIVE' and schemaname = 'public' and tablename = 'work_messages'
       and cmd in ('UPDATE', 'DELETE')
   ),
   'no policy grants update or delete on a message, coaches included');
@@ -1989,9 +1992,15 @@ select pg_temp.expect_failure(
   $$insert into public.work_comments (post_id, author_id, body)
     values ('eeee0026-0000-0000-0000-000000000001', 'cccc0026-0000-0000-0000-000000000002', '   ')$$,
   'an empty comment is refused');
-update public.work_comments set body = 'Something else'
-where body = 'Is this the Federal Court one?';
-delete from public.work_comments where body = 'Is this the Federal Court one?';
+-- Since 0045 the table rights are withdrawn as well, so both are refused
+-- outright rather than matching no row.
+select pg_temp.expect_failure(
+  $$update public.work_comments set body = 'Something else'
+    where body = 'Is this the Federal Court one?'$$,
+  'a comment cannot be edited, even by the person who wrote it');
+select pg_temp.expect_failure(
+  $$delete from public.work_comments where body = 'Is this the Federal Court one?'$$,
+  'nor deleted');
 select pg_temp.expect(
   (select count(*) from public.work_comments where body = 'Is this the Federal Court one?') = 1,
   'a comment is not edited or deleted afterwards, even by the person who wrote it');
@@ -3032,7 +3041,7 @@ reset role;
 select pg_temp.expect(
   not exists (
     select 1 from pg_policies
-    where schemaname = 'public'
+    where permissive = 'PERMISSIVE' and schemaname = 'public'
       and tablename in ('questions', 'question_versions', 'daily_facts', 'joiner_invitations')
       and cmd <> 'SELECT'),
   'no policy lets anybody write content or invitations through the API');
@@ -3174,7 +3183,7 @@ select pg_temp.expect(
 select pg_temp.expect(
   not exists (
     select 1 from pg_policies
-    where schemaname = 'public' and tablename = 'homework_declarations' and cmd <> 'SELECT'),
+    where permissive = 'PERMISSIVE' and schemaname = 'public' and tablename = 'homework_declarations' and cmd <> 'SELECT'),
   'no policy lets a learner write a homework declaration');
 
 -- A matter is handed in whole.
@@ -3334,7 +3343,7 @@ select pg_temp.expect_failure(
 reset role;
 
 -- -----------------------------------------------------------------------------
--- 0043: erasing an account keeps the firm's record and nothing of the person
+-- 0043: erasing an account keeps the firm's record without the person's name
 -- -----------------------------------------------------------------------------
 -- The promise: only the server erases, and it clears who somebody was while
 -- their answers and work stay; erased stays erased; and the path erasure
@@ -3528,10 +3537,19 @@ select pg_temp.expect_failure(
 reset role;
 set local role authenticated;
 set local request.jwt.claim.sub = 'eeee0043-0000-0000-0000-000000000001';
-select pg_temp.expect_failure(
-  $$update public.profiles set erased_at = null where id = 'eeee0043-0000-0000-0000-000000000001'$$,
-  'a learner cannot clear their own erasure');
+-- Refused by the trigger, or (since 0045) not even reached: an erased caller
+-- matches no row of any table. Either way the erasure stands.
+do $$
+begin
+  update public.profiles set erased_at = null where id = 'eeee0043-0000-0000-0000-000000000001';
+exception when others then
+  null;
+end
+$$;
 reset role;
+select pg_temp.expect(
+  (select erased_at is not null from public.profiles where id = 'eeee0043-0000-0000-0000-000000000001'),
+  'a learner cannot clear their own erasure');
 
 -- An erased account is on no leaderboard, opted out or not.
 update public.profiles set leaderboard_opt_out = false
@@ -3636,6 +3654,532 @@ select pg_temp.expect(
               where question_id = 'cccc0044-0000-0000-0000-000000000002'),
   'a learner never receives an unsigned question');
 reset role;
+
+-- -----------------------------------------------------------------------------
+-- 0045: a deleted account loses access in the database, whatever Auth does
+-- -----------------------------------------------------------------------------
+-- The promises: the erasure ends every session in its own transaction; a
+-- deleted caller is refused by the pre-request check and by a restrictive
+-- policy on every table; the deletion is a recorded job nobody signed in can
+-- read; the person's own work-board text goes unless kept for supervision;
+-- old work-board text goes after the retention period; and linked
+-- certification records wait for an administrator's decision.
+reset role;
+set local request.jwt.claim.sub = '';
+
+-- Supabase Auth's own tables are not in the plain test bed. Stand-ins with
+-- the columns the erasure touches (refresh_tokens.user_id is text there).
+create table if not exists auth.sessions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null,
+  created_at timestamptz default now()
+);
+create table if not exists auth.refresh_tokens (
+  id bigserial primary key,
+  token varchar(255),
+  user_id varchar(255),
+  session_id uuid,
+  revoked boolean default false
+);
+
+insert into auth.users (id, email, raw_user_meta_data)
+values ('eeee0045-0000-0000-0000-000000000001', 'rosa@example.test', '{"display_name":"Rosa Rivera","country":"MY"}'),
+       ('eeee0045-0000-0000-0000-000000000002', 'stays@example.test', '{"display_name":"Sam Stays","country":"MY"}');
+
+insert into auth.sessions (id, user_id)
+values ('5e550045-0000-0000-0000-000000000001', 'eeee0045-0000-0000-0000-000000000001'),
+       ('5e550045-0000-0000-0000-000000000002', 'eeee0045-0000-0000-0000-000000000002');
+insert into auth.refresh_tokens (token, user_id, session_id)
+values ('rt-rosa', 'eeee0045-0000-0000-0000-000000000001', '5e550045-0000-0000-0000-000000000001'),
+       ('rt-sam', 'eeee0045-0000-0000-0000-000000000002', '5e550045-0000-0000-0000-000000000002');
+
+insert into public.user_question_attempts
+  (user_id, question_id, question_version_id, selected_option_ids, is_correct)
+values ('eeee0045-0000-0000-0000-000000000001', 'cccccccc-0000-0000-0000-000000000001',
+        'dddddddd-0000-0000-0000-000000000001', array['a'], true),
+       ('eeee0045-0000-0000-0000-000000000002', 'cccccccc-0000-0000-0000-000000000001',
+        'dddddddd-0000-0000-0000-000000000001', array['a'], true);
+
+-- A piece of work with a thread: two messages from Rosa, a coach's reply that
+-- names her, and a comment from each of them.
+insert into public.work_posts (id, kind, title, published, posted_by)
+values ('bbbb0045-0000-0000-0000-000000000001', 'task', 'Draft a letter 0045', false,
+        '44444444-4444-4444-4444-444444444444');
+insert into public.work_messages (id, post_id, thread_user_id, sender_id, body)
+values ('a5500045-0000-0000-0000-000000000001', 'bbbb0045-0000-0000-0000-000000000001',
+        'eeee0045-0000-0000-0000-000000000001', 'eeee0045-0000-0000-0000-000000000001',
+        'I live at 4 Jalan Example and I am stuck.'),
+       ('a5500045-0000-0000-0000-000000000002', 'bbbb0045-0000-0000-0000-000000000001',
+        'eeee0045-0000-0000-0000-000000000001', 'eeee0045-0000-0000-0000-000000000001',
+        'I filed it without checking the limitation date.'),
+       ('a5500045-0000-0000-0000-000000000003', 'bbbb0045-0000-0000-0000-000000000001',
+        'eeee0045-0000-0000-0000-000000000001', '44444444-4444-4444-4444-444444444444',
+        'Thanks Rosa, see me before you file anything else.');
+insert into public.work_comments (id, post_id, author_id, body)
+values ('c5500045-0000-0000-0000-000000000001', 'bbbb0045-0000-0000-0000-000000000001',
+        'eeee0045-0000-0000-0000-000000000001', 'Rosa here, is this due Friday?'),
+       ('c5500045-0000-0000-0000-000000000002', 'bbbb0045-0000-0000-0000-000000000001',
+        'eeee0045-0000-0000-0000-000000000002', 'Same question as Rosa.');
+
+-- A register record for her, with two entries.
+insert into public.certification_trainees (id, full_name, firm_name, notes)
+values ('ce570045-0000-0000-0000-000000000001', 'Rosa Rivera', 'Other Firm', 'Rosa is quick on affidavits.');
+insert into public.certification_entries (id, trainee_id, box_number, case_no, court_file_ref, note, grade)
+values ('ce5e0045-0000-0000-0000-000000000001', 'ce570045-0000-0000-0000-000000000001', 3,
+        'OF/2026/017', 'WA-22NCvC-1-01/2026', 'Rosa drafted the whole bundle.', 'l2_assisted'),
+       ('ce5e0045-0000-0000-0000-000000000002', 'ce570045-0000-0000-0000-000000000001', 4,
+        'OF/2026/018', '', 'Second draft needed.', 'l3_independent');
+
+-- The structure ---------------------------------------------------------------
+
+select pg_temp.expect(
+  (select relrowsecurity from pg_class where oid = 'public.account_erasures'::regclass)
+  and (select relrowsecurity from pg_class where oid = 'public.erasure_review_items'::regclass)
+  and not has_table_privilege('authenticated', 'public.account_erasures', 'select')
+  and not has_table_privilege('anon', 'public.account_erasures', 'select')
+  and not has_table_privilege('authenticated', 'public.erasure_review_items', 'select')
+  and not has_table_privilege('anon', 'public.erasure_review_items', 'select')
+  and not exists (select 1 from pg_policies
+                  where schemaname = 'public'
+                    and tablename in ('account_erasures', 'erasure_review_items')
+                    and permissive = 'PERMISSIVE'),
+  'deletion jobs and review items are for the server only: no table right and no policy for anybody signed in');
+
+select pg_temp.expect(
+  not exists (
+    select 1
+      from pg_class c join pg_namespace n on n.oid = c.relnamespace
+     where n.nspname = 'public' and c.relkind in ('r', 'p') and c.relrowsecurity
+       and not exists (
+         select 1 from pg_policies p
+          where p.schemaname = 'public' and p.tablename = c.relname
+            and p.policyname = 'erased_account_refused'
+            and p.permissive = 'RESTRICTIVE' and p.cmd = 'ALL'
+            and p.roles = '{authenticated}'))
+  and (select count(*) >= 40
+         from pg_policies
+        where schemaname = 'public' and policyname = 'erased_account_refused'),
+  'every table with row level security refuses a deleted account, with a restrictive policy');
+select pg_temp.expect(
+  exists (select 1 from pg_policies
+          where schemaname = 'storage' and tablename = 'objects'
+            and policyname = 'erased_account_refused' and permissive = 'RESTRICTIVE' and cmd = 'ALL'),
+  'and so do stored files');
+
+select pg_temp.expect(
+  has_function_privilege('anon', 'public.check_request()', 'execute')
+  and has_function_privilege('authenticated', 'public.check_request()', 'execute')
+  and has_function_privilege('authenticated', 'public.caller_erased()', 'execute')
+  and (select prosecdef from pg_proc where oid = 'public.caller_erased()'::regprocedure)
+  and has_function_privilege('service_role', 'public.erase_account(uuid, uuid)', 'execute')
+  and not has_function_privilege('authenticated', 'public.erase_account(uuid, uuid)', 'execute')
+  and not has_function_privilege('authenticated', 'public.revoke_account_sessions(uuid)', 'execute')
+  and not has_function_privilege('authenticated', 'public.redact_expired_work_board(integer)', 'execute')
+  and not has_function_privilege('authenticated', 'public.redact_work_board_record(text, uuid, uuid)', 'execute')
+  and not has_function_privilege('authenticated', 'public.decide_erasure_review_item(uuid, text, text, uuid)', 'execute')
+  and not has_function_privilege('authenticated', 'public.close_erasure_review(uuid, uuid)', 'execute')
+  and not has_function_privilege('authenticated', 'public.erasure_identifying_records(uuid)', 'execute')
+  and not has_function_privilege('authenticated', 'public.link_certification_trainee(uuid, uuid, uuid)', 'execute')
+  and not has_function_privilege('anon', 'public.redact_expired_work_board(integer)', 'execute')
+  and not has_function_privilege('service_role', 'public.refuse_erased_callers()', 'execute')
+  and not has_function_privilege('service_role', 'public.register_request_check()', 'execute'),
+  'everybody can be checked at the door; only the server deletes, redacts, links and reviews');
+
+-- On a Supabase project PostgREST runs check_request before every request.
+do $$
+begin
+  if not exists (select 1 from pg_roles where rolname = 'authenticator') then
+    create role authenticator nologin noinherit;
+  end if;
+end
+$$;
+select pg_temp.expect(public.register_request_check(),
+  'where the authenticator role exists, the check is registered');
+select pg_temp.expect(
+  exists (
+    select 1 from pg_db_role_setting s join pg_roles r on r.oid = s.setrole
+     where r.rolname = 'authenticator'
+       and 'pgrst.db_pre_request=public.check_request' = any (s.setconfig)),
+  'PostgREST is told to run the deleted-account check before every request');
+
+-- Before anybody is deleted, the door lets everybody through.
+set local role anon;
+set local request.jwt.claim.sub = '';
+select pg_temp.expect((select true from (select public.check_request()) passed) and not public.caller_erased(),
+  'somebody signed out passes the check');
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = 'eeee0045-0000-0000-0000-000000000001';
+select pg_temp.expect((select true from (select public.check_request()) passed) and not public.caller_erased(),
+  'an ordinary signed-in learner passes the check');
+set local request.jwt.claim.sub = 'eeee0045-0000-0000-0000-0000000000ff';
+select pg_temp.expect((select true from (select public.check_request()) passed),
+  'a signed-in caller with no profile passes the check rather than taking the site down');
+set local request.jwt.claim.sub = 'not-a-uuid';
+select pg_temp.expect((select true from (select public.check_request()) passed),
+  'a malformed claim does not take the site down either');
+set local request.jwt.claim.sub = 'eeee0045-0000-0000-0000-000000000002';
+select pg_temp.expect(
+  (select count(*) = 1 from public.profiles where id = 'eeee0045-0000-0000-0000-000000000002'),
+  'the restrictive policy leaves an ordinary learner their own profile');
+insert into storage.objects (bucket_id, name, owner)
+values ('avatars', 'eeee0045-0000-0000-0000-000000000002/avatar.png', 'eeee0045-0000-0000-0000-000000000002');
+select pg_temp.expect(true, 'and lets them put a photo in their own folder');
+reset role;
+set local request.jwt.claim.sub = '';
+
+-- Kept for supervision: a coach or administrator, with a reason -----------------
+
+set local role authenticated;
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+select pg_temp.expect_failure(
+  $$update public.work_messages set kept_for_supervision = true,
+      kept_by = '44444444-4444-4444-4444-444444444444', kept_reason = 'Needed for her file review'
+    where id = 'a5500045-0000-0000-0000-000000000002'$$,
+  'not even a coach marks a message kept through the API: the server does, after its check');
+reset role;
+set local role service_role;
+select pg_temp.expect_failure(
+  $$update public.work_messages set kept_for_supervision = true,
+      kept_by = '44444444-4444-4444-4444-444444444444', kept_reason = ''
+    where id = 'a5500045-0000-0000-0000-000000000002'$$,
+  'a message is kept for supervision only with a reason');
+select pg_temp.expect_failure(
+  $$update public.work_messages set kept_for_supervision = true,
+      kept_by = 'eeee0045-0000-0000-0000-000000000002', kept_reason = 'I want it kept'
+    where id = 'a5500045-0000-0000-0000-000000000002'$$,
+  'and only a coach or administrator decides it');
+update public.work_messages
+   set kept_for_supervision = true,
+       kept_by = '44444444-4444-4444-4444-444444444444',
+       kept_reason = 'The limitation slip is a supervision matter on her file'
+ where id = 'a5500045-0000-0000-0000-000000000002';
+select pg_temp.expect(
+  (select kept_for_supervision and kept_at is not null and body like 'I filed it%'
+     from public.work_messages where id = 'a5500045-0000-0000-0000-000000000002'),
+  'a coach marks a message kept for supervision, and when is recorded');
+select pg_temp.expect_failure(
+  $$update public.work_messages set body = 'Rewritten'
+    where id = 'a5500045-0000-0000-0000-000000000001'$$,
+  'the server cannot rewrite a message');
+select set_config('app.redacting', 'on', true);
+select pg_temp.expect_failure(
+  $$update public.work_messages set body = public.redacted_text('review'),
+      redacted_at = now(), redacted_reason = 'review'
+    where id = 'a5500045-0000-0000-0000-000000000001'$$,
+  'nor remove its text by setting the redacting flag itself');
+select set_config('app.redacting', '', true);
+reset role;
+
+-- Linking the register to her account: an administrator, through the server.
+set local role authenticated;
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+select pg_temp.expect_failure(
+  $$update public.certification_trainees set profile_id = 'eeee0045-0000-0000-0000-000000000001'
+    where id = 'ce570045-0000-0000-0000-000000000001'$$,
+  'a coach cannot link a register record to an account');
+reset role;
+set local role service_role;
+select pg_temp.expect_failure(
+  $$select public.link_certification_trainee('ce570045-0000-0000-0000-000000000001',
+      'eeee0045-0000-0000-0000-000000000001', '44444444-4444-4444-4444-444444444444')$$,
+  'linking is an administrator''s, not a coach''s');
+select pg_temp.expect_failure(
+  $$select public.link_certification_trainee('ce570045-0000-0000-0000-000000000001',
+      '44444444-4444-4444-4444-444444444444', '33333333-3333-3333-3333-333333333333')$$,
+  'a register record is never linked to a member of staff');
+select public.link_certification_trainee('ce570045-0000-0000-0000-000000000001',
+  'eeee0045-0000-0000-0000-000000000001', '33333333-3333-3333-3333-333333333333');
+select pg_temp.expect(
+  (select profile_id = 'eeee0045-0000-0000-0000-000000000001'
+     from public.certification_trainees where id = 'ce570045-0000-0000-0000-000000000001'),
+  'an administrator links a register record to the trainee''s account');
+
+-- The erasure ------------------------------------------------------------------
+
+select pg_temp.expect(
+  public.erase_account('eeee0045-0000-0000-0000-000000000001', '33333333-3333-3333-3333-333333333333')
+    = '{}'::text[],
+  'the server erases the account, naming who asked');
+reset role;
+
+select pg_temp.expect(
+  not exists (select 1 from auth.sessions where user_id = 'eeee0045-0000-0000-0000-000000000001')
+  and not exists (select 1 from auth.refresh_tokens where user_id = 'eeee0045-0000-0000-0000-000000000001'),
+  'every session and refresh token of the deleted account is gone, in the same transaction');
+select pg_temp.expect(
+  exists (select 1 from auth.sessions where user_id = 'eeee0045-0000-0000-0000-000000000002')
+  and exists (select 1 from auth.refresh_tokens where user_id = 'eeee0045-0000-0000-0000-000000000002'),
+  'and nobody else''s');
+
+select pg_temp.expect(
+  (select requested_by = '33333333-3333-3333-3333-333333333333'
+          and former_display_name = 'Rosa Rivera'
+          and database_done_at is not null and sessions_done_at is not null
+          and auth_done_at is null and storage_done_at is null and completed_at is null
+          and review_closed_at is null
+     from public.account_erasures where user_id = 'eeee0045-0000-0000-0000-000000000001'),
+  'the deletion is recorded as a job: who asked, the database and sessions done, sign-in and files still to do');
+
+select pg_temp.expect(
+  (select body = 'Removed when the account was deleted.' and redacted_reason = 'erasure' and redacted_at is not null
+     from public.work_messages where id = 'a5500045-0000-0000-0000-000000000001')
+  and (select body = 'Removed when the account was deleted.'
+         from public.work_comments where id = 'c5500045-0000-0000-0000-000000000001'),
+  'her own work-board messages and comments are replaced with a notice');
+select pg_temp.expect(
+  (select body like 'I filed it%' and redacted_at is null
+     from public.work_messages where id = 'a5500045-0000-0000-0000-000000000002'),
+  'except a message a coach kept for supervision');
+select pg_temp.expect(
+  (select body like 'Thanks Rosa%' from public.work_messages where id = 'a5500045-0000-0000-0000-000000000003')
+  and (select body = 'Same question as Rosa.' from public.work_comments where id = 'c5500045-0000-0000-0000-000000000002'),
+  'other people''s words are left for the review, not removed blindly');
+
+select pg_temp.expect(
+  (select count(*) = 3 and count(*) filter (where decision is null) = 3
+     from public.erasure_review_items where user_id = 'eeee0045-0000-0000-0000-000000000001'),
+  'the linked register record and each of its entries wait for an administrator''s decision');
+
+-- The deleted account at the door ------------------------------------------------
+
+set local role authenticated;
+set local request.jwt.claim.sub = 'eeee0045-0000-0000-0000-000000000001';
+select pg_temp.expect(public.caller_erased(), 'the database knows the caller is a deleted account');
+do $$
+begin
+  perform public.check_request();
+  raise exception 'FAIL  the pre-request check let a deleted account through';
+exception when insufficient_privilege then
+  raise notice 'PASS  the pre-request check refuses a deleted account, as permission denied (42501)';
+end
+$$;
+select pg_temp.expect(
+  not exists (select 1 from public.profiles where id = 'eeee0045-0000-0000-0000-000000000001')
+  and not exists (select 1 from public.user_question_attempts where user_id = 'eeee0045-0000-0000-0000-000000000001')
+  and not exists (select 1 from public.work_messages where thread_user_id = 'eeee0045-0000-0000-0000-000000000001'),
+  'a deleted account with a still-valid token reads nothing, not even its own rows');
+select pg_temp.expect_failure(
+  $$insert into public.work_comments (post_id, author_id, body)
+    values ('eeee0026-0000-0000-0000-000000000001', 'eeee0045-0000-0000-0000-000000000001', 'Still here')$$,
+  'nor writes anything');
+select pg_temp.expect_failure(
+  $$insert into storage.objects (bucket_id, name, owner)
+    values ('avatars', 'eeee0045-0000-0000-0000-000000000001/avatar.png', 'eeee0045-0000-0000-0000-000000000001')$$,
+  'nor puts a file in storage, even in its own folder');
+select pg_temp.expect(
+  not exists (select 1 from storage.objects where bucket_id = 'avatars'),
+  'nor reads anybody''s stored photo');
+set local request.jwt.claim.sub = 'eeee0045-0000-0000-0000-000000000002';
+select pg_temp.expect(
+  (select true from (select public.check_request()) passed)
+  and (select count(*) = 1 from public.profiles where id = 'eeee0045-0000-0000-0000-000000000002')
+  and exists (select 1 from storage.objects where bucket_id = 'avatars'),
+  'while everybody else carries on as before');
+reset role;
+set local request.jwt.claim.sub = '';
+
+-- The job is the server's alone, and holds to its own rules.
+set local role authenticated;
+set local request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+select pg_temp.expect_failure($$select * from public.account_erasures$$,
+  'not even an administrator reads deletion jobs through the API');
+select pg_temp.expect_failure($$select * from public.erasure_review_items$$,
+  'nor review items');
+reset role;
+set local role anon;
+select pg_temp.expect_failure($$select * from public.account_erasures$$,
+  'nor anybody signed out');
+reset role;
+set local role service_role;
+select pg_temp.expect_failure(
+  $$update public.account_erasures set completed_at = now()
+    where user_id = 'eeee0045-0000-0000-0000-000000000001'$$,
+  'a deletion cannot be marked complete while a step is unfinished');
+update public.account_erasures set auth_done_at = now(), storage_done_at = now(), attempts = 1
+ where user_id = 'eeee0045-0000-0000-0000-000000000001';
+select pg_temp.expect_failure(
+  $$update public.account_erasures set storage_done_at = null
+    where user_id = 'eeee0045-0000-0000-0000-000000000001'$$,
+  'a finished step stays finished');
+select pg_temp.expect_failure(
+  $$update public.account_erasures set former_display_name = 'Somebody Else'
+    where user_id = 'eeee0045-0000-0000-0000-000000000001'$$,
+  'the former name is never rewritten');
+update public.account_erasures set completed_at = now()
+ where user_id = 'eeee0045-0000-0000-0000-000000000001';
+select pg_temp.expect(
+  (select completed_at is not null from public.account_erasures
+    where user_id = 'eeee0045-0000-0000-0000-000000000001'),
+  'once every step is done the deletion is complete');
+
+-- Erasing again changes nothing it already did.
+select public.erase_account('eeee0045-0000-0000-0000-000000000001', null);
+select pg_temp.expect(
+  (select count(*) = 3 from public.erasure_review_items where user_id = 'eeee0045-0000-0000-0000-000000000001')
+  and (select former_display_name = 'Rosa Rivera' and requested_by = '33333333-3333-3333-3333-333333333333'
+         from public.account_erasures where user_id = 'eeee0045-0000-0000-0000-000000000001')
+  and (select body like 'I filed it%' from public.work_messages where id = 'a5500045-0000-0000-0000-000000000002'),
+  'erasing again queues nothing twice and keeps the name, the requester and the kept message');
+
+-- The review --------------------------------------------------------------------
+
+select pg_temp.expect(
+  exists (select 1 from public.erasure_identifying_records('eeee0045-0000-0000-0000-000000000001')
+           where kind = 'own_message' and record_id = 'a5500045-0000-0000-0000-000000000002' and can_redact)
+  and exists (select 1 from public.erasure_identifying_records('eeee0045-0000-0000-0000-000000000001')
+               where kind = 'mention_message' and record_id = 'a5500045-0000-0000-0000-000000000003')
+  and exists (select 1 from public.erasure_identifying_records('eeee0045-0000-0000-0000-000000000001')
+               where kind = 'mention_comment' and record_id = 'c5500045-0000-0000-0000-000000000002')
+  and exists (select 1 from public.erasure_identifying_records('eeee0045-0000-0000-0000-000000000001')
+               where kind = 'certification_entry' and not can_redact)
+  and not exists (select 1 from public.erasure_identifying_records('eeee0045-0000-0000-0000-000000000001')
+                   where record_id = 'a5500045-0000-0000-0000-000000000001'),
+  'the review lists what may still identify her: the kept message, words naming her, the register');
+
+select pg_temp.expect_failure(
+  $$select public.redact_work_board_record('message', 'a5500045-0000-0000-0000-000000000003',
+      '44444444-4444-4444-4444-444444444444')$$,
+  'only an administrator removes text on review');
+select pg_temp.expect(
+  public.redact_work_board_record('message', 'a5500045-0000-0000-0000-000000000003',
+    '33333333-3333-3333-3333-333333333333'),
+  'an administrator removes a message that names her');
+select pg_temp.expect(
+  (select body = 'Removed by an administrator to protect personal information.'
+              and redacted_by = '33333333-3333-3333-3333-333333333333'
+         from public.work_messages where id = 'a5500045-0000-0000-0000-000000000003'),
+  'the notice replaces it, and who removed it is recorded');
+select pg_temp.expect(
+  public.redact_work_board_record('message', 'a5500045-0000-0000-0000-000000000002',
+    '33333333-3333-3333-3333-333333333333'),
+  'on review an administrator may remove even a message kept for supervision');
+
+select pg_temp.expect_failure(
+  $$select public.close_erasure_review('eeee0045-0000-0000-0000-000000000001', '33333333-3333-3333-3333-333333333333')$$,
+  'the review does not close while a register record is undecided');
+select pg_temp.expect_failure(
+  $$select public.decide_erasure_review_item(
+      (select id from public.erasure_review_items where certification_entry_id = 'ce5e0045-0000-0000-0000-000000000002'),
+      'retain', '', '33333333-3333-3333-3333-333333333333')$$,
+  'retaining a record needs a reason');
+select pg_temp.expect_failure(
+  $$select public.decide_erasure_review_item(
+      (select id from public.erasure_review_items where certification_entry_id = 'ce5e0045-0000-0000-0000-000000000002'),
+      'redact', null, '44444444-4444-4444-4444-444444444444')$$,
+  'a coach does not decide a review item');
+select public.decide_erasure_review_item(
+  (select id from public.erasure_review_items where certification_entry_id = 'ce5e0045-0000-0000-0000-000000000002'),
+  'retain', 'Regulatory record of supervised work', '33333333-3333-3333-3333-333333333333');
+select public.decide_erasure_review_item(
+  (select id from public.erasure_review_items where certification_entry_id = 'ce5e0045-0000-0000-0000-000000000001'),
+  'redact', null, '33333333-3333-3333-3333-333333333333');
+select pg_temp.expect(
+  (select case_no = 'Removed' and court_file_ref = '' and note = ''
+          and box_number = 3 and grade = 'l2_assisted' and date_in is not null
+     from public.certification_entries where id = 'ce5e0045-0000-0000-0000-000000000001')
+  and (select case_no = 'OF/2026/018' and note = 'Second draft needed.'
+         from public.certification_entries where id = 'ce5e0045-0000-0000-0000-000000000002'),
+  'redacting an entry clears its free text and keeps the grade, box and dates; a retained one is untouched');
+select pg_temp.expect(
+  (select decision = 'retain' and reason = 'Regulatory record of supervised work'
+          and decided_by = '33333333-3333-3333-3333-333333333333' and decided_at is not null
+     from public.erasure_review_items where certification_entry_id = 'ce5e0045-0000-0000-0000-000000000002'),
+  'the decision, who made it, when and why are recorded');
+select pg_temp.expect_failure(
+  $$select public.decide_erasure_review_item(
+      (select id from public.erasure_review_items where certification_entry_id = 'ce5e0045-0000-0000-0000-000000000002'),
+      'redact', null, '33333333-3333-3333-3333-333333333333')$$,
+  'a decision is made once');
+select public.decide_erasure_review_item(
+  (select id from public.erasure_review_items where certification_trainee_id = 'ce570045-0000-0000-0000-000000000001'),
+  'redact', null, '33333333-3333-3333-3333-333333333333');
+select pg_temp.expect(
+  (select full_name = 'Deleted account' and notes = '' and firm_name = 'Other Firm'
+     from public.certification_trainees where id = 'ce570045-0000-0000-0000-000000000001'),
+  'redacting the register record removes her name and the notes about her');
+
+select public.close_erasure_review('eeee0045-0000-0000-0000-000000000001', '33333333-3333-3333-3333-333333333333');
+select pg_temp.expect(
+  (select review_closed_at is not null and former_display_name is null
+          and review_closed_by = '33333333-3333-3333-3333-333333333333'
+     from public.account_erasures where user_id = 'eeee0045-0000-0000-0000-000000000001'),
+  'once every record is decided the review closes, and her former name is cleared');
+select pg_temp.expect(
+  not exists (select 1 from public.erasure_identifying_records('eeee0045-0000-0000-0000-000000000001')
+               where kind like 'mention%'),
+  'with the name gone, nothing searches for it any more');
+select pg_temp.expect_failure(
+  $$update public.account_erasures set review_closed_at = null
+    where user_id = 'eeee0045-0000-0000-0000-000000000001'$$,
+  'a closed review stays closed');
+select pg_temp.expect_failure(
+  $$select public.link_certification_trainee('ce570045-0000-0000-0000-000000000001',
+      'eeee0045-0000-0000-0000-000000000001', '33333333-3333-3333-3333-333333333333')$$,
+  'nothing new is linked to a deleted account once its review is closed');
+reset role;
+
+-- The retention period ----------------------------------------------------------
+-- A piece of work that closed thirty months ago, and its thread, backdated
+-- past the triggers that stamp the dates.
+set local session_replication_role = replica;
+insert into public.work_posts (id, kind, title, published, created_at)
+values ('bbbb0045-0000-0000-0000-000000000002', 'task', 'An old piece of work 0045', false,
+        now() - interval '30 months');
+insert into public.work_messages (id, post_id, thread_user_id, sender_id, body, sent_at)
+values ('a5500045-0000-0000-0000-000000000011', 'bbbb0045-0000-0000-0000-000000000002',
+        'eeee0045-0000-0000-0000-000000000002', 'eeee0045-0000-0000-0000-000000000002',
+        'An old question about my own family.', now() - interval '30 months'),
+       ('a5500045-0000-0000-0000-000000000012', 'bbbb0045-0000-0000-0000-000000000002',
+        'eeee0045-0000-0000-0000-000000000002', '44444444-4444-4444-4444-444444444444',
+        'Kept: the supervision note on this file.', now() - interval '30 months');
+insert into public.work_comments (id, post_id, author_id, body, created_at)
+values ('c5500045-0000-0000-0000-000000000011', 'bbbb0045-0000-0000-0000-000000000002',
+        'eeee0045-0000-0000-0000-000000000002', 'An old comment.', now() - interval '30 months');
+set local session_replication_role = origin;
+update public.work_messages
+   set kept_for_supervision = true, kept_by = '33333333-3333-3333-3333-333333333333',
+       kept_reason = 'Needed for the supervision record'
+ where id = 'a5500045-0000-0000-0000-000000000012';
+-- A recent message on the current piece of work, which must stay.
+insert into public.work_messages (id, post_id, thread_user_id, sender_id, body)
+values ('a5500045-0000-0000-0000-000000000013', 'bbbb0045-0000-0000-0000-000000000001',
+        'eeee0045-0000-0000-0000-000000000002', 'eeee0045-0000-0000-0000-000000000002',
+        'A question from this week.');
+
+select pg_temp.expect(
+  public.work_post_closed_at('bbbb0045-0000-0000-0000-000000000002') < now() - interval '29 months'
+  and public.work_post_closed_at('bbbb0045-0000-0000-0000-000000000001') > now() - interval '1 day',
+  'a piece of work closes at its last activity');
+
+set local role authenticated;
+set local request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+select pg_temp.expect_failure($$select public.redact_expired_work_board(24)$$,
+  'only the server applies the retention period');
+reset role;
+set local role service_role;
+select pg_temp.expect_failure($$select public.redact_expired_work_board(0)$$,
+  'the retention period is at least a month');
+select pg_temp.expect(public.redact_expired_work_board(24) = 2,
+  'the server applies the retention period');
+reset role;
+select pg_temp.expect(
+  (select body = 'Removed at the end of the retention period.' and redacted_reason = 'retention'
+     from public.work_messages where id = 'a5500045-0000-0000-0000-000000000011')
+  and (select body = 'Removed at the end of the retention period.'
+         from public.work_comments where id = 'c5500045-0000-0000-0000-000000000011'),
+  'messages and comments on work that closed more than the period ago are replaced with a notice');
+select pg_temp.expect(
+  (select body like 'Kept:%' and redacted_at is null
+     from public.work_messages where id = 'a5500045-0000-0000-0000-000000000012')
+  and (select body = 'A question from this week.'
+         from public.work_messages where id = 'a5500045-0000-0000-0000-000000000013'),
+  'a message kept for supervision, and anything on current work, stays');
+set local role service_role;
+select pg_temp.expect(public.redact_expired_work_board(24) = 0,
+  'running it again changes nothing');
+reset role;
+set local request.jwt.claim.sub = '';
 
 -- Schema version ---------------------------------------------------------------
 -- The admin pages compare this with the version the code expects.

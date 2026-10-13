@@ -1,9 +1,10 @@
 import 'server-only';
 
+import { cache } from 'react';
 import { cookies } from 'next/headers';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { publicEnv, requirePublicEnv } from '@/lib/env';
-import { signInRefused } from '@/lib/auth/refused';
+import { erasedByCheck, signInRefused } from '@/lib/auth/refused';
 
 type CookiesToSet = Array<{ name: string; value: string; options: CookieOptions }>;
 
@@ -36,14 +37,28 @@ export async function createSupabaseServerClient() {
 }
 
 /**
+ * Whether the signed-in person's account has been deleted, asked of the
+ * database with their own session (0045). One primary key lookup, asked at
+ * most once per request.
+ */
+const accountErased = cache(async (): Promise<boolean> => {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.rpc('caller_erased');
+  return erasedByCheck(data, error);
+});
+
+/**
  * The authenticated user, or null. Always verified against the auth server.
  *
  * Returns null rather than throwing when Supabase is not configured, so a fresh
  * clone renders the landing page and the setup instructions instead of a stack
  * trace.
  *
- * A deleted account is banned (0043) and counts as nobody, so every action,
- * all of which start here, refuses it even while its last token is valid.
+ * A deleted account counts as nobody, so every action, all of which start
+ * here, refuses it even while its last token is valid. Two things say so: the
+ * auth server's ban (0043), and the profile's `erased_at` (0045), which is
+ * set even when the call to the auth server failed and the ban never
+ * happened.
  */
 export async function getCurrentUser() {
   if (!publicEnv.supabaseUrl || !publicEnv.supabaseAnonKey) return null;
@@ -52,5 +67,6 @@ export async function getCurrentUser() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  return signInRefused(user) ? null : user;
+  if (!user || signInRefused(user)) return null;
+  return (await accountErased()) ? null : user;
 }

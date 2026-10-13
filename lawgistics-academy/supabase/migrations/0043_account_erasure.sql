@@ -7,11 +7,12 @@
 -- PDPA gives a person the right to ask, and Apple requires a way out of any
 -- phone app, so there has to be one.
 --
--- The owner's decision: anonymise, do not destroy what the firm relies on.
--- The account stays as a row with no identity in it, and is banned at the
--- auth server so it can never be signed in to again (done by the server,
--- src/lib/account/erasure.ts, which also changes the sign-in email and
--- password and deletes the stored files).
+-- The owner's decision: remove the person's name, email and photo, and do
+-- not destroy what the firm relies on. The account stays as a row named
+-- "Deleted account", and is banned at the auth server so it can never be
+-- signed in to again (done by the server, src/lib/account/erasure.ts, which
+-- also changes the sign-in email and password and deletes the stored files).
+-- What stays can still identify the person; 0045 adds the review for it.
 --
 -- What goes, because it is the person and not the firm's record:
 --   * the name, email, photo and cartoon, timezone, goals and career stage on
@@ -24,18 +25,20 @@
 --   * the email and name on the invitation they accepted.
 -- There is no push or device token table to clear.
 --
--- What stays, linked only to the anonymised id, because it is the firm's
--- training record: answers, homework declarations, work claims, submissions
--- and their files, the work-board messages and comments, matter attempts
--- (the written answers and the mark), onboarding acknowledgements,
--- declarations, confirmations and decisions, certificates, XP, mastery and
--- streaks. Their content is the person's work, not their identity. This is
--- a choice the owner can change: anything listed here can be added to
--- erase_account below with a matching guard exception.
+-- What stays, under the same account id, now named "Deleted account",
+-- because it is the firm's training record: answers, homework declarations,
+-- work claims, submissions and their files, the work-board messages and
+-- comments (0045 replaces the person's own unless kept for supervision),
+-- matter attempts (the written answers and the mark), onboarding
+-- acknowledgements, declarations, confirmations and decisions, certificates,
+-- XP, mastery and streaks. Written answers, messages, files and notes may
+-- still identify the person even without their name. This is a choice the
+-- owner can change: anything listed here can be added to erase_account with
+-- a matching guard exception.
 --
--- Not touched: the certification register (certification_trainees). It is
--- typed by a coach and not linked to any account, so a name there has to be
--- removed by the coach by hand.
+-- Not touched here: the certification register (certification_trainees). It
+-- was typed by a coach and not linked to any account. 0045 lets an
+-- administrator link it, and a deletion then queues it for review.
 --
 -- Staff accounts are refused: take the staff role off at Admin, Staff first.
 -- =============================================================================

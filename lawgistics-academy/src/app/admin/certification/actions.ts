@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { checkReviewer } from '@/lib/admin/guard';
+import { checkAdmin, checkReviewer } from '@/lib/admin/guard';
 import { createServiceClient } from '@/lib/supabase/service';
 import type { AdminState } from '../actions';
 
@@ -142,4 +142,71 @@ export async function saveCertificationEntry(
   revalidatePath(`/admin/certification/${values.traineeId}`);
   revalidatePath('/admin/certification');
   return { error: null, ok: 'Saved.' };
+}
+
+const linkSchema = z.object({
+  traineeId: z.string().uuid(),
+  email: z.string().trim().max(320),
+});
+
+/**
+ * Linking a register record to the trainee's own account, or unlinking it
+ * (0045). The register was typed by a coach and tied to nobody, so deleting
+ * somebody's account could not find their certification records. Linked, a
+ * deletion puts every one in front of an administrator to redact or retain.
+ *
+ * An administrator's alone: it ties a person's identity to a record, which a
+ * coach editing the register should not be able to do. The account is found
+ * by its sign-in address, and the database refuses a staff account, and a
+ * deleted one whose review is already closed.
+ */
+export async function linkCertificationTrainee(
+  _state: AdminState,
+  formData: FormData,
+): Promise<AdminState> {
+  const adminId = await checkAdmin();
+  if (!adminId) return { error: 'You are not signed in as an administrator.' };
+
+  const parsed = linkSchema.safeParse({
+    traineeId: formData.get('traineeId'),
+    email: formData.get('email') ?? '',
+  });
+  if (!parsed.success) return { error: 'That record could not be found.' };
+  const { traineeId, email } = parsed.data;
+
+  const db = createServiceClient();
+  let account: string | null = null;
+  if (email) {
+    const escaped = email.replace(/[\\%_]/g, (c) => `\\${c}`);
+    const { data, error } = await db
+      .from('profiles')
+      .select('id')
+      .ilike('email', escaped)
+      .limit(2);
+    if (error) return { error: 'The account could not be looked up. Please try again.' };
+    if (!data || data.length !== 1) {
+      return { error: 'No single account has that sign-in address. Check it and try again.' };
+    }
+    account = (data[0] as { id: string }).id;
+  }
+
+  const { error } = await db.rpc('link_certification_trainee', {
+    trainee: traineeId,
+    account,
+    by_whom: adminId,
+  });
+  if (error) {
+    console.error('linking a register record failed:', error.message);
+    return {
+      error: /staff/.test(error.message)
+        ? 'That is a staff account. A register record is for a trainee.'
+        : /closed/.test(error.message)
+          ? 'That account was deleted and its review is closed, so nothing new can be linked to it.'
+          : 'That could not be saved.',
+    };
+  }
+
+  revalidatePath(`/admin/certification/${traineeId}`);
+  revalidatePath('/admin/deletions');
+  return { error: null, ok: account ? 'Linked to that account.' : 'No longer linked to an account.' };
 }

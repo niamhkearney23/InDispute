@@ -11,6 +11,7 @@ import {
   computeCertificationStatus,
   entriesForTrainee,
   getTrainee,
+  linkedAccountEmail,
   GRADE_LABELS,
 } from '@/lib/certification/service';
 import {
@@ -20,6 +21,7 @@ import {
 import { Card, Notice, Pill, SectionHeading } from '@/components/ui';
 import { saveCertificationEntry } from '../actions';
 import { EntryForm } from '../entry-form';
+import { LinkForm } from '../link-form';
 
 export const metadata: Metadata = { title: 'Trainee' };
 export const dynamic = 'force-dynamic';
@@ -38,13 +40,17 @@ export default async function TraineeDetailPage({
 }: {
   params: Promise<{ traineeId: string }>;
 }) {
-  await requireReviewer();
+  const { isAdmin } = await requireReviewer();
   const { traineeId } = await params;
 
   const trainee = await getTrainee(traineeId);
   if (!trainee) notFound();
 
-  const [entries, user] = await Promise.all([entriesForTrainee(traineeId), getCurrentUser()]);
+  const [entries, user, linkedEmail] = await Promise.all([
+    entriesForTrainee(traineeId),
+    getCurrentUser(),
+    isAdmin ? linkedAccountEmail(trainee.profileId) : Promise.resolve(null),
+  ]);
   const status = computeCertificationStatus(entries);
   const grid = bestGradePerBox(entries);
 
@@ -187,6 +193,16 @@ export default async function TraineeDetailPage({
           }}
         />
       </section>
+
+      {/* Administrators only: the action asks checkAdmin again. */}
+      {isAdmin ? (
+        <section>
+          <SectionHeading eyebrow="If they use the academy" title="Their account" />
+          <Card>
+            <LinkForm traineeId={trainee.id} linkedEmail={trainee.profileId ? (linkedEmail ?? 'an account') : null} />
+          </Card>
+        </section>
+      ) : null}
     </div>
   );
 }

@@ -3,8 +3,8 @@
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { checkAdmin } from '@/lib/admin/guard';
-import { eraseAccount } from '@/lib/account/erasure';
-import { CONFIRM_WORD, confirmsWord } from '@/lib/account/erasure-rules';
+import { runErasure } from '@/lib/account/erasure';
+import { CONFIRM_WORD, adminErasureMessage, confirmsWord } from '@/lib/account/erasure-rules';
 
 export interface EraseState {
   error: string | null;
@@ -12,11 +12,15 @@ export interface EraseState {
 }
 
 /**
- * Deleting a learner's account for them (0043): somebody who asked the firm
- * rather than pressing the button themselves, or who can no longer sign in.
- * An administrator only, never a coach or the firm's administrator, because
- * it cannot be undone. The same erasure as the learner's own, and the
+ * Deleting a learner's account for them (0043, 0045): somebody who asked the
+ * firm rather than pressing the button themselves, or who can no longer sign
+ * in. An administrator only, never a coach or the firm's administrator,
+ * because it cannot be undone. The same erasure as the learner's own, and the
  * database refuses a staff account whoever asks.
+ *
+ * "Deleted" is said only when every step finished. Otherwise the message
+ * says what is outstanding, and the job waits at Admin, Deletions and for the
+ * daily retry.
  */
 export async function eraseLearner(_prev: EraseState, formData: FormData): Promise<EraseState> {
   const adminId = await checkAdmin();
@@ -28,17 +32,14 @@ export async function eraseLearner(_prev: EraseState, formData: FormData): Promi
     return { error: `Type ${CONFIRM_WORD} to delete this account.` };
   }
 
-  const result = await eraseAccount(id.data);
-  if (!result.ok) return { error: result.error };
+  const outcome = await runErasure(id.data, { requestedBy: adminId });
+  const said = adminErasureMessage(outcome);
 
-  revalidatePath('/admin/trainees');
-  revalidatePath(`/admin/trainees/${id.data}`);
-  revalidatePath('/admin/reports');
-  return {
-    error: null,
-    ok:
-      result.filesLeft > 0
-        ? `Deleted, but ${result.filesLeft} stored file${result.filesLeft === 1 ? '' : 's'} could not be removed. Press the button again to try once more.`
-        : 'Deleted. The account can no longer be signed in to.',
-  };
+  if (outcome.kind !== 'refused') {
+    revalidatePath('/admin/trainees');
+    revalidatePath(`/admin/trainees/${id.data}`);
+    revalidatePath('/admin/reports');
+    revalidatePath('/admin/deletions');
+  }
+  return said.ok ? { error: null, ok: said.text } : { error: said.text };
 }

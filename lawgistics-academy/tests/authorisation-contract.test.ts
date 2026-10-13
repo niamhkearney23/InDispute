@@ -121,6 +121,7 @@ test('the server actions were actually found', () => {
     'changePassword',
     'claimWork',
     'clearCartoon',
+    'closeErasureReview',
     'completeSetup',
     'confirm',
     'confirmTrainee',
@@ -130,6 +131,7 @@ test('the server actions were actually found', () => {
     'createQuestion',
     'decide',
     'decideAccess',
+    'decideErasureReview',
     'decideMatter',
     'declare',
     'declareHomework',
@@ -138,6 +140,8 @@ test('the server actions were actually found', () => {
     'finishSession',
     'invite',
     'join',
+    'keepForSupervision',
+    'linkCertificationTrainee',
     'loadNewContent',
     'markMatterAttempt',
     'markSubmission',
@@ -145,11 +149,13 @@ test('the server actions were actually found', () => {
     'postComment',
     'publishAllVerified',
     'recordReviewDecision',
+    'redactIdentifyingRecord',
     'redactTutorMessage',
     'redeemCode',
     'removeAvatar',
     'removeTwoStepDevice',
     'requestCoachNote',
+    'retryErasure',
     'revoke',
     'saveAccessCode',
     'saveCartoon',
@@ -348,6 +354,12 @@ const COACH_ACTIONS = new Set([
   // to the exact wording so any later change needs signing again. Writing
   // lessons stays in the code, with nobody's account able to edit them.
   'signOffLesson',
+  // Keeping a learner's work-board message or comment for supervision
+  // (0045), with a reason, so it survives their account being deleted and
+  // the retention period. A supervising lawyer's decision about a person's
+  // words, under their own name; it touches no content. A reviewer's, so a
+  // firm administrator who is not a lawyer does not make it.
+  'keepForSupervision',
 ]);
 
 /**
@@ -362,6 +374,7 @@ const REVIEWER_ACTIONS = new Set([
   'markMatterAttempt',
   'saveTrainee',
   'saveCertificationEntry',
+  'keepForSupervision',
 ]);
 
 /**
@@ -456,9 +469,51 @@ test('deleting somebody else\'s account is an administrator\'s, and nobody else\
   assert.ok(!COACH_ACTIONS.has('eraseLearner') && !FIRM_ADMIN_ACTIONS.has('eraseLearner'));
   const body = stripComments(erase.body);
   assert.ok(
-    body.indexOf('checkAdmin(') < body.indexOf('eraseAccount('),
+    body.indexOf('checkAdmin(') < body.indexOf('runErasure('),
     'the administrator is established before anything is erased',
   );
+});
+
+test('finishing, reviewing and linking a deletion are an administrator\'s, and nobody else\'s', () => {
+  // Retrying a deletion, redacting what remains, deciding a certification
+  // record, closing the review (0045), and linking a register record to an
+  // account, which is what lets a deletion find it. None can be undone, and
+  // each concerns a person who has asked to be forgotten, so each asks
+  // checkAdmin and settles for no lesser role.
+  const adminOnly = [
+    'retryErasure',
+    'redactIdentifyingRecord',
+    'decideErasureReview',
+    'closeErasureReview',
+    'linkCertificationTrainee',
+  ];
+  for (const name of adminOnly) {
+    const action = ACTIONS.find((a) => a.name === name);
+    assert.ok(action, `${name} should exist`);
+    assert.match(action.body, /checkAdmin\(/, `${name} asks checkAdmin`);
+    assert.doesNotMatch(
+      action.body,
+      /check(Coach|FirmAdmin|Reviewer)\(|require(Coach|FirmAdmin|Reviewer)\(/,
+      `${name} settles for a lesser role`,
+    );
+    assert.ok(!COACH_ACTIONS.has(name) && !FIRM_ADMIN_ACTIONS.has(name), name);
+    const body = stripComments(action.body);
+    const guard = body.indexOf('checkAdmin(');
+    const firstCall = body.search(/createServiceClient\(|runErasure\(|\.rpc\(/);
+    assert.ok(firstCall === -1 || guard < firstCall, `${name} checks before it acts`);
+  }
+});
+
+test('keeping a message for supervision is a reviewer\'s, recorded under their id', () => {
+  const keep = ACTIONS.find((a) => a.name === 'keepForSupervision');
+  assert.ok(keep, 'keepForSupervision should exist');
+  const body = stripComments(keep.body);
+  assert.match(body, /checkReviewer\(/);
+  assert.doesNotMatch(body, /checkCoach\(|checkFirmAdmin\(/);
+  // The person recorded is the one the guard established, never the form's.
+  assert.match(body, /kept_by: reviewerId/);
+  assert.doesNotMatch(body, /formData\.get\(['"](kept_by|keptBy|by|userId)['"]\)/);
+  assert.ok(body.indexOf('checkReviewer(') < body.indexOf('createServiceClient('));
 });
 
 test('a person deletes only their own account', () => {
@@ -467,9 +522,9 @@ test('a person deletes only their own account', () => {
   const body = stripComments(own.body);
   assert.match(body, /getCurrentUser\(/);
   // The id is the session's. Nothing in the form names an account.
-  assert.match(body, /eraseAccount\(user\.id\)/);
+  assert.match(body, /runErasure\(user\.id, \{ requestedBy: user\.id \}\)/);
   assert.doesNotMatch(body, /formData\.get\(['"](id|userId|learnerId|uid)['"]\)/);
-  assert.ok(body.indexOf('getCurrentUser(') < body.indexOf('eraseAccount('));
+  assert.ok(body.indexOf('getCurrentUser(') < body.indexOf('runErasure('));
 });
 
 test('the admin authorisation check is the first thing an admin action does', () => {
@@ -611,6 +666,7 @@ test('privileged modules are marked server-only', () => {
     'src/lib/learning/score-history-service.ts',
     'src/lib/tutor/service.ts',
     'src/lib/account/erasure.ts',
+    'src/lib/account/erasure-admin.ts',
   ];
 
   for (const relative of mustBeServerOnly) {

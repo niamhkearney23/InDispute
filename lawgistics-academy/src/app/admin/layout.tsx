@@ -31,6 +31,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           { href: '/admin/cohorts', label: 'Cohorts', shown: isFirmAdmin },
           { href: '/admin/access', label: 'Access codes', shown: true },
           { href: '/admin/people', label: 'Staff', shown: isAdmin },
+          { href: '/admin/deletions', label: 'Deletions', shown: isAdmin },
         ],
       },
       {

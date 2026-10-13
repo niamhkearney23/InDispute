@@ -104,9 +104,15 @@ export default async function AccountPage() {
               you made go, and you will not be able to sign in again. This cannot be undone.
             </p>
             <p className="mb-2 max-w-xl text-sm text-slate">
-              Your answers, homework, the work and matters you handed in and their marks, what you
-              signed while joining, and any certificate stay with the firm as its training record,
-              under &ldquo;Deleted account&rdquo; with nothing to say it was you.
+              Your messages and comments on the work board are replaced with a short notice,
+              unless a supervisor kept one because the firm needs it for supervision.
+            </p>
+            <p className="mb-2 max-w-xl text-sm text-slate">
+              Your answers, homework, the work and matters you handed in with their files and
+              marks, what you signed while joining, any certificate and any certification record
+              stay with the firm as its training record, under &ldquo;Deleted account&rdquo;. Your
+              name is taken off them, but what you wrote or handed in may still identify you. An
+              administrator reviews those records and removes what is not needed.
             </p>
             <DeleteAccountForm />
           </>
