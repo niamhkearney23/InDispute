@@ -1,35 +1,25 @@
 {
-  "generatedDate": "2026-10-14",
+  "generatedDate": "2026-10-15",
   "jobs": [
     {
-      "employer": "The Law Society of New South Wales (scheme-wide dates for all participating firms)",
-      "program": "Summer Clerkship 2027/28 Recruitment Program",
+      "employer": "The Law Society of New South Wales (scheme-wide — applies to all participating NSW firms)",
+      "program": "Summer Clerkship 2027/28 recruitment round (NSW Graduate and Clerkship Recruitment Program)",
       "jurisdiction": "NSW",
       "opens": "2027-06-09",
       "closes": null,
-      "notes": "Scheme opens 9:00am AEST Wed 9 June 2027 and offers may be made from 9:00am Wed 8 September 2027; the page lists two alternative closing dates (Sun 4 and Sun 11 July, 11:59pm AEST) marked with an asterisk, so a single firm-independent close date cannot be confirmed — check the individual firm's listing. Eligibility: penultimate (or in some cases final) year law students.",
+      "notes": "The Law Society's live clerkship page lists Wednesday 9 June as the 2027-round opening date for summer clerkship applications (offers from Thursday 9 September), but the application closing date was not confirmed on the page, so 'closes' is null; applications are generally for penultimate-year students and all participating NSW firms must follow these dates.",
       "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Clerkship-Recruitment-Program",
-      "verifiedDate": "2026-10-14"
+      "verifiedDate": "2026-10-15"
     },
     {
-      "employer": "Allens",
-      "program": "First Nations Legal Internship 2027",
-      "jurisdiction": "National",
-      "opens": null,
-      "closes": "2026-11-02",
-      "notes": "Firm's own graduate site states applications for the 2027 First Nations Legal Internship are open and close Monday 2 November 2026; the opening date is not stated on the page so it is left null, and Allens' 2026/27 seasonal clerkship rounds are shown as closed.",
-      "url": "https://graduates.allens.com.au/our-programs/",
-      "verifiedDate": "2026-10-14"
-    },
-    {
-      "employer": "Queensland Law Society",
-      "program": "Seasonal Clerkship and Graduate Recruitment Scheme (2027 cycle)",
+      "employer": "Queensland Law Society (scheme-wide — applies to participating QLD firms)",
+      "program": "Seasonal Clerkship and Graduate Recruitment — next cycle",
       "jurisdiction": "QLD",
       "opens": null,
       "closes": null,
-      "notes": "QLS maintains the official Queensland seasonal clerkship and graduate recruitment guidelines that set common open/close/offer dates for participating Brisbane firms, but the 2027-cycle key dates were not confirmable from the live page at the time of checking, so both dates are null rather than guessed.",
+      "notes": "The QLS page confirms the recruitment cycle commences with clerkship recruitment in July/August with Summer One, Summer Two, Autumn and Winter programs, but it does not publish confirmed calendar open/close dates for the next round, so both dates are left null rather than guessed.",
       "url": "https://www.qls.com.au/the-hub-early-career-lawyers/your-legal-career/seasonal-clerkship-and-graduate-recruitment",
-      "verifiedDate": "2026-10-14"
+      "verifiedDate": "2026-10-15"
     }
   ]
 }
