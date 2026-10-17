@@ -167,7 +167,7 @@
           "ground": "cocoa",
           "headline": "The gift card, being written",
           "shoot": "Hand, pen, card at an angle. The single most persuasive shot you own, because it is the thing they cannot do from a supermarket.",
-          "caption": "Tell us what to write and we write it by hand before the lid goes on.\n\nUp to 250 characters, exactly as you type it, line breaks and all."
+          "caption": "Tell us what to write and we write it by hand before the lid goes on.\n\nUp to 250 characters, exactly as you type it."
         },
         {
           "day": "Fri",
@@ -230,7 +230,7 @@
           "text": "Written by hand",
           "tag": "The card"
         },
-        "caption": "Your message, in pen, on a printed card, before the lid goes on.\n\nUp to 250 characters and we write it exactly as you type it, line breaks and all. We will quietly fix an obvious typo in a name and leave the rest alone."
+        "caption": "Your message, in pen, on a printed card, before the lid goes on.\n\nUp to 250 characters and we write it exactly as you type it. We will quietly fix an obvious typo in a name and leave the rest alone."
       },
       {
         "id": "flowers",
