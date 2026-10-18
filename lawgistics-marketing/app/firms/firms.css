@@ -15,6 +15,31 @@
   --onplum: #f4ecf1;
   --onplum-soft: #cbb4c4;
 
+  /* The slide tokens live here, not on each slide, so the brand switcher can
+     re-skin every slide on the page by setting five variables in one place.
+     These are the defaults the server renders, so the page is correct before
+     any JavaScript runs. */
+  --t-cream: #f2efe9;
+  --t-navy: #241320;
+  --t-ink-cream: #241320;
+  --t-ink-navy: #f2efe9;
+  --t-kicker-cream: #8a7f7a;
+  --t-kicker-navy: #a697a0;
+  --t-body-cream: #3a2e32;
+  --t-body-navy: #d8ccd4;
+  --t-sub-cream: #5a4b52;
+  --t-sub-navy: #cfc0c9;
+  --t-muted-cream: #9a8f89;
+  --t-muted-navy: #8d7e88;
+  --t-accent: #6b2450;
+  --t-accent-navy: #c08bae;
+  --t-ink-accent: #f6eef3;
+  --t-kicker-accent: #d7b9cc;
+  --t-body-accent: #eedfe8;
+  --t-muted-accent: #c9a8bc;
+  --f-serif: "Studio Serif";
+  --f-sans: "Studio Sans";
+
   background: var(--cream);
   color: var(--ink);
   font-family: "Studio UI", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -488,4 +513,193 @@ body:has(.firms) {
   gap: 20px;
   flex-wrap: wrap;
   align-items: center;
+}
+
+
+/* ---- the hero deck: a carousel is a sequence, so play it ---- */
+.firms .herogrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 384px;
+  gap: clamp(32px, 5vw, 72px);
+  align-items: center;
+}
+@media (max-width: 940px) {
+  .firms .herogrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .firms .deck {
+    justify-self: start;
+  }
+}
+.firms .deck {
+  /* width and scale must move together, or the frame narrows while the slide
+     inside keeps its size and the right edge is clipped. 1350/1080 = 1.25. */
+  --dw: 384px;
+  --ds: 0.355556;
+  width: var(--dw);
+}
+@media (max-width: 430px) {
+  .firms .deck {
+    --dw: 300px;
+    --ds: 0.277778;
+  }
+}
+@media (max-width: 360px) {
+  .firms .deck {
+    --dw: 258px;
+    --ds: 0.238889;
+  }
+}
+/* 384 / 1080 = 0.355556, so the frame is exactly 384 x 480 with no measuring */
+.firms .deckframe {
+  position: relative;
+  width: var(--dw);
+  height: calc(var(--dw) * 1.25);
+  overflow: hidden;
+  background: var(--t-cream);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.04), 0 30px 60px -30px rgba(21, 18, 15, 0.55);
+}
+.firms .deckslide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.55s ease;
+}
+.firms .deckslide.on {
+  opacity: 1;
+}
+.firms .deckslide .slide-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: scale(var(--ds));
+  transform-origin: top left;
+  pointer-events: none;
+}
+.firms .deckbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 16px;
+}
+.firms .decklabel {
+  font-size: 13px;
+  color: var(--ink-faint);
+  margin: 0;
+}
+.firms .deckdots {
+  display: flex;
+  gap: 7px;
+}
+.firms .deckdots button {
+  width: 22px;
+  height: 3px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--rule);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.firms .deckdots button.on {
+  background: var(--plum);
+}
+.firms .deckdots button:focus-visible {
+  outline: 2px solid var(--plum);
+  outline-offset: 3px;
+}
+
+/* ---- the brand switcher: the claim, proved on the page ---- */
+.firms .brandbarf {
+  margin-top: 40px;
+  padding: 26px 28px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+}
+.firms .brandbarf-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 0 0 16px;
+}
+.firms .swatches {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+.firms .swatch {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 500;
+  padding: 7px 13px 7px 7px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: var(--cream);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: border-color 0.14s, color 0.14s, background 0.14s;
+}
+.firms .swatch:hover {
+  color: var(--ink);
+  border-color: var(--ink-faint);
+}
+.firms .swatch.on {
+  border-color: var(--plum);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--plum);
+}
+.firms .swatch:focus-visible {
+  outline: 2px solid var(--plum);
+  outline-offset: 2px;
+}
+.firms .swatch .chips {
+  display: inline-flex;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+.firms .swatch .chips i {
+  display: block;
+  width: 13px;
+  height: 20px;
+}
+.firms .brandbarf-note {
+  margin-top: 14px;
+  font-size: 13.5px;
+  color: var(--ink-faint);
+}
+
+/* every slide moves together when the brand changes */
+.firms .slide-canvas,
+.firms .slide-canvas * {
+  transition: background-color 0.45s ease, color 0.45s ease, border-color 0.45s ease;
+}
+
+/* ---- reveal on scroll. Visible by default: this only ever adds motion ---- */
+.firms [data-reveal].willreveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.firms [data-reveal].willreveal.revealed {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .firms [data-reveal].willreveal,
+  .firms .deckslide,
+  .firms .slide-canvas,
+  .firms .slide-canvas * {
+    transition: none;
+  }
+  .firms [data-reveal].willreveal {
+    opacity: 1;
+    transform: none;
+  }
 }
