@@ -486,6 +486,22 @@ const TABLES = {
      The url is a real embed address on an allowed host, because the app filters
      out anything it could not frame and the page would come back empty. It
      points at nothing in particular; the sweep does not play it. */
+  /* A morning note from the coach for today (0050), in Kuala Lumpur's date,
+     which is what every stand-in learner is on. The author's name is the
+     embedded profile PostgREST would join in. */
+  morning_notes: [
+    {
+      id: 'eeeeeee5-0000-4000-8000-000000000001',
+      body: 'Morning all. Round 2 before nine, then the chronology by five. Keep the dates in the order the court will read them: that is what I will look at first.',
+      for_date: new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kuala_Lumpur' }).format(new Date()),
+      country: null,
+      trainees_only: false,
+      author_id: '44444444-4444-4444-4444-444444444444',
+      created_at: new Date(Date.now() - 50 * 60 * 1000).toISOString(),
+      updated_at: new Date(Date.now() - 50 * 60 * 1000).toISOString(),
+      author: { display_name: 'Priya Nair' },
+    },
+  ],
   coach_sessions: [
     {
       id: 'ddddddd1-0000-4000-8000-000000000001',

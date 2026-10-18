@@ -40,6 +40,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         label: 'Teaching',
         items: [
           { href: '/admin/work', label: 'Work board', shown: true },
+          { href: '/admin/notes', label: 'Morning notes', shown: true },
           { href: '/admin/sessions', label: 'Sessions', shown: true },
           { href: '/admin/certification', label: 'Certification', shown: isReviewer },
           { href: '/admin/tutor', label: 'Tutor chats', shown: isReviewer },

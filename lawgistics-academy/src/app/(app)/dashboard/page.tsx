@@ -64,6 +64,10 @@ import { LeaderboardCard } from '@/components/leaderboard-card';
 import { weeklyLeaderboard } from '@/lib/leaderboard';
 import { requireAccess } from '@/lib/access/service';
 import { scheduleForPerson } from '@/lib/training/cohorts';
+import { morningNoteFor } from '@/lib/notes/service';
+import { MorningNoteCard } from '@/components/morning-note';
+import { todaysHomework } from '@/lib/homework/today-list';
+import { TodayList } from '@/components/today-list';
 
 export const metadata: Metadata = { title: 'Today' };
 
@@ -209,6 +213,38 @@ export default async function DashboardPage() {
     QUESTIONS_PER_MINUTE_GOAL[profile.dailyGoalMinutes] ?? QUESTIONS_PER_MINUTE_GOAL[10];
   const goalMet = overview.answeredToday >= questionCount;
 
+  // The coach first, then the homework they set (0050): a note for this
+  // morning, and one checklist of the day built from what is already here.
+  const note = await morningNoteFor(
+    { country: profile.country, seesTraineeNotes: seesTraineeVideos(profile) },
+    today,
+  ).catch(() => null);
+  const todayTask = homework.state === 'day' && profile.startsOn ? homeworkForDay(homework.day) : undefined;
+  const setForToday = todaysHomework({
+    today,
+    needsDiagnostic,
+    trainingOpen: open,
+    rounds: rounds ? rounds.rounds : null,
+    roundSize: ROUND_SIZE,
+    goal: { questions: questionCount, answered: overview.answeredToday },
+    homework:
+      todayTask && homework.state === 'day'
+        ? { day: homework.day, title: todayTask.title, done: declaredDays.has(homework.day) }
+        : null,
+    work: workTasks
+      .filter((w) => w.claimed)
+      .map((w) => ({ id: w.post.id, title: w.post.title, dueOn: w.post.dueOn, state: w.state })),
+    session: lead && lead.airsOn === today ? { title: lead.title } : null,
+    nextModule: outstanding[0]
+      ? {
+          slug: outstanding[0].module.slug,
+          name: outstanding[0].module.name,
+          correctOnce: outstanding[0].correctOnce,
+          total: outstanding[0].total,
+        }
+      : null,
+  });
+
   const focusAreas = [...skillMap]
     .filter((entry) => entry.attempts > 0)
     .sort((a, b) => a.score - b.score)
@@ -216,6 +252,9 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
+      {note ? <MorningNoteCard note={note} timezone={profile.timezone} /> : null}
+      <TodayList items={setForToday} />
+
       {needsDiagnostic ? (
         <Card className="ring-2 ring-accent">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -309,7 +348,7 @@ export default async function DashboardPage() {
           one thing on the page with a time on it, spoken to by name. Being
           greeted is most of what makes this feel like somewhere somebody is
           expected, and the button is where their thumb should go next. */}
-      <AccentSurface as="section" className="rounded-xl shadow-raised">
+      <AccentSurface as="section" id="training" className="scroll-mt-24 rounded-xl shadow-raised">
         <div className="px-6 py-7 sm:px-9 sm:py-9">
           {/* Their cartoon above the greeting on a phone, so a long name
               keeps the full width; beside it on a wider screen. */}
@@ -760,7 +799,9 @@ export default async function DashboardPage() {
           stats. The rounds run at set hours and this is the thing with a
           time on it; the questions will still be there later. */}
       {lead ? (
-        <SessionCard session={lead} more={sessions.length - 1} materials={leadMaterials} />
+        <div id="session" className="scroll-mt-24">
+          <SessionCard session={lead} more={sessions.length - 1} materials={leadMaterials} />
+        </div>
       ) : null}
 
       {work.length > 0 ? (

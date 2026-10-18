@@ -164,6 +164,7 @@ test('the server actions were actually found', () => {
     'saveFirmModule',
     'saveMatter',
     'saveMatterWork',
+    'saveMorningNote',
     'saveOnboarding',
     'saveSession',
     'saveStep',
@@ -361,6 +362,12 @@ const COACH_ACTIONS = new Set([
   // the person who actually teaches these juniors unable to teach them.
   'saveSession',
   'setPublished',
+  // The coach's morning note (0050): a few lines at the top of Today, in the
+  // coach's own name, for one morning. The same reasoning as sessions: the
+  // coach's own words to the people they supervise, with no version, no
+  // answer key and no sign-off, never the review queue or the training
+  // engine. Only its author corrects it, and nobody deletes it.
+  'saveMorningNote',
   // The certification register: a coach's own trainees, on their own real
   // cases, graded by the coach who supervises them. This is the clearest fit
   // of anything on this list for "record supervisor decisions about people":

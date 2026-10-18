@@ -4485,6 +4485,77 @@ reset role;
 set local request.jwt.claim.sub = '';
 set local request.jwt.claims = '';
 
+-- Morning notes (0050) -----------------------------------------------------------
+-- A few lines from the coach at the top of Today: in the coach's own name,
+-- corrected only by them, never deleted, and shown only to the people meant.
+
+set local role authenticated;
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+insert into public.morning_notes (id, body, for_date, country, trainees_only)
+values
+  ('ffff0050-0000-0000-0000-000000000001', 'Round 2 before nine, please.', current_date, 'MY', true),
+  ('ffff0050-0000-0000-0000-000000000002', 'Everyone in Malaysia: read lesson 7.', current_date, 'MY', false),
+  ('ffff0050-0000-0000-0000-000000000003', 'For both countries.', current_date, null, false);
+select pg_temp.expect(
+  (select count(*) from public.morning_notes where id::text like 'ffff0050%'
+     and author_id = '44444444-4444-4444-4444-444444444444') = 3,
+  'a coach''s morning note is in the coach''s own name');
+select pg_temp.expect_failure(
+  $$insert into public.morning_notes (body, for_date, author_id)
+    values ('Not mine', current_date, '33333333-3333-3333-3333-333333333333')$$,
+  'nobody writes a morning note in somebody else''s name');
+select pg_temp.expect_failure(
+  $$insert into public.morning_notes (body, for_date) values ('   ', current_date)$$,
+  'a morning note has words in it');
+update public.morning_notes set body = 'Round 2 before nine, please. Thank you.'
+where id = 'ffff0050-0000-0000-0000-000000000001';
+select pg_temp.expect(
+  (select body from public.morning_notes where id = 'ffff0050-0000-0000-0000-000000000001')
+    = 'Round 2 before nine, please. Thank you.',
+  'a coach can correct their own note');
+select pg_temp.expect_failure(
+  $$update public.morning_notes set author_id = '33333333-3333-3333-3333-333333333333'
+    where id = 'ffff0050-0000-0000-0000-000000000001'$$,
+  'a note cannot be moved into somebody else''s name');
+delete from public.morning_notes where id = 'ffff0050-0000-0000-0000-000000000002';
+select pg_temp.expect(
+  exists (select 1 from public.morning_notes where id = 'ffff0050-0000-0000-0000-000000000002'),
+  'a coach cannot delete a morning note');
+
+set local request.jwt.claim.sub = 'cccc0026-0000-0000-0000-000000000001';
+select pg_temp.expect(
+  (select count(*) from public.morning_notes where id::text like 'ffff0050%') = 3,
+  'a confirmed trainee in Malaysia reads the trainee note, the Malaysian one and the one for both');
+select pg_temp.expect_failure(
+  $$insert into public.morning_notes (body, for_date) values ('I am the coach now', current_date)$$,
+  'a learner cannot write a morning note');
+update public.morning_notes set body = 'Changed by a learner'
+where id = 'ffff0050-0000-0000-0000-000000000003';
+select pg_temp.expect(
+  (select body from public.morning_notes where id = 'ffff0050-0000-0000-0000-000000000003') = 'For both countries.',
+  'a learner cannot change a morning note');
+
+set local request.jwt.claim.sub = 'cccc0026-0000-0000-0000-000000000003';
+select pg_temp.expect(
+  (select string_agg(body, ',' order by body) from public.morning_notes where id::text like 'ffff0050%')
+    = 'Everyone in Malaysia: read lesson 7.,For both countries.',
+  'saying you are a trainee does not open a trainee-only note; a coach has to confirm you');
+
+set local request.jwt.claim.sub = 'cccc0026-0000-0000-0000-000000000004';
+select pg_temp.expect(
+  (select string_agg(body, ',') from public.morning_notes where id::text like 'ffff0050%') = 'For both countries.',
+  'an Australian learner sees no Malaysian note');
+reset role;
+set local request.jwt.claim.sub = '';
+
+select pg_temp.expect_failure(
+  $$delete from public.morning_notes where id = 'ffff0050-0000-0000-0000-000000000003'$$,
+  'not even the server can delete a morning note');
+select pg_temp.expect_failure(
+  $$update public.morning_notes set author_id = '33333333-3333-3333-3333-333333333333'
+    where id = 'ffff0050-0000-0000-0000-000000000003'$$,
+  'nor move one into another name');
+
 -- Schema version ---------------------------------------------------------------
 -- The admin pages compare this with the version the code expects.
 

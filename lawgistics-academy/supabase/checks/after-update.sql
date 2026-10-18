@@ -10,8 +10,8 @@
 
 with checks(n, what, ok) as (
   values
-  (1, 'The database is at the version the website expects (0049)',
-     (select public.schema_version()) = '0049'),
+  (1, 'The database is at the version the website expects (0050)',
+     (select public.schema_version()) = '0050'),
 
   (2, 'No question is published without a lawyer''s sign-off on its current wording',
      not exists (
@@ -78,7 +78,12 @@ with checks(n, what, ok) as (
   (14, 'Every nightly deletion check is recorded, and only the server can read the record',
      to_regclass('public.operational_runs') is not null
      and not has_table_privilege('authenticated', 'public.operational_runs', 'select')
-     and not has_table_privilege('anon', 'public.operational_runs', 'select'))
+     and not has_table_privilege('anon', 'public.operational_runs', 'select')),
+
+  (15, 'A coach''s morning note is never deleted and stays in its author''s name',
+     to_regclass('public.morning_notes') is not null
+     and exists (select 1 from pg_trigger where tgname = 'morning_notes_no_delete' and not tgisinternal)
+     and exists (select 1 from pg_trigger where tgname = 'morning_notes_guard' and not tgisinternal))
 )
 select n as "#", what as "check", case when ok then 'OK' else 'NOT OK' end as result
 from checks

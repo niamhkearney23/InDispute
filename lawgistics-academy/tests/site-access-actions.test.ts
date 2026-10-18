@@ -112,10 +112,10 @@ async function call(action: Action, access: string | undefined): Promise<Outcome
 }
 
 test('every action in the app was loaded', () => {
-  // The same eighty-three the authorisation contract names.
-  assert.equal(ACTIONS.length, 83);
-  // Forty-seven under /admin, and first-run setup.
-  assert.equal(ACTIONS.filter(isStaffAction).length, 48);
+  // The same eighty-four the authorisation contract names.
+  assert.equal(ACTIONS.length, 84);
+  // Forty-eight under /admin, and first-run setup.
+  assert.equal(ACTIONS.filter(isStaffAction).length, 49);
 });
 
 test('open: every staff action goes on to read the session, so the harness can tell', async () => {

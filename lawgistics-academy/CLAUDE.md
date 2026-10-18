@@ -64,8 +64,8 @@ These come from the owner and are not up for renegotiation.
   clears its sign-off, so an account that could edit and verify could sign its
   own rewrite with the audit trail showing an ordinary review. A coach who
   thinks an item is wrong flags it with a note; somebody else changes it.
-  Exactly seventeen actions accept a coach, named in `tests/authorisation-contract`,
-  and a test fails if an eighteenth quietly does. Two of the seventeen are the coach's
+  Exactly eighteen actions accept a coach, named in `tests/authorisation-contract`,
+  and a test fails if a nineteenth quietly does. Two of the eighteen are the coach's
   own **sessions**: they record something, paste a YouTube or Vimeo link, and
   it leads the dashboard the morning it is for. That is not an exception to
   the rule, it is outside it: a session has no version chain, no answer key,
@@ -111,6 +111,11 @@ These come from the owner and are not up for renegotiation.
   message or comment kept, with a reason, so it survives the learner deleting
   their account and the retention period. A decision about a person's words
   under the lawyer's name; it touches no content.
+  The eighteenth is the **morning note** (`saveMorningNote`, 0050,
+  `checkCoach`): a few lines from the coach at the top of Today, for one
+  morning. Outside the content rule for the same reason as sessions: the
+  coach's own words under their own name, no version, no sign-off, never
+  the training engine.
 - **AI never publishes legal content.** It may draft. A named person signs off,
   and that sign-off is a statement they are answerable for.
 - **Say what is true.** The product's whole value is a record a firm can rely
@@ -182,7 +187,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0049`.
+- Migrations run to `0050`.
   `supabase/UPDATE.sql` is the one-paste update for a database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -455,6 +460,23 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   marked not yet reviewed by the firm), the training file (invented facts),
   homework, the tour, coach sessions and work posts (the coach's own
   teaching under their name), and the firm's own documents.
+- `0050` is **morning notes**, the owner's request (October 2026: "make it
+  more like a coach, and this is the homework"). A coach writes a few lines
+  at Admin, Morning notes (`/admin/notes`) for one date, for everyone or
+  confirmed trainees only, in one country or both, up to 700 characters. The
+  note is always in its author's name (the caller, and never moved after),
+  only its author may change it, and nothing deletes one, not even the server
+  (a trigger). Learners read their country's or both, trainee-only once
+  confirmed (the read policy, and `src/lib/notes/rules.ts` again because
+  pages read through the service client). Today leads with it
+  (`MorningNoteCard`), then **Set for today** (`todaysHomework`,
+  `src/lib/homework/today-list.ts`, pure): the diagnostic if it is due, the
+  day's training (the open or next round for a trainee, the daily goal
+  otherwise), the day's programme homework, the coach's session dated today,
+  work they took on that is not marked Good (soonest due first, at most
+  three, handed in counts as done) and the next required module. It records
+  nothing; every line links to where the work is done. A video is listed but
+  never ticked. Not legal content and not gated, like sessions.
 - **Schema version.** `npm run build:sql` ends both SQL files with
   `schema_version()` (the newest migration's number, service role only) and
   writes `src/lib/schema-version.ts`. The admin layout shows an administrator

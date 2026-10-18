@@ -9,14 +9,17 @@ import { cn } from '@/components/ui';
 export function AccentSurface({
   children,
   className,
+  id,
   as: Tag = 'div',
 }: {
   children: React.ReactNode;
   className?: string;
+  /** An anchor, so a link on the page can bring it into view. */
+  id?: string;
   as?: 'div' | 'aside' | 'section';
 }) {
   return (
-    <Tag className={cn('accent-surface relative isolate overflow-hidden bg-accent text-paper', className)}>
+    <Tag id={id} className={cn('accent-surface relative isolate overflow-hidden bg-accent text-paper', className)}>
       <div
         aria-hidden
         className="absolute -top-32 -right-24 -z-10 size-[28rem] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.18),transparent_65%)]"

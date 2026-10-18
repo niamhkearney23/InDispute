@@ -41,6 +41,10 @@
   --color-warn: #8a5a12;
   --color-warn-wash: #fbf3e2;
 
+  /* The details colour: small markers and lines. The academy's look sets it
+     to the firm's taupe; declared here so the utilities exist at all. */
+  --color-ice: #2f5d8a;
+
   --font-serif: var(--font-display), 'Iowan Old Style', 'Palatino Linotype',
     Georgia, ui-serif, serif;
   --font-sans: var(--font-body), ui-sans-serif, system-ui, -apple-system,

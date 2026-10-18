@@ -240,6 +240,7 @@ const PAGES = [
   { name: 'admin-facts', path: '/admin/facts', auth: true },
   { name: 'admin-review', path: '/admin/review', auth: true },
   { name: 'admin-sessions', path: '/admin/sessions', auth: true },
+  { name: 'admin-notes', path: '/admin/notes', auth: true },
   { name: 'admin-session-new', path: '/admin/sessions/new', auth: true },
   {
     name: 'admin-session-edit',
