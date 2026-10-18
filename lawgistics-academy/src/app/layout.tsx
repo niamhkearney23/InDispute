@@ -1,13 +1,14 @@
 import type { Metadata, Viewport } from 'next';
 import { connection } from 'next/server';
-import { Bricolage_Grotesque, Figtree, JetBrains_Mono } from 'next/font/google';
+import { Figtree, JetBrains_Mono, Newsreader } from 'next/font/google';
 import './globals.css';
 import { brand } from '@/lib/brand';
 
-// Headings in a bold, rounded grotesque: the playful look's voice.
-const display = Bricolage_Grotesque({
+// Headings in an editorial serif, the voice of a law report.
+const display = Newsreader({
   subsets: ['latin'],
-  weight: ['500', '700', '800'],
+  weight: ['400', '500', '600'],
+  style: ['normal', 'italic'],
   variable: '--font-display',
   display: 'swap',
 });
@@ -36,7 +37,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#fff7ec',
+  themeColor: '#f5f3ee',
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',

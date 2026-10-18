@@ -55,7 +55,7 @@ export default async function WorkBoardPage() {
   return (
     <div className="space-y-8">
       <section>
-        <p className="eyebrow mb-2">Work</p>
+        <p className="eyebrow mb-2">Coach</p>
         <h1 className="text-3xl">From your coach</h1>
         <p className="mt-3 max-w-2xl text-slate">
           Real pieces of work, set by our lawyers. Put your name on one, do it, hand it in,

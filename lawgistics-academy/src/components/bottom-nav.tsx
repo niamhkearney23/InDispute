@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/components/ui';
-import { BookIcon, BriefcaseIcon, ChartIcon, PersonIcon, SunIcon } from '@/components/icons';
+import { BookIcon, ChartIcon, ChatIcon, PersonIcon, SunIcon } from '@/components/icons';
 
 /**
  * The academy's menu on a phone: five places, each an icon with its name
@@ -15,7 +15,8 @@ import { BookIcon, BriefcaseIcon, ChartIcon, PersonIcon, SunIcon } from '@/compo
 const ITEMS = [
   { href: '/dashboard', label: 'Today', Icon: SunIcon },
   { href: '/modules', label: 'Learn', Icon: BookIcon },
-  { href: '/work', label: 'Work', Icon: BriefcaseIcon },
+  // The work board: what the coach sets, and what they say about it.
+  { href: '/work', label: 'Coach', Icon: ChatIcon },
   { href: '/skills', label: 'Progress', Icon: ChartIcon },
   { href: '/account', label: 'Account', Icon: PersonIcon },
 ] as const;
@@ -25,7 +26,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Main"
-      className="fixed inset-x-0 bottom-0 z-30 border-t-2 border-ink bg-paper-raised/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm sm:hidden print:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-rule bg-paper-raised/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm sm:hidden print:hidden"
     >
       <ul className="mx-auto flex max-w-md justify-between px-2">
         {ITEMS.map(({ href, label, Icon }) => {
@@ -36,12 +37,13 @@ export function BottomNav() {
                 href={href}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
-                  'mx-0.5 my-1.5 flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl border-2 py-1 text-[0.6875rem]',
-                  active ? 'border-ink bg-pop font-bold text-ink' : 'border-transparent text-muted hover:text-ink',
+                  'flex min-h-14 flex-col items-center justify-center gap-1 pt-2 pb-1.5 text-[0.6875rem]',
+                  active ? 'font-semibold text-ink' : 'text-muted hover:text-ink',
                 )}
               >
                 <Icon className="size-[22px]" />
                 {label}
+                <span aria-hidden className={cn('size-1 rounded-full', active ? 'bg-ice' : 'bg-transparent')} />
               </Link>
             </li>
           );

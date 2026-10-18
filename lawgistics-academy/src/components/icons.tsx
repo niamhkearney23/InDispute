@@ -124,3 +124,11 @@ export function PersonIcon({ className }: IconProps) {
     </Svg>
   );
 }
+
+export function ChatIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M20.5 12a8 8 0 0 1-11.6 7.1L3.5 20.5l1.4-5A8 8 0 1 1 20.5 12z" />
+    </Svg>
+  );
+}

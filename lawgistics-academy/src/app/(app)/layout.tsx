@@ -110,7 +110,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               Learn
             </NavLink>
             <NavLink href="/work" className="hidden hover:bg-paper-sunk sm:block">
-              Work
+              Coach
             </NavLink>
             <NavLink href="/skills" className="hidden hover:bg-paper-sunk sm:block">
               Progress
@@ -129,7 +129,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               // by typing the address. The admin index is administrators' only,
               // so a coach lands on the work board, which is most of their week.
               <NavLink href="/admin/work" className="hover:bg-paper-sunk">
-                Coach
+                Marking
               </NavLink>
             ) : null}
             {/* An icon-sized link rather than a fifth word: the nav is already

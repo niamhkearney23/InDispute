@@ -711,16 +711,18 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   trainee page (`/trainee`) has the same navy hero and the same video.
 - **The look.** The academy (everything under `src/app/(app)`), Admin and the
   code step use the `theme-paper` class on their layouts, which swaps the
-  colour tokens in `globals.css`. It is **bright and playful**, the owner's
-  choice (October 2026, "make it fun", then "bright and playful" over a
-  premium navy version): warm cream paper, deep indigo type, violet buttons,
-  coral labels, lime (`--color-pop`) for the page you are on; cards and
-  buttons are stickers with a 2px indigo outline and a hard shadow. Headings
-  Bricolage Grotesque, body Figtree. No gold, by the owner's choice. Designed
-  in Figma, "Playful" page (the "Premium" page is the navy version it
-  replaced). A firm's `NEXT_PUBLIC_BRAND_ACCENT` still wins
-  (`--brand-accent`). **On a phone the menu is at the foot of the screen**
-  (`src/components/bottom-nav.tsx`: Today, Learn, Work, Progress, Account,
+  colour tokens in `globals.css`: ivory paper, deep navy type and buttons,
+  Thomas Philip's own taupe (#746c5a) for small labels, progress lines and
+  details, white cards with a hairline and a soft shadow, a navy greeting
+  card. No gold, by the owner's choice. Headings Newsreader, body Figtree.
+  The owner tried bright and playful and went back (October 2026): "it
+  doesn't look like a law firm. Make it more like a coach, and this is the
+  homework." Figma has the direction on the "Coach and homework" page: the
+  coach and their note first, the homework they set, their marking. A firm's
+  `NEXT_PUBLIC_BRAND_ACCENT` still wins (`--brand-accent`). The work board is
+  "Coach" in the menu (its page is "From your coach"), and the staff link to
+  Admin, Work is "Marking". **On a phone the menu is at the foot of the screen**
+  (`src/components/bottom-nav.tsx`: Today, Learn, Coach, Progress, Account,
   hidden from `sm:` up, where the header carries the same names); the header
   keeps Courts (while `courtsShown`), Admin or Coach, and Sign out. It only
   links to pages every learner could already open. The round clock sits
