@@ -41,6 +41,10 @@
   --color-warn: #8a5a12;
   --color-warn-wash: #fbf3e2;
 
+  /* A bright highlight for the academy's playful look (the page you are on,
+     a streak). Unused by the cream pages. */
+  --color-pop: #c6f432;
+
   --font-serif: var(--font-display), 'Iowan Old Style', 'Palatino Linotype',
     Georgia, ui-serif, serif;
   --font-sans: var(--font-body), ui-sans-serif, system-ui, -apple-system,
@@ -516,74 +520,96 @@
 }
 
 /* =============================================================================
-   The academy's look: ivory paper, deep navy for type and for whatever leads
-   (the buttons), and Thomas Philip's own warm taupe for the fine details: the
-   small labels, the progress lines, the marker under the page you are on.
-   White cards with a hairline and a soft shadow. Designed in Figma (the
-   "Premium" page), for law students and interns in firms: it should look like
-   a firm's own tool. Switched on by the theme-paper class on the academy's own
-   layout, Admin and the code step. Every colour in the app is one of the
-   tokens above, so a look is a set of token values rather than a second copy
-   of every page. No gold, by the owner's choice; the taupe is the firm's.
+   The academy's look: bright and playful (the owner, October 2026: "make it
+   fun", then "bright and playful" over a premium version). Warm cream paper,
+   deep indigo type, a vivid violet for whatever leads, and coral, lime, sky,
+   mint and pink for the details. Cards and buttons are stickers: a chunky
+   indigo outline and a hard shadow. Headings Bricolage Grotesque. Designed in
+   Figma (the "Playful" page). Switched on by the theme-paper class on the
+   academy's own layout, Admin and the code step. Every colour in the app is
+   one of the tokens above, so a look is a set of token values rather than a
+   second copy of every page. No gold, by the owner's choice.
    ========================================================================== */
 .theme-paper {
-  --color-paper: #f7f5f0;
+  --color-paper: #fff7ec;
   --color-paper-raised: #ffffff;
-  --color-paper-sunk: #efebe3;
-  --color-ink: #0f1e35;
-  --color-charcoal: #22304a;
-  --color-slate: #4a5160;
-  --color-muted: #5e6573;
-  --color-rule: #e4ded3;
-  --color-rule-strong: #cfc7b8;
-  /* Navy leads, with paper type on it, unless the firm set its own colour. */
-  --color-accent: var(--brand-accent, #0f1e35);
-  --color-accent-soft: #1b2c47;
-  --color-accent-wash: #ece7dd;
-  /* The details colour. */
-  --color-ice: #746c5a;
-  --color-verdict-correct: #2c6a4c;
-  --color-verdict-correct-wash: #e6f0ea;
-  --color-verdict-wrong: #8e2a36;
-  --color-verdict-wrong-wash: #f6e9ea;
+  --color-paper-sunk: #fdefd9;
+  --color-ink: #1a1446;
+  --color-charcoal: #2a2360;
+  --color-slate: #4a4470;
+  --color-muted: #5a5478;
+  --color-rule: #eadfcb;
+  --color-rule-strong: #cdbfa6;
+  /* Violet leads, with cream type on it, unless the firm set its own colour. */
+  --color-accent: var(--brand-accent, #5b3df5);
+  --color-accent-soft: #4527d9;
+  --color-accent-wash: #ece7ff;
+  /* The details colour: a deep coral that still reads on cream. */
+  --color-ice: #d2381f;
+  --color-verdict-correct: #0f7a54;
+  --color-verdict-correct-wash: #d9f8ec;
+  --color-verdict-wrong: #c21f35;
+  --color-verdict-wrong-wash: #ffe2e5;
   --color-warn: #8a5a12;
-  --color-warn-wash: #fbf3e2;
-  --shadow-card: 0 1px 2px rgba(15, 30, 53, 0.05), 0 10px 24px -10px rgba(15, 30, 53, 0.08);
-  --shadow-raised: 0 1px 2px rgba(15, 30, 53, 0.06), 0 16px 36px -16px rgba(15, 30, 53, 0.16);
+  --color-warn-wash: #fff1cc;
+  --shadow-card: 4px 4px 0 #1a1446;
+  --shadow-raised: 5px 5px 0 #1a1446;
   color-scheme: light;
   background-color: var(--color-paper);
   color: var(--color-ink);
 }
 
-.theme-paper header.sticky {
-  background-color: rgba(247, 245, 240, 0.94);
+.theme-paper h1,
+.theme-paper h2,
+.theme-paper h3,
+.theme-paper h4 {
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
-/* Small labels in the firm's taupe, spaced like a letterhead. */
+.theme-paper header.sticky {
+  background-color: rgba(255, 247, 236, 0.94);
+  border-bottom: 2px solid var(--color-ink);
+}
+
+/* Small labels in coral, spaced out. */
 .theme-paper .eyebrow {
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.12em;
   color: var(--color-ice);
 }
 
-/* Panels: white cards on the paper, a hairline, a soft shadow. */
+/* Panels are stickers: white, a chunky outline, a hard shadow. */
 .theme-paper .panel {
   background-color: var(--color-paper-raised);
-  border-color: var(--color-rule);
+  border: 2px solid var(--color-ink);
+  border-radius: 16px;
   box-shadow: var(--shadow-card);
 }
 
-/* The greeting card is navy with paper type, its details in a light taupe. */
+/* Buttons too, and they press in when tapped. */
+.theme-paper .bg-accent.shadow-button {
+  border: 2px solid var(--color-ink);
+  box-shadow: 3px 3px 0 var(--color-ink);
+  transition: transform 80ms ease-out, box-shadow 80ms ease-out;
+}
+.theme-paper .bg-accent.shadow-button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--color-ink);
+}
+
+/* The greeting card is violet with cream type, its details in lime. */
 .theme-paper .accent-surface {
-  --color-paper: #f7f5f0;
-  --color-accent: var(--brand-accent, #0f1e35);
+  --color-paper: #fff7ec;
+  --color-accent: var(--brand-accent, #5b3df5);
+  border: 2px solid var(--color-ink);
   box-shadow: var(--shadow-raised);
 }
 .theme-paper .accent-surface .text-amber-300 {
-  color: #c9bfa8;
+  color: var(--color-pop);
 }
 .theme-paper .accent-surface .bg-amber-300 {
-  background-color: #c9bfa8;
+  background-color: var(--color-pop);
 }
 .theme-paper .text-amber-300 {
   color: var(--color-ice);
@@ -608,5 +634,6 @@
   --color-accent: #0d1b2a;
   --color-accent-soft: #1c3150;
   --color-accent-wash: #e6ebf1;
+  --shadow-card: 0 1px 2px rgba(20, 17, 15, 0.04), 0 10px 24px -14px rgba(20, 17, 15, 0.12);
   color: var(--color-ink);
 }
