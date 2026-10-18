@@ -22,7 +22,8 @@
   var ICONS = {
     moon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" stroke-linejoin="round"/></svg>',
     sun: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4" stroke-linecap="round"/></svg>',
-    menu: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16M4 16h16" stroke-linecap="round"/></svg>'
+    menu: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16M4 16h16" stroke-linecap="round"/></svg>',
+    arrow: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M14 6l6 6-6 6"/></svg>'
   };
 
   /* The logo is the wordmark alone: no icon. A brand line ("Sleep Shop"),
@@ -210,30 +211,37 @@
 
   /* ------------------------------------------------------------- pieces */
 
+  /* A piece as the home page draws it: the picture, a hairline, the words.
+     No box around it. */
   function pieceCard(piece) {
-    return '<article class="piece">' +
-      '<div class="piece__media">' + Art.render(piece) + '</div>' +
-      '<div class="piece__body">' +
-        '<span class="label">' + escapeHtml(piece.material) + '</span>' +
+    return '<article class="h-piece">' +
+      '<div class="h-piece__art">' + Art.render(piece) + '</div>' +
+      '<div class="h-piece__copy">' +
         '<h3>' + escapeHtml(piece.name) + '</h3>' +
-        '<p>' + escapeHtml(piece.blurb) + '</p>' +
+        '<p>' + escapeHtml(piece.material) + '</p>' +
+        '<p class="h-piece__blurb">' + escapeHtml(piece.blurb) + '</p>' +
       '</div>' +
     '</article>';
   }
 
-  /* The shop version of the card: same shape, plus a price and a way to buy.
-     Used on the shop page and under each ritual. */
+  /* The shop version: the same card plus a price and a way to buy. Used on
+     the shop page and under each ritual. Straight to the piece's Stripe
+     link; if there is none yet, it says so rather than linking nowhere. */
   function productCard(product) {
-    return '<article class="piece">' +
-      '<div class="piece__media">' + Art.render(product) + '</div>' +
-      '<div class="piece__body">' +
-        '<span class="label">' + escapeHtml(product.material) + '</span>' +
+    var url = (CONFIG.preorderLinks || {})[product.id];
+    var buy = url
+      ? '<a class="h-link" href="' + escapeHtml(url) + '" target="_blank" rel="noopener">Pre-order ' + ICONS.arrow + '</a>'
+      : '<span class="h-label" style="margin:0">Opening soon</span>';
+    return '<article class="h-piece">' +
+      '<div class="h-piece__art">' + Art.render(product) + '</div>' +
+      '<div class="h-piece__copy">' +
         '<h3>' + escapeHtml(product.name) + '</h3>' +
-        '<p>' + escapeHtml(product.blurb) + '</p>' +
-        '<div class="piece__buy">' +
-          '<span class="piece__price">' + Store.money(product.price) + '</span>' +
+        '<p>' + escapeHtml(product.material) + '</p>' +
+        '<p class="h-piece__blurb">' + escapeHtml(product.blurb) + '</p>' +
+        '<div class="h-piece__buy">' +
+          '<span class="h-price-sm">' + Store.money(product.price) + '</span>' + buy +
         '</div>' +
-        '<div class="piece__preorder">' + preorderCta(product.id, product.price) + '</div>' +
+        '<p class="h-ship">Ships from ' + escapeHtml(CONFIG.preorderShipsFrom) + '</p>' +
       '</div>' +
     '</article>';
   }

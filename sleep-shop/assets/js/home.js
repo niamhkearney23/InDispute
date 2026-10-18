@@ -11,7 +11,6 @@
   var CONTENTS = global.SLEEP_BOX_CONTENTS();
   var PRODUCTS = global.SLEEP_PRODUCTS;
   var esc = UI.escapeHtml;
-  var ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M14 6l6 6-6 6"/></svg>';
 
   function fill(selector, html) {
     var el = doc.querySelector(selector);
@@ -34,7 +33,7 @@
         '<p>' + esc(p.material) + '</p>' +
         '<div class="h-piece__buy">' +
           '<span class="h-price-sm">' + Store.money(p.price) + '</span>' +
-          '<a class="h-link" data-preorder="' + esc(p.id) + '" href="shop.html">Pre-order ' + ARROW + '</a>' +
+          '<a class="h-link" data-preorder="' + esc(p.id) + '" href="shop.html">Pre-order ' + UI.icons.arrow + '</a>' +
         '</div>' +
       '</div>' +
     '</article>';

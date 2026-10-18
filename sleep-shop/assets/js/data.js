@@ -147,7 +147,7 @@
   var STEPS = [
     { title: 'Choose the box and a ribbon', body: 'Clay rose or powder blue. There is one box, so this is the only decision.' },
     { title: 'Write your message', body: 'Up to 250 characters at checkout. We write it on the card by hand.' },
-    { title: 'We pack it and tie it', body: 'By hand in Melbourne, usually the same working day.' },
+    { title: 'We pack it and tie it', body: 'By hand in Melbourne. Pre-orders go out from ' + CONFIG.preorderShipsFrom + '.' },
     { title: 'It arrives ready to give', body: 'No invoice in the box, no pricing on the outside. Send it straight to them.' }
   ];
 
