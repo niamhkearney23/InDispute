@@ -136,7 +136,16 @@ export default async function LandingPage() {
               <span className="block">Learn to practise law</span>{' '}
               <span className="block text-mist">before you have to practise it.</span>
             </h1>
-            {brand.association ? (
+            {brand.association && brand.associationLogo ? (
+              // The firm's logo in place of its name, reversed out in white
+              // because the hero is navy. The name is the image's alt text.
+              <p className="rise-up delay-1 mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm font-semibold tracking-[0.14em] text-mist uppercase">
+                <span aria-hidden className="h-px w-8 bg-wine" />
+                In association with
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={brand.associationLogo} alt={brand.firm} className="h-10 w-auto opacity-90 [filter:brightness(0)_invert(1)] sm:h-12" />
+              </p>
+            ) : brand.association ? (
               <p className="rise-up delay-1 mt-5 flex items-center gap-3 text-sm font-semibold tracking-[0.14em] text-mist uppercase">
                 <span aria-hidden className="h-px w-8 bg-wine" />
                 {brand.association}

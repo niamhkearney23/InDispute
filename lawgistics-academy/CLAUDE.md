@@ -699,7 +699,15 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   Trainees also get the rounds, the work board and the month. Open again from
   Account. Change it when a menu item or a rule it describes changes.
 - **The front page** says "In association with Thomas Philip" under the
-  headline (`brand.association`, shown only under the Lawgistics name). The
+  headline (`brand.association`, shown only under the Lawgistics name). Since October 2026 it shows the firm's own logo there in place of the
+  name (`brand.associationLogo`, `public/brand/thomas-philip-lockup.png`,
+  reversed out in white on the navy), and the foot of every academy page
+  carries it too. It is the logo as the firm supplied it on a clear
+  background, cut off above the "Litigation, Arbitration, Mediation" line,
+  which cannot be read that small; the whole logo is
+  `public/brand/thomas-philip.png`. Another name, another firm, or a changed
+  association line shows no logo unless `NEXT_PUBLIC_BRAND_ASSOCIATION_LOGO`
+  is set. The
   trainee page (`/trainee`) has the same navy hero and the same video.
 - **The look.** The academy (everything under `src/app/(app)`), Admin and the
   code step use the case-file look (October 2026, the owner's choice after

@@ -41,6 +41,14 @@ export interface Brand {
    */
   association: string;
   /**
+   * The associated firm's logo, shown with the association line on the front
+   * page and at the foot of the academy's pages. Thomas Philip's under the
+   * Lawgistics name while the association line and the firm are the
+   * defaults; nothing otherwise unless set, so a firm's own academy never
+   * shows somebody else's logo. Checked like the brand logo.
+   */
+  associationLogo: string | null;
+  /**
    * The name of the trainee side: the part of the academy that belongs to
    * the firm's litigation trainee programme.
    */
@@ -132,12 +140,17 @@ const name = clean(process.env.NEXT_PUBLIC_BRAND_NAME, DEFAULT_NAME);
 const DEFAULT_PARENT_LINE =
   'Lawgistics Academy is part of Lawgistics: business development and operations for lawyers and law firms.';
 const DEFAULT_PARTNERS_EMAIL = 'partners@lawgistics.my';
+const DEFAULT_FIRM = 'Thomas Philip';
+// Their logo as they supplied it (October 2026), on a clear background, down
+// to "Advocates & Solicitors": the line under it is unreadable this small.
+// The whole logo is public/brand/thomas-philip.png.
+const DEFAULT_ASSOCIATION_LOGO = '/brand/thomas-philip-lockup.png';
 const suffix = clean(process.env.NEXT_PUBLIC_BRAND_SUFFIX, DEFAULT_SUFFIX);
 // Thomas Philip only on Thomas Philip's own copy. Another firm's copy that
 // forgets to set its firm name shows its own brand name, never ours.
 const firm = clean(
   process.env.NEXT_PUBLIC_BRAND_FIRM,
-  name === DEFAULT_NAME ? 'Thomas Philip' : name,
+  name === DEFAULT_NAME ? DEFAULT_FIRM : name,
 );
 
 export const brand: Brand = {
@@ -153,6 +166,11 @@ export const brand: Brand = {
     process.env.NEXT_PUBLIC_BRAND_ASSOCIATION,
     name === DEFAULT_NAME ? `In association with ${firm}` : '',
   ),
+  associationLogo:
+    safeLogo(process.env.NEXT_PUBLIC_BRAND_ASSOCIATION_LOGO) ??
+    (name === DEFAULT_NAME && firm === DEFAULT_FIRM && !(process.env.NEXT_PUBLIC_BRAND_ASSOCIATION ?? '').trim()
+      ? DEFAULT_ASSOCIATION_LOGO
+      : null),
   traineeAcademy: clean(process.env.NEXT_PUBLIC_BRAND_TRAINEE_ACADEMY, 'Litigation Trainee Academy'),
   parentLine: clean(
     process.env.NEXT_PUBLIC_BRAND_PARENT_LINE,

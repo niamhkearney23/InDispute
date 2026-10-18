@@ -165,6 +165,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           relevant court before acting on a point of procedure.
         </p>
         {brand.parentLine ? <p className="mt-2 text-xs text-muted">{brand.parentLine}</p> : null}
+        {brand.associationLogo ? (
+          <p className="mt-4 flex items-center gap-3 text-xs text-muted">
+            In association with
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={brand.associationLogo} alt={brand.firm} className="h-10 w-auto" />
+          </p>
+        ) : null}
       </footer>
     </div>
   );

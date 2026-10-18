@@ -44,6 +44,7 @@ test('the default brand is Lawgistics Academy, and it is complete', () => {
   assert.equal(brand.traineeAcademy, 'Litigation Trainee Academy');
   assert.match(brand.parentLine, /business development and operations for lawyers and law firms/);
   assert.equal(brand.association, 'In association with Thomas Philip');
+  assert.equal(brand.associationLogo, '/brand/thomas-philip-lockup.png');
   assert.ok(brand.tagline.length > 10);
   assert.equal(brand.accent, null, 'no accent set means the built-in navy');
   assert.equal(brand.initial, 'L');
@@ -131,4 +132,20 @@ test('a logo is an https address or a path on this site, and nothing else', asyn
   assert.equal(safeLogo('javascript:alert(1)'), null);
   assert.equal(safeLogo('/logo.svg" onerror="alert(1)'), null);
   assert.equal(safeLogo('data:image/svg+xml,<svg/>'), null);
+});
+
+test("Thomas Philip's logo is shown only under the default name and firm", async () => {
+  const { execFileSync } = await import('node:child_process');
+  const logoUnder = (env: Record<string, string>) =>
+    execFileSync(
+      process.execPath,
+      ['--import', 'tsx', '-e', "import('./src/lib/brand.ts').then((m) => process.stdout.write(String((m.brand ?? m.default.brand).associationLogo)))"],
+      { env: { ...process.env, NEXT_PUBLIC_BRAND_NAME: '', NEXT_PUBLIC_BRAND_FIRM: '', NEXT_PUBLIC_BRAND_ASSOCIATION: '', NEXT_PUBLIC_BRAND_ASSOCIATION_LOGO: '', ...env } },
+    ).toString();
+  assert.equal(logoUnder({}), '/brand/thomas-philip-lockup.png');
+  assert.equal(logoUnder({ NEXT_PUBLIC_BRAND_NAME: 'Rahman Chambers' }), 'null', "another firm's academy shows no logo of ours");
+  assert.equal(logoUnder({ NEXT_PUBLIC_BRAND_FIRM: 'Another Firm' }), 'null', 'another firm under our name is not shown with this logo');
+  assert.equal(logoUnder({ NEXT_PUBLIC_BRAND_ASSOCIATION: 'Run with a university' }), 'null');
+  assert.equal(logoUnder({ NEXT_PUBLIC_BRAND_NAME: 'Rahman Chambers', NEXT_PUBLIC_BRAND_ASSOCIATION_LOGO: '/brand/x.png' }), '/brand/x.png');
+  assert.equal(logoUnder({ NEXT_PUBLIC_BRAND_ASSOCIATION_LOGO: 'javascript:alert(1)' }), '/brand/thomas-philip-lockup.png', 'a bad address falls back');
 });
