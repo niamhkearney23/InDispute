@@ -6,6 +6,7 @@ import { Wordmark } from '@/components/ui';
 import { brand } from '@/lib/brand';
 import { Avatar } from '@/components/avatar';
 import { NavLink } from '@/components/nav-link';
+import { BottomNav } from '@/components/bottom-nav';
 import { FirstPassword } from './account/password-form';
 import { NextRoundClock } from '@/components/next-round-clock';
 import { roundsToday } from '@/lib/training/rounds-service';
@@ -99,14 +100,20 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </Link>
 
           <nav className="flex flex-wrap items-center justify-end gap-0 text-[0.8125rem] sm:gap-1 sm:text-sm">
-            <NavLink href="/dashboard" className="hover:bg-paper-sunk">
+            {/* On a phone these four and the account link live in the menu
+                at the foot of the screen (BottomNav), so the header keeps
+                only what is not there. */}
+            <NavLink href="/dashboard" className="hidden hover:bg-paper-sunk sm:block">
               Today
             </NavLink>
-            <NavLink href="/modules" className="hover:bg-paper-sunk">
+            <NavLink href="/modules" className="hidden hover:bg-paper-sunk sm:block">
               Learn
             </NavLink>
-            <NavLink href="/skills" className="hover:bg-paper-sunk">
-              Skills
+            <NavLink href="/work" className="hidden hover:bg-paper-sunk sm:block">
+              Work
+            </NavLink>
+            <NavLink href="/skills" className="hidden hover:bg-paper-sunk sm:block">
+              Progress
             </NavLink>
             {courtsShown ? (
               <NavLink href="/courts" className="hover:bg-paper-sunk">
@@ -134,7 +141,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <Link
               href="/account"
               aria-label="Your account"
-              className="-mx-1 flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full hover:bg-paper-sunk"
+              className="-mx-1 hidden min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full hover:bg-paper-sunk sm:flex"
             >
               <Avatar url={profile?.avatarUrl ?? null} cartoon={profile?.cartoon ?? null} name={profile?.displayName ?? null} size={26} />
             </Link>
@@ -157,7 +164,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       {clock ? <NextRoundClock at={clock.at} label={clock.label} /> : null}
 
       <footer
-        className={`mx-auto w-full max-w-4xl px-5 sm:px-8 print:hidden ${clock ? 'pb-20' : 'pb-8'}`}
+        className={`mx-auto w-full max-w-4xl px-5 sm:px-8 print:hidden ${clock ? 'pb-40 sm:pb-20' : 'pb-28 sm:pb-8'}`}
       >
         <p className="border-t border-rule pt-5 text-xs text-muted">
           Training content only, not legal advice. Levels are game levels, not
@@ -173,6 +180,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </p>
         ) : null}
       </footer>
+      <BottomNav />
     </div>
   );
 }

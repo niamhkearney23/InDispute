@@ -710,15 +710,21 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   is set. The
   trainee page (`/trainee`) has the same navy hero and the same video.
 - **The look.** The academy (everything under `src/app/(app)`), Admin and the
-  code step use the case-file look (October 2026, the owner's choice after
-  the Figma redesign, "more credible, it's for law firms"): the `theme-paper`
-  class on their layouts swaps the colour tokens in `globals.css` (warm
-  paper, navy type, white cards with a thin rule, rust buttons, a navy
-  greeting card, gold-free by the owner's choice). Headings are Newsreader,
-  body Figtree, labels JetBrains Mono. It replaced the dark navy look. A
-  firm's `NEXT_PUBLIC_BRAND_ACCENT` still wins (`--brand-accent`). The front
-  page and sign-in stay cream. The certificate and a matter's case file stay
-  cream paper inside it.
+  code step use the `theme-paper` class on their layouts, which swaps the
+  colour tokens in `globals.css`: ivory paper, deep navy type and buttons,
+  Thomas Philip's own taupe (#746c5a) for small labels, progress lines and
+  details, white cards with a hairline and a soft shadow, a navy greeting
+  card. No gold, by the owner's choice. Headings Newsreader, body Figtree.
+  Designed in Figma, "Premium" page (October 2026, the owner: "not premium
+  enough, hard to use"); it replaced a dark navy look and then a rust-button
+  paper look. A firm's `NEXT_PUBLIC_BRAND_ACCENT` still wins
+  (`--brand-accent`). **On a phone the menu is at the foot of the screen**
+  (`src/components/bottom-nav.tsx`: Today, Learn, Work, Progress, Account,
+  hidden from `sm:` up, where the header carries the same names); the header
+  keeps Courts (while `courtsShown`), Admin or Coach, and Sign out. It only
+  links to pages every learner could already open. The round clock sits
+  above it. The front page and sign-in stay cream. The certificate and a
+  matter's case file stay cream paper inside it.
   Use the tokens, never fixed Tailwind colours, or a page breaks in one look.
 - **Content security policy** (`src/lib/security/csp.ts`, set by
   `src/middleware.ts`): scripts run only with a nonce minted per request, so

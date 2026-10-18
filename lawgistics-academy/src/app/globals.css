@@ -516,80 +516,74 @@
 }
 
 /* =============================================================================
-   The academy's case-file look: warm paper, navy type, white cards with a
-   thin rule and a soft shadow, and one deep rust for whatever leads (the
-   buttons). The design is in Figma (the "new look" file), made
-   for law students and interns in firms: calm and credible, nothing that
-   reads as a toy. Switched on by the theme-paper class on the academy's own
+   The academy's look: ivory paper, deep navy for type and for whatever leads
+   (the buttons), and Thomas Philip's own warm taupe for the fine details: the
+   small labels, the progress lines, the marker under the page you are on.
+   White cards with a hairline and a soft shadow. Designed in Figma (the
+   "Premium" page), for law students and interns in firms: it should look like
+   a firm's own tool. Switched on by the theme-paper class on the academy's own
    layout, Admin and the code step. Every colour in the app is one of the
-   tokens above, so a look is a set of token values rather than a second
-   copy of every page. Gold-free, by the owner's choice.
+   tokens above, so a look is a set of token values rather than a second copy
+   of every page. No gold, by the owner's choice; the taupe is the firm's.
    ========================================================================== */
 .theme-paper {
-  --color-paper: #f5f3ee;
+  --color-paper: #f7f5f0;
   --color-paper-raised: #ffffff;
-  --color-paper-sunk: #eeebe4;
-  --color-ink: #14213d;
-  --color-charcoal: #26324d;
-  --color-slate: #4f5767;
-  --color-muted: #646a75;
-  --color-rule: #ddd8ce;
-  --color-rule-strong: #c6bfb2;
-  /* Rust leads, with paper type on it, unless the firm set its own colour. */
-  --color-accent: var(--brand-accent, #9c4a2c);
-  --color-accent-soft: #803b22;
-  --color-accent-wash: #f3e4da;
-  /* The blue is for small details: the eyebrow's marker, a level, a bar. */
-  --color-ice: #2f5d8a;
+  --color-paper-sunk: #efebe3;
+  --color-ink: #0f1e35;
+  --color-charcoal: #22304a;
+  --color-slate: #4a5160;
+  --color-muted: #5e6573;
+  --color-rule: #e4ded3;
+  --color-rule-strong: #cfc7b8;
+  /* Navy leads, with paper type on it, unless the firm set its own colour. */
+  --color-accent: var(--brand-accent, #0f1e35);
+  --color-accent-soft: #1b2c47;
+  --color-accent-wash: #ece7dd;
+  /* The details colour. */
+  --color-ice: #746c5a;
   --color-verdict-correct: #2c6a4c;
-  --color-verdict-correct-wash: #e3f0e7;
-  --color-verdict-wrong: #9b2335;
-  --color-verdict-wrong-wash: #f8e7e9;
+  --color-verdict-correct-wash: #e6f0ea;
+  --color-verdict-wrong: #8e2a36;
+  --color-verdict-wrong-wash: #f6e9ea;
   --color-warn: #8a5a12;
   --color-warn-wash: #fbf3e2;
-  --shadow-card: 0 1px 2px rgba(20, 33, 61, 0.05), 0 6px 16px -8px rgba(20, 33, 61, 0.12);
-  --shadow-raised: 0 1px 2px rgba(20, 33, 61, 0.06), 0 16px 36px -18px rgba(20, 33, 61, 0.2);
+  --shadow-card: 0 1px 2px rgba(15, 30, 53, 0.05), 0 10px 24px -10px rgba(15, 30, 53, 0.08);
+  --shadow-raised: 0 1px 2px rgba(15, 30, 53, 0.06), 0 16px 36px -16px rgba(15, 30, 53, 0.16);
   color-scheme: light;
   background-color: var(--color-paper);
   color: var(--color-ink);
 }
 
 .theme-paper header.sticky {
-  background-color: rgba(245, 243, 238, 0.92);
+  background-color: rgba(247, 245, 240, 0.94);
 }
 
-/* Labels speak in monospace, the way a court file's references do. */
+/* Small labels in the firm's taupe, spaced like a letterhead. */
 .theme-paper .eyebrow {
-  font-family: var(--font-code), ui-monospace, monospace;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  color: var(--color-muted);
-}
-.theme-paper .tabular-nums {
-  font-family: var(--font-code), ui-monospace, monospace;
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--color-ice);
 }
 
-/* Panels: white cards on the paper, a thin rule, a soft shadow. */
+/* Panels: white cards on the paper, a hairline, a soft shadow. */
 .theme-paper .panel {
   background-color: var(--color-paper-raised);
   border-color: var(--color-rule);
   box-shadow: var(--shadow-card);
 }
 
-/* The greeting card is navy with paper type: inside it the accent is the
-   navy and the small details are sage, so it reads as the firm's own card
-   rather than a rust slab. A firm's own accent still wins (see layout). */
+/* The greeting card is navy with paper type, its details in a light taupe. */
 .theme-paper .accent-surface {
-  --color-paper: #f5f3ee;
-  --color-accent: var(--brand-accent, #14213d);
+  --color-paper: #f7f5f0;
+  --color-accent: var(--brand-accent, #0f1e35);
   box-shadow: var(--shadow-raised);
 }
 .theme-paper .accent-surface .text-amber-300 {
-  color: #cfe0d3;
+  color: #c9bfa8;
 }
 .theme-paper .accent-surface .bg-amber-300 {
-  background-color: #cfe0d3;
+  background-color: #c9bfa8;
 }
 .theme-paper .text-amber-300 {
   color: var(--color-ice);

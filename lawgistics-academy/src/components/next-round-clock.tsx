@@ -57,7 +57,7 @@ export function NextRoundClock({
 
   return (
     <div
-      className="fixed right-3 bottom-3 z-40 flex items-center rounded-full border border-rule-strong bg-paper-raised px-3.5 py-2 text-sm shadow-raised"
+      className="fixed right-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 sm:bottom-3 flex items-center rounded-full border border-rule-strong bg-paper-raised px-3.5 py-2 text-sm shadow-raised"
       role="timer"
       aria-live="off"
     >
