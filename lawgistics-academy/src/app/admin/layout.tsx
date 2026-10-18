@@ -73,7 +73,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const role = isAdmin ? 'Admin' : isFirmAdmin ? 'Firm admin' : 'Coach';
 
   return (
-    <div className="theme-navy flex min-h-dvh flex-col">
+    <div className="theme-paper flex min-h-dvh flex-col">
       <header className="border-b border-rule bg-paper-sunk">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-5 py-3.5 sm:px-8">
           <div className="flex items-baseline gap-3">

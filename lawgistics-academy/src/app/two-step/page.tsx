@@ -39,7 +39,7 @@ export default async function TwoStepPage({
   if ((await verifiedAal(user.id)) === 'aal2') redirect(target);
 
   return (
-    <div className="theme-navy flex min-h-dvh flex-col">
+    <div className="theme-paper flex min-h-dvh flex-col">
       <main className="mx-auto w-full max-w-md flex-1 px-4 py-10 sm:px-8">
         <div className="space-y-6">
           <Wordmark />

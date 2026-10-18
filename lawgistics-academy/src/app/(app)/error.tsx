@@ -4,7 +4,7 @@ import { ErrorView } from '@/components/error-view';
 
 /**
  * A page in the academy that failed. Inside the academy's own layout, so the
- * menu is still there and the page is navy like the rest.
+ * menu is still there and the page looks like the rest.
  */
 export default function AppError({
   error,
