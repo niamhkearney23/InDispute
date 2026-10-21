@@ -142,12 +142,11 @@ form.filed .file{display:none}
 .cover .ask{font:italic 600 clamp(22px,5.6vw,28px)/1.25 var(--italic);margin:12px 0 0}
 .cover form{max-width:420px;margin:26px auto 0}
 .cover .file{margin-top:22px}
-.skip{display:inline-block;margin-top:18px;background:none;border:0;cursor:pointer;color:var(--muted);font:400 12px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;text-decoration:underline;text-underline-offset:4px}
 .cover.out{animation:coverOut .7s cubic-bezier(.65,0,.35,1) both}
 @keyframes coverOut{to{opacity:0;transform:translateY(-16px);filter:blur(4px)}}
 .cover>*{animation:soft 1.3s cubic-bezier(.16,1,.3,1) both}
 .cover>:nth-child(1){animation-delay:.6s}.cover>:nth-child(2){animation-delay:.7s}.cover>:nth-child(3){animation-delay:.9s}
-.cover>:nth-child(4){animation-delay:1.05s}.cover>:nth-child(5){animation-delay:1.25s}.cover>:nth-child(6){animation-delay:1.45s}.cover>:nth-child(7){animation-delay:1.65s}
+.cover>:nth-child(4){animation-delay:1.05s}.cover>:nth-child(5){animation-delay:1.25s}.cover>:nth-child(6){animation-delay:1.45s}
 
 /* ---- motion: lights up, the notice prints in slowly, then the stamp comes down ---- */
 @keyframes lights{from{opacity:1}to{opacity:0}}
@@ -241,7 +240,6 @@ body::before{content:"";position:fixed;inset:0;background:#000;opacity:0;pointer
     <input type="text" id="who-name" required autocomplete="name" placeholder="First and last name">
     <button class="file" type="submit">Open the notice</button>
   </form>
-  <button class="skip" id="skip" type="button">Continue without a name</button>
 </section>
 
 <main class="doc">
@@ -421,7 +419,6 @@ body::before{content:"";position:fixed;inset:0;background:#000;opacity:0;pointer
       },650);
     };
     document.getElementById('who').addEventListener('submit',function(e){e.preventDefault();open(whoName.value.replace(/[<>]/g,'').trim().slice(0,60))});
-    document.getElementById('skip').addEventListener('click',function(){open('')});
   }
   else start();
 
