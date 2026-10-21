@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from '@/components/app-link';
 import { requireAdmin } from '@/lib/admin/guard';
 import { stillSignedOff } from '@/lib/review/expiry';
+import { returnLapsedContent } from '@/lib/review/lapse';
 import { createServiceClient } from '@/lib/supabase/service';
 import { ButtonLink, Card, Notice, Pill, SectionHeading, Stat } from '@/components/ui';
 import { JURISDICTION_SHORT, type Jurisdiction, type QuestionStatus } from '@/lib/types';
@@ -45,6 +46,8 @@ export default async function AdminHome({
   searchParams: Promise<{ status?: string }>;
 }) {
   await requireAdmin();
+  // Anything whose sign-off ran out goes back to review before it is listed (0052).
+  await returnLapsedContent();
   const { status: statusFilter } = await searchParams;
 
   const db = createServiceClient();
@@ -177,7 +180,7 @@ export default async function AdminHome({
                   <div className="mb-1.5 flex flex-wrap items-center gap-2">
                     <Pill tone={STATUS_TONE[row.status]}>{STATUS_LABEL[row.status]}</Pill>
                     {row.verification !== 'human_verified' ? (
-                      <Pill tone="warn">Unverified</Pill>
+                      <Pill tone="warn">{row.verification === 'expired' ? 'Sign-off expired' : 'Unverified'}</Pill>
                     ) : null}
                     <span className="text-xs text-muted">
                       {row.domain} · {JURISDICTION_SHORT[row.jurisdiction]} · v{row.version}

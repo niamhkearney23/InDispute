@@ -833,7 +833,18 @@ export async function getCoachNote(
   // back, saved or new, for a version no longer offered (0052).
   if (!(await stillOffered(db, questionVersionId))) return { coachNote: null };
 
-  if (slot.coach_note_at) return { coachNote: (slot.coach_note as string | null) ?? null };
+  if (slot.coach_note_at) {
+    // Kept only while it still matches the sign-off it was written against:
+    // an explanation corrected and signed off again since gets no stale note.
+    const { data: signed } = await db
+      .from('question_versions')
+      .select('verified_at')
+      .eq('id', questionVersionId)
+      .maybeSingle();
+    const resigned =
+      !signed?.verified_at || new Date(signed.verified_at as string) > new Date(slot.coach_note_at as string);
+    return { coachNote: resigned ? null : ((slot.coach_note as string | null) ?? null) };
+  }
 
   // And a ceiling per person per day, because sessions themselves are
   // unlimited and anybody can sign up. Well above what an honest day of

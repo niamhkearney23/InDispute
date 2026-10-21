@@ -44,6 +44,9 @@ create table if not exists public.content_lapses (
   )
 );
 
+-- Added after 0052 first ran on test databases; harmless where it exists.
+alter table public.content_lapses add column if not exists previous_review_note text;
+
 alter table public.content_lapses enable row level security;
 -- No policy for anybody: the server reads it, and only the function writes.
 revoke all on public.content_lapses from public, anon, authenticated, service_role;
@@ -140,7 +143,7 @@ grant execute on function public.return_lapsed_content() to service_role;
 -- and explanation only when it is still offered. The caller is the server,
 -- which names the learner whose session it checked.
 create or replace function public.claim_answer(p_session uuid, p_version uuid, p_user uuid)
-returns jsonb language plpgsql security definer set search_path = public as $$
+returns jsonb language plpgsql security definer set search_path = public, pg_temp as $$
 declare
   slot_id uuid;
   question uuid;
@@ -159,8 +162,10 @@ begin
     return jsonb_build_object('result', 'unavailable');
   end if;
 
-  perform 1 from public.questions where id = question for share;
+  -- Versions first, then the question: the order every writer takes them in
+  -- (flagging, a cleared sign-off, the lapse job), so the two cannot deadlock.
   perform 1 from public.question_versions where question_id = question for share;
+  perform 1 from public.questions where id = question for share;
   update public.training_session_questions set answered_at = now() where id = slot_id;
 
   select * into v from public.question_versions where id = p_version;
