@@ -63,7 +63,7 @@ async function questionsOpen(country: 'AU' | 'MY'): Promise<boolean> {
   const { count, error } = await service()
     .from('v_question_delivery')
     .select('question_id', { count: 'exact', head: true })
-    .eq('jurisdiction', country);
+    .eq('country', country);
   if (error) throw error;
   return (count ?? 0) > 0;
 }
