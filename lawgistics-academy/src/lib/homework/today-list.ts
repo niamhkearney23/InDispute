@@ -10,6 +10,8 @@
  * so the order and the ticks can be tested without a database.
  */
 
+import { lastArrivedDay, type HomeworkDay } from './rules';
+
 export interface TodayItem {
   key: string;
   label: string;
@@ -266,4 +268,36 @@ export function todaysHomework(input: TodayInput): TodayItem[] {
 export function doneCount(items: TodayItem[]): { done: number; of: number } {
   const tickable = items.filter((i) => i.done !== null);
   return { done: tickable.filter((i) => i.done).length, of: tickable.length };
+}
+
+/**
+ * The homework part of the list for somebody with a start date: a line for a
+ * day with no task of its own (before the start, a weekend or holiday, after
+ * the last day), so the homework page is never out of reach, and how many
+ * earlier working days are not ticked off. Today's own day is not "earlier".
+ */
+export function homeworkLines(input: {
+  startsOn: string | null;
+  day: HomeworkDay;
+  declared: Set<number>;
+  longDate: (iso: string) => string;
+}): { note: { meta: string } | null; missed: number } {
+  if (!input.startsOn) return { note: null, missed: 0 };
+  const { day } = input;
+  const lastEarlier = day.state === 'day' ? day.day - 1 : lastArrivedDay(day);
+  let missed = 0;
+  for (let d = 1; d <= lastEarlier; d += 1) if (!input.declared.has(d)) missed += 1;
+  const note =
+    day.state === 'before'
+      ? { meta: `Begins ${input.longDate(input.startsOn)}: twenty tasks, one each working day` }
+      : day.state === 'weekend'
+        ? {
+            meta: `None today${day.holiday ? ` (${day.holiday})` : ''}. Day ${day.nextDay} picks up on ${new Date(
+              `${day.resumesOn}T00:00:00Z`,
+            ).toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'UTC' })}`,
+          }
+        : day.state === 'finished'
+          ? { meta: `You finished the four weeks: ${input.declared.size} of 20 recorded` }
+          : null;
+  return { note, missed };
 }

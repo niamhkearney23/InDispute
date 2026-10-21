@@ -9,7 +9,7 @@ import { beforeYouBegin } from '@/lib/onboarding/service';
 import { acceptedInvitationFor } from '@/lib/onboarding/invitations';
 import { greeting, greetingName } from '@/lib/greeting';
 import { homeworkForDay } from '@/content/seed/homework';
-import { homeworkDay, lastArrivedDay } from '@/lib/homework/rules';
+import { homeworkDay } from '@/lib/homework/rules';
 import { longDate } from '@/lib/onboarding/rules';
 import { DIAGNOSTIC_QUESTION_COUNT, QUESTIONS_PER_MINUTE_GOAL } from '@/lib/learning/config';
 import { roundsToday } from '@/lib/training/rounds-service';
@@ -27,7 +27,7 @@ import { requireAccess } from '@/lib/access/service';
 import { scheduleForPerson } from '@/lib/training/cohorts';
 import { morningNoteFor } from '@/lib/notes/service';
 import { MorningNoteCard } from '@/components/morning-note';
-import { todaysHomework } from '@/lib/homework/today-list';
+import { homeworkLines, todaysHomework } from '@/lib/homework/today-list';
 import { TodayList } from '@/components/today-list';
 
 export const metadata: Metadata = { title: 'Today' };
@@ -101,26 +101,14 @@ export default async function DashboardPage() {
   const rounds = isTrainee ? await roundsToday(user.id).catch(() => null) : null;
   const openNow = rounds ? openRound(rounds.rounds) : null;
   const declaredDays = new Set((homeworkRows.data ?? []).map((r) => r.day as number));
-  // Earlier working days not ticked off, for the catch-up line. Today's own
-  // day has its own line, so it is not counted as earlier.
-  const lastEarlierDay = homework.state === 'day' ? homework.day - 1 : lastArrivedDay(homework);
-  const missedHomework = profile.startsOn
-    ? [...Array(Math.max(0, lastEarlierDay)).keys()].map((i) => i + 1).filter((d) => !declaredDays.has(d)).length
-    : 0;
-  // On a day with no task of its own the homework still gets a line, so the
-  // homework page is never out of reach (it is linked from nowhere else for
-  // somebody who is not on the trainee programme).
-  const homeworkNote = !profile.startsOn
-    ? null
-    : homework.state === 'before'
-      ? { meta: `Begins ${longDate(profile.startsOn)}: twenty tasks, one each working day` }
-      : homework.state === 'weekend'
-        ? {
-            meta: `None today${homework.holiday ? ` (${homework.holiday})` : ''}. Day ${homework.nextDay} picks up on ${new Date(`${homework.resumesOn}T00:00:00Z`).toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'UTC' })}`,
-          }
-        : homework.state === 'finished'
-          ? { meta: `You finished the four weeks: ${declaredDays.size} of 20 recorded` }
-          : null;
+  // The homework lines: today's task, or what the day is when it has none,
+  // and earlier days not ticked off (homeworkLines, tested on its own).
+  const { note: homeworkNote, missed: missedHomework } = homeworkLines({
+    startsOn: profile.startsOn,
+    day: homework,
+    declared: declaredDays,
+    longDate,
+  });
 
   /* Today in the learner's own timezone, not the server's. A coach in Kuala
      Lumpur dating a session for Tuesday means Tuesday there, and a session

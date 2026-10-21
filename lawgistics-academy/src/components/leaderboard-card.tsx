@@ -71,12 +71,13 @@ export function LeaderboardCard({ rows }: { rows: LeaderboardRow[] }) {
         </ol>
       )}
 
-      <p className="mt-3 text-xs text-muted">
-        XP earned in the last seven days. First names only.{' '}
-        <Link href="/account" className="-my-3 inline-flex min-h-11 items-center underline underline-offset-2">
-          Take yourself off it
-        </Link>
-      </p>
+      <p className="mt-3 text-xs text-muted">XP earned in the last seven days. First names only.</p>
+      <Link
+        href="/account"
+        className="inline-flex min-h-11 items-center text-xs text-muted underline underline-offset-2 hover:text-ink"
+      >
+        Take yourself off it
+      </Link>
     </Card>
   );
 }

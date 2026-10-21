@@ -152,16 +152,15 @@ export default async function SkillsPage() {
             &middot;
           </span>
           <span>{COUNTRY_LABELS[profile.country]}</span>
-          <span aria-hidden className="text-muted">
-            &middot;
-          </span>
-          <Link
-            href="/onboarding?edit=1"
-            className="-my-3 inline-flex min-h-11 items-center rounded-[5px] underline underline-offset-4 hover:text-ink"
-          >
-            Change country or goals
-          </Link>
         </p>
+        {/* Its own line, a full 44px tall: pulled into the line above with
+            negative margins it covered the greeting (the device sweep). */}
+        <Link
+          href="/onboarding?edit=1"
+          className="mt-1 inline-flex min-h-11 items-center rounded-[5px] text-sm text-slate underline underline-offset-4 hover:text-ink"
+        >
+          Change country or goals
+        </Link>
       </header>
 
       {/* The most meaningful numbers first, without opening anything. */}

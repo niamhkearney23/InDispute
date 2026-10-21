@@ -168,3 +168,58 @@ test('the next practice file is offered only when none is open', () => {
   const open = todaysHomework({ ...base, nextMatter: next, matter: { id: 'm1', title: 'Open one' } });
   assert.ok(!open.some((i) => i.key === 'matter-next'));
 });
+
+// -----------------------------------------------------------------------------
+// The homework lines, for every kind of day (the independent review's finding:
+// outside a working day an intern had no way to the homework page).
+// -----------------------------------------------------------------------------
+import { homeworkLines } from '../src/lib/homework/today-list';
+
+const date = (iso: string) => `[${iso}]`;
+
+test('no start date: no homework lines at all', () => {
+  assert.deepEqual(homeworkLines({ startsOn: null, day: { state: 'none' }, declared: new Set(), longDate: date }), {
+    note: null,
+    missed: 0,
+  });
+});
+
+test('before the start: says when it begins, nothing is missed', () => {
+  const r = homeworkLines({ startsOn: '2026-11-02', day: { state: 'before', daysUntilStart: 5 }, declared: new Set(), longDate: date });
+  assert.equal(r.note?.meta, 'Begins [2026-11-02]: twenty tasks, one each working day');
+  assert.equal(r.missed, 0);
+});
+
+test('a weekend: says when it picks up, and counts the days before it not ticked off', () => {
+  const r = homeworkLines({
+    startsOn: '2026-10-05',
+    day: { state: 'weekend', nextDay: 6, resumesOn: '2026-10-12' },
+    declared: new Set([1, 2, 4]),
+    longDate: date,
+  });
+  assert.equal(r.note?.meta, 'None today. Day 6 picks up on Monday');
+  assert.equal(r.missed, 2, 'days 3 and 5');
+});
+
+test('a public holiday is named', () => {
+  const r = homeworkLines({
+    startsOn: '2026-10-05',
+    day: { state: 'weekend', nextDay: 3, resumesOn: '2026-10-08', holiday: 'Deepavali' },
+    declared: new Set([1, 2]),
+    longDate: date,
+  });
+  assert.equal(r.note?.meta, 'None today (Deepavali). Day 3 picks up on Thursday');
+  assert.equal(r.missed, 0);
+});
+
+test('a working day: no note (the task has its own line), earlier days not ticked are counted, today is not', () => {
+  const r = homeworkLines({ startsOn: '2026-10-05', day: { state: 'day', day: 6 }, declared: new Set([1, 3]), longDate: date });
+  assert.equal(r.note, null);
+  assert.equal(r.missed, 3, 'days 2, 4 and 5; day 6 is today');
+});
+
+test('after the last day: says so with what was recorded, and every day not ticked is missed', () => {
+  const r = homeworkLines({ startsOn: '2026-09-01', day: { state: 'finished' }, declared: new Set([1, 2, 3]), longDate: date });
+  assert.equal(r.note?.meta, 'You finished the four weeks: 3 of 20 recorded');
+  assert.equal(r.missed, 17);
+});
