@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=IBM+Plex+Mono:wght@400;500;600&family=Libre+Caslon+Text&display=swap">
 <style>
 /* Host-only tool: make every guest's personal link, send it, tick it off, then see who opened and who replied. */
-:root{--desk:#12100e;--paper:#eae4d8;--ink:#1b1915;--muted:#6c675d;--hair:rgba(27,25,21,.22);--red:#bf3a2f;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;color-scheme:light}
+:root{--desk:#12100e;--paper:#eae4d8;--ink:#1b1915;--muted:#625d54;--hair:rgba(27,25,21,.22);--red:#bf3a2f;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;color-scheme:light}
 *{box-sizing:border-box}
 body{margin:0;background:var(--desk);color:var(--ink);font-family:"Libre Caslon Text",Georgia,serif;padding:28px max(10px,env(safe-area-inset-right,0px)) 56px max(10px,env(safe-area-inset-left,0px))}
 main{max-width:860px;margin:0 auto;background:var(--paper);border-radius:3px;padding:clamp(20px,5vw,48px) clamp(16px,5vw,52px)}
@@ -113,13 +113,15 @@ li.g input[type=checkbox]{width:22px;height:22px;margin:2px 0 0;accent-color:var
   </label>
   <p class="msg" id="msg" role="status"></p>
 
-  <p class="hint">This page is for the host. Keep its address to yourself. Everything you type here stays in this browser.</p>
+  <p class="hint">This page is for the host. Keep its address to yourself. Everything you type here stays in this browser. Once you have opened this page, links you open on this device are not counted as guests opening them, so you can check any link safely.</p>
 </main>
 <script>
 (function(){
   var DEFAULT_TPL='Hi {first}, you’re invited to Opening Statement 2027, Thomas Philip’s New Year’s Party on Friday, 8 January from 6:30 PM.\n\nYour invitation and RSVP: {link}';
   var SUBJECT='You’re invited: Opening Statement 2027';
-  var base=location.origin+location.pathname.replace(/links\.html$/,'');
+  var base=location.origin+location.pathname.replace(/links(\.html)?$/,'');
+  // this device belongs to the host: opening guests' links here is not counted as them opening it
+  try{localStorage.setItem('os27-host','1')}catch(e){}
   var $=function(id){return document.getElementById(id)};
   var store={get:function(k,d){try{var v=localStorage.getItem('os27-'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem('os27-'+k,JSON.stringify(v))}catch(e){}}};
   var guests=[], sent=store.get('sent',{}), opens=store.get('opens',[]), rsvps=store.get('rsvps',[]), filter='all';

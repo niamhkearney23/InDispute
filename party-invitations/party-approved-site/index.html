@@ -7,7 +7,12 @@
 <meta name="description" content="Thomas Philip presents Opening Statement 2027, a New Year’s Party. Friday, 8 January 2027, 6:30 PM onwards.">
 <meta property="og:title" content="You’re invited · Opening Statement 2027">
 <meta property="og:description" content="Thomas Philip presents a New Year’s Party. Friday, 8 January 2027, 6:30 PM onwards. RSVP here.">
+<meta property="og:type" content="website">
 <meta property="og:image" content="images/party-approved-share.jpg">
+<meta property="og:image:width" content="540">
+<meta property="og:image:height" content="675">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="robots" content="noindex">
 <meta name="theme-color" content="#12100e">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%23eae4d8'/%3E%3Ctext x='32' y='45' font-family='Georgia,serif' font-size='34' text-anchor='middle' fill='%23c4453b'%3E27%3C/text%3E%3C/svg%3E">
 <script>(function(c,q){if('IntersectionObserver' in window)c.add('wait');if(!q.get('to')&&!q.get('name'))c.add('gate')})(document.documentElement.classList,new URLSearchParams(location.search))</script>
@@ -17,7 +22,7 @@
 <style>
 /* The invitation is a cream legal notice on a dark desk, with a tear-off reply slip below it. Single look by design. */
 :root{
-  --desk:#12100e; --paper:#eae4d8; --ink:#1b1915; --muted:#6c675d; --hair:rgba(27,25,21,.24);
+  --desk:#12100e; --paper:#eae4d8; --ink:#1b1915; --muted:#625d54; --hair:rgba(27,25,21,.24);
   --red:#bf3a2f; --pen:#23325c;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
   --display:"Instrument Serif","Times New Roman",serif;
@@ -31,7 +36,7 @@ html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
 body{margin:0;min-height:100vh;background:var(--desk);color:var(--ink);font-family:var(--caslon);
   background-image:radial-gradient(ellipse 70% 45% at 50% 0%,rgba(255,232,196,.11),transparent 70%),radial-gradient(ellipse 60% 40% at 50% 100%,rgba(255,232,196,.05),transparent 70%);
   padding:clamp(20px,5vw,56px) max(12px,env(safe-area-inset-right,0px)) 56px max(12px,env(safe-area-inset-left,0px));overflow-x:hidden}
-.doc{max-width:780px;margin:0 auto;position:relative;filter:drop-shadow(0 40px 50px rgba(0,0,0,.55)) drop-shadow(0 6px 14px rgba(0,0,0,.35))}
+.doc{max-width:780px;margin:0 auto;position:relative;border-radius:3px;box-shadow:0 40px 70px -20px rgba(0,0,0,.6),0 6px 16px rgba(0,0,0,.35)}
 .sheet{position:relative;background-color:var(--paper);background-image:var(--noise),radial-gradient(ellipse 90% 60% at 50% 30%,rgba(255,255,255,.35),transparent 75%);
   padding:clamp(22px,6vw,60px) clamp(20px,7vw,72px) clamp(34px,7vw,60px);text-align:center;overflow:hidden}
 .sheet:first-child{border-radius:3px 3px 0 0}
@@ -68,6 +73,7 @@ dd.it{font:italic 600 clamp(24px,6vw,35px)/1.18 var(--italic)}
 .cta{display:inline-flex;align-items:center;gap:14px;margin-top:clamp(30px,6vw,44px);background:var(--ink);color:var(--paper);text-decoration:none;
   font:500 clamp(12px,3.1vw,14px)/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;padding:19px 26px 19px 30px;position:relative;overflow:hidden}
 .cta i{font-style:normal;display:inline-block}
+@media (max-width:360px){.cta{letter-spacing:.14em;padding:18px 20px;gap:10px}}
 .period{font:400 clamp(10.5px,2.7vw,12px)/1.4 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin:18px 0 0}
 .period b{color:var(--red);font-weight:600}
 
@@ -125,9 +131,9 @@ form.filed .file{display:none}
 .done{max-width:480px;margin:10px auto 0}
 .done .stampwrap{width:min(86%,380px);margin-top:26px}
 .thanks{font:italic 600 clamp(24px,6vw,32px)/1.25 var(--italic);margin:26px 0 0}
-.foot{text-align:center;font:400 11px/1.6 var(--mono);letter-spacing:.24em;color:rgba(234,228,216,.4);margin:34px 0 0;text-transform:uppercase}
+.foot{text-align:center;font:400 11px/1.6 var(--mono);letter-spacing:.24em;color:rgba(234,228,216,.55);margin:34px 0 0;text-transform:uppercase}
 
-.cover{display:none;max-width:600px;margin:max(8px,calc(50vh - 290px)) auto 0;margin-top:max(8px,calc(50svh - 290px));border-radius:3px;filter:drop-shadow(0 40px 50px rgba(0,0,0,.55)) drop-shadow(0 6px 14px rgba(0,0,0,.35))}
+.cover{display:none;max-width:600px;margin:max(8px,calc(50vh - 290px)) auto 0;margin-top:max(8px,calc(50svh - 290px));border-radius:3px;box-shadow:0 40px 70px -20px rgba(0,0,0,.6),0 6px 16px rgba(0,0,0,.35)}
 .gate .cover{display:block}
 .gate .doc,.gate .foot{display:none}
 .cover .kick{font:500 clamp(12px,3.2vw,15px)/1.3 var(--mono);letter-spacing:.22em;padding-left:.22em;color:var(--muted);margin:clamp(30px,6vw,40px) 0 0}
@@ -376,7 +382,7 @@ body::before{content:"";position:fixed;inset:0;background:#000;opacity:0;pointer
     // record the first open of this name on this device (Netlify Forms → "opens")
     if(!live) return;
     var key='os27-opened-'+name.toLowerCase(), seen=false;
-    try{seen=localStorage.getItem(key)==='1'}catch(e){}
+    try{seen=localStorage.getItem(key)==='1'||localStorage.getItem('os27-host')==='1'}catch(e){}
     if(seen) return;
     var body=new URLSearchParams({'form-name':'opens',guest:name,opened_at:new Date().toISOString(),device:/Mobi|Android|iPhone/i.test(navigator.userAgent)?'Phone':'Computer',via:via});
     fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString()})
