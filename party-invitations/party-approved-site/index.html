@@ -139,6 +139,11 @@ form.filed .file{pointer-events:none;opacity:1}
 .done{max-width:480px;margin:10px auto 0}
 .done .stampwrap{width:min(86%,380px);margin-top:26px}
 .done .stampwrap.narrow{width:min(68%,300px)}
+.cal{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:22px auto 0;max-width:480px}
+.cal[hidden]{display:none}
+.calbtn{display:inline-block;border:1.5px solid var(--ink);color:var(--ink);text-decoration:none;font:500 11.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;padding:14px 15px;transition:background-color .25s,color .25s,transform .25s}
+.calbtn:hover{background:var(--ink);color:var(--paper);text-shadow:none;transform:translateY(-2px)}
+.calbtn:focus-visible{outline:2px solid var(--red);outline-offset:3px}
 .thanks-sub{font:400 clamp(17px,4.3vw,20px)/1.5 var(--caslon);color:var(--muted);margin:10px auto 0;max-width:30ch}
 .thanks{font:italic 600 clamp(27px,7vw,36px)/1.2 var(--italic);margin:24px 0 0}
 .foot{text-align:center;font:400 11px/1.6 var(--mono);letter-spacing:.24em;color:rgba(234,228,216,.55);margin:34px 0 0;text-transform:uppercase}
@@ -235,6 +240,7 @@ body::before{content:"";position:fixed;inset:0;background:#000;opacity:0;pointer
 .slip.thud{animation:thud .28s linear .47s}
 .done .thanks{animation:soft 1.2s cubic-bezier(.16,1,.3,1) .8s both}
 .done .thanks-sub{animation:soft 1.2s cubic-bezier(.16,1,.3,1) 1.05s both}
+.done .cal{animation:soft 1.2s cubic-bezier(.16,1,.3,1) 1.3s both}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.wait .notice .stamp{opacity:.9}.greet b{background-size:100% 1.5px}.rv{opacity:1;transform:none}.doc::after{display:none}}
 </style>
 </head>
@@ -401,6 +407,10 @@ body::before{content:"";position:fixed;inset:0;background:#000;opacity:0;pointer
       </div>
       <p class="thanks" id="thanks" role="status"></p>
       <p class="thanks-sub" id="thanks-sub"></p>
+      <div class="cal" id="cal" hidden>
+        <a class="calbtn" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Opening%20Statement%202027%20%C2%B7%20Thomas%20Philip%E2%80%99s%20New%20Year%E2%80%99s%20Party&amp;dates=20270108T103000Z%2F20270108T103000Z&amp;details=Friday%2C%208%20January%202027%2C%206%3A30%20PM%20onwards.%20Venue%20to%20be%20confirmed.%0AWith%20good%20company.%20And%20that%20is%20TP%E2%80%99s%20guarantee.%0AInvitation%20and%20RSVP%3A%20https%3A%2F%2Finvitationtp2027.netlify.app%2F&amp;location=Venue%20to%20be%20confirmed" target="_blank" rel="noopener">Add to Google Calendar</a>
+        <a class="calbtn" href="opening-statement-2027.ics">Add to Apple / Outlook</a>
+      </div>
       <p class="preview" id="preview" hidden>Preview only: this reply was not sent. Replies are saved once the site is online.</p>
     </div>
   </section>
@@ -556,6 +566,7 @@ body::before{content:"";position:fixed;inset:0;background:#000;opacity:0;pointer
     document.getElementById('stamp-no').hidden=yes;
     document.getElementById('thanks').textContent=yes?'Motion granted, '+who+'.':'Noted for the record, '+who+'.';
     document.getElementById('thanks-sub').textContent=yes?party+' on the record. See you on Friday, 8 January, from 6:30 PM.':'You will be missed.';
+    document.getElementById('cal').hidden=!yes;
     document.getElementById('preview').hidden=!preview;
     form.classList.add('filed');
     var done=document.getElementById('done'); done.hidden=false;
