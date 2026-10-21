@@ -5,6 +5,7 @@ import { getLearnerProfile } from '@/lib/learner-overview';
 import { TRAINING_FILE } from '@/content/training-file';
 import { ButtonLink, Card, Notice, SectionHeading } from '@/components/ui';
 import { requireAccess } from '@/lib/access/service';
+import { viewerIsStaff } from '@/lib/content/service';
 
 export const metadata: Metadata = { title: 'The training file' };
 
@@ -23,8 +24,11 @@ export default async function TrainingFilePage() {
 
   const profile = await getLearnerProfile(user.id);
   if (!profile) redirect('/account-problem');
-  const staff = profile.isAdmin || profile.isCoach || profile.isFirmAdmin;
-  if (profile.track !== 'litigation_trainee' && !staff) redirect('/dashboard');
+  // Staff open the file by their role; the coach's notes on it only with
+  // the code typed, as everywhere else a learner page shows staff more (0047).
+  const staffRole = profile.isAdmin || profile.isCoach || profile.isFirmAdmin;
+  if (profile.track !== 'litigation_trainee' && !staffRole) redirect('/dashboard');
+  const staff = staffRole && (await viewerIsStaff(user.id));
 
   const file = TRAINING_FILE;
 

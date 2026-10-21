@@ -8499,10 +8499,18 @@ create or replace trigger morning_notes_no_truncate
 --    And the server's role no longer deletes the records that exist to prove
 --    something was done: a deletion job and its review items (0045), whose
 --    disappearing would make the nightly check report nothing outstanding
---    (0049), and the sign-offs of lessons, court maps and essays (0032, 0046).
---    The app never deletes from them. Rows still go when the account they
---    belong to is removed in Supabase Auth, by cascade, which Postgres runs as
---    the table's owner.
+--    (0049), the sign-offs of lessons, court maps and essays (0032, 0046),
+--    morning notes (0050), and the certification register, whose rows a
+--    review item points at. The app never deletes from any of them.
+--
+--    Taking the right away is not the whole of it, because a cascade runs as
+--    the table's owner. A deletion job cascades from its person in Supabase
+--    Auth, and the server's key can delete a person there (the admin API).
+--    So a job is refused deletion by trigger until it is finished and its
+--    review closed, and a review item until it is decided. Deleting, in
+--    Supabase Auth, somebody whose deletion is unfinished now fails, which is
+--    the point. (Sign-offs and notes never cascaded: deleting their author in
+--    Auth was already refused, by `on delete restrict` and their triggers.)
 --
 -- None of this protects anything from the database owner or a Supabase
 -- administrator, who can change or drop any of it. It holds the line for the
@@ -8577,6 +8585,31 @@ revoke delete on public.account_erasures from service_role;
 revoke delete on public.erasure_review_items from service_role;
 revoke delete on public.lesson_signoffs from service_role;
 revoke delete on public.content_signoffs from service_role;
+revoke delete on public.certification_trainees from service_role;
+revoke delete on public.certification_entries from service_role;
+
+create or replace function public.keep_unfinished_erasure()
+returns trigger language plpgsql set search_path = public as $$
+begin
+  if tg_table_name = 'account_erasures'
+     and (old.completed_at is null or old.review_closed_at is null) then
+    raise exception 'An unfinished deletion is kept until it is finished and its review closed.'
+      using errcode = '42501';
+  end if;
+  if tg_table_name = 'erasure_review_items' and old.decision is null then
+    raise exception 'A review item is kept until somebody decides it.' using errcode = '42501';
+  end if;
+  return old;
+end;
+$$;
+revoke all on function public.keep_unfinished_erasure() from public;
+
+create or replace trigger account_erasures_keep_unfinished
+  before delete on public.account_erasures
+  for each row execute function public.keep_unfinished_erasure();
+create or replace trigger erasure_review_items_keep_undecided
+  before delete on public.erasure_review_items
+  for each row execute function public.keep_unfinished_erasure();
 
 -- Morning notes were refused by trigger alone (0050); the rights go as well.
 revoke delete on public.morning_notes from anon, authenticated, service_role;

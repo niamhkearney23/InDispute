@@ -37,7 +37,7 @@ test('nothing asks the router to preload by hand either', () => {
     // Any prefetch prop but the wrapper's own: a bare `prefetch` means true,
     // and null or "auto" bring back the preloading this switched off.
     .filter((f) => !f.endsWith(path.join('components', 'app-link.tsx')))
-    .filter((f) => /router\.prefetch\(|\bprefetch(\s*=|\s*[/>}]|\s+\w+=)/.test(fs.readFileSync(f, 'utf8')))
+    .filter((f) => /\.prefetch\(|\bprefetch(\s*=|\s*[/>}]|\s+\w+=)|prefetch:\s*true|next\/link\.js/.test(fs.readFileSync(f, 'utf8')))
     .map((f) => path.relative(SRC, f));
   assert.deepEqual(offenders, []);
 });

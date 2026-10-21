@@ -96,7 +96,8 @@ with checks(n, what, ok) as (
         where n.nspname = 'public' and c.relkind in ('r', 'p')
           and has_table_privilege(r.role, c.oid, 'TRUNCATE'))
      and not has_table_privilege('service_role', 'public.account_erasures', 'DELETE')
-     and not has_table_privilege('service_role', 'public.content_signoffs', 'DELETE'))
+     and not has_table_privilege('service_role', 'public.content_signoffs', 'DELETE')
+     and exists (select 1 from pg_trigger where tgname = 'account_erasures_keep_unfinished' and not tgisinternal))
 )
 select n as "#", what as "check", case when ok then 'OK' else 'NOT OK' end as result
 from checks

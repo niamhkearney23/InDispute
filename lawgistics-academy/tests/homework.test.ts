@@ -125,6 +125,14 @@ test('after a short placement ends, only the days it had can be ticked off (foun
   );
 });
 
+test('a placement whose end date is a Sunday is over that weekend: nothing "picks up on Monday"', () => {
+  const saturday = new Date('2026-01-17T09:00:00Z');
+  // The end date has not passed (it is tomorrow), so only the weekend branch can see it.
+  assert.deepEqual(homeworkDay('2026-01-05', '2026-01-18', 'UTC', saturday), { state: 'finished', lastDay: 10 });
+  // Without an end date the same Saturday is an ordinary weekend.
+  assert.equal(homeworkDay('2026-01-05', null, 'UTC', saturday).state, 'weekend');
+});
+
 test('a start date on a weekend puts day one on the following Monday', () => {
   const saturdayStart = new Date('2026-01-10T09:00:00Z');
   assert.deepEqual(homeworkDay('2026-01-10', null, 'UTC', saturdayStart), {

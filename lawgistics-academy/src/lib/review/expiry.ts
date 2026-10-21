@@ -72,9 +72,10 @@ export function isLapsed(
 
 /**
  * Whether a lawyer's sign-off still stands today: verified, and not past the
- * date it runs out on. The same test as the delivery view and the facts read
- * policy (0051) and the tutor's `stillChecked`, for a version already given
- * out that the app reads directly. `today` is the database's date, UTC.
+ * date it runs out on. The same date test as the delivery view and the facts
+ * read policy (0051) and the tutor's `stillChecked` (which also leaves out a
+ * flagged question), for a version already given out that the app reads
+ * directly. `today` is the database's date, UTC.
  */
 export function stillSignedOff(
   verificationStatus: string,

@@ -4638,6 +4638,21 @@ select pg_temp.expect_failure(
   'nor wipe the record of who signed off a court map or essay');
 reset role;
 
+-- A deletion job cascades from its person in Supabase Auth, as the owner, so
+-- the right alone is not enough: an unfinished one is refused by trigger.
+insert into auth.users (id, email) values ('eeee0051-0000-0000-0000-000000000001', 'gone-0051@example.test');
+insert into public.account_erasures (user_id) values ('eeee0051-0000-0000-0000-000000000001');
+select pg_temp.expect_failure(
+  $$delete from auth.users where id = 'eeee0051-0000-0000-0000-000000000001'$$,
+  'deleting a person in Supabase Auth does not take their unfinished deletion job with them');
+select pg_temp.expect(
+  exists (select 1 from public.account_erasures where user_id = 'eeee0051-0000-0000-0000-000000000001'),
+  'the unfinished job is still there to be finished and reported');
+select pg_temp.expect(
+  not has_table_privilege('service_role', 'public.certification_trainees', 'DELETE')
+  and not has_table_privilege('service_role', 'public.certification_entries', 'DELETE'),
+  'nor can the server delete a register record and so a review item about it');
+
 -- Schema version ---------------------------------------------------------------
 -- The admin pages compare this with the version the code expects.
 

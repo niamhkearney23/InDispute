@@ -99,13 +99,13 @@ export function homeworkDay(
   if (daysUntilStart > 0) return { state: 'before', daysUntilStart };
 
   const today = todayIn(timezone, now);
-  if (endsOn && today > endsOn) {
-    const span = Math.round(
-      (Date.parse(`${endsOn}T00:00:00Z`) - Date.parse(`${startsOn}T00:00:00Z`)) / 86400000,
-    );
-    const lastDay = span < 0 ? 0 : Math.min(HOMEWORK_DAYS, workingDaysElapsed(startsOn, span, holidays));
-    return { state: 'finished', lastDay };
-  }
+  // The last working day the placement has: twenty, or fewer when its end
+  // date comes first.
+  const lastDayBy = (end: string) => {
+    const span = Math.round((Date.parse(`${end}T00:00:00Z`) - Date.parse(`${startsOn}T00:00:00Z`)) / 86400000);
+    return span < 0 ? 0 : Math.min(HOMEWORK_DAYS, workingDaysElapsed(startsOn, span, holidays));
+  };
+  if (endsOn && today > endsOn) return { state: 'finished', lastDay: lastDayBy(endsOn) };
 
   const calendarDaysElapsed = -daysUntilStart;
 
@@ -114,6 +114,9 @@ export function homeworkDay(
     while (!isWorkingDay(addDays(today, ahead), holidays)) ahead++;
     const nextDay = workingDaysElapsed(startsOn, calendarDaysElapsed + ahead, holidays);
     if (nextDay > HOMEWORK_DAYS) return { state: 'finished', lastDay: HOMEWORK_DAYS };
+    // A weekend after the last working day of a placement that ends on it:
+    // nothing picks up on Monday.
+    if (endsOn && addDays(today, ahead) > endsOn) return { state: 'finished', lastDay: lastDayBy(endsOn) };
     const holiday = holidays[today];
     return {
       state: 'weekend',

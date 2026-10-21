@@ -350,17 +350,20 @@ export async function declareHomework(
   const profile = await getLearnerProfile(user.id);
   if (!profile) return { error: 'Your profile could not be found.' };
 
-  const arrived = lastArrivedDay(
-    homeworkDay(
-      profile.startsOn,
-      profile.endsOn,
-      profile.timezone,
-      new Date(),
-      (await scheduleForPerson(user.id)).holidays,
-    ),
+  const placement = homeworkDay(
+    profile.startsOn,
+    profile.endsOn,
+    profile.timezone,
+    new Date(),
+    (await scheduleForPerson(user.id)).holidays,
   );
-  if (parsed.data.day > arrived) {
-    return { error: 'That day has not come round yet.' };
+  if (parsed.data.day > lastArrivedDay(placement)) {
+    return {
+      error:
+        placement.state === 'finished'
+          ? 'Your placement ended before that day.'
+          : 'That day has not come round yet.',
+    };
   }
 
   const task = homeworkForDay(parsed.data.day);

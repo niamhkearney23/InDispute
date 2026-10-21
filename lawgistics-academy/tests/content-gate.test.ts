@@ -412,7 +412,7 @@ test('learner pages count staff as staff only with the code typed (0047), as the
   const twoStep = read('src/lib/auth/two-step-server.ts');
   assert.match(twoStep, /return \(await verifiedAal\(userId\)\) === 'aal2';/);
   // No learner page decides it from the profile flags alone any more.
-  for (const f of ['layout.tsx', 'modules/page.tsx', 'modules/[slug]/page.tsx', 'skills/page.tsx', 'welcome/page.tsx', 'courts/page.tsx', 'dashboard/page.tsx', 'sessions/page.tsx']) {
+  for (const f of ['layout.tsx', 'modules/page.tsx', 'modules/[slug]/page.tsx', 'skills/page.tsx', 'welcome/page.tsx', 'courts/page.tsx', 'dashboard/page.tsx', 'sessions/page.tsx', 'programme/file/page.tsx']) {
     const src = read(`src/app/(app)/${f}`);
     assert.doesNotMatch(src, /\bisStaff\(profile\)/, f);
     assert.doesNotMatch(src, /seesTraineeVideos\(profile\)/, f);
