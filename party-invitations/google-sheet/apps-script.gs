@@ -2,6 +2,9 @@
 // Paste this into Extensions → Apps Script in the "Opening Statement 2027 · RSVPs" sheet, then deploy it as a web app.
 // Each value goes under its heading, so new headings are added in place without moving anything out of line.
 
+var VERSION = 'version 2 (saves Firm / Organization and Invited by)';
+var IGNORE = ['form-name', 'bot-field', 'opened_at'];   // sent by the website but not worth a column
+
 var TABS = {
   rsvp: { name: 'RSVPs', fields: [
     ['Received', null], ['Name', 'name'], ['Firm / Organization', 'firm'], ['Invited by', 'invited_by'],
@@ -19,10 +22,15 @@ function doPost(e) {
   var lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
-    var t = TABS[kind], sheet = tab(kind), cols = columns(sheet, t.fields);
+    var t = TABS[kind], sheet = tab(kind), fields = t.fields.slice();
+    // any other answer the website sends gets its own column, so new questions need no script change
+    Object.keys(p).forEach(function (k) {
+      if (IGNORE.indexOf(k) === -1 && !fields.some(function (f) { return f[1] === k; })) fields.push([k, k]);
+    });
+    var cols = columns(sheet, fields);
     var row = [];
     for (var i = 0; i < sheet.getLastColumn(); i++) row.push('');
-    t.fields.forEach(function (f) { row[cols[f[0]]] = f[1] ? safe(p[f[1]]) : new Date(); });
+    fields.forEach(function (f) { row[cols[f[0]]] = f[1] ? safe(p[f[1]]) : new Date(); });
     sheet.appendRow(row);
   } finally {
     lock.releaseLock();
@@ -30,9 +38,9 @@ function doPost(e) {
   return done();
 }
 
-// Visiting the web app address in a browser shows this, so you can check it is live.
+// Visiting the web app address in a browser shows this, so you can check which version is live.
 function doGet() {
-  return ContentService.createTextOutput('Opening Statement 2027: the RSVP sheet is connected.');
+  return ContentService.createTextOutput('Opening Statement 2027: the RSVP sheet is connected, ' + VERSION + '.');
 }
 
 function tab(kind) {
