@@ -138,5 +138,39 @@ create or replace trigger erasure_review_items_keep_undecided
   before delete on public.erasure_review_items
   for each row execute function public.keep_unfinished_erasure();
 
+-- The firm half and the learner's own record (0007, 0008, 0017, 0019, 0027):
+-- insert and select only, "for everybody including administrators". 0022 took
+-- delete away from learners and staff; the server kept it, and deleting the
+-- person in Supabase Auth cascaded through every one of them. Found by the
+-- final independent review. The right goes, and a trigger refuses the row
+-- even on a cascade, so deleting in Auth anybody who has acknowledged,
+-- declared, been decided on, ticked homework, handed work in, started a
+-- matter or been given a certificate now fails. The academy's own deletion
+-- (0043, 0045) deletes none of these rows.
+create or replace function public.refuse_record_delete()
+returns trigger language plpgsql set search_path = public as $$
+begin
+  raise exception 'This record is kept: % rows are never deleted.', tg_table_name using errcode = '42501';
+end;
+$$;
+revoke all on function public.refuse_record_delete() from public;
+
+do $$
+declare
+  t text;
+begin
+  foreach t in array array[
+    'firm_module_acknowledgements', 'firm_step_declarations', 'firm_step_confirmations',
+    'onboarding_decisions', 'homework_declarations', 'work_submissions',
+    'certificates', 'matter_attempts'
+  ] loop
+    execute format('revoke delete on public.%I from public, anon, authenticated, service_role', t);
+    execute format(
+      'create or replace trigger %I before delete on public.%I for each row execute function public.refuse_record_delete()',
+      t || '_kept', t);
+  end loop;
+end;
+$$;
+
 -- Morning notes were refused by trigger alone (0050); the rights go as well.
 revoke delete on public.morning_notes from anon, authenticated, service_role;

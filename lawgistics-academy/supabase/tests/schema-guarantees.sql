@@ -4653,6 +4653,32 @@ select pg_temp.expect(
   and not has_table_privilege('service_role', 'public.certification_entries', 'DELETE'),
   'nor can the server delete a register record and so a review item about it');
 
+-- The firm half and the learner's own record are kept, even from the server
+-- and even when the person is deleted in Supabase Auth.
+select pg_temp.expect(
+  not exists (
+    select 1 from unnest(array[
+      'firm_module_acknowledgements', 'firm_step_declarations', 'firm_step_confirmations',
+      'onboarding_decisions', 'homework_declarations', 'work_submissions',
+      'certificates', 'matter_attempts']) as t(name),
+      unnest(array['anon', 'authenticated', 'service_role']) as r(role)
+    where has_table_privilege(r.role, 'public.' || t.name, 'DELETE')),
+  'nobody the app runs as can delete an acknowledgement, declaration, decision, homework, hand-in, matter attempt or certificate');
+insert into auth.users (id, email) values ('eeee0051-0000-0000-0000-000000000002', 'intern-0051@example.test');
+insert into public.homework_declarations (user_id, day, task_slug)
+values ('eeee0051-0000-0000-0000-000000000002', 1, 'day-1-0051');
+select pg_temp.expect_failure(
+  $$delete from auth.users where id = 'eeee0051-0000-0000-0000-000000000002'$$,
+  'deleting an intern in Supabase Auth does not take their ticked homework with them');
+select pg_temp.expect(
+  exists (select 1 from public.homework_declarations where user_id = 'eeee0051-0000-0000-0000-000000000002'),
+  'the homework record is still there');
+set local role service_role;
+select pg_temp.expect_failure(
+  $$delete from public.homework_declarations where user_id = 'eeee0051-0000-0000-0000-000000000002'$$,
+  'nor can the server delete it directly');
+reset role;
+
 -- Schema version ---------------------------------------------------------------
 -- The admin pages compare this with the version the code expects.
 

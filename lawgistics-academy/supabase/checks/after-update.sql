@@ -97,7 +97,11 @@ with checks(n, what, ok) as (
           and has_table_privilege(r.role, c.oid, 'TRUNCATE'))
      and not has_table_privilege('service_role', 'public.account_erasures', 'DELETE')
      and not has_table_privilege('service_role', 'public.content_signoffs', 'DELETE')
-     and exists (select 1 from pg_trigger where tgname = 'account_erasures_keep_unfinished' and not tgisinternal))
+     and exists (select 1 from pg_trigger where tgname = 'account_erasures_keep_unfinished' and not tgisinternal)
+     and (select count(*) from pg_trigger where not tgisinternal and tgname in (
+          'firm_module_acknowledgements_kept', 'firm_step_declarations_kept', 'firm_step_confirmations_kept',
+          'onboarding_decisions_kept', 'homework_declarations_kept', 'work_submissions_kept',
+          'certificates_kept', 'matter_attempts_kept')) = 8)
 )
 select n as "#", what as "check", case when ok then 'OK' else 'NOT OK' end as result
 from checks

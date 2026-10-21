@@ -11,7 +11,7 @@ export function LeaderboardForm({ optedOut }: { optedOut: boolean }) {
 
   return (
     <form action={formAction} className="flex flex-wrap items-center gap-4">
-      <label className="flex items-center gap-2.5 py-2 text-sm">
+      <label className="flex min-h-11 items-center gap-2.5 py-2 text-sm">
         <input type="checkbox" name="optOut" defaultChecked={optedOut} className="size-5" />
         Keep me off the firm&rsquo;s leaderboard
       </label>

@@ -100,7 +100,7 @@ export function CartoonMaker({ saved }: { saved: CartoonStyle | null }) {
               aria-pressed={p.key === partKey}
               onClick={() => setPartKey(p.key)}
               className={cn(
-                'rounded-full border px-3 py-1.5 text-sm transition-colors',
+                'min-h-11 rounded-full border px-3 py-1.5 text-sm transition-colors sm:min-h-0',
                 p.key === partKey
                   ? 'border-accent bg-accent text-paper'
                   : 'border-rule bg-paper-raised hover:border-accent',

@@ -187,7 +187,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0050`.
+- Migrations run to `0051`.
   `supabase/UPDATE.sql` is the one-paste update for a database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -489,6 +489,39 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   replace Today's old skill map); today's concept, the shortcut tiles and
   the calendar of mornings to Programme. The work, homework and matters
   cards went because their lines are on the list and their pages exist.
+  Beyond three pieces of work the list says "N more" with a link to the
+  work board; work sent back stays "another go" even with a reply; a
+  placement whose end date comes before day twenty stops at its own last
+  working day, so days it never had cannot be ticked or counted as missed.
+- `0051` came out of the final independent review (October 2026).
+  **A sign-off past the date it runs out on is no sign-off**: the delivery
+  view and the daily facts read policy ask for `review_due_on` null or in
+  the future, as the tutor always did, and training asks again
+  (`stillSignedOff`, `src/lib/review/expiry.ts`) before showing an
+  explanation or writing an AI note for a version given out earlier.
+  Nothing yet moves a lapsed item back to the queue by itself; it simply
+  stops being given out. **No table can be emptied** by anon, authenticated
+  or the server (TRUNCATE revoked on every public table, and by default on
+  new ones; a schema guarantee checks every table), and the server cannot
+  delete deletion jobs, their review items, lesson and court-map sign-offs,
+  morning notes or the certification register. **The firm half and the
+  learner's own record are kept even from the server**: acknowledgements,
+  step declarations and confirmations, onboarding decisions, homework,
+  hand-ins, matter attempts and certificates lose the server's DELETE and
+  carry a trigger (`refuse_record_delete`) that refuses the row even on a
+  cascade, so deleting such a person in Supabase Auth fails; the academy's
+  own deletion (0043, 0045) touches none of them. A deletion job cascades
+  from its person in Supabase Auth as the table owner, so a trigger refuses
+  to delete one until it is finished and its review closed (and a review
+  item until decided): deleting, in Supabase Auth, somebody whose deletion
+  is unfinished fails, as does deleting anybody who signed content off,
+  wrote a morning note or has any of the records above. None of this holds against the database owner or a
+  Supabase administrator. **Learner pages count staff as staff only with
+  the code typed on the session** (`staffSessionChecked`,
+  `src/lib/auth/two-step-server.ts`, used by `viewerIsStaff` and
+  `seesTraineeVideos(profile, staffChecked)`), as the database has since
+  0047: a password alone shows a coach what a learner sees, with no
+  unsigned content, trainee-only notes, videos or training-file notes.
 - **Schema version.** `npm run build:sql` ends both SQL files with
   `schema_version()` (the newest migration's number, service role only) and
   writes `src/lib/schema-version.ts`. The admin layout shows an administrator

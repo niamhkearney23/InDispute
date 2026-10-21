@@ -26,7 +26,8 @@ const BUTTON_VARIANTS = {
 } as const;
 
 const BUTTON_SIZES = {
-  sm: 'h-9 px-3.5 text-sm',
+  // 44px on a phone (thumbs, WCAG 2.5.5), the compact 36px from sm: up.
+  sm: 'h-11 px-3.5 text-sm sm:h-9',
   md: 'h-11 px-5 text-[0.9375rem]',
   lg: 'h-13 px-6 text-base w-full sm:w-auto',
 } as const;
@@ -135,7 +136,7 @@ export function InlineLink({ href, children }: { href: string; children: ReactNo
   return (
     <Link
       href={href}
-      className="inline-block py-1.5 font-medium underline underline-offset-2"
+      className="inline-flex min-h-11 items-center font-medium underline underline-offset-2"
     >
       {children}
     </Link>

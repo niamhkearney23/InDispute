@@ -11,6 +11,7 @@
  */
 
 import { lastArrivedDay, type HomeworkDay } from './rules';
+import { HOMEWORK_DAYS } from '@/content/seed/homework';
 
 export interface TodayItem {
   key: string;
@@ -312,7 +313,7 @@ export function homeworkLines(input: {
           }
         : day.state === 'finished'
           ? {
-              meta: `${day.lastDay === 20 ? 'You finished the four weeks' : 'Your placement is over'}: ${
+              meta: `${day.lastDay === HOMEWORK_DAYS ? 'You finished the four weeks' : 'Your placement is over'}: ${
                 [...input.declared].filter((d) => d <= day.lastDay).length
               } of ${day.lastDay} recorded`,
             }

@@ -60,6 +60,14 @@ const PROBE = () => {
     if (getComputedStyle(el).visibility === 'hidden') continue;
     // A link inside a sentence is exempt from the target size rule.
     const inline = el.tagName === 'A' && getComputedStyle(el).display === 'inline';
+    // A checkbox or radio inside its label: pressing the label toggles it, so
+    // the label is the target (WCAG 2.5.5), and that is what is measured.
+    const box = el.tagName === 'INPUT' && /^(checkbox|radio)$/.test(el.type) ? el.closest('label') : null;
+    if (box) {
+      const h = box.getBoundingClientRect().height;
+      if (h < 44) small.push(`label of ${el.type} "${(box.textContent ?? '').trim().slice(0, 30)}" ${Math.round(h)}px`);
+      continue;
+    }
     if (!inline && r.height < 44) small.push(`${el.tagName.toLowerCase()} "${(el.textContent ?? '').trim().slice(0, 30)}" ${Math.round(r.height)}px`);
   }
   // On a phone the bottom menu carries these four; the header must not

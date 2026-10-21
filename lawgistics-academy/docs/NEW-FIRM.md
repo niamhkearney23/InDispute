@@ -155,6 +155,14 @@ new phone:
 Check it is really them first, for example by phone: removing the device is
 exactly what somebody who has stolen a password would ask for.
 
+Do not delete people from **Authentication, Users**. An account is deleted
+from the academy (Account, or Admin, Trainees), which keeps what the firm
+relies on. The database refuses a deletion in Supabase Auth for anybody whose
+academy deletion is unfinished, anybody who has signed content off or written
+a morning note, and anybody with a record the firm keeps (an acknowledgement,
+a joining-list entry or decision, homework, work handed in, a matter or a
+certificate), so the record of who did and decided what stays true.
+
 If the dashboard has moved that button, the SQL Editor does the same thing.
 Press **New query**, paste this with the person's email in place of the
 example, and press **Run**:

@@ -61,7 +61,11 @@ export default async function HomeworkPage() {
               <Card key={t.slug}>
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="eyebrow">Day {t.day}</p>
-                  {done ? <Pill tone="correct">Done</Pill> : !arrived ? <Pill>Not yet</Pill> : null}
+                  {done ? (
+                    <Pill tone="correct">Done</Pill>
+                  ) : !arrived ? (
+                    <Pill>{homework.state === 'finished' ? 'Not in your placement' : 'Not yet'}</Pill>
+                  ) : null}
                 </div>
                 <p className="mt-2 font-serif text-lg leading-snug">{t.title}</p>
                 {arrived ? (
@@ -72,7 +76,11 @@ export default async function HomeworkPage() {
                     <Materials posts={materials.get(t.day) ?? []} />
                   </>
                 ) : (
-                  <p className="mt-2 text-sm text-muted">Not due yet.</p>
+                  <p className="mt-2 text-sm text-muted">
+                    {homework.state === 'finished'
+                      ? 'Your placement ended before this day.'
+                      : 'Not due yet.'}
+                  </p>
                 )}
               </Card>
             );

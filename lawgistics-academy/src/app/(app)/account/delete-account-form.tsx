@@ -20,7 +20,7 @@ export function DeleteAccountForm() {
 
   return (
     <details className="group">
-      <summary className="inline-flex cursor-pointer items-center rounded-[5px] py-2 text-sm font-medium text-warn underline underline-offset-4">
+      <summary className="inline-flex min-h-11 cursor-pointer items-center rounded-[5px] py-2 text-sm font-medium text-warn underline underline-offset-4">
         Delete my account
       </summary>
       <form action={formAction} className="mt-4 space-y-4">

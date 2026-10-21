@@ -389,6 +389,26 @@ const OVERFLOW_PROBE = `(() => {
   return { docWidth, scrollWidth, horizontalScroll: scrollWidth > docWidth + 1, offenders: offenders.slice(0, 6), smallTargets: smallTargets.slice(0, 6), zoomers: zoomers.slice(0, 6), collisions: collisions.slice(0, 6) };
 })()`;
 
+// Before anything: the app's own stylesheets must load. A stale server left
+// on the port (from an earlier build, its files since overwritten) answers
+// pages that link to stylesheets it no longer has, and every check after
+// that measures an unstyled page. That happened once; it now stops here.
+{
+  const html = await (await fetch(`${BASE}/login`)).text();
+  const sheets = [...html.matchAll(/href="(\/_next\/static\/[^"]+\.css)"/g)].map((m) => m[1]);
+  if (sheets.length === 0) {
+    console.error(`No stylesheet linked from ${BASE}/login: is this the app?`);
+    process.exit(2);
+  }
+  for (const sheet of sheets) {
+    const res = await fetch(BASE + sheet);
+    if (!res.ok || !(res.headers.get('content-type') ?? '').includes('text/css')) {
+      console.error(`Stylesheet ${sheet} answered ${res.status} ${res.headers.get('content-type')}: a stale server on the port? Nothing checked.`);
+      process.exit(2);
+    }
+  }
+}
+
 const browser = await chromium.launch({ executablePath: EXE });
 const report = [];
 

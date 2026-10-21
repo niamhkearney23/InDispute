@@ -52,7 +52,7 @@ export function AvatarForm({
               // Safari is concerned, and anything under 16px makes it zoom the
               // whole page in on focus. file:text-sm is the button label, a
               // separate pseudo-element iOS does not zoom for.
-              className="block w-full text-base file:mr-3 file:rounded-[5px] file:border file:border-rule-strong file:bg-paper file:px-3 file:py-2 file:text-sm file:font-medium hover:file:bg-paper-sunk"
+              className="block min-h-11 w-full text-base file:mr-3 file:rounded-[5px] file:border file:border-rule-strong file:bg-paper file:px-3 file:py-2.5 file:text-sm file:font-medium hover:file:bg-paper-sunk"
             />
           </label>
           <p className="mt-1.5 text-xs text-muted">JPEG, PNG or WEBP, up to 5MB.</p>
