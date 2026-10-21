@@ -120,11 +120,22 @@ with checks(n, what, ok) as (
            where p.proname = 'keep_unfinished_erasure' and tg.tgenabled = 'O'
              and c.relname in ('account_erasures', 'erasure_review_items')) = 2),
 
-  (17, 'A sign-off that ran out goes back to review, with a kept record, and none is still published',
+  (17, 'A sign-off that ran out goes back to review, with a kept record, and none is still published (UPDATE.sql runs the job; run it again with: select public.return_lapsed_content();)',
      to_regclass('public.content_lapses') is not null
      and has_function_privilege('service_role', 'public.return_lapsed_content()', 'execute')
      and not has_function_privilege('authenticated', 'public.return_lapsed_content()', 'execute')
+     and not has_function_privilege('anon', 'public.return_lapsed_content()', 'execute')
+     and has_function_privilege('service_role', 'public.claim_answer(uuid, uuid, uuid)', 'execute')
+     and not has_function_privilege('authenticated', 'public.claim_answer(uuid, uuid, uuid)', 'execute')
+     and not has_function_privilege('anon', 'public.claim_answer(uuid, uuid, uuid)', 'execute')
+     and not exists (
+       select 1 from unnest(array['anon', 'authenticated', 'service_role']) as r(role),
+                     unnest(array['INSERT', 'UPDATE', 'DELETE', 'TRUNCATE']) as p(priv)
+        where has_table_privilege(r.role, 'public.content_lapses', p.priv))
+     and not has_table_privilege('anon', 'public.content_lapses', 'SELECT')
+     and not has_table_privilege('authenticated', 'public.content_lapses', 'SELECT')
      and exists (select 1 from pg_trigger where tgname = 'content_lapses_kept' and not tgisinternal)
+     and exists (select 1 from pg_trigger where tgname = 'content_lapses_no_truncate' and not tgisinternal)
      and not exists (select 1 from public.question_versions
                       where is_current and verification_status = 'human_verified'
                         and review_due_on <= current_date)

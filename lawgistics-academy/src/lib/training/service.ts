@@ -374,6 +374,24 @@ async function awardXp(
   return events.reduce((total, event) => total + event.amount, 0);
 }
 
+/** The version as claim_answer (0052) handed it back, at the moment of answering. */
+interface ClaimedVersion {
+  id: string;
+  question_id: string;
+  correct_option_ids: string[] | null;
+  explanation: string;
+  why_it_matters: string | null;
+  common_misconception: string | null;
+  memory_trick: string | null;
+  difficulty: number;
+  jurisdiction: AnswerFeedback['jurisdiction'];
+  court: string | null;
+  source_reference: string | null;
+  source_url: string | null;
+  verification_status: string;
+  review_due_on: string | null;
+}
+
 /** What a learner is told about a question taken back before they answered it. */
 export function withdrawnFeedback(
   selectedOptionIds: string[],
@@ -410,12 +428,9 @@ export async function submitAnswer(args: {
   const db = createServiceClient();
   const now = new Date();
 
-  // The session, the slot and the question are looked up together. None of the
-  // three depends on the answer to another, and asking for them one at a time
-  // costs three network hops before any work begins. The checks that follow are
-  // unchanged, and still happen before anything is written.
-  const [{ data: session }, { data: slot }, { data: version }, { data: learner }, { data: offered }] =
-    await Promise.all([
+  // The session, the slot and the learner are looked up together, for the
+  // plain refusals below. None of them is the decision itself.
+  const [{ data: session }, { data: slot }, { data: learner }] = await Promise.all([
     db
       .from('training_sessions')
       .select('id, user_id, kind, status, total_answered, correct_count')
@@ -423,27 +438,12 @@ export async function submitAnswer(args: {
       .maybeSingle(),
     db
       .from('training_session_questions')
-      .select('id, question_id, question_version_id, answered_at')
+      .select('id, answered_at')
       .eq('session_id', args.sessionId)
       .eq('question_version_id', args.questionVersionId)
       .maybeSingle(),
-    db
-      .from('question_versions')
-      .select(
-        'id, question_id, question_type, stem, scenario, options, correct_option_ids, explanation, why_it_matters, common_misconception, memory_trick, difficulty, jurisdiction, court, source_reference, source_url, verification_status, review_due_on',
-      )
-      .eq('id', args.questionVersionId)
-      .maybeSingle(),
     // Where the learner is, so a review due "tomorrow" is due tomorrow there.
     db.from('profiles').select('timezone, country').eq('id', args.userId).maybeSingle(),
-    // Whether this exact version is still offered: the delivery view is the
-    // database's one rule for that (current version, published, signed off,
-    // not past the date the sign-off runs out on, 0044 and 0051).
-    db
-      .from('v_question_delivery')
-      .select('question_version_id')
-      .eq('question_version_id', args.questionVersionId)
-      .maybeSingle(),
   ]);
   const learnerZone = learnerTimezone(learner?.timezone, asCountry(learner?.country));
 
@@ -457,41 +457,42 @@ export async function submitAnswer(args: {
   if (!slot) return { error: 'That question is not part of this session.' };
   if (slot.answered_at) return { error: 'You have already answered this question.' };
 
-  // Checked before the claim, so a question that cannot be loaded never gets
-  // claimed and never needs releasing. The claim used to come first, and a
-  // failure here had to undo it; if that undo failed, the question became
-  // permanently unanswerable.
-  if (!version) return { error: 'Question could not be loaded.' };
+  // The claim and the decision are one transaction in the database
+  // (claim_answer, 0052): it closes the slot (a compare-and-set, so a second
+  // submission in flight finds nothing to claim), holds the question still
+  // so a withdrawal waits for it or is seen by it, asks the delivery view
+  // whether this exact version is still offered, and hands back the version
+  // as it was at that moment. A failed call claims nothing and says so; it
+  // never closes the slot on a guess.
+  const { data: claim, error: claimError } = await db.rpc('claim_answer', {
+    p_session: args.sessionId,
+    p_version: args.questionVersionId,
+    p_user: args.userId,
+  });
+  if (claimError || !claim) {
+    if (claimError) console.error('[training] answer could not be claimed', claimError);
+    return { error: 'Your answer could not be recorded. Please try again.' };
+  }
+  const claimed = claim as {
+    result: 'unavailable' | 'withdrawn' | 'offered';
+    slot_id?: string;
+    jurisdiction?: AnswerFeedback['jurisdiction'];
+    version?: ClaimedVersion;
+  };
+  if (claimed.result === 'unavailable') return { error: 'You have already answered this question.' };
 
   // Taken back since it was shown: the sign-off ran out or was withdrawn,
   // it was flagged or unpublished, or a new version replaced it. The answer
   // key and the explanation are legal content nobody currently stands
-  // behind, so neither is used or sent. The slot is closed so the session
-  // can carry on, and no attempt is recorded, because nothing was marked.
-  if (!offered || !stillSignedOff(version.verification_status, version.review_due_on)) {
-    const { data: closed } = await db
-      .from('training_session_questions')
-      .update({ answered_at: now.toISOString() })
-      .eq('id', slot.id)
-      .is('answered_at', null)
-      .select('id');
-    if (!closed || closed.length === 0) return { error: 'You have already answered this question.' };
-    return withdrawnFeedback(args.selectedOptionIds, version.jurisdiction);
-  }
-
-  // Claim the slot before writing anything. This is a compare-and-set: if a
-  // second submission for the same question is already in flight it will match
-  // no rows here and stop, rather than recording a duplicate attempt and
-  // double-counting the session totals.
-  const { data: claimed } = await db
-    .from('training_session_questions')
-    .update({ answered_at: now.toISOString() })
-    .eq('id', slot.id)
-    .is('answered_at', null)
-    .select('id');
-
-  if (!claimed || claimed.length === 0) {
-    return { error: 'You have already answered this question.' };
+  // behind, so the database did not send them and nothing is marked. The
+  // slot is closed so the session can carry on; no attempt is recorded.
+  const version = claimed.version;
+  if (
+    claimed.result === 'withdrawn' ||
+    !version ||
+    !stillSignedOff(version.verification_status, version.review_due_on)
+  ) {
+    return withdrawnFeedback(args.selectedOptionIds, version?.jurisdiction ?? claimed.jurisdiction!);
   }
 
   const correctOptionIds = (version.correct_option_ids ?? []) as string[];
@@ -828,6 +829,10 @@ export async function getCoachNote(
   // fresh paid call to the model, so anybody who could sign up could run up
   // the firm's AI bill by asking for the same note in a loop. The slot is
   // claimed before the call, so two requests at once cannot both pay.
+  // A note is a paraphrase of the checked explanation, so none is handed
+  // back, saved or new, for a version no longer offered (0052).
+  if (!(await stillOffered(db, questionVersionId))) return { coachNote: null };
+
   if (slot.coach_note_at) return { coachNote: (slot.coach_note as string | null) ?? null };
 
   // And a ceiling per person per day, because sessions themselves are
@@ -911,9 +916,23 @@ export async function getCoachNote(
     }),
   });
 
+  // The model takes seconds. Withdrawn in the meantime: nothing is kept or
+  // shown.
+  if (!(await stillOffered(db, questionVersionId))) return { coachNote: null };
+
   await db.from('training_session_questions').update({ coach_note: coachNote }).eq('id', slot.id);
 
   return { coachNote };
+}
+
+/** Whether this exact version is in the delivery view now. A failed read is no. */
+async function stillOffered(db: SupabaseClient, questionVersionId: string): Promise<boolean> {
+  const { data, error } = await db
+    .from('v_question_delivery')
+    .select('question_version_id')
+    .eq('question_version_id', questionVersionId)
+    .maybeSingle();
+  return !error && Boolean(data);
 }
 
 /* -------------------------------------------------------------------------- */

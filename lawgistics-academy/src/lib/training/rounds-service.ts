@@ -36,19 +36,39 @@ async function roundSessions(db: SupabaseClient, userId: string, since: string):
   if (rows.length === 0) return [];
 
   const times = new Map<string, string[]>(rows.map((r) => [r.id, []]));
+  const recorded = new Set<string>();
   for (let page = 0; page < 10; page++) {
     const { data } = await db
       .from('user_question_attempts')
-      .select('session_id, answered_at')
+      .select('session_id, question_version_id, answered_at')
       .eq('user_id', userId)
       .gte('answered_at', since)
       .order('answered_at', { ascending: true })
       .order('id', { ascending: true })
       .range(page * 1000, page * 1000 + 999);
-    for (const a of (data ?? []) as Array<{ session_id: string | null; answered_at: string }>) {
-      if (a.session_id) times.get(a.session_id)?.push(a.answered_at);
+    for (const a of (data ?? []) as Array<{ session_id: string | null; question_version_id: string; answered_at: string }>) {
+      if (!a.session_id) continue;
+      times.get(a.session_id)?.push(a.answered_at);
+      recorded.add(`${a.session_id}:${a.question_version_id}`);
     }
     if ((data ?? []).length < 1000) break;
+  }
+  // A question taken back for a lawyer's check while the trainee was
+  // answering it closes its slot but records no attempt (0052). The trainee
+  // still answered in that hour, so it counts towards the round; otherwise a
+  // withdrawal could leave a round one short through nobody's fault.
+  const ids = rows.map((r) => r.id);
+  for (let i = 0; i < ids.length; i += 100) {
+    const { data } = await db
+      .from('training_session_questions')
+      .select('session_id, question_version_id, answered_at')
+      .in('session_id', ids.slice(i, i + 100))
+      .gte('answered_at', since);
+    for (const slot of (data ?? []) as Array<{ session_id: string; question_version_id: string; answered_at: string }>) {
+      if (!recorded.has(`${slot.session_id}:${slot.question_version_id}`)) {
+        times.get(slot.session_id)?.push(slot.answered_at);
+      }
+    }
   }
   return rows.map((r) => ({
     startedAt: r.started_at,

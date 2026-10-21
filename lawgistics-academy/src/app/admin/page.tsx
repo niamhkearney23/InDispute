@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from '@/components/app-link';
 import { requireAdmin } from '@/lib/admin/guard';
+import { stillSignedOff } from '@/lib/review/expiry';
 import { createServiceClient } from '@/lib/supabase/service';
 import { ButtonLink, Card, Notice, Pill, SectionHeading, Stat } from '@/components/ui';
 import { JURISDICTION_SHORT, type Jurisdiction, type QuestionStatus } from '@/lib/types';
@@ -51,7 +52,7 @@ export default async function AdminHome({
   const { data } = await db
     .from('questions')
     .select(
-      'id, slug, status, domains(name), question_versions!inner(version, stem, jurisdiction, verification_status, is_current)',
+      'id, slug, status, domains(name), question_versions!inner(version, stem, jurisdiction, verification_status, review_due_on, is_current)',
     )
     .eq('question_versions.is_current', true)
     .order('created_at', { ascending: true });
@@ -62,6 +63,7 @@ export default async function AdminHome({
       stem: string;
       jurisdiction: Jurisdiction;
       verification_status: string;
+      review_due_on: string | null;
     }>(row.question_versions);
     return {
       id: row.id as string,
@@ -71,7 +73,14 @@ export default async function AdminHome({
       stem: version?.stem ?? '',
       version: version?.version ?? 1,
       jurisdiction: version?.jurisdiction ?? 'AU_GENERAL',
-      verification: version?.verification_status ?? 'unverified',
+      // A sign-off past its date is not a sign-off, whether or not the
+      // nightly job has taken it back yet (0051, 0052).
+      verification: version
+        ? stillSignedOff(version.verification_status, version.review_due_on) ||
+          version.verification_status !== 'human_verified'
+          ? version.verification_status
+          : 'expired'
+        : 'unverified',
     };
   });
 

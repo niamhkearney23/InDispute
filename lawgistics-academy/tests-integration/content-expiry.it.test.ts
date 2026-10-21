@@ -13,7 +13,9 @@ import './target-guard';
 import { after, before, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { chromium, type Browser, type Page } from 'playwright';
-import { PASSWORD, asToken, browserOptions, person, service, sql, totp, type Person } from './helpers';
+import { spawn } from 'node:child_process';
+import { IT, PASSWORD, asToken, browserOptions, person, service, sql, totp, type Person } from './helpers';
+import { getCoachNote } from '../src/lib/training/service';
 import { seedContent } from '../src/lib/setup/seed-content';
 
 const APP = process.env.IT_APP_URL ?? 'http://127.0.0.1:3124';
@@ -106,7 +108,22 @@ async function sessionWith(p: Person, q: { questionId: string; versionId: string
 async function onQuestion(p: Person, sessionId: string): Promise<{ page: Page; replies: string[] }> {
   const page = await (await browser.newContext()).newPage();
   const replies: string[] = [];
-  await page.goto(`${APP}/login`, { waitUntil: 'domcontentloaded' });
+  // Every answer the page sends is passed through and its reply kept whole,
+  // before the browser can move on.
+  await page.route('**/train/**', async (route) => {
+    const req = route.request();
+    try {
+      if (req.method() !== 'POST' || !req.headers()['next-action']) return await route.continue();
+      const res = await route.fetch();
+      const body = await res.text();
+      replies.push(body);
+      await route.fulfill({ response: res, body });
+    } catch {
+      // The test closed the page while a later request (the coach note) was
+      // still in flight; nothing of the answer's reply is lost by that.
+    }
+  });
+  await page.goto(`${APP}/login`, { waitUntil: 'load' });
   await page.fill('#email', p.email);
   await page.fill('#password', PASSWORD);
   await Promise.all([page.waitForURL((u) => !u.pathname.startsWith('/login'), { timeout: 20000 }), page.click('button[type=submit]')]);
@@ -118,14 +135,23 @@ async function onQuestion(p: Person, sessionId: string): Promise<{ page: Page; r
 /** Choose the first option and say how sure; wait for the answer's own reply, then the verdict panel. */
 async function answer(page: Page, replies: string[]): Promise<string> {
   await page.getByRole('group', { name: 'Answer options' }).getByRole('button').first().click();
-  const [reply] = await Promise.all([
-    page.waitForResponse((r) => r.request().method() === 'POST' && Boolean(r.request().headers()['next-action']), { timeout: 15000 }),
-    page.getByRole('button', { name: 'Guess', exact: true }).click(),
-  ]);
-  replies.push(await reply.text());
+  const before = replies.length;
+  await page.getByRole('button', { name: 'Guess', exact: true }).click();
+  for (let i = 0; i < 150 && replies.length === before; i++) await page.waitForTimeout(100);
+  assert.ok(replies.length > before, 'the answer was not sent');
   const panel = page.locator('section[aria-live="polite"]').last();
   await panel.waitFor({ timeout: 15000 });
   return (await panel.innerText()).replace(/\s+/g, ' ');
+}
+
+/** Nothing about a withdrawn answer is counted: no session total, no XP. */
+async function nothingCounted(userId: string, sessionId: string) {
+  const db = service();
+  const { data: s } = await db.from('training_sessions').select('total_answered, correct_count').eq('id', sessionId).single();
+  assert.equal(s?.total_answered, 0, 'a withdrawn answer was counted in the session');
+  assert.equal(s?.correct_count, 0);
+  const { count } = await db.from('xp_events').select('id', { count: 'exact', head: true }).eq('user_id', userId);
+  assert.equal(count ?? 0, 0, 'XP was given for a withdrawn answer');
 }
 
 async function attempts(userId: string, versionId: string): Promise<number> {
@@ -171,6 +197,7 @@ test('a sign-off that runs out while the question is on screen: nothing marked, 
   if (lapse.error) throw lapse.error;
   assertNothingDisclosed(await answer(page, replies), replies, q);
   assert.equal(await attempts(p.id, q.versionId), 0, 'an answer to an expired question was recorded and marked');
+  await nothingCounted(p.id, sessionId);
   const { data: slot } = await service().from('training_session_questions').select('answered_at').eq('session_id', sessionId).single();
   assert.ok(slot?.answered_at, 'the session could not move on');
   await page.context().close();
@@ -346,9 +373,10 @@ test('staff with the code typed are not shown an expired daily fact on Today as 
   if (v.error) throw v.error;
 
   // Take every other Malaysian fact out of rotation for the test, so the
-  // brief can only be this one.
+  // brief can only be this one; they are put back however the test ends.
   const others = await db.from('daily_facts').select('id').eq('country', 'MY').eq('status', 'published');
   for (const o of others.data ?? []) await db.from('daily_facts').update({ status: 'retired' }).eq('id', o.id);
+  try {
   const slug = `it-staff-fact-${Date.now()}`;
   const title = `IT staff fact ${Date.now()}`;
   const f = await db.from('daily_facts')
@@ -362,7 +390,7 @@ test('staff with the code typed are not shown an expired daily fact on Today as 
   if (pub.error) throw pub.error;
 
   const page = await (await browser.newContext()).newPage();
-  await page.goto(`${APP}/login`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`${APP}/login`, { waitUntil: 'load' });
   await page.fill('#email', coach.email);
   await page.fill('#password', PASSWORD);
   await Promise.all([page.waitForURL((u) => !u.pathname.startsWith('/login'), { timeout: 20000 }), page.click('button[type=submit]')]);
@@ -384,5 +412,42 @@ test('staff with the code typed are not shown an expired daily fact on Today as 
   await page.reload({ waitUntil: 'domcontentloaded' });
   assert.ok(!(await page.content()).includes(title), 'staff were shown an expired fact on Today');
   await page.context().close();
-  for (const o of others.data ?? []) await db.from('daily_facts').update({ status: 'published' }).eq('id', o.id);
+  } finally {
+    for (const o of others.data ?? []) await db.from('daily_facts').update({ status: 'published' }).eq('id', o.id);
+  }
+});
+
+test('a withdrawal racing an answer: the answer waits for it, and is not marked against withdrawn content', async () => {
+  const q = await publishedQuestion();
+  const p = await learner();
+  const sessionId = await sessionWith(p, q);
+  // A reviewer flags the question in a transaction that is still open when
+  // the answer arrives.
+  const reviewer = spawn('psql', [IT.SUPABASE_IT_DB_URL, '-v', 'ON_ERROR_STOP=1', '-c',
+    `begin; update public.question_versions set review_flagged = true, review_note = 'IT: racing' where id = '${q.versionId}'; select pg_sleep(3); commit;`]);
+  const done = new Promise<number>((resolve) => reviewer.on('close', resolve));
+  await new Promise((r) => setTimeout(r, 700));
+  const started = Date.now();
+  const { data, error } = await service().rpc('claim_answer', { p_session: sessionId, p_version: q.versionId, p_user: p.id });
+  const waited = Date.now() - started;
+  assert.equal(await done, 0, 'the reviewer\'s transaction failed');
+  assert.equal(error, null, error?.message);
+  assert.ok(waited > 1000, `the claim did not wait for the withdrawal in progress (${waited}ms)`);
+  assert.equal((data as { result: string }).result, 'withdrawn', 'an answer was claimed against content withdrawn at the same moment');
+  assert.ok(!JSON.stringify(data).includes('correct_option_ids'), 'the answer key came back');
+});
+
+test('a saved AI note is not handed back once the question is withdrawn', async () => {
+  const q = await publishedQuestion();
+  const p = await learner();
+  const sessionId = await sessionWith(p, q);
+  const db = service();
+  const claim = await db.rpc('claim_answer', { p_session: sessionId, p_version: q.versionId, p_user: p.id });
+  assert.equal((claim.data as { result: string }).result, 'offered');
+  await db.from('user_question_attempts').insert({ user_id: p.id, question_id: q.questionId, question_version_id: q.versionId, session_id: sessionId, selected_option_ids: q.correct, is_correct: true });
+  const note = 'IT: a saved note paraphrasing the explanation.';
+  await db.from('training_session_questions').update({ coach_note: note, coach_note_at: new Date().toISOString() }).eq('session_id', sessionId);
+  assert.deepEqual(await getCoachNote(p.id, sessionId, q.versionId), { coachNote: note }, 'control: the saved note was not handed back');
+  await db.from('question_versions').update({ review_flagged: true, review_note: 'IT: withdrawn after the note' }).eq('id', q.versionId);
+  assert.deepEqual(await getCoachNote(p.id, sessionId, q.versionId), { coachNote: null }, 'a saved note was handed back after withdrawal');
 });

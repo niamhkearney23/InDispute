@@ -4713,6 +4713,57 @@ select 'aaaa0038-0000-0000-0000-000000000001', question_id, id, array['a'], true
   from public.question_versions
  where question_id = 'cccc0038-0000-0000-0000-000000000002' and is_current;
 
+-- Answering is claimed in one transaction against the content as it is at
+-- that moment (claim_answer).
+insert into public.training_sessions (id, user_id, kind)
+values ('5e550052-0000-0000-0000-000000000001', 'aaaa0038-0000-0000-0000-000000000001', 'daily'),
+       ('5e550052-0000-0000-0000-000000000002', 'aaaa0038-0000-0000-0000-000000000001', 'daily');
+insert into public.training_session_questions (session_id, question_id, question_version_id, position)
+select s.id, qv.question_id, qv.id, 0
+  from public.question_versions qv,
+       (values ('5e550052-0000-0000-0000-000000000001'::uuid), ('5e550052-0000-0000-0000-000000000002'::uuid)) as s(id)
+ where qv.question_id = 'cccc0038-0000-0000-0000-000000000002' and qv.is_current;
+
+select pg_temp.expect(
+  not has_function_privilege('anon', 'public.claim_answer(uuid, uuid, uuid)', 'execute')
+  and not has_function_privilege('authenticated', 'public.claim_answer(uuid, uuid, uuid)', 'execute')
+  and has_function_privilege('service_role', 'public.claim_answer(uuid, uuid, uuid)', 'execute'),
+  'only the server claims an answer');
+set local role service_role;
+select pg_temp.expect(
+  (select public.claim_answer('5e550052-0000-0000-0000-000000000001', qv.id, 'aaaa0038-0000-0000-0000-000000000002') ->> 'result'
+     from public.question_versions qv where qv.question_id = 'cccc0038-0000-0000-0000-000000000002' and qv.is_current)
+  = 'unavailable',
+  'nobody claims an answer in somebody else''s session');
+select pg_temp.expect(
+  (select (r ->> 'result') = 'offered' and (r -> 'version' -> 'correct_option_ids') is not null
+     from (select public.claim_answer('5e550052-0000-0000-0000-000000000001', qv.id, 'aaaa0038-0000-0000-0000-000000000001') as r
+             from public.question_versions qv
+            where qv.question_id = 'cccc0038-0000-0000-0000-000000000002' and qv.is_current) x),
+  'a question still offered is claimed, with its answer key, for marking');
+select pg_temp.expect(
+  (select public.claim_answer('5e550052-0000-0000-0000-000000000001', qv.id, 'aaaa0038-0000-0000-0000-000000000001') ->> 'result'
+     from public.question_versions qv where qv.question_id = 'cccc0038-0000-0000-0000-000000000002' and qv.is_current)
+  = 'unavailable',
+  'and only once');
+reset role;
+update public.question_versions set review_due_on = current_date
+ where question_id = 'cccc0038-0000-0000-0000-000000000002' and is_current;
+set local role service_role;
+select pg_temp.expect(
+  (select (r ->> 'result') = 'withdrawn' and not (r ? 'version') and (r::text not like '%correct_option_ids%')
+     from (select public.claim_answer('5e550052-0000-0000-0000-000000000002', qv.id, 'aaaa0038-0000-0000-0000-000000000001') as r
+             from public.question_versions qv
+            where qv.question_id = 'cccc0038-0000-0000-0000-000000000002' and qv.is_current) x),
+  'a question whose sign-off ran out is claimed as withdrawn, with no answer key or explanation');
+select pg_temp.expect(
+  (select answered_at is not null from public.training_session_questions
+    where session_id = '5e550052-0000-0000-0000-000000000002'),
+  'and its slot is closed, so the session moves on');
+reset role;
+update public.question_versions set review_due_on = current_date + 1
+ where question_id = 'cccc0038-0000-0000-0000-000000000002' and is_current;
+
 select pg_temp.expect(
   not has_function_privilege('anon', 'public.return_lapsed_content()', 'execute')
   and not has_function_privilege('authenticated', 'public.return_lapsed_content()', 'execute')

@@ -63,7 +63,7 @@ export async function getFactOfTheDay(
     // read every fact through it: nobody, staff included, is shown a fact on
     // Today whose sign-off is missing or has run out.
     .eq('verification_status', 'human_verified')
-    .or(`review_due_on.is.null,review_due_on.gt.${new Date().toISOString().slice(0, 10)}`)
+    .or(`review_due_on.is.null,review_due_on.gt.${now.toISOString().slice(0, 10)}`)
     .eq('country', country)
     .order('sort_order', { ascending: true })
     .order('id', { ascending: true });

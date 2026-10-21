@@ -393,8 +393,11 @@ test('an explanation reworded after a question was given out is not shown', () =
   assert.match(service, /const explained = stillSignedOff\(version\.verification_status, version\.review_due_on\);/);
   assert.match(service, /explanation: explained \? version\.explanation : ''/);
   assert.match(service, /if \(!stillSignedOff\(version\.verification_status, version\.review_due_on\)\) return \{ coachNote: null \};/);
-  // Both reads fetch the date, or the test above would always pass.
-  assert.equal((service.match(/verification_status, review_due_on'/g) ?? []).length, 2);
+  // Both sources carry the date, or the checks above would always pass: the
+  // coach note's own read, and the version claim_answer hands back (0052).
+  assert.equal((service.match(/verification_status, review_due_on'/g) ?? []).length, 1);
+  const claim = read('supabase/migrations/0052_content_expiry.sql');
+  assert.match(claim, /'verification_status', v\.verification_status, 'review_due_on', v\.review_due_on/);
 });
 
 test('a sign-off past the date it runs out on counts as none (0051)', async () => {
@@ -470,10 +473,14 @@ test('the twenty sign-in rules reach a visitor only once signed off', () => {
 test('an answer to a question taken back since it was shown is neither marked nor answered (0052)', () => {
   const service = read('src/lib/training/service.ts');
   const submit = service.slice(service.indexOf('export async function submitAnswer'), service.indexOf('export async function getCoachNote'));
-  // Asks the database's own rule, for this exact version.
-  assert.match(submit, /\.from\('v_question_delivery'\)\s*\.select\('question_version_id'\)\s*\.eq\('question_version_id', args\.questionVersionId\)/);
-  assert.match(submit, /if \(!offered \|\| !stillSignedOff\(version\.verification_status, version\.review_due_on\)\) \{/);
-  // And stops before anything is marked or recorded.
+  // The decision and the claim are one database transaction, for this
+  // exact version, and the answer key comes only from what it returned.
+  assert.match(submit, /db\.rpc\('claim_answer', \{\s*p_session: args\.sessionId,\s*p_version: args\.questionVersionId,\s*p_user: args\.userId,\s*\}\)/);
+  assert.doesNotMatch(submit, /\.from\('question_versions'\)/, 'submitAnswer reads the version outside the claim');
+  assert.match(submit, /claimed\.result === 'withdrawn' \|\|\s*!version \|\|\s*!stillSignedOff\(version\.verification_status, version\.review_due_on\)/);
+  // A failed claim is an error, never a closed slot.
+  assert.match(submit, /if \(claimError \|\| !claim\) \{[\s\S]*?return \{ error: 'Your answer could not be recorded\. Please try again\.' \};/);
+  // And it stops before anything is marked or recorded.
   const withdrawnAt = submit.indexOf('return withdrawnFeedback(');
   const markedAt = submit.indexOf('const isCorrect = sameSet(');
   const recordedAt = submit.indexOf(".from('user_question_attempts')");
@@ -492,13 +499,17 @@ test('the reply for a question taken back carries no answer key and no explanati
   assert.doesNotMatch(fn, /version\./, 'the withdrawn reply reads from the version');
 });
 
-test('no AI note is written for a question taken back after it was answered', () => {
+test('no AI note, saved or new, for a question taken back after it was answered', () => {
   const service = read('src/lib/training/service.ts');
   const fn = service.slice(service.indexOf('export async function getCoachNote'));
-  assert.match(fn, /if \(!offered\) return \{ coachNote: null \};/);
-  const checkAt = fn.indexOf('if (!offered) return');
+  const firstCheck = fn.indexOf('if (!(await stillOffered(db, questionVersionId))) return { coachNote: null };');
+  const savedAt = fn.indexOf('if (slot.coach_note_at) return');
   const callAt = fn.indexOf('coachOnAnswer(');
-  assert.ok(checkAt > 0 && checkAt < callAt);
+  const secondCheck = fn.indexOf('if (!(await stillOffered(db, questionVersionId))) return { coachNote: null };', firstCheck + 1);
+  const keptAt = fn.indexOf('.update({ coach_note: coachNote })');
+  assert.ok(firstCheck > 0 && firstCheck < savedAt, 'a saved note is handed back before checking');
+  assert.ok(secondCheck > callAt && secondCheck < keptAt, 'a note is kept without checking again after the model call');
+  assert.match(fn, /return !error && Boolean\(data\);/, 'a failed read counts as offered');
 });
 
 test('the session page shows "Not marked" and counts nothing for a question taken back', () => {
@@ -511,7 +522,7 @@ test('the session page shows "Not marked" and counts nothing for a question take
 test('nobody, staff included, is shown a daily fact on Today without a current sign-off', () => {
   const facts = read('src/lib/facts/service.ts');
   assert.match(facts, /\.eq\('verification_status', 'human_verified'\)/);
-  assert.match(facts, /\.or\(`review_due_on\.is\.null,review_due_on\.gt\.\$\{new Date\(\)\.toISOString\(\)\.slice\(0, 10\)\}`\)/);
+  assert.match(facts, /\.or\(`review_due_on\.is\.null,review_due_on\.gt\.\$\{now\.toISOString\(\)\.slice\(0, 10\)\}`\)/);
 });
 
 test('lapsed content goes back to the queue nightly and whenever a reviewer looks (0052)', () => {
@@ -525,4 +536,23 @@ test('lapsed content goes back to the queue nightly and whenever a reviewer look
     assert.match(read(page), /await returnLapsedContent\(\);/, page);
   }
   assert.match(read('src/lib/review/lapse.ts'), /db\.rpc\('return_lapsed_content'\)/);
+});
+
+test('staff pages call a sign-off past its date expired, whether or not the job has run', () => {
+  for (const page of ['src/app/admin/facts/[id]/page.tsx', 'src/app/admin/questions/[id]/page.tsx']) {
+    const src = read(page);
+    assert.match(src, /const verified = stillSignedOff\(/, page);
+    assert.match(src, /'Sign-off expired'/, page);
+    assert.match(src, /await returnLapsedContent\(\);/, page);
+  }
+  assert.match(read('src/app/admin/page.tsx'), /stillSignedOff\(version\.verification_status, version\.review_due_on\)/);
+  const list = read('src/app/admin/facts/page.tsx');
+  assert.match(list, /const published = facts\.filter\(\(f\) => f\.status === 'published' && current\(f\)\);/);
+  assert.match(list, /lapseJob === null/);
+});
+
+test('a withdrawn answer still counts towards the trainee\'s round (0052)', () => {
+  const src = read('src/lib/training/rounds-service.ts');
+  assert.match(src, /\.from\('training_session_questions'\)[\s\S]*?\.in\('session_id', ids\.slice\(i, i \+ 100\)\)/);
+  assert.match(src, /if \(!recorded\.has\(`\$\{slot\.session_id\}:\$\{slot\.question_version_id\}`\)\)/);
 });

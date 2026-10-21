@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { requireAdmin } from '@/lib/admin/guard';
+import { stillSignedOff } from '@/lib/review/expiry';
+import { returnLapsedContent } from '@/lib/review/lapse';
 import { loadTaxonomy } from '@/lib/admin/taxonomy';
 import { createServiceClient } from '@/lib/supabase/service';
 import { Card, Notice, Pill } from '@/components/ui';
@@ -20,6 +22,7 @@ export default async function EditFactPage({
   const { id } = await params;
   const { error } = await searchParams;
 
+  await returnLapsedContent();
   const db = createServiceClient();
 
   const [{ data: fact }, { domains }] = await Promise.all([
@@ -29,7 +32,10 @@ export default async function EditFactPage({
 
   if (!fact) notFound();
 
-  const verified = fact.verification_status === 'human_verified';
+  // A sign-off past its date is not a sign-off, whether or not the job has
+  // taken it back yet (0051, 0052).
+  const verified = stillSignedOff(fact.verification_status, fact.review_due_on);
+  const expired = !verified && fact.verification_status === 'human_verified';
 
   return (
     <div className="space-y-6">
@@ -39,7 +45,7 @@ export default async function EditFactPage({
             {fact.status}
           </Pill>
           <Pill tone={verified ? 'correct' : 'warn'}>
-            {verified ? 'Human verified' : 'Not verified'}
+            {verified ? 'Human verified' : expired ? 'Sign-off expired' : 'Not verified'}
           </Pill>
           <span className="text-xs text-muted">rotation #{fact.sort_order}</span>
         </div>

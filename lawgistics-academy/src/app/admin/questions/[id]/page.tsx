@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { requireAdmin } from '@/lib/admin/guard';
+import { stillSignedOff } from '@/lib/review/expiry';
+import { returnLapsedContent } from '@/lib/review/lapse';
 import { loadTaxonomy } from '@/lib/admin/taxonomy';
 import { createServiceClient } from '@/lib/supabase/service';
 import { Card, Notice, Pill } from '@/components/ui';
@@ -23,6 +25,7 @@ export default async function EditQuestionPage({
 
   const db = createServiceClient();
 
+  await returnLapsedContent();
   const { data: question } = await db
     .from('questions')
     .select('id, slug, status, domain_id')
@@ -47,7 +50,10 @@ export default async function EditQuestionPage({
   if (!current) notFound();
 
   const status = question.status as QuestionStatus;
-  const verified = current.verification_status === 'human_verified';
+  // A sign-off past its date is not a sign-off, whether or not the job has
+  // taken it back yet (0051, 0052).
+  const verified = stillSignedOff(current.verification_status, current.review_due_on);
+  const expired = !verified && current.verification_status === 'human_verified';
 
   const { count: attemptCount } = await db
     .from('user_question_attempts')
@@ -61,7 +67,7 @@ export default async function EditQuestionPage({
           <div className="mb-2 flex flex-wrap items-center gap-2">
             <Pill tone={status === 'published' ? 'correct' : 'neutral'}>{status}</Pill>
             <Pill tone={verified ? 'correct' : 'warn'}>
-              {verified ? 'Human verified' : 'Not verified'}
+              {verified ? 'Human verified' : expired ? 'Sign-off expired' : 'Not verified'}
             </Pill>
             <span className="text-xs text-muted">
               v{current.version} · {versions?.length ?? 1} version

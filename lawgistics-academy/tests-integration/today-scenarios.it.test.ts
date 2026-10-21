@@ -40,7 +40,9 @@ async function learner(country: 'AU' | 'MY', patch: Record<string, unknown> = {}
 /** Signed in on the website, on Today. */
 async function today(p: Person): Promise<Page> {
   const page = await (await browser.newContext()).newPage();
-  await page.goto(`${APP}/login`, { waitUntil: 'domcontentloaded' });
+  // 'load', not 'domcontentloaded': a form pressed before the page's script
+  // is running posts back to /login, which is the test racing the page.
+  await page.goto(`${APP}/login`, { waitUntil: 'load' });
   await page.fill('#email', p.email);
   await page.fill('#password', PASSWORD);
   await Promise.all([
@@ -179,7 +181,9 @@ test('work open to take is counted only for the people it is for', async () => {
   const au = await learner('AU');
   const unconfirmed = await learner('MY', { track: 'litigation_trainee' });
   const confirmed = await learner('MY', { track: 'litigation_trainee', trainee_approved_at: new Date().toISOString() });
-  const pages = await Promise.all([intern, au, unconfirmed, confirmed].map(today));
+  // One at a time: four browsers signing in at once only tested the machine.
+  const pages: Page[] = [];
+  for (const who of [intern, au, unconfirmed, confirmed]) pages.push(await today(who));
   const count = async (page: Page) => Number(/(\d+) pieces of work you can take/.exec(await list(page))?.[1] ?? (/A piece of work you can take/.test(await list(page)) ? 1 : 0));
   const before = await Promise.all(pages.map(count));
 

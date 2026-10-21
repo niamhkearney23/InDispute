@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from '@/components/app-link';
 import { requireAdmin } from '@/lib/admin/guard';
 import { returnLapsedContent } from '@/lib/review/lapse';
+import { stillSignedOff } from '@/lib/review/expiry';
 import { createServiceClient } from '@/lib/supabase/service';
 import { ButtonLink, Card, Notice, Pill, SectionHeading, Stat } from '@/components/ui';
 import { JURISDICTION_SHORT, type Jurisdiction } from '@/lib/types';
@@ -14,18 +15,22 @@ export default async function AdminFactsPage() {
   await requireAdmin();
   // A fact whose sign-off ran out is listed as needing review, never as
   // signed off (0052).
-  await returnLapsedContent();
+  const lapseJob = await returnLapsedContent();
   const db = createServiceClient();
 
   const { data } = await db
     .from('daily_facts')
-    .select('id, slug, title, jurisdiction, status, verification_status, sort_order')
+    .select('id, slug, title, jurisdiction, status, verification_status, review_due_on, sort_order')
     .order('sort_order', { ascending: true })
     .order('id', { ascending: true });
 
   const facts = data ?? [];
-  const published = facts.filter((f) => f.status === 'published');
-  const unverified = published.filter((f) => f.verification_status !== 'human_verified');
+  // Signed off and not past its date: the only kind learners are given, and
+  // the only kind this page calls signed off, whatever the job has done.
+  const current = (f: { verification_status: string; review_due_on: string | null }) =>
+    stillSignedOff(f.verification_status, f.review_due_on);
+  const published = facts.filter((f) => f.status === 'published' && current(f));
+  const unverified = facts.filter((f) => f.status === 'published' && !current(f));
 
   // Same rotation the dashboard uses. The date is resolved in the learner's own
   // timezone, so this preview is for the default one, a learner in Perth may
@@ -49,6 +54,13 @@ export default async function AdminFactsPage() {
           New fact
         </ButtonLink>
       </section>
+
+      {lapseJob === null ? (
+        <Notice tone="warn">
+          Sign-offs that have run out could not be taken back to the review queue just now.
+          Each one is marked &ldquo;Sign-off expired&rdquo; below and is not shown to learners.
+        </Notice>
+      ) : null}
 
       {unverified.length > 0 ? (
         <Notice tone="warn">
@@ -99,8 +111,10 @@ export default async function AdminFactsPage() {
                     <Pill tone={fact.status === 'published' ? 'correct' : 'neutral'}>
                       {fact.status}
                     </Pill>
-                    {fact.verification_status !== 'human_verified' ? (
-                      <Pill tone="warn">Unverified</Pill>
+                    {!current(fact) ? (
+                      <Pill tone="warn">
+                        {fact.verification_status === 'human_verified' ? 'Sign-off expired' : 'Unverified'}
+                      </Pill>
                     ) : null}
                     <span className="text-xs text-muted">
                       #{fact.sort_order} ·{' '}

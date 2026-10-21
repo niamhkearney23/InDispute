@@ -48,13 +48,14 @@ async function unsignedQuestion(): Promise<string> {
   return data.question_id as string;
 }
 
-/** Every question a learner of this country may be given: signed and published. */
+/** Every question a learner of this country may be given: signed, not past the sign-off's date (0051), and published. */
 async function signedAndPublished(country: 'AU' | 'MY'): Promise<Set<string>> {
   const { data, error } = await service()
     .from('question_versions')
     .select('question_id, questions!inner(country, status)')
     .eq('is_current', true)
     .eq('verification_status', 'human_verified')
+    .or(`review_due_on.is.null,review_due_on.gt.${new Date().toISOString().slice(0, 10)}`)
     .eq('questions.country', country)
     .eq('questions.status', 'published');
   if (error) throw error;
