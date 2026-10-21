@@ -1,198 +1,148 @@
-import { Card, Pill, SectionHeading } from '@/components/ui';
-import { FlameIcon, LevelIcon, RepeatIcon, SparkIcon } from '@/components/icons';
+import Link from 'next/link';
+import { Pill } from '@/components/ui';
 import { StreakCalendar } from '@/components/streak-calendar';
-import { LeaderboardCard } from '@/components/leaderboard-card';
 import { TOP_LEVEL_NAME } from '@/lib/learning/progression';
+import { LEVELS } from '@/lib/learning/config';
 import type { getLearnerOverview } from '@/lib/learner-overview';
-import type { weeklyLeaderboard } from '@/lib/leaderboard';
 
 type Overview = NonNullable<Awaited<ReturnType<typeof getLearnerOverview>>>;
 
 /**
- * The longer view of how somebody is doing: the streak, the firm's
- * leaderboard, the numbers, the level, what is due for review and what is
- * mastered. (Scores by area are Progress's own.) It used to sit under Today's training; since
- * Today became the coach's note and the day's homework (October 2026) it
- * lives on Progress, unchanged.
+ * The top of Progress: where somebody is, at a glance. The level and how far
+ * to the next, then the three numbers that say how it is going: answers
+ * right, the streak and this week's XP. Everything else on the page is
+ * detail behind these.
  */
-export function ProgressDetails({
+export function ProgressSummary({
   overview,
-  timezone,
-  leaderboard,
-  open,
+  overall,
+  answered,
 }: {
   overview: Overview;
-  timezone: string;
-  leaderboard: Awaited<ReturnType<typeof weeklyLeaderboard>>;
-  /** Questions are published for this person's country. */
-  open: boolean;
+  /** Share of every answer ever given that was right, or null before any. */
+  overall: number | null;
+  answered: number;
 }) {
   const { level } = overview;
-  const profile = { timezone };
   return (
-    <div className="space-y-8">
-      <Card>
-        <CardLabel icon={<FlameIcon className="size-4" />} tone="amber">
-          Your streak
-        </CardLabel>
-        <StreakCalendar
-          trainedDays={overview.trainedDays}
-          timezone={profile.timezone}
-          streak={overview.currentStreak}
-        />
-      </Card>
-
-      {leaderboard ? <LeaderboardCard rows={leaderboard} /> : null}
-
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatTile
-          icon={<LevelIcon className="size-5" />}
-          tone="accent"
-          label="Current level"
-          value={level.level}
-          hint={`${level.name}, game level`}
-        />
-        <StatTile
-          icon={<FlameIcon className="size-5" />}
-          tone="amber"
-          label="Longest streak"
-          value={overview.longestStreak}
-          hint={overview.longestStreak > 0 ? 'days, your record' : 'no streak yet'}
-        />
-        <StatTile
-          icon={<SparkIcon className="size-5" />}
-          tone="green"
-          label="XP this week"
-          value={overview.weeklyXp}
-          hint={`${overview.totalXp} total`}
-        />
-        <StatTile
-          icon={<RepeatIcon className="size-5" />}
-          tone="slate"
-          label="Due for review"
-          value={overview.dueCount}
-          hint={overview.dueCount === 0 ? 'nothing outstanding' : 'concepts'}
-        />
-      </section>
-
-      <section className="rounded-lg border border-rule bg-paper-raised p-5 shadow-card">
-        <div className="mb-2.5 flex items-baseline justify-between gap-3">
-          <p className="eyebrow">Progress to {level.nextLevelName ?? 'the top'}</p>
-          <p className="text-xs text-muted">
-            {level.xpForNextLevel !== null
-              ? `${level.xpForNextLevel} XP to go`
-              : TOP_LEVEL_NAME}
-          </p>
-        </div>
+    <section
+      aria-labelledby="at-a-glance"
+      className="panel rounded-xl border border-rule bg-paper-raised p-5 shadow-card sm:p-7"
+    >
+      <h2 id="at-a-glance" className="sr-only">
+        At a glance
+      </h2>
+      <p className="eyebrow">
+        Level {level.level} of {LEVELS.length}
+      </p>
+      <p className="mt-1 font-serif text-[1.75rem] leading-tight sm:text-3xl">{level.name}</p>
+      <div
+        className="mt-4 h-2 w-full overflow-hidden rounded-full bg-paper-sunk"
+        role="meter"
+        aria-valuenow={level.progressPercent}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={`Progress within level ${level.level}`}
+      >
         <div
-          className="h-3 w-full overflow-hidden rounded-full bg-paper-sunk"
-          role="meter"
-          aria-valuenow={level.progressPercent}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-label={`Progress within level ${level.level}`}
-        >
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-accent to-accent-soft transition-all duration-500"
-            style={{ width: `${Math.max(level.progressPercent, 2)}%` }}
-          />
+          className="h-full rounded-full bg-ice transition-all duration-500"
+          style={{ width: `${Math.max(level.progressPercent, 2)}%` }}
+        />
+      </div>
+      <p className="mt-2 text-sm text-muted">
+        {level.xpForNextLevel !== null
+          ? `${level.xpForNextLevel} XP to ${level.nextLevelName ?? 'the next level'}`
+          : TOP_LEVEL_NAME}
+      </p>
+
+      <dl className="mt-6 grid grid-cols-3 divide-x divide-rule border-t border-rule pt-5">
+        <div className="pr-3">
+          <dt className="text-xs text-muted">Answers right</dt>
+          <dd className="mt-1 font-serif text-[1.75rem] leading-none tabular-nums sm:text-3xl">
+            {overall === null ? '–' : `${overall}%`}
+          </dd>
+          <dd className="mt-1.5 text-xs text-muted">
+            {answered === 0 ? 'none yet' : `of ${answered} answered`}
+          </dd>
         </div>
-        {/* The level's own line. It is the one place in the app allowed to be
-            funny, and it is what makes a progress bar feel like it is worth
-            filling rather than a number going up. */}
-        <p className="mt-2 text-sm text-slate">{level.blurb}</p>
-      </section>
+        <div className="px-3">
+          <dt className="text-xs text-muted">Day streak</dt>
+          <dd className="mt-1 font-serif text-[1.75rem] leading-none tabular-nums sm:text-3xl">
+            {overview.currentStreak}
+          </dd>
+          <dd className="mt-1.5 text-xs text-muted">best {overview.longestStreak}</dd>
+        </div>
+        <div className="pl-3">
+          <dt className="text-xs text-muted">This week</dt>
+          <dd className="mt-1 font-serif text-[1.75rem] leading-none tabular-nums sm:text-3xl">
+            {overview.weeklyXp}
+          </dd>
+          <dd className="mt-1.5 text-xs text-muted">XP · {overview.totalXp} in all</dd>
+        </div>
+      </dl>
 
-      <section className="grid gap-5 sm:grid-cols-2">
-        <Card>
-          <SectionHeading title="Needs review" />
-          {overview.needsReview.length === 0 ? (
-            <p className="text-sm text-slate">
-              {open
-                ? 'Nothing is due right now. New concepts will keep appearing in your daily training.'
-                : 'Nothing is due right now.'}
-            </p>
-          ) : (
-            <ul className="space-y-2">
-              {overview.needsReview.map((name) => (
-                <li key={name} className="flex items-center justify-between gap-3">
-                  <span className="text-sm">{name}</span>
-                  <Pill tone="accent">Due</Pill>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Card>
-
-        <Card>
-          <SectionHeading title="Recently mastered" />
-          {overview.recentlyMastered.length === 0 ? (
-            <p className="text-sm text-slate">
-              Nothing yet. A concept counts as mastered once you have answered it
-              correctly and consistently.
-            </p>
-          ) : (
-            <ul className="space-y-2">
-              {overview.recentlyMastered.map((name) => (
-                <li key={name} className="flex items-center justify-between gap-3">
-                  <span className="text-sm">{name}</span>
-                  <Pill tone="correct">Strong</Pill>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Card>
-      </section>
-
-    </div>
+      {overview.dueCount > 0 ? (
+        <p className="mt-5 rounded-md bg-accent-wash px-3 py-2.5 text-sm">
+          {overview.dueCount === 1 ? '1 concept is' : `${overview.dueCount} concepts are`} due for
+          review. They come up in your training.{' '}
+          <Link href="/dashboard" className="font-semibold text-accent underline underline-offset-2">
+            Go to today
+          </Link>
+        </p>
+      ) : null}
+      <p className="mt-4 text-xs text-muted">{level.blurb}</p>
+    </section>
   );
 }
 
-const TONES = {
-  accent: 'bg-accent-wash text-accent',
-  amber: 'bg-warn-wash text-warn',
-  green: 'bg-verdict-correct-wash text-verdict-correct',
-  slate: 'bg-paper-sunk text-slate',
-} as const;
-
-/** A card's label, with a small coloured badge so each card reads at a glance. */
-function CardLabel({
-  icon,
-  tone = 'accent',
-  children,
-}: {
-  icon: React.ReactNode;
-  tone?: keyof typeof TONES;
-  children: React.ReactNode;
-}) {
+/** The streak as a calendar, for its own section. */
+export function StreakSection({ overview, timezone }: { overview: Overview; timezone: string }) {
   return (
-    <div className="mb-3 flex items-center gap-2.5">
-      <span className={`grid size-8 place-items-center rounded-lg ${TONES[tone]}`}>{icon}</span>
-      <p className="eyebrow">{children}</p>
-    </div>
+    <StreakCalendar trainedDays={overview.trainedDays} timezone={timezone} streak={overview.currentStreak} />
   );
 }
 
-/** One number, with its icon, its name and a line of context. */
-function StatTile({
-  icon,
-  tone,
-  label,
-  value,
-  hint,
-}: {
-  icon: React.ReactNode;
-  tone: keyof typeof TONES;
-  label: string;
-  value: number | string;
-  hint: string;
-}) {
+/** What is due for review, and what is mastered, side by side on a wide screen. */
+export function ReviewLists({ overview, open }: { overview: Overview; open: boolean }) {
   return (
-    <div className="rounded-lg border border-rule bg-paper-raised p-4 shadow-card transition-transform hover:-translate-y-px">
-      <span className={`mb-3 grid size-9 place-items-center rounded-lg ${TONES[tone]}`}>{icon}</span>
-      <p className="eyebrow">{label}</p>
-      <p className="mt-1 font-serif text-3xl leading-none tabular-nums">{value}</p>
-      <p className="mt-1.5 text-xs text-muted">{hint}</p>
+    <div className="grid gap-6 sm:grid-cols-2">
+      <div>
+        <h3 className="mb-2 text-base font-semibold">Due for review</h3>
+        {overview.needsReview.length === 0 ? (
+          <p className="text-sm text-slate">
+            {open
+              ? 'Nothing is due right now. New concepts keep appearing in your daily training.'
+              : 'Nothing is due right now.'}
+          </p>
+        ) : (
+          <ul className="divide-y divide-rule">
+            {overview.needsReview.map((name) => (
+              <li key={name} className="flex items-center justify-between gap-3 py-2">
+                <span className="text-sm">{name}</span>
+                <Pill tone="accent">Due</Pill>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <div>
+        <h3 className="mb-2 text-base font-semibold">Recently mastered</h3>
+        {overview.recentlyMastered.length === 0 ? (
+          <p className="text-sm text-slate">
+            Nothing yet. A concept counts as mastered once you have answered it correctly and
+            consistently.
+          </p>
+        ) : (
+          <ul className="divide-y divide-rule">
+            {overview.recentlyMastered.map((name) => (
+              <li key={name} className="flex items-center justify-between gap-3 py-2">
+                <span className="text-sm">{name}</span>
+                <Pill tone="correct">Strong</Pill>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

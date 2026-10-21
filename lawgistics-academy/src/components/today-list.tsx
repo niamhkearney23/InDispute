@@ -12,7 +12,6 @@ export function TodayList({
   /** The real start button for the training line, made by the page. */
   startTraining?: (label: string) => React.ReactNode;
 }) {
-  if (items.length === 0) return null;
   const { done, of } = doneCount(items);
   let n = 0;
   return (
@@ -27,69 +26,84 @@ export function TodayList({
           </p>
         ) : null}
       </div>
-      <ol className="divide-y divide-rule border-y border-rule">
-        {items.map((item) => {
-          const number = item.done === null ? null : ++n;
-          const startable = Boolean(item.start && startTraining);
-          const rowClass =
-            "flex min-h-14 items-center gap-3.5 py-3 hover:bg-paper-sunk/60";
-          const inner = (
-            <>
-              <span
-                aria-hidden
-                className={cn(
-                  "flex size-7 shrink-0 items-center justify-center rounded-md text-xs font-semibold",
-                  item.done
-                    ? "bg-verdict-correct text-paper"
-                    : "border-[1.5px] " +
-                        (item.urgent
-                          ? "border-ink text-ink"
-                          : "border-rule-strong text-muted"),
+      {items.length === 0 ? (
+        // Said, not left blank: a new learner with nothing set yet should
+        // know that is expected, and where it will come from.
+        <p className="border-y border-rule py-4 text-sm text-slate">
+          Nothing is set for today yet. When your coach sets work, or your
+          training opens, it appears here.
+        </p>
+      ) : (
+        <ol className="divide-y divide-rule border-y border-rule">
+          {items.map((item) => {
+            const number = item.done === null ? null : ++n;
+            const startable = Boolean(item.start && startTraining);
+            const rowClass =
+              "flex min-h-14 items-center gap-3.5 py-3 hover:bg-paper-sunk/60";
+            const inner = (
+              <>
+                <span
+                  aria-hidden
+                  className={cn(
+                    "flex size-7 shrink-0 items-center justify-center rounded-md text-xs font-semibold",
+                    item.done
+                      ? "bg-verdict-correct text-paper"
+                      : "border-[1.5px] " +
+                          (item.urgent
+                            ? "border-ink text-ink"
+                            : "border-rule-strong text-muted"),
+                  )}
+                >
+                  {item.done ? (
+                    <CheckIcon className="size-4" />
+                  ) : (
+                    (number ?? "▶")
+                  )}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span
+                    className={cn(
+                      "block font-semibold",
+                      item.done && "text-muted",
+                    )}
+                  >
+                    {item.label}
+                    {item.done ? (
+                      <span className="sr-only"> (done)</span>
+                    ) : null}
+                  </span>
+                  <span
+                    className={cn(
+                      "block text-sm",
+                      item.urgent ? "text-verdict-wrong" : "text-muted",
+                    )}
+                  >
+                    {item.meta}
+                  </span>
+                </span>
+                {startable ? (
+                  startTraining!(item.start!)
+                ) : (
+                  <span aria-hidden className="text-muted">
+                    ›
+                  </span>
                 )}
-              >
-                {item.done ? <CheckIcon className="size-4" /> : (number ?? "▶")}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span
-                  className={cn(
-                    "block font-semibold",
-                    item.done && "text-muted",
-                  )}
-                >
-                  {item.label}
-                  {item.done ? <span className="sr-only"> (done)</span> : null}
-                </span>
-                <span
-                  className={cn(
-                    "block text-sm",
-                    item.urgent ? "text-verdict-wrong" : "text-muted",
-                  )}
-                >
-                  {item.meta}
-                </span>
-              </span>
-              {startable ? (
-                startTraining!(item.start!)
-              ) : (
-                <span aria-hidden className="text-muted">
-                  ›
-                </span>
-              )}
-            </>
-          );
-          return (
-            <li key={item.key}>
-              {startable ? (
-                <div className={rowClass}>{inner}</div>
-              ) : (
-                <Link href={item.href} className={rowClass}>
-                  {inner}
-                </Link>
-              )}
-            </li>
-          );
-        })}
-      </ol>
+              </>
+            );
+            return (
+              <li key={item.key}>
+                {startable ? (
+                  <div className={rowClass}>{inner}</div>
+                ) : (
+                  <Link href={item.href} className={rowClass}>
+                    {inner}
+                  </Link>
+                )}
+              </li>
+            );
+          })}
+        </ol>
+      )}
     </section>
   );
 }

@@ -407,6 +407,20 @@ for (const device of DEVICES) {
  * layout being measured is the same layout. It also means the sweep reports on
  * the page rather than on somebody else's uptime.
  */
+/**
+ * Requests still open on a page, so a timeout says what it was waiting for
+ * instead of only that it waited.
+ */
+function trackOpenRequests(target) {
+  const open = new Map();
+  target.on('request', (r) => open.set(r, Date.now()));
+  target.on('requestfinished', (r) => open.delete(r));
+  target.on('requestfailed', (r) => open.delete(r));
+  return () =>
+    [...open].map(([r, at]) => `${r.method()} ${r.url().replace(BASE, '')} (${Date.now() - at}ms${
+      r.headers()['next-router-prefetch'] ? ', prefetch' : ''})`);
+}
+
 async function keepOffline(target) {
   await target.route('**/*', (route) => {
     const url = route.request().url();
@@ -425,6 +439,7 @@ const context = await browser.newContext({
 
   const page = await context.newPage();
   await keepOffline(page);
+  const pageOpen = trackOpenRequests(page);
   const consoleErrors = [];
   page.on('console', (m) => {
     if (m.type() === 'error') consoleErrors.push(m.text().slice(0, 160));
@@ -455,6 +470,7 @@ const context = await browser.newContext({
     const needsOwnContext = target.as || target.auth === false;
     let scopedContext = null;
     let view = page;
+    let viewOpen = pageOpen;
 
     try {
       if (needsOwnContext) {
@@ -467,6 +483,7 @@ const context = await browser.newContext({
         });
         view = await scopedContext.newPage();
         await keepOffline(view);
+        viewOpen = trackOpenRequests(view);
         view.on('console', (m) => {
           if (m.type() === 'error') consoleErrors.push(m.text().slice(0, 160));
         });
@@ -533,6 +550,7 @@ const context = await browser.newContext({
         device: device.label,
         page: target.name,
         error: error.message.split('\n')[0].slice(0, 140),
+        waitingOn: viewOpen().slice(0, 12),
       });
     } finally {
       if (scopedContext) await scopedContext.close();
@@ -571,7 +589,7 @@ if (problems.length === 0) {
 } else {
   for (const p of problems) {
     console.log(`--- ${p.device} :: ${p.page}`);
-    if (p.error) console.log(`    ERROR ${p.error}`);
+    if (p.error) console.log(`    ERROR ${p.error}${p.waitingOn && p.waitingOn.length ? `\n      waiting on: ${p.waitingOn.join("\n                  ")}` : ""}`);
     if (p.redirectedTo) console.log(`    NOT RENDERED: redirected to ${p.redirectedTo}`);
     for (const t of p.missingText ?? []) console.log(`    MISSING TEXT "${t}"`);
     for (const t of p.unwantedText ?? []) console.log(`    TEXT THAT MUST NOT BE THERE "${t}"`);
