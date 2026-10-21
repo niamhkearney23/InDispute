@@ -8461,6 +8461,12 @@ create or replace trigger morning_notes_no_delete
   before delete on public.morning_notes
   for each row execute function public.refuse_morning_note_delete();
 
+-- Emptying the table skips row triggers, so it is refused on its own, as
+-- operational_runs does (0049). Found by the independent review.
+create or replace trigger morning_notes_no_truncate
+  before truncate on public.morning_notes
+  for each statement execute function public.refuse_morning_note_delete();
+
 -- >>> deleted accounts refused everywhere (generated) ------------------------
 -- 0045 puts a restrictive policy refusing a deleted account on every table
 -- with Row Level Security. Run again here, after every migration, so a table

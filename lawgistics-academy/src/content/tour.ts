@@ -57,8 +57,8 @@ export function tourSteps({
       where: 'Menu: Today',
       title: 'Today',
       body: trainee
-        ? 'Your day starts here: the morning’s rounds, what is due, and anything new from your coach.'
-        : 'Your day starts here: today’s training, what is due for another look, and anything new.',
+        ? 'Your day starts here: a note from your coach when they leave one, then everything set for today, with a button to start the round that is open.'
+        : 'Your day starts here: a note from your coach when they leave one, then everything set for today, with a button to start training.',
       icon: 'spark',
     },
   ];
@@ -117,7 +117,7 @@ export function tourSteps({
       : []),
     {
       key: 'matters',
-      where: 'On Today, when one is ready',
+      where: 'Menu: Learn, then Practise on a file',
       title: 'Matters',
       body: 'A practice file with a clock. Find the procedure, draft a short advice, record yourself explaining it, and answer follow-up questions on your draft. Then see how a lawyer would have done it, and a lawyer marks your work.',
       icon: 'briefcase',
@@ -128,16 +128,16 @@ export function tourSteps({
     steps.push(
       {
         key: 'work',
-        where: 'On Today: Work board',
+        where: 'Menu: Coach',
         title: 'The work board',
         body: 'Real pieces of work from our lawyers. Put your name on one, hand your work in, and the lawyer marks it and tells you what they would have done differently. Never upload anything that identifies a client.',
         icon: 'briefcase',
       },
       {
         key: 'month',
-        where: 'On Today',
+        where: 'On Today: Your programme',
         title: 'Your month',
-        body: 'The month week by week, the training file you work on, a short homework task for each working day, your coach’s videos, and what earns the certificate. All of it is linked from Today.',
+        body: 'The month week by week, today’s concept, the training file you work on, a short homework task for each working day, your coach’s videos, and what earns the certificate. All of it is on Your programme, linked from Today.',
         icon: 'calendar',
       },
     );

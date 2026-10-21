@@ -114,7 +114,6 @@ for (const width of WIDTHS) {
       const probe = await page.evaluate(PROBE);
       await page.addScriptTag({ content: AXE });
       const axe = await page.evaluate(async () => {
-        // eslint-disable-next-line no-undef
         const result = await axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] } });
         return result.violations.map((v) => `${v.id} (${v.impact}): ${v.nodes.length} ${v.nodes[0]?.target?.join(' ')}`);
       });

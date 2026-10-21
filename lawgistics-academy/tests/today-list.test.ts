@@ -6,6 +6,11 @@ const base: TodayInput = {
   today: '2026-10-17',
   beforeYouBegin: null,
   matter: null,
+  homeworkNote: null,
+  missedHomework: 0,
+  workOpen: 0,
+  nextMatter: null,
+  trainingHref: '/programme',
   needsDiagnostic: false,
   trainingOpen: true,
   rounds: null,
@@ -52,7 +57,7 @@ test('no training line when there is nothing to train on, and the diagnostic com
   assert.deepEqual(items.map((i) => i.key), ['diagnostic']);
 });
 
-test('work taken on: soonest due first, handed in counts as done, Good is left off', () => {
+test('work taken on: what still needs doing first, soonest due first, then handed in; Good is left off', () => {
   const items = todaysHomework({
     ...base,
     trainingOpen: false,
@@ -63,10 +68,11 @@ test('work taken on: soonest due first, handed in counts as done, Good is left o
       { id: 'd', title: 'Letter', dueOn: '2026-10-16', state: 'waiting' },
     ],
   });
-  assert.deepEqual(items.map((i) => i.label), ['Letter', 'List of authorities', 'Chronology']);
-  assert.equal(items[0].done, true);
-  assert.equal(items[1].meta, 'Hand in today');
-  assert.equal(items[1].urgent, true);
+  assert.deepEqual(items.map((i) => i.label), ['List of authorities', 'Chronology', 'Letter']);
+  assert.equal(items[0].meta, 'Hand in today');
+  assert.equal(items[0].urgent, true);
+  assert.equal(items[2].done, true);
+  assert.equal(items[2].meta, 'Handed in · waiting for your coach');
 });
 
 test('a video is listed but never ticked, so it does not count towards done', () => {
@@ -105,4 +111,60 @@ test('the training line can be started from the list, except while waiting for t
   assert.equal(open[0].start, 'Start');
   const waiting = todaysHomework({ ...base, rounds: [round(1, 'done', 10), round(2, 'upcoming')] });
   assert.equal(waiting[0].start, undefined);
+});
+
+test('work sent back is never pushed off the list by finished work', () => {
+  // The independent review's case: three handed in, one sent back with no date.
+  const items = todaysHomework({
+    ...base,
+    trainingOpen: false,
+    work: [
+      { id: 'a', title: 'A', dueOn: '2026-10-10', state: 'waiting' },
+      { id: 'b', title: 'B', dueOn: '2026-10-11', state: 'waiting' },
+      { id: 'c', title: 'C', dueOn: '2026-10-12', state: 'waiting' },
+      { id: 'd', title: 'Sent back', dueOn: null, state: 'again' },
+    ],
+  });
+  assert.equal(items[0].label, 'Sent back');
+  assert.equal(items[0].urgent, true);
+  assert.equal(items.filter((i) => i.key.startsWith('work-') && i.key !== 'work-open').length, 3);
+});
+
+test('a reply from the coach is said, and work open to take is a line', () => {
+  const items = todaysHomework({
+    ...base,
+    trainingOpen: false,
+    work: [{ id: 'a', title: 'Letter', dueOn: null, state: 'waiting', replyWaiting: true }],
+    workOpen: 2,
+  });
+  assert.equal(items[0].meta, 'Your coach has replied');
+  assert.equal(items[0].urgent, true);
+  assert.deepEqual(items[1], {
+    key: 'work-open',
+    label: '2 pieces of work you can take',
+    meta: 'From your coach · put your name on one',
+    href: '/work',
+    done: null,
+  });
+});
+
+test('the homework page is always reachable for somebody with a start date', () => {
+  const weekend = todaysHomework({ ...base, trainingOpen: false, homeworkNote: { meta: 'No homework today' }, missedHomework: 2 });
+  assert.deepEqual(weekend.map((i) => [i.key, i.href]), [['homework', '/homework'], ['homework-catch-up', '/homework']]);
+  assert.equal(weekend[1].meta, '2 earlier days are not ticked off');
+});
+
+test('rounds that do not count today are said, and lines without a button go somewhere', () => {
+  const none = todaysHomework({ ...base, rounds: [round(1, 'not_applicable'), round(2, 'not_applicable')] });
+  assert.equal(none[0].done, null);
+  assert.equal(none[0].href, '/programme');
+  const waiting = todaysHomework({ ...base, rounds: [round(1, 'done', 10), round(2, 'upcoming')] });
+  assert.equal(waiting[0].href, '/programme');
+});
+
+test('the next practice file is offered only when none is open', () => {
+  const next = { id: 'm2', title: 'Judgment in default' };
+  assert.ok(todaysHomework({ ...base, nextMatter: next }).some((i) => i.key === 'matter-next'));
+  const open = todaysHomework({ ...base, nextMatter: next, matter: { id: 'm1', title: 'Open one' } });
+  assert.ok(!open.some((i) => i.key === 'matter-next'));
 });

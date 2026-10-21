@@ -4555,6 +4555,21 @@ select pg_temp.expect_failure(
   $$update public.morning_notes set author_id = '33333333-3333-3333-3333-333333333333'
     where id = 'ffff0050-0000-0000-0000-000000000003'$$,
   'nor move one into another name');
+select pg_temp.expect_failure(
+  $$truncate public.morning_notes$$,
+  'nor empty the table of them');
+
+-- Another member of staff, with the code typed, cannot rewrite a coach's note.
+set local role authenticated;
+set local request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+set local request.jwt.claims = '{"sub":"33333333-3333-3333-3333-333333333333","aal":"aal2","role":"authenticated"}';
+select pg_temp.expect_failure(
+  $$update public.morning_notes set body = 'Rewritten by a colleague'
+    where id = 'ffff0050-0000-0000-0000-000000000003'$$,
+  'another member of staff cannot rewrite a coach''s note, even with the code typed');
+reset role;
+set local request.jwt.claim.sub = '';
+set local request.jwt.claims = '';
 
 -- Schema version ---------------------------------------------------------------
 -- The admin pages compare this with the version the code expects.

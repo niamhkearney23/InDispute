@@ -63,7 +63,7 @@ export default async function MorningNotesPage() {
               {n.authorId === userId ? (
                 <Link
                   href={`/admin/notes/${n.id}`}
-                  className="mt-2 inline-block min-h-8 text-sm text-accent underline underline-offset-4"
+                  className="mt-1 inline-flex min-h-11 items-center text-sm text-accent underline underline-offset-4"
                 >
                   Correct it
                 </Link>

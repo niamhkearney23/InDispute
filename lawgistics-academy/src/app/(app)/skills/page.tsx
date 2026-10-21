@@ -169,7 +169,7 @@ export default async function SkillsPage() {
         overview={overview}
         overall={last ? last.overall : null}
         answered={answeredInAll}
-      />
+       unreadable={marks === null} />
 
       {!hasData ? (
         <EmptyState

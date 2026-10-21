@@ -17,11 +17,14 @@ export function ProgressSummary({
   overview,
   overall,
   answered,
+  unreadable = false,
 }: {
   overview: Overview;
   /** Share of every answer ever given that was right, or null before any. */
   overall: number | null;
   answered: number;
+  /** The answers could not be read: say so, never "none yet". */
+  unreadable?: boolean;
 }) {
   const { level } = overview;
   return (
@@ -59,10 +62,14 @@ export function ProgressSummary({
         <div className="pr-3">
           <dt className="text-xs text-muted">Answers right</dt>
           <dd className="mt-1 font-serif text-[1.75rem] leading-none tabular-nums sm:text-3xl">
-            {overall === null ? '–' : `${overall}%`}
+            {unreadable || overall === null ? '–' : `${overall}%`}
           </dd>
           <dd className="mt-1.5 text-xs text-muted">
-            {answered === 0 ? 'none yet' : `of ${answered} answered`}
+            {unreadable
+              ? 'could not be read just now'
+              : answered === 0
+                ? 'none yet'
+                : `of ${answered} answered`}
           </dd>
         </div>
         <div className="px-3">

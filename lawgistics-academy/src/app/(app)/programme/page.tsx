@@ -22,8 +22,8 @@ export const metadata: Metadata = { title: 'The month' };
  * The month, week by week, for the people on it.
  *
  * Short on purpose: each week's title and its twenty days, one line each,
- * with the week and the day they are on marked. The detail of each day is on
- * the dashboard, on the day. Nothing here is
+ * with the week and the day they are on marked. Today's concept and its
+ * morning and afternoon are above the weeks. Nothing here is
  * recorded: the homework page records days, the work board records what
  * was handed in, and the register records the supervisor's decision. This
  * is the map those three sit on.

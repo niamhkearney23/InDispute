@@ -181,7 +181,3 @@ export function roundLabel(round: { opensLabel: string }): string {
   return round.opensLabel;
 }
 
-/** "8am", "11am": the local hour a round closes at. */
-export function closingLabel(round: { closesLabel: string }): string {
-  return round.closesLabel;
-}

@@ -38,7 +38,21 @@ export interface TodayInput {
   /** Everybody else's daily goal. */
   goal: { questions: number; answered: number };
   homework: { day: number; title: string; done: boolean } | null;
-  work: Array<{ id: string; title: string; dueOn: string | null; state: string }>;
+  /**
+   * Somebody with a start date on a day with no task of its own (before the
+   * start, a weekend or holiday, or after the last day): one line saying so,
+   * so the homework page is never out of reach.
+   */
+  homeworkNote: { meta: string } | null;
+  /** Earlier working days not yet ticked off. */
+  missedHomework: number;
+  work: Array<{ id: string; title: string; dueOn: string | null; state: string; replyWaiting?: boolean }>;
+  /** Work open to put your name on. */
+  workOpen: number;
+  /** A practice file not yet tried, when none is open. */
+  nextMatter: { id: string; title: string } | null;
+  /** Where the training line goes when it has no start button. */
+  trainingHref: string;
   session: { title: string } | null;
   /** A practice file this person has open, with its clock running. */
   matter: { id: string; title: string } | null;
@@ -58,7 +72,17 @@ function trainingItem(input: TodayInput): TodayItem | null {
   if (!input.trainingOpen || input.needsDiagnostic) return null;
   if (input.rounds) {
     const counted = input.rounds.filter((r) => r.state !== 'not_applicable');
-    if (counted.length === 0) return null;
+    if (counted.length === 0) {
+      // Said, rather than an empty list: rounds closed before they could
+      // count (confirmed today, or questions published today).
+      return {
+        key: 'training',
+        label: "This morning's rounds",
+        meta: 'Not counted today: they start counting from your next round',
+        href: input.trainingHref,
+        done: null,
+      };
+    }
     const open = counted.find((r) => r.state === 'open');
     if (open) {
       const left = Math.max(0, input.roundSize - open.answered);
@@ -79,7 +103,7 @@ function trainingItem(input: TodayInput): TodayItem | null {
         key: 'training',
         label: `Round ${next.number} questions`,
         meta: `Opens at ${next.opensLabel} · ${done} of ${counted.length} done so far`,
-        href: '#training',
+        href: input.trainingHref,
         done: false,
       };
     }
@@ -87,7 +111,7 @@ function trainingItem(input: TodayInput): TodayItem | null {
       key: 'training',
       label: "This morning's rounds",
       meta: `${done} of ${counted.length} done`,
-      href: '#training',
+      href: input.trainingHref,
       done: done === counted.length,
     };
   }
@@ -135,6 +159,19 @@ export function todaysHomework(input: TodayInput): TodayItem[] {
     });
   }
 
+  if (input.homeworkNote) {
+    items.push({ key: 'homework', label: 'Homework', meta: input.homeworkNote.meta, href: '/homework', done: null });
+  }
+  if (input.missedHomework > 0) {
+    items.push({
+      key: 'homework-catch-up',
+      label: 'Catch up on homework',
+      meta: `${input.missedHomework} earlier ${input.missedHomework === 1 ? 'day is' : 'days are'} not ticked off`,
+      href: '/homework',
+      done: false,
+    });
+  }
+
   if (input.session) {
     items.push({
       key: 'session',
@@ -145,10 +182,14 @@ export function todaysHomework(input: TodayInput): TodayItem[] {
     });
   }
 
-  // Work they took on that is not marked Good, soonest due first, at most three.
+  // Work they took on that is not marked Good, at most three: what still
+  // needs them first (sent back, then soonest due), what is handed in after,
+  // so a piece sent back for another go is never pushed off by finished work.
+  const rank = (w: TodayInput['work'][number]) =>
+    w.state === 'waiting' ? 2 : w.state === 'again' ? 0 : 1;
   const work = input.work
     .filter((w) => w.state !== 'good')
-    .sort((a, b) => (a.dueOn ?? '9999').localeCompare(b.dueOn ?? '9999'))
+    .sort((a, b) => rank(a) - rank(b) || (a.dueOn ?? '9999').localeCompare(b.dueOn ?? '9999'))
     .slice(0, 3);
   for (const w of work) {
     const waiting = w.state === 'waiting';
@@ -158,7 +199,9 @@ export function todaysHomework(input: TodayInput): TodayItem[] {
     items.push({
       key: `work-${w.id}`,
       label: w.title,
-      meta: waiting
+      meta: w.replyWaiting
+        ? 'Your coach has replied'
+        : waiting
         ? 'Handed in · waiting for your coach'
         : again
           ? 'Your coach asked for another go'
@@ -171,7 +214,17 @@ export function todaysHomework(input: TodayInput): TodayItem[] {
                 : 'No due date',
       href: `/work/${w.id}`,
       done: waiting,
-      urgent: !waiting && (again || dueToday || overdue),
+      urgent: Boolean(w.replyWaiting) || (!waiting && (again || dueToday || overdue)),
+    });
+  }
+
+  if (input.workOpen > 0) {
+    items.push({
+      key: 'work-open',
+      label: input.workOpen === 1 ? 'A piece of work you can take' : `${input.workOpen} pieces of work you can take`,
+      meta: 'From your coach · put your name on one',
+      href: '/work',
+      done: null,
     });
   }
 
@@ -183,6 +236,16 @@ export function todaysHomework(input: TodayInput): TodayItem[] {
       href: `/matters/${input.matter.id}`,
       done: false,
       urgent: true,
+    });
+  }
+
+  if (!input.matter && input.nextMatter) {
+    items.push({
+      key: 'matter-next',
+      label: input.nextMatter.title,
+      meta: 'Practice file · when you have time, against the clock',
+      href: `/matters/${input.nextMatter.id}`,
+      done: null,
     });
   }
 

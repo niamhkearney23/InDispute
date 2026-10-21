@@ -83,6 +83,7 @@ with checks(n, what, ok) as (
   (15, 'A coach''s morning note is never deleted and stays in its author''s name',
      to_regclass('public.morning_notes') is not null
      and exists (select 1 from pg_trigger where tgname = 'morning_notes_no_delete' and not tgisinternal)
+     and exists (select 1 from pg_trigger where tgname = 'morning_notes_no_truncate' and not tgisinternal)
      and exists (select 1 from pg_trigger where tgname = 'morning_notes_guard' and not tgisinternal))
 )
 select n as "#", what as "check", case when ok then 'OK' else 'NOT OK' end as result
