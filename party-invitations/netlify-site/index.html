@@ -187,6 +187,10 @@ figure a:hover img{transform:scale(1.03)}
     </form>
   </section>
 
+  <form name="opens" data-netlify="true" netlify-honeypot="bot-field" hidden>
+    <input name="guest"><input name="opened_at"><input name="device"><input name="bot-field">
+  </form>
+
   <p class="foot">Thomas Philip · Opening Statement 2027</p>
 </main>
 <script>
@@ -199,6 +203,16 @@ figure a:hover img{transform:scale(1.03)}
     document.getElementById('greet').hidden=false;
     document.title=n+', you’re invited · Opening Statement 2027';
     var f=document.getElementById('name'); if(f && !f.value) f.value=n;
+    // record the first open of this personal link on this device (Netlify Forms → "opens")
+    if(/^https?:$/.test(location.protocol)){
+      var key='os27-opened-'+n.toLowerCase(), seen=false;
+      try{seen=localStorage.getItem(key)==='1'}catch(e){}
+      if(!seen){
+        var body=new URLSearchParams({'form-name':'opens',guest:n,opened_at:new Date().toISOString(),device:/Mobi|Android|iPhone/i.test(navigator.userAgent)?'Phone':'Computer'});
+        fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString()})
+          .then(function(r){if(r.ok){try{localStorage.setItem(key,'1')}catch(e){}}}).catch(function(){});
+      }
+    }
   }catch(e){}
 })();
 </script>
