@@ -310,8 +310,18 @@ body::before{content:"";position:fixed;inset:0;background:#000;opacity:0;pointer
         <input type="text" id="name" name="name" required autocomplete="name" placeholder="Your full name">
       </div>
 
+      <div class="field">
+        <label class="lbl" for="firm"><span>02</span>Firm / Organization</label>
+        <input type="text" id="firm" name="firm" required autocomplete="organization">
+      </div>
+
+      <div class="field">
+        <label class="lbl" for="invited_by"><span>03</span>Invited by</label>
+        <input type="text" id="invited_by" name="invited_by" required>
+      </div>
+
       <fieldset class="field">
-        <legend class="lbl"><span>02</span>Attendance</legend>
+        <legend class="lbl"><span>04</span>Attendance</legend>
         <div class="boxes">
           <label class="box"><input type="radio" name="attending" value="Yes" required><i class="tick" aria-hidden="true"><svg viewBox="0 0 30 30"><path d="M5 16.5c2.6 2 4.6 4.3 6.6 7.4C15 15.6 19.4 9.8 26 4.5"/></svg></i><span>Joyfully accepts</span></label>
           <label class="box"><input type="radio" name="attending" value="No"><i class="tick" aria-hidden="true"><svg viewBox="0 0 30 30"><path d="M5 16.5c2.6 2 4.6 4.3 6.6 7.4C15 15.6 19.4 9.8 26 4.5"/></svg></i><span>Regretfully declines</span></label>
@@ -319,7 +329,7 @@ body::before{content:"";position:fixed;inset:0;background:#000;opacity:0;pointer
       </fieldset>
 
       <fieldset class="field guests" id="guests">
-        <legend class="lbl"><span>03</span>Guests</legend>
+        <legend class="lbl"><span>05</span>Guests</legend>
         <div class="seg">
           <label><input type="radio" name="guests" value="Just me" checked>Just me</label>
           <label><input type="radio" name="guests" value="+1">+1</label>
@@ -329,12 +339,12 @@ body::before{content:"";position:fixed;inset:0;background:#000;opacity:0;pointer
       </fieldset>
 
       <div class="field">
-        <label class="lbl" for="email"><span>04</span>Email (optional)</label>
+        <label class="lbl" for="email"><span>06</span>Email (optional)</label>
         <input type="email" id="email" name="email" autocomplete="email" placeholder="you@example.com">
       </div>
 
       <div class="field">
-        <label class="lbl" for="note"><span>05</span>Dietary needs or a note (optional)</label>
+        <label class="lbl" for="note"><span>07</span>Dietary needs or a note (optional)</label>
         <textarea id="note" name="note" maxlength="300" rows="3"></textarea>
       </div>
 
@@ -478,6 +488,9 @@ body::before{content:"";position:fixed;inset:0;background:#000;opacity:0;pointer
     if(btn.disabled) return;
     form.querySelectorAll('.invalid').forEach(function(f){f.classList.remove('invalid')});
     if(!nameEl.value.trim()) return problem('Please add your name.',nameEl.closest('.field'));
+    var firm=document.getElementById('firm'), inv=document.getElementById('invited_by');
+    if(!firm.value.trim()) return problem('Please add your firm or organization.',firm.closest('.field'));
+    if(!inv.value.trim()) return problem('Please add who invited you.',inv.closest('.field'));
     if(!form.elements.attending.value) return problem('Please tick whether you are coming.',form.querySelector('.boxes').closest('.field'));
     var email=document.getElementById('email');
     if(email.value.trim()&&!email.checkValidity()) return problem('That email address does not look right.',email.closest('.field'));
