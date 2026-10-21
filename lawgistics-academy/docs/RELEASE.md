@@ -1,6 +1,6 @@
 # Releasing this version: staging first, then the live site
 
-This release changes the database (migrations `0043` to `0048`) and the
+This release changes the database (migrations `0043` to `0052`) and the
 website. The database goes first, on a restored copy, then on the live
 project, then the website. Nothing in here is done for you: each step is
 yours to approve and do.
@@ -23,8 +23,12 @@ release:
 | 0046 | Unsigned lessons, court maps, essays and matters hidden from learners | No |
 | 0047 | A staff role counts in the database only after the six-digit code | No |
 | 0048 | Fixes the sign-off guard failing on Supabase ("permission denied for table users") | No |
+| 0049 | Every nightly deletion check is recorded, and an unfinished deletion raises an alarm | Adds a table; nothing removed |
+| 0050 | Morning notes from the coach | Adds a table; nothing removed |
+| 0051 | A lawyer's sign-off past its date stops the content; no table can be emptied, and the firm's records cannot be deleted, by the app | No rows change. Deleting a person in Supabase Auth now fails for anybody with such records |
+| 0052 | A sign-off that has run out goes back to the review queue, with a kept record of it | **Yes**: any question or daily fact already past its sign-off date goes back to review |
 
-The file ends by recording the version (`schema_version()` returns `0048`).
+The file ends by recording the version (`schema_version()` returns `0052`).
 
 ## 1. Rehearse on a restored copy (staging)
 
@@ -141,8 +145,8 @@ Immediately before:
 
 1. **SQL Editor, New query**, paste `before-update.sql`, **Run**, keep it.
 2. New query, paste the whole of `UPDATE.sql`, **Run**.
-3. New query, paste `after-update.sql`, **Run**. Fourteen OK; counts as
-   expected.
+3. New query, paste `after-update.sql`, **Run**. All seventeen OK; counts
+   as expected.
 
 The live website keeps working while the database is ahead of it. Checked
 on the throwaway Supabase: the older website's learner pages (Today, Learn,
@@ -177,11 +181,12 @@ Follow `docs/ROLLBACK.md`. In short: restrict access first (`SITE_ACCESS`
 set to `staff-closed` or `closed` in Vercel, then Redeploy), then fix
 forward. The website is never put back to a build that does not ask staff
 for the code (commit `b0161d8` or earlier), and no database change from
-`0043` to `0048` is ever undone.
+`0043` to `0052` is ever undone.
 
-**The data:** the update's only change to existing rows is taking unsigned
-questions and facts back to review (0044), which a lawyer reverses by
-signing them off and publishing them. Restoring the backup from step 2 is
+**The data:** the update's only changes to existing rows are taking unsigned
+questions and facts back to review (0044) and taking any whose sign-off has
+run out back to review (0052, which keeps a record of each), which a lawyer
+reverses by signing them off again and publishing them. Restoring the backup from step 2 is
 the last resort, because it also loses anything done since; how to do it
 with the website closed until `UPDATE.sql` has been run again is section 4
 of `docs/ROLLBACK.md`.

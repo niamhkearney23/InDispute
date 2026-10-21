@@ -86,22 +86,39 @@ with checks(n, what, ok) as (
      and exists (select 1 from pg_trigger where tgname = 'morning_notes_no_truncate' and not tgisinternal)
      and exists (select 1 from pg_trigger where tgname = 'morning_notes_guard' and not tgisinternal)),
 
-  (16, 'A sign-off past its date stops the question or fact, and no table can be emptied by the app',
+  (16, 'A sign-off past its date stops the question or fact; no table can be emptied, and kept records cannot be deleted, by the app',
      (select pg_get_viewdef('public.v_question_delivery'::regclass) like '%review_due_on%')
      and exists (select 1 from pg_policies where tablename = 'daily_facts'
                   and policyname = 'daily_facts_read_published' and qual like '%review_due_on%')
+     -- Nobody the app runs as can empty any table.
      and not exists (
        select 1 from pg_class c join pg_namespace n on n.oid = c.relnamespace,
               unnest(array['anon', 'authenticated', 'service_role']) as r(role)
         where n.nspname = 'public' and c.relkind in ('r', 'p')
           and has_table_privilege(r.role, c.oid, 'TRUNCATE'))
-     and not has_table_privilege('service_role', 'public.account_erasures', 'DELETE')
-     and not has_table_privilege('service_role', 'public.content_signoffs', 'DELETE')
-     and exists (select 1 from pg_trigger where tgname = 'account_erasures_keep_unfinished' and not tgisinternal)
-     and (select count(*) from pg_trigger where not tgisinternal and tgname in (
-          'firm_module_acknowledgements_kept', 'firm_step_declarations_kept', 'firm_step_confirmations_kept',
-          'onboarding_decisions_kept', 'homework_declarations_kept', 'work_submissions_kept',
-          'certificates_kept', 'matter_attempts_kept')) = 8),
+     -- Nor delete a kept record, not even the server.
+     and not exists (
+       select 1 from unnest(array[
+              'account_erasures', 'erasure_review_items', 'lesson_signoffs', 'content_signoffs',
+              'certification_trainees', 'certification_entries', 'morning_notes',
+              'firm_module_acknowledgements', 'firm_step_declarations', 'firm_step_confirmations',
+              'onboarding_decisions', 'homework_declarations', 'work_submissions',
+              'certificates', 'matter_attempts']) as t(name),
+              unnest(array['anon', 'authenticated', 'service_role']) as r(role)
+        where has_table_privilege(r.role, 'public.' || t.name, 'DELETE'))
+     -- And the triggers that refuse a deleted row even on a cascade are on
+     -- the right tables, switched on, and call the right function.
+     and (select count(distinct c.relname) from pg_trigger tg
+            join pg_class c on c.oid = tg.tgrelid join pg_proc p on p.oid = tg.tgfoid
+           where p.proname = 'refuse_record_delete' and tg.tgenabled = 'O'
+             and c.relname in ('firm_module_acknowledgements', 'firm_step_declarations',
+                               'firm_step_confirmations', 'onboarding_decisions',
+                               'homework_declarations', 'work_submissions',
+                               'certificates', 'matter_attempts')) = 8
+     and (select count(distinct c.relname) from pg_trigger tg
+            join pg_class c on c.oid = tg.tgrelid join pg_proc p on p.oid = tg.tgfoid
+           where p.proname = 'keep_unfinished_erasure' and tg.tgenabled = 'O'
+             and c.relname in ('account_erasures', 'erasure_review_items')) = 2),
 
   (17, 'A sign-off that ran out goes back to review, with a kept record, and none is still published',
      to_regclass('public.content_lapses') is not null

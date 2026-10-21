@@ -2676,7 +2676,10 @@ set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
 update public.coach_sessions set title = 'Audit session, edited'
   where id = 'dddd0036-0000-0000-0000-000000000001';
 delete from public.coach_sessions where id = 'dddd0036-0000-0000-0000-000000000001';
-delete from public.certification_trainees where id = 'aaaa0036-0000-0000-0000-000000000001';
+-- Refused outright since 0051 took the right away; before, RLS found no row.
+select pg_temp.expect_failure(
+  $$delete from public.certification_trainees where id = 'aaaa0036-0000-0000-0000-000000000001'$$,
+  'a coach''s delete of a certification trainee is refused');
 delete from public.work_posts where id = 'bbbb0001-0000-0000-0000-000000000002';
 reset role;
 select pg_temp.expect(

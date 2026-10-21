@@ -114,6 +114,12 @@ revoke delete on public.lesson_signoffs from service_role;
 revoke delete on public.content_signoffs from service_role;
 revoke delete on public.certification_trainees from service_role;
 revoke delete on public.certification_entries from service_role;
+-- Learners and staff had the right on these three but no policy that used
+-- it, so Row Level Security refused every delete; the right goes too, so
+-- the protection does not rest on a policy never being added.
+revoke delete on public.lesson_signoffs from public, anon, authenticated;
+revoke delete on public.certification_trainees from public, anon, authenticated;
+revoke delete on public.certification_entries from public, anon, authenticated;
 
 create or replace function public.keep_unfinished_erasure()
 returns trigger language plpgsql set search_path = public as $$

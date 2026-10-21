@@ -12,7 +12,7 @@ Two things are never done, whatever the problem:
    six-digit code.** That is any build from commit `b0161d8` or earlier (the
    website before the release that added two-step sign-in).
 2. **Never relax a database control.** No "undo" of migrations `0043` to
-   `0048`, no SQL that switches off Row Level Security, drops a policy or
+   `0052`, no SQL that switches off Row Level Security, drops a policy or
    changes who counts as staff. The old file that undid `0047` has been
    withdrawn for exactly this reason: it let a staff password alone read
    staff data again.
@@ -92,7 +92,7 @@ before the release). A restore also loses everything done since.
    Point in Time Recovery, the time chosen).
 3. Straight away, before anything else: **SQL Editor**, **New query**, paste
    the whole of `supabase/UPDATE.sql`, **Run**. The restored database does not
-   have `0043` to `0048` until this is done, so keep this gap as short as
+   have `0043` to `0052` until this is done, so keep this gap as short as
    you can.
 4. New query, paste `supabase/checks/after-update.sql`, **Run**. All seventeen
    checks must say **OK**. If any says NOT OK, stop here, leave the website
