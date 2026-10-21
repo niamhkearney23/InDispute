@@ -804,10 +804,14 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   (a video site, a logo, a payment page) needs adding there, and frame-src is
   built from `src/lib/lessons/embed.ts`. Downloads and the cartoon keep their
   own stricter policy in `next.config.ts`.
-- 645 tests, 570 schema guarantees against a real Postgres (fresh, and SETUP
-  then UPDATE again), 477 page and device combinations (the five-device sweep in October
-  2026, after 0045 to 0048) and 33 accessibility combinations checked, and 20 integration tests on a throwaway Supabase
-  (`npm run test:integration`). Contract tests are
+- Verified on 21 October 2026 at commit `65d5fc4` (after 0051): 684 unit and
+  contract tests, 602 schema guarantees against a real Postgres (fresh, and
+  SETUP then UPDATE again), 52 integration tests on a throwaway Supabase
+  (`npm run test:integration`, twice, each on a freshly created database),
+  485 page and device combinations in the five-device sweep, and 144 page
+  states at 320, 375, 390 and 430px (`tools/visual-qa/widths-check.mjs`, as
+  a staff member, a trainee and an Australian learner: no sideways scroll,
+  every target 44px, axe WCAG 2.1 AA). None failed or was skipped. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB
   before the app sees it; the forms check before sending. Larger files would

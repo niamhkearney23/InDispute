@@ -460,7 +460,7 @@ it as a secret.
 ## Testing
 
 ```bash
-npm run test        # 543 tests: engine, content, triage, and the contract tests below
+npm run test        # 684 tests (21 October 2026): engine, content, triage, and the contract tests below
 npm run typecheck
 npm run lint
 npm run build
