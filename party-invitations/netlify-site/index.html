@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Opening Statement 2027 · Thomas Philip</title>
+<meta name="description" content="Thomas Philip presents Opening Statement 2027, a New Year's Party. Friday, 8 January 2027, 8 PM till late.">
+<meta property="og:title" content="Opening Statement 2027 · Thomas Philip">
+<meta property="og:description" content="New Year's Party · Friday, 8 January 2027 · 8 PM till late. RSVP here.">
+<meta property="og:image" content="images/black-and-gold-share.jpg">
+<meta name="theme-color" content="#0d0c0b">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,600;1,6..96,500;1,6..96,600&family=Archivo:wght@500;600;700&display=swap">
+<style>
+/* Layout: the invitation as a dark card, a row of the three designs, then the RSVP slip. Single dark look by design. */
+:root{
+  --ink:#0d0c0b; --card:#141210; --gold:#dcc596; --gold-hi:#f1e3bf; --gold-lo:#a98f5f; --soft:#e9dfc9;
+  --rule:rgba(220,197,150,.28);
+  --serif:"Bodoni Moda","Didot","Bodoni 72",Georgia,serif;
+  --sans:"Archivo","Helvetica Neue",Arial,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--ink);color:var(--soft);font-family:var(--sans);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px;
+  background-image:radial-gradient(ellipse 80% 40% at 50% 0%,rgba(220,197,150,.07),transparent 70%)}
+img{max-width:100%;height:auto;display:block}
+.wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+.foil{background:linear-gradient(115deg,var(--gold-lo) 0%,var(--gold-hi) 30%,#cdb284 48%,var(--gold-hi) 68%,var(--gold-lo) 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.invite{text-align:center;display:flex;flex-direction:column;align-items:center;padding-top:16px}
+.host{font-family:var(--serif);font-weight:600;letter-spacing:.24em;font-size:clamp(18px,4.2vw,26px);margin:0 0 0 .24em}
+.presents{font-weight:600;letter-spacing:.42em;font-size:11px;color:var(--gold);margin:10px 0 0 .42em}
+.year{font-family:var(--serif);font-weight:500;font-size:clamp(110px,28vw,210px);line-height:.95;letter-spacing:-.04em;margin:20px 0 0}
+.title{font-family:var(--serif);font-weight:500;font-size:clamp(44px,10vw,76px);line-height:.92;margin:12px 0 0}
+.title em{font-style:italic;font-weight:600;display:block}
+.party{font-weight:700;letter-spacing:.3em;font-size:clamp(13px,3vw,16px);color:var(--gold);margin:30px 0 0 .3em}
+.tag{font-family:var(--serif);font-style:italic;font-weight:500;font-size:clamp(19px,4.4vw,24px);line-height:1.3;margin:20px 0 0}
+.short{width:48px;height:1px;background:var(--rule);margin:26px auto}
+.details{font-weight:700;letter-spacing:.12em;font-size:clamp(15px,3.6vw,18px);line-height:1.6;color:var(--gold);margin:0}
+.venue{font-weight:600;letter-spacing:.16em;font-size:12px;color:var(--gold);opacity:.8;margin:8px 0 0}
+.cta{display:inline-block;margin-top:32px;background:linear-gradient(115deg,#b89c69,#ecdcb4 45%,#c9ad7c);color:#16130e;text-decoration:none;font-weight:700;letter-spacing:.24em;font-size:13px;padding:16px 28px}
+.cta:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+h2{font-family:var(--serif);font-weight:500;font-style:italic;font-size:clamp(28px,6vw,36px);margin:0;color:var(--gold-hi);text-align:center}
+.lead{text-align:center;margin:10px auto 0;max-width:52ch;line-height:1.55;opacity:.8}
+.designs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:28px}
+@media (max-width:760px){.designs{grid-template-columns:1fr;max-width:420px;margin-inline:auto}}
+figure{margin:0;display:flex;flex-direction:column;gap:10px}
+figure a{display:block;border:1px solid var(--rule)}
+figure a:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+figcaption{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);text-align:center}
+figcaption span{display:block;text-transform:none;letter-spacing:0;font-size:14px;color:var(--soft);opacity:.7;margin-top:4px}
+.slip{border:1px solid var(--rule);background:var(--card);padding:32px clamp(20px,5vw,44px);max-width:620px;width:100%;margin:0 auto}
+form{display:flex;flex-direction:column;gap:22px;margin-top:24px}
+.lbl{display:block;font-weight:600;letter-spacing:.2em;font-size:11px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.choice{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choice.three{grid-template-columns:repeat(3,1fr)}
+@media (max-width:480px){.choice.three{grid-template-columns:1fr}}
+.choice input{position:absolute;opacity:0;pointer-events:none}
+.choice label{display:block;text-align:center;padding:14px 8px;border:1px solid var(--rule);cursor:pointer;font-family:var(--serif);font-size:17px}
+.choice input:checked+label{border-color:var(--gold);background:rgba(220,197,150,.1);color:var(--gold-hi)}
+.choice input:focus-visible+label{outline:2px solid var(--gold);outline-offset:2px}
+input[type=text],input[type=email],select,textarea{width:100%;background:transparent;border:1px solid var(--rule);color:var(--soft);font:inherit;font-size:16px;padding:12px 14px}
+select option{background:var(--card)}
+textarea{min-height:80px;resize:vertical}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.btn{appearance:none;border:0;cursor:pointer;background:linear-gradient(115deg,#b89c69,#ecdcb4 45%,#c9ad7c);color:#16130e;font-family:var(--sans);font-weight:700;letter-spacing:.24em;font-size:13px;text-transform:uppercase;padding:16px 20px}
+.hp{position:absolute;left:-9999px}
+.foot{text-align:center;font-size:13px;opacity:.55;margin:0}
+
+/* ---- motion: one orchestrated entrance, a slow foil sheen, quiet hovers ---- */
+.foil{background-size:220% 100%;animation:sheen 9s ease-in-out infinite}
+@keyframes sheen{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.invite>*{animation:rise 1.1s cubic-bezier(.2,.7,.2,1) both}
+.invite>:nth-child(1){animation-delay:.05s}.invite>:nth-child(2){animation-delay:.18s}
+.invite>:nth-child(3){animation-delay:.32s}.invite>:nth-child(4){animation-delay:.52s}
+.invite>:nth-child(5){animation-delay:.72s}.invite>:nth-child(6){animation-delay:.86s}
+.invite>:nth-child(7){animation-delay:1s}.invite>:nth-child(8){animation-delay:1.1s}
+.invite>:nth-child(9){animation-delay:1.2s}.invite>:nth-child(10){animation-delay:1.35s}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.year .foil{animation:rise 1.2s cubic-bezier(.2,.7,.2,1) .32s both,sheen 9s ease-in-out 1.5s infinite}
+.title.foil{animation:rise 1.2s cubic-bezier(.2,.7,.2,1) .52s both,sheen 9s ease-in-out 1.5s infinite}
+.host.foil{animation:rise 1.1s cubic-bezier(.2,.7,.2,1) .05s both,sheen 9s ease-in-out 1.5s infinite}
+.short{animation:draw 1s ease-out 1.05s both;transform-origin:center}
+@keyframes draw{from{transform:scaleX(0);opacity:0}to{transform:scaleX(1);opacity:1}}
+.year{position:relative}
+.glint{position:absolute;width:34px;height:34px;pointer-events:none;animation:twinkle 4.5s ease-in-out infinite}
+.glint::before,.glint::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+.glint::before{width:1.5px;height:100%;background:linear-gradient(transparent,var(--gold-hi),transparent)}
+.glint::after{height:1.5px;width:100%;background:linear-gradient(90deg,transparent,var(--gold-hi),transparent)}
+.g7{right:-4px;top:2px}.g2{left:15%;top:4px;width:22px;height:22px;animation-delay:2.2s}
+@keyframes twinkle{0%,100%{opacity:.25;transform:scale(.7) rotate(0)}45%{opacity:1;transform:scale(1) rotate(45deg)}60%{opacity:.85}}
+.cta,.btn{position:relative;overflow:hidden;transition:transform .25s ease,box-shadow .25s ease}
+.cta::after,.btn::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);transform:translateX(-120%);transition:transform .8s ease}
+.cta:hover,.btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px -10px rgba(220,197,150,.45)}
+.cta:hover::after,.btn:hover::after{transform:translateX(120%)}
+figure a{overflow:hidden;transition:border-color .3s ease,box-shadow .4s ease,transform .4s ease}
+figure img{transition:transform .8s cubic-bezier(.2,.7,.2,1)}
+figure a:hover{border-color:var(--gold);transform:translateY(-4px);box-shadow:0 18px 40px -18px rgba(220,197,150,.4)}
+figure a:hover img{transform:scale(1.03)}
+.choice label{transition:border-color .2s,background .2s,color .2s}
+.reveal{animation:rise 1s cubic-bezier(.2,.7,.2,1) both;animation-timeline:view();animation-range:entry 0% cover 30%}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <section class="invite" aria-label="Invitation">
+    <p class="host foil">THOMAS PHILIP</p>
+    <p class="presents">PRESENTS</p>
+    <div class="year"><span class="foil">2027</span><i class="glint g7" aria-hidden="true"></i><i class="glint g2" aria-hidden="true"></i></div>
+    <h1 class="title foil"><em>Opening</em>Statement</h1>
+    <p class="party">NEW YEAR’S PARTY</p>
+    <p class="tag">With good company.<br>And that is TP’s guarantee.</p>
+    <div class="short" aria-hidden="true"></div>
+    <p class="details">FRIDAY, 8 JANUARY 2027<br>8 PM TILL LATE</p>
+    <p class="venue">VENUE TO BE CONFIRMED</p>
+    <a class="cta" href="#rsvp">RSVP</a>
+  </section>
+
+  <section aria-labelledby="designs-h">
+    <h2 id="designs-h">The invitation</h2>
+    <p class="lead">Three designs are in the running. Tap one to see it full size, then pick your favourite when you reply.</p>
+    <div class="designs">
+      <figure>
+        <a href="images/black-and-gold.jpg" target="_blank" rel="noopener"><img src="images/black-and-gold.jpg" width="1080" height="1350" loading="lazy" alt="Black and gold invitation with a large gold 2027 and Opening Statement in serif type"></a>
+        <figcaption>1 · Black &amp; Gold<span>Elegant and after-dark</span></figcaption>
+      </figure>
+      <figure>
+        <a href="images/party-approved.jpg" target="_blank" rel="noopener"><img src="images/party-approved.jpg" width="1080" height="1350" loading="lazy" alt="Cream legal notice invitation with a red Party Approved stamp"></a>
+        <figcaption>2 · Party Approved<span>A playful legal notice</span></figcaption>
+      </figure>
+      <figure>
+        <a href="images/navy-and-gold.jpg" target="_blank" rel="noopener"><img src="images/navy-and-gold.jpg" width="1080" height="1350" loading="lazy" alt="Navy invitation with large gold 2, 0, 2, 7 numerals around the event details"></a>
+        <figcaption>3 · Navy &amp; Gold<span>Bold gold numerals</span></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="slip" id="rsvp" aria-labelledby="rsvp-h">
+    <h2 id="rsvp-h">Kindly reply</h2>
+    <form name="rsvp" method="POST" action="/thanks.html" data-netlify="true" netlify-honeypot="bot-field">
+      <input type="hidden" name="form-name" value="rsvp">
+      <p class="hp"><label>Leave this empty <input name="bot-field"></label></p>
+      <div>
+        <label class="lbl" for="name">Your name</label>
+        <input type="text" id="name" name="name" required autocomplete="name">
+      </div>
+      <div>
+        <label class="lbl" for="email">Email (optional)</label>
+        <input type="email" id="email" name="email" autocomplete="email">
+      </div>
+      <div>
+        <span class="lbl" id="att-l">Will you attend?</span>
+        <div class="choice" role="radiogroup" aria-labelledby="att-l">
+          <input type="radio" name="attending" id="att-yes" value="Yes" required><label for="att-yes">Joyfully accepts</label>
+          <input type="radio" name="attending" id="att-no" value="No"><label for="att-no">Regretfully declines</label>
+        </div>
+      </div>
+      <div>
+        <label class="lbl" for="guests">Guests joining you</label>
+        <select id="guests" name="guests">
+          <option value="0">Just me</option>
+          <option value="1">Me + 1</option>
+          <option value="2">Me + 2</option>
+          <option value="3">Me + 3</option>
+        </select>
+      </div>
+      <div>
+        <span class="lbl" id="fav-l">Favourite design</span>
+        <div class="choice three" role="radiogroup" aria-labelledby="fav-l">
+          <input type="radio" name="favourite" id="fav-1" value="Black & Gold"><label for="fav-1">Black &amp; Gold</label>
+          <input type="radio" name="favourite" id="fav-2" value="Party Approved"><label for="fav-2">Party Approved</label>
+          <input type="radio" name="favourite" id="fav-3" value="Navy & Gold"><label for="fav-3">Navy &amp; Gold</label>
+        </div>
+      </div>
+      <div>
+        <label class="lbl" for="note">Dietary needs or a note (optional)</label>
+        <textarea id="note" name="note" maxlength="300"></textarea>
+      </div>
+      <button class="btn" type="submit">Send my reply</button>
+    </form>
+  </section>
+
+  <p class="foot">Thomas Philip · Opening Statement 2027</p>
+</main>
+</body>
+</html>
