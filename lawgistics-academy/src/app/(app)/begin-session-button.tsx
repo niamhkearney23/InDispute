@@ -46,7 +46,13 @@ export function BeginSessionButton({
     // takes the whole flex row, which strands the button against its own
     // left edge and squeezes everything beside it.
     <div className={compact ? 'shrink-0' : 'w-full sm:w-auto'}>
-      <Button size={compact ? 'sm' : 'lg'} variant={variant} disabled={pending} onClick={start}>
+      <Button
+        size={compact ? 'sm' : 'lg'}
+        variant={variant}
+        disabled={pending}
+        onClick={start}
+        className={compact ? 'min-h-11' : undefined}
+      >
         {pending ? 'Preparing…' : label}
       </Button>
       {error ? (

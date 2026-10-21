@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Link from '@/components/app-link';
 import { requireReviewer } from '@/lib/admin/guard';
 import { rosterWithStatus } from '@/lib/certification/service';
 import { CERTIFICATION_BOXES_REQUIRED_COUNT } from '@/content/seed/certification-boxes';

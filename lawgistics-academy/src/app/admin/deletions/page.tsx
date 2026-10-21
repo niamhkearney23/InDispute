@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Link from '@/components/app-link';
 import { requireAdmin } from '@/lib/admin/guard';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { DEFAULT_TIMEZONE } from '@/lib/types';

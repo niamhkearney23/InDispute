@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/app-link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/components/ui';
 import { BookIcon, ChartIcon, ChatIcon, PersonIcon, SunIcon } from '@/components/icons';

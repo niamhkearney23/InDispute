@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Link from '@/components/app-link';
 import { findInvitation, problemMessage } from '@/lib/onboarding/invitations';
 import { brand } from '@/lib/brand';
 import { longDate } from '@/lib/onboarding/rules';

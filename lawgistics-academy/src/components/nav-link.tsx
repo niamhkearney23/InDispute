@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/app-link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/components/ui';
 
@@ -31,7 +31,10 @@ export function NavLink({
       href={href}
       aria-current={active ? 'page' : undefined}
       className={cn(
-        'relative rounded-[5px] px-2 py-2 whitespace-nowrap transition-colors sm:px-2.5',
+        // No display here: the header decides which links show at which width
+        // (hidden on a phone, where the bottom menu has them), and a display
+        // in this list would quietly win over its `hidden`.
+        'relative min-h-11 items-center rounded-[5px] px-2 py-2 whitespace-nowrap transition-colors sm:px-2.5',
         active
           ? 'font-medium text-ink after:absolute after:inset-x-2 after:bottom-1 after:h-0.5 after:rounded-full after:bg-accent sm:after:inset-x-2.5'
           : 'text-slate hover:text-ink',

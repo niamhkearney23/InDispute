@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Link from '@/components/app-link';
 import { notFound, redirect } from 'next/navigation';
 import { z } from 'zod';
 import { getCurrentUser } from '@/lib/supabase/server';

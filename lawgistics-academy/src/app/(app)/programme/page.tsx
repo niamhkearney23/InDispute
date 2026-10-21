@@ -12,7 +12,7 @@ import { brand } from '@/lib/brand';
 import { ButtonLink, Card, Pill, cn } from '@/components/ui';
 import { requireAccess } from '@/lib/access/service';
 import { scheduleForPerson } from '@/lib/training/cohorts';
-import Link from 'next/link';
+import Link from '@/components/app-link';
 import { RoundsCalendar } from '@/components/rounds-calendar';
 import { roundsHistory } from '@/lib/training/rounds-service';
 
@@ -65,7 +65,7 @@ export default async function ProgrammePage() {
           {PROGRAMME.length}, {PROGRAMME.days}, on one file.
         </p>
         <p className="mt-3 text-sm">
-          <ButtonLink href="/programme/file" variant="outline" size="sm">
+          <ButtonLink href="/programme/file" variant="outline" size="sm" className="min-h-11">
             {TRAINING_FILE.shortName}: the matter you work on
           </ButtonLink>
         </p>
@@ -139,10 +139,10 @@ export default async function ProgrammePage() {
           return (
             <li key={week.number}>
               <Card
-                className={cn(
-                  isNow && 'border-accent/40 bg-accent-wash',
-                  isPast && 'opacity-80',
-                )}
+                // A past week is marked Done rather than faded: fading the
+                // card took its small labels below the 4.5:1 contrast AA
+                // asks for (axe, October 2026).
+                className={cn(isNow && 'border-accent/40 bg-accent-wash')}
               >
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="eyebrow">Week {week.number}</p>

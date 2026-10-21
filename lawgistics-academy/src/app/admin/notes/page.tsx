@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Link from '@/components/app-link';
 import { requireCoach } from '@/lib/admin/guard';
 import { recentNotes } from '@/lib/notes/service';
 import { getLearnerProfile } from '@/lib/learner-overview';

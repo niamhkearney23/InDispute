@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
+import Link from '@/components/app-link';
 import { ButtonLink, cn } from '@/components/ui';
 import {
   ArrowIcon,

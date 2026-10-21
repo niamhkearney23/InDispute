@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Link from '@/components/app-link';
 import { requireFirmAdmin } from '@/lib/admin/guard';
 import { Card } from '@/components/ui';
 import { createServiceClient } from '@/lib/supabase/service';

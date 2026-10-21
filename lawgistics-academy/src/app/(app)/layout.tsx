@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/app-link';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
@@ -94,7 +94,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-2 px-4 py-2.5 sm:gap-4 sm:px-8 sm:py-3.5">
           <Link
             href="/dashboard"
-            className="-mx-1 shrink-0 rounded-[5px] px-1 py-2 hover:bg-paper-sunk"
+            className="-mx-1 flex min-h-11 shrink-0 items-center rounded-[5px] px-1 py-2 hover:bg-paper-sunk"
           >
             <Wordmark compact />
           </Link>
@@ -103,32 +103,32 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             {/* On a phone these four and the account link live in the menu
                 at the foot of the screen (BottomNav), so the header keeps
                 only what is not there. */}
-            <NavLink href="/dashboard" className="hidden hover:bg-paper-sunk sm:block">
+            <NavLink href="/dashboard" className="hidden hover:bg-paper-sunk sm:inline-flex">
               Today
             </NavLink>
-            <NavLink href="/modules" className="hidden hover:bg-paper-sunk sm:block">
+            <NavLink href="/modules" className="hidden hover:bg-paper-sunk sm:inline-flex">
               Learn
             </NavLink>
-            <NavLink href="/work" className="hidden hover:bg-paper-sunk sm:block">
+            <NavLink href="/work" className="hidden hover:bg-paper-sunk sm:inline-flex">
               Coach
             </NavLink>
-            <NavLink href="/skills" className="hidden hover:bg-paper-sunk sm:block">
+            <NavLink href="/skills" className="hidden hover:bg-paper-sunk sm:inline-flex">
               Progress
             </NavLink>
             {courtsShown ? (
-              <NavLink href="/courts" className="hover:bg-paper-sunk">
+              <NavLink href="/courts" className="inline-flex hover:bg-paper-sunk">
                 Courts
               </NavLink>
             ) : null}
             {profile?.isAdmin ? (
-              <NavLink href="/admin" className="hover:bg-paper-sunk">
+              <NavLink href="/admin" className="inline-flex hover:bg-paper-sunk">
                 Admin
               </NavLink>
             ) : profile?.isCoach || profile?.isFirmAdmin ? (
               // A coach's way in. Without it the work to mark was reachable only
               // by typing the address. The admin index is administrators' only,
               // so a coach lands on the work board, which is most of their week.
-              <NavLink href="/admin/work" className="hover:bg-paper-sunk">
+              <NavLink href="/admin/work" className="inline-flex hover:bg-paper-sunk">
                 Marking
               </NavLink>
             ) : null}
@@ -148,7 +148,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <form action="/auth/sign-out" method="post">
               <button
                 type="submit"
-                className="rounded-[5px] px-2 py-2 whitespace-nowrap text-slate hover:bg-paper-sunk hover:text-ink sm:px-2.5"
+                className="min-h-11 rounded-[5px] px-2 py-2 whitespace-nowrap text-slate hover:bg-paper-sunk hover:text-ink sm:px-2.5"
               >
                 Sign out
               </button>

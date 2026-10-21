@@ -1,7 +1,7 @@
 node_modules/
 .next/
 .next-it/
-.next-qa/
+.next-qa*/
 out/
 build/
 .DS_Store

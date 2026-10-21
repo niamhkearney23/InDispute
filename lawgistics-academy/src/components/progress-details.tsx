@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/app-link';
 import { Pill } from '@/components/ui';
 import { StreakCalendar } from '@/components/streak-calendar';
 import { TOP_LEVEL_NAME } from '@/lib/learning/progression';

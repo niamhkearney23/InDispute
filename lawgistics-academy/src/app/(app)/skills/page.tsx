@@ -1,74 +1,59 @@
-import type { Metadata } from "next";
-import { redirect } from "next/navigation";
-import {
-  getCurrentUser,
-  createSupabaseServerClient,
-} from "@/lib/supabase/server";
-import { getLearnerOverview } from "@/lib/learner-overview";
-import { rightShare } from "@/lib/learning/mastery";
-import { scoreOverTime } from "@/lib/learning/score-history";
-import { answerMarks } from "@/lib/learning/score-history-service";
-import { ScoreHistoryChart } from "@/components/score-history-chart";
-import { getFactOfTheDay } from "@/lib/facts/service";
-import { getModuleProgress } from "@/lib/modules/service";
-import { trainingOpen } from "@/lib/training/service";
-import { greeting, greetingName } from "@/lib/greeting";
-import { COUNTRY_LABELS } from "@/lib/types";
-import Link from "next/link";
-import { AreaBreakdown, type Area } from "./area-breakdown";
-import { FactCard } from "./fact-card";
-import {
-  ButtonLink,
-  Card,
-  EmptyState,
-  Pill,
-  SectionHeading,
-} from "@/components/ui";
-import { requireAccess } from "@/lib/access/service";
-import {
-  ProgressSummary,
-  ReviewLists,
-  StreakSection,
-} from "@/components/progress-details";
-import { Disclosure } from "@/components/disclosure";
-import { LeaderboardCard } from "@/components/leaderboard-card";
-import { weeklyLeaderboard } from "@/lib/leaderboard";
-import { essayFor } from "@/lib/content/service";
-import { isStaff } from "@/lib/content/gate";
-import { longDate } from "@/lib/onboarding/rules";
+import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
+import { getCurrentUser, createSupabaseServerClient } from '@/lib/supabase/server';
+import { getLearnerOverview } from '@/lib/learner-overview';
+import { rightShare } from '@/lib/learning/mastery';
+import { scoreOverTime } from '@/lib/learning/score-history';
+import { answerMarks } from '@/lib/learning/score-history-service';
+import { ScoreHistoryChart } from '@/components/score-history-chart';
+import { getFactOfTheDay } from '@/lib/facts/service';
+import { getModuleProgress } from '@/lib/modules/service';
+import { trainingOpen } from '@/lib/training/service';
+import { greeting, greetingName } from '@/lib/greeting';
+import { COUNTRY_LABELS } from '@/lib/types';
+import Link from '@/components/app-link';
+import { AreaBreakdown, type Area } from './area-breakdown';
+import { FactCard } from './fact-card';
+import { ButtonLink, Card, EmptyState, Pill, SectionHeading } from '@/components/ui';
+import { requireAccess } from '@/lib/access/service';
+import { ProgressSummary, ReviewLists, StreakSection } from '@/components/progress-details';
+import { Disclosure } from '@/components/disclosure';
+import { LeaderboardCard } from '@/components/leaderboard-card';
+import { weeklyLeaderboard } from '@/lib/leaderboard';
+import { essayFor } from '@/lib/content/service';
+import { isStaff } from '@/lib/content/gate';
+import { longDate } from '@/lib/onboarding/rules';
 
-export const metadata: Metadata = { title: "Your progress" };
+export const metadata: Metadata = { title: 'Your progress' };
 
 export default async function SkillsPage() {
   await requireAccess();
   const user = await getCurrentUser();
-  if (!user) redirect("/login");
+  if (!user) redirect('/login');
 
   const overview = await getLearnerOverview(user.id);
-  if (!overview) redirect("/account-problem");
+  if (!overview) redirect('/account-problem');
 
   const supabase = await createSupabaseServerClient();
   const { profile } = overview;
 
   // A different fact from the one the dashboard is showing today.
   const hasPlacement = Boolean(profile.startsOn || profile.endsOn);
-  const [fact, modules, open, marks, leaderboard, sittings] = await Promise.all(
-    [
-      getFactOfTheDay(profile.timezone, profile.country, new Date(), 1),
-      getModuleProgress(user.id, profile.country),
-      trainingOpen(profile.country),
-      // Their own answers, through their own session: RLS limits it to them.
-      answerMarks(supabase, user.id),
-      weeklyLeaderboard(),
-      hasPlacement
-        ? supabase
-            .from("diagnostic_results")
-            .select("essay_topic_slug, completed_at")
-            .eq("user_id", user.id)
-            .order("completed_at", { ascending: true })
-        : Promise.resolve({ data: null }),
-    ],
-  );
+  const [fact, modules, open, marks, leaderboard, sittings] = await Promise.all([
+    getFactOfTheDay(profile.timezone, profile.country, new Date(), 1),
+    getModuleProgress(user.id, profile.country),
+    trainingOpen(profile.country),
+    // Their own answers, through their own session: RLS limits it to them.
+    answerMarks(supabase, user.id),
+    weeklyLeaderboard(),
+    hasPlacement
+      ? supabase
+          .from('diagnostic_results')
+          .select('essay_topic_slug, completed_at')
+          .eq('user_id', user.id)
+          .order('completed_at', { ascending: true })
+      : Promise.resolve({ data: null }),
+  ]);
   const sittingCount = sittings.data?.length ?? 0;
   // The essay topic is legal content written in the code: a learner is shown
   // it only once a lawyer has signed off its wording (0046).
@@ -78,29 +63,19 @@ export default async function SkillsPage() {
   );
   const history = marks ? scoreOverTime(marks, profile.timezone) : [];
 
-  const [{ data: conceptRows }, { data: domains }, { data: schedule }] =
-    await Promise.all([
-      supabase
-        .from("user_concept_mastery")
-        .select(
-          "mastery, attempts, correct, confident_and_wrong, concepts(id, slug, name, domain_id)",
-        )
-        .eq("user_id", user.id),
-      supabase
-        .from("domains")
-        .select("id, slug, name, sort_order")
-        .order("sort_order"),
-      supabase
-        .from("review_schedule")
-        .select("concept_id, next_review_at")
-        .eq("user_id", user.id),
-    ]);
+  const [{ data: conceptRows }, { data: domains }, { data: schedule }] = await Promise.all([
+    supabase
+      .from('user_concept_mastery')
+      .select(
+        'mastery, attempts, correct, confident_and_wrong, concepts(id, slug, name, domain_id)',
+      )
+      .eq('user_id', user.id),
+    supabase.from('domains').select('id, slug, name, sort_order').order('sort_order'),
+    supabase.from('review_schedule').select('concept_id, next_review_at').eq('user_id', user.id),
+  ]);
 
   const dueByConcept = new Map(
-    (schedule ?? []).map((row) => [
-      row.concept_id as string,
-      row.next_review_at as string,
-    ]),
+    (schedule ?? []).map((row) => [row.concept_id as string, row.next_review_at as string]),
   );
 
   type ConceptRef = {
@@ -115,10 +90,10 @@ export default async function SkillsPage() {
         Array.isArray(row.concepts) ? row.concepts[0] : row.concepts
       ) as ConceptRef | null;
       return {
-        id: concept?.id ?? "",
-        slug: concept?.slug ?? "",
-        name: concept?.name ?? "",
-        domainId: concept?.domain_id ?? "",
+        id: concept?.id ?? '',
+        slug: concept?.slug ?? '',
+        name: concept?.name ?? '',
+        domainId: concept?.domain_id ?? '',
         score: rightShare(row.correct as number, row.attempts as number),
         attempts: row.attempts as number,
         correct: row.correct as number,
@@ -137,9 +112,7 @@ export default async function SkillsPage() {
 
   // The area bars carry their concepts with them, so opening one shows the
   // level a learner can actually act on rather than a single number per subject.
-  const domainIdBySlug = new Map(
-    (domains ?? []).map((d) => [d.slug as string, d.id as string]),
-  );
+  const domainIdBySlug = new Map((domains ?? []).map((d) => [d.slug as string, d.id as string]));
   const areas: Area[] = overview.skillMap.map((entry) => ({
     slug: entry.slug,
     name: entry.name,
@@ -173,9 +146,7 @@ export default async function SkillsPage() {
         <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate">
           <span>
             {greeting(new Date(), profile.timezone)}
-            {greetingName(profile.displayName)
-              ? `, ${greetingName(profile.displayName)}`
-              : ""}
+            {greetingName(profile.displayName) ? `, ${greetingName(profile.displayName)}` : ''}
           </span>
           <span aria-hidden className="text-muted">
             &middot;
@@ -186,7 +157,7 @@ export default async function SkillsPage() {
           </span>
           <Link
             href="/onboarding?edit=1"
-            className="-my-2 inline-block rounded-[5px] py-2 underline underline-offset-4 hover:text-ink"
+            className="-my-3 inline-flex min-h-11 items-center rounded-[5px] underline underline-offset-4 hover:text-ink"
           >
             Change country or goals
           </Link>
@@ -205,10 +176,10 @@ export default async function SkillsPage() {
           title="Nothing measured yet"
           description={
             !open
-              ? "This fills in once the questions are open and you have trained on them."
+              ? 'This fills in once the questions are open and you have trained on them.'
               : profile.diagnosticCompletedAt
-                ? "Your diagnostic is done, but no scores have come through yet. They fill in as you train."
-                : "Complete the diagnostic and your first few sessions, and this page fills in."
+                ? 'Your diagnostic is done, but no scores have come through yet. They fill in as you train.'
+                : 'Complete the diagnostic and your first few sessions, and this page fills in.'
           }
           action={
             !open ? undefined : profile.diagnosticCompletedAt ? (
@@ -229,8 +200,8 @@ export default async function SkillsPage() {
           <SectionHeading eyebrow="Overall" title="Your score over time" />
           <Card>
             <p className="mb-4 max-w-2xl text-sm text-slate">
-              Every answer you have given, right or wrong, as a share. It starts
-              at 100% and only comes down when you get one wrong.
+              Every answer you have given, right or wrong, as a share. It starts at 100% and only
+              comes down when you get one wrong.
             </p>
             <ScoreHistoryChart days={history} />
           </Card>
@@ -240,18 +211,15 @@ export default async function SkillsPage() {
       {hasData ? (
         <>
           <section>
-            <SectionHeading
-              eyebrow="By area"
-              title="Open one to see what is underneath"
-            />
+            <SectionHeading eyebrow="By area" title="Open one to see what is underneath" />
             <p className="-mt-2 mb-4 max-w-2xl text-sm text-slate">
-              The share of your answers that were right. Get them all right and
-              it stays at 100%; each wrong answer brings it down.
+              The share of your answers that were right. Get them all right and it stays at 100%;
+              each wrong answer brings it down.
             </p>
             {overview.areaScoresUnavailable ? (
               <p className="max-w-2xl text-sm text-slate">
-                Scores by area could not be read just now. Try again in a
-                moment; your answers are all still recorded.
+                Scores by area could not be read just now. Try again in a moment; your answers are
+                all still recorded.
               </p>
             ) : (
               <AreaBreakdown areas={areas} />
@@ -265,16 +233,12 @@ export default async function SkillsPage() {
         <>
           {blindSpots.length > 0 ? (
             <section>
-              <SectionHeading
-                eyebrow="Worth your attention"
-                title="Certain and wrong"
-              />
+              <SectionHeading eyebrow="Worth your attention" title="Certain and wrong" />
               <Card>
                 <p className="mb-4 text-sm text-slate">
-                  On these concepts you have answered incorrectly while marking
-                  yourself Certain (not Somewhat sure). That is a belief that
-                  needs correcting rather than a gap that needs filling, and it
-                  is weighted accordingly in your training.
+                  On these concepts you have answered incorrectly while marking yourself Certain
+                  (not Somewhat sure). That is a belief that needs correcting rather than a gap that
+                  needs filling, and it is weighted accordingly in your training.
                 </p>
                 <ul className="divide-y divide-rule">
                   {blindSpots.map((concept) => (
@@ -314,7 +278,7 @@ export default async function SkillsPage() {
                 </span>
                 <span className="text-xs font-normal text-slate">
                   {entry.total === 0
-                    ? "Not published yet"
+                    ? 'Not published yet'
                     : `${entry.correctOnce} of ${entry.total}`}
                 </span>
               </ButtonLink>
@@ -334,7 +298,7 @@ export default async function SkillsPage() {
           <Disclosure
             id="concepts"
             title="Every concept you have met"
-            preview={`${conceptsMet} ${conceptsMet === 1 ? "concept" : "concepts"}${dueNow > 0 ? `, ${dueNow} due now` : ""}`}
+            preview={`${conceptsMet} ${conceptsMet === 1 ? 'concept' : 'concepts'}${dueNow > 0 ? `, ${dueNow} due now` : ''}`}
           >
             <div className="space-y-6">
               {(domains ?? []).map((domain) => {
@@ -358,9 +322,7 @@ export default async function SkillsPage() {
                               <p className="truncate text-sm">{concept.name}</p>
                               <p className="text-xs text-muted">
                                 {concept.correct} of {concept.attempts} right
-                                {due && new Date(due) <= new Date()
-                                  ? " · due now"
-                                  : ""}
+                                {due && new Date(due) <= new Date() ? ' · due now' : ''}
                               </p>
                             </div>
                             <span className="shrink-0 font-serif text-base tabular-nums">
@@ -380,7 +342,7 @@ export default async function SkillsPage() {
         <Disclosure
           id="streak"
           title="Your streak"
-          preview={`${overview.currentStreak} ${overview.currentStreak === 1 ? "day" : "days"} in a row · best ${overview.longestStreak}`}
+          preview={`${overview.currentStreak} ${overview.currentStreak === 1 ? 'day' : 'days'} in a row · best ${overview.longestStreak}`}
         >
           <StreakSection overview={overview} timezone={profile.timezone} />
         </Disclosure>
@@ -412,34 +374,33 @@ export default async function SkillsPage() {
               profile.endsOn ? `ends ${longDate(profile.endsOn)}` : null,
             ]
               .filter(Boolean)
-              .join(", ")}
+              .join(', ')}
           >
             <p className="text-slate">
-              {profile.startsOn ? `Begins ${longDate(profile.startsOn)}.` : ""}
-              {profile.startsOn && profile.endsOn ? " " : ""}
-              {profile.endsOn ? `Ends ${longDate(profile.endsOn)}.` : ""}
+              {profile.startsOn ? `Begins ${longDate(profile.startsOn)}.` : ''}
+              {profile.startsOn && profile.endsOn ? ' ' : ''}
+              {profile.endsOn ? `Ends ${longDate(profile.endsOn)}.` : ''}
             </p>
             {essay.topic ? (
               <p className="mt-3 text-sm text-slate">
-                <strong>Your comparison essay:</strong>{" "}
-                {essay.topic.item.prompt}
+                <strong>Your comparison essay:</strong> {essay.topic.item.prompt}
                 {!essay.topic.checked ? (
                   <span className="mt-1 block text-xs">
-                    Not yet checked by a lawyer. Learners do not see this topic
-                    until a lawyer signs it off.
+                    Not yet checked by a lawyer. Learners do not see this topic until a lawyer signs
+                    it off.
                   </span>
                 ) : null}
               </p>
             ) : essay.waiting ? (
               <p className="mt-3 text-sm text-slate">
-                <strong>Your comparison essay:</strong> the topic is waiting for
-                a lawyer&rsquo;s check, and appears here once it is signed off.
+                <strong>Your comparison essay:</strong> the topic is waiting for a lawyer&rsquo;s
+                check, and appears here once it is signed off.
               </p>
             ) : null}
             {sittingCount >= 2 ? (
               <Link
                 href="/diagnostic/compare"
-                className="mt-3 inline-block min-h-8 text-sm text-accent underline underline-offset-4"
+                className="mt-2 inline-flex min-h-11 items-center text-sm text-accent underline underline-offset-4"
               >
                 See your day one against your latest
               </Link>
@@ -448,11 +409,7 @@ export default async function SkillsPage() {
         ) : null}
 
         {fact ? (
-          <Disclosure
-            id="fact"
-            title="A fact to take away"
-            preview={fact.title}
-          >
+          <Disclosure id="fact" title="A fact to take away" preview={fact.title}>
             <FactCard
               title={fact.title}
               body={fact.body}

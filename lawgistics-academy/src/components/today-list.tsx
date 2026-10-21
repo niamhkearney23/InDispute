@@ -1,7 +1,7 @@
-import Link from "next/link";
-import { cn } from "@/components/ui";
-import { CheckIcon } from "@/components/icons";
-import { doneCount, type TodayItem } from "@/lib/homework/today-list";
+import Link from '@/components/app-link';
+import { cn } from '@/components/ui';
+import { CheckIcon } from '@/components/icons';
+import { doneCount, type TodayItem } from '@/lib/homework/today-list';
 
 /** "Set for today": the day's homework as one checklist, each line a link. */
 export function TodayList({
@@ -30,52 +30,38 @@ export function TodayList({
         // Said, not left blank: a new learner with nothing set yet should
         // know that is expected, and where it will come from.
         <p className="border-y border-rule py-4 text-sm text-slate">
-          Nothing is set for today yet. When your coach sets work, or your
-          training opens, it appears here.
+          Nothing is set for today yet. When your coach sets work, or your training opens, it
+          appears here.
         </p>
       ) : (
         <ol className="divide-y divide-rule border-y border-rule">
           {items.map((item) => {
             const number = item.done === null ? null : ++n;
             const startable = Boolean(item.start && startTraining);
-            const rowClass =
-              "flex min-h-14 items-center gap-3.5 py-3 hover:bg-paper-sunk/60";
+            const rowClass = 'flex min-h-14 items-center gap-3.5 py-3 hover:bg-paper-sunk/60';
             const inner = (
               <>
                 <span
                   aria-hidden
                   className={cn(
-                    "flex size-7 shrink-0 items-center justify-center rounded-md text-xs font-semibold",
+                    'flex size-7 shrink-0 items-center justify-center rounded-md text-xs font-semibold',
                     item.done
-                      ? "bg-verdict-correct text-paper"
-                      : "border-[1.5px] " +
-                          (item.urgent
-                            ? "border-ink text-ink"
-                            : "border-rule-strong text-muted"),
+                      ? 'bg-verdict-correct text-paper'
+                      : 'border-[1.5px] ' +
+                          (item.urgent ? 'border-ink text-ink' : 'border-rule-strong text-muted'),
                   )}
                 >
-                  {item.done ? (
-                    <CheckIcon className="size-4" />
-                  ) : (
-                    (number ?? "▶")
-                  )}
+                  {item.done ? <CheckIcon className="size-4" /> : (number ?? '▶')}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span
-                    className={cn(
-                      "block font-semibold",
-                      item.done && "text-muted",
-                    )}
-                  >
+                  <span className={cn('block font-semibold', item.done && 'text-muted')}>
                     {item.label}
-                    {item.done ? (
-                      <span className="sr-only"> (done)</span>
-                    ) : null}
+                    {item.done ? <span className="sr-only"> (done)</span> : null}
                   </span>
                   <span
                     className={cn(
-                      "block text-sm",
-                      item.urgent ? "text-verdict-wrong" : "text-muted",
+                      'block text-sm',
+                      item.urgent ? 'text-verdict-wrong' : 'text-muted',
                     )}
                   >
                     {item.meta}

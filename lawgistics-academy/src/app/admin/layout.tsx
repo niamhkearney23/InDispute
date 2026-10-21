@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/app-link';
 import { requireCoach } from '@/lib/admin/guard';
 import { Wordmark } from '@/components/ui';
 import { AdminNav, type AdminNavGroup, type AdminNavItem } from '@/components/admin-nav';

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import Link from '@/components/app-link';
 import type { Court, CourtHierarchy } from '@/content/seed/court-shape';
 import { CourtTiers } from '@/components/court-tiers';
 import { cn } from '@/components/ui';

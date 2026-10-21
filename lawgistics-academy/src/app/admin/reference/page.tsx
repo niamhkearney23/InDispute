@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Link from '@/components/app-link';
 import { requireReviewer } from '@/lib/admin/guard';
 import { REFERENCE_ITEMS } from '@/lib/content/wording';
 import { currentReferenceSignOffs } from '@/lib/content/signoff';

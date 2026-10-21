@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/app-link';
 import type { ComponentProps, ReactNode } from 'react';
 import { brand } from '@/lib/brand';
 

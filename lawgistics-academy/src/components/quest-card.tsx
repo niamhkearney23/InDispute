@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/app-link';
 import { ModuleArt, artFor } from '@/components/module-art';
 import { cn } from '@/components/ui';
 

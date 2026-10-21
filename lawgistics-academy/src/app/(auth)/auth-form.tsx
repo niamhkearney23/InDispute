@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import Link from '@/components/app-link';
 import { createClient } from '@/lib/supabase/client';
 import { userFacingError } from '@/lib/env';
 import { Button, Notice, Wordmark, cn } from '@/components/ui';

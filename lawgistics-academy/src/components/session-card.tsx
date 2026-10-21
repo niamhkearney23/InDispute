@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/app-link';
 import { Card, Pill } from '@/components/ui';
 import { Avatar } from '@/components/avatar';
 import type { CoachSession } from '@/lib/lessons/sessions';

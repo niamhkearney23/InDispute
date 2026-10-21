@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { requireReviewer } from '@/lib/admin/guard';
-import Link from 'next/link';
+import Link from '@/components/app-link';
 import { asReviewOrder, getReviewItems, summarise } from '@/lib/review/service';
 import { Card, Notice, Stat, cn } from '@/components/ui';
 import { JURISDICTION_COUNTRY, type Country } from '@/lib/types';

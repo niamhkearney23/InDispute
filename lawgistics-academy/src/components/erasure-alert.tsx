@@ -1,6 +1,6 @@
 import 'server-only';
 
-import Link from 'next/link';
+import Link from '@/components/app-link';
 import { Notice } from '@/components/ui';
 import { readAdminErasureNotices } from '@/lib/account/erasure-monitor-store';
 import type { AdminErasureNotice } from '@/lib/account/erasure-monitoring';

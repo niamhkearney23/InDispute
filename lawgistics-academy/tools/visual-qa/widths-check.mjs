@@ -62,7 +62,17 @@ const PROBE = () => {
     const inline = el.tagName === 'A' && getComputedStyle(el).display === 'inline';
     if (!inline && r.height < 44) small.push(`${el.tagName.toLowerCase()} "${(el.textContent ?? '').trim().slice(0, 30)}" ${Math.round(r.height)}px`);
   }
+  // On a phone the bottom menu carries these four; the header must not
+  // show them as well (a display utility once overrode their `hidden`).
+  const header = document.querySelector('header.sticky');
+  const doubled = header
+    ? [...header.querySelectorAll('nav a[href]')]
+        .filter((a) => ['/dashboard', '/modules', '/work', '/skills'].includes(a.getAttribute('href')))
+        .filter((a) => a.getBoundingClientRect().width > 0 && getComputedStyle(a).display !== 'none')
+        .map((a) => a.textContent.trim())
+    : [];
   return {
+    doubled,
     horizontalScroll: document.documentElement.scrollWidth > width + 1,
     wide: wide.slice(0, 8),
     small: small.slice(0, 12),
@@ -112,6 +122,7 @@ for (const width of WIDTHS) {
       await page.screenshot({ path: `${OUT}/${name}.png`, fullPage: true });
       const found = [
         probe.horizontalScroll ? 'scrolls sideways' : null,
+        ...probe.doubled.map((d) => `menu item "${d}" in the header as well as the bottom menu`),
         ...probe.wide.map((w) => `wider than the screen: ${w}`),
         ...probe.small.map((s) => `tap target under 44px: ${s}`),
         ...axe.map((a) => `axe ${a}`),

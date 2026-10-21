@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/app-link';
 import { Card, cn } from '@/components/ui';
 import { LevelIcon } from '@/components/icons';
 import type { LeaderboardRow } from '@/lib/leaderboard';
@@ -73,7 +73,7 @@ export function LeaderboardCard({ rows }: { rows: LeaderboardRow[] }) {
 
       <p className="mt-3 text-xs text-muted">
         XP earned in the last seven days. First names only.{' '}
-        <Link href="/account" className="-my-2 inline-block py-2 underline underline-offset-2">
+        <Link href="/account" className="-my-3 inline-flex min-h-11 items-center underline underline-offset-2">
           Take yourself off it
         </Link>
       </p>

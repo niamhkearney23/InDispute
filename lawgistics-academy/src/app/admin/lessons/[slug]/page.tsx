@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { longAnswerCue } from '@/lib/review/answer-cue';
-import Link from 'next/link';
+import Link from '@/components/app-link';
 import { notFound } from 'next/navigation';
 import { requireReviewer } from '@/lib/admin/guard';
 import { lessonBySlug } from '@/content/seed/lessons';

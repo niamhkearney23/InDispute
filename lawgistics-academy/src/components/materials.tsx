@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/app-link';
 import { Pill } from '@/components/ui';
 import type { WorkPost } from '@/lib/work/service';
 

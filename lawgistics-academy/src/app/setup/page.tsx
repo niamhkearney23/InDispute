@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Link from '@/components/app-link';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getSetupStatus } from '@/lib/setup/status';
 import { ButtonLink, Card, Notice, Wordmark } from '@/components/ui';
