@@ -4,70 +4,285 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>Invitation links · Opening Statement 2027</title>
+<title>Guest list · Opening Statement 2027</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=IBM+Plex+Mono:wght@400;500;600&family=Libre+Caslon+Text&display=swap">
 <style>
-:root{--desk:#12100e;--paper:#eae4d8;--ink:#1b1915;--muted:#6c675d;--hair:rgba(27,25,21,.24);--red:#bf3a2f;color-scheme:light}
+/* Host-only tool: make every guest's personal link, send it, tick it off, then see who opened and who replied. */
+:root{--desk:#12100e;--paper:#eae4d8;--ink:#1b1915;--muted:#6c675d;--hair:rgba(27,25,21,.22);--red:#bf3a2f;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;color-scheme:light}
 *{box-sizing:border-box}
-body{margin:0;background:var(--desk);color:var(--ink);font-family:"Libre Caslon Text",Georgia,serif;padding:32px max(12px,env(safe-area-inset-right,0px)) 56px max(12px,env(safe-area-inset-left,0px))}
-main{max-width:720px;margin:0 auto;background:var(--paper);border-radius:3px;padding:clamp(22px,6vw,48px) clamp(20px,6vw,56px);display:flex;flex-direction:column;gap:18px}
-header{display:flex;justify-content:space-between;gap:12px;font:500 12px/1 "IBM Plex Mono",monospace;letter-spacing:.16em;padding-bottom:14px;border-bottom:1.5px solid var(--ink)}
-h1{font:italic 400 clamp(40px,9vw,60px)/1 "Instrument Serif",serif;margin:8px 0 0}
-p{line-height:1.55;margin:0;color:var(--muted)}
-label{font:500 12px/1 "IBM Plex Mono",monospace;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
-textarea{width:100%;min-height:160px;background:rgba(255,255,255,.3);border:1.5px solid var(--hair);color:var(--ink);font:inherit;font-size:17px;line-height:1.5;padding:12px 14px;resize:vertical}
-textarea:focus-visible,button:focus-visible{outline:2px solid var(--red);outline-offset:2px}
-.row{display:flex;gap:10px;flex-wrap:wrap}
-.btn{border:0;cursor:pointer;background:var(--ink);color:var(--paper);font:500 12px/1 "IBM Plex Mono",monospace;letter-spacing:.2em;text-transform:uppercase;padding:15px 18px}
-.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
+body{margin:0;background:var(--desk);color:var(--ink);font-family:"Libre Caslon Text",Georgia,serif;padding:28px max(10px,env(safe-area-inset-right,0px)) 56px max(10px,env(safe-area-inset-left,0px))}
+main{max-width:860px;margin:0 auto;background:var(--paper);border-radius:3px;padding:clamp(20px,5vw,48px) clamp(16px,5vw,52px)}
+header{display:flex;justify-content:space-between;gap:12px;font:500 12px/1 var(--mono);letter-spacing:.16em;padding-bottom:14px;border-bottom:1.5px solid var(--ink)}
+h1{font:italic 400 clamp(44px,10vw,68px)/1 "Instrument Serif",serif;margin:22px 0 0}
+h2{font:500 12px/1.4 var(--mono);letter-spacing:.2em;text-transform:uppercase;margin:38px 0 12px;padding-top:14px;border-top:1px solid var(--hair)}
+h2 span{color:var(--muted);margin-right:.8em;font-weight:400}
+p{line-height:1.55;margin:0 0 10px;color:var(--muted)}
+p b{color:var(--ink);font-weight:400}
+label.l{display:block;font:500 11px/1.4 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px}
+textarea,select{width:100%;background:rgba(255,255,255,.35);border:1.5px solid var(--hair);border-radius:0;color:var(--ink);font:inherit;font-size:16px;line-height:1.5;padding:10px 12px}
+textarea{resize:vertical}
+#guests-in{min-height:180px}
+#tpl{min-height:110px}
+select{width:auto;max-width:100%}
+details{margin-top:12px}
+summary{cursor:pointer;font:500 12px/1.4 var(--mono);letter-spacing:.12em;text-transform:uppercase}
+textarea:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{border:1.5px solid var(--ink);cursor:pointer;background:var(--ink);color:var(--paper);font:500 12px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;padding:14px 16px;text-decoration:none;display:inline-block}
+.ghost{background:transparent;color:var(--ink)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px;margin:18px 0 12px}
+.stat{border:1.5px solid var(--hair);padding:12px;background:rgba(255,255,255,.3)}
+.stat b{display:block;font:400 30px/1 "Libre Caslon Text",serif}
+.stat span{font:500 10.5px/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 14px}
+.filters button{border:1.5px solid var(--hair);background:transparent;color:var(--ink);cursor:pointer;font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:9px 10px}
+.filters button[aria-pressed=true]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
-li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;border:1.5px solid var(--hair);background:rgba(255,255,255,.3);padding:10px 12px}
-@media (max-width:520px){li{grid-template-columns:1fr}}
-li b{display:block;font-weight:400;font-size:18px}
-li code{display:block;font:400 12.5px/1.4 "IBM Plex Mono",monospace;color:var(--muted);overflow-wrap:anywhere}
-li button{border:1.5px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer;padding:8px 12px;font:500 11px/1 "IBM Plex Mono",monospace;letter-spacing:.12em;text-transform:uppercase}
-.hint{font:400 12px/1.5 "IBM Plex Mono",monospace;letter-spacing:.06em}
+li.g{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;align-items:start;border:1.5px solid var(--hair);background:rgba(255,255,255,.3);padding:12px}
+li.g.sent{background:rgba(255,255,255,.12)}
+li.g input[type=checkbox]{width:22px;height:22px;margin:2px 0 0;accent-color:var(--ink);cursor:pointer}
+.who b{font-weight:400;font-size:19px}
+.who code{display:block;font:400 12px/1.4 var(--mono);color:var(--muted);overflow-wrap:anywhere;margin-top:2px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.chip{font:500 10.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:6px 8px;border:1.5px solid var(--hair);color:var(--muted)}
+.chip.yes{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip.no{color:var(--ink);border-color:var(--ink)}
+.chip.open{color:var(--ink);border-color:var(--ink)}
+.chip.wait{color:var(--red);border-color:var(--red)}
+.acts{grid-column:2;display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.acts a,.acts button{border:1.5px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer;padding:9px 11px;font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;text-decoration:none}
+.acts a.wa{background:var(--ink);color:var(--paper)}
+.dupe{color:var(--red);font:500 11px/1.4 var(--mono);letter-spacing:.06em}
+.drop{display:block;border:1.5px dashed rgba(27,25,21,.45);padding:22px 16px;text-align:center;background:rgba(255,255,255,.25);cursor:pointer}
+.drop.over{background:rgba(255,255,255,.55);border-color:var(--ink)}
+.drop span{display:block;font:italic 400 16px/1.4 "Libre Caslon Text",serif;color:var(--muted)}
+.drop strong{display:block;font:500 12px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
+.msg{font:400 12.5px/1.5 var(--mono);color:var(--ink);margin-top:10px}
+.msg.err{color:var(--red)}
+.extra li{border:1.5px solid var(--hair);padding:10px 12px;background:rgba(255,255,255,.25);font-size:16px}
+.hint{font:400 12px/1.6 var(--mono);letter-spacing:.04em;color:var(--muted);margin-top:22px}
+.empty{font:italic 400 18px/1.4 "Libre Caslon Text",serif;color:var(--muted);padding:12px 0}
 </style>
 </head>
 <body>
 <main>
-  <header><span>HOST ONLY</span><span>INVITATION LINKS</span></header>
-  <h1>Personal invitation links</h1>
-  <p>Type one name per line. Each person gets a link that opens the invitation with “Hi [name], you’re invited to” and fills in their RSVP and signature for them.</p>
-  <label for="names">Guest names</label>
-  <textarea id="names" placeholder="Mathew Lee&#10;Sarah Tan&#10;Priya Nair"></textarea>
-  <div class="row">
-    <button class="btn" id="make" type="button">Create links</button>
-    <button class="btn ghost" id="copyall" type="button" hidden>Copy all</button>
-  </div>
-  <ul id="out"></ul>
-  <p class="hint">This page is for the host. Keep its address to yourself.</p>
+  <header><span>HOST ONLY</span><span>OPENING STATEMENT 2027</span></header>
+  <h1>Guest list</h1>
+
+  <h2><span>01</span>Your guests</h2>
+  <p>One guest per line. If you have their mobile or email, add it after a comma. You can also paste straight from a spreadsheet.</p>
+  <textarea id="guests-in" spellcheck="false" placeholder="Mathew Lee, 0412 345 678&#10;Sarah Tan, sarah@example.com&#10;Priya Nair"></textarea>
+  <label class="l" for="cc">Mobile numbers starting with 0 are in</label>
+  <select id="cc">
+    <option value="61">Australia (+61)</option>
+    <option value="60">Malaysia (+60)</option>
+    <option value="64">New Zealand (+64)</option>
+    <option value="65">Singapore (+65)</option>
+    <option value="44">United Kingdom (+44)</option>
+    <option value="1">US or Canada (+1)</option>
+  </select>
+  <details>
+    <summary>Edit the message</summary>
+    <label class="l" for="tpl">{first} becomes their first name, {link} becomes their personal link</label>
+    <textarea id="tpl" spellcheck="true"></textarea>
+  </details>
+  <div class="row" style="margin-top:16px"><button class="btn" id="make" type="button">Create links</button></div>
+
+  <section id="list-sec" hidden>
+    <h2><span>02</span>Send and tick off</h2>
+    <p>Tap <b>WhatsApp</b>, <b>Text</b> or <b>Email</b>. It opens with their personal message already written, so you only press send. Each guest is ticked off as you go, and the ticks stay on this device.</p>
+    <div class="stats" id="stats"></div>
+    <div class="filters" id="filters" role="group" aria-label="Show"></div>
+    <ul id="out"></ul>
+    <div class="row" style="margin-top:14px">
+      <button class="btn ghost" id="csv" type="button">Download list (CSV)</button>
+      <button class="btn ghost" id="copyall" type="button">Copy all links</button>
+    </div>
+    <div class="extra" id="extra-sec" hidden>
+      <h2><span>·</span>Opened or replied, not on this list</h2>
+      <ul id="extra"></ul>
+    </div>
+  </section>
+
+  <h2><span>03</span>Who opened it</h2>
+  <p>In Netlify, go to <b>Forms</b>, open <b>opens</b> and download the CSV, then open <b>rsvp</b> and download that CSV too. Drop both files here and every guest above shows if they have opened their invitation and what they replied.</p>
+  <label class="drop" id="drop" for="files">
+    <strong>Drop the two CSV files here</strong>
+    <span>or tap to choose them</span>
+    <input type="file" id="files" accept=".csv,text/csv" multiple hidden>
+  </label>
+  <p class="msg" id="msg" role="status"></p>
+
+  <p class="hint">This page is for the host. Keep its address to yourself. Everything you type here stays in this browser.</p>
 </main>
 <script>
 (function(){
+  var DEFAULT_TPL='Hi {first}, you’re invited to Opening Statement 2027, Thomas Philip’s New Year’s Party on Friday, 8 January from 6:30 PM.\n\nYour invitation and RSVP: {link}';
+  var SUBJECT='You’re invited: Opening Statement 2027';
   var base=location.origin+location.pathname.replace(/links\.html$/,'');
-  var out=document.getElementById('out'), all=document.getElementById('copyall'), lines=[];
+  var $=function(id){return document.getElementById(id)};
+  var store={get:function(k,d){try{var v=localStorage.getItem('os27-'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem('os27-'+k,JSON.stringify(v))}catch(e){}}};
+  var guests=[], sent=store.get('sent',{}), opens=store.get('opens',[]), rsvps=store.get('rsvps',[]), filter='all';
+  var norm=function(s){return String(s||'').toLowerCase().replace(/\s+/g,' ').trim()};
+
+  $('guests-in').value=store.get('guests','');
+  $('tpl').value=store.get('tpl',DEFAULT_TPL);
+  $('cc').value=store.get('cc','61');
+  $('guests-in').addEventListener('input',function(){store.set('guests',this.value)});
+  $('tpl').addEventListener('input',function(){store.set('tpl',this.value);render()});
+  $('cc').addEventListener('change',function(){store.set('cc',this.value);render()});
+
+  function parse(){
+    var seen={};
+    guests=$('guests-in').value.split('\n').map(function(line){
+      var parts=line.split(/\t|,/).map(function(s){return s.trim()}).filter(Boolean);
+      if(!parts.length) return null;
+      var g={name:parts[0].replace(/[<>]/g,''),phone:'',email:''};
+      parts.slice(1).forEach(function(p){
+        if(/@/.test(p)) g.email=p;
+        else if((p.match(/\d/g)||[]).length>=8) g.phone=p;
+      });
+      var k=norm(g.name); g.dupe=!!seen[k]; seen[k]=true;
+      return g;
+    }).filter(Boolean);
+  }
+  function waNumber(p){
+    if(!p) return '';
+    var d=p.replace(/[^\d+]/g,'');
+    if(d.charAt(0)==='+') return d.slice(1);
+    if(d.slice(0,2)==='00') return d.slice(2);
+    if(d.charAt(0)==='0') return $('cc').value+d.slice(1);
+    return d;
+  }
+  function linkFor(g){return base+'?to='+encodeURIComponent(g.name)}
+  function msgFor(g){return $('tpl').value.split('{first}').join(g.name.split(/\s+/)[0]).split('{link}').join(linkFor(g))}
+  function fmt(iso){var d=new Date(iso);return isNaN(d)?'':d.toLocaleDateString(undefined,{day:'numeric',month:'short'})+', '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'})}
+  function plus(v){var m=String(v||'').match(/\d+/);return m?+m[0]:0}
+
+  function statusOf(g){
+    var k=norm(g.name);
+    var o=opens.filter(function(r){return norm(r.guest)===k}).sort(function(a,b){return String(a.at).localeCompare(String(b.at))});
+    var r=rsvps.filter(function(x){return norm(x.invite)===k||(!x.invite&&norm(x.name)===k)}).sort(function(a,b){return String(b.at).localeCompare(String(a.at))})[0];
+    return {opened:o[0],opens:o.length,reply:r,sent:!!sent[k]};
+  }
+  function bucket(s){
+    if(s.reply) return /^y/i.test(s.reply.attending)?'yes':'no';
+    if(s.opened) return 'opened';
+    return s.sent?'unopened':'unsent';
+  }
+
+  var FILTERS=[['all','All'],['unsent','Not sent'],['unopened','Sent, not opened'],['opened','Opened, no reply'],['yes','Coming'],['no','Not coming']];
+  function render(){
+    if(!guests.length){$('list-sec').hidden=true;return}
+    $('list-sec').hidden=false;
+    var counts={all:guests.length,unsent:0,unopened:0,opened:0,yes:0,no:0}, people=0, anyOpened=0;
+    var rows=guests.map(function(g){var s=statusOf(g),b=bucket(s);counts[b]++;if(s.opened||s.reply)anyOpened++;if(b==='yes')people+=1+plus(s.reply.guests);return {g:g,s:s,b:b}});
+    var sentN=guests.length-counts.unsent;
+    var stats=[[guests.length,'Guests'],[sentN,'Sent'],[anyOpened,'Opened'],[counts.yes,'Coming'],[people,'People incl. guests'],[counts.no,'Not coming']];
+    $('stats').innerHTML='';
+    stats.forEach(function(x){var d=document.createElement('div');d.className='stat';var b=document.createElement('b');b.textContent=x[0];var sp=document.createElement('span');sp.textContent=x[1];d.appendChild(b);d.appendChild(sp);$('stats').appendChild(d)});
+    $('filters').innerHTML='';
+    FILTERS.forEach(function(f){var b=document.createElement('button');b.type='button';b.textContent=f[1]+' ('+counts[f[0]]+')';b.setAttribute('aria-pressed',filter===f[0]);b.onclick=function(){filter=f[0];render()};$('filters').appendChild(b)});
+
+    var out=$('out'); out.innerHTML='';
+    var shown=rows.filter(function(r){return filter==='all'||r.b===filter});
+    if(!shown.length){var e=document.createElement('li');e.className='empty';e.textContent='Nobody here.';out.appendChild(e)}
+    shown.forEach(function(r){
+      var g=r.g,s=r.s,k=norm(g.name),url=linkFor(g),msg=msgFor(g);
+      var li=document.createElement('li');li.className='g'+(s.sent?' sent':'');
+      var cb=document.createElement('input');cb.type='checkbox';cb.checked=s.sent;cb.setAttribute('aria-label','Sent to '+g.name);
+      cb.onchange=function(){if(cb.checked)sent[k]=Date.now();else delete sent[k];store.set('sent',sent);render()};
+      var who=document.createElement('div');who.className='who';
+      var nb=document.createElement('b');nb.textContent=g.name;who.appendChild(nb);
+      if(g.dupe){var dp=document.createElement('div');dp.className='dupe';dp.textContent='Same name as another guest. Add a surname so their links differ.';who.appendChild(dp)}
+      var c=document.createElement('code');c.textContent=url;who.appendChild(c);
+      var chips=document.createElement('div');chips.className='chips';
+      function chip(cls,t){var x=document.createElement('span');x.className='chip '+cls;x.textContent=t;chips.appendChild(x)}
+      if(s.reply){chip(/^y/i.test(s.reply.attending)?'yes':'no',/^y/i.test(s.reply.attending)?'Coming'+(plus(s.reply.guests)?' +'+plus(s.reply.guests):''):'Not coming')}
+      if(s.opened) chip('open','Opened '+fmt(s.opened.at)+(s.opened.device?' · '+s.opened.device:'')+(s.opens>1?' · '+s.opens+' devices':''));
+      else if(s.sent&&(opens.length||rsvps.length)) chip('wait','Not opened yet');
+      if(!s.sent) chip('','Not sent');
+      who.appendChild(chips);
+      var acts=document.createElement('div');acts.className='acts';
+      function act(tag,cls,label,href){var a=document.createElement(tag);a.className=cls;a.textContent=label;if(href){a.href=href;a.target='_blank';a.rel='noopener'}else a.type='button';a.addEventListener('click',function(){if(!sent[k]){sent[k]=Date.now();store.set('sent',sent);setTimeout(render,300)}});acts.appendChild(a);return a}
+      var num=waNumber(g.phone), enc=encodeURIComponent(msg);
+      act('a','wa','WhatsApp','https://wa.me/'+(num||'')+'?text='+enc);
+      act('a','','Text','sms:'+(g.phone?g.phone.replace(/[^\d+]/g,''):'')+'?&body='+enc);
+      act('a','','Email','mailto:'+(g.email||'')+'?subject='+encodeURIComponent(SUBJECT)+'&body='+enc);
+      var cp=act('button','','Copy message');cp.onclick=function(){copy(msg,cp)};
+      li.appendChild(cb);li.appendChild(who);li.appendChild(acts);out.appendChild(li);
+    });
+
+    // people who came in through the shared link under a name that is not on the list
+    var known={};guests.forEach(function(g){known[norm(g.name)]=1});
+    var extra={};
+    opens.forEach(function(o){var k=norm(o.guest);if(!k||known[k])return;extra[k]=extra[k]||{name:o.guest};if(!extra[k].opened||String(o.at)<String(extra[k].opened))extra[k].opened=o.at});
+    rsvps.forEach(function(x){var k=norm(x.invite)||norm(x.name);if(!k||known[norm(x.invite)]||known[norm(x.name)])return;extra[k]=extra[k]||{name:x.name||x.invite};extra[k].reply=x});
+    var ek=Object.keys(extra);
+    $('extra-sec').hidden=!ek.length; $('extra').innerHTML='';
+    ek.forEach(function(k){var x=extra[k],bits=[x.name];if(x.opened)bits.push('Opened '+fmt(x.opened));if(x.reply)bits.push(/^y/i.test(x.reply.attending)?'Coming'+(plus(x.reply.guests)?' +'+plus(x.reply.guests):''):'Not coming');var li=document.createElement('li');li.textContent=bits.join(' · ');$('extra').appendChild(li)});
+  }
+
   function copy(text,btn){
     var done=function(){var o=btn.textContent;btn.textContent='Copied';setTimeout(function(){btn.textContent=o},1400)};
     if(navigator.clipboard){navigator.clipboard.writeText(text).then(done,function(){prompt('Copy this:',text)})}else{prompt('Copy this:',text)}
   }
-  document.getElementById('make').addEventListener('click',function(){
-    out.textContent=''; lines=[];
-    document.getElementById('names').value.split('\n').map(function(s){return s.trim()}).filter(Boolean).forEach(function(n){
-      var url=base+'?to='+encodeURIComponent(n);
-      var first=n.split(/\s+/)[0];
-      var msg='Hi '+first+', you’re invited to Opening Statement 2027, Thomas Philip’s New Year’s Party on Friday, 8 January from 6:30 PM. Your invitation and RSVP: '+url;
-      lines.push(n+': '+url);
-      var li=document.createElement('li'), d=document.createElement('div'), b=document.createElement('b'), c=document.createElement('code');
-      b.textContent=n; c.textContent=url; d.appendChild(b); d.appendChild(c);
-      var bx=document.createElement('div'); bx.className='row';
-      var b1=document.createElement('button'); b1.type='button'; b1.textContent='Copy link'; b1.onclick=function(){copy(url,b1)};
-      var b2=document.createElement('button'); b2.type='button'; b2.textContent='Copy message'; b2.onclick=function(){copy(msg,b2)};
-      bx.appendChild(b1); bx.appendChild(b2); li.appendChild(d); li.appendChild(bx); out.appendChild(li);
-    });
-    all.hidden=lines.length===0;
+  $('make').addEventListener('click',function(){parse();filter='all';render();$('list-sec').scrollIntoView({behavior:'smooth'})});
+  $('copyall').addEventListener('click',function(){copy(guests.map(function(g){return g.name+': '+linkFor(g)}).join('\n'),this)});
+  $('csv').addEventListener('click',function(){
+    var q=function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'};
+    var lines=[['Name','Mobile','Email','Link','Message','Sent','Opened','Reply','Guests'].map(q).join(',')];
+    guests.forEach(function(g){var s=statusOf(g);lines.push([g.name,g.phone,g.email,linkFor(g),msgFor(g),s.sent?'Yes':'',s.opened?fmt(s.opened.at):'',s.reply?s.reply.attending:'',s.reply?s.reply.guests:''].map(q).join(','))});
+    var blob=new Blob(['﻿'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='opening-statement-guest-list.csv';document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500);
   });
-  all.addEventListener('click',function(){copy(lines.join('\n'),all)});
+
+  // Netlify form exports (CSV) → opens and replies
+  function csvRows(text){
+    var rows=[],row=[],f='',q=false;
+    for(var i=0;i<text.length;i++){var ch=text[i];
+      if(q){if(ch==='"'){if(text[i+1]==='"'){f+='"';i++}else q=false}else f+=ch}
+      else if(ch==='"')q=true;
+      else if(ch===','){row.push(f);f=''}
+      else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&text[i+1]==='\n')i++;row.push(f);rows.push(row);row=[];f=''}
+      else f+=ch}
+    if(f!==''||row.length){row.push(f);rows.push(row)}
+    return rows.filter(function(r){return r.some(function(c){return c.trim()})});
+  }
+  function readCsv(text){
+    var rows=csvRows(text.replace(/^﻿/,'')); if(rows.length<1) return null;
+    var h=rows[0].map(function(x){return x.toLowerCase().replace(/[^a-z0-9]/g,'')});
+    var col=function(){for(var i=0;i<arguments.length;i++){var j=h.indexOf(arguments[i]);if(j>-1)return j}return -1};
+    var body=rows.slice(1), get=function(r,j){return j>-1?(r[j]||'').trim():''};
+    if(col('guest')>-1){
+      var gi=col('guest'),ti=col('openedat','createdat','created','date','submittedat'),di=col('device');
+      return {kind:'opens',rows:body.map(function(r){return {guest:get(r,gi),at:get(r,ti),device:get(r,di)}}).filter(function(x){return x.guest})}}
+    if(col('attending')>-1){
+      var ii=col('invitelink'),ni=col('name'),ai=col('attending'),gi2=col('guests'),ci=col('createdat','created','date','submittedat');
+      return {kind:'rsvps',rows:body.map(function(r){return {invite:get(r,ii),name:get(r,ni),attending:get(r,ai),guests:get(r,gi2),at:get(r,ci)}}).filter(function(x){return x.name||x.invite})}}
+    return null;
+  }
+  function load(files){
+    var msgs=[],err=false,pending=files.length;
+    Array.prototype.forEach.call(files,function(file){
+      var fr=new FileReader();
+      fr.onload=function(){
+        var res=readCsv(String(fr.result));
+        if(!res){err=true;msgs.push(file.name+' does not look like the opens or rsvp export.')}
+        else if(res.kind==='opens'){opens=res.rows;store.set('opens',opens);msgs.push(res.rows.length+' opens loaded.')}
+        else {rsvps=res.rows;store.set('rsvps',rsvps);msgs.push(res.rows.length+' replies loaded.')}
+        if(--pending===0){$('msg').textContent=msgs.join(' ');$('msg').className='msg'+(err?' err':'');if(!guests.length)parse();render()}
+      };
+      fr.readAsText(file);
+    });
+  }
+  $('files').addEventListener('change',function(){if(this.files.length)load(this.files);this.value=''});
+  var drop=$('drop');
+  ['dragenter','dragover'].forEach(function(t){drop.addEventListener(t,function(e){e.preventDefault();drop.classList.add('over')})});
+  ['dragleave','drop'].forEach(function(t){drop.addEventListener(t,function(e){e.preventDefault();drop.classList.remove('over')})});
+  drop.addEventListener('drop',function(e){if(e.dataTransfer.files.length)load(e.dataTransfer.files)});
+
+  parse(); render();
 })();
 </script>
 </body>
