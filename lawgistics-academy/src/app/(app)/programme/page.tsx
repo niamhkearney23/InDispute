@@ -5,13 +5,16 @@ import { getLearnerProfile } from '@/lib/learner-overview';
 import { homeworkDay } from '@/lib/homework/rules';
 import { PROGRAMME } from '@/content/programme';
 import { PROGRAMME_WEEKS, weekOfDay } from '@/content/programme-plan';
-import { daysOfWeek } from '@/content/programme-days';
+import { daysOfWeek, programmeDay } from '@/content/programme-days';
 import { conceptForDay } from '@/content/programme-concepts';
 import { TRAINING_FILE } from '@/content/training-file';
 import { brand } from '@/lib/brand';
 import { ButtonLink, Card, Pill, cn } from '@/components/ui';
 import { requireAccess } from '@/lib/access/service';
 import { scheduleForPerson } from '@/lib/training/cohorts';
+import Link from 'next/link';
+import { RoundsCalendar } from '@/components/rounds-calendar';
+import { roundsHistory } from '@/lib/training/rounds-service';
 
 export const metadata: Metadata = { title: 'The month' };
 
@@ -41,6 +44,11 @@ export default async function ProgrammePage() {
       new Date(),
       (await scheduleForPerson(user.id)).holidays,
     );
+  // Today's plan, the shortcut tiles and the calendar of mornings, moved here
+  // from Today when it became the coach's note and the day's homework.
+  const todayPlan = homework.state === 'day' ? programmeDay(homework.day) : null;
+  const confirmed = profile.traineeConfirmed;
+  const roundDays = confirmed ? await roundsHistory(user.id).catch(() => null) : null;
   const currentWeek =
     homework.state === 'day'
       ? weekOfDay(homework.day)
@@ -73,6 +81,56 @@ export default async function ProgrammePage() {
           </p>
         ) : null}
       </section>
+
+      {todayPlan ? (
+        <Card>
+          <p className="eyebrow">Today&rsquo;s concept · Day {todayPlan.day} of 20</p>
+          <p className="mt-1 font-serif text-xl leading-snug">
+            {conceptForDay(todayPlan.day)?.concept ?? todayPlan.title}
+          </p>
+          <p className="mt-2 text-sm">
+            <span className="text-muted">Morning:</span> {todayPlan.morning}
+          </p>
+          <p className="text-sm">
+            <span className="text-muted">Afternoon:</span> {todayPlan.afternoon}
+          </p>
+          {todayPlan.due.length > 0 ? (
+            <p className="mt-1 text-sm font-medium">
+              Due today: {todayPlan.due.map((n) => `box ${n}`).join(' and ')}. Hand it in on the work board.
+            </p>
+          ) : null}
+        </Card>
+      ) : null}
+
+      <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        {(
+          [
+            ['The training file', 'The one case you work on', '/programme/file'],
+            ['Homework', 'One task a day', '/homework'],
+            ['From your coach', 'Work and marking', '/work'],
+            ['Sessions', 'Your coach\u2019s videos', '/sessions'],
+            ['Certificate', 'What earns it', '/certificate'],
+            ['Your progress', 'Streak, level, scores', '/skills'],
+          ] as const
+        ).map(([label, hint, href]) => (
+          <li key={href}>
+            <Link
+              href={href}
+              className="flex h-full min-h-16 flex-col justify-center rounded-md border border-rule bg-paper-raised px-3 py-2.5 transition-colors hover:border-rule-strong hover:bg-paper-sunk"
+            >
+              <span className="font-medium leading-snug">{label}</span>
+              <span className="text-xs text-slate">{hint}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+
+      {roundDays && roundDays.days.length > 0 ? (
+        <Card>
+          <p className="eyebrow mb-3">Your mornings</p>
+          <RoundsCalendar days={roundDays.days} today={roundDays.days[roundDays.days.length - 1].date} />
+        </Card>
+      ) : null}
 
       <ol className="space-y-4">
         {PROGRAMME_WEEKS.map((week) => {

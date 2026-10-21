@@ -22,6 +22,11 @@ import {
   SectionHeading,
 } from '@/components/ui';
 import { requireAccess } from '@/lib/access/service';
+import { ProgressDetails } from '@/components/progress-details';
+import { weeklyLeaderboard } from '@/lib/leaderboard';
+import { essayFor } from '@/lib/content/service';
+import { isStaff } from '@/lib/content/gate';
+import { longDate } from '@/lib/onboarding/rules';
 
 export const metadata: Metadata = { title: 'Your progress' };
 
@@ -37,13 +42,29 @@ export default async function SkillsPage() {
   const { profile, level } = overview;
 
   // A different fact from the one the dashboard is showing today.
-  const [fact, modules, open, marks] = await Promise.all([
+  const hasPlacement = Boolean(profile.startsOn || profile.endsOn);
+  const [fact, modules, open, marks, leaderboard, sittings] = await Promise.all([
     getFactOfTheDay(profile.timezone, profile.country, new Date(), 1),
     getModuleProgress(user.id, profile.country),
     trainingOpen(profile.country),
     // Their own answers, through their own session: RLS limits it to them.
     answerMarks(supabase, user.id),
+    weeklyLeaderboard(),
+    hasPlacement
+      ? supabase
+          .from('diagnostic_results')
+          .select('essay_topic_slug, completed_at')
+          .eq('user_id', user.id)
+          .order('completed_at', { ascending: true })
+      : Promise.resolve({ data: null }),
   ]);
+  const sittingCount = sittings.data?.length ?? 0;
+  // The essay topic is legal content written in the code: a learner is shown
+  // it only once a lawyer has signed off its wording (0046).
+  const essay = await essayFor(
+    sittings.data?.[0]?.essay_topic_slug as string | undefined,
+    isStaff(profile),
+  );
   const history = marks ? scoreOverTime(marks, profile.timezone) : [];
 
   const [{ data: conceptRows }, { data: domains }, { data: schedule }] = await Promise.all([
@@ -320,6 +341,45 @@ export default async function SkillsPage() {
         </>
       ) : null}
 
+
+      {/* Moved from Today when it became the coach's note and the day's
+          homework (October 2026). */}
+      {hasPlacement ? (
+        <Card>
+          <p className="eyebrow mb-2">Your placement</p>
+          <p className="text-slate">
+            {profile.startsOn ? `Begins ${longDate(profile.startsOn)}.` : ''}
+            {profile.startsOn && profile.endsOn ? ' ' : ''}
+            {profile.endsOn ? `Ends ${longDate(profile.endsOn)}.` : ''}
+          </p>
+          {essay.topic ? (
+            <p className="mt-3 text-sm text-slate">
+              <strong>Your comparison essay:</strong> {essay.topic.item.prompt}
+              {!essay.topic.checked ? (
+                <span className="mt-1 block text-xs">
+                  Not yet checked by a lawyer. Learners do not see this topic until a lawyer
+                  signs it off.
+                </span>
+              ) : null}
+            </p>
+          ) : essay.waiting ? (
+            <p className="mt-3 text-sm text-slate">
+              <strong>Your comparison essay:</strong> the topic is waiting for a lawyer&rsquo;s
+              check, and appears here once it is signed off.
+            </p>
+          ) : null}
+          {sittingCount >= 2 ? (
+            <Link
+              href="/diagnostic/compare"
+              className="mt-3 inline-block min-h-8 text-sm text-accent underline underline-offset-4"
+            >
+              See your day one against your latest
+            </Link>
+          ) : null}
+        </Card>
+      ) : null}
+
+      <ProgressDetails overview={overview} timezone={profile.timezone} leaderboard={leaderboard} open={open} />
     </div>
   );
 }

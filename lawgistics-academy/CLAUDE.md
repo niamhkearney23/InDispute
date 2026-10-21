@@ -477,6 +477,18 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   three, handed in counts as done) and the next required module. It records
   nothing; every line links to where the work is done. A video is listed but
   never ticked. Not legal content and not gated, like sessions.
+  **Today is short** (the owner, October 2026: "fix all this now"): the
+  greeting, the note, Set for today (its first line is what the firm needs
+  first, the joining list or the firm's reading; an open matter is a line;
+  the training line carries the real start button, `BeginSessionButton
+  compact`, except while waiting for the next round), the coach's video, the
+  daily brief, one line to Programme for trainees and one to Progress. What
+  used to sit below moved, unchanged: the streak, leaderboard, numbers,
+  level, review lists (`ProgressDetails`) and the placement, essay topic
+  and day-one comparison to Progress (`/skills`, whose own scores by area
+  replace Today's old skill map); today's concept, the shortcut tiles and
+  the calendar of mornings to Programme. The work, homework and matters
+  cards went because their lines are on the list and their pages exist.
 - **Schema version.** `npm run build:sql` ends both SQL files with
   `schema_version()` (the newest migration's number, service role only) and
   writes `src/lib/schema-version.ts`. The admin layout shows an administrator
@@ -689,8 +701,9 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   (`notBefore`: the later of `trainee_approved_at` and the first sign-off of
   a published question for the country, since questions have no publication
   time); a round that closed by then shows as not counted. A corner clock
-  counts down to the next opening or the open round's close, Today shows the
-  rounds and a little calendar of every morning, and a coach sees the
+  counts down to the next opening or the open round's close, Today's list
+  shows the open or next round, Programme has a little calendar of every
+  morning, and a coach sees the
   calendar and missed count on Admin, Trainees. No rounds run until
   questions are published for the trainee's country.
 - **Score over time** (`src/lib/learning/score-history.ts`): the overall score

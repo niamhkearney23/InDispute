@@ -98,8 +98,11 @@ test('the account problem page stands outside the learner layout and cannot loop
 test('Today asks for the diagnostic rather than sending people to it', () => {
   const source = code(read('src/app/(app)/dashboard/page.tsx'));
   assert.doesNotMatch(source, /redirect\(\s*'\/diagnostic'/);
-  assert.match(source, /href="\/diagnostic"/);
-  assert.match(source, /DIAGNOSTIC_QUESTION_COUNT/);
+  // Since October 2026 the ask is the first line of "Set for today", with
+  // its length, linking to the diagnostic.
+  assert.match(source, /needsDiagnostic,/);
+  assert.match(source, /diagnosticQuestions: DIAGNOSTIC_QUESTION_COUNT/);
+  assert.match(code(read('src/lib/homework/today-list.ts')), /href: '\/diagnostic'/);
 
   const diagnostic = code(read('src/app/(app)/diagnostic/page.tsx'));
   // The way back is not only for somebody retaking it.

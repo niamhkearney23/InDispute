@@ -3,65 +3,25 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getCurrentUser, createSupabaseServerClient } from '@/lib/supabase/server';
 import { getLearnerOverview } from '@/lib/learner-overview';
-import { masteryBand } from '@/lib/learning/mastery';
 import { outstandingRequired } from '@/lib/modules/service';
 import { outstandingFirmModules } from '@/lib/firm/service';
 import { beforeYouBegin } from '@/lib/onboarding/service';
 import { acceptedInvitationFor } from '@/lib/onboarding/invitations';
 import { greeting, greetingName } from '@/lib/greeting';
-import { longDate } from '@/lib/onboarding/rules';
-import { essayFor } from '@/lib/content/service';
-import { isStaff } from '@/lib/content/gate';
 import { homeworkForDay } from '@/content/seed/homework';
-import { homeworkDay, lastArrivedDay } from '@/lib/homework/rules';
-import { HomeworkForm } from '../homework-form';
+import { homeworkDay } from '@/lib/homework/rules';
 import { DIAGNOSTIC_QUESTION_COUNT, QUESTIONS_PER_MINUTE_GOAL } from '@/lib/learning/config';
-import { TOP_LEVEL_NAME } from '@/lib/learning/progression';
-import { GoalRing } from '@/components/goal-ring';
-import { AccentSurface } from '@/components/accent-surface';
-import { Avatar } from '@/components/avatar';
-import { RoundsStrip } from '@/components/rounds-strip';
-import { RoundsCalendar } from '@/components/rounds-calendar';
-import { roundsHistory, roundsToday } from '@/lib/training/rounds-service';
-import { ROUND_SIZE, closingLabel, nextOpening, openRound, roundLabel } from '@/lib/training/rounds';
-import { hourLabel, roundTimes, zoneName } from '@/lib/training/schedule';
-import {
-  BookIcon,
-  BriefcaseIcon,
-  CalendarIcon,
-  FlameIcon,
-  LevelIcon,
-  RepeatIcon,
-  SparkIcon,
-} from '@/components/icons';
+import { roundsToday } from '@/lib/training/rounds-service';
+import { ROUND_SIZE, openRound } from '@/lib/training/rounds';
 import { SessionCard } from '@/components/session-card';
 import { leadSession, seesTraineeVideos, sessionsForLearner } from '@/lib/lessons/sessions';
-import { isFull, postsForSession, workBoardFor } from '@/lib/work/service';
-import {
-  ButtonLink,
-  Card,
-  Notice,
-  Pill,
-  ScoreBar,
-  SectionHeading,
-  InlineLink,
-} from '@/components/ui';
+import { postsForSession, workBoardFor } from '@/lib/work/service';
+import { Notice } from '@/components/ui';
 import { BeginSessionButton } from '../begin-session-button';
 import { trainingOpen } from '@/lib/training/service';
 import { DailyBrief } from '@/components/daily-brief';
 import { getFactOfTheDay } from '@/lib/facts/service';
-import { brand } from '@/lib/brand';
-import { PROGRAMME } from '@/content/programme';
-import { PROGRAMME_WEEKS, weekOfDay } from '@/content/programme-plan';
-import { programmeDay } from '@/content/programme-days';
-import { conceptForDay } from '@/content/programme-concepts';
-import { StreakCalendar } from '@/components/streak-calendar';
-import { QuestCard } from '@/components/quest-card';
 import { mattersForLearner } from '@/lib/matters/service';
-import { MATTERS_FOR_CERTIFICATE, matterLabel } from '@/lib/matters/rules';
-import { CountUp } from '@/components/count-up';
-import { LeaderboardCard } from '@/components/leaderboard-card';
-import { weeklyLeaderboard } from '@/lib/leaderboard';
 import { requireAccess } from '@/lib/access/service';
 import { scheduleForPerson } from '@/lib/training/cohorts';
 import { morningNoteFor } from '@/lib/notes/service';
@@ -102,8 +62,7 @@ export default async function DashboardPage() {
       : false;
   const countryName = overview.profile.country === 'MY' ? 'Malaysia' : 'Australia';
 
-  const { profile, level, skillMap } = overview;
-  const hasPlacement = Boolean(profile.startsOn || profile.endsOn);
+  const { profile, level } = overview;
   const supabase = await createSupabaseServerClient();
   const [
     fact,
@@ -112,8 +71,6 @@ export default async function DashboardPage() {
     joining,
     sessions,
     work,
-    leaderboard,
-    diagnosticSittings,
     homeworkRows,
     matters,
   ] =
@@ -124,25 +81,11 @@ export default async function DashboardPage() {
       beforeYouBegin(user.id, profile.country),
       sessionsForLearner(profile.country, seesTraineeVideos(profile)),
       workBoardFor(user.id),
-      weeklyLeaderboard(),
-      hasPlacement
-        ? supabase
-            .from('diagnostic_results')
-            .select('essay_topic_slug, completed_at')
-            .eq('user_id', user.id)
-            .order('completed_at', { ascending: true })
-        : Promise.resolve({ data: null }),
       profile.startsOn
         ? supabase.from('homework_declarations').select('day').eq('user_id', user.id)
         : Promise.resolve({ data: null }),
       mattersForLearner(user.id),
     ]);
-
-  const sittingCount = diagnosticSittings.data?.length ?? 0;
-  const assignedTopicSlug = diagnosticSittings.data?.[0]?.essay_topic_slug as string | undefined;
-  // The essay topic is legal content written in the code: a learner is shown
-  // it only once a lawyer has signed off its wording (0046).
-  const essay = await essayFor(assignedTopicSlug, isStaff(profile));
 
   const homework = homeworkDay(
       profile.startsOn,
@@ -152,34 +95,11 @@ export default async function DashboardPage() {
       (await scheduleForPerson(user.id)).holidays,
     );
   // A confirmed trainee's working morning is four rounds of ten (rounds.ts),
-  // in place of the daily goal; the calendar shows every morning so far.
+  // in place of the daily goal. The calendar of every morning is on Programme.
   const isTrainee = profile.track === 'litigation_trainee' && profile.traineeConfirmed;
-  const [rounds, roundDays] = isTrainee
-    ? await Promise.all([
-        roundsToday(user.id).catch(() => null),
-        roundsHistory(user.id).catch(() => null),
-      ])
-    : [null, null];
+  const rounds = isTrainee ? await roundsToday(user.id).catch(() => null) : null;
   const openNow = rounds ? openRound(rounds.rounds) : null;
-  const nextUp = rounds ? nextOpening(rounds.rounds) : null;
-  // Rounds that closed before they were confirmed, or before questions were
-  // published, are neither done nor missed, so they are left out of "of 4".
-  const countedToday = rounds ? rounds.rounds.filter((r) => r.state !== 'not_applicable').length : 0;
-  // Today's entry in the day plan, for the programme strip. Null outside a working day.
-  const todayPlan = homework.state === 'day' ? programmeDay(homework.day) : null;
-  // Which week of the month it is, for the programme strip. Null outside it.
-  const programmeWeek =
-    homework.state === 'day'
-      ? weekOfDay(homework.day)
-      : homework.state === 'weekend'
-        ? weekOfDay(homework.nextDay)
-        : null;
   const declaredDays = new Set((homeworkRows.data ?? []).map((r) => r.day as number));
-  // Today's own day is offered its own button below, not counted as "earlier".
-  const lastEarlierDay = homework.state === 'day' ? homework.day - 1 : lastArrivedDay(homework);
-  const missedDays = [...Array(lastEarlierDay).keys()]
-    .map((i) => i + 1)
-    .filter((d) => !declaredDays.has(d)).length;
 
   /* Today in the learner's own timezone, not the server's. A coach in Kuala
      Lumpur dating a session for Tuesday means Tuesday there, and a session
@@ -193,16 +113,8 @@ export default async function DashboardPage() {
   const lead = leadSession(sessions, today);
   const leadMaterials = lead ? await postsForSession(lead.id) : [];
 
-  // The board, in three numbers. Only drawn when there is something on it
-  // for this person, so a learner nobody has posted work for never sees an
-  // empty card about it.
+  // Work this person took on, for the checklist.
   const workTasks = work.filter((w) => w.post.kind === 'task');
-  const workYours = workTasks.filter((w) => w.claimed && w.state !== 'good').length;
-  const workOpen = workTasks.filter(
-    (w) => !w.claimed && w.post.published && !isFull(w.post, w.claims),
-  ).length;
-  const workAgain = workTasks.filter((w) => w.state === 'again').length;
-  const workReplies = work.filter((w) => w.replyWaiting).length;
 
   // The pre-start checklist supersedes the bare "you have not read the policy"
   // notice, because a reading step is already one line on it. Showing both
@@ -211,7 +123,6 @@ export default async function DashboardPage() {
   const hasChecklist = joining.steps.length > 0;
   const questionCount =
     QUESTIONS_PER_MINUTE_GOAL[profile.dailyGoalMinutes] ?? QUESTIONS_PER_MINUTE_GOAL[10];
-  const goalMet = overview.answeredToday >= questionCount;
 
   // The coach first, then the homework they set (0050): a note for this
   // morning, and one checklist of the day built from what is already here.
@@ -220,8 +131,37 @@ export default async function DashboardPage() {
     today,
   ).catch(() => null);
   const todayTask = homework.state === 'day' && profile.startsOn ? homeworkForDay(homework.day) : undefined;
+  // What the firm needs first: the joining list, or the firm's own reading.
+  const firstThing = hasChecklist
+    ? joining.outstanding.length > 0
+      ? {
+          label: 'Your joining list',
+          meta:
+            joining.outstanding.length === 1
+              ? '1 thing to do before you begin'
+              : `${joining.outstanding.length} things to do before you begin`,
+          href: '/start',
+        }
+      : !joining.cleared
+        ? { label: 'Your joining list', meta: 'All done · somebody at the firm will look it over', href: '/start' }
+        : null
+    : firmOutstanding.length > 0
+      ? {
+          label:
+            firmOutstanding.length === 1
+              ? `Read "${firmOutstanding[0].name}"`
+              : `Read the firm's ${firmOutstanding.length} documents`,
+          meta: 'The firm asks you to read this before you start',
+          href:
+            firmOutstanding.length === 1 ? `/modules/firm/${firmOutstanding[0].slug}` : '/modules',
+        }
+      : null;
+  const openMatter = matters.find((m) => m.latest?.stage === 'working') ?? null;
   const setForToday = todaysHomework({
     today,
+    diagnosticQuestions: DIAGNOSTIC_QUESTION_COUNT,
+    beforeYouBegin: firstThing,
+    matter: openMatter ? { id: openMatter.matter.id, title: openMatter.matter.title } : null,
     needsDiagnostic,
     trainingOpen: open,
     rounds: rounds ? rounds.rounds : null,
@@ -245,39 +185,36 @@ export default async function DashboardPage() {
       : null,
   });
 
-  const focusAreas = [...skillMap]
-    .filter((entry) => entry.attempts > 0)
-    .sort((a, b) => a.score - b.score)
-    .slice(0, 3);
+
+  const trainingLine = setForToday.find((i) => i.key === 'training');
+  const startLabel = (short: string) =>
+    openNow
+      ? `${short === 'Carry on' ? 'Carry on' : 'Start'} round ${openNow.number}`
+      : short === 'More'
+        ? 'Train again'
+        : short;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-7">
+      {/* Who it is for, and when: the day's greeting, then the coach. */}
+      <header>
+        <p className="eyebrow mb-1.5">
+          {new Intl.DateTimeFormat('en-GB', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            timeZone: profile.timezone,
+          }).format(new Date())}
+          {homework.state === 'day' && profile.startsOn ? ` · Day ${homework.day} of 20` : ''}
+        </p>
+        <h1 className="text-3xl leading-tight break-words sm:text-4xl">
+          {greeting(new Date(), profile.timezone)}
+          {greetingName(profile.displayName) ? `, ${greetingName(profile.displayName)}` : ''}
+        </h1>
+      </header>
+
       {note ? <MorningNoteCard note={note} timezone={profile.timezone} /> : null}
-      <TodayList items={setForToday} />
 
-      {needsDiagnostic ? (
-        <Card className="ring-2 ring-accent">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="eyebrow mb-1.5">Start here</p>
-              <h2 className="text-2xl">Take the diagnostic</h2>
-              <p className="mt-1.5 text-sm text-slate">
-                About {DIAGNOSTIC_QUESTION_COUNT} questions across every area, with no pass mark.
-                It sets what your daily training covers. Everything else on this page works in
-                the meantime.
-              </p>
-            </div>
-            <ButtonLink href="/diagnostic" variant="accent" size="lg" className="shrink-0">
-              Take the diagnostic
-            </ButtonLink>
-          </div>
-        </Card>
-      ) : null}
-
-      {/* Above the training prompt, and its own notice rather than folded into
-          the count below it. An unread firm policy is not one more module
-          outstanding, it is the firm's own rules not yet in front of the person
-          they apply to. */}
       {profile.track === 'litigation_trainee' && !profile.traineeConfirmed ? (
         <Notice>
           <strong>Waiting for your supervisor.</strong> They need to confirm you are on the
@@ -286,760 +223,78 @@ export default async function DashboardPage() {
         </Notice>
       ) : null}
 
-      {hasChecklist ? (
-        joining.outstanding.length > 0 ? (
-          <Notice tone="warn">
-            <strong>
-              {joining.outstanding.length === 1
-                ? 'There is 1 thing to do before you begin.'
-                : `There are ${joining.outstanding.length} things to do before you begin.`}
-            </strong>{' '}
-            <InlineLink href="/start">Open your list</InlineLink>
-          </Notice>
-        ) : !joining.cleared ? (
-          <Notice>
-            <strong>You have done everything on your list.</strong> Somebody at the firm still
-            has to look over it. <InlineLink href="/start">See your list</InlineLink>
-          </Notice>
-        ) : null
-      ) : firmOutstanding.length > 0 ? (
-        <Notice tone="warn">
-          <strong>
-            {firmOutstanding.length === 1
-              ? `The firm asks you to read "${firmOutstanding[0].name}" before you start.`
-              : `The firm asks you to read ${firmOutstanding.length} things before you start.`}
-          </strong>{' '}
-          <InlineLink
-            href={
-              firmOutstanding.length === 1
-                ? `/modules/firm/${firmOutstanding[0].slug}`
-                : '/modules'
-            }
-          >
-            {firmOutstanding.length === 1 ? 'Read it' : 'Open modules'}
-          </InlineLink>
-        </Notice>
-      ) : null}
-
-      {/* With the number, always. "You have not finished it" to somebody who
-          answered the module yesterday reads as the app losing their work;
-          "6 of 8" says what is actually left. */}
-      {outstanding.length > 0 ? (
-        <div className="space-y-3">
-          {outstanding.slice(0, 2).map((entry) => (
-            <QuestCard
-              key={entry.module.slug}
-              slug={entry.module.slug}
-              name={entry.module.name}
-              correctOnce={entry.correctOnce}
-              total={entry.total}
-            />
-          ))}
-          {outstanding.length > 2 ? (
-            <p className="text-sm text-slate">
-              And {outstanding.length - 2} more.{' '}
-              <InlineLink href="/modules">Open modules</InlineLink>
-            </p>
-          ) : null}
-        </div>
-      ) : null}
-
-      {/* The greeting and today's training, together, on the accent: the
-          one thing on the page with a time on it, spoken to by name. Being
-          greeted is most of what makes this feel like somewhere somebody is
-          expected, and the button is where their thumb should go next. */}
-      <AccentSurface as="section" id="training" className="scroll-mt-24 rounded-xl shadow-raised">
-        <div className="px-6 py-7 sm:px-9 sm:py-9">
-          {/* Their cartoon above the greeting on a phone, so a long name
-              keeps the full width; beside it on a wider screen. */}
-          <div className="flex flex-col-reverse items-start gap-3 sm:flex-row sm:justify-between sm:gap-4">
-            <h1 className="min-w-0 text-[2rem] leading-tight break-words sm:text-5xl">
-              {greeting(new Date(), profile.timezone)}
-              {greetingName(profile.displayName) ? `, ${greetingName(profile.displayName)}` : ''}.
-            </h1>
-            {/* Somebody without one is shown where to make it, here, rather
-                than nagged. */}
-            <Link
-              href="/account#cartoon"
-              className="shrink-0 rounded-full"
-              aria-label={profile.cartoon ? 'Change your cartoon' : undefined}
-            >
-              {profile.cartoon ? (
-                <Avatar
-                  url={null}
-                  cartoon={profile.cartoon}
-                  name={profile.displayName}
-                  size={64}
-                  className="ring-2 ring-paper/30"
-                />
-              ) : (
-                <span className="flex size-16 items-center justify-center rounded-full border-2 border-dashed border-paper/40 px-1 text-center text-[0.625rem] leading-tight font-semibold text-paper/80">
-                  Make your cartoon
-                </span>
-              )}
-            </Link>
-          </div>
-          <p className="mt-2 text-lg text-paper/80">
-            {overview.currentStreak > 0 && !goalMet
-              ? `${overview.currentStreak} ${overview.currentStreak === 1 ? 'day' : 'days'} in a row. Today keeps it alive.`
-              : goalMet
-                ? 'Done for today. Your streak is safe.'
-                : 'Ready to train like a lawyer?'}
+      <div id="training" className="scroll-mt-24">
+        <TodayList
+          items={setForToday}
+          startTraining={
+            trainingLine?.start
+              ? (label) => (
+                  <BeginSessionButton kind="daily" variant="accent" compact label={startLabel(label)} />
+                )
+              : undefined
+          }
+        />
+        {!open && !needsDiagnostic ? (
+          // No training line on the list until questions are published: say
+          // why, and to staff, what opens it.
+          <p className="mt-3 text-sm text-slate">
+            {profile.isAdmin
+              ? `No ${countryName === 'Malaysia' ? 'Malaysian' : 'Australian'} questions are published yet. Sign off the ones you are sure of, then press “Publish everything signed off”, and daily training opens for everyone in ${countryName}.`
+              : profile.isCoach
+                ? `No ${countryName === 'Malaysia' ? 'Malaysian' : 'Australian'} questions are published yet. Sign off the ones you are sure of, and training opens for everyone in ${countryName} once an administrator publishes them.`
+                : `${profile.country === 'MY' ? 'Malaysian questions are published only once a lawyer has signed them off, and none have been yet.' : 'No questions have been published yet.'}${
+                    profile.startsOn
+                      ? ''
+                      : supervised
+                        ? ' Anything your coach posts for you will appear here, and your homework starts once your supervisor sets your start date.'
+                        : ' Anything posted for you will appear here.'
+                  }`}
           </p>
+        ) : null}
+      </div>
 
-          {/* The stakes, beside the button that answers them: the chain, the
-              level and how close the next one is, and what this week has
-              earned. Everything here is also further down the page; up here
-              it is the reason to press Begin. */}
-          <ul className="mt-6 grid grid-cols-3 gap-2 sm:gap-3">
-            <li className="rise-in rounded-lg bg-black/15 px-3 py-3 ring-1 ring-white/10 sm:px-4">
-              <p className="flex items-center gap-1.5 text-[0.625rem] font-semibold tracking-[0.14em] text-paper/70 uppercase">
-                <FlameIcon className={overview.currentStreak > 0 ? 'flame-live size-3.5 text-amber-300' : 'size-3.5 opacity-60'} />
-                Streak
-              </p>
-              <p className="mt-1 font-serif text-2xl leading-none tabular-nums sm:text-3xl">
-                <CountUp value={overview.currentStreak} />
-                <span className="ml-1 font-sans text-xs text-paper/70">
-                  {overview.currentStreak === 1 ? 'day' : 'days'}
-                </span>
-              </p>
-            </li>
-            <li className="rise-in rounded-lg bg-black/15 px-3 py-3 ring-1 ring-white/10 [animation-delay:60ms] sm:px-4">
-              <p className="flex items-center gap-1.5 text-[0.625rem] font-semibold tracking-[0.14em] text-paper/70 uppercase">
-                <LevelIcon className="size-3.5 text-amber-300" />
-                Level
-              </p>
-              <p className="mt-1 flex items-baseline gap-2 font-serif leading-none">
-                <span className="text-2xl tabular-nums sm:text-3xl">{level.level}</span>
-                <span className="hidden truncate text-sm text-paper/80 sm:inline">{level.name}</span>
-              </p>
-              <div
-                className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/15"
-                role="meter"
-                aria-valuenow={level.progressPercent}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-label={`${level.progressPercent}% of the way to ${level.nextLevelName ?? 'the top'}`}
-              >
-                <div
-                  className="bar-grow h-full rounded-full bg-amber-300"
-                  style={{ width: `${Math.max(level.progressPercent, 3)}%` }}
-                />
-              </div>
-            </li>
-            <li className="rise-in rounded-lg bg-black/15 px-3 py-3 ring-1 ring-white/10 [animation-delay:120ms] sm:px-4">
-              <p className="flex items-center gap-1.5 text-[0.625rem] font-semibold tracking-[0.14em] text-paper/70 uppercase">
-                <SparkIcon className="size-3.5 text-amber-300" />
-                <span className="sm:hidden">Week</span>
-                <span className="hidden sm:inline">This week</span>
-              </p>
-              <p className="mt-1 font-serif text-2xl leading-none tabular-nums sm:text-3xl">
-                <CountUp value={overview.weeklyXp} />
-                <span className="ml-1 font-sans text-xs text-paper/70">XP</span>
-              </p>
-            </li>
-          </ul>
-
-          {!open ? (
-            <div className="mt-7 rounded-lg bg-black/15 p-4 ring-1 ring-white/10 sm:p-5">
-              <p className="mb-1.5 text-[0.6875rem] font-semibold tracking-[0.16em] text-paper/70 uppercase">
-                Today’s training
-              </p>
-              <p className="font-serif text-2xl leading-snug sm:text-3xl">
-                The questions are not open yet.
-              </p>
-              <p className="mt-2 text-sm text-paper/80">
-                {profile.isAdmin
-                  ? `No ${countryName === 'Malaysia' ? 'Malaysian' : 'Australian'} questions are published yet. Sign off the ones you are sure of, then press “Publish everything signed off”, and daily training opens for everyone in ${countryName}.`
-                  : profile.isCoach
-                    ? `No ${countryName === 'Malaysia' ? 'Malaysian' : 'Australian'} questions are published yet. Sign off the ones you are sure of, and training opens for everyone in ${countryName} once an administrator publishes them.`
-                    : `${profile.country === 'MY' ? 'Malaysian questions are published only once a lawyer has signed them off, and none have been yet.' : 'No questions have been published yet.'}${
-                        profile.startsOn
-                          ? ' Your homework and anything your coach has posted are below.'
-                          : supervised
-                            ? ' Anything your coach posts for you will appear below, and your homework starts once your supervisor sets your start date.'
-                            : ' Anything posted for you will appear below.'
-                      }`}
-              </p>
-              {staff ? (
-                <div className="mt-4">
-                  <ButtonLink href="/admin/review" variant="light" size="lg">
-                    Check the questions
-                  </ButtonLink>
-                </div>
-              ) : null}
-            </div>
-          ) : rounds ? (
-            <div className="mt-7 space-y-4 rounded-lg bg-black/15 p-4 ring-1 ring-white/10 sm:p-5">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="mb-1.5 text-[0.6875rem] font-semibold tracking-[0.16em] text-paper/70 uppercase">
-                    Today’s rounds, {zoneName(rounds.schedule)}
-                  </p>
-                  <p className="font-serif text-2xl leading-snug sm:text-3xl">
-                    {openNow
-                      ? `Round ${openNow.number} is open`
-                      : nextUp
-                        ? `Round ${nextUp.number} opens at ${roundLabel(nextUp)}`
-                        : 'Today’s rounds are over'}
-                  </p>
-                  <p className="mt-2 text-sm text-paper/80">
-                    {openNow
-                      ? `${openNow.answered} of ${ROUND_SIZE} done. It closes at ${closingLabel(openNow)}; after that it counts as missed. Only answers given before ${closingLabel(openNow)} count for it.`
-                      : nextUp
-                        ? `Ten questions a round, at ${roundTimes(rounds.schedule)}. ${rounds.rounds.filter((r) => r.state === 'done').length} done so far today.`
-                        : `${
-                            countedToday === 0
-                              ? 'Your rounds had not started yet today.'
-                              : `${rounds.rounds.filter((r) => r.state === 'done').length} of ${countedToday} rounds done.`
-                          } ${
-                            rounds.nextMorning
-                              ? `The next round opens on ${rounds.nextMorning} at ${hourLabel(rounds.schedule.roundHours[0])}.`
-                              : 'That was the last day of the programme.'
-                          }`}
-                  </p>
-                </div>
-                {openNow ? (
-                  <BeginSessionButton
-                    kind="daily"
-                    variant="light"
-                    label={openNow.answered > 0 ? `Carry on with round ${openNow.number}` : `Start round ${openNow.number}`}
-                  />
-                ) : null}
-              </div>
-              <RoundsStrip rounds={rounds.rounds} />
-            </div>
-          ) : (
-            <div className="mt-7 flex flex-col gap-5 rounded-lg bg-black/15 p-4 ring-1 ring-white/10 sm:flex-row sm:items-center sm:justify-between sm:p-5">
-              <div className="flex items-center gap-5">
-                <GoalRing done={overview.answeredToday} goal={questionCount} light />
-                <div>
-                  <p className="mb-1.5 text-[0.6875rem] font-semibold tracking-[0.16em] text-paper/70 uppercase">
-                    Today’s training
-                  </p>
-                  <p className="font-serif text-3xl leading-none">
-                    {goalMet
-                      ? 'Done for today'
-                      : overview.answeredToday > 0
-                        ? `${Math.max(questionCount - overview.answeredToday, 0)} to go`
-                        : `${questionCount} questions`}
-                  </p>
-                  <p className="mt-2 text-sm text-paper/75">
-                    {goalMet
-                      ? 'Anything more today is a bonus, and it still counts.'
-                      : `About ${profile.dailyGoalMinutes} minutes${
-                          level.xpForNextLevel !== null
-                            ? `, ${level.xpForNextLevel} XP to ${level.nextLevelName}`
-                            : ''
-                        }`}
-                  </p>
-                  {focusAreas.length > 0 && !goalMet ? (
-                    <ul className="mt-2 flex flex-wrap gap-1.5" aria-label="Today's focus">
-                      {focusAreas.map((f) => (
-                        <li
-                          key={f.slug}
-                          className="rounded-full bg-paper/12 px-2.5 py-0.5 text-xs font-medium text-paper ring-1 ring-paper/20"
-                        >
-                          {f.name}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : null}
-                  {/* A target that moves with them. Yesterday's count is the
-                      one number they already beat once, so it reads as a
-                      dare rather than a demand. */}
-                  {!goalMet &&
-                  overview.answeredYesterday > 0 &&
-                  overview.answeredToday <= overview.answeredYesterday ? (
-                    <p className="mt-2 inline-block rounded-full bg-paper/15 px-2.5 py-1 text-xs font-semibold text-paper ring-1 ring-paper/25">
-                      Beat yesterday: {overview.answeredYesterday} answered
-                      {overview.answeredToday > 0 ? `, ${overview.answeredToday} so far` : ''}
-                    </p>
-                  ) : null}
-                </div>
-              </div>
-              <BeginSessionButton
-                kind="daily"
-                variant="light"
-                label={
-                  goalMet
-                    ? 'Train again'
-                    : overview.answeredToday > 0
-                      ? 'Keep going'
-                      : 'Begin training'
-                }
-              />
-            </div>
-          )}
-        </div>
-      </AccentSurface>
-
-      {/* Every morning of the placement so far, a square a day and a dot a
-          round, so a missed round is as visible as a done one. */}
-      {roundDays && roundDays.days.length > 0 ? (
-        <Card>
-          <p className="eyebrow mb-3">Your mornings</p>
-          <RoundsCalendar days={roundDays.days} today={rounds?.date ?? roundDays.days[roundDays.days.length - 1].date} />
-        </Card>
-      ) : null}
-
-      {/* The programme, for the people on it: where the month is up to, today's
-          concept when there is one, and the six places its work lives, as
-          equal tiles rather than a pile of buttons. Below the greeting, so
-          the page opens on the person and then the plan. */}
-      {profile.track === 'litigation_trainee' ? (
-        <Card>
-          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <p className="eyebrow">Your programme · {brand.firm}</p>
-            <p className="text-sm text-slate tabular-nums">
-              {homework.state === 'day'
-                ? `Day ${homework.day} of 20 · Week ${weekOfDay(homework.day)} of 4`
-                : homework.state === 'weekend'
-                  ? `Week ${weekOfDay(homework.nextDay)} of 4`
-                  : homework.state === 'before'
-                    ? `Starts ${longDate(profile.startsOn!)}`
-                    : homework.state === 'finished'
-                      ? 'Finished'
-                      : 'Start date not set yet'}
-            </p>
-          </div>
-          <h2 className="mt-2 text-2xl">
-            {programmeWeek
-              ? PROGRAMME_WEEKS[programmeWeek - 1].title
-              : `${PROGRAMME.length}, ${PROGRAMME.days}, on one training file`}
-          </h2>
-          {todayPlan ? (
-            <div className="mt-4 rounded-md border border-rule bg-paper-sunk px-4 py-3">
-              <p className="eyebrow">Today&rsquo;s concept</p>
-              <p className="mt-0.5 font-serif text-lg leading-snug">
-                {conceptForDay(todayPlan.day)?.concept ?? todayPlan.title}
-              </p>
-              <p className="mt-1 text-sm">
-                <span className="text-muted">Morning:</span> {todayPlan.morning}
-              </p>
-              <p className="text-sm">
-                <span className="text-muted">Afternoon:</span> {todayPlan.afternoon}
-              </p>
-              {todayPlan.due.length > 0 ? (
-                <p className="mt-1 text-sm font-medium">
-                  Due today: {todayPlan.due.map((n) => `box ${n}`).join(' and ')}. Hand it in on the work board.
-                </p>
-              ) : null}
-            </div>
-          ) : null}
-          <ul className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {(
-              [
-                ['The month', 'Week by week', '/programme'],
-                ['The training file', 'The one case you work on', '/programme/file'],
-                ['Homework', 'One task a day', '/homework'],
-                ['Work board', 'From your supervisors', '/work'],
-                ['Sessions', 'Your coach\u2019s videos', '/sessions'],
-                ['Certificate', 'What earns it', '/certificate'],
-              ] as const
-            ).map(([label, hint, href]) => (
-              <li key={href}>
-                <Link
-                  href={href}
-                  className="flex h-full min-h-16 flex-col justify-center rounded-md border border-rule bg-paper-sunk px-3 py-2.5 transition-colors hover:border-rule-strong hover:bg-paper-raised"
-                >
-                  <span className="font-medium leading-snug">{label}</span>
-                  <span className="text-xs text-slate">{hint}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </Card>
-      ) : null}
-
-      {matters.length > 0 ? (() => {
-        const open = matters.find((m) => m.latest?.stage === 'working');
-        const next = open ?? matters.find((m) => !m.latest) ?? null;
-        const good = Math.min(matters.filter((m) => m.everGood).length, MATTERS_FOR_CERTIFICATE);
-        return (
-          <Card>
-            <CardLabel icon={<BriefcaseIcon className="size-4" />}>Matters</CardLabel>
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <div className="min-w-0">
-                {next ? (
-                  <>
-                    <p className="font-mono text-xs font-semibold text-accent">
-                      {matterLabel(next.matter.number)}
-                    </p>
-                    <p className="font-serif text-2xl leading-snug">{next.matter.title}</p>
-                    <p className="mt-1 text-sm text-slate">
-                      {open ? 'You have this one open, and the clock is running.' : 'The problem first, then how a lawyer would do it.'}
-                    </p>
-                  </>
-                ) : (
-                  <p className="text-slate">You have tried every matter that is up. New ones appear here.</p>
-                )}
-                <p className="mt-3 text-xs text-muted">
-                  {good} of {MATTERS_FOR_CERTIFICATE} marked Good towards your{' '}
-                  <Link href="/certificate" className="-my-2 inline-block py-2 text-accent underline underline-offset-2">
-                    certificate
-                  </Link>
-                  .
-                </p>
-              </div>
-              <ButtonLink href={next ? `/matters/${next.matter.id}` : '/matters'} variant="accent">
-                {open ? 'Carry on' : next ? 'Open the file' : 'See all matters'}
-              </ButtonLink>
-            </div>
-          </Card>
-        );
-      })() : null}
-
-      {hasPlacement ? (
-        <Card>
-          <CardLabel icon={<CalendarIcon className="size-4" />} tone="slate">
-            Your placement
-          </CardLabel>
-          <p className="text-slate">
-            {profile.startsOn ? `Begins ${longDate(profile.startsOn)}.` : ''}
-            {profile.startsOn && profile.endsOn ? ' ' : ''}
-            {profile.endsOn ? `Ends ${longDate(profile.endsOn)}.` : ''}
-          </p>
-          {essay.topic ? (
-            <p className="mt-3 text-sm text-slate">
-              <strong>Your comparison essay:</strong> {essay.topic.item.prompt}
-              {!essay.topic.checked ? (
-                <span className="mt-1 block text-xs">
-                  Not yet checked by a lawyer. Learners do not see this topic until a lawyer
-                  signs it off.
-                </span>
-              ) : null}
-            </p>
-          ) : essay.waiting ? (
-            <p className="mt-3 text-sm text-slate">
-              <strong>Your comparison essay:</strong> the topic is waiting for a lawyer&rsquo;s
-              check, and appears here once it is signed off.
-            </p>
-          ) : null}
-          {sittingCount >= 2 ? (
-            <div className="mt-4">
-              <ButtonLink href="/diagnostic/compare" variant="outline" size="sm">
-                See your day one against your latest
-              </ButtonLink>
-            </div>
-          ) : null}
-        </Card>
-      ) : null}
-
-      {profile.startsOn ? (
-        <Card>
-          {homework.state === 'before' ? (
-            <>
-              <CardLabel icon={<BookIcon className="size-4" />}>Homework</CardLabel>
-              <p className="text-slate">
-                Your homework begins on {longDate(profile.startsOn)}. Twenty tasks, one for
-                each working day.
-              </p>
-            </>
-          ) : homework.state === 'weekend' ? (
-            <>
-              <CardLabel icon={<BookIcon className="size-4" />}>Homework</CardLabel>
-              <p className="text-slate">
-                No homework today{homework.holiday ? ` (${homework.holiday})` : ''}. Day{' '}
-                {homework.nextDay} picks up on{' '}
-                {new Date(`${homework.resumesOn}T00:00:00Z`).toLocaleDateString('en-GB', {
-                  weekday: 'long',
-                  timeZone: 'UTC',
-                })}
-                .
-              </p>
-            </>
-          ) : homework.state === 'finished' ? (
-            <>
-              <CardLabel icon={<BookIcon className="size-4" />}>Homework</CardLabel>
-              <p className="text-slate">You finished the four weeks.</p>
-              <p className="mt-2 text-sm text-slate">{declaredDays.size} of 20 recorded.</p>
-            </>
-          ) : homework.state === 'day' ? (
-            (() => {
-              const task = homeworkForDay(homework.day);
-              const done = declaredDays.has(homework.day);
-              return (
-                <>
-                  <CardLabel icon={<BookIcon className="size-4" />}>
-                    Homework, day {homework.day} of 20
-                  </CardLabel>
-                  {task ? (
-                    <>
-                      <p className="font-serif text-xl leading-snug">{task.title}</p>
-                      <p className="mt-2 text-slate">{task.task}</p>
-                      <p className="mt-2 text-sm text-muted">{task.why}</p>
-                    </>
-                  ) : null}
-                  {done ? (
-                    <div className="mt-4 flex items-center gap-2">
-                      <Pill tone="correct">Done</Pill>
-                    </div>
-                  ) : (
-                    <HomeworkForm day={homework.day} />
-                  )}
-                </>
-              );
-            })()
-          ) : null}
-          {missedDays > 0 ? (
-            <p className="mt-3 text-sm text-slate">
-              {missedDays} earlier {missedDays === 1 ? 'day is' : 'days are'} not ticked off.{' '}
-              <InlineLink href="/homework">Catch up</InlineLink>
-            </p>
-          ) : (
-            <p className="mt-3 text-sm text-muted">
-              <InlineLink href="/homework">See all twenty</InlineLink>
-            </p>
-          )}
-        </Card>
-      ) : null}
-
-      {/* The coach's own session comes before the daily brief and before the
-          stats. The rounds run at set hours and this is the thing with a
-          time on it; the questions will still be there later. */}
+      {/* The coach's own session: the thing with a time on it. */}
       {lead ? (
         <div id="session" className="scroll-mt-24">
           <SessionCard session={lead} more={sessions.length - 1} materials={leadMaterials} />
         </div>
       ) : null}
 
-      {work.length > 0 ? (
-        <Card>
-          <CardLabel icon={<BriefcaseIcon className="size-4" />} tone="green">
-            Work from your coach
-          </CardLabel>
-          {workAgain > 0 ? (
-            <p className="text-slate">
-              {workAgain === 1 ? 'One piece' : `${workAgain} pieces`} of your work{' '}
-              {workAgain === 1 ? 'needs' : 'need'} another go. Your coach has said why.
-            </p>
-          ) : workYours > 0 ? (
-            <p className="text-slate">
-              {workYours === 1 ? 'One piece' : `${workYours} pieces`} of work with your name on{' '}
-              {workYours === 1 ? 'it' : 'them'}.
-              {workOpen > 0 ? ` ${workOpen} more open.` : ''}
-            </p>
-          ) : workOpen > 0 ? (
-            <p className="text-slate">
-              {workOpen === 1 ? 'One piece' : `${workOpen} pieces`} of work open. Put your name
-              on one.
-            </p>
-          ) : (
-            <p className="text-slate">Nothing waiting on you.</p>
-          )}
-          {workReplies > 0 ? (
-            <p className="mt-2 text-sm text-slate">
-              Your coach has replied on {workReplies === 1 ? 'one piece' : `${workReplies} pieces`}{' '}
-              of work.
-            </p>
-          ) : null}
-          <p className="mt-3 text-sm text-muted">
-            <InlineLink href="/work">Open the board</InlineLink>
-          </p>
-        </Card>
-      ) : null}
-
       {fact ? <DailyBrief fact={fact} /> : null}
 
-      <Card>
-        <CardLabel icon={<FlameIcon className="size-4" />} tone="amber">
-          Your streak
-        </CardLabel>
-        <StreakCalendar
-          trainedDays={overview.trainedDays}
-          timezone={profile.timezone}
-          streak={overview.currentStreak}
-        />
-      </Card>
-
-      {leaderboard ? <LeaderboardCard rows={leaderboard} /> : null}
-
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatTile
-          icon={<LevelIcon className="size-5" />}
-          tone="accent"
-          label="Current level"
-          value={level.level}
-          hint={`${level.name}, game level`}
-        />
-        <StatTile
-          icon={<FlameIcon className="size-5" />}
-          tone="amber"
-          label="Longest streak"
-          value={overview.longestStreak}
-          hint={overview.longestStreak > 0 ? 'days, your record' : 'no streak yet'}
-        />
-        <StatTile
-          icon={<SparkIcon className="size-5" />}
-          tone="green"
-          label="XP this week"
-          value={overview.weeklyXp}
-          hint={`${overview.totalXp} total`}
-        />
-        <StatTile
-          icon={<RepeatIcon className="size-5" />}
-          tone="slate"
-          label="Due for review"
-          value={overview.dueCount}
-          hint={overview.dueCount === 0 ? 'nothing outstanding' : 'concepts'}
-        />
-      </section>
-
-      <section className="rounded-lg border border-rule bg-paper-raised p-5 shadow-card">
-        <div className="mb-2.5 flex items-baseline justify-between gap-3">
-          <p className="eyebrow">Progress to {level.nextLevelName ?? 'the top'}</p>
-          <p className="text-xs text-muted">
-            {level.xpForNextLevel !== null
-              ? `${level.xpForNextLevel} XP to go`
-              : TOP_LEVEL_NAME}
-          </p>
-        </div>
-        <div
-          className="h-3 w-full overflow-hidden rounded-full bg-paper-sunk"
-          role="meter"
-          aria-valuenow={level.progressPercent}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-label={`Progress within level ${level.level}`}
+      {profile.track === 'litigation_trainee' ? (
+        <Link
+          href="/programme"
+          className="panel flex items-center justify-between gap-4 rounded-lg border border-rule bg-paper-raised p-4 shadow-card hover:bg-paper-sunk/60"
         >
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-accent to-accent-soft transition-all duration-500"
-            style={{ width: `${Math.max(level.progressPercent, 2)}%` }}
-          />
-        </div>
-        {/* The level's own line. It is the one place in the app allowed to be
-            funny, and it is what makes a progress bar feel like it is worth
-            filling rather than a number going up. */}
-        <p className="mt-2 text-sm text-slate">{level.blurb}</p>
-      </section>
+          <span className="min-w-0">
+            <span className="eyebrow block">Your programme</span>
+            <span className="mt-1 block text-sm text-muted">
+              Today&rsquo;s concept, the training file, your mornings and the month
+            </span>
+          </span>
+          <span className="shrink-0 text-sm font-semibold text-accent">Open ›</span>
+        </Link>
+      ) : null}
 
-      <section className="grid gap-5 sm:grid-cols-2">
-        <Card>
-          <SectionHeading title="Needs review" />
-          {overview.needsReview.length === 0 ? (
-            <p className="text-sm text-slate">
-              {open
-                ? 'Nothing is due right now. New concepts will keep appearing in your daily training.'
-                : 'Nothing is due right now.'}
-            </p>
-          ) : (
-            <ul className="space-y-2">
-              {overview.needsReview.map((name) => (
-                <li key={name} className="flex items-center justify-between gap-3">
-                  <span className="text-sm">{name}</span>
-                  <Pill tone="accent">Due</Pill>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Card>
-
-        <Card>
-          <SectionHeading title="Recently mastered" />
-          {overview.recentlyMastered.length === 0 ? (
-            <p className="text-sm text-slate">
-              Nothing yet. A concept counts as mastered once you have answered it
-              correctly and consistently.
-            </p>
-          ) : (
-            <ul className="space-y-2">
-              {overview.recentlyMastered.map((name) => (
-                <li key={name} className="flex items-center justify-between gap-3">
-                  <span className="text-sm">{name}</span>
-                  <Pill tone="correct">Strong</Pill>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Card>
-      </section>
-
-      <section>
-        <SectionHeading
-          title="Skill map"
-          action={
-            <ButtonLink href="/skills" variant="ghost" size="sm">
-              See detail
-            </ButtonLink>
-          }
-        />
-        <Card>
-          {overview.areaScoresUnavailable ? (
-            <p className="text-sm text-slate">
-              Scores by area could not be read just now. Try again in a moment; your answers are
-              all still recorded.
-            </p>
-          ) : null}
-          <div className="divide-y divide-rule">
-            {overview.areaScoresUnavailable ? null : skillMap.map((entry) => (
-              <ScoreBar
-                key={entry.slug}
-                label={entry.name}
-                score={entry.score}
-                band={masteryBand(entry.score)}
-                unit="%"
-                early={entry.attempts === 0}
-                earlyText="Not asked yet"
-                sublabel={
-                  entry.attempts === 0
-                    ? 'No questions on this yet'
-                    : `${entry.attempts} answer${entry.attempts === 1 ? '' : 's'}`
-                }
-              />
-            ))}
-          </div>
-        </Card>
-      </section>
-    </div>
-  );
-}
-
-const TONES = {
-  accent: 'bg-accent-wash text-accent',
-  amber: 'bg-warn-wash text-warn',
-  green: 'bg-verdict-correct-wash text-verdict-correct',
-  slate: 'bg-paper-sunk text-slate',
-} as const;
-
-/** A card's label, with a small coloured badge so each card reads at a glance. */
-function CardLabel({
-  icon,
-  tone = 'accent',
-  children,
-}: {
-  icon: React.ReactNode;
-  tone?: keyof typeof TONES;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="mb-3 flex items-center gap-2.5">
-      <span className={`grid size-8 place-items-center rounded-lg ${TONES[tone]}`}>{icon}</span>
-      <p className="eyebrow">{children}</p>
-    </div>
-  );
-}
-
-/** One number, with its icon, its name and a line of context. */
-function StatTile({
-  icon,
-  tone,
-  label,
-  value,
-  hint,
-}: {
-  icon: React.ReactNode;
-  tone: keyof typeof TONES;
-  label: string;
-  value: number | string;
-  hint: string;
-}) {
-  return (
-    <div className="rounded-lg border border-rule bg-paper-raised p-4 shadow-card transition-transform hover:-translate-y-px">
-      <span className={`mb-3 grid size-9 place-items-center rounded-lg ${TONES[tone]}`}>{icon}</span>
-      <p className="eyebrow">{label}</p>
-      <p className="mt-1 font-serif text-3xl leading-none tabular-nums">{value}</p>
-      <p className="mt-1.5 text-xs text-muted">{hint}</p>
+      {/* Everything about how they are doing lives on Progress; here, one line. */}
+      <Link
+        href="/skills"
+        className="panel flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-lg border border-rule bg-paper-raised p-4 shadow-card hover:bg-paper-sunk/60"
+      >
+        <span className="min-w-0">
+          <span className="eyebrow block">Your progress</span>
+          <span className="mt-1 block font-semibold">
+            Level {level.level} · {level.name}
+          </span>
+          <span className="mt-0.5 block text-sm text-muted">
+            {overview.currentStreak} {overview.currentStreak === 1 ? 'day' : 'days'} in a row ·{' '}
+            {overview.weeklyXp} XP this week
+            {level.xpForNextLevel !== null ? ` · ${level.xpForNextLevel} XP to the next level` : ''}
+          </span>
+        </span>
+        <span className="text-sm font-semibold text-accent">See your progress ›</span>
+      </Link>
     </div>
   );
 }

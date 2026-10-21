@@ -4,6 +4,8 @@ import { doneCount, todaysHomework, type TodayInput } from '../src/lib/homework/
 
 const base: TodayInput = {
   today: '2026-10-17',
+  beforeYouBegin: null,
+  matter: null,
   needsDiagnostic: false,
   trainingOpen: true,
   rounds: null,
@@ -83,4 +85,24 @@ test('the day homework and the next module are on the list, a finished module is
   assert.equal(items[1].done, true);
   const finished = todaysHomework({ ...base, nextModule: { slug: 'x', name: 'X', correctOnce: 7, total: 7 } });
   assert.ok(!finished.some((i) => i.key === 'module'));
+});
+
+test('what the firm needs first is the first line, and an open matter is on the list', () => {
+  const items = todaysHomework({
+    ...base,
+    beforeYouBegin: { label: 'Your joining list', meta: '3 things to do before you begin', href: '/start' },
+    matter: { id: 'm1', title: 'Judgment in default' },
+  });
+  assert.equal(items[0].key, 'before');
+  assert.equal(items[0].urgent, true);
+  assert.ok(items.some((i) => i.key === 'matter' && i.href === '/matters/m1'));
+});
+
+test('the training line can be started from the list, except while waiting for the next round', () => {
+  assert.equal(todaysHomework(base)[0].start, 'Carry on');
+  assert.equal(todaysHomework({ ...base, goal: { questions: 10, answered: 0 } })[0].start, 'Start');
+  const open = todaysHomework({ ...base, rounds: [round(1, 'open', 0)] });
+  assert.equal(open[0].start, 'Start');
+  const waiting = todaysHomework({ ...base, rounds: [round(1, 'done', 10), round(2, 'upcoming')] });
+  assert.equal(waiting[0].start, undefined);
 });

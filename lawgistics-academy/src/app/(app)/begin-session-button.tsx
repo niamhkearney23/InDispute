@@ -10,10 +10,13 @@ export function BeginSessionButton({
   kind,
   label,
   variant = 'accent',
+  compact = false,
 }: {
   kind: SessionKind;
   label: string;
   variant?: 'accent' | 'primary' | 'outline' | 'light';
+  /** A small button on one line of a list, rather than a full-width one. */
+  compact?: boolean;
 }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -42,8 +45,8 @@ export function BeginSessionButton({
     // Content width once the layout turns horizontal: left as w-full it
     // takes the whole flex row, which strands the button against its own
     // left edge and squeezes everything beside it.
-    <div className="w-full sm:w-auto">
-      <Button size="lg" variant={variant} disabled={pending} onClick={start}>
+    <div className={compact ? 'shrink-0' : 'w-full sm:w-auto'}>
+      <Button size={compact ? 'sm' : 'lg'} variant={variant} disabled={pending} onClick={start}>
         {pending ? 'Preparing…' : label}
       </Button>
       {error ? (

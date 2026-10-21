@@ -19,11 +19,17 @@ export interface TodayItem {
   done: boolean | null;
   /** Something due today, or asked for again. */
   urgent?: boolean;
+  /** The training line can be started from the list itself, with this label. */
+  start?: string;
 }
 
 export interface TodayInput {
   today: string;
+  /** What the firm needs done before anything else: the joining list, or its reading. */
+  beforeYouBegin: { label: string; meta: string; href: string } | null;
   needsDiagnostic: boolean;
+  /** How long the diagnostic is, to say so on its line. */
+  diagnosticQuestions?: number;
   /** Questions are published for this person's country. */
   trainingOpen: boolean;
   /** A confirmed trainee's rounds this morning, or null for everybody else. */
@@ -34,6 +40,8 @@ export interface TodayInput {
   homework: { day: number; title: string; done: boolean } | null;
   work: Array<{ id: string; title: string; dueOn: string | null; state: string }>;
   session: { title: string } | null;
+  /** A practice file this person has open, with its clock running. */
+  matter: { id: string; title: string } | null;
   nextModule: { slug: string; name: string; correctOnce: number; total: number } | null;
 }
 
@@ -61,6 +69,7 @@ function trainingItem(input: TodayInput): TodayItem | null {
         href: '#training',
         done: false,
         urgent: true,
+        start: open.answered > 0 ? `Carry on` : `Start`,
       };
     }
     const next = counted.find((r) => r.state === 'upcoming');
@@ -89,6 +98,7 @@ function trainingItem(input: TodayInput): TodayItem | null {
     meta: answered >= questions ? `${answered} answered` : `${answered} of ${questions} answered`,
     href: '#training',
     done: answered >= questions,
+    start: answered >= questions ? 'More' : answered > 0 ? 'Carry on' : 'Start',
   };
 }
 
@@ -96,11 +106,17 @@ function trainingItem(input: TodayInput): TodayItem | null {
 export function todaysHomework(input: TodayInput): TodayItem[] {
   const items: TodayItem[] = [];
 
+  if (input.beforeYouBegin) {
+    items.push({ key: 'before', ...input.beforeYouBegin, done: false, urgent: true });
+  }
+
   if (input.needsDiagnostic) {
     items.push({
       key: 'diagnostic',
       label: 'Take the diagnostic',
-      meta: 'It sets what your daily training covers',
+      meta: input.diagnosticQuestions
+        ? `About ${input.diagnosticQuestions} questions, no pass mark. It sets what your training covers`
+        : 'It sets what your daily training covers',
       href: '/diagnostic',
       done: false,
     });
@@ -156,6 +172,17 @@ export function todaysHomework(input: TodayInput): TodayItem[] {
       href: `/work/${w.id}`,
       done: waiting,
       urgent: !waiting && (again || dueToday || overdue),
+    });
+  }
+
+  if (input.matter) {
+    items.push({
+      key: 'matter',
+      label: input.matter.title,
+      meta: 'Practice file · you have it open and the clock is running',
+      href: `/matters/${input.matter.id}`,
+      done: false,
+      urgent: true,
     });
   }
 
