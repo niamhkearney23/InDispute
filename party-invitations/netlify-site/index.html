@@ -110,7 +110,7 @@ figure a:hover img{transform:scale(1.03)}
 <main class="wrap">
 
   <section class="invite" aria-label="Invitation">
-    <p class="greet" id="greet" hidden><span id="greet-name"></span>, you’re invited to</p>
+    <p class="greet" id="greet" hidden>Hi <span id="greet-name"></span>, you’re invited to</p>
     <p class="host foil">THOMAS PHILIP</p>
     <p class="presents">PRESENTS</p>
     <div class="year"><span class="foil">2027</span><i class="glint g7" aria-hidden="true"></i><i class="glint g2" aria-hidden="true"></i></div>
@@ -199,9 +199,9 @@ figure a:hover img{transform:scale(1.03)}
     var q=new URLSearchParams(location.search);
     var n=(q.get('to')||q.get('name')||'').replace(/[<>]/g,'').trim().slice(0,60);
     if(!n) return;
-    document.getElementById('greet-name').textContent=n;
+    document.getElementById('greet-name').textContent=n.split(/\s+/)[0];
     document.getElementById('greet').hidden=false;
-    document.title=n+', you’re invited · Opening Statement 2027';
+    document.title='Hi '+n.split(/\s+/)[0]+', you’re invited · Opening Statement 2027';
     var f=document.getElementById('name'); if(f && !f.value) f.value=n;
     // record the first open of this personal link on this device (Netlify Forms → "opens")
     if(/^https?:$/.test(location.protocol)){
