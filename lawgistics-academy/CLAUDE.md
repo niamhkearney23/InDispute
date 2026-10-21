@@ -187,7 +187,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0051`.
+- Migrations run to `0052`.
   `supabase/UPDATE.sql` is the one-paste update for a database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -499,8 +499,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   the future, as the tutor always did, and training asks again
   (`stillSignedOff`, `src/lib/review/expiry.ts`) before showing an
   explanation or writing an AI note for a version given out earlier.
-  Nothing yet moves a lapsed item back to the queue by itself; it simply
-  stops being given out. **No table can be emptied** by anon, authenticated
+  0052 moves a lapsed item back to the queue by itself (below). **No table can be emptied** by anon, authenticated
   or the server (TRUNCATE revoked on every public table, and by default on
   new ones; a schema guarantee checks every table), and the server cannot
   delete deletion jobs, their review items, lesson and court-map sign-offs,
@@ -522,6 +521,24 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   `seesTraineeVideos(profile, staffChecked)`), as the database has since
   0047: a password alone shows a coach what a learner sees, with no
   unsigned content, trainee-only notes, videos or training-file notes.
+- `0052` is **content that stops being approved** (the owner, before
+  staging). `return_lapsed_content()` (service role only) takes every
+  current question version and daily fact past its `review_due_on` back to
+  the review queue with a note, after writing what the sign-off was (who,
+  when, the date it ran out) to `content_lapses`, which nobody may change,
+  delete or empty. It runs nightly (`/api/cron/content-review`, the
+  `CRON_SECRET` bearer token, 404 when unset; in `vercel.json`) and when a
+  reviewer opens the review queue or the daily brief list
+  (`returnLapsedContent`, `src/lib/review/lapse.ts`). Learners' answers are
+  never touched. **Answering a question taken back since it was shown**
+  (sign-off run out or withdrawn, flagged, unpublished, or a new version
+  minted) marks and records nothing and sends neither the answer key nor
+  any explanation: `submitAnswer` asks `v_question_delivery` about that
+  exact version first and returns `withdrawnFeedback` (the page says "Not
+  marked"); `getCoachNote` writes no note for one. Today's daily brief asks
+  for a current sign-off for everybody, since an administrator may read
+  every fact. Tests: `tests-integration/content-expiry.it.test.ts` drives a
+  real session while the approval changes and checks the server's own reply.
 - **Schema version.** `npm run build:sql` ends both SQL files with
   `schema_version()` (the newest migration's number, service role only) and
   writes `src/lib/schema-version.ts`. The admin layout shows an administrator
@@ -643,7 +660,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 - **Rollback is fail secure** (the owner's decision, after rejecting a
   rollback that put back password-only staff access in the database): restrict
   access first, then fix forward; never deploy a build without two-step
-  sign-in (`b0161d8` or earlier), never undo `0043` to `0048`.
+  sign-in (`b0161d8` or earlier), never undo `0043` to `0052`.
   `docs/ROLLBACK.md` is the owner's guide and lists every security control
   with the only conditions under which one may be relaxed (exceptions are
   recorded in `docs/SECURITY-EXCEPTIONS.md`). The switch is `SITE_ACCESS`,
