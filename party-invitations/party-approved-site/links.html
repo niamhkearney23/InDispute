@@ -105,7 +105,7 @@ li.g input[type=checkbox]{width:22px;height:22px;margin:2px 0 0;accent-color:var
   </section>
 
   <h2><span>03</span>Who opened it</h2>
-  <p>In Netlify, go to <b>Forms</b>, open <b>opens</b> and download the CSV, then open <b>rsvp</b> and download that CSV too. Drop both files here and every guest above shows if they have opened their invitation and what they replied.</p>
+  <p>Download the two lists, then drop both files here. From the Google Sheet: open the <b>Opens</b> tab, then <b>File → Download → CSV</b>, and do the same for the <b>RSVPs</b> tab. Or from Netlify: <b>Forms</b>, open <b>opens</b> and download the CSV, then the same for <b>rsvp</b>. Every guest above then shows if they have opened their invitation and what they replied.</p>
   <label class="drop" id="drop" for="files">
     <strong>Drop the two CSV files here</strong>
     <span>or tap to choose them</span>
@@ -158,13 +158,20 @@ li.g input[type=checkbox]{width:22px;height:22px;margin:2px 0 0;accent-color:var
   }
   function linkFor(g){return base+'?to='+encodeURIComponent(g.name)}
   function msgFor(g){return $('tpl').value.split('{first}').join(g.name.split(/\s+/)[0]).split('{link}').join(linkFor(g))}
-  function fmt(iso){var d=new Date(iso);return isNaN(d)?'':d.toLocaleDateString(undefined,{day:'numeric',month:'short'})+', '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'})}
+  // Netlify exports ISO times; Google Sheets exports day-first dates like 21/10/2026 18:02:11
+  function toDate(v){
+    var m=String(v||'').trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+    if(m) return new Date(+m[3],+m[2]-1,+m[1],+(m[4]||0),+(m[5]||0),+(m[6]||0));
+    return new Date(v);
+  }
+  function when(v){var t=toDate(v).getTime();return isNaN(t)?0:t}
+  function fmt(v){var d=toDate(v);return isNaN(d)?String(v||''):d.toLocaleDateString(undefined,{day:'numeric',month:'short'})+', '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'})}
   function plus(v){var m=String(v||'').match(/\d+/);return m?+m[0]:0}
 
   function statusOf(g){
     var k=norm(g.name);
-    var o=opens.filter(function(r){return norm(r.guest)===k}).sort(function(a,b){return String(a.at).localeCompare(String(b.at))});
-    var r=rsvps.filter(function(x){return norm(x.invite)===k||(!x.invite&&norm(x.name)===k)}).sort(function(a,b){return String(b.at).localeCompare(String(a.at))})[0];
+    var o=opens.filter(function(r){return norm(r.guest)===k}).sort(function(a,b){return when(a.at)-when(b.at)});
+    var r=rsvps.filter(function(x){return norm(x.invite)===k||(!x.invite&&norm(x.name)===k)}).sort(function(a,b){return when(b.at)-when(a.at)})[0];
     return {opened:o[0],opens:o.length,reply:r,sent:!!sent[k]};
   }
   function bucket(s){
@@ -218,7 +225,7 @@ li.g input[type=checkbox]{width:22px;height:22px;margin:2px 0 0;accent-color:var
     // people who came in through the shared link under a name that is not on the list
     var known={};guests.forEach(function(g){known[norm(g.name)]=1});
     var extra={};
-    opens.forEach(function(o){var k=norm(o.guest);if(!k||known[k])return;extra[k]=extra[k]||{name:o.guest};if(!extra[k].opened||String(o.at)<String(extra[k].opened))extra[k].opened=o.at});
+    opens.forEach(function(o){var k=norm(o.guest);if(!k||known[k])return;extra[k]=extra[k]||{name:o.guest};if(!extra[k].opened||when(o.at)<when(extra[k].opened))extra[k].opened=o.at});
     rsvps.forEach(function(x){var k=norm(x.invite)||norm(x.name);if(!k||known[norm(x.invite)]||known[norm(x.name)])return;extra[k]=extra[k]||{name:x.name||x.invite};extra[k].reply=x});
     var ek=Object.keys(extra);
     $('extra-sec').hidden=!ek.length; $('extra').innerHTML='';
@@ -257,10 +264,10 @@ li.g input[type=checkbox]{width:22px;height:22px;margin:2px 0 0;accent-color:var
     var col=function(){for(var i=0;i<arguments.length;i++){var j=h.indexOf(arguments[i]);if(j>-1)return j}return -1};
     var body=rows.slice(1), get=function(r,j){return j>-1?(r[j]||'').trim():''};
     if(col('guest')>-1){
-      var gi=col('guest'),ti=col('openedat','createdat','created','date','submittedat'),di=col('device');
+      var gi=col('guest'),ti=col('openedat','opened','createdat','created','date','submittedat'),di=col('device');
       return {kind:'opens',rows:body.map(function(r){return {guest:get(r,gi),at:get(r,ti),device:get(r,di)}}).filter(function(x){return x.guest})}}
-    if(col('attending')>-1){
-      var ii=col('invitelink'),ni=col('name'),ai=col('attending'),gi2=col('guests'),ci=col('createdat','created','date','submittedat');
+    if(col('attending','coming')>-1){
+      var ii=col('invitelink'),ni=col('name'),ai=col('attending','coming'),gi2=col('guests'),ci=col('createdat','received','created','date','submittedat');
       return {kind:'rsvps',rows:body.map(function(r){return {invite:get(r,ii),name:get(r,ni),attending:get(r,ai),guests:get(r,gi2),at:get(r,ci)}}).filter(function(x){return x.name||x.invite})}}
     return null;
   }
