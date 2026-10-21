@@ -392,7 +392,7 @@ body::before{content:"";position:fixed;inset:0;background:#000;opacity:0;pointer
   var form=document.getElementById('rsvp'), btn=document.getElementById('file');
   var live=/^https?:$/.test(location.protocol);
   // Google Sheet web app address (from Apps Script → Deploy). Leave empty to use Netlify Forms only.
-  var SHEET_URL='';
+  var SHEET_URL='https://script.google.com/macros/s/AKfycbzb_qd85TAk81252Em-3_ieOvSlcXe6NYZIc_eggLtK1-JVFf3gE4SZ0VC0XLMeX0elBQ/exec';
 
   // send a reply or an open to the Google Sheet and to Netlify Forms; true if either took it
   function send(fields){
