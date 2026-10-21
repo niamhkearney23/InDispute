@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Invitation links · Opening Statement 2027</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@1,6..96,500&family=Archivo:wght@500;600;700&display=swap">
+<style>
+:root{--ink:#0d0c0b;--card:#141210;--gold:#dcc596;--gold-hi:#f1e3bf;--soft:#e9dfc9;--rule:rgba(220,197,150,.28);color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ink);color:var(--soft);font-family:"Archivo","Helvetica Neue",Arial,sans-serif;padding:40px max(16px,env(safe-area-inset-left,0px)) 64px max(16px,env(safe-area-inset-right,0px))}
+main{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1{font-family:"Bodoni Moda",Georgia,serif;font-style:italic;font-weight:500;font-size:clamp(30px,6vw,40px);color:var(--gold-hi);margin:0}
+p{line-height:1.55;margin:0;opacity:.85}
+label{font-weight:600;letter-spacing:.2em;font-size:11px;text-transform:uppercase;color:var(--gold)}
+textarea{width:100%;min-height:160px;background:transparent;border:1px solid var(--rule);color:var(--soft);font:inherit;font-size:16px;padding:12px 14px;resize:vertical}
+textarea:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.btn{border:0;cursor:pointer;background:linear-gradient(115deg,#b89c69,#ecdcb4 45%,#c9ad7c);color:#16130e;font-weight:700;letter-spacing:.2em;font-size:12px;text-transform:uppercase;padding:14px 18px}
+.ghost{background:transparent;color:var(--gold);border:1px solid var(--rule)}
+ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;border:1px solid var(--rule);background:var(--card);padding:10px 12px}
+li b{display:block;color:var(--gold-hi);font-weight:600}
+li code{display:block;font-size:13px;opacity:.75;overflow-wrap:anywhere}
+li button{border:1px solid var(--rule);background:transparent;color:var(--gold);cursor:pointer;padding:8px 12px;font:inherit;font-size:13px}
+.hint{font-size:13px;opacity:.6}
+</style>
+</head>
+<body>
+<main>
+  <h1>Personal invitation links</h1>
+  <p>Type one name per line. Each person gets a link that opens the invitation with their name on it and fills in the RSVP form for them.</p>
+  <label for="names">Guest names</label>
+  <textarea id="names" placeholder="Sarah Lee&#10;James Tan&#10;Priya Nair"></textarea>
+  <div class="row">
+    <button class="btn" id="make" type="button">Create links</button>
+    <button class="btn ghost" id="copyall" type="button" hidden>Copy all</button>
+  </div>
+  <ul id="out"></ul>
+  <p class="hint">This page is for the host. Keep its address to yourself.</p>
+</main>
+<script>
+(function(){
+  var base=location.origin+location.pathname.replace(/links\.html$/,'');
+  var out=document.getElementById('out'), all=document.getElementById('copyall'), lines=[];
+  function copy(text,btn){
+    var done=function(){var o=btn.textContent;btn.textContent='Copied';setTimeout(function(){btn.textContent=o},1400)};
+    if(navigator.clipboard){navigator.clipboard.writeText(text).then(done,function(){prompt('Copy this:',text)})}else{prompt('Copy this:',text)}
+  }
+  document.getElementById('make').addEventListener('click',function(){
+    out.textContent=''; lines=[];
+    document.getElementById('names').value.split('\n').map(function(s){return s.trim()}).filter(Boolean).forEach(function(n){
+      var url=base+'?to='+encodeURIComponent(n);
+      var first=n.split(' ')[0];
+      var msg='Hi '+first+', you’re invited to Opening Statement 2027, Thomas Philip’s New Year’s Party on Friday, 8 January from 8 PM. Your invitation and RSVP: '+url;
+      lines.push(n+': '+url);
+      var li=document.createElement('li'), d=document.createElement('div'), b=document.createElement('b'), c=document.createElement('code');
+      b.textContent=n; c.textContent=url; d.appendChild(b); d.appendChild(c);
+      var bx=document.createElement('div'); bx.className='row';
+      var b1=document.createElement('button'); b1.type='button'; b1.textContent='Copy link'; b1.onclick=function(){copy(url,b1)};
+      var b2=document.createElement('button'); b2.type='button'; b2.textContent='Copy message'; b2.onclick=function(){copy(msg,b2)};
+      bx.appendChild(b1); bx.appendChild(b2); li.appendChild(d); li.appendChild(bx); out.appendChild(li);
+    });
+    all.hidden=lines.length===0;
+  });
+  all.addEventListener('click',function(){copy(lines.join('\n'),all)});
+})();
+</script>
+</body>
+</html>

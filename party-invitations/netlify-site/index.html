@@ -68,6 +68,8 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .btn{appearance:none;border:0;cursor:pointer;background:linear-gradient(115deg,#b89c69,#ecdcb4 45%,#c9ad7c);color:#16130e;font-family:var(--sans);font-weight:700;letter-spacing:.24em;font-size:13px;text-transform:uppercase;padding:16px 20px}
 .hp{position:absolute;left:-9999px}
 .foot{text-align:center;font-size:13px;opacity:.55;margin:0}
+.greet{font-family:var(--serif);font-style:italic;font-weight:500;font-size:clamp(20px,4.6vw,26px);color:var(--soft);margin:0 0 22px}
+.greet span{color:var(--gold-hi)}
 
 /* ---- motion: one orchestrated entrance, a slow foil sheen, quiet hovers ---- */
 .foil{background-size:220% 100%;animation:sheen 9s ease-in-out infinite}
@@ -108,6 +110,7 @@ figure a:hover img{transform:scale(1.03)}
 <main class="wrap">
 
   <section class="invite" aria-label="Invitation">
+    <p class="greet" id="greet" hidden><span id="greet-name"></span>, you’re invited to</p>
     <p class="host foil">THOMAS PHILIP</p>
     <p class="presents">PRESENTS</p>
     <div class="year"><span class="foil">2027</span><i class="glint g7" aria-hidden="true"></i><i class="glint g2" aria-hidden="true"></i></div>
@@ -186,5 +189,18 @@ figure a:hover img{transform:scale(1.03)}
 
   <p class="foot">Thomas Philip · Opening Statement 2027</p>
 </main>
+<script>
+(function(){
+  try{
+    var q=new URLSearchParams(location.search);
+    var n=(q.get('to')||q.get('name')||'').replace(/[<>]/g,'').trim().slice(0,60);
+    if(!n) return;
+    document.getElementById('greet-name').textContent=n;
+    document.getElementById('greet').hidden=false;
+    document.title=n+', you’re invited · Opening Statement 2027';
+    var f=document.getElementById('name'); if(f && !f.value) f.value=n;
+  }catch(e){}
+})();
+</script>
 </body>
 </html>
