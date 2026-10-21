@@ -1,25 +1,25 @@
 {
-  "generatedDate": "2026-10-20",
+  "generatedDate": "2026-10-21",
   "jobs": [
     {
-      "employer": "The Law Society of New South Wales (scheme-wide)",
-      "program": "Summer Clerkship 2027/28 Recruitment Program",
+      "employer": "The Law Society of New South Wales (scheme-wide dates binding on participating firms)",
+      "program": "Summer Clerkship 2027 Recruitment Program",
       "jurisdiction": "NSW",
       "opens": "2027-06-09",
       "closes": null,
-      "notes": "Scheme-wide dates binding on participating NSW employers; applications open 9:00am AEST on Wed 9 June 2027 and offers can be made from 9:00am Wed 8 September 2027, but the guidelines list two staggered closing dates (Sun 4 July and Sun 11 July 2027) that vary by employer, so a single close date cannot be confirmed.",
+      "notes": "Official scheme page lists 2027 dates as applications opening Wednesday 9 June at 9:00am AEST with two alternative closing dates (Sunday 4 July and Sunday 11 July, 11:59pm AEST) depending on the firm, and offers from Wednesday 8 September — so a single scheme-wide close date cannot be confirmed; eligibility is generally penultimate-year students, and the 2026 cycle has already closed.",
       "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Clerkship-Recruitment-Program",
-      "verifiedDate": "2026-10-20"
+      "verifiedDate": "2026-10-21"
     },
     {
-      "employer": "Clayton Utz",
-      "program": "Seasonal Clerkship 2027/28",
-      "jurisdiction": "National",
+      "employer": "Queensland Law Society (scheme-wide guidelines for participating firms)",
+      "program": "Seasonal Clerkship and Graduate Recruitment (next cycle)",
+      "jurisdiction": "QLD",
       "opens": null,
       "closes": null,
-      "notes": "The firm's own careers page confirms applications are currently closed and will next open in June 2027 for the 2027/28 seasonal clerkship intake, but no exact open or close date is published yet (the dates currently shown on the page relate to the completed 2026 cycle).",
-      "url": "https://www.claytonutz.com/careers/early-careers/seasonal-clerkships",
-      "verifiedDate": "2026-10-20"
+      "notes": "The official QLS page confirms the recruitment cycle commences with clerkship applications in July/August with Summer One, Summer Two, Autumn and Winter programs and priority graduate decisions in early August, but no specific calendar dates for the next cycle are published on the page, so opens/closes are left null rather than guessed.",
+      "url": "https://www.qls.com.au/the-hub-early-career-lawyers/your-legal-career/seasonal-clerkship-and-graduate-recruitment",
+      "verifiedDate": "2026-10-21"
     }
   ]
 }
