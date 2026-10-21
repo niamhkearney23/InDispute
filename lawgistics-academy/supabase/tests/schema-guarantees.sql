@@ -4667,9 +4667,29 @@ select pg_temp.expect(
 insert into auth.users (id, email) values ('eeee0051-0000-0000-0000-000000000002', 'intern-0051@example.test');
 insert into public.homework_declarations (user_id, day, task_slug)
 values ('eeee0051-0000-0000-0000-000000000002', 1, 'day-1-0051');
-select pg_temp.expect_failure(
-  $$delete from auth.users where id = 'eeee0051-0000-0000-0000-000000000002'$$,
-  'deleting an intern in Supabase Auth does not take their ticked homework with them');
+do $$
+begin
+  delete from auth.users where id = 'eeee0051-0000-0000-0000-000000000002';
+  raise exception 'FAIL  deleting an intern in Supabase Auth took their ticked homework with them';
+exception when others then
+  if sqlerrm not like 'This record is kept%' then
+    raise exception 'FAIL  deleting an intern in Supabase Auth was refused, but not by the record trigger: %', sqlerrm;
+  end if;
+  raise notice 'PASS  deleting an intern in Supabase Auth does not take their ticked homework with them (the record trigger refused it)';
+end;
+$$;
+select pg_temp.expect(
+  (select count(distinct c.relname)
+     from pg_trigger t
+     join pg_class c on c.oid = t.tgrelid
+     join pg_proc p on p.oid = t.tgfoid
+    where p.proname = 'refuse_record_delete'
+      and t.tgenabled = 'O'
+      and (t.tgtype & 8) <> 0 and (t.tgtype & 1) = 1
+      and c.relname in ('firm_module_acknowledgements', 'firm_step_declarations', 'firm_step_confirmations',
+                        'onboarding_decisions', 'homework_declarations', 'work_submissions',
+                        'certificates', 'matter_attempts')) = 8,
+  'each of the eight kept tables refuses a deleted row by trigger, enabled, row by row');
 select pg_temp.expect(
   exists (select 1 from public.homework_declarations where user_id = 'eeee0051-0000-0000-0000-000000000002'),
   'the homework record is still there');

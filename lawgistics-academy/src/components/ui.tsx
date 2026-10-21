@@ -128,15 +128,16 @@ export function SectionHeading({
  * A link inside a sentence.
  *
  * Exists because an inline <a> is as tall as its text, which is 17px, and 17px
- * is not a thing you can reliably hit with a thumb. The padding makes the tap
- * area 32px without changing where the words sit, and inline-block is what lets
- * vertical padding count at all.
+ * is not a thing you can reliably hit with a thumb. It stays inline, so it
+ * wraps with the sentence and the line keeps its height (a link in a sentence
+ * is exempt from WCAG 2.5.5's size rule); vertical padding on an inline box
+ * does not move the lines but does widen what a press lands on, to about 45px.
  */
 export function InlineLink({ href, children }: { href: string; children: ReactNode }) {
   return (
     <Link
       href={href}
-      className="inline-flex min-h-11 items-center font-medium underline underline-offset-2"
+      className="py-3.5 font-medium underline underline-offset-2"
     >
       {children}
     </Link>

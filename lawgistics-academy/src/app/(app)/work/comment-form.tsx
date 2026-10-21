@@ -38,7 +38,7 @@ export function CommentForm({ postId, staff = false }: { postId: string; staff?:
                 box.focus();
                 box.setSelectionRange(starter.length, starter.length);
               }}
-              className="min-h-9 rounded-full border border-rule-strong bg-paper px-3 text-sm text-slate transition hover:border-accent/50 hover:bg-accent-wash hover:text-ink"
+              className="min-h-11 rounded-full border border-rule-strong bg-paper px-3 text-sm text-slate transition hover:border-accent/50 hover:bg-accent-wash hover:text-ink"
             >
               {starter.trim()}
             </button>
