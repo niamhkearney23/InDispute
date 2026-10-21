@@ -1,0 +1,194 @@
+<title>Opening Statement 2027</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,600;1,6..96,500;1,6..96,600&family=Archivo:wght@500;600;700&display=swap">
+<style>
+/* Layout: one centred invitation column — the card itself on top, the RSVP form set beneath it like a reply slip. Single dark look by design (black card, champagne foil). */
+:root{
+  --ink:#0d0c0b;
+  --card:#141210;
+  --gold:#dcc596;
+  --gold-hi:#f1e3bf;
+  --gold-lo:#a98f5f;
+  --soft:#e9dfc9;
+  --rule:rgba(220,197,150,.28);
+  --serif:"Bodoni Moda","Didot","Bodoni 72",Georgia,serif;
+  --sans:"Archivo","Helvetica Neue",Arial,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--ink);color:var(--soft);font-family:var(--sans);margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px;
+  background-image:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(220,197,150,.07),transparent 70%)}
+.wrap{max-width:620px;margin:0 auto;display:flex;flex-direction:column;gap:40px}
+.foil{background:linear-gradient(115deg,var(--gold-lo) 0%,var(--gold-hi) 30%,#cdb284 48%,var(--gold-hi) 68%,var(--gold-lo) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* invitation */
+.invite{text-align:center;display:flex;flex-direction:column;align-items:center;padding-block:24px 8px;position:relative}
+.host{font-family:var(--serif);font-weight:600;letter-spacing:.24em;font-size:clamp(18px,4.2vw,26px);margin:0 0 0 .24em}
+.presents{font-weight:600;letter-spacing:.42em;font-size:11px;color:var(--gold);margin:10px 0 0 .42em}
+.year{font-family:var(--serif);font-weight:500;font-size:clamp(110px,30vw,200px);line-height:.95;letter-spacing:-.04em;margin:22px 0 0;position:relative}
+.glint{position:absolute;width:30px;height:30px;pointer-events:none}
+.glint::before,.glint::after{content:"";position:absolute;left:50%;top:50%;background:linear-gradient(var(--gold-hi),var(--gold-hi));transform:translate(-50%,-50%)}
+.glint::before{width:1.4px;height:100%;background:linear-gradient(transparent,var(--gold-hi),transparent)}
+.glint::after{height:1.4px;width:100%;background:linear-gradient(90deg,transparent,var(--gold-hi),transparent)}
+.g7{right:-6px;top:4px}
+.g2{left:16%;top:6px;width:20px;height:20px}
+.title{font-family:var(--serif);font-weight:500;font-size:clamp(44px,11vw,72px);line-height:.92;margin:14px 0 0;text-wrap:balance}
+.title em{font-style:italic;font-weight:600;display:block}
+.party{font-weight:700;letter-spacing:.3em;font-size:clamp(13px,3vw,16px);color:var(--gold);margin:30px 0 0 .3em}
+.tag{font-family:var(--serif);font-style:italic;font-weight:500;font-size:clamp(19px,4.4vw,24px);line-height:1.3;color:var(--soft);margin:20px 0 0}
+.short{width:48px;height:1px;background:var(--rule);margin:26px auto}
+.details{font-weight:700;letter-spacing:.12em;font-size:clamp(15px,3.6vw,18px);line-height:1.6;color:var(--gold);margin:0}
+.venue{font-weight:600;letter-spacing:.16em;font-size:12px;color:var(--gold);opacity:.8;margin:8px 0 0}
+
+/* rsvp slip */
+.slip{border:1px solid var(--rule);background:var(--card);padding:32px clamp(20px,5vw,40px);display:flex;flex-direction:column;gap:24px}
+.slip h2{font-family:var(--serif);font-weight:500;font-style:italic;font-size:30px;margin:0;color:var(--gold-hi)}
+.slip .sub{margin:-14px 0 0;font-size:14px;line-height:1.5;color:var(--soft);opacity:.75}
+.lbl{display:block;font-weight:600;letter-spacing:.2em;font-size:11px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.choice{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choice input{position:absolute;opacity:0;pointer-events:none}
+.choice label{display:block;text-align:center;padding:14px 10px;border:1px solid var(--rule);cursor:pointer;font-family:var(--serif);font-size:18px;color:var(--soft);transition:border-color .15s,background .15s}
+.choice input:checked+label{border-color:var(--gold);background:rgba(220,197,150,.1);color:var(--gold-hi)}
+.choice input:focus-visible+label{outline:2px solid var(--gold);outline-offset:2px}
+select,textarea{width:100%;background:transparent;border:1px solid var(--rule);color:var(--soft);font:inherit;font-size:16px;padding:12px 14px}
+select option{background:var(--card)}
+textarea{min-height:80px;resize:vertical}
+select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.btn{appearance:none;border:0;cursor:pointer;background:linear-gradient(115deg,#b89c69,#ecdcb4 45%,#c9ad7c);color:#16130e;font-family:var(--sans);font-weight:700;letter-spacing:.24em;font-size:13px;text-transform:uppercase;padding:16px 20px}
+.btn[disabled]{opacity:.5;cursor:default}
+.status{font-size:14px;line-height:1.5;margin:0;min-height:1.5em;color:var(--gold-hi)}
+.status.err{color:#f0a48c}
+.done{text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center}
+.done .big{font-family:var(--serif);font-style:italic;font-size:30px;color:var(--gold-hi);margin:0}
+.link{background:none;border:0;color:var(--gold);text-decoration:underline;text-underline-offset:3px;cursor:pointer;font:inherit;font-size:14px;padding:0}
+
+/* guest list */
+.list{display:flex;flex-direction:column;gap:14px}
+.count{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.count b{font-family:var(--serif);font-weight:500;font-size:44px;color:var(--gold-hi);font-variant-numeric:tabular-nums;line-height:1}
+.count span{letter-spacing:.2em;font-size:11px;font-weight:600;text-transform:uppercase;color:var(--gold)}
+.names{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.names li{border:1px solid var(--rule);padding:6px 12px;font-size:14px;color:var(--soft)}
+.names li small{color:var(--gold);margin-left:4px}
+.empty{font-size:14px;opacity:.7;margin:0}
+.note{font-size:13px;text-align:center;opacity:.6;margin:0}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<main class="wrap">
+  <section class="invite" aria-label="Invitation">
+    <p class="host foil">THOMAS PHILIP</p>
+    <p class="presents">PRESENTS</p>
+    <div class="year foil" aria-label="2027">2027<i class="glint g7" aria-hidden="true"></i><i class="glint g2" aria-hidden="true"></i></div>
+    <h1 class="title foil"><em>Opening</em>Statement</h1>
+    <p class="party">NEW YEAR’S PARTY</p>
+    <p class="tag">With good company.<br>And that is TP’s guarantee.</p>
+    <div class="short" aria-hidden="true"></div>
+    <p class="details">FRIDAY, 8 JANUARY 2027<br>8 PM TILL LATE</p>
+    <p class="venue">VENUE TO BE CONFIRMED</p>
+  </section>
+
+  <section class="slip" id="rsvp" aria-labelledby="rsvp-h">
+    <h2 id="rsvp-h">Kindly reply</h2>
+    <p class="sub">Let us know if you can make it, and how many guests you’re bringing.</p>
+
+    <form id="form" novalidate>
+      <div style="display:flex;flex-direction:column;gap:22px">
+        <div>
+          <span class="lbl" id="att-l">Will you attend?</span>
+          <div class="choice" role="radiogroup" aria-labelledby="att-l">
+            <input type="radio" name="att" id="att-yes" value="yes"><label for="att-yes">Joyfully accepts</label>
+            <input type="radio" name="att" id="att-no" value="no"><label for="att-no">Regretfully declines</label>
+          </div>
+        </div>
+        <div>
+          <label class="lbl" for="plus">Guests joining you</label>
+          <select id="plus">
+            <option value="0">Just me</option>
+            <option value="1">Me + 1</option>
+            <option value="2">Me + 2</option>
+            <option value="3">Me + 3</option>
+          </select>
+        </div>
+        <div>
+          <label class="lbl" for="note">Dietary needs or a note (optional)</label>
+          <textarea id="note" maxlength="200" placeholder="e.g. vegetarian"></textarea>
+        </div>
+        <button class="btn" id="send" type="submit">Send my reply</button>
+        <p class="status" id="status" role="status"></p>
+      </div>
+    </form>
+
+    <div class="done" id="done" hidden>
+      <p class="big" id="done-msg">You’re on the list.</p>
+      <p class="sub" id="done-sub" style="margin:0"></p>
+      <button class="link" id="edit" type="button">Change my reply</button>
+    </div>
+
+    <p class="status err" id="offline" hidden>Sign in to claude.ai to reply. The invitation details above are all you need for now.</p>
+  </section>
+
+  <section class="slip list" aria-labelledby="list-h">
+    <h2 id="list-h">Who’s coming</h2>
+    <div class="count"><b id="n">0</b><span id="n-l">people attending</span></div>
+    <ul class="names" id="names"></ul>
+    <p class="empty" id="none">No replies yet. Be the first on the list.</p>
+  </section>
+
+  <p class="note">Thomas Philip · Opening Statement 2027</p>
+</main>
+
+<script>
+(async () => {
+  const $ = id => document.getElementById(id);
+  const form=$('form'), status=$('status'), done=$('done');
+  let db=null, user=null, me=null, mine=null;
+  const showForm = () => { form.hidden=false; done.hidden=true; };
+  const showDone = (d) => {
+    form.hidden=true; done.hidden=false;
+    if (d.attending){ $('done-msg').textContent='You’re on the list.'; $('done-sub').textContent = d.plusOnes ? `See you there, with ${d.plusOnes} guest${d.plusOnes>1?'s':''}.` : 'See you there.'; }
+    else { $('done-msg').textContent='Thank you for letting us know.'; $('done-sub').textContent='You’ll be missed.'; }
+  };
+  const fill = (d) => { $('att-'+(d.attending?'yes':'no')).checked=true; $('plus').value=String(d.plusOnes||0); $('note').value=d.note||''; };
+
+  try { [db,user] = await Promise.all([window.claude?.use?.('db'), window.claude?.use?.('user')]); } catch(e) {}
+  if (!db){ form.hidden=true; $('offline').hidden=false; return; }
+  try { me = await user?.id(); } catch(e) {}
+  if (!me){ form.hidden=true; $('offline').hidden=false; }
+
+  let names = {};
+  async function renderList(docs){
+    const yes = docs.filter(s=>s.data()?.attending===true);
+    const total = yes.reduce((a,s)=>a+1+(Number(s.data().plusOnes)||0),0);
+    $('n').textContent=total; $('n-l').textContent = total===1?'person attending':'people attending';
+    $('none').hidden = yes.length>0;
+    const ul=$('names'); ul.textContent='';
+    let ps={}; try { ps = await user.profiles(yes.map(s=>s.id)); } catch(e) {}
+    for (const s of yes){ const li=document.createElement('li'); const p=ps[s.id];
+      li.textContent = (p&&p.name)||'A guest'; const k=Number(s.data().plusOnes)||0;
+      if (k){ const sm=document.createElement('small'); sm.textContent='+'+k; li.appendChild(sm); }
+      ul.appendChild(li); }
+  }
+  db.collection('rsvps').onSnapshot(snap => {
+    renderList(snap.docs);
+    if (me){ const s=snap.docs.find(d=>d.id===me); const d=s?.data();
+      if (d && !mine){ mine=d; fill(d); showDone(d); } }
+  }, () => { $('none').textContent='The guest list couldn’t load. Refresh the page to try again.'; });
+
+  $('edit').addEventListener('click', showForm);
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault(); if (!me) return;
+    const att = form.querySelector('input[name=att]:checked');
+    if (!att){ status.className='status err'; status.textContent='Choose whether you can attend.'; return; }
+    const data = { attending: att.value==='yes', plusOnes: att.value==='yes' ? Number($('plus').value) : 0, note: $('note').value.trim().slice(0,200), updatedAt: new Date().toISOString() };
+    $('send').disabled=true; status.className='status'; status.textContent='Sending…';
+    try { await db.doc('rsvps/'+me).set(data); mine=data; status.textContent=''; showDone(data); }
+    catch(err){ status.className='status err'; status.textContent = err?.code==='invalid_argument' ? 'Your access to this page doesn’t allow replies. Ask Thomas Philip’s team to share it with you.' : 'Your reply didn’t send. Check your connection and try again.'; }
+    finally { $('send').disabled=false; }
+  });
+})();
+</script>
