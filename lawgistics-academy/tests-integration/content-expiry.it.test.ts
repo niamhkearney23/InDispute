@@ -426,12 +426,14 @@ test('a withdrawal racing an answer: the answer waits for it, and is not marked 
   const reviewer = spawn('psql', [IT.SUPABASE_IT_DB_URL, '-v', 'ON_ERROR_STOP=1', '-c',
     `begin; update public.question_versions set review_flagged = true, review_note = 'IT: racing' where id = '${q.versionId}'; select pg_sleep(3); commit;`]);
   const done = new Promise<number>((resolve) => reviewer.on('close', resolve));
-  // Wait until the reviewer's transaction really holds the row, not a guess.
-  for (let i = 0; i < 100; i++) {
-    const holding = sql(`select count(*) from pg_stat_activity where state = 'active' and query like '%IT: racing%' and query not like '%pg_stat_activity%'`);
-    if (holding === '1') break;
-    await new Promise((r) => setTimeout(r, 50));
+  // Wait until the reviewer's transaction has made its change and is
+  // sleeping on it (so it holds the row), not a guess.
+  let holding = false;
+  for (let i = 0; i < 100 && !holding; i++) {
+    holding = sql(`select count(*) from pg_stat_activity where wait_event = 'PgSleep' and query like '%IT: racing%' and query not like '%pg_stat_activity%'`) === '1';
+    if (!holding) await new Promise((r) => setTimeout(r, 50));
   }
+  assert.ok(holding, 'the reviewer\'s transaction never got going');
   const started = Date.now();
   const { data, error } = await service().rpc('claim_answer', { p_session: sessionId, p_version: q.versionId, p_user: p.id });
   const waited = Date.now() - started;

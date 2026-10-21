@@ -507,6 +507,8 @@ test('no AI note, saved or new, for a question taken back after it was answered'
   // A saved note older than the latest sign-off of its explanation is not handed back.
   assert.match(fn, /new Date\(signed\.verified_at as string\) > new Date\(slot\.coach_note_at as string\)/);
   assert.match(fn, /return \{ coachNote: resigned \? null : /);
+  // No date to compare against counts as re-signed: nothing is handed back.
+  assert.match(fn, /!signed\?\.verified_at \|\|/);
   const callAt = fn.indexOf('coachOnAnswer(');
   const secondCheck = fn.indexOf('if (!(await stillOffered(db, questionVersionId))) return { coachNote: null };', firstCheck + 1);
   const keptAt = fn.indexOf('.update({ coach_note: coachNote })');
