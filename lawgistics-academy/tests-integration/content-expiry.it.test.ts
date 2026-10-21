@@ -14,7 +14,7 @@ import { after, before, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { chromium, type Browser, type Page } from 'playwright';
 import { spawn } from 'node:child_process';
-import { IT, PASSWORD, asToken, browserOptions, person, service, sql, totp, type Person } from './helpers';
+import { IT, PASSWORD, TARGET, asToken, browserOptions, person, service, sql, totp, type Person } from './helpers';
 import { getCoachNote } from '../src/lib/training/service';
 import { seedContent } from '../src/lib/setup/seed-content';
 
@@ -222,18 +222,23 @@ test('a question reworded into a new version while on screen: the old version is
   const p = await learner();
   const sessionId = await sessionWith(p, q);
   const { page, replies } = await onQuestion(p, sessionId);
-  // As the admin edit does: retire the current version, then mint the next.
-  sql(`
-    begin;
-    update public.question_versions set is_current = false where id = '${q.versionId}';
-    insert into public.question_versions
-      (question_id, version, is_current, question_type, scenario, stem, options, correct_option_ids,
-       explanation, difficulty, jurisdiction, verification_status)
-    select question_id, version + 1, true, question_type, scenario, stem || ' (revised)', options,
-           correct_option_ids, explanation || ' Revised.', difficulty, jurisdiction, 'requires_review'
-      from public.question_versions where id = '${q.versionId}';
-    update public.questions set status = 'requires_review' where id = '${q.questionId}' and status = 'published';
-    commit;`);
+  // As the admin edit does (src/app/admin/actions.ts), through the server's
+  // API so it runs against the hosted staging copy too: retire the current
+  // version, mint the next, take the question back to review.
+  const db = service();
+  const { data: old, error: readError } = await db.from('question_versions').select('*').eq('id', q.versionId).single();
+  if (readError) throw readError;
+  const retire = await db.from('question_versions').update({ is_current: false }).eq('id', q.versionId);
+  if (retire.error) throw retire.error;
+  const mint = await db.from('question_versions').insert({
+    question_id: old.question_id, version: old.version + 1, is_current: true, question_type: old.question_type,
+    scenario: old.scenario, stem: `${old.stem} (revised)`, options: old.options, correct_option_ids: old.correct_option_ids,
+    explanation: `${old.explanation} Revised.`, difficulty: old.difficulty, jurisdiction: old.jurisdiction,
+    verification_status: 'requires_review',
+  });
+  if (mint.error) throw mint.error;
+  const back = await db.from('questions').update({ status: 'requires_review' }).eq('id', q.questionId).eq('status', 'published');
+  if (back.error) throw back.error;
   assertNothingDisclosed(await answer(page, replies), replies, q);
   assert.equal(await attempts(p.id, q.versionId), 0);
   await page.context().close();
@@ -417,7 +422,9 @@ test('staff with the code typed are not shown an expired daily fact on Today as 
   }
 });
 
-test('a withdrawal racing an answer: the answer waits for it, and is not marked against withdrawn content', async () => {
+// Needs a second database connection holding a transaction open, which only
+// the local stack offers; a hosted copy is reached through its API alone.
+test('a withdrawal racing an answer: the answer waits for it, and is not marked against withdrawn content', { skip: TARGET !== 'local' && 'needs a direct database connection (local stack only)' }, async () => {
   const q = await publishedQuestion();
   const p = await learner();
   const sessionId = await sessionWith(p, q);
