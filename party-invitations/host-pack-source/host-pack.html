@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Opening Statement 2027 · Host pack</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@900&family=Cormorant+Garamond:ital,wght@1,500;1,600&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=block">
+<style>
+@page{size:A4;margin:0}
+:root{--paper:#eee8dc;--ink:#1c1a17;--muted:#625d54;--hair:rgba(28,26,23,.22);--red:#bf3a2f;--mono:"IBM Plex Mono",monospace;--serif:"Instrument Serif",serif;--caslon:"Libre Caslon Text",Georgia,serif;--italic:"Cormorant Garamond",Georgia,serif}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:var(--caslon);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{width:210mm;height:297mm;padding:15mm 16mm 13mm;position:relative;overflow:hidden;page-break-after:always;background:var(--paper)}
+.page:last-child{page-break-after:auto}
+.head{display:flex;justify-content:space-between;font:500 8.5pt/1 var(--mono);letter-spacing:.14em;padding-bottom:3.2mm;border-bottom:1.2pt solid var(--ink)}
+.foot{position:absolute;left:16mm;right:16mm;bottom:9mm;display:flex;justify-content:space-between;font:400 7.5pt/1 var(--mono);letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+h1{font:400 50pt/.9 var(--serif);margin:9mm 0 0;letter-spacing:-.01em}
+h1 em{font-style:italic}
+h1 .yr{color:var(--red);font-size:30pt;vertical-align:.55em;margin-left:3mm}
+h2{font:italic 400 30pt/1 var(--serif);margin:0 0 4mm}
+h3{font:500 8.5pt/1.3 var(--mono);letter-spacing:.16em;text-transform:uppercase;margin:0 0 2.5mm;color:var(--ink)}
+h3 span{color:var(--muted);font-weight:400;margin-right:2mm}
+p{font-size:10pt;line-height:1.5;margin:0 0 2.5mm}
+.lede{font:italic 600 15pt/1.3 var(--italic);margin:4mm 0 0;max-width:150mm}
+.kick{font:500 8.5pt/1 var(--mono);letter-spacing:.2em;color:var(--muted);margin-top:7mm}
+.kick b{color:var(--ink);font-weight:600}
+a{color:var(--ink);text-decoration:none;border-bottom:.6pt solid rgba(191,58,47,.6)}
+.mono{font-family:var(--mono);font-size:8.6pt;letter-spacing:.02em;word-break:break-all}
+.section{margin-top:8mm}
+.rule{border-top:1pt solid var(--ink);margin:6mm 0 5mm}
+
+/* cover */
+.cover-grid{display:grid;grid-template-columns:94mm 1fr;gap:9mm;margin-top:9mm;align-items:start}
+.poster{width:94mm;display:block;box-shadow:0 2.5mm 7mm rgba(0,0,0,.22)}
+.facts{border-top:1.2pt solid var(--ink)}
+.fact{padding:3.1mm 0;border-bottom:.6pt solid var(--hair)}
+.fact dt{font:500 7.5pt/1 var(--mono);letter-spacing:.18em;color:var(--muted)}
+.fact dd{margin:1.6mm 0 0;font-size:12.5pt;line-height:1.3}
+.fact dd.it{font:italic 600 14pt/1.25 var(--italic)}
+.bigurl{margin-top:6mm;padding:4mm;border:1.2pt solid var(--ink);background:rgba(255,255,255,.35)}
+.bigurl span{display:block;font:500 7.5pt/1 var(--mono);letter-spacing:.18em;color:var(--muted);margin-bottom:2mm}
+.bigurl a{font:400 13pt/1.2 var(--caslon);border:0}
+
+/* links table */
+table{width:100%;border-collapse:collapse}
+td{vertical-align:top;padding:3mm 0;border-bottom:.6pt solid var(--hair)}
+tr:first-child td{border-top:1.2pt solid var(--ink)}
+td.n{width:8mm;font:400 8.5pt/1.5 var(--mono);color:var(--muted)}
+td.l{width:47mm;padding-right:4mm}
+td.l b{display:block;font-weight:400;font-size:11pt;line-height:1.25}
+td.l small{display:block;font:400 7.5pt/1.4 var(--mono);color:var(--muted);letter-spacing:.06em;margin-top:1mm;text-transform:uppercase}
+td.w p{margin:1.2mm 0 0;font-size:9.4pt;color:var(--muted);line-height:1.45}
+.check{list-style:none;margin:0;padding:0}
+.check li{display:grid;grid-template-columns:7mm 1fr;gap:2mm;padding:2.6mm 0;border-bottom:.6pt solid var(--hair);font-size:10pt;line-height:1.45}
+.check li:first-child{border-top:1.2pt solid var(--ink)}
+.box{width:4.2mm;height:4.2mm;border:1pt solid var(--ink);margin-top:.6mm}
+.check b{font-weight:700}
+
+/* guests see */
+.phones{display:grid;grid-template-columns:repeat(4,1fr);gap:5mm;margin-top:5mm}
+.phone img{width:100%;display:block;border-radius:4mm;border:1.8mm solid #141210;box-shadow:0 2mm 5mm rgba(0,0,0,.25)}
+.phone.name img{background:#141210}
+.phone figcaption{margin-top:3mm;font-size:8.8pt;line-height:1.4}
+.phone figcaption b{display:block;font:500 7.5pt/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;margin-bottom:1mm}
+figure{margin:0}
+.share{display:grid;grid-template-columns:96mm 1fr;gap:7mm;align-items:center}
+.share img{width:96mm;display:block;box-shadow:0 1.5mm 5mm rgba(0,0,0,.2)}
+
+/* sending */
+.ways{display:grid;gap:4mm}
+.way{border:1.2pt solid var(--ink);padding:4.5mm 5mm;background:rgba(255,255,255,.28)}
+.way .tag{font:500 7.5pt/1 var(--mono);letter-spacing:.18em;color:var(--red);margin-bottom:2mm}
+.way h4{font:italic 400 19pt/1.05 var(--serif);margin:0 0 2mm}
+.way p{font-size:9.8pt}
+.way ol{margin:1mm 0 0;padding-left:5mm;font-size:9.8pt;line-height:1.5}
+.note{font:400 8.4pt/1.5 var(--mono);color:var(--muted);letter-spacing:.02em;margin-top:2mm}
+.msg{border-left:2pt solid var(--red);padding:3mm 0 3mm 5mm;font:italic 400 11pt/1.55 var(--caslon);margin:3mm 0}
+
+/* tracking */
+.two{display:grid;grid-template-columns:1fr 62mm;gap:8mm;align-items:start}
+.cols{display:flex;flex-wrap:wrap;gap:1.5mm;margin:1.5mm 0 3mm}
+.cols span{font:500 7.4pt/1 var(--mono);letter-spacing:.06em;border:.8pt solid var(--ink);padding:1.4mm 1.8mm}
+.gl{width:62mm;display:block;border:.6pt solid var(--hair);box-shadow:0 1.5mm 5mm rgba(0,0,0,.18)}
+ul.plain{margin:0;padding-left:4.5mm;font-size:9.6pt;line-height:1.5}
+ul.plain li{margin-bottom:1.4mm}
+.grid3{display:grid;grid-template-columns:1fr 1fr;gap:6mm 8mm}
+</style>
+</head>
+<body>
+
+<!-- 1 · cover -->
+<section class="page">
+  <div class="head"><span>FORM TP-27</span><span>HOST PACK</span></div>
+  <p class="kick"><b>THOMAS PHILIP</b> PRESENTS</p>
+  <h1><em>Opening</em> Statement<span class="yr">2027</span></h1>
+  <p class="lede">Everything you need to send the invitation, collect replies and see who is coming, in one place.</p>
+  <div class="cover-grid">
+    <img class="poster" src="poster.jpg" alt="The Party Approved invitation">
+    <div>
+      <dl class="facts" style="margin:0">
+        <div class="fact"><dt>HOST</dt><dd>Thomas Philip</dd></div>
+        <div class="fact"><dt>EVENT</dt><dd>Opening Statement 2027, a New Year’s Party</dd></div>
+        <div class="fact"><dt>DATE</dt><dd>Friday, 8 January 2027</dd></div>
+        <div class="fact"><dt>TIME</dt><dd>6:30 PM onwards</dd></div>
+        <div class="fact"><dt>VENUE</dt><dd>To be confirmed</dd></div>
+        <div class="fact"><dt>GROUNDS</dt><dd class="it">With good company.<br>And that is TP’s guarantee.</dd></div>
+      </dl>
+      <div class="bigurl"><span>THE INVITATION</span><a href="https://invitationtp2027.netlify.app/">invitationtp2027.netlify.app</a></div>
+    </div>
+  </div>
+  <div class="foot"><span>Opening Statement 2027 · Host pack</span><span>1 / 5</span></div>
+</section>
+
+<!-- 2 · links + checklist -->
+<section class="page">
+  <div class="head"><span>FORM TP-27</span><span>YOUR LINKS</span></div>
+  <div class="section" style="margin-top:7mm">
+    <h2>Your links</h2>
+    <table>
+      <tr><td class="n">01</td><td class="l"><b>The invitation</b><small>One link for everyone</small></td>
+        <td class="w"><a class="mono" href="https://invitationtp2027.netlify.app/">https://invitationtp2027.netlify.app/</a><p>Guests state their name first, then their invitation opens. Their name is recorded so you can see who opened it.</p></td></tr>
+      <tr><td class="n">02</td><td class="l"><b>Personal links</b><small>One per guest</small></td>
+        <td class="w"><a class="mono" href="https://invitationtp2027.netlify.app/?to=Mathew%20Lee">https://invitationtp2027.netlify.app/?to=Mathew%20Lee</a><p>Opens straight away with “Hi Mathew, you’re invited to” and fills in their name on the reply slip. Make all of them on the guest list page.</p></td></tr>
+      <tr><td class="n">03</td><td class="l"><b>Guest list page</b><small>For you only</small></td>
+        <td class="w"><a class="mono" href="https://invitationtp2027.netlify.app/links.html">https://invitationtp2027.netlify.app/links.html</a><p>Make personal links, send them by WhatsApp, text or email, tick guests off, and see who has opened and replied.</p></td></tr>
+      <tr><td class="n">04</td><td class="l"><b>Replies sheet</b><small>Google account niamhyk23@gmail.com</small></td>
+        <td class="w"><a class="mono" href="https://docs.google.com/spreadsheets/d/1XE3WV_MDUW1rqiw28rV-vH2glVvQS-vdMutb8Y1oGoY/edit">https://docs.google.com/spreadsheets/d/1XE3WV_MDUW1rqiw28rV-vH2glVvQS-vdMutb8Y1oGoY/edit</a><p>“Opening Statement 2027 · RSVPs”. Every reply and every open is added here by itself.</p></td></tr>
+      <tr><td class="n">05</td><td class="l"><b>Website hosting</b><small>Netlify</small></td>
+        <td class="w"><a class="mono" href="https://app.netlify.com/">https://app.netlify.com/</a> &nbsp;<span class="mono">site: invitationtp2027</span><p>To update the site, upload the new zip on the <b>Deploys</b> tab of this site. The link stays the same.</p></td></tr>
+      <tr><td class="n">06</td><td class="l"><b>Design file</b><small>Figma</small></td>
+        <td class="w"><a class="mono" href="https://www.figma.com/design/31TotgS10AzV42yPyyYdcz/Thomas-Philip-%E2%80%94-New-Year-Party-2027?node-id=128-41">figma.com/design/31TotgS10AzV42yPyyYdcz … node-id=128-41</a><p>The original invitation. Select the frame, then Export at 4x PNG (or PDF for a printer).</p></td></tr>
+    </table>
+  </div>
+  <div class="section">
+    <h2>Before you send</h2>
+    <ul class="check">
+      <li><i class="box"></i><span><b>Upload the latest website zip</b> on Netlify’s Deploys tab for invitationtp2027 (not on Netlify Drop, which makes a new site).</span></li>
+      <li><i class="box"></i><span><b>Set the sheet’s time zone:</b> in the sheet, File → Settings → Time zone → (GMT+08:00) Kuala Lumpur → Save.</span></li>
+      <li><i class="box"></i><span><b>Open the guest list page once on each of your own phones and computers.</b> After that, your own testing on those devices is not counted as a guest opening their invitation.</span></li>
+      <li><i class="box"></i><span><b>Send one test reply</b> and check it appears in the RSVPs tab. Then delete the test rows in both tabs.</span></li>
+      <li><i class="box"></i><span><b>Optional:</b> add an RSVP-by date, or the venue once it is confirmed (ask Claude, then upload the new zip).</span></li>
+    </ul>
+  </div>
+  <div class="foot"><span>Opening Statement 2027 · Host pack</span><span>2 / 5</span></div>
+</section>
+
+<!-- 3 · what guests see -->
+<section class="page">
+  <div class="head"><span>FORM TP-27</span><span>WHAT GUESTS SEE</span></div>
+  <div class="section" style="margin-top:7mm">
+    <h2>What guests see</h2>
+    <p>The invitation comes in slowly, line by line, then the red PARTY APPROVED stamp comes down as they scroll to it. Below it is a reply slip they tear off and file.</p>
+    <div class="phones">
+      <figure class="phone"><img src="a-invite.jpg" alt=""><figcaption><b>1 · Personal link</b>Their first name at the top, then the invitation.</figcaption></figure>
+      <figure class="phone name"><img src="b-name.jpg" alt=""><figcaption><b>2 · Shared link</b>“Please state your name for the record” before it opens.</figcaption></figure>
+      <figure class="phone"><img src="c-slip.jpg" alt=""><figcaption><b>3 · Reply slip</b>Coming or not, guests, dietary needs. Their name becomes a signature.</figcaption></figure>
+      <figure class="phone"><img src="d-received.jpg" alt=""><figcaption><b>4 · Filed</b>“Reply received” and MOTION GRANTED. If they can’t come: NOTED.</figcaption></figure>
+    </div>
+  </div>
+  <div class="rule"></div>
+  <h3><span>·</span>What they get after filing</h3>
+  <div class="grid3">
+    <div><p><b>Coming:</b> “Motion granted, Mathew. You and your plus one are on the record. See you on Friday, 8 January, from 6:30 PM.”</p></div>
+    <div><p><b>Not coming:</b> “Noted for the record, Mathew. You will be missed.”</p><p><b>If something is missing,</b> the slip asks for their name or for them to tick yes or no, and does not send until it is complete.</p></div>
+  </div>
+  <div class="rule"></div>
+  <div class="share">
+    <img src="share.jpg" alt="Link preview card">
+    <div><h3><span>·</span>When you share the link</h3><p>This picture shows in WhatsApp and iMessage when the invitation link is sent, with the title “You’re invited · Opening Statement 2027”.</p></div>
+  </div>
+  <div class="foot"><span>Opening Statement 2027 · Host pack</span><span>3 / 5</span></div>
+</section>
+
+<!-- 4 · sending -->
+<section class="page">
+  <div class="head"><span>FORM TP-27</span><span>SENDING TO 150 GUESTS</span></div>
+  <div class="section" style="margin-top:7mm">
+    <h2>Sending to 150 guests</h2>
+    <p>Pick one way, or mix them: personal links for close guests, the shared link for a group chat.</p>
+    <div class="ways">
+      <div class="way">
+        <div class="tag">FASTEST · ONE MESSAGE</div>
+        <h4>One link in a group or broadcast list</h4>
+        <p>Post <span class="mono">invitationtp2027.netlify.app</span> once. Everyone states their name on the way in, so the greeting is personal and you can still see who opened it.</p>
+        <p class="note">WhatsApp broadcast lists only reach people who have your number saved. A WhatsApp group shows everyone’s number to everyone.</p>
+      </div>
+      <div class="way">
+        <div class="tag">MOST PERSONAL · ABOUT 15 TO 20 MINUTES</div>
+        <h4>Personal links by WhatsApp, text or email</h4>
+        <ol>
+          <li>Open the guest list page and paste your guests, one per line. Add a mobile number or email after a comma if you have it, or paste straight from a spreadsheet.</li>
+          <li>Check the country for numbers starting with 0 (set to Australia, +61; change it if needed), then press <b>Create links</b>.</li>
+          <li>For each guest, tap <b>WhatsApp</b>, <b>Text</b> or <b>Email</b>. The message opens already written; you only press send. Each guest is ticked off as you go.</li>
+        </ol>
+      </div>
+      <div class="way">
+        <div class="tag">ONE CLICK · NEEDS EMAIL ADDRESSES</div>
+        <h4>Email, sent for you</h4>
+        <p>Give Claude the guests’ names and email addresses. Claude drafts one email for you to approve, then sends every guest their own personal link from your email.</p>
+      </div>
+    </div>
+  </div>
+  <div class="section" style="margin-top:7mm">
+    <h3><span>·</span>The message guests receive</h3>
+    <div class="msg">Hi Mathew, you’re invited to Opening Statement 2027, Thomas Philip’s New Year’s Party on Friday, 8 January from 6:30 PM.<br><br>Your invitation and RSVP: https://invitationtp2027.netlify.app/?to=Mathew%20Lee</div>
+    <p class="note">Change the wording on the guest list page under “Edit the message”. {first} becomes their first name and {link} their personal link.</p>
+  </div>
+  <div class="foot"><span>Opening Statement 2027 · Host pack</span><span>4 / 5</span></div>
+</section>
+
+<!-- 5 · tracking + later -->
+<section class="page">
+  <div class="head"><span>FORM TP-27</span><span>WHO OPENED · WHO IS COMING</span></div>
+  <div class="section" style="margin-top:7mm">
+    <h2>Who opened and who is coming</h2>
+    <div class="two">
+      <div>
+        <h3><span>01</span>The Google Sheet</h3>
+        <p>Fills in by itself. The <b>RSVPs</b> tab has one row per reply:</p>
+        <div class="cols"><span>Received</span><span>Name</span><span>Coming</span><span>Guests</span><span>Email</span><span>Dietary needs or note</span><span>Invite link</span></div>
+        <p>The <b>Opens</b> tab has one row each time a guest first opens their invitation:</p>
+        <div class="cols"><span>Opened</span><span>Guest</span><span>Device</span><span>Link type</span></div>
+        <h3 style="margin-top:5mm"><span>02</span>Everyone at a glance</h3>
+        <p>In the sheet, open each tab and choose File → Download → Comma-separated values (.csv). Drop both files onto the guest list page. Every guest then shows <b>Not sent</b>, <b>Sent, not opened</b>, <b>Opened</b>, <b>Coming +1</b> or <b>Not coming</b>, with totals and filters, so you can see who still needs a nudge.</p>
+        <h3 style="margin-top:5mm"><span>03</span>Good to know</h3>
+        <ul class="plain">
+          <li>An open is recorded once per guest on each device they use.</li>
+          <li>The WhatsApp link preview does not count as an open.</li>
+          <li>Guests on the shared link appear under the name they typed.</li>
+          <li>Your guest list (names, numbers, ticks) stays on your own device.</li>
+        </ul>
+      </div>
+      <img class="gl" src="e-guestlist.jpg" alt="Guest list page">
+    </div>
+  </div>
+  <div class="rule"></div>
+  <div class="grid3">
+    <div>
+      <h3><span>·</span>Changing things later</h3>
+      <ul class="plain">
+        <li>Venue confirmed, a new time or new wording: ask Claude, then upload the new zip on the Deploys tab. The link stays the same and everyone sees the update.</li>
+        <li>If you ever edit the sheet’s Apps Script, use Deploy → Manage deployments → Edit → New version, so its web address does not change.</li>
+      </ul>
+      <h3 style="margin-top:5mm"><span>·</span>Your files</h3>
+      <ul class="plain">
+        <li>Final designs: Black &amp; Gold, Party Approved, Navy &amp; Gold (PNG)</li>
+        <li>High-res invitation, 4320 × 5400: JPG to share, PNG to print</li>
+        <li>Website: Party-Approved-Invitation-website.zip</li>
+        <li>Sheet script: apps-script-COPY-THIS.txt</li>
+      </ul>
+    </div>
+    <div>
+      <h3><span>·</span>If something looks off</h3>
+      <ul class="plain">
+        <li><b>Replies are not appearing in the sheet:</b> in Apps Script, check the deployment is a Web app with access set to “Anyone”, then send a test reply. Ask Claude if it still does not appear.</li>
+        <li><b>The sheet will not open:</b> sign in as niamhyk23@gmail.com, or find it at drive.google.com under Recent.</li>
+        <li><b>WhatsApp shows an old preview:</b> WhatsApp keeps previews for a while. New chats show the current card.</li>
+        <li><b>Testing counts as an open:</b> open the guest list page once on that device first.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot"><span>Opening Statement 2027 · Host pack</span><span>5 / 5</span></div>
+</section>
+
+</body>
+</html>
