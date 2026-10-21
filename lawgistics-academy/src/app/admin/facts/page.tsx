@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from '@/components/app-link';
 import { requireAdmin } from '@/lib/admin/guard';
+import { returnLapsedContent } from '@/lib/review/lapse';
 import { createServiceClient } from '@/lib/supabase/service';
 import { ButtonLink, Card, Notice, Pill, SectionHeading, Stat } from '@/components/ui';
 import { JURISDICTION_SHORT, type Jurisdiction } from '@/lib/types';
@@ -11,6 +12,9 @@ export const metadata: Metadata = { title: 'Daily brief' };
 
 export default async function AdminFactsPage() {
   await requireAdmin();
+  // A fact whose sign-off ran out is listed as needing review, never as
+  // signed off (0052).
+  await returnLapsedContent();
   const db = createServiceClient();
 
   const { data } = await db

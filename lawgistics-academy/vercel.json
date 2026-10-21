@@ -5,6 +5,10 @@
     {
       "path": "/api/cron/erasure-retry",
       "schedule": "17 3 * * *"
+    },
+    {
+      "path": "/api/cron/content-review",
+      "schedule": "41 2 * * *"
     }
   ]
 }

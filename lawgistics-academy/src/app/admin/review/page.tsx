@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { requireReviewer } from '@/lib/admin/guard';
+import { returnLapsedContent } from '@/lib/review/lapse';
 import Link from '@/components/app-link';
 import { asReviewOrder, getReviewItems, summarise } from '@/lib/review/service';
 import { Card, Notice, Stat, cn } from '@/components/ui';
@@ -16,6 +17,9 @@ export default async function ReviewPage({
   searchParams: Promise<{ order?: string; country?: string }>;
 }) {
   const { isAdmin } = await requireReviewer();
+  // Anything whose sign-off ran out since the nightly job is in the queue now
+  // rather than tomorrow (0052).
+  await returnLapsedContent();
 
   const { order: requested, country: askedCountry } = await searchParams;
   const order = asReviewOrder(requested);

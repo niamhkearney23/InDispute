@@ -98,6 +98,9 @@ export function SessionRunner({
 
         setFeedback(result);
         setAnsweredThisSitting((n) => n + 1);
+        // Taken back for a lawyer's check before it was answered: nothing was
+        // marked, so nothing counts and there is no note to ask for.
+        if (result.withdrawn) return;
         if (result.isCorrect) setCorrectSoFar((n) => n + 1);
         setCombo((n) => (result.isCorrect ? n + 1 : 0));
 
@@ -226,7 +229,8 @@ export function SessionRunner({
           {question.options.map((option, index) => {
             const isSelected = selected.includes(option.id);
             const isCorrectOption = feedback?.correctOptionIds.includes(option.id);
-            const isWrongChoice = answered && isSelected && !isCorrectOption;
+            // Nothing is marked on a question taken back, so no choice is "wrong".
+            const isWrongChoice = answered && isSelected && !isCorrectOption && !feedback?.withdrawn;
 
             return (
               <button
@@ -359,6 +363,19 @@ function FeedbackPanel({
   coachNoteLoading: boolean;
   combo: number;
 }) {
+  if (feedback.withdrawn) {
+    return (
+      <section className="mt-7 rise-in" aria-live="polite" aria-label="Not marked">
+        <div className="rounded-lg border border-rule bg-paper-raised p-5 sm:p-6">
+          <h2 className="text-xl">Not marked</h2>
+          <p className="mt-3 text-base leading-relaxed text-slate">
+            This question was taken back for a lawyer to check again while you were answering
+            it, so your answer was not marked and it does not count. Carry on with the next one.
+          </p>
+        </div>
+      </section>
+    );
+  }
   const run = feedback.isCorrect ? comboWord(combo) : null;
   return (
     <section

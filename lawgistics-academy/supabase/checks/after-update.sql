@@ -10,8 +10,8 @@
 
 with checks(n, what, ok) as (
   values
-  (1, 'The database is at the version the website expects (0051)',
-     (select public.schema_version()) = '0051'),
+  (1, 'The database is at the version the website expects (0052)',
+     (select public.schema_version()) = '0052'),
 
   (2, 'No question is published without a lawyer''s sign-off on its current wording',
      not exists (
@@ -101,7 +101,18 @@ with checks(n, what, ok) as (
      and (select count(*) from pg_trigger where not tgisinternal and tgname in (
           'firm_module_acknowledgements_kept', 'firm_step_declarations_kept', 'firm_step_confirmations_kept',
           'onboarding_decisions_kept', 'homework_declarations_kept', 'work_submissions_kept',
-          'certificates_kept', 'matter_attempts_kept')) = 8)
+          'certificates_kept', 'matter_attempts_kept')) = 8),
+
+  (17, 'A sign-off that ran out goes back to review, with a kept record, and none is still published',
+     to_regclass('public.content_lapses') is not null
+     and has_function_privilege('service_role', 'public.return_lapsed_content()', 'execute')
+     and not has_function_privilege('authenticated', 'public.return_lapsed_content()', 'execute')
+     and exists (select 1 from pg_trigger where tgname = 'content_lapses_kept' and not tgisinternal)
+     and not exists (select 1 from public.question_versions
+                      where is_current and verification_status = 'human_verified'
+                        and review_due_on <= current_date)
+     and not exists (select 1 from public.daily_facts
+                      where verification_status = 'human_verified' and review_due_on <= current_date))
 )
 select n as "#", what as "check", case when ok then 'OK' else 'NOT OK' end as result
 from checks

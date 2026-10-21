@@ -4699,6 +4699,100 @@ select pg_temp.expect_failure(
   'nor can the server delete it directly');
 reset role;
 
+-- 0052: a sign-off that runs out goes back to the queue, with a record --------
+-- The 0038 Malaysian question and fact are signed, published and due
+-- tomorrow (0051 above). A learner has answered the question.
+update public.question_versions set verified_by = '44444444-4444-4444-4444-444444444444'
+ where question_id = 'cccc0038-0000-0000-0000-000000000002' and is_current;
+insert into public.user_question_attempts
+  (user_id, question_id, question_version_id, selected_option_ids, is_correct)
+select 'aaaa0038-0000-0000-0000-000000000001', question_id, id, array['a'], true
+  from public.question_versions
+ where question_id = 'cccc0038-0000-0000-0000-000000000002' and is_current;
+
+select pg_temp.expect(
+  not has_function_privilege('anon', 'public.return_lapsed_content()', 'execute')
+  and not has_function_privilege('authenticated', 'public.return_lapsed_content()', 'execute')
+  and has_function_privilege('service_role', 'public.return_lapsed_content()', 'execute'),
+  'only the server can run the job that takes lapsed content back');
+select pg_temp.expect(
+  not has_table_privilege('authenticated', 'public.content_lapses', 'select')
+  and not has_table_privilege('anon', 'public.content_lapses', 'select')
+  and not has_table_privilege('service_role', 'public.content_lapses', 'insert')
+  and not has_table_privilege('service_role', 'public.content_lapses', 'update')
+  and not has_table_privilege('service_role', 'public.content_lapses', 'delete'),
+  'the record of lapsed sign-offs is read by the server only, and written only by the job');
+
+-- Not yet due: the job leaves it alone.
+set local role service_role;
+select pg_temp.expect(
+  not exists (select 1 from public.content_lapses
+              where question_id = 'cccc0038-0000-0000-0000-000000000002')
+  and (public.return_lapsed_content() is not null)
+  and not exists (select 1 from public.content_lapses
+                  where question_id = 'cccc0038-0000-0000-0000-000000000002'),
+  'a sign-off that has not run out is left as it is');
+reset role;
+
+update public.question_versions set review_due_on = current_date
+ where question_id = 'cccc0038-0000-0000-0000-000000000002' and is_current;
+update public.daily_facts set review_due_on = current_date where slug = 'my-fact-0038';
+
+set local role service_role;
+create temporary table lapse_run_0052 on commit drop as
+  select public.return_lapsed_content() as result;
+reset role;
+select pg_temp.expect(
+  (select (result ->> 'questions')::int >= 1 and (result ->> 'facts')::int >= 1 from lapse_run_0052),
+  'the job takes a lapsed question and a lapsed fact back');
+select pg_temp.expect(
+  (select status from public.questions where id = 'cccc0038-0000-0000-0000-000000000002') = 'requires_review'
+  and (select verification_status from public.question_versions
+       where question_id = 'cccc0038-0000-0000-0000-000000000002' and is_current) = 'requires_review'
+  and (select review_note from public.question_versions
+       where question_id = 'cccc0038-0000-0000-0000-000000000002' and is_current) like 'The sign-off ran out on %',
+  'the lapsed question is unpublished and back in the review queue, saying why');
+select pg_temp.expect(
+  (select status from public.daily_facts where slug = 'my-fact-0038') = 'requires_review'
+  and (select verification_status from public.daily_facts where slug = 'my-fact-0038') = 'requires_review',
+  'the lapsed daily fact is unpublished and back in the review queue');
+select pg_temp.expect(
+  exists (select 1 from public.content_lapses l
+          join public.question_versions qv on qv.id = l.question_version_id
+          where l.kind = 'question' and qv.question_id = 'cccc0038-0000-0000-0000-000000000002'
+            and l.signed_by = '44444444-4444-4444-4444-444444444444'
+            and l.review_due_on = current_date)
+  and exists (select 1 from public.content_lapses l
+              join public.daily_facts f on f.id = l.fact_id
+              where l.kind = 'fact' and f.slug = 'my-fact-0038' and l.review_due_on = current_date),
+  'what the sign-off was (who, and the date it ran out) is kept in the record');
+select pg_temp.expect(
+  exists (select 1 from public.user_question_attempts
+          where user_id = 'aaaa0038-0000-0000-0000-000000000001'
+            and question_id = 'cccc0038-0000-0000-0000-000000000002'),
+  'the learner''s earlier answer to it is kept');
+set local role authenticated;
+set local request.jwt.claim.sub = 'aaaa0038-0000-0000-0000-000000000001';
+select pg_temp.expect(
+  not exists (select 1 from public.v_question_delivery
+              where question_id = 'cccc0038-0000-0000-0000-000000000002')
+  and not exists (select 1 from public.daily_facts where slug = 'my-fact-0038'),
+  'and neither reaches a learner');
+reset role;
+set local request.jwt.claim.sub = '';
+set local role service_role;
+select pg_temp.expect(
+  (select (r ->> 'questions')::int = 0 and (r ->> 'facts')::int = 0
+     from (select public.return_lapsed_content() as r) x),
+  'running the job again takes nothing back twice');
+reset role;
+select pg_temp.expect_failure(
+  $$update public.content_lapses set signed_by = null$$,
+  'nobody, not even the owner, rewrites the record of a lapsed sign-off');
+select pg_temp.expect_failure(
+  $$delete from public.content_lapses$$,
+  'nor deletes it');
+
 -- Schema version ---------------------------------------------------------------
 -- The admin pages compare this with the version the code expects.
 

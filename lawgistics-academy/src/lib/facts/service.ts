@@ -59,6 +59,11 @@ export async function getFactOfTheDay(
       'id, title, body, why_it_matters, jurisdiction, court, source_reference, source_url',
     )
     .eq('status', 'published')
+    // Asked here as well as in the read policy (0044, 0051), because staff
+    // read every fact through it: nobody, staff included, is shown a fact on
+    // Today whose sign-off is missing or has run out.
+    .eq('verification_status', 'human_verified')
+    .or(`review_due_on.is.null,review_due_on.gt.${new Date().toISOString().slice(0, 10)}`)
     .eq('country', country)
     .order('sort_order', { ascending: true })
     .order('id', { ascending: true });

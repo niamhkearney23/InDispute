@@ -94,7 +94,7 @@ before the release). A restore also loses everything done since.
    the whole of `supabase/UPDATE.sql`, **Run**. The restored database does not
    have `0043` to `0048` until this is done, so keep this gap as short as
    you can.
-4. New query, paste `supabase/checks/after-update.sql`, **Run**. All sixteen
+4. New query, paste `supabase/checks/after-update.sql`, **Run**. All seventeen
    checks must say **OK**. If any says NOT OK, stop here, leave the website
    `closed` and send the results.
 5. Open again (section 5).

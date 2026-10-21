@@ -93,7 +93,7 @@ today; 1c switches them off in case.
    keep the result.
 2. New query: the whole of `supabase/UPDATE.sql`, **Run**. It ends with
    "Success. No rows returned".
-3. New query: `supabase/checks/after-update.sql`, **Run**. All sixteen
+3. New query: `supabase/checks/after-update.sql`, **Run**. All seventeen
    checks say **OK**. Counts as before, except "published questions" and
    "published daily facts", which drop to the number with a lawyer's sign-off.
 4. Paste `UPDATE.sql` again, then `after-update.sql` again: the same result.

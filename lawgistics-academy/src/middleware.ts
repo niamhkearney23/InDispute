@@ -31,8 +31,9 @@ type CookiesToSet = Array<{ name: string; value: string; options: CookieOptions 
 // /api/inbound/work likewise: the inbound email service has no session, and
 // the route checks its own token before reading anything.
 // /goodbye is where somebody lands after deleting their account, signed out.
-// /api/cron/erasure-retry is called by Vercel's scheduler, which has no
-// session; the route refuses anything without the CRON_SECRET bearer token.
+// /api/cron/erasure-retry and /api/cron/content-review are called by
+// Vercel's scheduler, which has no session; each route refuses anything
+// without the CRON_SECRET bearer token.
 const PUBLIC_PATHS = [
   '/',
   '/login',
@@ -47,6 +48,7 @@ const PUBLIC_PATHS = [
   '/api/inbound/work',
   '/api/stripe/webhook',
   '/api/cron/erasure-retry',
+  '/api/cron/content-review',
 ];
 
 // Pages for somebody who is not signed in yet. A signed-in person asking for

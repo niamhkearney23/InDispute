@@ -464,3 +464,65 @@ test('the twenty sign-in rules reach a visitor only once signed off', () => {
   });
   assert.deepEqual(clientImports, []);
 });
+
+// --- 0052: approval that changes after a question was given out -------------
+
+test('an answer to a question taken back since it was shown is neither marked nor answered (0052)', () => {
+  const service = read('src/lib/training/service.ts');
+  const submit = service.slice(service.indexOf('export async function submitAnswer'), service.indexOf('export async function getCoachNote'));
+  // Asks the database's own rule, for this exact version.
+  assert.match(submit, /\.from\('v_question_delivery'\)\s*\.select\('question_version_id'\)\s*\.eq\('question_version_id', args\.questionVersionId\)/);
+  assert.match(submit, /if \(!offered \|\| !stillSignedOff\(version\.verification_status, version\.review_due_on\)\) \{/);
+  // And stops before anything is marked or recorded.
+  const withdrawnAt = submit.indexOf('return withdrawnFeedback(');
+  const markedAt = submit.indexOf('const isCorrect = sameSet(');
+  const recordedAt = submit.indexOf(".from('user_question_attempts')");
+  assert.ok(withdrawnAt > 0 && withdrawnAt < markedAt && withdrawnAt < recordedAt, 'the withdrawn check comes after marking or recording');
+});
+
+test('the reply for a question taken back carries no answer key and no explanation', () => {
+  const service = read('src/lib/training/service.ts');
+  const fn = service.slice(service.indexOf('export function withdrawnFeedback'), service.indexOf('export async function submitAnswer'));
+  assert.match(fn, /withdrawn: true,/);
+  assert.match(fn, /correctOptionIds: \[\],/);
+  assert.match(fn, /explanation: '',/);
+  for (const field of ['whyItMatters', 'commonMisconception', 'memoryTrick', 'sourceReference', 'sourceUrl', 'court', 'coachNote']) {
+    assert.match(fn, new RegExp(`${field}: null,`), field);
+  }
+  assert.doesNotMatch(fn, /version\./, 'the withdrawn reply reads from the version');
+});
+
+test('no AI note is written for a question taken back after it was answered', () => {
+  const service = read('src/lib/training/service.ts');
+  const fn = service.slice(service.indexOf('export async function getCoachNote'));
+  assert.match(fn, /if \(!offered\) return \{ coachNote: null \};/);
+  const checkAt = fn.indexOf('if (!offered) return');
+  const callAt = fn.indexOf('coachOnAnswer(');
+  assert.ok(checkAt > 0 && checkAt < callAt);
+});
+
+test('the session page shows "Not marked" and counts nothing for a question taken back', () => {
+  const runner = read('src/components/session-runner.tsx');
+  assert.match(runner, /if \(result\.withdrawn\) return;/);
+  assert.match(runner, /if \(feedback\.withdrawn\) \{/);
+  assert.match(runner, /!feedback\?\.withdrawn/);
+});
+
+test('nobody, staff included, is shown a daily fact on Today without a current sign-off', () => {
+  const facts = read('src/lib/facts/service.ts');
+  assert.match(facts, /\.eq\('verification_status', 'human_verified'\)/);
+  assert.match(facts, /\.or\(`review_due_on\.is\.null,review_due_on\.gt\.\$\{new Date\(\)\.toISOString\(\)\.slice\(0, 10\)\}`\)/);
+});
+
+test('lapsed content goes back to the queue nightly and whenever a reviewer looks (0052)', () => {
+  const vercel = JSON.parse(read('vercel.json')) as { crons: { path: string }[] };
+  assert.ok(vercel.crons.some((c) => c.path === '/api/cron/content-review'));
+  const route = read('src/app/api/cron/content-review/route.ts');
+  assert.match(route, /cronDecision\(request\.headers\.get\('authorization'\), process\.env\.CRON_SECRET\)/);
+  assert.match(route, /if \(decision === 'off'\) return new Response\('Not found', \{ status: 404 \}\);/);
+  assert.match(route, /if \(decision === 'refused'\)/);
+  for (const page of ['src/app/admin/review/page.tsx', 'src/app/admin/facts/page.tsx']) {
+    assert.match(read(page), /await returnLapsedContent\(\);/, page);
+  }
+  assert.match(read('src/lib/review/lapse.ts'), /db\.rpc\('return_lapsed_content'\)/);
+});

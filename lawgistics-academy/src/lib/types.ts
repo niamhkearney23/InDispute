@@ -106,6 +106,14 @@ export interface DeliveredQuestion {
 
 /** What comes back after grading. */
 export interface AnswerFeedback {
+  /**
+   * True when the question stopped being offered between being shown and
+   * being answered: its sign-off ran out or was withdrawn, it was flagged,
+   * unpublished or reworded into a new version. Nothing is marked or
+   * recorded, and neither the answer nor any explanation is sent: they are
+   * legal content no lawyer currently stands behind (0052).
+   */
+  withdrawn: boolean;
   isCorrect: boolean;
   correctOptionIds: string[];
   selectedOptionIds: string[];

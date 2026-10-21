@@ -374,6 +374,31 @@ async function awardXp(
   return events.reduce((total, event) => total + event.amount, 0);
 }
 
+/** What a learner is told about a question taken back before they answered it. */
+export function withdrawnFeedback(
+  selectedOptionIds: string[],
+  jurisdiction: AnswerFeedback['jurisdiction'],
+): AnswerFeedback {
+  return {
+    withdrawn: true,
+    isCorrect: false,
+    correctOptionIds: [],
+    selectedOptionIds,
+    explanationChecked: false,
+    explanation: '',
+    whyItMatters: null,
+    commonMisconception: null,
+    memoryTrick: null,
+    jurisdiction,
+    court: null,
+    sourceReference: null,
+    sourceUrl: null,
+    xpAwarded: 0,
+    nextReviewLabel: null,
+    coachNote: null,
+  };
+}
+
 export async function submitAnswer(args: {
   userId: string;
   sessionId: string;
@@ -389,7 +414,7 @@ export async function submitAnswer(args: {
   // three depends on the answer to another, and asking for them one at a time
   // costs three network hops before any work begins. The checks that follow are
   // unchanged, and still happen before anything is written.
-  const [{ data: session }, { data: slot }, { data: version }, { data: learner }] =
+  const [{ data: session }, { data: slot }, { data: version }, { data: learner }, { data: offered }] =
     await Promise.all([
     db
       .from('training_sessions')
@@ -411,6 +436,14 @@ export async function submitAnswer(args: {
       .maybeSingle(),
     // Where the learner is, so a review due "tomorrow" is due tomorrow there.
     db.from('profiles').select('timezone, country').eq('id', args.userId).maybeSingle(),
+    // Whether this exact version is still offered: the delivery view is the
+    // database's one rule for that (current version, published, signed off,
+    // not past the date the sign-off runs out on, 0044 and 0051).
+    db
+      .from('v_question_delivery')
+      .select('question_version_id')
+      .eq('question_version_id', args.questionVersionId)
+      .maybeSingle(),
   ]);
   const learnerZone = learnerTimezone(learner?.timezone, asCountry(learner?.country));
 
@@ -429,6 +462,22 @@ export async function submitAnswer(args: {
   // failure here had to undo it; if that undo failed, the question became
   // permanently unanswerable.
   if (!version) return { error: 'Question could not be loaded.' };
+
+  // Taken back since it was shown: the sign-off ran out or was withdrawn,
+  // it was flagged or unpublished, or a new version replaced it. The answer
+  // key and the explanation are legal content nobody currently stands
+  // behind, so neither is used or sent. The slot is closed so the session
+  // can carry on, and no attempt is recorded, because nothing was marked.
+  if (!offered || !stillSignedOff(version.verification_status, version.review_due_on)) {
+    const { data: closed } = await db
+      .from('training_session_questions')
+      .update({ answered_at: now.toISOString() })
+      .eq('id', slot.id)
+      .is('answered_at', null)
+      .select('id');
+    if (!closed || closed.length === 0) return { error: 'You have already answered this question.' };
+    return withdrawnFeedback(args.selectedOptionIds, version.jurisdiction);
+  }
 
   // Claim the slot before writing anything. This is a compare-and-set: if a
   // second submission for the same question is already in flight it will match
@@ -728,6 +777,7 @@ export async function submitAnswer(args: {
   // sign-off past the date it runs out on counts as none (0051).
   const explained = stillSignedOff(version.verification_status, version.review_due_on);
   return {
+    withdrawn: false,
     isCorrect,
     correctOptionIds,
     selectedOptionIds: args.selectedOptionIds,
@@ -807,7 +857,7 @@ export async function getCoachNote(
     .select('id');
   if (!claimed || claimed.length === 0) return { coachNote: null };
 
-  const [{ data: attempt }, { data: version }] = await Promise.all([
+  const [{ data: attempt }, { data: version }, { data: offered }] = await Promise.all([
     db
       .from('user_question_attempts')
       .select('is_correct, selected_option_ids')
@@ -824,9 +874,17 @@ export async function getCoachNote(
       )
       .eq('id', questionVersionId)
       .maybeSingle(),
+    db
+      .from('v_question_delivery')
+      .select('question_version_id')
+      .eq('question_version_id', questionVersionId)
+      .maybeSingle(),
   ]);
 
   if (!attempt || !version) return { error: 'Could not load that question.' };
+  // Taken back since it was answered: no note drawn from words nobody
+  // currently stands behind (0052).
+  if (!offered) return { coachNote: null };
   // The note is written from the checked explanation. One no longer signed
   // off is not handed to the AI to paraphrase for a learner (0046).
   if (!stillSignedOff(version.verification_status, version.review_due_on)) return { coachNote: null };
