@@ -53,7 +53,7 @@ li button{border:1px solid var(--rule);background:transparent;color:var(--gold);
     document.getElementById('names').value.split('\n').map(function(s){return s.trim()}).filter(Boolean).forEach(function(n){
       var url=base+'?to='+encodeURIComponent(n);
       var first=n.split(/\s+/)[0];
-      var msg='Hi '+first+', you’re invited to Opening Statement 2027, Thomas Philip’s New Year’s Party on Friday, 8 January from 8 PM. Your invitation and RSVP: '+url;
+      var msg='Hi '+first+', you’re invited to Opening Statement 2027, Thomas Philip’s New Year’s Party on Friday, 8 January from 6:30 PM. Your invitation and RSVP: '+url;
       lines.push(n+': '+url);
       var li=document.createElement('li'), d=document.createElement('div'), b=document.createElement('b'), c=document.createElement('code');
       b.textContent=n; c.textContent=url; d.appendChild(b); d.appendChild(c);

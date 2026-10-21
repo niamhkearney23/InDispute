@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Invitation links · Opening Statement 2027</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=IBM+Plex+Mono:wght@400;500;600&family=Libre+Caslon+Text&display=swap">
+<style>
+:root{--desk:#12100e;--paper:#eae4d8;--ink:#1b1915;--muted:#6c675d;--hair:rgba(27,25,21,.24);--red:#bf3a2f;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--desk);color:var(--ink);font-family:"Libre Caslon Text",Georgia,serif;padding:32px max(12px,env(safe-area-inset-right,0px)) 56px max(12px,env(safe-area-inset-left,0px))}
+main{max-width:720px;margin:0 auto;background:var(--paper);border-radius:3px;padding:clamp(22px,6vw,48px) clamp(20px,6vw,56px);display:flex;flex-direction:column;gap:18px}
+header{display:flex;justify-content:space-between;gap:12px;font:500 12px/1 "IBM Plex Mono",monospace;letter-spacing:.16em;padding-bottom:14px;border-bottom:1.5px solid var(--ink)}
+h1{font:italic 400 clamp(40px,9vw,60px)/1 "Instrument Serif",serif;margin:8px 0 0}
+p{line-height:1.55;margin:0;color:var(--muted)}
+label{font:500 12px/1 "IBM Plex Mono",monospace;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+textarea{width:100%;min-height:160px;background:rgba(255,255,255,.3);border:1.5px solid var(--hair);color:var(--ink);font:inherit;font-size:17px;line-height:1.5;padding:12px 14px;resize:vertical}
+textarea:focus-visible,button:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.btn{border:0;cursor:pointer;background:var(--ink);color:var(--paper);font:500 12px/1 "IBM Plex Mono",monospace;letter-spacing:.2em;text-transform:uppercase;padding:15px 18px}
+.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
+ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;border:1.5px solid var(--hair);background:rgba(255,255,255,.3);padding:10px 12px}
+@media (max-width:520px){li{grid-template-columns:1fr}}
+li b{display:block;font-weight:400;font-size:18px}
+li code{display:block;font:400 12.5px/1.4 "IBM Plex Mono",monospace;color:var(--muted);overflow-wrap:anywhere}
+li button{border:1.5px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer;padding:8px 12px;font:500 11px/1 "IBM Plex Mono",monospace;letter-spacing:.12em;text-transform:uppercase}
+.hint{font:400 12px/1.5 "IBM Plex Mono",monospace;letter-spacing:.06em}
+</style>
+</head>
+<body>
+<main>
+  <header><span>HOST ONLY</span><span>INVITATION LINKS</span></header>
+  <h1>Personal invitation links</h1>
+  <p>Type one name per line. Each person gets a link that opens the invitation with “Hi [name], you’re invited to” and fills in their RSVP and signature for them.</p>
+  <label for="names">Guest names</label>
+  <textarea id="names" placeholder="Mathew Lee&#10;Sarah Tan&#10;Priya Nair"></textarea>
+  <div class="row">
+    <button class="btn" id="make" type="button">Create links</button>
+    <button class="btn ghost" id="copyall" type="button" hidden>Copy all</button>
+  </div>
+  <ul id="out"></ul>
+  <p class="hint">This page is for the host. Keep its address to yourself.</p>
+</main>
+<script>
+(function(){
+  var base=location.origin+location.pathname.replace(/links\.html$/,'');
+  var out=document.getElementById('out'), all=document.getElementById('copyall'), lines=[];
+  function copy(text,btn){
+    var done=function(){var o=btn.textContent;btn.textContent='Copied';setTimeout(function(){btn.textContent=o},1400)};
+    if(navigator.clipboard){navigator.clipboard.writeText(text).then(done,function(){prompt('Copy this:',text)})}else{prompt('Copy this:',text)}
+  }
+  document.getElementById('make').addEventListener('click',function(){
+    out.textContent=''; lines=[];
+    document.getElementById('names').value.split('\n').map(function(s){return s.trim()}).filter(Boolean).forEach(function(n){
+      var url=base+'?to='+encodeURIComponent(n);
+      var first=n.split(/\s+/)[0];
+      var msg='Hi '+first+', you’re invited to Opening Statement 2027, Thomas Philip’s New Year’s Party on Friday, 8 January from 6:30 PM. Your invitation and RSVP: '+url;
+      lines.push(n+': '+url);
+      var li=document.createElement('li'), d=document.createElement('div'), b=document.createElement('b'), c=document.createElement('code');
+      b.textContent=n; c.textContent=url; d.appendChild(b); d.appendChild(c);
+      var bx=document.createElement('div'); bx.className='row';
+      var b1=document.createElement('button'); b1.type='button'; b1.textContent='Copy link'; b1.onclick=function(){copy(url,b1)};
+      var b2=document.createElement('button'); b2.type='button'; b2.textContent='Copy message'; b2.onclick=function(){copy(msg,b2)};
+      bx.appendChild(b1); bx.appendChild(b2); li.appendChild(d); li.appendChild(bx); out.appendChild(li);
+    });
+    all.hidden=lines.length===0;
+  });
+  all.addEventListener('click',function(){copy(lines.join('\n'),all)});
+})();
+</script>
+</body>
+</html>
