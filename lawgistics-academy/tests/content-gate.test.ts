@@ -503,7 +503,10 @@ test('no AI note, saved or new, for a question taken back after it was answered'
   const service = read('src/lib/training/service.ts');
   const fn = service.slice(service.indexOf('export async function getCoachNote'));
   const firstCheck = fn.indexOf('if (!(await stillOffered(db, questionVersionId))) return { coachNote: null };');
-  const savedAt = fn.indexOf('if (slot.coach_note_at) return');
+  const savedAt = fn.indexOf('if (slot.coach_note_at) {');
+  // A saved note older than the latest sign-off of its explanation is not handed back.
+  assert.match(fn, /new Date\(signed\.verified_at as string\) > new Date\(slot\.coach_note_at as string\)/);
+  assert.match(fn, /return \{ coachNote: resigned \? null : /);
   const callAt = fn.indexOf('coachOnAnswer(');
   const secondCheck = fn.indexOf('if (!(await stillOffered(db, questionVersionId))) return { coachNote: null };', firstCheck + 1);
   const keptAt = fn.indexOf('.update({ coach_note: coachNote })');
