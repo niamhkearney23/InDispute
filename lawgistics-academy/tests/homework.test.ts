@@ -103,14 +103,25 @@ test('the twentieth working day is the last one, not yet finished', () => {
 
 test('the Monday after day twenty is finished', () => {
   const mondayAfter = new Date('2026-02-02T09:00:00Z');
-  assert.deepEqual(homeworkDay('2026-01-05', null, 'UTC', mondayAfter), { state: 'finished' });
+  assert.deepEqual(homeworkDay('2026-01-05', null, 'UTC', mondayAfter), { state: 'finished', lastDay: 20 });
 });
 
 test('an end date closes homework early, even mid-week', () => {
   const mondayWeekThree = new Date('2026-01-19T09:00:00Z');
   assert.deepEqual(
     homeworkDay('2026-01-05', '2026-01-16', 'UTC', mondayWeekThree),
-    { state: 'finished' },
+    { state: 'finished', lastDay: 10 },
+  );
+});
+
+test('after a short placement ends, only the days it had can be ticked off (found by the independent review)', () => {
+  const mondayWeekThree = new Date('2026-01-19T09:00:00Z');
+  const ended = homeworkDay('2026-01-05', '2026-01-16', 'UTC', mondayWeekThree);
+  assert.equal(lastArrivedDay(ended), 10, 'days eleven to twenty never happened');
+  assert.equal(
+    lastArrivedDay(homeworkDay('2026-01-05', '2026-01-04', 'UTC', mondayWeekThree)),
+    0,
+    'an end date before the start gives no days',
   );
 });
 

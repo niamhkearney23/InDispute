@@ -4517,7 +4517,10 @@ select pg_temp.expect_failure(
   $$update public.morning_notes set author_id = '33333333-3333-3333-3333-333333333333'
     where id = 'ffff0050-0000-0000-0000-000000000001'$$,
   'a note cannot be moved into somebody else''s name');
-delete from public.morning_notes where id = 'ffff0050-0000-0000-0000-000000000002';
+-- Refused outright since 0051 took the right away; before, RLS found no row.
+select pg_temp.expect_failure(
+  $$delete from public.morning_notes where id = 'ffff0050-0000-0000-0000-000000000002'$$,
+  'a coach''s delete of a morning note is refused');
 select pg_temp.expect(
   exists (select 1 from public.morning_notes where id = 'ffff0050-0000-0000-0000-000000000002'),
   'a coach cannot delete a morning note');
@@ -4570,6 +4573,70 @@ select pg_temp.expect_failure(
 reset role;
 set local request.jwt.claim.sub = '';
 set local request.jwt.claims = '';
+
+-- 0051: a lapsed sign-off stops content --------------------------------------
+-- The 0038 Malaysian question and fact, signed off, published and readable by
+-- the Malaysian learner above. On the day the sign-off runs out they go.
+update public.question_versions set review_due_on = current_date
+ where question_id = 'cccc0038-0000-0000-0000-000000000002' and is_current;
+update public.daily_facts set review_due_on = current_date where slug = 'my-fact-0038';
+
+set local role authenticated;
+set local request.jwt.claim.sub = 'aaaa0038-0000-0000-0000-000000000001';
+select pg_temp.expect(
+  not exists (select 1 from public.v_question_delivery
+              where question_id = 'cccc0038-0000-0000-0000-000000000002'),
+  'a question whose sign-off ran out today is no longer given to a learner');
+select pg_temp.expect(
+  not exists (select 1 from public.daily_facts where slug = 'my-fact-0038'),
+  'nor a daily fact whose sign-off ran out today');
+reset role;
+set local role service_role;
+select pg_temp.expect(
+  not exists (select 1 from public.v_question_delivery
+              where question_id = 'cccc0038-0000-0000-0000-000000000002'),
+  'nor does the server find it through the delivery view, which training reads');
+reset role;
+
+update public.question_versions set review_due_on = current_date + 1
+ where question_id = 'cccc0038-0000-0000-0000-000000000002' and is_current;
+update public.daily_facts set review_due_on = current_date + 1 where slug = 'my-fact-0038';
+set local role authenticated;
+set local request.jwt.claim.sub = 'aaaa0038-0000-0000-0000-000000000001';
+select pg_temp.expect(
+  exists (select 1 from public.v_question_delivery
+          where question_id = 'cccc0038-0000-0000-0000-000000000002')
+  and exists (select 1 from public.daily_facts where slug = 'my-fact-0038'),
+  'the day before it runs out, the question and the fact are still given out');
+reset role;
+set local request.jwt.claim.sub = '';
+
+-- 0051: nobody the app runs as can empty a table, or delete the proof --------
+select pg_temp.expect(
+  not exists (
+    select 1
+    from pg_class c
+    join pg_namespace n on n.oid = c.relnamespace,
+         unnest(array['anon', 'authenticated', 'service_role']) as r(role)
+    where n.nspname = 'public' and c.relkind in ('r', 'p')
+      and has_table_privilege(r.role, c.oid, 'TRUNCATE')),
+  'no table can be emptied by the website, a learner, a coach or the server');
+select pg_temp.expect(
+  not has_table_privilege('service_role', 'public.account_erasures', 'DELETE')
+  and not has_table_privilege('service_role', 'public.erasure_review_items', 'DELETE')
+  and not has_table_privilege('service_role', 'public.lesson_signoffs', 'DELETE')
+  and not has_table_privilege('service_role', 'public.content_signoffs', 'DELETE')
+  and not has_table_privilege('service_role', 'public.morning_notes', 'DELETE')
+  and not has_table_privilege('authenticated', 'public.morning_notes', 'DELETE'),
+  'the server cannot delete a deletion job, its review items, a sign-off or a morning note');
+set local role service_role;
+select pg_temp.expect_failure(
+  $$delete from public.account_erasures$$,
+  'the server cannot remove deletion jobs so the nightly check reports nothing outstanding');
+select pg_temp.expect_failure(
+  $$delete from public.content_signoffs$$,
+  'nor wipe the record of who signed off a court map or essay');
+reset role;
 
 -- Schema version ---------------------------------------------------------------
 -- The admin pages compare this with the version the code expects.

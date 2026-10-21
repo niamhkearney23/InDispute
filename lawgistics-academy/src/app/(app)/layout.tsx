@@ -11,8 +11,7 @@ import { FirstPassword } from './account/password-form';
 import { NextRoundClock } from '@/components/next-round-clock';
 import { roundsToday } from '@/lib/training/rounds-service';
 import { nextOpening, openRound } from '@/lib/training/rounds';
-import { courtMapFor } from '@/lib/content/service';
-import { isStaff } from '@/lib/content/gate';
+import { courtMapFor, viewerIsStaff } from '@/lib/content/service';
 
 /**
  * Every page under this layout is per-learner and auth-gated. Say so explicitly
@@ -72,7 +71,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // lawyer signs off their country's map, a learner has no Courts link to
   // follow to a page with nothing on it. Staff always have it.
   const courtsShown = profile
-    ? Boolean(await courtMapFor(profile.country, isStaff(profile)).catch(() => null))
+    ? Boolean(await courtMapFor(profile.country, await viewerIsStaff(user.id)).catch(() => null))
     : false;
 
   return (

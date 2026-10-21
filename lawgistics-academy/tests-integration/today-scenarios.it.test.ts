@@ -222,6 +222,61 @@ test("a trainee-only morning note reaches a confirmed trainee's Today, not an un
   await unconfirmed.context().close();
 });
 
+test('a coach with a password alone sees a trainee-only note no more than the database lets them; with the code typed, they do', async () => {
+  const author = await person('coach', 'MY');
+  const { data: f, error: e } = await author.client.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'phone' });
+  if (e) throw e;
+  const v = await author.client.auth.mfa.challengeAndVerify({ factorId: f.id, code: totp(f.totp.secret) });
+  if (v.error) throw v.error;
+  const words = `IT staff view ${Date.now()}: trainees, the bundle first.`;
+  const note = await asToken(v.data.access_token)
+    .from('morning_notes')
+    .insert({ body: words, for_date: dayInKl(0), country: 'MY', trainees_only: true });
+  if (note.error) throw note.error;
+
+  const coach = await person('coach', 'MY');
+  const now = new Date().toISOString();
+  const { error } = await service()
+    .from('profiles')
+    .update({ onboarded_at: now, diagnostic_completed_at: now, timezone: KL })
+    .eq('id', coach.id);
+  if (error) throw error;
+
+  // No authenticator app yet: a password is all there is, and the database's
+  // is_coach() is false at that level (0047). Today must agree.
+  const plain = await today(coach);
+  assert.equal(new URL(plain.url()).pathname, '/dashboard');
+  assert.doesNotMatch(await plain.content(), new RegExp(words.slice(0, 30)), 'a password-only coach saw a trainee-only note');
+  await plain.context().close();
+
+  // With an app and the code typed, the same coach sees it.
+  const { data: factor, error: fe } = await coach.client.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'phone' });
+  if (fe) throw fe;
+  const first = await coach.client.auth.mfa.challengeAndVerify({ factorId: factor.id, code: totp(factor.totp.secret) });
+  if (first.error) throw first.error;
+  const page = await (await browser.newContext()).newPage();
+  await page.goto(`${APP}/login`, { waitUntil: 'domcontentloaded' });
+  await page.fill('#email', coach.email);
+  await page.fill('#password', PASSWORD);
+  await Promise.all([
+    page.waitForURL((u) => !u.pathname.startsWith('/login'), { timeout: 20000 }),
+    page.click('button[type=submit]'),
+  ]);
+  await page.goto(`${APP}/dashboard`, { waitUntil: 'domcontentloaded' });
+  if (new URL(page.url()).pathname === '/two-step') {
+    if (Date.now() % 30000 > 26000) await page.waitForTimeout(30000 - (Date.now() % 30000) + 500);
+    await page.fill('input[name=code]', totp(factor.totp.secret, Date.now() + 30000));
+    await Promise.all([
+      page.waitForURL((u) => u.pathname !== '/two-step', { timeout: 20000 }),
+      page.click('button[type=submit]'),
+    ]);
+  }
+  await page.goto(`${APP}/dashboard`, { waitUntil: 'domcontentloaded' });
+  assert.equal(new URL(page.url()).pathname, '/dashboard');
+  assert.match(await page.content(), new RegExp(words.slice(0, 30)), 'a coach with the code typed did not see the note');
+  await page.context().close();
+});
+
 test('the notes page is for coaches with the code typed: a learner and a password-only coach are kept out', async () => {
   const l = await learner('MY');
   const lp = await today(l);

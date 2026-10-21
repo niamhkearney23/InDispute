@@ -16,6 +16,7 @@ import { roundsToday } from '@/lib/training/rounds-service';
 import { ROUND_SIZE, openRound } from '@/lib/training/rounds';
 import { SessionCard } from '@/components/session-card';
 import { leadSession, seesTraineeVideos, sessionsForLearner } from '@/lib/lessons/sessions';
+import { viewerIsStaff } from '@/lib/content/service';
 import { isFull, postsForSession, workBoardFor } from '@/lib/work/service';
 import { ButtonLink, Notice } from '@/components/ui';
 import { BeginSessionButton } from '../begin-session-button';
@@ -62,6 +63,8 @@ export default async function DashboardPage() {
         Boolean(await acceptedInvitationFor(user.id))
       : false;
   const countryName = overview.profile.country === 'MY' ? 'Malaysia' : 'Australia';
+  // Trainee-only notes and videos for staff only with the code typed (0047).
+  const staffView = staff ? await viewerIsStaff(user.id) : false;
 
   const { profile, level } = overview;
   const supabase = await createSupabaseServerClient();
@@ -80,7 +83,7 @@ export default async function DashboardPage() {
       outstandingRequired(user.id, profile.country),
       outstandingFirmModules(user.id, profile.country),
       beforeYouBegin(user.id, profile.country),
-      sessionsForLearner(profile.country, seesTraineeVideos(profile)),
+      sessionsForLearner(profile.country, seesTraineeVideos(profile, staffView)),
       workBoardFor(user.id),
       profile.startsOn
         ? supabase.from('homework_declarations').select('day').eq('user_id', user.id)
@@ -136,7 +139,7 @@ export default async function DashboardPage() {
   // The coach first, then the homework they set (0050): a note for this
   // morning, and one checklist of the day built from what is already here.
   const note = await morningNoteFor(
-    { country: profile.country, seesTraineeNotes: seesTraineeVideos(profile) },
+    { country: profile.country, seesTraineeNotes: seesTraineeVideos(profile, staffView) },
     today,
   ).catch(() => null);
   const todayTask = homework.state === 'day' && profile.startsOn ? homeworkForDay(homework.day) : undefined;

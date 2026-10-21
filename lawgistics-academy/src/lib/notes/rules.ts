@@ -2,11 +2,9 @@
  * Which morning note a learner sees, as a pure function so it can be tested
  * without a database. It is the read policy's rule on country and
  * trainee-only (0050), asked again because pages read through the service
- * client, with one difference shared with sessions: here staff count by
- * their profile flags, while the policy's is_coach() also needs the code
- * typed (0047). So a member of staff signed in with a password alone sees
- * trainee-only notes on their own Today page. They are the coach's words to
- * the cohort, not a record about anybody.
+ * client. Staff count as staff only with the code typed on this session,
+ * as the policy's is_coach() does (0047): the page works out
+ * `seesTraineeNotes` with `seesTraineeVideos` and `viewerIsStaff`.
  */
 import type { Country } from '@/lib/types';
 
@@ -24,7 +22,7 @@ export interface MorningNote {
 
 export interface NoteViewer {
   country: Country;
-  /** A confirmed trainee, or staff: may read a trainee-only note. */
+  /** A confirmed trainee, or staff with the code typed: may read a trainee-only note. */
   seesTraineeNotes: boolean;
 }
 

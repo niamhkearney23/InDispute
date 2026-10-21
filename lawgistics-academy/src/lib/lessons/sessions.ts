@@ -83,23 +83,26 @@ const SELECT =
   'publisher:profiles!coach_sessions_published_by_fkey(display_name, email, avatar_url, avatar_style)';
 
 /**
- * Whether this person may watch a trainee-only video: a litigation trainee a
- * coach has confirmed, or staff. The same question `is_confirmed_trainee()`
- * and `is_coach()` answer in the read policy (0026); it is asked again here
- * because these reads go through the service client.
+ * Whether this person may watch a trainee-only video (or read a trainee-only
+ * morning note): a litigation trainee a coach has confirmed, or staff who
+ * have typed their code on this session (`staffChecked`, from
+ * `viewerIsStaff`). The same question `is_confirmed_trainee()` and
+ * `is_coach()` answer in the read policy (0026, 0047); it is asked again
+ * here because these reads go through the service client.
  */
-export function seesTraineeVideos(profile: {
-  track: string;
-  traineeConfirmed: boolean;
-  isCoach: boolean;
-  isAdmin: boolean;
-  isFirmAdmin?: boolean;
-}): boolean {
+export function seesTraineeVideos(
+  profile: {
+    track: string;
+    traineeConfirmed: boolean;
+    isCoach: boolean;
+    isAdmin: boolean;
+    isFirmAdmin?: boolean;
+  },
+  staffChecked: boolean,
+): boolean {
+  const staff = profile.isCoach || Boolean(profile.isFirmAdmin) || profile.isAdmin;
   return (
-    profile.isCoach ||
-    Boolean(profile.isFirmAdmin) ||
-    profile.isAdmin ||
-    (profile.track === 'litigation_trainee' && profile.traineeConfirmed)
+    (staff && staffChecked) || (profile.track === 'litigation_trainee' && profile.traineeConfirmed)
   );
 }
 

@@ -148,6 +148,32 @@ test('a signed-off question reaches learners in its own country only, and leaves
   assert.ok(!(await deliverable(learnerAU)).includes(q.id));
 });
 
+test('a signed-off question leaves on the day its sign-off runs out, and its explanation is not shown (0051)', async () => {
+  const db = service();
+  const id = await unsignedQuestion();
+  await signOff(id);
+  const { error } = await db.from('questions').update({ status: 'published' }).eq('id', id);
+  if (error) throw error;
+  assert.ok((await deliverable(learnerAU)).includes(id));
+
+  const today = new Date().toISOString().slice(0, 10);
+  const lapse = await db
+    .from('question_versions')
+    .update({ review_due_on: today })
+    .eq('question_id', id)
+    .eq('is_current', true)
+    .select('review_due_on');
+  if (lapse.error) throw lapse.error;
+  assert.equal(lapse.data?.[0]?.review_due_on, today);
+  assert.ok(!(await deliverable(learnerAU)).includes(id), 'a question past its review date was still given out');
+  const { data: viaServer } = await db.from('v_question_delivery').select('question_id').eq('question_id', id);
+  assert.deepEqual(viaServer ?? [], [], 'training (which reads with the server) would still have picked it');
+
+  const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+  await db.from('question_versions').update({ review_due_on: tomorrow }).eq('question_id', id).eq('is_current', true);
+  assert.ok((await deliverable(learnerAU)).includes(id), 'the day before it runs out it is still given out');
+});
+
 test('a daily fact is read only once it is signed off and published', async () => {
   const db = service();
   const { data: f } = await db

@@ -371,11 +371,11 @@ test('the court map page sends the map only when the rule allows, and says why w
 test('the menu, the Learn page and the tour do not lead a learner to a court map they cannot open', () => {
   const layout = read('src/app/(app)/layout.tsx');
   assert.match(layout, /courtsShown \? \(\s*<NavLink href="\/courts"/);
-  assert.match(layout, /courtMapFor\(profile\.country, isStaff\(profile\)\)/);
+  assert.match(layout, /courtMapFor\(profile\.country, await viewerIsStaff\(user\.id\)\)/);
   const learn = read('src/app/(app)/modules/page.tsx');
   assert.match(learn, /\{courtMap \? \(\s*<Card[\s\S]*?href="\/courts"/);
   const welcome = read('src/app/(app)/welcome/page.tsx');
-  assert.match(welcome, /courts: Boolean\(await courtMapFor\(profile\.country, isStaff\(profile\)\)\)/);
+  assert.match(welcome, /courts: Boolean\(await courtMapFor\(profile\.country, await viewerIsStaff\(user\.id\)\)\)/);
 });
 
 test('the module page sends a lesson, and its court diagram, only through the rule', () => {
@@ -390,9 +390,33 @@ test('the module page sends a lesson, and its court diagram, only through the ru
 
 test('an explanation reworded after a question was given out is not shown', () => {
   const service = read('src/lib/training/service.ts');
-  assert.match(service, /const explained = version\.verification_status === 'human_verified';/);
+  assert.match(service, /const explained = stillSignedOff\(version\.verification_status, version\.review_due_on\);/);
   assert.match(service, /explanation: explained \? version\.explanation : ''/);
-  assert.match(service, /if \(version\.verification_status !== 'human_verified'\) return \{ coachNote: null \};/);
+  assert.match(service, /if \(!stillSignedOff\(version\.verification_status, version\.review_due_on\)\) return \{ coachNote: null \};/);
+  // Both reads fetch the date, or the test above would always pass.
+  assert.equal((service.match(/verification_status, review_due_on'/g) ?? []).length, 2);
+});
+
+test('a sign-off past the date it runs out on counts as none (0051)', async () => {
+  const { stillSignedOff } = await import('../src/lib/review/expiry');
+  assert.equal(stillSignedOff('human_verified', null, '2026-10-21'), true, 'no date set');
+  assert.equal(stillSignedOff('human_verified', '2026-10-22', '2026-10-21'), true, 'runs out tomorrow');
+  assert.equal(stillSignedOff('human_verified', '2026-10-21', '2026-10-21'), false, 'runs out today');
+  assert.equal(stillSignedOff('human_verified', '2026-01-01', '2026-10-21'), false, 'ran out months ago');
+  assert.equal(stillSignedOff('requires_review', null, '2026-10-21'), false, 'never signed');
+});
+
+test('learner pages count staff as staff only with the code typed (0047), as the database does', () => {
+  const content = read('src/lib/content/service.ts');
+  assert.match(content, /if \(!isStaff\(await getLearnerProfile\(userId\)\)\) return false;\s*return staffSessionChecked\(userId\);/);
+  const twoStep = read('src/lib/auth/two-step-server.ts');
+  assert.match(twoStep, /return \(await verifiedAal\(userId\)\) === 'aal2';/);
+  // No learner page decides it from the profile flags alone any more.
+  for (const f of ['layout.tsx', 'modules/page.tsx', 'modules/[slug]/page.tsx', 'skills/page.tsx', 'welcome/page.tsx', 'courts/page.tsx', 'dashboard/page.tsx', 'sessions/page.tsx']) {
+    const src = read(`src/app/(app)/${f}`);
+    assert.doesNotMatch(src, /\bisStaff\(profile\)/, f);
+    assert.doesNotMatch(src, /seesTraineeVideos\(profile\)/, f);
+  }
 });
 
 test('loading content signs nothing off', () => {

@@ -6,8 +6,7 @@ import { getModule } from '@/lib/modules/service';
 import { ButtonLink, Card, Notice, Pill, ScoreBar, SectionHeading } from '@/components/ui';
 import { StartModuleButton } from '../start-module-button';
 import { LessonPlayer } from './lesson-player';
-import { courtMapFor, lessonFor } from '@/lib/content/service';
-import { isStaff } from '@/lib/content/gate';
+import { courtMapFor, lessonFor, viewerIsStaff } from '@/lib/content/service';
 import { ModuleArt, artFor } from '@/components/module-art';
 import { requireAccess } from '@/lib/access/service';
 
@@ -35,7 +34,7 @@ export default async function ModulePage({
   // Decided on the server: a learner is sent a lesson only once a lawyer has
   // signed off its current wording, and the court diagram on its screens
   // only once that country's map is signed off. Staff see both, labelled.
-  const staff = isStaff(profile);
+  const staff = await viewerIsStaff(user.id);
   const [{ lesson: shownLesson, waiting: lessonWaiting }, diagram] = await Promise.all([
     lessonFor(definition.slug, staff),
     courtMapFor(profile.country, staff),

@@ -20,8 +20,7 @@ import { ProgressSummary, ReviewLists, StreakSection } from '@/components/progre
 import { Disclosure } from '@/components/disclosure';
 import { LeaderboardCard } from '@/components/leaderboard-card';
 import { weeklyLeaderboard } from '@/lib/leaderboard';
-import { essayFor } from '@/lib/content/service';
-import { isStaff } from '@/lib/content/gate';
+import { essayFor, viewerIsStaff } from '@/lib/content/service';
 import { longDate } from '@/lib/onboarding/rules';
 
 export const metadata: Metadata = { title: 'Your progress' };
@@ -59,7 +58,7 @@ export default async function SkillsPage() {
   // it only once a lawyer has signed off its wording (0046).
   const essay = await essayFor(
     sittings.data?.[0]?.essay_topic_slug as string | undefined,
-    isStaff(profile),
+    await viewerIsStaff(user.id),
   );
   const history = marks ? scoreOverTime(marks, profile.timezone) : [];
 

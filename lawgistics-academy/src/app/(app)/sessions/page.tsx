@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { seesTraineeVideos, sessionsForLearner } from '@/lib/lessons/sessions';
+import { viewerIsStaff } from '@/lib/content/service';
 import { Card, EmptyState, Pill } from '@/components/ui';
 import { Materials } from '@/components/materials';
 import { postsForSessions } from '@/lib/work/service';
@@ -40,7 +41,7 @@ export default async function LearnerSessionsPage() {
   const profile = await getLearnerProfile(user.id);
   if (!profile) redirect('/account-problem');
 
-  const all = await sessionsForLearner(profile.country, seesTraineeVideos(profile));
+  const all = await sessionsForLearner(profile.country, seesTraineeVideos(profile, await viewerIsStaff(user.id)));
 
   const today = new Intl.DateTimeFormat('en-CA', {
     timeZone: profile.timezone,

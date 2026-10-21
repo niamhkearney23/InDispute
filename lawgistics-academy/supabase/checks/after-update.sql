@@ -10,8 +10,8 @@
 
 with checks(n, what, ok) as (
   values
-  (1, 'The database is at the version the website expects (0050)',
-     (select public.schema_version()) = '0050'),
+  (1, 'The database is at the version the website expects (0051)',
+     (select public.schema_version()) = '0051'),
 
   (2, 'No question is published without a lawyer''s sign-off on its current wording',
      not exists (
@@ -84,7 +84,19 @@ with checks(n, what, ok) as (
      to_regclass('public.morning_notes') is not null
      and exists (select 1 from pg_trigger where tgname = 'morning_notes_no_delete' and not tgisinternal)
      and exists (select 1 from pg_trigger where tgname = 'morning_notes_no_truncate' and not tgisinternal)
-     and exists (select 1 from pg_trigger where tgname = 'morning_notes_guard' and not tgisinternal))
+     and exists (select 1 from pg_trigger where tgname = 'morning_notes_guard' and not tgisinternal)),
+
+  (16, 'A sign-off past its date stops the question or fact, and no table can be emptied by the app',
+     (select pg_get_viewdef('public.v_question_delivery'::regclass) like '%review_due_on%')
+     and exists (select 1 from pg_policies where tablename = 'daily_facts'
+                  and policyname = 'daily_facts_read_published' and qual like '%review_due_on%')
+     and not exists (
+       select 1 from pg_class c join pg_namespace n on n.oid = c.relnamespace,
+              unnest(array['anon', 'authenticated', 'service_role']) as r(role)
+        where n.nspname = 'public' and c.relkind in ('r', 'p')
+          and has_table_privilege(r.role, c.oid, 'TRUNCATE'))
+     and not has_table_privilege('service_role', 'public.account_erasures', 'DELETE')
+     and not has_table_privilege('service_role', 'public.content_signoffs', 'DELETE'))
 )
 select n as "#", what as "check", case when ok then 'OK' else 'NOT OK' end as result
 from checks

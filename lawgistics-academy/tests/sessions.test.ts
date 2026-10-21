@@ -64,19 +64,23 @@ test('nothing at all is a null, not a crash', () => {
 
 test('a trainee-only video is for confirmed trainees and staff, nobody else', () => {
   const base = { track: 'general', traineeConfirmed: false, isCoach: false, isAdmin: false };
-  assert.equal(seesTraineeVideos(base), false, 'an intern on the general academy');
+  assert.equal(seesTraineeVideos(base, false), false, 'an intern on the general academy');
+  assert.equal(seesTraineeVideos(base, true), false, 'staffChecked opens nothing for a learner');
   assert.equal(
-    seesTraineeVideos({ ...base, track: 'litigation_trainee' }),
+    seesTraineeVideos({ ...base, track: 'litigation_trainee' }, false),
     false,
     'somebody who said they were a trainee, before a coach confirmed it',
   );
   assert.equal(
-    seesTraineeVideos({ ...base, track: 'litigation_trainee', traineeConfirmed: true }),
+    seesTraineeVideos({ ...base, track: 'litigation_trainee', traineeConfirmed: true }, false),
     true,
     'a confirmed trainee',
   );
-  assert.equal(seesTraineeVideos({ ...base, isCoach: true }), true, 'a coach');
-  assert.equal(seesTraineeVideos({ ...base, isAdmin: true }), true, 'an administrator');
+  assert.equal(seesTraineeVideos({ ...base, isCoach: true }, true), true, 'a coach with the code typed');
+  assert.equal(seesTraineeVideos({ ...base, isAdmin: true }, true), true, 'an administrator with the code typed');
+  assert.equal(seesTraineeVideos({ ...base, isFirmAdmin: true }, true), true, 'a firm administrator with the code typed');
+  assert.equal(seesTraineeVideos({ ...base, isCoach: true }, false), false, 'a coach with a password alone (0047)');
+  assert.equal(seesTraineeVideos({ ...base, isAdmin: true }, false), false, 'an administrator with a password alone');
 });
 
 test('the learner reader filters trainee-only videos twice, and the policy decides it too', () => {

@@ -189,10 +189,10 @@ export function todaysHomework(input: TodayInput): TodayItem[] {
   // so a piece sent back for another go is never pushed off by finished work.
   const rank = (w: TodayInput['work'][number]) =>
     w.state === 'waiting' ? 2 : w.state === 'again' ? 0 : 1;
-  const work = input.work
+  const taken = input.work
     .filter((w) => w.state !== 'good')
-    .sort((a, b) => rank(a) - rank(b) || (a.dueOn ?? '9999').localeCompare(b.dueOn ?? '9999'))
-    .slice(0, 3);
+    .sort((a, b) => rank(a) - rank(b) || (a.dueOn ?? '9999').localeCompare(b.dueOn ?? '9999'));
+  const work = taken.slice(0, 3);
   for (const w of work) {
     const waiting = w.state === 'waiting';
     const again = w.state === 'again';
@@ -201,13 +201,15 @@ export function todaysHomework(input: TodayInput): TodayItem[] {
     items.push({
       key: `work-${w.id}`,
       label: w.title,
-      meta: w.replyWaiting
+      meta: again
+        ? w.replyWaiting
+          ? 'Your coach asked for another go · and has replied'
+          : 'Your coach asked for another go'
+        : w.replyWaiting
         ? 'Your coach has replied'
         : waiting
         ? 'Handed in · waiting for your coach'
-        : again
-          ? 'Your coach asked for another go'
-          : dueToday
+        : dueToday
             ? 'Hand in today'
             : overdue
               ? `Was due ${shortDate(w.dueOn!)}`
@@ -217,6 +219,18 @@ export function todaysHomework(input: TodayInput): TodayItem[] {
       href: `/work/${w.id}`,
       done: waiting,
       urgent: Boolean(w.replyWaiting) || (!waiting && (again || dueToday || overdue)),
+    });
+  }
+
+  // Beyond three, one line says how many more, so none goes unmentioned.
+  const more = taken.length - work.length;
+  if (more > 0) {
+    items.push({
+      key: 'work-more',
+      label: more === 1 ? '1 more piece of your work' : `${more} more pieces of your work`,
+      meta: 'On the work board',
+      href: '/work',
+      done: null,
     });
   }
 
@@ -297,7 +311,11 @@ export function homeworkLines(input: {
             ).toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'UTC' })}`,
           }
         : day.state === 'finished'
-          ? { meta: `You finished the four weeks: ${input.declared.size} of 20 recorded` }
+          ? {
+              meta: `${day.lastDay === 20 ? 'You finished the four weeks' : 'Your placement is over'}: ${
+                [...input.declared].filter((d) => d <= day.lastDay).length
+              } of ${day.lastDay} recorded`,
+            }
           : null;
   return { note, missed };
 }

@@ -127,7 +127,32 @@ test('work sent back is never pushed off the list by finished work', () => {
   });
   assert.equal(items[0].label, 'Sent back');
   assert.equal(items[0].urgent, true);
-  assert.equal(items.filter((i) => i.key.startsWith('work-') && i.key !== 'work-open').length, 3);
+  const pieces = items.filter((i) => i.key.startsWith('work-') && !['work-open', 'work-more'].includes(i.key));
+  assert.equal(pieces.length, 3);
+  // The fourth is not dropped without a word.
+  const more = items.find((i) => i.key === 'work-more');
+  assert.equal(more?.label, '1 more piece of your work');
+  assert.equal(more?.href, '/work');
+});
+
+test('three pieces or fewer: no "more" line', () => {
+  const items = todaysHomework({
+    ...base,
+    trainingOpen: false,
+    work: [{ id: 'a', title: 'A', dueOn: null, state: 'todo' }],
+  });
+  assert.equal(items.find((i) => i.key === 'work-more'), undefined);
+});
+
+test('sent back with a reply: the reply does not hide that another go is wanted (found by the independent review)', () => {
+  const items = todaysHomework({
+    ...base,
+    trainingOpen: false,
+    work: [{ id: 'a', title: 'Letter', dueOn: null, state: 'again', replyWaiting: true }],
+  });
+  assert.equal(items[0].meta, 'Your coach asked for another go · and has replied');
+  assert.equal(items[0].urgent, true);
+  assert.equal(items[0].done, false);
 });
 
 test('a reply from the coach is said, and work open to take is a line', () => {
@@ -219,7 +244,13 @@ test('a working day: no note (the task has its own line), earlier days not ticke
 });
 
 test('after the last day: says so with what was recorded, and every day not ticked is missed', () => {
-  const r = homeworkLines({ startsOn: '2026-09-01', day: { state: 'finished' }, declared: new Set([1, 2, 3]), longDate: date });
+  const r = homeworkLines({ startsOn: '2026-09-01', day: { state: 'finished', lastDay: 20 }, declared: new Set([1, 2, 3]), longDate: date });
   assert.equal(r.note?.meta, 'You finished the four weeks: 3 of 20 recorded');
   assert.equal(r.missed, 17);
+});
+
+test('after a placement that ended early: counted out of the days it had, nothing past them missed', () => {
+  const r = homeworkLines({ startsOn: '2026-09-01', day: { state: 'finished', lastDay: 10 }, declared: new Set([1, 2, 3]), longDate: date });
+  assert.equal(r.note?.meta, 'Your placement is over: 3 of 10 recorded');
+  assert.equal(r.missed, 7);
 });

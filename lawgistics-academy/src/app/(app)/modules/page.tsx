@@ -8,8 +8,7 @@ import { listFirmModulesForLearner } from '@/lib/firm/service';
 import { ButtonLink, Card, Pill, SectionHeading } from '@/components/ui';
 import { ModuleArt, artFor } from '@/components/module-art';
 import { requireAccess } from '@/lib/access/service';
-import { courtMapFor } from '@/lib/content/service';
-import { isStaff } from '@/lib/content/gate';
+import { courtMapFor, viewerIsStaff } from '@/lib/content/service';
 
 export const metadata: Metadata = { title: 'Modules' };
 
@@ -24,7 +23,7 @@ export default async function ModulesPage() {
   const [progress, firmModules, courtMap] = await Promise.all([
     getModuleProgress(user.id, profile.country),
     listFirmModulesForLearner(user.id, profile.country),
-    courtMapFor(profile.country, isStaff(profile)),
+    courtMapFor(profile.country, await viewerIsStaff(user.id)),
   ]);
 
   return (

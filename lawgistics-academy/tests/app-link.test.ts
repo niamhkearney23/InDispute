@@ -21,7 +21,7 @@ function files(dir: string): string[] {
 test("nothing imports Next's link directly, so nothing preloads by accident", () => {
   const offenders = files(SRC)
     .filter((f) => !f.endsWith(path.join('components', 'app-link.tsx')))
-    .filter((f) => /from ['"]next\/link['"]/.test(fs.readFileSync(f, 'utf8')))
+    .filter((f) => /from ['"]next\/link['"]|require\(['"]next\/link['"]\)|import\(['"]next\/link['"]\)/.test(fs.readFileSync(f, 'utf8')))
     .map((f) => path.relative(SRC, f));
   assert.deepEqual(offenders, []);
 });
@@ -34,7 +34,10 @@ test('the shared link turns preloading off unless a link asks for it', () => {
 
 test('nothing asks the router to preload by hand either', () => {
   const offenders = files(SRC)
-    .filter((f) => /router\.prefetch\(|prefetch=\{?true/.test(fs.readFileSync(f, 'utf8')))
+    // Any prefetch prop but the wrapper's own: a bare `prefetch` means true,
+    // and null or "auto" bring back the preloading this switched off.
+    .filter((f) => !f.endsWith(path.join('components', 'app-link.tsx')))
+    .filter((f) => /router\.prefetch\(|\bprefetch(\s*=|\s*[/>}]|\s+\w+=)/.test(fs.readFileSync(f, 'utf8')))
     .map((f) => path.relative(SRC, f));
   assert.deepEqual(offenders, []);
 });

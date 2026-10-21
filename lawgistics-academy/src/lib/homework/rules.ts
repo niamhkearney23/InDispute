@@ -19,7 +19,12 @@ export type HomeworkDay =
   /** A weekend, or a public holiday the programme does not run on. */
   | { state: 'weekend'; nextDay: number; resumesOn: string; holiday?: string }
   | { state: 'day'; day: number }
-  | { state: 'finished' };
+  /**
+   * Over. `lastDay` is the last working day the placement had: twenty, or
+   * fewer when its end date came first, so days that never happened cannot
+   * be ticked off afterwards or counted as missed.
+   */
+  | { state: 'finished'; lastDay: number };
 
 /** Monday is 1, Sunday is 7, so "past 5" reads as "past Friday" everywhere below. */
 function isoWeekday(isoDate: string): number {
@@ -94,7 +99,13 @@ export function homeworkDay(
   if (daysUntilStart > 0) return { state: 'before', daysUntilStart };
 
   const today = todayIn(timezone, now);
-  if (endsOn && today > endsOn) return { state: 'finished' };
+  if (endsOn && today > endsOn) {
+    const span = Math.round(
+      (Date.parse(`${endsOn}T00:00:00Z`) - Date.parse(`${startsOn}T00:00:00Z`)) / 86400000,
+    );
+    const lastDay = span < 0 ? 0 : Math.min(HOMEWORK_DAYS, workingDaysElapsed(startsOn, span, holidays));
+    return { state: 'finished', lastDay };
+  }
 
   const calendarDaysElapsed = -daysUntilStart;
 
@@ -102,7 +113,7 @@ export function homeworkDay(
     let ahead = 1;
     while (!isWorkingDay(addDays(today, ahead), holidays)) ahead++;
     const nextDay = workingDaysElapsed(startsOn, calendarDaysElapsed + ahead, holidays);
-    if (nextDay > HOMEWORK_DAYS) return { state: 'finished' };
+    if (nextDay > HOMEWORK_DAYS) return { state: 'finished', lastDay: HOMEWORK_DAYS };
     const holiday = holidays[today];
     return {
       state: 'weekend',
@@ -113,7 +124,7 @@ export function homeworkDay(
   }
 
   const day = workingDaysElapsed(startsOn, calendarDaysElapsed, holidays);
-  return day > HOMEWORK_DAYS ? { state: 'finished' } : { state: 'day', day };
+  return day > HOMEWORK_DAYS ? { state: 'finished', lastDay: HOMEWORK_DAYS } : { state: 'day', day };
 }
 
 /**
@@ -131,7 +142,7 @@ export function lastArrivedDay(day: HomeworkDay): number {
     case 'weekend':
       return day.nextDay - 1;
     case 'finished':
-      return HOMEWORK_DAYS;
+      return day.lastDay;
     default:
       return 0;
   }

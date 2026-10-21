@@ -46,11 +46,14 @@ function toNote(row: Row): MorningNote {
 /** The note for this learner this morning, or null. A failed read is null. */
 export async function morningNoteFor(viewer: NoteViewer, today: string): Promise<MorningNote | null> {
   const db = createServiceClient();
-  const { data, error } = await db
+  const query = db
     .from('morning_notes')
     .select(SELECT)
     .eq('for_date', today)
-    .or(`country.is.null,country.eq.${viewer.country}`)
+    .or(`country.is.null,country.eq.${viewer.country}`);
+  // Filtered here as well as in noteForToday, so a busy morning's
+  // trainee-only notes cannot fill the twenty and hide one meant for everyone.
+  const { data, error } = await (viewer.seesTraineeNotes ? query : query.eq('trainees_only', false))
     .order('created_at', { ascending: false })
     .limit(20);
   if (error || !data) return null;

@@ -70,6 +70,20 @@ export function isLapsed(
   return reviewDueOn <= today;
 }
 
+/**
+ * Whether a lawyer's sign-off still stands today: verified, and not past the
+ * date it runs out on. The same test as the delivery view and the facts read
+ * policy (0051) and the tutor's `stillChecked`, for a version already given
+ * out that the app reads directly. `today` is the database's date, UTC.
+ */
+export function stillSignedOff(
+  verificationStatus: string,
+  reviewDueOn: string | null,
+  today: string = new Date().toISOString().slice(0, 10),
+): boolean {
+  return verificationStatus === 'human_verified' && !isLapsed(verificationStatus, reviewDueOn, today);
+}
+
 /** Days until a sign-off runs out. Negative once it has. */
 export function daysUntilDue(reviewDueOn: string, today: string): number {
   const day = (iso: string) => {

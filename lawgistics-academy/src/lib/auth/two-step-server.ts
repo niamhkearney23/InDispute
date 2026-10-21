@@ -1,5 +1,7 @@
 import 'server-only';
 
+import { cache } from 'react';
+import { twoStepEnforced } from '@/lib/auth/two-step';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 /**
@@ -28,3 +30,15 @@ export async function verifiedAal(userId: string): Promise<string | null> {
     return null;
   }
 }
+
+/**
+ * Whether a member of staff has typed their code on this session, so the
+ * learner pages may show them what staff see (unsigned content, labelled;
+ * trainee-only notes and videos). The database counts a staff role only at
+ * `aal2` (0047); a password alone gets what a learner gets, here as there.
+ * Read once per request. Asked only of people whose profile says staff.
+ */
+export const staffSessionChecked = cache(async (userId: string): Promise<boolean> => {
+  if (!twoStepEnforced()) return true;
+  return (await verifiedAal(userId)) === 'aal2';
+});

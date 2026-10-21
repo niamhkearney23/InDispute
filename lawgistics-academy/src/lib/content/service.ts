@@ -7,6 +7,7 @@ import { getLearnerProfile } from '@/lib/learner-overview';
 import { currentSignOffs } from '@/lib/lessons/signoff';
 import { currentReferenceSignOffs } from '@/lib/content/signoff';
 import { MAXIMS_KEY, courtMapKey, essayKey, maxims, type Maxim } from '@/lib/content/wording';
+import { staffSessionChecked } from '@/lib/auth/two-step-server';
 import { forViewer, isStaff, lessonForViewer, type LessonForViewer, type Shown } from '@/lib/content/gate';
 import type { Country } from '@/lib/types';
 
@@ -25,9 +26,14 @@ import type { Country } from '@/lib/types';
 const lessonSignOffs = cache(currentSignOffs);
 const referenceSignOffs = cache(currentReferenceSignOffs);
 
-/** Whether this person sees unsigned content, labelled. False if unknown. */
+/**
+ * Whether this person sees unsigned content, labelled: staff, with the code
+ * typed on this session (0047's rule, which the database applies to the same
+ * reads). False if unknown.
+ */
 export const viewerIsStaff = cache(async (userId: string): Promise<boolean> => {
-  return isStaff(await getLearnerProfile(userId));
+  if (!isStaff(await getLearnerProfile(userId))) return false;
+  return staffSessionChecked(userId);
 });
 
 /** A country's court map, if this person may see it. */

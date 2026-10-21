@@ -25,6 +25,7 @@ import {
   type PendingXpEvent,
 } from '@/lib/learning/progression';
 import { coachOnAnswer } from '@/lib/ai/legal-coach';
+import { stillSignedOff } from '@/lib/review/expiry';
 import { pickEssayTopic } from '@/content/seed/essay-topics';
 import { asCountry, GOAL_TO_DOMAIN_SLUGS, learnerTimezone } from '@/lib/types';
 import type {
@@ -404,7 +405,7 @@ export async function submitAnswer(args: {
     db
       .from('question_versions')
       .select(
-        'id, question_id, question_type, stem, scenario, options, correct_option_ids, explanation, why_it_matters, common_misconception, memory_trick, difficulty, jurisdiction, court, source_reference, source_url, verification_status',
+        'id, question_id, question_type, stem, scenario, options, correct_option_ids, explanation, why_it_matters, common_misconception, memory_trick, difficulty, jurisdiction, court, source_reference, source_url, verification_status, review_due_on',
       )
       .eq('id', args.questionVersionId)
       .maybeSingle(),
@@ -723,8 +724,9 @@ export async function submitAnswer(args: {
   // when the question was given out, but a change of wording since (an
   // explanation corrected in place clears the sign-off, 0040) means it is
   // no longer what a lawyer checked, so it is not shown: the answer is
-  // still marked, and the page says the explanation is waiting (0046).
-  const explained = version.verification_status === 'human_verified';
+  // still marked, and the page says the explanation is waiting (0046). A
+  // sign-off past the date it runs out on counts as none (0051).
+  const explained = stillSignedOff(version.verification_status, version.review_due_on);
   return {
     isCorrect,
     correctOptionIds,
@@ -818,7 +820,7 @@ export async function getCoachNote(
     db
       .from('question_versions')
       .select(
-        'question_id, stem, scenario, options, correct_option_ids, explanation, common_misconception, jurisdiction, verification_status',
+        'question_id, stem, scenario, options, correct_option_ids, explanation, common_misconception, jurisdiction, verification_status, review_due_on',
       )
       .eq('id', questionVersionId)
       .maybeSingle(),
@@ -827,7 +829,7 @@ export async function getCoachNote(
   if (!attempt || !version) return { error: 'Could not load that question.' };
   // The note is written from the checked explanation. One no longer signed
   // off is not handed to the AI to paraphrase for a learner (0046).
-  if (version.verification_status !== 'human_verified') return { coachNote: null };
+  if (!stillSignedOff(version.verification_status, version.review_due_on)) return { coachNote: null };
 
   const { data: conceptLinks } = await db
     .from('question_concepts')

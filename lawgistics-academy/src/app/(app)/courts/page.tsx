@@ -7,8 +7,7 @@ import { CourtMap } from '@/components/court-map';
 import { moduleBySlug } from '@/content/seed/modules';
 import { getModuleProgress } from '@/lib/modules/service';
 import { requireAccess } from '@/lib/access/service';
-import { courtMapFor } from '@/lib/content/service';
-import { isStaff } from '@/lib/content/gate';
+import { courtMapFor, viewerIsStaff } from '@/lib/content/service';
 import { ButtonLink, Notice, Pill } from '@/components/ui';
 
 export const metadata: Metadata = { title: 'Court map' };
@@ -28,7 +27,7 @@ export default async function CourtsPage() {
   const profile = await getLearnerProfile(user.id);
   if (!profile) redirect('/account-problem');
 
-  const staff = isStaff(profile);
+  const staff = await viewerIsStaff(user.id);
   // Decided on the server: a learner whose country's map is not signed off
   // is never sent it, so there is nothing in the page to find.
   const map = await courtMapFor(profile.country, staff);
