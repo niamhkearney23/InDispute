@@ -1,25 +1,25 @@
 {
-  "generatedDate": "2026-10-21",
+  "generatedDate": "2026-10-22",
   "jobs": [
     {
-      "employer": "The Law Society of New South Wales (scheme-wide dates binding on participating firms)",
-      "program": "Summer Clerkship 2027 Recruitment Program",
+      "employer": "The Law Society of New South Wales (scheme covering participating NSW firms and organisations)",
+      "program": "Summer Clerkship Recruitment Program - 2027 recruitment round (clerkships over summer 2027/28)",
       "jurisdiction": "NSW",
       "opens": "2027-06-09",
       "closes": null,
-      "notes": "Official scheme page lists 2027 dates as applications opening Wednesday 9 June at 9:00am AEST with two alternative closing dates (Sunday 4 July and Sunday 11 July, 11:59pm AEST) depending on the firm, and offers from Wednesday 8 September — so a single scheme-wide close date cannot be confirmed; eligibility is generally penultimate-year students, and the 2026 cycle has already closed.",
+      "notes": "The Law Society's live clerkship page publishes 2027 recruitment dates and confirms applications for summer clerkships open Wednesday 9 June 2027; eligibility is penultimate year of degree, with some firm-by-firm exceptions, but the exact closing date (historically a July Sunday, with some firms a week later) was not confirmed on the source so it is left null.",
       "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Clerkship-Recruitment-Program",
-      "verifiedDate": "2026-10-21"
+      "verifiedDate": "2026-10-22"
     },
     {
-      "employer": "Queensland Law Society (scheme-wide guidelines for participating firms)",
-      "program": "Seasonal Clerkship and Graduate Recruitment (next cycle)",
-      "jurisdiction": "QLD",
+      "employer": "HWL Ebsworth Lawyers",
+      "program": "2027 Hobart Summer Clerkship Program",
+      "jurisdiction": "TAS",
       "opens": null,
       "closes": null,
-      "notes": "The official QLS page confirms the recruitment cycle commences with clerkship applications in July/August with Summer One, Summer Two, Autumn and Winter programs and priority graduate decisions in early August, but no specific calendar dates for the next cycle are published on the page, so opens/closes are left null rather than guessed.",
-      "url": "https://www.qls.com.au/the-hub-early-career-lawyers/your-legal-career/seasonal-clerkship-and-graduate-recruitment",
-      "verifiedDate": "2026-10-21"
+      "notes": "The firm's own early careers page states it did not take market applications for the 2026 Hobart program and directs students to watch the page for 2027 program information, so a future round is flagged but no open/close dates are published yet; its Sydney, Adelaide, Brisbane and Darwin windows shown on the same page relate to the 2026 round and have already closed.",
+      "url": "https://hwlebsworth.com.au/graduate-centre/",
+      "verifiedDate": "2026-10-22"
     }
   ]
 }
