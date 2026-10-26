@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>You’re invited · Opening Statement 2027</title>
-<meta name="description" content="You’re invited to the 2027 Opening Statement New Year’s party by Thomas Philip. Friday, 8 January 2027, 6:30pm.">
+<meta name="description" content="You’re invited to the 2027 Opening Statement New Year’s party by Thomas Philip. Friday, 8 January 2027, 6:30pm onwards, Wisma CKL, Desa Sri Hartamas, Kuala Lumpur. RSVP by 15 December.">
 <meta property="og:title" content="You’re invited · Opening Statement 2027">
-<meta property="og:description" content="The 2027 Opening Statement New Year’s party by Thomas Philip. Friday, 8 January 2027, 6:30pm. RSVP here.">
+<meta property="og:description" content="The 2027 Opening Statement New Year’s party by Thomas Philip. Friday, 8 January 2027, 6:30pm onwards. RSVP by 15 December.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://invitationtp2027.netlify.app/">
 <meta property="og:image" content="https://invitationtp2027.netlify.app/images/share-card.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="You’re invited to the 2027 Opening Statement New Year’s party by Thomas Philip. Friday, 8 January 2027, 6:30pm.">
+<meta property="og:image:alt" content="You’re invited to the 2027 Opening Statement New Year’s party by Thomas Philip. Friday, 8 January 2027, 6:30pm onwards, Wisma CKL, Desa Sri Hartamas, Kuala Lumpur. RSVP by 15 December.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://invitationtp2027.netlify.app/images/share-card.jpg">
 <meta name="robots" content="noindex">
@@ -64,6 +64,9 @@ body{margin:0;min-height:100vh;background:var(--desk);color:var(--ink);font-fami
 dt{font:500 clamp(11px,2.8vw,13px)/1 var(--mono);letter-spacing:.22em;padding-left:.22em;color:var(--muted)}
 dt span{font-weight:400;opacity:.75;margin-right:.9em}
 dd{margin:11px 0 0;font:400 clamp(25px,6.2vw,35px)/1.2 var(--display)}
+dd.addr{font-size:clamp(21px,5.2vw,28px);line-height:1.28}
+.map{display:block;width:max-content;margin:12px auto 0;font:500 11px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--ink);text-decoration:underline;text-underline-offset:4px;text-decoration-color:var(--red)}
+.map:focus-visible{outline:2px solid var(--red);outline-offset:3px}
 dd.it{font:italic 400 clamp(25px,6.2vw,35px)/1.18 var(--display)}
 
 .stampwrap{position:relative;width:min(80%,400px);margin:clamp(30px,6vw,42px) auto 0}
@@ -200,6 +203,7 @@ body::before{content:"";position:fixed;inset:0;background:#000;opacity:0;pointer
 .row:nth-child(2)::before,.row:nth-child(2)>*{animation-delay:3.43s}
 .row:nth-child(3)::before,.row:nth-child(3)>*{animation-delay:3.61s}
 .row:nth-child(4)::before,.row:nth-child(4)>*{animation-delay:3.79s}
+.row:nth-child(5)::before,.row:nth-child(5)>*{animation-delay:3.97s}
 .notice .stamp{animation:slam .6s 4.6s both,dry 1.8s ease-out 4.97s both}
 .notice{animation:thud .28s linear 4.97s}
 /* with JS the stamp waits until it is on screen (phones), never earlier than 4.6s */
@@ -284,9 +288,10 @@ body::before{content:"";position:fixed;inset:0;background:#000;opacity:0;pointer
 
     <dl class="rows">
       <div class="row"><dt><span>01</span>DATE</dt><dd>Friday, 8 January 2027</dd></div>
-      <div class="row"><dt><span>02</span>TIME</dt><dd>6:30pm</dd></div>
-      <div class="row"><dt><span>03</span>VENUE</dt><dd>To be confirmed</dd></div>
-      <div class="row"><dt><span>04</span>GROUNDS</dt><dd class="it">With good company.<br>And that is TP’s guarantee.</dd></div>
+      <div class="row"><dt><span>02</span>TIME</dt><dd>6:30pm onwards</dd></div>
+      <div class="row"><dt><span>03</span>VENUE</dt><dd class="addr">Thomas Philip<br>5-1, Jalan 22A/70A Wisma CKL<br>Desa Sri Hartamas<br>50480 Kuala Lumpur, Malaysia<a class="map" href="https://www.google.com/maps/search/?api=1&amp;query=Thomas%20Philip%2C%205-1%2C%20Jalan%2022A/70A%20Wisma%20CKL%2C%20Desa%20Sri%20Hartamas%2C%2050480%20Kuala%20Lumpur%2C%20Malaysia" target="_blank" rel="noopener">Open in Google Maps</a></dd></div>
+      <div class="row"><dt><span>04</span>RSVP BY</dt><dd>15 December 2026</dd></div>
+      <div class="row"><dt><span>05</span>GROUNDS</dt><dd class="it">With good company.<br>And that is TP’s guarantee.</dd></div>
     </dl>
 
     <div class="stampwrap">
@@ -313,7 +318,7 @@ body::before{content:"";position:fixed;inset:0;background:#000;opacity:0;pointer
     <header class="formhead"><span>FORM TP-27R</span><span>RESPONSE TO NOTICE</span></header>
     <div class="rule" aria-hidden="true"></div>
     <h2 id="reply-h">Kindly reply</h2>
-    <p class="lead">Complete the slip below and file it. It takes a minute.</p>
+    <p class="lead">Complete the slip below and file it by 15 December. It takes a minute.</p>
 
     <form name="rsvp" id="rsvp" method="POST" action="/thanks.html" data-netlify="true" netlify-honeypot="bot-field" novalidate>
       <input type="hidden" name="form-name" value="rsvp">
@@ -398,7 +403,7 @@ body::before{content:"";position:fixed;inset:0;background:#000;opacity:0;pointer
       <p class="thanks" id="thanks" role="status"></p>
       <p class="thanks-sub" id="thanks-sub"></p>
       <div class="cal" id="cal" hidden>
-        <a class="calbtn" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Opening%20Statement%202027%20%C2%B7%20Thomas%20Philip%E2%80%99s%20New%20Year%E2%80%99s%20Party&amp;dates=20270108T103000Z%2F20270108T103000Z&amp;details=Friday%2C%208%20January%202027%2C%206%3A30pm.%20Venue%20to%20be%20confirmed.%0AWith%20good%20company.%20And%20that%20is%20TP%E2%80%99s%20guarantee.%0AInvitation%20and%20RSVP%3A%20https%3A%2F%2Finvitationtp2027.netlify.app%2F&amp;location=Venue%20to%20be%20confirmed" target="_blank" rel="noopener">Add to Google Calendar</a>
+        <a class="calbtn" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Opening%20Statement%202027%20%C2%B7%20Thomas%20Philip%E2%80%99s%20New%20Year%E2%80%99s%20Party&amp;dates=20270108T103000Z%2F20270108T103000Z&amp;details=Friday%2C%208%20January%202027%2C%206%3A30pm%20onwards.%0AWith%20good%20company.%20And%20that%20is%20TP%E2%80%99s%20guarantee.%0AInvitation%20and%20RSVP%3A%20https%3A%2F%2Finvitationtp2027.netlify.app%2F&amp;location=Thomas%20Philip%2C%205-1%2C%20Jalan%2022A%2F70A%20Wisma%20CKL%2C%20Desa%20Sri%20Hartamas%2C%2050480%20Kuala%20Lumpur%2C%20Malaysia" target="_blank" rel="noopener">Add to Google Calendar</a>
         <a class="calbtn" href="opening-statement-2027.ics">Add to Apple / Outlook</a>
       </div>
       <p class="preview" id="preview" hidden>Preview only: this reply was not sent. Replies are saved once the site is online.</p>
@@ -514,8 +519,9 @@ body::before{content:"";position:fixed;inset:0;background:#000;opacity:0;pointer
   else start();
 
   var today=new Date(); today.setHours(0,0,0,0);
-  var days=Math.round((new Date(2027,0,8)-today)/864e5), period=document.getElementById('period');
-  if(days>=0){period.innerHTML=days===0?'Notice period: <b>tonight</b>':'Notice period: <b>'+days+'</b> day'+(days===1?'':'s');period.hidden=false}
+  var days=Math.round((new Date(2026,11,15)-today)/864e5), period=document.getElementById('period');
+  period.innerHTML='RSVP by 15 December'+(days>1?' · <b>'+days+'</b> days left':days===1?' · <b>1</b> day left':days===0?' · <b>today</b>':'');
+  period.hidden=false;
 
   var guests=document.getElementById('guests');
   form.addEventListener('change',function(e){if(e.target.name==='attending') guests.classList.toggle('off',e.target.value==='No')});
@@ -555,7 +561,7 @@ body::before{content:"";position:fixed;inset:0;background:#000;opacity:0;pointer
     document.getElementById('stamp-yes').hidden=!yes;
     document.getElementById('stamp-no').hidden=yes;
     document.getElementById('thanks').textContent=yes?'Motion granted, '+who+'.':'Noted for the record, '+who+'.';
-    document.getElementById('thanks-sub').textContent=yes?party+' on the record. See you on Friday, 8 January, at 6:30pm.':'You will be missed.';
+    document.getElementById('thanks-sub').textContent=yes?party+' on the record. See you on Friday, 8 January, from 6:30pm.':'You will be missed.';
     document.getElementById('cal').hidden=!yes;
     document.getElementById('preview').hidden=!preview;
     form.classList.add('filed');
