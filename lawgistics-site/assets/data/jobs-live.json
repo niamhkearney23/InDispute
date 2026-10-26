@@ -1,45 +1,15 @@
 {
-  "generatedDate": "2026-10-25",
+  "generatedDate": "2026-10-26",
   "jobs": [
     {
-      "employer": "The Law Society of New South Wales (scheme-wide dates for participating employers)",
-      "program": "Summer Clerkship Recruitment Program 2027 (clerkships over summer 2027/28)",
+      "employer": "The Law Society of New South Wales (scheme-wide — all participating firms, e.g. Allens, Ashurst, Clayton Utz, Gadens, HWL Ebsworth, Johnson Winter Slattery)",
+      "program": "Summer Clerkship — 2027 NSW recruitment cycle (clerkships commencing late 2027/early 2028)",
       "jurisdiction": "NSW",
       "opens": "2027-06-09",
       "closes": null,
-      "notes": "Scheme opens 9:00am AEST on 9 June 2027; the Law Society publishes two alternative closing dates (Sunday 4 July and Sunday 11 July 2027, 11:59pm AEST) depending on the participating employer, so a single confirmed close date cannot be stated — applicants must be in penultimate or final year.",
+      "notes": "Applications open 9:00am AEST Wed 9 June 2027 and offers can be made from 9:00am Wed 8 September 2027, but the Law Society lists two alternative closing dates (Sunday 4 July and Sunday 11 July 2027) depending on the employer, so no single scheme-wide close date can be confirmed; eligibility is generally penultimate-year students.",
       "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Clerkship-Recruitment-Program",
-      "verifiedDate": "2026-10-25"
-    },
-    {
-      "employer": "The Law Society of New South Wales (scheme-wide dates for participating employers)",
-      "program": "Graduate Recruitment Program 2027 — market offers",
-      "jurisdiction": "NSW",
-      "opens": "2027-02-22",
-      "closes": "2027-04-04",
-      "notes": "Open-market graduate applications open 9:00am AEST 22 February 2027 and close 11:59pm AEST 4 April 2027, with interviews from 27 April and offers from 2 June 2027; aimed at final-year students.",
-      "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Graduate-Recruitment-Program",
-      "verifiedDate": "2026-10-25"
-    },
-    {
-      "employer": "Allens",
-      "program": "First Nations Legal Internship 2027",
-      "jurisdiction": "National",
-      "opens": null,
-      "closes": "2026-11-02",
-      "notes": "Currently open per the firm's graduate site, which states applications close Monday 2 November 2026; the original opening date is not published so 'opens' is left null.",
-      "url": "https://graduates.allens.com.au/our-programs/",
-      "verifiedDate": "2026-10-25"
-    },
-    {
-      "employer": "Allens",
-      "program": "Dive In (pre-penultimate insight program), May 2027 intake",
-      "jurisdiction": "National",
-      "opens": null,
-      "closes": null,
-      "notes": "The firm confirms the 2026 round is closed and that applications for the May 2027 program will open in March 2027, but no exact open or close date is published, so both are null.",
-      "url": "https://graduates.allens.com.au/our-programs/",
-      "verifiedDate": "2026-10-25"
+      "verifiedDate": "2026-10-26"
     },
     {
       "employer": "Clayton Utz",
@@ -47,19 +17,29 @@
       "jurisdiction": "National",
       "opens": null,
       "closes": null,
-      "notes": "The firm's early careers page states applications are currently closed and will open in June 2027 for the 2027/28 seasonal clerkship program, but gives only the month, so exact dates are not confirmed.",
+      "notes": "The firm's own careers page states applications are currently closed and will open in June for the 2027/28 seasonal clerkship program, but gives only the month — no exact open or close dates are published yet, and state-based dates will follow the relevant Law Society/LIV/QLS guidelines.",
       "url": "https://www.claytonutz.com/careers/early-careers/seasonal-clerkships",
-      "verifiedDate": "2026-10-25"
+      "verifiedDate": "2026-10-26"
     },
     {
-      "employer": "LK Law",
-      "program": "Adelaide Clerkship Program 2027/28",
-      "jurisdiction": "SA",
+      "employer": "Allens",
+      "program": "First Nations Legal Internship — February 2027 intake",
+      "jurisdiction": "National",
+      "opens": null,
+      "closes": "2026-11-02",
+      "notes": "Currently open and closing Monday 2 November 2026; the firm's graduate site states the window opened in September 2026 without giving an exact opening date, so 'opens' is left null.",
+      "url": "https://graduates.allens.com.au/our-programs/",
+      "verifiedDate": "2026-10-26"
+    },
+    {
+      "employer": "Allens",
+      "program": "First Nations Legal Internship — May 2027 intake",
+      "jurisdiction": "National",
       "opens": null,
       "closes": null,
-      "notes": "Firm's careers page confirms the 2026/27 round is closed and the 2027/28 round will open in early 2027, with no specific dates published yet.",
-      "url": "https://www.lk.law/careers/application-process/",
-      "verifiedDate": "2026-10-25"
+      "notes": "Confirmed future intake with applications stated to open in March 2027, but only the month is published on the firm's graduate site, so exact open and close dates cannot be confirmed.",
+      "url": "https://graduates.allens.com.au/our-programs/",
+      "verifiedDate": "2026-10-26"
     }
   ]
 }
