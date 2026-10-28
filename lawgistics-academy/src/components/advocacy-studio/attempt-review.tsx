@@ -223,7 +223,7 @@ export function AttemptReview(props: ReviewProps) {
                 {r.followUp ? (
                   <p className="mt-3 text-sm">
                     Practise next:{' '}
-                    <Link href={`/studio/${r.followUp.slug}`} className="font-medium underline underline-offset-2">
+                    <Link href={`/studio/${r.followUp.slug}`} className="inline-flex min-h-11 items-center font-medium underline underline-offset-2">
                       {r.followUp.title}
                     </Link>
                   </p>
