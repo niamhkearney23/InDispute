@@ -27,8 +27,9 @@ export default async function AdminReferencePage() {
         <h1 className="text-3xl">Court maps and essay topics to sign off</h1>
         <p className="mt-3 max-w-2xl text-slate">
           Each country&rsquo;s court map (every court, what it does and where its appeals go) and
-          the comparison essay topics. Learners see one only once a lawyer has read it and signed
-          it off here, in Australia and Malaysia alike. Changing any word afterwards takes it away
+          the comparison essay topics, the sign-in page rules and the Advocacy Studio exercises.
+          Learners see one only once a lawyer has read it and signed it off here, in Australia and
+          Malaysia alike. Changing any word afterwards takes it away
           from learners until it is signed again.
           {waiting > 0 ? ` ${waiting} ${waiting === 1 ? 'is' : 'are'} waiting.` : ''}
         </p>

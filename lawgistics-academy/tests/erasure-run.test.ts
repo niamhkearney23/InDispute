@@ -182,6 +182,7 @@ function world(initialFiles: Record<string, string[]>, settings: Partial<Setting
 const someFiles = () => ({
   avatars: [`${USER}/avatar.png`, 'someone-else/avatar.png'],
   'matter-recordings': [`${USER}/attempt-1/1.webm`, `${USER}/attempt-2/1.webm`],
+  'studio-recordings': [`${USER}/attempt-3/recording.webm`, 'someone-else/attempt-4/recording.mp4'],
 });
 
 function isNotSuccess(outcome: ErasureOutcome) {
@@ -209,6 +210,11 @@ test('a deletion where everything works finishes, and only then is complete', as
   assert.equal(job.requestedBy, USER);
   assert.deepEqual([...w.files.get('avatars')!], ['someone-else/avatar.png'], 'only their own files go');
   assert.equal(w.files.get('matter-recordings')!.size, 0);
+  assert.deepEqual(
+    [...w.files.get('studio-recordings')!],
+    ['someone-else/attempt-4/recording.mp4'],
+    'their Advocacy Studio recordings go, nobody else\'s',
+  );
   // Sign-in is closed after the database, and the sessions revoked again after it.
   const order = w.calls.filter((c) => ['eraseDatabase', 'closeSignIn', 'revokeSessions'].includes(c));
   assert.deepEqual(order, ['eraseDatabase', 'closeSignIn', 'revokeSessions']);
@@ -238,8 +244,8 @@ test('when the auth server fails, the job stays incomplete and a retry finishes 
   assert.equal(w.calls.filter((c) => c === 'eraseDatabase').length, 1, 'the database step is not repeated');
   assert.equal(
     w.calls.filter((c) => c.startsWith('remove')).length,
-    2,
-    'the finished files step is not repeated either',
+    3,
+    'the finished files step is not repeated either (one removal per bucket, first run only)',
   );
 });
 

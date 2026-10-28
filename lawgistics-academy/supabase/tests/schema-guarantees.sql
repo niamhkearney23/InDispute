@@ -4847,6 +4847,179 @@ select pg_temp.expect_failure(
   $$delete from public.content_lapses$$,
   'nor deletes it');
 
+-- 0053: the Advocacy Studio ----------------------------------------------------
+insert into auth.users (id, email, raw_user_meta_data)
+values ('eeee0053-0000-0000-0000-000000000001', 'studio-a@example.test', '{"country":"MY"}'::jsonb),
+       ('eeee0053-0000-0000-0000-000000000002', 'studio-b@example.test', '{"country":"MY"}'::jsonb);
+insert into public.studio_attempts (id, user_id, exercise_key, exercise_hash, recording_kind,
+                                    recording_path, recording_mime, recording_seconds, status,
+                                    ai_processing, shared_with_trainer)
+values ('a0530000-0000-0000-0000-000000000001', 'eeee0053-0000-0000-0000-000000000001', 'studio-free-practice',
+        repeat('a', 64), 'video',
+        'eeee0053-0000-0000-0000-000000000001/a0530000-0000-0000-0000-000000000001/recording.webm',
+        'video/webm', 45, 'uploaded', true, true),
+       ('a0530000-0000-0000-0000-000000000002', 'eeee0053-0000-0000-0000-000000000001', 'studio-free-practice',
+        repeat('a', 64), 'audio', null, null, null, 'awaiting_upload', false, false);
+
+select pg_temp.expect(
+  (select bool_and(relrowsecurity) from pg_class
+    where oid in ('public.studio_consents'::regclass, 'public.studio_attempts'::regclass,
+                  'public.studio_reviews'::regclass, 'public.studio_access_log'::regclass)),
+  'every Studio table has row level security');
+select pg_temp.expect(
+  not exists (select 1 from unnest(array['studio_consents', 'studio_attempts', 'studio_reviews', 'studio_access_log']) t(name),
+                            unnest(array['anon', 'authenticated']) r(role),
+                            unnest(array['INSERT', 'UPDATE', 'DELETE', 'TRUNCATE']) p(priv)
+               where has_table_privilege(r.role, 'public.' || t.name, p.priv)),
+  'nobody signed in writes to the Studio tables directly: the server does, after its checks');
+select pg_temp.expect(
+  not has_table_privilege('authenticated', 'public.studio_access_log', 'SELECT')
+  and not has_table_privilege('service_role', 'public.studio_attempts', 'DELETE')
+  and not has_table_privilege('service_role', 'public.studio_reviews', 'DELETE')
+  and not has_table_privilege('service_role', 'public.studio_consents', 'UPDATE'),
+  'the access log is the server''s alone, and the server deletes no attempt, review or consent');
+select pg_temp.expect(
+  (select public from storage.buckets where id = 'studio-recordings') = false
+  and not exists (select 1 from pg_policies where schemaname = 'storage' and tablename = 'objects'
+                   and policyname not like 'erased%' and qual like '%studio-recordings%')
+  and not exists (select 1 from pg_policies where schemaname = 'storage' and tablename = 'objects'
+                   and with_check like '%studio-recordings%'),
+  'the recordings bucket is private, with no policy letting anybody at it directly');
+
+select pg_temp.expect_failure(
+  $$insert into public.studio_attempts (user_id, exercise_key, exercise_hash, recording_path)
+    values ('eeee0053-0000-0000-0000-000000000001', 'studio-free-practice', repeat('a', 64),
+            'eeee0053-0000-0000-0000-000000000002/x/recording.webm')$$,
+  'a recording sits in its own learner''s folder, under its own attempt');
+select pg_temp.expect_failure(
+  $$insert into public.studio_consents (user_id, notice_version, recording, ai_processing, trainer_sharing)
+    values ('eeee0053-0000-0000-0000-000000000001', '2026-10', false, true, false)$$,
+  'consent to AI feedback needs consent to recording');
+insert into public.studio_consents (user_id, notice_version, recording, ai_processing, trainer_sharing)
+values ('eeee0053-0000-0000-0000-000000000001', '2026-10', true, true, true);
+select pg_temp.expect_failure(
+  $$update public.studio_consents set ai_processing = false where user_id = 'eeee0053-0000-0000-0000-000000000001'$$,
+  'a consent decision is kept as it was made; a change is a new decision');
+select pg_temp.expect_failure(
+  $$delete from public.studio_consents where user_id = 'eeee0053-0000-0000-0000-000000000001'$$,
+  'nor deleted');
+
+-- Who sees what.
+set local role authenticated;
+set local request.jwt.claim.sub = 'eeee0053-0000-0000-0000-000000000001';
+select pg_temp.expect(
+  (select count(*) from public.studio_attempts where user_id = 'eeee0053-0000-0000-0000-000000000001') = 2
+  and (select count(*) from public.studio_consents) = 1,
+  'a learner reads their own attempts and consent');
+set local request.jwt.claim.sub = 'eeee0053-0000-0000-0000-000000000002';
+select pg_temp.expect(
+  not exists (select 1 from public.studio_attempts where user_id = 'eeee0053-0000-0000-0000-000000000001')
+  and not exists (select 1 from public.studio_consents where user_id = 'eeee0053-0000-0000-0000-000000000001'),
+  'another learner reads none of them');
+set local request.jwt.claims = '{"sub":"44444444-4444-4444-4444-444444444444","aal":"aal2","role":"authenticated"}';
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+select pg_temp.expect(
+  exists (select 1 from public.studio_attempts where id = 'a0530000-0000-0000-0000-000000000001')
+  and not exists (select 1 from public.studio_attempts where id = 'a0530000-0000-0000-0000-000000000002'),
+  'a coach with the code typed reads an attempt the learner shared, and not one they did not');
+set local request.jwt.claims = '{"sub":"44444444-4444-4444-4444-444444444444","aal":"aal1","role":"authenticated"}';
+select pg_temp.expect(
+  not exists (select 1 from public.studio_attempts where id = 'a0530000-0000-0000-0000-000000000001'),
+  'a coach with a password alone reads none');
+reset role;
+set local request.jwt.claim.sub = '';
+set local request.jwt.claims = '';
+
+-- What an attempt keeps.
+select pg_temp.expect_failure(
+  $$update public.studio_attempts set exercise_key = 'studio-other' where id = 'a0530000-0000-0000-0000-000000000001'$$,
+  'an attempt keeps the exercise it was');
+select pg_temp.expect_failure(
+  $$update public.studio_attempts
+       set recording_path = 'eeee0053-0000-0000-0000-000000000001/a0530000-0000-0000-0000-000000000001/recording.mp4'
+     where id = 'a0530000-0000-0000-0000-000000000001'$$,
+  'a recording is not swapped for another');
+update public.studio_attempts
+   set transcript = 'May it please the court.', feedback = '{"overall_summary":"x"}'::jsonb, status = 'feedback'
+ where id = 'a0530000-0000-0000-0000-000000000001';
+select pg_temp.expect_failure(
+  $$update public.studio_attempts set transcript = 'Something else said.' where id = 'a0530000-0000-0000-0000-000000000001'$$,
+  'a transcript is kept as it was made');
+select pg_temp.expect_failure(
+  $$update public.studio_attempts set feedback = '{"overall_summary":"kinder"}'::jsonb where id = 'a0530000-0000-0000-0000-000000000001'$$,
+  'AI feedback is kept as it was given');
+select pg_temp.expect_failure(
+  $$update public.studio_attempts set feedback = '{"overall_summary":"x"}'::jsonb, ai_processing = false
+     where id = 'a0530000-0000-0000-0000-000000000002'$$,
+  'there is no AI feedback on an attempt without consent to it');
+
+-- A coach's review.
+select pg_temp.expect_failure(
+  $$insert into public.studio_reviews (attempt_id, reviewer_id, feedback)
+    values ('a0530000-0000-0000-0000-000000000002', '44444444-4444-4444-4444-444444444444', 'Good.')$$,
+  'an attempt the learner did not share is not reviewed');
+select pg_temp.expect_failure(
+  $$insert into public.studio_reviews (attempt_id, reviewer_id, feedback)
+    values ('a0530000-0000-0000-0000-000000000001', 'eeee0053-0000-0000-0000-000000000001', 'Mine is great.')$$,
+  'nobody reviews their own attempt');
+insert into public.studio_reviews (id, attempt_id, reviewer_id, feedback, score_overrides)
+values ('b0530000-0000-0000-0000-000000000001', 'a0530000-0000-0000-0000-000000000001',
+        '44444444-4444-4444-4444-444444444444', 'Clear structure; slow down at the relief.', '{"clarity": 6}'::jsonb);
+select pg_temp.expect_failure(
+  $$update public.studio_reviews set feedback = 'Changed my mind.' where id = 'b0530000-0000-0000-0000-000000000001'$$,
+  'a coach''s review is kept as written; a correction is a new review');
+select pg_temp.expect_failure(
+  $$delete from public.studio_reviews where id = 'b0530000-0000-0000-0000-000000000001'$$,
+  'nor deleted');
+set local role authenticated;
+set local request.jwt.claim.sub = 'eeee0053-0000-0000-0000-000000000001';
+select pg_temp.expect(
+  exists (select 1 from public.studio_reviews where id = 'b0530000-0000-0000-0000-000000000001'),
+  'the learner reads the review of their attempt');
+set local request.jwt.claim.sub = 'eeee0053-0000-0000-0000-000000000002';
+select pg_temp.expect(
+  not exists (select 1 from public.studio_reviews where id = 'b0530000-0000-0000-0000-000000000001'),
+  'another learner does not');
+reset role;
+set local request.jwt.claim.sub = '';
+
+-- The access log.
+insert into public.studio_access_log (attempt_id, staff_id, action)
+values ('a0530000-0000-0000-0000-000000000001', '44444444-4444-4444-4444-444444444444', 'opened');
+select pg_temp.expect_failure(
+  $$update public.studio_access_log set action = 'reviewed'$$,
+  'the record of who opened a recording is kept as written');
+select pg_temp.expect_failure(
+  $$delete from public.studio_access_log$$,
+  'and not deleted, even by the owner');
+
+-- Deleting a recording empties the attempt and it stays empty.
+select pg_temp.expect_failure(
+  $$update public.studio_attempts set deleted_at = now(), status = 'deleted'
+     where id = 'a0530000-0000-0000-0000-000000000001'$$,
+  'an attempt is not marked deleted while it still holds what was said');
+update public.studio_attempts
+   set deleted_at = now(), status = 'deleted', recording_path = null, transcript = null,
+       transcript_segments = null, feedback = null, shared_with_trainer = false
+ where id = 'a0530000-0000-0000-0000-000000000001';
+select pg_temp.expect_failure(
+  $$update public.studio_attempts set status = 'uploaded', deleted_at = null
+     where id = 'a0530000-0000-0000-0000-000000000001'$$,
+  'a deleted recording stays deleted');
+
+-- Deleting the account empties every attempt in the same transaction.
+insert into public.studio_attempts (id, user_id, exercise_key, exercise_hash, recording_kind,
+                                    recording_path, recording_mime, status, transcript, ai_processing)
+values ('a0530000-0000-0000-0000-000000000003', 'eeee0053-0000-0000-0000-000000000002', 'studio-free-practice',
+        repeat('b', 64), 'audio',
+        'eeee0053-0000-0000-0000-000000000002/a0530000-0000-0000-0000-000000000003/recording.m4a',
+        'audio/mp4', 'uploaded', 'What I said in practice.', true);
+select public.erase_account('eeee0053-0000-0000-0000-000000000002');
+select pg_temp.expect(
+  (select status = 'deleted' and recording_path is null and transcript is null and deleted_at is not null
+     from public.studio_attempts where id = 'a0530000-0000-0000-0000-000000000003'),
+  'deleting the account empties the person''s Studio attempts');
+
 -- Schema version ---------------------------------------------------------------
 -- The admin pages compare this with the version the code expects.
 

@@ -125,7 +125,7 @@ export interface ErasureDeps {
 }
 
 /** The buckets that hold a person's own files, each under a folder named by their id. */
-export const PERSONAL_BUCKETS = ['avatars', 'matter-recordings'] as const;
+export const PERSONAL_BUCKETS = ['avatars', 'matter-recordings', 'studio-recordings'] as const;
 
 /** Storage's own default page size; a full page means there may be another. */
 export const LIST_PAGE = 100;

@@ -78,6 +78,18 @@ export default async function ModulesPage() {
         </ButtonLink>
       </Card>
 
+      <Card className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="font-medium">Practise on your feet</p>
+          <p className="text-sm text-slate">
+            The Advocacy Studio: record a short submission, watch it back, and see what to work on.
+          </p>
+        </div>
+        <ButtonLink href="/studio" variant="outline" size="sm">
+          Open the Studio
+        </ButtonLink>
+      </Card>
+
       {/* The firm's own content sits above ours on purpose. On somebody's first
           day, "what this firm allows you to put into a tool" outranks anything
           we can teach them about the law. */}

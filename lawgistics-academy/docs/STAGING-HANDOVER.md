@@ -76,7 +76,7 @@ the session's title bar, then **Edit**):
 3. Start a new session (settings reach new sessions only) and say "run the
    staging rehearsal". Do not paste any of the values into the chat.
 
-## 4. The rehearsal: seventeen checks, the update, the tests
+## 4. The rehearsal: eighteen checks, the update, the tests
 
 ### 4a. In the copy's SQL Editor (you)
 
@@ -86,7 +86,7 @@ the session's title bar, then **Edit**):
    with "Success. No rows returned". It also takes back to the review queue
    anything whose lawyer's sign-off has run out (0052) and records each.
 3. **New query**: paste `supabase/checks/after-update.sql`, **Run**. All
-   seventeen lines must say **OK** (below). Counts as before, except
+   eighteen lines must say **OK** (below). Counts as before, except
    "published questions" and "published daily facts", which drop to the
    number with a current lawyer's sign-off.
 4. Paste `UPDATE.sql` again, then `after-update.sql` again: the same result.
@@ -95,11 +95,11 @@ the session's title bar, then **Edit**):
 Send me the two check results. If any line says NOT OK, or the update stops
 with an error: stop, and do not touch the live project.
 
-### 4b. The seventeen checks
+### 4b. The eighteen checks
 
 | # | What it proves | Since |
 | --- | --- | --- |
-| 1 | The database is at the version the website expects (0052) | |
+| 1 | The database is at the version the website expects (0053) | |
 | 2 | No question is published without a lawyer's sign-off on its current wording | 0044 |
 | 3 | No daily fact is published without a lawyer's sign-off | 0044 |
 | 4 | Publishing without a sign-off is refused (the three guards are in place) | 0044 |
@@ -116,10 +116,11 @@ with an error: stop, and do not touch the live project.
 | 15 | A coach's morning note is never deleted and stays in its author's name | 0050 |
 | 16 | A sign-off past its date stops the content; no table can be emptied, and no kept record (fifteen tables) deleted, by anybody the app runs as, and the refusing triggers are on the right tables and switched on | 0051 |
 | 17 | A sign-off that ran out goes back to review with a kept record, only the server can run that or claim an answer, and none is still published | 0052 |
+| 18 | Advocacy Studio recordings are private: a closed bucket, nobody writes the Studio tables from a browser, consent records are kept, and the access log cannot be changed | 0053 |
 
-Checks 1 to 15 are the original list. 16 and 17 were added with 0051 and
-0052 so that the rehearsal proves those migrations as well, not only the
-earlier ones. Check 17 can say NOT OK on a day a sign-off ran out after the
+Checks 1 to 15 are the original list. 16, 17 and 18 were added with 0051,
+0052 and 0053 so that the rehearsal proves those migrations as well, not
+only the earlier ones. Check 17 can say NOT OK on a day a sign-off ran out after the
 update was pasted; `select public.return_lapsed_content();` in the SQL
 editor puts it right, and the nightly job does the same.
 
@@ -148,7 +149,7 @@ there; the copy is deleted afterwards (step 5).
 ## A brand-new firm (a fresh install)
 
 A new firm starts from an empty project rather than an update: paste
-`supabase/SETUP.sql`, then `supabase/checks/after-update.sql`; all seventeen
+`supabase/SETUP.sql`, then `supabase/checks/after-update.sql`; all eighteen
 must say OK. The same was done on a throwaway Supabase for this release
 (the readiness report has the result).
 

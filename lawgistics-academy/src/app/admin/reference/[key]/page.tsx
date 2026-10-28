@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import { requireReviewer } from '@/lib/admin/guard';
 import { COURT_HIERARCHIES } from '@/content/seed/court-hierarchies';
 import { essayTopic } from '@/content/seed/essay-topics';
+import { studioExercise } from '@/content/studio/exercises';
+import { DIMENSION_LABELS } from '@/lib/studio/rules';
 import { maxims, referenceByKey, referenceHash } from '@/lib/content/wording';
 import { currentReferenceSignOffs } from '@/lib/content/signoff';
 import { CourtMap } from '@/components/court-map';
@@ -14,8 +16,9 @@ export const metadata: Metadata = { title: 'Courts and essays' };
 export const dynamic = 'force-dynamic';
 
 /**
- * One court map or essay topic laid out flat for a reviewer, then (for a
- * court map) as a learner would see it, then the sign-off.
+ * One court map, essay topic, set of rules or Advocacy Studio exercise laid
+ * out flat for a reviewer, then (for a court map) as a learner would see it,
+ * then the sign-off.
  */
 export default async function AdminReferenceItemPage({
   params,
@@ -30,6 +33,7 @@ export default async function AdminReferenceItemPage({
   const hierarchy = item.kind === 'courts' && item.country ? COURT_HIERARCHIES[item.country] : null;
   const topic = item.kind === 'essay' ? essayTopic(item.key.replace(/^essay-/, '')) : undefined;
   const rules = item.kind === 'maxims' ? maxims() : null;
+  const studio = item.kind === 'studio' ? studioExercise(item.key.replace(/^studio-/, '')) : undefined;
   const byslug = new Map((hierarchy?.courts ?? []).map((c) => [c.slug, c]));
   const nameOf = (slug: string | null | undefined) =>
     slug ? (byslug.get(slug)?.name ?? slug) : null;
@@ -101,6 +105,65 @@ export default async function AdminReferenceItemPage({
           <p className="eyebrow mb-2">The topic, as a learner reads it</p>
           <p className="leading-relaxed">{topic.prompt}</p>
         </Card>
+      ) : studio ? (
+        <div className="space-y-5">
+          <Card>
+            <p className="eyebrow mb-2">The task</p>
+            <p className="leading-relaxed">{studio.task}</p>
+            <p className="mt-3 text-sm text-slate">
+              Up to {studio.maxSeconds} seconds of recording. Language: {studio.language === 'en' ? 'English' : 'Malay'}.
+            </p>
+          </Card>
+          {studio.facts.length ? (
+            <Card>
+              <p className="eyebrow mb-2">The facts</p>
+              <ul className="list-disc space-y-2 pl-5 leading-relaxed">
+                {studio.facts.map((f, i) => (
+                  <li key={i}>{f}</li>
+                ))}
+              </ul>
+            </Card>
+          ) : null}
+          {studio.preparation.length ? (
+            <Card>
+              <p className="eyebrow mb-2">Before you start</p>
+              <ol className="list-decimal space-y-2 pl-5 leading-relaxed">
+                {studio.preparation.map((p, i) => (
+                  <li key={i}>{p}</li>
+                ))}
+              </ol>
+            </Card>
+          ) : null}
+          <Card>
+            <p className="eyebrow mb-2">Authorities the feedback may rely on</p>
+            {studio.authorities.length ? (
+              <ul className="space-y-2">
+                {studio.authorities.map((a) => (
+                  <li key={a.citation}>
+                    <span className="font-medium">{a.citation}</span>
+                    <span className="block text-slate">{a.proposition}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-slate">
+                None. Legal reasoning is not assessed on this exercise, and the AI is told to say
+                nothing about the law.
+              </p>
+            )}
+          </Card>
+          <Card>
+            <p className="eyebrow mb-2">What the feedback measures</p>
+            <dl className="space-y-3">
+              {studio.rubric.map((c) => (
+                <div key={c.dimension}>
+                  <dt className="font-medium">{DIMENSION_LABELS[c.dimension]}</dt>
+                  <dd className="text-slate">{c.criterion}</dd>
+                </div>
+              ))}
+            </dl>
+          </Card>
+        </div>
       ) : rules ? (
         <ol className="space-y-3">
           {rules.map((rule) => (
@@ -130,6 +193,8 @@ export default async function AdminReferenceItemPage({
                 ? 'I have read every court above, its note, the row it sits on and where its appeals go, and the law in it is correct.'
                 : rules
                   ? 'I have read all twenty rules above, and what they say about the law and practice is correct.'
+                  : studio
+                    ? 'I have read the task, the facts, the preparation notes, the authorities and the rubric above. They are fit to give learners for practice, and anything they say about the law and practice is correct.'
                   : 'I have read the topic above, and what it says about the law is correct.'
             }
           />

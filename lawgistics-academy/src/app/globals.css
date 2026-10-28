@@ -1,63 +1,79 @@
 @import 'tailwindcss';
 
 /* =============================================================================
-   Visual identity
-   Financial Times × premium chambers × modern software.
-   Warm cream paper, ink type, deep navy for everything that leads.
-   A thin line of burgundy (wine) is the only other colour. No cartoons, no neon.
+   Visual identity: forest and citron
+   Warm paper, deep ink type, a dark forest green for everything that leads,
+   pale sage for quieter surfaces and a muted citron for the few things that
+   should catch the eye. Terracotta is kept for one job only: showing that a
+   camera or microphone is recording. Fine rules, small radii, no gradients,
+   barely any shadow. Display type in Instrument Serif, headings in Manrope,
+   everything else in Inter.
+
+   The brief's label colour (stone, #66736D) is darkened a little for small
+   text (--color-ice and --color-muted) so it passes WCAG AA on the sage
+   surface as well as on paper; stone itself is kept for rules and markers.
    ========================================================================== */
 
 @theme {
-  --color-paper: #f5f1e8;
-  --color-paper-raised: #ffffff;
-  --color-paper-sunk: #f3efe6;
+  --color-paper: #f7f5ef;
+  --color-paper-raised: #fffdf8;
+  --color-paper-sunk: #e5e9e1;
 
-  --color-ink: #14110f;
-  --color-charcoal: #2f2b27;
-  --color-slate: #5c554d;
-  --color-muted: #8a8177;
-  --color-rule: #e2dbcd;
-  --color-rule-strong: #cfc5b2;
+  --color-ink: #202926;
+  --color-charcoal: #2c3833;
+  --color-slate: #4f5b56;
+  --color-muted: #5d6963;
+  --color-rule: #d7d9d0;
+  --color-rule-strong: #bfc3b7;
 
-  --color-accent: #0d1b2a;
-  --color-accent-soft: #1c3150;
-  --color-accent-wash: #e6ebf1;
+  --color-accent: #243b35;
+  --color-accent-soft: #2f4c44;
+  --color-accent-wash: #e5e9e1;
 
-  /* The front page names the same colours directly: navy is the accent
-     above, cream is the paper, mist is the blue-grey for quieter text on
-     navy, and wine is the burgundy kept to a thin line. */
-  --color-navy: #0d1b2a;
-  --color-navy-raised: #142638;
-  --color-cream: #f5f1e8;
-  --color-mist: #8a98a8;
-  --color-wine: #7a2e3a;
+  /* The palette by name, for the few places that name a colour rather than
+     a role. Navy and cream are the old names for forest and paper, kept so
+     the front page and the error pages follow the look. */
+  --color-forest: #243b35;
+  --color-sage: #e5e9e1;
+  --color-citron: #d5dba9;
+  --color-stone: #66736d;
+  --color-navy: #243b35;
+  --color-navy-raised: #2d4840;
+  --color-cream: #f7f5ef;
+  --color-mist: #b9c4bb;
+  --color-wine: #243b35;
 
-  --color-verdict-correct: #2f5d4f;
-  --color-verdict-correct-wash: #eaf1ee;
-  --color-verdict-wrong: #8a2f22;
-  --color-verdict-wrong-wash: #f8ece9;
+  /* Recording only: the dot and the word while a camera or microphone is on.
+     record-ink is the same colour darkened to read as small text on paper. */
+  --color-record: #ba594b;
+  --color-record-ink: #a54a3d;
+
+  --color-verdict-correct: #2c6a4c;
+  --color-verdict-correct-wash: #e6f0ea;
+  --color-verdict-wrong: #8e2a36;
+  --color-verdict-wrong-wash: #f6e9ea;
 
   /* Something to attend to: not wrong, not done. */
   --color-warn: #8a5a12;
   --color-warn-wash: #fbf3e2;
 
-  /* The details colour: small markers and lines. The academy's look sets it
-     to the firm's taupe; declared here so the utilities exist at all. */
-  --color-ice: #2f5d8a;
+  /* The details colour: small labels, markers and lines. */
+  --color-ice: #5d6963;
 
   --font-serif: var(--font-display), 'Iowan Old Style', 'Palatino Linotype',
     Georgia, ui-serif, serif;
+  --font-heading: var(--font-head), var(--font-body), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-body), ui-sans-serif, system-ui, -apple-system,
     'Segoe UI', sans-serif;
 
-  --radius-sm: 3px;
-  --radius-md: 5px;
-  --radius-lg: 8px;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
 
-  /* Warm-tinted, never grey: a grey shadow on ivory paper reads as dirt. */
-  --shadow-card: 0 1px 2px rgba(20, 17, 15, 0.04), 0 10px 24px -14px rgba(20, 17, 15, 0.12);
-  --shadow-raised: 0 1px 2px rgba(20, 17, 15, 0.05), 0 18px 40px -18px rgba(20, 17, 15, 0.18);
-  --shadow-button: 0 1px 1.5px rgba(20, 17, 15, 0.08);
+  /* Barely there: the rules do the work. */
+  --shadow-card: 0 1px 1px rgba(32, 41, 38, 0.03);
+  --shadow-raised: 0 1px 2px rgba(32, 41, 38, 0.05), 0 8px 20px -14px rgba(32, 41, 38, 0.18);
+  --shadow-button: 0 1px 1px rgba(32, 41, 38, 0.06);
 }
 
 @layer base {
@@ -68,14 +84,6 @@
 
   body {
     background-color: var(--color-paper);
-    /* A faint warmth at the top of every page, so the paper is a surface
-       rather than a flat fill. Subtle enough that nobody names it. */
-    background-image: radial-gradient(
-      70% 420px at 50% 0%,
-      rgba(150, 120, 70, 0.09),
-      transparent 70%
-    );
-    background-repeat: no-repeat;
     color: var(--color-ink);
     font-family: var(--font-sans);
     font-size: 16px;
@@ -84,14 +92,24 @@
     text-rendering: optimizeLegibility;
   }
 
+  /* The editorial voice: page titles and section titles in the display
+     serif, which has one weight, at size rather than in bold. */
   h1,
-  h2,
+  h2 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+
+  /* Smaller headings in Manrope. */
   h3,
   h4 {
-    font-family: var(--font-serif);
-    font-weight: 500;
-    letter-spacing: -0.015em;
-    line-height: 1.15;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
     text-wrap: balance;
   }
 
@@ -113,11 +131,12 @@
 }
 
 @utility eyebrow {
+  font-family: var(--font-sans);
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--color-muted);
+  color: var(--color-ice);
 }
 
 @utility rule-line {
@@ -182,12 +201,13 @@
   isolation: isolate;
   overflow: hidden;
   color: var(--color-paper);
-  background:
-    radial-gradient(120% 90% at 50% 100%, #060e17 0%, transparent 60%),
-    linear-gradient(160deg, #142638 0%, var(--color-accent) 45%, #08121d 100%);
+  background: var(--color-forest);
 }
 
+/* The drifting lights were part of the navy look; the forest look is flat,
+   so they are not drawn. The grid still slides under the type. */
 .landing-light {
+  display: none;
   position: absolute;
   z-index: -1;
   border-radius: 9999px;
@@ -273,12 +293,10 @@
   position: relative;
   display: block;
   overflow: hidden;
-  border-radius: 14px;
+  border-radius: 6px;
   background: var(--color-paper-raised);
   color: var(--color-ink);
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.25),
-    0 30px 60px -30px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
   transition:
     transform 260ms cubic-bezier(0.22, 0.61, 0.36, 1),
     box-shadow 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -287,17 +305,15 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(13, 27, 42, 0.06), transparent 55%);
+  background: rgba(213, 219, 169, 0.18);
   opacity: 0;
   transition: opacity 260ms ease;
   pointer-events: none;
 }
 .landing-tile:hover,
 .landing-tile:focus-visible {
-  transform: translateY(-6px);
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.25),
-    0 40px 70px -28px rgba(0, 0, 0, 0.65);
+  transform: translateY(-4px);
+  box-shadow: 0 0 0 2px var(--color-citron);
 }
 .landing-tile:hover::after,
 .landing-tile:focus-visible::after {
@@ -381,7 +397,7 @@
 .session-bar {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(90deg, var(--color-accent-soft), var(--color-accent));
+  background: var(--color-accent);
   transition: width 500ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 .session-bar-shine {
@@ -454,17 +470,12 @@
 
 /* The trainee door: the one the firm is running now, so it stands out. */
 .landing-tile--featured {
-  background:
-    radial-gradient(120% 80% at 100% 0%, rgba(190, 214, 255, 0.12), transparent 55%),
-    linear-gradient(160deg, #0d1b2a 0%, #060e17 100%);
+  background: var(--color-navy-raised);
   color: var(--color-paper);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.18),
-    0 1px 2px rgba(0, 0, 0, 0.3),
-    0 40px 70px -28px rgba(0, 0, 0, 0.75);
+  box-shadow: 0 0 0 1px var(--color-citron);
 }
 .landing-tile--featured::after {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 55%);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 /* A tile that holds links rather than being one: no lift of its own. */
@@ -486,7 +497,7 @@
   background-image: linear-gradient(
     to bottom,
     transparent calc(1.85em - 1px),
-    rgba(13, 27, 42, 0.09) calc(1.85em - 1px)
+    rgba(32, 41, 38, 0.09) calc(1.85em - 1px)
   );
   background-size: 100% 1.85em;
   line-height: 1.85em;
@@ -520,74 +531,40 @@
 }
 
 /* =============================================================================
-   The academy's look: ivory paper, deep navy for type and for whatever leads
-   (the buttons), and Thomas Philip's own warm taupe for the fine details: the
-   small labels, the progress lines, the marker under the page you are on.
-   White cards with a hairline and a soft shadow. Designed in Figma (the
-   "Premium" page), for law students and interns in firms: it should look like
-   a firm's own tool. Switched on by the theme-paper class on the academy's own
-   layout, Admin and the code step. Every colour in the app is one of the
-   tokens above, so a look is a set of token values rather than a second copy
-   of every page. No gold, by the owner's choice; the taupe is the firm's.
+   The academy's own pages, Admin and the code step carry the theme-paper
+   class. Since the forest and citron look, the base tokens above are the
+   look everywhere, so this only lets a firm's own colour lead
+   (NEXT_PUBLIC_BRAND_ACCENT sets --brand-accent) and gives cards their
+   hairline.
    ========================================================================== */
 .theme-paper {
-  --color-paper: #f7f5f0;
-  --color-paper-raised: #ffffff;
-  --color-paper-sunk: #efebe3;
-  --color-ink: #0f1e35;
-  --color-charcoal: #22304a;
-  --color-slate: #4a5160;
-  --color-muted: #5e6573;
-  --color-rule: #e4ded3;
-  --color-rule-strong: #cfc7b8;
-  /* Navy leads, with paper type on it, unless the firm set its own colour. */
-  --color-accent: var(--brand-accent, #0f1e35);
-  --color-accent-soft: #1b2c47;
-  --color-accent-wash: #ece7dd;
-  /* The details colour. */
-  --color-ice: #746c5a;
-  --color-verdict-correct: #2c6a4c;
-  --color-verdict-correct-wash: #e6f0ea;
-  --color-verdict-wrong: #8e2a36;
-  --color-verdict-wrong-wash: #f6e9ea;
-  --color-warn: #8a5a12;
-  --color-warn-wash: #fbf3e2;
-  --shadow-card: 0 1px 2px rgba(15, 30, 53, 0.05), 0 10px 24px -10px rgba(15, 30, 53, 0.08);
-  --shadow-raised: 0 1px 2px rgba(15, 30, 53, 0.06), 0 16px 36px -16px rgba(15, 30, 53, 0.16);
+  --color-accent: var(--brand-accent, #243b35);
   color-scheme: light;
   background-color: var(--color-paper);
   color: var(--color-ink);
 }
 
 .theme-paper header.sticky {
-  background-color: rgba(247, 245, 240, 0.94);
+  background-color: rgba(247, 245, 239, 0.96);
 }
 
-/* Small labels in the firm's taupe, spaced like a letterhead. */
-.theme-paper .eyebrow {
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  color: var(--color-ice);
-}
-
-/* Panels: white cards on the paper, a hairline, a soft shadow. */
+/* Panels: ivory cards on the paper, a hairline, next to no shadow. */
 .theme-paper .panel {
   background-color: var(--color-paper-raised);
   border-color: var(--color-rule);
   box-shadow: var(--shadow-card);
 }
 
-/* The greeting card is navy with paper type, its details in a light taupe. */
+/* The greeting card is forest with paper type, its details in citron. */
 .theme-paper .accent-surface {
-  --color-paper: #f7f5f0;
-  --color-accent: var(--brand-accent, #0f1e35);
-  box-shadow: var(--shadow-raised);
+  --color-paper: #f7f5ef;
+  --color-accent: var(--brand-accent, #243b35);
 }
 .theme-paper .accent-surface .text-amber-300 {
-  color: #c9bfa8;
+  color: var(--color-citron);
 }
 .theme-paper .accent-surface .bg-amber-300 {
-  background-color: #c9bfa8;
+  background-color: var(--color-citron);
 }
 .theme-paper .text-amber-300 {
   color: var(--color-ice);
@@ -597,7 +574,7 @@
 }
 
 /* Documents stay as they were: the certificate and a matter's case file are
-   cream with near-black type, so inside them the tokens are the cream look's. */
+   cream paper with near-black type, so inside them the tokens are a document's. */
 .theme-paper .certificate,
 .theme-paper .case-paper {
   --color-paper: #f5f1e8;

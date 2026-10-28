@@ -4,6 +4,7 @@ import { COURT_HIERARCHIES } from '@/content/seed/court-hierarchies';
 import type { CourtHierarchy } from '@/content/seed/court-shape';
 import { ESSAY_TOPICS, type EssayTopic } from '@/content/seed/essay-topics';
 import { lessonContent, type SeedLesson } from '@/content/seed/lessons';
+import { STUDIO_EXERCISES, studioKey, studioWording } from '@/content/studio/exercises';
 import type { Country } from '@/lib/types';
 
 /**
@@ -35,7 +36,7 @@ export function lessonHash(lesson: SeedLesson): string {
 /* Reference content: court maps and essay topics (0046)                      */
 /* -------------------------------------------------------------------------- */
 
-export type ReferenceKind = 'courts' | 'essay' | 'maxims';
+export type ReferenceKind = 'courts' | 'essay' | 'maxims' | 'studio';
 
 export interface ReferenceItem {
   /** What the sign-off is recorded under. Lowercase letters, digits and hyphens. */
@@ -127,6 +128,14 @@ export const REFERENCE_ITEMS: ReferenceItem[] = [
     country: null,
     wording: maximsWording(),
   },
+  // The Advocacy Studio's exercises and their rubrics (0053).
+  ...STUDIO_EXERCISES.map((exercise) => ({
+    key: studioKey(exercise.slug),
+    kind: 'studio' as const,
+    title: `Advocacy Studio: ${exercise.title}`,
+    country: exercise.country,
+    wording: studioWording(exercise),
+  })),
 ];
 
 export function referenceByKey(key: string): ReferenceItem | null {

@@ -21,3 +21,14 @@ export const aiEnv = {
   openaiApiKey: process.env.OPENAI_API_KEY,
   model: process.env.AI_MODEL,
 };
+
+/**
+ * The Advocacy Studio's transcription (0053). OpenAI only, because the other
+ * provider has no speech-to-text; it runs only when AI is switched on and an
+ * OpenAI key is set. whisper-1 is the default because it returns real
+ * segment timings, which is what lets a comment jump to its place in the
+ * recording; a model that returns none gets no timings, never made-up ones.
+ */
+export const studioEnv = {
+  transcribeModel: process.env.STUDIO_TRANSCRIBE_MODEL || 'whisper-1',
+};

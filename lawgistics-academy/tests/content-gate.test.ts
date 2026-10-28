@@ -265,6 +265,7 @@ const DATA_MODULES = [
   'src/content/seed/court-hierarchies.ts',
   'src/content/seed/lessons.ts',
   'src/content/seed/essay-topics.ts',
+  'src/content/studio/exercises.ts',
   'src/lib/content/wording.ts',
 ];
 

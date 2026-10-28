@@ -110,7 +110,7 @@ export default async function TraineeProgrammePage() {
         <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 pt-8 pb-16 sm:px-8 sm:pt-14 md:grid-cols-[1.15fr_1fr] md:pb-24 lg:gap-16">
           <div>
             <p className="rise-up mb-4 flex items-center gap-3 text-[0.6875rem] font-semibold tracking-[0.18em] text-mist uppercase">
-              <span aria-hidden className="h-px w-8 bg-wine" />
+              <span aria-hidden className="h-px w-8 bg-citron" />
               {brand.traineeAcademy} · {brand.firm}
             </p>
             <h1 className="rise-up delay-1 text-[2.5rem] leading-[1.05] tracking-[-0.02em] sm:text-5xl lg:text-[3.3rem]">

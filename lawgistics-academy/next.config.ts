@@ -34,9 +34,14 @@ const nextConfig: NextConfig = {
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           // HTTPS only, from the first visit onwards.
           { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains' },
-          // The microphone is for voice memos and recorded explanations on
-          // these pages only; the camera and location are never used.
-          { key: 'Permissions-Policy', value: 'camera=(), geolocation=(), microphone=(self)' },
+          // The microphone is for voice memos and recorded explanations, and
+          // the camera for the Advocacy Studio (0053), on this site's own
+          // pages only; no other site embedded here may ask. Location is never
+          // used. Both are allowed site-wide rather than on /studio alone
+          // because moving between pages without a reload keeps the policy of
+          // the first page, which would block the camera in the Studio. The
+          // recorder turns nothing on until the learner presses a button.
+          { key: 'Permissions-Policy', value: 'camera=(self), geolocation=(), microphone=(self)' },
         ],
       },
       {

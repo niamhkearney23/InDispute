@@ -1,6 +1,6 @@
 # Releasing this version: staging first, then the live site
 
-This release changes the database (migrations `0043` to `0052`) and the
+This release changes the database (migrations `0043` to `0053`) and the
 website. The database goes first, on a restored copy, then on the live
 project, then the website. Nothing in here is done for you: each step is
 yours to approve and do.
@@ -27,8 +27,9 @@ release:
 | 0050 | Morning notes from the coach | Adds a table; nothing removed |
 | 0051 | A lawyer's sign-off past its date stops the content; no table can be emptied, and the firm's records cannot be deleted, by the app | No rows change. Deleting a person in Supabase Auth now fails for anybody with such records |
 | 0052 | A sign-off that has run out goes back to the review queue, with a kept record of it | **Yes**: any question or daily fact already past its sign-off date goes back to review |
+| 0053 | The Advocacy Studio: consent, recordings in a private bucket, AI feedback, coaches' reviews and a log of every time staff open a recording | No rows change. Adds four tables and the `studio-recordings` bucket |
 
-The file ends by recording the version (`schema_version()` returns `0052`).
+The file ends by recording the version (`schema_version()` returns `0053`).
 
 ## 1. Rehearse on a restored copy (staging)
 
@@ -97,7 +98,7 @@ today; 1c switches them off in case.
    keep the result.
 2. New query: the whole of `supabase/UPDATE.sql`, **Run**. It ends with
    "Success. No rows returned".
-3. New query: `supabase/checks/after-update.sql`, **Run**. All seventeen
+3. New query: `supabase/checks/after-update.sql`, **Run**. All eighteen
    checks say **OK**. Counts as before, except "published questions" and
    "published daily facts", which drop to the number with a lawyer's sign-off.
 4. Paste `UPDATE.sql` again, then `after-update.sql` again: the same result.
@@ -145,7 +146,7 @@ Immediately before:
 
 1. **SQL Editor, New query**, paste `before-update.sql`, **Run**, keep it.
 2. New query, paste the whole of `UPDATE.sql`, **Run**.
-3. New query, paste `after-update.sql`, **Run**. All seventeen OK; counts
+3. New query, paste `after-update.sql`, **Run**. All eighteen OK; counts
    as expected.
 
 The live website keeps working while the database is ahead of it. Checked

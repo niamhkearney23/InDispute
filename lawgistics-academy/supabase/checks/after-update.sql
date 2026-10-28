@@ -10,8 +10,8 @@
 
 with checks(n, what, ok) as (
   values
-  (1, 'The database is at the version the website expects (0052)',
-     (select public.schema_version()) = '0052'),
+  (1, 'The database is at the version the website expects (0053)',
+     (select public.schema_version()) = '0053'),
 
   (2, 'No question is published without a lawyer''s sign-off on its current wording',
      not exists (
@@ -140,7 +140,27 @@ with checks(n, what, ok) as (
                       where is_current and verification_status = 'human_verified'
                         and review_due_on <= current_date)
      and not exists (select 1 from public.daily_facts
-                      where verification_status = 'human_verified' and review_due_on <= current_date))
+                      where verification_status = 'human_verified' and review_due_on <= current_date)),
+
+  (18, 'Advocacy Studio recordings are private: a closed bucket, nobody writes the Studio tables from a browser, consent records are kept, and the access log cannot be changed',
+     exists (select 1 from storage.buckets where id = 'studio-recordings' and not public)
+     and not exists (select 1 from pg_policies where schemaname = 'storage' and tablename = 'objects'
+                      and coalesce(qual, '') || coalesce(with_check, '') like '%studio-recordings%')
+     and (select bool_and(rowsecurity) from pg_tables where schemaname = 'public'
+           and tablename in ('studio_consents', 'studio_attempts', 'studio_reviews', 'studio_access_log'))
+     and (select count(*) from pg_tables where schemaname = 'public'
+           and tablename in ('studio_consents', 'studio_attempts', 'studio_reviews', 'studio_access_log')) = 4
+     and not exists (
+       select 1 from unnest(array['studio_consents', 'studio_attempts', 'studio_reviews', 'studio_access_log']) as t(name),
+                     unnest(array['anon', 'authenticated']) as r(role),
+                     unnest(array['INSERT', 'UPDATE', 'DELETE', 'TRUNCATE']) as p(priv)
+        where has_table_privilege(r.role, 'public.' || t.name, p.priv))
+     and not has_table_privilege('anon', 'public.studio_attempts', 'SELECT')
+     and not has_table_privilege('authenticated', 'public.studio_access_log', 'SELECT')
+     and not has_table_privilege('service_role', 'public.studio_access_log', 'DELETE')
+     and not has_table_privilege('service_role', 'public.studio_access_log', 'UPDATE')
+     and exists (select 1 from pg_trigger where tgname = 'studio_consents_kept' and not tgisinternal)
+     and exists (select 1 from pg_trigger where tgname = 'profiles_erase_studio' and not tgisinternal))
 )
 select n as "#", what as "check", case when ok then 'OK' else 'NOT OK' end as result
 from checks
@@ -166,6 +186,7 @@ from (
   union all select 'matter attempts', count(*)::text from public.matter_attempts
   union all select 'certification entries', count(*)::text from public.certification_entries
   union all select 'certificates', count(*)::text from public.certificates
+  union all select 'Advocacy Studio recordings', count(*)::text from public.studio_attempts
   union all select 'stored files', count(*)::text from storage.objects
 ) counts
 order by 1;

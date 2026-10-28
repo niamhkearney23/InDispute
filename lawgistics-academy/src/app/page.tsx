@@ -80,7 +80,7 @@ export default async function LandingPage() {
 
         <header className="relative mx-auto flex max-w-6xl items-center justify-between gap-6 px-4 py-5 sm:px-8">
           <Link href="/" className="inline-flex min-h-11 items-center gap-2.5">
-            <span aria-hidden className="h-5 w-1 rounded-full bg-wine" />
+            <span aria-hidden className="h-5 w-1 rounded-full bg-citron" />
             <span className="text-sm font-semibold tracking-[0.2em] uppercase">
               {brand.name}
               {brand.suffix ? (
@@ -140,14 +140,14 @@ export default async function LandingPage() {
               // The firm's logo in place of its name, reversed out in white
               // because the hero is navy. The name is the image's alt text.
               <p className="rise-up delay-1 mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm font-semibold tracking-[0.14em] text-mist uppercase">
-                <span aria-hidden className="h-px w-8 bg-wine" />
+                <span aria-hidden className="h-px w-8 bg-citron" />
                 In association with
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={brand.associationLogo} alt={brand.firm} className="h-10 w-auto opacity-90 [filter:brightness(0)_invert(1)] sm:h-12" />
               </p>
             ) : brand.association ? (
               <p className="rise-up delay-1 mt-5 flex items-center gap-3 text-sm font-semibold tracking-[0.14em] text-mist uppercase">
-                <span aria-hidden className="h-px w-8 bg-wine" />
+                <span aria-hidden className="h-px w-8 bg-citron" />
                 {brand.association}
               </p>
             ) : null}
@@ -189,7 +189,7 @@ export default async function LandingPage() {
       <main>
         {/* How it works */}
         <section id="how" className="scroll-mt-4 mx-auto max-w-6xl px-4 py-20 sm:px-8 sm:py-28">
-          <p className="text-xs font-semibold tracking-[0.18em] text-wine uppercase">
+          <p className="text-xs font-semibold tracking-[0.18em] text-ice uppercase">
             How it works
           </p>
           <h2 className="mt-3 max-w-xl text-4xl sm:text-5xl">
@@ -206,7 +206,7 @@ export default async function LandingPage() {
                   aria-hidden
                   className="absolute top-0 left-0 grid size-[19px] place-items-center rounded-full border border-rule-strong bg-cream md:relative"
                 >
-                  <span className="size-[7px] rounded-full bg-wine" />
+                  <span className="size-[7px] rounded-full bg-citron" />
                 </span>
                 <p className="text-sm font-semibold tabular-nums text-mist md:mt-6">0{i + 1}</p>
                 <h3 className="mt-1 font-sans text-sm font-semibold tracking-[0.14em] uppercase">
@@ -231,7 +231,7 @@ export default async function LandingPage() {
             <ul className="mt-12 grid gap-px overflow-hidden rounded-xl bg-cream/10 sm:grid-cols-2 lg:grid-cols-4">
               {SKILLS.map(([title, body]) => (
                 <li key={title} className="bg-navy-raised p-6">
-                  <span aria-hidden className="block h-0.5 w-6 bg-wine" />
+                  <span aria-hidden className="block h-0.5 w-6 bg-citron" />
                   <h3 className="mt-5 font-sans text-lg font-semibold">{title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-mist">{body}</p>
                 </li>
@@ -245,7 +245,7 @@ export default async function LandingPage() {
           id="pathways"
           className="scroll-mt-4 mx-auto max-w-6xl px-4 py-20 sm:px-8 sm:py-28"
         >
-          <p className="text-xs font-semibold tracking-[0.18em] text-wine uppercase">Pathways</p>
+          <p className="text-xs font-semibold tracking-[0.18em] text-ice uppercase">Pathways</p>
           <h2 className="mt-3 text-4xl sm:text-5xl">Choose your pathway</h2>
           <div
             className={`mt-12 grid gap-5 ${PARTNERS_EMAIL ? 'lg:grid-cols-3' : 'md:grid-cols-2'}`}
@@ -341,7 +341,7 @@ export default async function LandingPage() {
                   <p className="rounded-full border border-cream/20 px-3 py-1 text-xs font-medium">
                     <span
                       aria-hidden
-                      className="mr-1.5 inline-block size-1.5 rounded-full bg-wine align-middle"
+                      className="mr-1.5 inline-block size-1.5 rounded-full bg-citron align-middle"
                     />
                     {intake}
                   </p>
@@ -383,7 +383,7 @@ export default async function LandingPage() {
                 aria-hidden
                 className="absolute inset-0 bg-gradient-to-r from-navy via-navy/30 to-navy/10 max-md:bg-gradient-to-b"
               />
-              <div aria-hidden className="absolute inset-0 bg-wine/15 mix-blend-multiply" />
+              <div aria-hidden className="absolute inset-0 bg-forest/15 mix-blend-multiply" />
             </div>
           </div>
         </section>
@@ -392,7 +392,7 @@ export default async function LandingPage() {
         <section className="mx-auto max-w-6xl px-4 py-20 sm:px-8 sm:py-28">
           <div className="grid gap-12 md:grid-cols-[1fr_1.2fr] md:items-center">
             <div>
-              <p className="text-xs font-semibold tracking-[0.18em] text-wine uppercase">
+              <p className="text-xs font-semibold tracking-[0.18em] text-ice uppercase">
                 Progress
               </p>
               <h2 className="mt-3 text-4xl sm:text-5xl">Your training record</h2>

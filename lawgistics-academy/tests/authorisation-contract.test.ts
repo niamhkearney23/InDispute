@@ -124,6 +124,7 @@ test('the server actions were actually found', () => {
     'closeErasureReview',
     'completeSetup',
     'confirm',
+    'confirmStudioUpload',
     'confirmTrainee',
     'confirmTwoStepSetup',
     'createAccount',
@@ -136,6 +137,7 @@ test('the server actions were actually found', () => {
     'declare',
     'declareHomework',
     'deleteMyAccount',
+    'deleteStudioRecording',
     'eraseLearner',
     'finishSession',
     'invite',
@@ -149,13 +151,16 @@ test('the server actions were actually found', () => {
     'postComment',
     'publishAllVerified',
     'recordReviewDecision',
+    'recordStudioConsent',
     'redactIdentifyingRecord',
     'redactTutorMessage',
     'redeemCode',
     'removeAvatar',
     'removeTwoStepDevice',
     'requestCoachNote',
+    'requestStudioFeedback',
     'retryErasure',
+    'reviewStudioAttempt',
     'revoke',
     'saveAccessCode',
     'saveCartoon',
@@ -180,10 +185,12 @@ test('the server actions were actually found', () => {
     'setPlacementDates',
     'setPublished',
     'setStaffRole',
+    'setStudioSharing',
     'signOffLesson',
     'signOffReference',
     'startCheckout',
     'startMatter',
+    'startStudioAttempt',
     'startTutor',
     'startTwoStepSetup',
     'submitWork',
@@ -422,6 +429,12 @@ const COACH_ACTIONS = new Set([
   // words, under their own name; it touches no content. A reviewer's, so a
   // firm administrator who is not a lawyer does not make it.
   'keepForSupervision',
+  // Reviewing an Advocacy Studio recording a learner chose to share (0053):
+  // a supervising lawyer's view of a person's advocacy, under their own name,
+  // kept beside the AI's feedback and never changing it. It touches no
+  // content and is never edited; a second thought is a second review. A
+  // reviewer's, like marking a matter.
+  'reviewStudioAttempt',
 ]);
 
 /**
@@ -438,6 +451,7 @@ const REVIEWER_ACTIONS = new Set([
   'saveTrainee',
   'saveCertificationEntry',
   'keepForSupervision',
+  'reviewStudioAttempt',
 ]);
 
 /**
