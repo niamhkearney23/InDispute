@@ -232,8 +232,14 @@ export function StudioRecorder({
       setPhase('processing');
       const begun = Date.now();
       const tick = setInterval(() => setElapsed(Math.floor((Date.now() - begun) / 1000)), 500);
-      await requestStudioFeedback(started.attemptId);
-      clearInterval(tick);
+      try {
+        await requestStudioFeedback(started.attemptId);
+      } catch {
+        // The recording is kept either way; the attempt page says where
+        // feedback stands and offers to try again.
+      } finally {
+        clearInterval(tick);
+      }
     }
     router.push(`/studio/attempts/${started.attemptId}`);
   }

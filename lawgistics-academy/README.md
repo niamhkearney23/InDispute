@@ -357,6 +357,25 @@ The coach is also constrained: it works only from text an admin has already appr
 is instructed never to introduce a rule, section number, case or time limit that is not in
 that material. It rephrases and connects; it does not state the law.
 
+### The Advocacy Studio
+
+`/studio` lets a learner record a short oral submission in the browser, watch it back
+and, if they agree, get feedback. The recording goes from the browser straight to a
+private storage bucket through a one-time link the server makes for exactly its path,
+and plays back only through a short-lived link the server signs. Feedback is a
+transcription (OpenAI) and then the configured AI, against the exercise's rubric, and
+then `groundFeedback` in `src/lib/studio/rules.ts` decides what the learner sees: a
+quotation only if it is really in the transcript, a mark only with one, "not assessed"
+where nothing supports a mark, legal reasoning never without approved authorities, and
+nothing that states law the exercise does not contain. There is no overall score.
+Without the keys it says feedback is not switched on rather than inventing any.
+
+The exercises are written in `src/content/studio/exercises.ts` and reach no learner
+until a lawyer signs off their exact wording at Admin, Courts and essays. A coach sees a
+recording only if the learner shared it, and every opening is logged before anything is
+shown. The four exercises written so far are drafts on invented facts, with no
+authorities; no retention period for recordings has been decided yet.
+
 ---
 
 ## The firm's own half
@@ -460,7 +479,7 @@ it as a secret.
 ## Testing
 
 ```bash
-npm run test        # 692 tests (21 October 2026): engine, content, triage, and the contract tests below
+npm run test        # 707 tests (28 October 2026): engine, content, triage, the Studio, and the contract tests below
 npm run typecheck
 npm run lint
 npm run build
@@ -570,11 +589,13 @@ src/
       skills/              full skill map: by area, by skill, and blind spots
       start/               before you begin: the firm's pre-start checklist
       modules/firm/        the firm's own induction, read and acknowledged
+      studio/              the Advocacy Studio: consent, record, feedback, history
     setup/                 first-run: loads content, creates the first admin
     admin/                 question bank, daily brief, versioning
       review/              the verification queue
       firm/                the firm's own content, and who has read it
       onboarding/          the pre-start checklist, and clearing joiners to begin
+      studio/              recordings learners shared, and a coach's review
   lib/
     learning/              config, mastery, review-scheduler, progression, selection
     training/service.ts    grading, mastery writes, scheduling, XP
@@ -587,9 +608,11 @@ src/
     onboarding/            the pre-start checklist, its rules and its oversight
       invitations.ts       tokens, hashed; the only unauthenticated way in
     admin/guard.ts         server-side authorisation
+    studio/                the Studio's rules, transcription, assessment and reads
   content/seed/            the question bank and daily facts, as reviewable TypeScript
+  content/studio/          the Advocacy Studio's exercises and rubrics
 supabase/
-  migrations/            0001_init to 0025_leaderboard
+  migrations/            0001_init to 0053_advocacy_studio
   SETUP.sql              every migration, for a new database
   UPDATE.sql             0004 onward, re-runnable, for a database that exists
   tests/schema-guarantees.sql

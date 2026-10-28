@@ -8,19 +8,22 @@
  * shows up in the sweep exactly as it would on a real deployment: the item
  * goes back to waiting.
  *
- * Signed: the Malaysian court map, and the Australian court lesson.
+ * Signed: the Malaysian court map, the Australian court lesson and the
+ * Advocacy Studio's free practice exercise.
  * Not signed: the Australian court map (so an Australian learner sees a
- * signed lesson with its court diagram waiting), every other lesson and
- * every essay topic.
+ * signed lesson with its court diagram waiting), every other lesson, every
+ * essay topic and the other Studio exercises.
  */
 import { LESSONS } from '../../src/content/seed/lessons';
 import { courtMapKey, lessonHash, referenceByKey, referenceHash } from '../../src/lib/content/wording';
+import { studioKey } from '../../src/content/studio/exercises';
 
 const REVIEWER = '66666666-6666-6666-6666-666666666666';
 const AT = '2026-10-01T09:00:00Z';
 
 const courtsMy = referenceByKey(courtMapKey('MY'))!;
 const courtsAuLesson = LESSONS.find((l) => l.slug === 'courts-au-intro')!;
+const freePractice = referenceByKey(studioKey('free-practice'))!;
 
 process.stdout.write(
   JSON.stringify({
@@ -28,6 +31,12 @@ process.stdout.write(
       {
         content_key: courtsMy.key,
         content_hash: referenceHash(courtsMy),
+        signed_by: REVIEWER,
+        signed_at: AT,
+      },
+      {
+        content_key: freePractice.key,
+        content_hash: referenceHash(freePractice),
         signed_by: REVIEWER,
         signed_at: AT,
       },

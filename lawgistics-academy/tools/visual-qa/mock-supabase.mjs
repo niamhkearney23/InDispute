@@ -376,9 +376,103 @@ const STEP_READ_ID = 'aaaaaaaa-0000-0000-0000-000000000001';
 const STEP_SIGN_ID = 'aaaaaaaa-0000-0000-0000-000000000002';
 const STEP_TASK_ID = 'aaaaaaaa-0000-0000-0000-000000000003';
 
+/* The free practice exercise's fingerprint, so an attempt is "the same
+   wording" and the page offers to practise again. When nothing is signed
+   (MOCK_NOTHING_SIGNED=1) it is a placeholder and the learner sees none. */
+const FREE_PRACTICE_HASH =
+  SIGNED.content_signoffs.find((r) => r.content_key === 'studio-free-practice')?.content_hash ?? '0'.repeat(64);
+
+/** One Advocacy Studio attempt at free practice, in the shape the app reads. */
+function studioAttempt(id, userId, status, startedAt, shared) {
+  const transcript =
+    'May it please the court, I appear for the applicant. We ask for an order extending time to file our defence by fourteen days. ' +
+    'First, the documents only reached us last week. Second, the other side will suffer no prejudice. For those reasons we ask for the extension.';
+  const segments = [
+    { start: 0, end: 9, text: 'May it please the court, I appear for the applicant. We ask for an order extending time to file our defence by fourteen days.' },
+    { start: 9, end: 15, text: 'First, the documents only reached us last week.' },
+    { start: 15, end: 20, text: 'Second, the other side will suffer no prejudice.' },
+    { start: 20, end: 24, text: 'For those reasons we ask for the extension.' },
+  ];
+  const withFeedback = status === 'feedback';
+  return {
+    id,
+    user_id: userId,
+    exercise_key: 'free-practice',
+    exercise_hash: FREE_PRACTICE_HASH,
+    started_at: startedAt,
+    recording_kind: 'video',
+    recording_path: `${userId}/${id}/recording.webm`,
+    recording_mime: 'video/webm',
+    recording_seconds: 24,
+    status,
+    ai_processing: true,
+    shared_with_trainer: shared,
+    transcript: withFeedback ? transcript : null,
+    transcript_segments: withFeedback ? segments : null,
+    failure: null,
+    processing_started_at: withFeedback ? startedAt : null,
+    feedback_at: withFeedback ? startedAt : null,
+    deleted_at: null,
+    timings: withFeedback ? { transcription_ms: 3100, assessment_ms: 5200, total_ms: 8400 } : null,
+    feedback: withFeedback
+      ? {
+          assessment_version: 'studio-2026-10',
+          exercise_id: 'free-practice',
+          overall_summary: 'A short, well ordered application: you said what you wanted first and numbered your reasons. Give each reason a sentence of support.',
+          strengths: [
+            { id: 's1', text: 'You said what you were asking for in your first sentence.', evidence: [{ quote: 'We ask for an order extending time to file our defence', at: 0 }] },
+            { id: 's2', text: 'You numbered your reasons, which makes them easy to follow.', evidence: [{ quote: 'First, the documents only reached us last week', at: 9 }] },
+          ],
+          areas_to_improve: [
+            { id: 'a1', text: 'Support the second reason: say why the other side will not be prejudiced.', evidence: [{ quote: 'the other side will suffer no prejudice', at: 15 }] },
+          ],
+          scores: [
+            { dimension: 'structure', criterion: 'The submission has a clear beginning, middle and end.', status: 'assessed', score: 8, evidence: [{ quote: 'For those reasons we ask for the extension', at: 20 }], improvement: 'Keep closing by asking for the order again.', uncertainty: '', reason: null },
+            { dimension: 'clarity', criterion: 'Each point can be understood the first time it is heard.', status: 'assessed', score: 7, evidence: [{ quote: 'the documents only reached us last week', at: 9 }], improvement: 'Say which documents.', uncertainty: 'Two words were hard to make out in the transcript.', reason: null },
+            { dimension: 'persuasiveness', criterion: 'Each proposition is supported by a reason drawn from the facts given.', status: 'not_assessed', score: null, evidence: [], improvement: '', uncertainty: '', reason: 'Nothing quoted from your recording supports a mark for this, so it was not assessed.' },
+          ],
+          delivery: { words: 46, seconds: 24, wordsPerMinute: 115 },
+          next_exercise: 'free-practice',
+          confidence_limitations: [
+            'This is AI-generated feedback, written from a transcript of your recording. It is a practice aid, not a mark, and not a lawyer’s review.',
+            'Transcription can mishear names, legal terms and accents. Check the transcript against what you said.',
+            'This exercise has no approved legal authorities, so the legal substance of what you said was not assessed.',
+          ],
+          dropped: 1,
+          processing_time_ms: 8400,
+        }
+      : null,
+  };
+}
+
 const TABLES = {
   content_signoffs: SIGNED.content_signoffs,
   lesson_signoffs: SIGNED.lesson_signoffs,
+  /* The Advocacy Studio (0053): the default user agreed to everything and
+     has one recording with feedback and a coach's review, and one kept
+     without feedback; the learner shared one with the coaches. */
+  studio_consents: [
+    { id: 'a5a50053-0000-4000-8000-000000000001', user_id: USER_ID, notice_version: '2026-10', recording: true, ai_processing: true, trainer_sharing: true, decided_at: '2026-10-20T08:00:00Z' },
+    { id: 'a5a50053-0000-4000-8000-000000000002', user_id: LEARNER_USER_ID, notice_version: '2026-10', recording: true, ai_processing: true, trainer_sharing: true, decided_at: '2026-10-20T08:00:00Z' },
+  ],
+  studio_attempts: [
+    studioAttempt('a5a50053-0000-4000-8000-000000000011', USER_ID, 'feedback', '2026-10-22T08:00:00Z', false),
+    studioAttempt('a5a50053-0000-4000-8000-000000000012', USER_ID, 'not_configured', '2026-10-21T08:00:00Z', false),
+    studioAttempt('a5a50053-0000-4000-8000-000000000013', LEARNER_USER_ID, 'feedback', '2026-10-23T08:00:00Z', true),
+  ],
+  studio_reviews: [
+    {
+      id: 'a5a50053-0000-4000-8000-000000000021',
+      attempt_id: 'a5a50053-0000-4000-8000-000000000011',
+      reviewer_id: STAFF2_USER_ID,
+      feedback: 'A clear start. Next time, say the order you want in your first sentence and again in your last, and slow down when you give your reasons.',
+      score_overrides: { persuasiveness: 5 },
+      ai_comment_decisions: { s1: 'approved' },
+      follow_up_exercise_key: 'free-practice',
+      created_at: '2026-10-22T10:00:00Z',
+    },
+  ],
+  studio_access_log: [],
   /* The tutor: one "Explain it back" a few turns in, and one "Test me"
      with a question answered (wrongly, so the checked explanation shows) and
      the next one waiting. Both belong to the default signed-in user. */

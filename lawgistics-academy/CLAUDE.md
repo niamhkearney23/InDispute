@@ -64,8 +64,8 @@ These come from the owner and are not up for renegotiation.
   clears its sign-off, so an account that could edit and verify could sign its
   own rewrite with the audit trail showing an ordinary review. A coach who
   thinks an item is wrong flags it with a note; somebody else changes it.
-  Exactly eighteen actions accept a coach, named in `tests/authorisation-contract`,
-  and a test fails if a nineteenth quietly does. Two of the eighteen are the coach's
+  Exactly nineteen actions accept a coach, named in `tests/authorisation-contract`,
+  and a test fails if a twentieth quietly does. Two of the nineteen are the coach's
   own **sessions**: they record something, paste a YouTube or Vimeo link, and
   it leads the dashboard the morning it is for. That is not an exception to
   the rule, it is outside it: a session has no version chain, no answer key,
@@ -116,6 +116,11 @@ These come from the owner and are not up for renegotiation.
   morning. Outside the content rule for the same reason as sessions: the
   coach's own words under their own name, no version, no sign-off, never
   the training engine.
+  The nineteenth is **reviewing an Advocacy Studio recording**
+  (`reviewStudioAttempt`, 0053, `checkReviewer`): a lawyer's view of a
+  person's advocacy, on a recording the learner chose to share, under the
+  lawyer's own name and beside the AI's feedback, never changing it. Insert
+  only; a second thought is a second review.
 - **AI never publishes legal content.** It may draft. A named person signs off,
   and that sign-off is a statement they are answerable for.
 - **Say what is true.** The product's whole value is a record a firm can rely
@@ -187,7 +192,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0052`.
+- Migrations run to `0053`.
   `supabase/UPDATE.sql` is the one-paste update for a database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -539,6 +544,55 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   for a current sign-off for everybody, since an administrator may read
   every fact. Tests: `tests-integration/content-expiry.it.test.ts` drives a
   real session while the approval changes and checks the server's own reply.
+- `0053` is the **Advocacy Studio** (`/studio`, the owner's brief "record,
+  review, refine", October 2026). A learner makes three separate choices
+  (`studio_consents`, insert only, kept even from the server, pinned to
+  `NOTICE_VERSION` in `src/lib/studio/rules.ts` so a changed notice asks
+  again): be recorded, send recordings for AI transcription and feedback,
+  share with the coaches. They record in the browser (MediaRecorder; the
+  format is whatever the browser says it supports, `chooseMime`), up to the
+  exercise's limit. The file goes **straight from the browser to Storage**
+  through a one-time signed upload link for exactly its path
+  (`startStudioAttempt`), so the 4MB website limit does not apply (50MB
+  bucket cap); `confirmStudioUpload` checks it arrived. The bucket
+  `studio-recordings` is private with **no storage policy at all**: nobody
+  reads or writes it with their own token, and playback is a 30-minute
+  signed link the server makes after reading the row under the caller's
+  own rules. Feedback (`requestStudioFeedback`, from the attempt page,
+  `maxDuration` 60): OpenAI transcription (`STUDIO_TRANSCRIBE_MODEL`,
+  default whisper-1, segment timings), then the configured AI against the
+  exercise's rubric, then `groundFeedback`, which trusts nothing: a
+  quotation stays only if its words are in the transcript, a strength or a
+  mark only with one, a mark only for a rubric dimension and as a whole
+  number 0 to 10, "not assessed" otherwise with the reason, legal reasoning
+  never without approved authorities, anything stating law the exercise does
+  not contain is dropped (the tutor's guard), no total. Without a
+  transcription key or AI the attempt is `not_configured` and says so.
+  **Exercises** are written in `src/content/studio/exercises.ts` and are
+  reference items (`studio-<slug>`): no learner sees one until a lawyer
+  signs off its exact wording, rubric included, at Admin, Courts and
+  essays; the attempt pins the hash it was given and feedback is refused if
+  the wording changed since. The four written are drafts on invented facts
+  with no authorities, so legal reasoning is assessed on none. **Coaches**
+  (Admin, Studio, reviewers only) see only attempts shared and not deleted,
+  read with the code typed (`is_coach()` in the read policy); opening one
+  writes `studio_access_log` first and shows nothing if that fails, because
+  the learner is told every opening is recorded. The log is server only, and
+  a trigger refuses update, delete and truncate for anybody the app runs as;
+  like every rule here, it does not hold against the database owner or a
+  Supabase administrator. A review is
+  insert only, never by the learner themselves, only on a shared attempt.
+  **Deleting** a recording removes the file and empties the attempt of
+  transcript and feedback; a deleted attempt stays deleted. Account erasure
+  empties every attempt (`profiles_erase_studio`) and removes the files
+  (`studio-recordings` is in `PERSONAL_BUCKETS`). **No retention period for
+  recordings has been set**; the consent notice says so. Forty attempts a
+  person a day. The camera and microphone are allowed for the site's own
+  pages only (`Permissions-Policy`, set site-wide because client-side
+  navigation keeps the first page's policy). Tests: `tests/studio-rules`,
+  the 0053 section of schema-guarantees, `tests-integration/studio.it`
+  (bucket, links, who reads what, nobody writes from a browser, the log),
+  and after-update check 18.
 - **Schema version.** `npm run build:sql` ends both SQL files with
   `schema_version()` (the newest migration's number, service role only) and
   writes `src/lib/schema-version.ts`. The admin layout shows an administrator
@@ -786,20 +840,33 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 - **The front page** says "In association with Thomas Philip" under the
   headline (`brand.association`, shown only under the Lawgistics name). Since October 2026 it shows the firm's own logo there in place of the
   name (`brand.associationLogo`, `public/brand/thomas-philip-lockup.png`,
-  reversed out in white on the navy), and the foot of every academy page
+  reversed out in white on the forest hero), and the foot of every academy page
   carries it too. It is the logo as the firm supplied it on a clear
   background, cut off above the "Litigation, Arbitration, Mediation" line,
   which cannot be read that small; the whole logo is
   `public/brand/thomas-philip.png`. Another name, another firm, or a changed
   association line shows no logo unless `NEXT_PUBLIC_BRAND_ASSOCIATION_LOGO`
   is set. The
-  trainee page (`/trainee`) has the same navy hero and the same video.
-- **The look.** The academy (everything under `src/app/(app)`), Admin and the
-  code step use the `theme-paper` class on their layouts, which swaps the
-  colour tokens in `globals.css`: ivory paper, deep navy type and buttons,
-  Thomas Philip's own taupe (#746c5a) for small labels, progress lines and
-  details, white cards with a hairline and a soft shadow, a navy greeting
-  card. No gold, by the owner's choice. Headings Newsreader, body Figtree.
+  trainee page (`/trainee`) has the same forest hero and the same video.
+- **The look: forest and citron** (the owner's choice with the Advocacy
+  Studio brief, October 2026: "the brief's forest and citron, everywhere").
+  One set of tokens in `globals.css` for every page: warm paper #F7F5EF,
+  deep ink #202926, dark forest #243B35 for whatever leads (buttons, the
+  front page and trainee heroes, the greeting card), ivory cards #FFFDF8,
+  pale sage #E5E9E1 for quieter surfaces, muted citron #D5DBA9 for the few
+  things that should catch the eye (lines and markers on forest), terracotta
+  #BA594B only while a camera or microphone is recording (`record`, and
+  `record-ink` for its small text). The brief's stone #66736D is darkened
+  to #5d6963 for small labels (`ice`, `muted`) so they pass WCAG AA on sage
+  as well as paper. No gradients, small radii, fine rules, next to no
+  shadow; the front page's drifting lights are not drawn. Titles (h1, h2)
+  in Instrument Serif, which has one weight, so never bold it; h3 and h4 in
+  Manrope (`font-heading`); everything else Inter. The old names `navy`,
+  `cream` and `wine` still exist and now mean forest, paper and forest, so
+  older pages follow. The `theme-paper` class on the academy, Admin and the
+  code step now only lets a firm's colour lead and gives cards a hairline.
+  Before this the academy was ivory and navy with Thomas Philip's taupe, in
+  Newsreader and Figtree.
   The owner tried bright and playful and went back (October 2026): "it
   doesn't look like a law firm. Make it more like a coach, and this is the
   homework." Figma has the direction on the "Coach and homework" page: the
@@ -811,8 +878,8 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   hidden from `sm:` up, where the header carries the same names); the header
   keeps Courts (while `courtsShown`), Admin or Coach, and Sign out. It only
   links to pages every learner could already open. The round clock sits
-  above it. The front page and sign-in stay cream. The certificate and a
-  matter's case file stay cream paper inside it.
+  above it. The certificate and a matter's case file stay cream paper
+  inside it. The Advocacy Studio is on Learn, not in the menu.
   Use the tokens, never fixed Tailwind colours, or a page breaks in one look.
 - **Content security policy** (`src/lib/security/csp.ts`, set by
   `src/middleware.ts`): scripts run only with a nonce minted per request, so
@@ -833,8 +900,9 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   None failed or was skipped. Contract tests are
   mutation-tested; keep it that way.
 - Uploads are capped at 4MB because Vercel refuses a request over about 4.5MB
-  before the app sees it; the forms check before sending. Larger files would
-  need uploading from the browser straight to Storage.
+  before the app sees it; the forms check before sending. The Advocacy
+  Studio is the exception: its recordings go from the browser straight to
+  Storage through a signed upload link (0053).
 - The two marked exercises are checked by `npm run qa:marker`, which drives the
   real pages with `/claude` stubbed. It exists because the drafting exercise
   returned a bare 504 on a good letter and nothing caught it: rendering a page
