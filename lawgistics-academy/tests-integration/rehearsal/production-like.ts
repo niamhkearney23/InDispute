@@ -4,9 +4,10 @@
  * be rehearsed on more than empty tables. Run by
  * tools/integration/rehearse-update.sh, never against a real project.
  *
- * It copies the old behaviour where it matters for this release: the
- * Australian questions and daily facts are published without a sign-off, the
- * way the old loader left them, and a few are signed off properly.
+ * On a database from before 0044 it copies the old behaviour: the Australian
+ * questions and daily facts are published without a sign-off, the way the
+ * old loader left them, and a few are signed off properly. On one from 0044
+ * on, which refuses that, only the few signed off are published.
  */
 import { seedContent } from '../../src/lib/setup/seed-content';
 import { person, service } from '../helpers';
@@ -20,11 +21,18 @@ async function main() {
   const learners = [await person('learner', 'AU'), await person('learner', 'AU'), await person('learner', 'MY')];
   void admin;
 
-  // The old loader published the Australian bank unsigned.
-  const { error: pubError } = await db.from('questions').update({ status: 'published' }).eq('country', 'AU');
-  if (pubError) throw pubError;
-  const { error: factError } = await db.from('daily_facts').update({ status: 'published' }).eq('country', 'AU');
-  if (factError) throw factError;
+  // A database from before 0044 (the publication gate) let the old loader
+  // publish the Australian bank unsigned, and the rehearsal copies that. One
+  // from 0044 on refuses it, as the live site does, so there the signed-off
+  // items below are published only once they are signed.
+  const { data: version } = await db.rpc('schema_version');
+  const gated = typeof version === 'string' && version >= '0044';
+  if (!gated) {
+    const { error: pubError } = await db.from('questions').update({ status: 'published' }).eq('country', 'AU');
+    if (pubError) throw pubError;
+    const { error: factError } = await db.from('daily_facts').update({ status: 'published' }).eq('country', 'AU');
+    if (factError) throw factError;
+  }
 
   // Three questions and two facts a lawyer really signed off.
   const { data: signed } = await db.from('questions').select('id').eq('country', 'AU').order('slug').limit(3);
@@ -44,6 +52,18 @@ async function main() {
       .update({ verification_status: 'human_verified', verified_by: coach.id, verified_at: now })
       .eq('id', f.id);
     if (error) throw error;
+  }
+  if (gated) {
+    const { error: pubError } = await db
+      .from('questions')
+      .update({ status: 'published' })
+      .in('id', (signed ?? []).map((q) => q.id));
+    if (pubError) throw pubError;
+    const { error: factError } = await db
+      .from('daily_facts')
+      .update({ status: 'published' })
+      .in('id', (facts ?? []).map((f) => f.id));
+    if (factError) throw factError;
   }
 
   // Learners who have trained: a session each and some answers.
