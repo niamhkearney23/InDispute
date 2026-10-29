@@ -237,7 +237,7 @@ test('the exercises are honest drafts: invented facts, no authorities, nothing u
     if (e.authorities.length === 0) {
       assert.ok(!e.rubric.some((c) => c.dimension === 'legal_reasoning'), `${e.slug} cannot assess law without authorities`);
     }
-    assert.doesNotMatch(studioWording(e), /—/, `${e.slug} has no long dash`);
+    assert.doesNotMatch(studioWording(e), /\u2014/, `${e.slug} has no long dash`);
   }
   assert.equal(spokenLength(90), '90 seconds');
   assert.equal(spokenLength(120), '2 minutes');
