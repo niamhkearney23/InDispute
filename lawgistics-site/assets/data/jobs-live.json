@@ -1,35 +1,45 @@
 {
-  "generatedDate": "2026-10-29",
+  "generatedDate": "2026-10-30",
   "jobs": [
     {
-      "employer": "The Law Society of NSW (scheme-wide — all participating NSW employers, incl. Herbert Smith Freehills Kramer, Allens, Ashurst, MinterEllison, KWM, Clayton Utz, Corrs, Gilbert + Tobin, DLA Piper, Gadens)",
-      "program": "Summer Clerkship — 2027 NSW Clerkship Recruitment Program cycle (clerkships run summer 2027/28)",
+      "employer": "The Law Society of New South Wales",
+      "program": "2027 Clerkship Recruitment Program (summer clerkships 2027/28)",
       "jurisdiction": "NSW",
       "opens": "2027-06-09",
       "closes": null,
-      "notes": "Opens 9:00am AEST Wed 9 June 2027; the scheme sets TWO closing dates (Sun 4 July and Sun 11 July 2027, 11:59pm) which vary by participating employer, so a single confirmed close date cannot be given — offers can be made from 9:00am Wed 8 September 2027, and eligibility is normally penultimate-year students.",
+      "notes": "Scheme-wide key dates for all participating NSW employers; eligibility is penultimate-year students; 'closes' is null because the Law Society sets two permitted closing dates (11:59pm Sunday 4 July 2027 and Sunday 11 July 2027) and each firm chooses one, with offers released 9:00am Wednesday 8 September 2027 and accepted/declined by 1:00pm Thursday 9 September 2027.",
       "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Clerkship-Recruitment-Program",
-      "verifiedDate": "2026-10-29"
+      "verifiedDate": "2026-10-30"
     },
     {
-      "employer": "The Law Society of NSW (scheme-wide — participating NSW legal employers, private practice and government)",
-      "program": "Graduate Program — 2027 NSW Graduate Recruitment Program cycle (market offers)",
+      "employer": "The Law Society of New South Wales",
+      "program": "2027 Graduate Recruitment Program (market offers)",
       "jurisdiction": "NSW",
       "opens": "2027-02-22",
       "closes": "2027-04-04",
-      "notes": "Market-offer applications open 9:00am Mon 22 February 2027 and close 11:59pm Sun 4 April 2027, with interviews from 27 April 2027 and offers from 9:00am Wed 2 June 2027; open to final-year law students.",
+      "notes": "Open-market graduate applications open 9:00am AEST Monday 22 February 2027 and close 11:59pm AEST Sunday 4 April 2027, with interviews from 27 April 2027 and offers from 9:00am 2 June 2027; applies to all participating NSW firms and organisations.",
       "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Graduate-Recruitment-Program",
-      "verifiedDate": "2026-10-29"
+      "verifiedDate": "2026-10-30"
     },
     {
       "employer": "Barry Nilsson (BN Law)",
-      "program": "Sydney Vacation Clerkship 2027 cycle",
+      "program": "Sydney Vacation Clerkship 2027/28",
       "jurisdiction": "NSW",
       "opens": "2027-06-09",
       "closes": "2027-07-11",
-      "notes": "Firm's own careers page confirms Sydney clerkship applications open 9:00am Wed 9 June 2027 and close 11:59pm Sun 11 July 2027 (offers 8 September 2027), open to penultimate-year students in the defendant insurance team; BN's Brisbane, Melbourne and Hobart 2027 clerkship dates are not yet released.",
+      "notes": "Firm's own careers page confirms Sydney clerkship applications open 9:00am Wednesday 9 June 2027 and close 11:59pm Sunday 11 July 2027 (offers 8 September 2027), open to penultimate-year students in the defendant insurance team; the firm states Brisbane, Melbourne and Hobart 2027 dates are still to be released.",
       "url": "https://bnlaw.com.au/work-with-us/graduate-and-clerkship-programs/",
-      "verifiedDate": "2026-10-29"
+      "verifiedDate": "2026-10-30"
+    },
+    {
+      "employer": "Clayton Utz",
+      "program": "Seasonal Clerkship 2027/28",
+      "jurisdiction": "National",
+      "opens": null,
+      "closes": null,
+      "notes": "Firm's careers page states applications are currently closed and will open in June for the 2027/28 seasonal clerkship program, but gives only the month — no exact open or close date is published yet, so both are left null rather than guessed from state scheme dates.",
+      "url": "https://www.claytonutz.com/careers/early-careers/seasonal-clerkships",
+      "verifiedDate": "2026-10-30"
     }
   ]
 }
