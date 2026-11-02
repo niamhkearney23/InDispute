@@ -1,7 +1,8 @@
 import { chromium } from 'playwright';
 import fs from 'node:fs';
 
-const EXE = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
+// The machine's own Chromium: CHROMIUM_PATH, else wherever this environment keeps it.
+const EXE = [process.env.CHROMIUM_PATH, '/opt/pw-browsers/chromium', '/opt/pw-browsers/chromium-1194/chrome-linux/chrome'].find((p) => p && fs.existsSync(p));
 // Overridable for a second copy running beside one on the usual ports.
 const BASE = process.env.QA_BASE ?? 'http://127.0.0.1:3000';
 const MOCK = `http://127.0.0.1:${process.env.MOCK_PORT ?? 54321}`;
@@ -184,6 +185,7 @@ const PAGES = [
   // than "before it begins" (the default fixture's placement is in 2099).
   { name: 'dashboard-homework', path: '/dashboard', auth: true, as: 'trainee@lawgistics.test' },
   { name: 'homework', path: '/homework', auth: true, as: 'trainee@lawgistics.test' },
+  { name: 'reading', path: '/reading', auth: true, as: 'trainee@lawgistics.test' },
   { name: 'programme', path: '/programme', auth: true, as: 'trainee@lawgistics.test' },
   { name: 'programme-file', path: '/programme/file', auth: true, as: 'trainee@lawgistics.test' },
   { name: 'programme-file-coach', path: '/programme/file', auth: true },

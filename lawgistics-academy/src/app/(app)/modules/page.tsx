@@ -8,6 +8,7 @@ import { listFirmModulesForLearner } from '@/lib/firm/service';
 import { ButtonLink, Card, Pill, SectionHeading } from '@/components/ui';
 import { ModuleArt, artFor } from '@/components/module-art';
 import { requireAccess } from '@/lib/access/service';
+import { PROGRAMME_BOOK } from '@/content/seed/reading';
 import { courtMapFor, viewerIsStaff } from '@/lib/content/service';
 
 export const metadata: Metadata = { title: 'Modules' };
@@ -75,6 +76,18 @@ export default async function ModulesPage() {
         </div>
         <ButtonLink href="/tutor" variant="outline" size="sm">
           Open the tutor
+        </ButtonLink>
+      </Card>
+
+      <Card className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="font-medium">The reading: {PROGRAMME_BOOK.title}</p>
+          <p className="text-sm text-slate">
+            A few pages each working day, from the first day of the programme.
+          </p>
+        </div>
+        <ButtonLink href="/reading" variant="outline" size="sm">
+          See the reading
         </ButtonLink>
       </Card>
 

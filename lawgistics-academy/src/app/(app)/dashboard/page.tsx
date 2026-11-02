@@ -30,6 +30,7 @@ import { morningNoteFor } from '@/lib/notes/service';
 import { MorningNoteCard } from '@/components/morning-note';
 import { homeworkLines, todaysHomework } from '@/lib/homework/today-list';
 import { TodayList } from '@/components/today-list';
+import { PROGRAMME_BOOK, readingForDay } from '@/content/seed/reading';
 
 export const metadata: Metadata = { title: 'Today' };
 
@@ -143,6 +144,7 @@ export default async function DashboardPage() {
     today,
   ).catch(() => null);
   const todayTask = homework.state === 'day' && profile.startsOn ? homeworkForDay(homework.day) : undefined;
+  const todayReading = homework.state === 'day' && profile.startsOn ? readingForDay(homework.day) : undefined;
   // What the firm needs first: the joining list, or the firm's own reading.
   const firstThing = hasChecklist
     ? joining.outstanding.length > 0
@@ -184,6 +186,7 @@ export default async function DashboardPage() {
       todayTask && homework.state === 'day'
         ? { day: homework.day, title: todayTask.title, done: declaredDays.has(homework.day) }
         : null,
+    reading: todayReading ? { label: PROGRAMME_BOOK.title, pages: todayReading.pages } : null,
     homeworkNote,
     missedHomework,
     work: workTasks

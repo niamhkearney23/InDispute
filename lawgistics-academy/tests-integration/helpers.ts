@@ -214,7 +214,7 @@ export function totp(secretBase32: string, at = Date.now()): string {
 export function browserOptions() {
   const proxy = process.env.HTTPS_PROXY;
   return {
-    executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
+    executablePath: [process.env.CHROMIUM_PATH, '/opt/pw-browsers/chromium', '/opt/pw-browsers/chromium-1194/chrome-linux/chrome'].find((p) => p && fs.existsSync(p)),
     ...(TARGET === 'staging' && proxy ? { proxy: { server: proxy, bypass: '127.0.0.1,localhost' } } : {}),
   };
 }

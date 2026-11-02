@@ -6,6 +6,7 @@
  */
 import { chromium, type Page } from 'playwright';
 import { PASSWORD, person } from '../helpers';
+import { existsSync } from 'node:fs';
 
 const APP = process.env.OLD_APP_URL ?? 'http://127.0.0.1:3125';
 
@@ -17,7 +18,9 @@ async function visit(page: Page, path: string) {
 }
 
 async function main() {
-  const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+  const browser = await chromium.launch({
+    executablePath: [process.env.CHROMIUM_PATH, '/opt/pw-browsers/chromium', '/opt/pw-browsers/chromium-1194/chrome-linux/chrome'].find((p) => p && existsSync(p)),
+  });
   for (const [role, paths] of [
     ['learner', ['/dashboard', '/modules', '/skills', '/courts', '/account', '/tutor']],
     ['admin', ['/admin', '/admin/review', '/admin/trainees', '/admin/certification', '/admin/people', '/admin/reports']],

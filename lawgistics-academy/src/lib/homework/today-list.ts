@@ -41,6 +41,8 @@ export interface TodayInput {
   /** Everybody else's daily goal. */
   goal: { questions: number; answered: number };
   homework: { day: number; title: string; done: boolean } | null;
+  /** The day's pages of the programme's book, for somebody on a working day. */
+  reading?: { label: string; pages: string } | null;
   /**
    * Somebody with a start date on a day with no task of its own (before the
    * start, a weekend or holiday, or after the last day): one line saying so,
@@ -159,6 +161,17 @@ export function todaysHomework(input: TodayInput): TodayItem[] {
       meta: `Day ${input.homework.day} homework`,
       href: '/homework',
       done: input.homework.done,
+    });
+  }
+
+  // Listed, never ticked: nothing records the reading, so nothing claims it.
+  if (input.reading) {
+    items.push({
+      key: 'reading',
+      label: input.reading.label,
+      meta: `Read: pages ${input.reading.pages}`,
+      href: '/reading',
+      done: null,
     });
   }
 

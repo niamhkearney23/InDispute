@@ -774,6 +774,18 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   `tools/integration/rehearse-update.sh <live commit>` rehearses UPDATE.sql
   on the live site's schema with production-like data, using
   `supabase/checks/before-update.sql` and `after-update.sql`.
+- **The programme's book** (the owner, November 2026: day 1 of the academy
+  they read *Pleadings Without Tears*, and everyone reads it). A reading
+  list, not the book: `src/content/seed/reading.ts` gives chapters and pages
+  (eighth edition, Oxford University Press) for each working day 1 to 20,
+  straight through with no gap, shown under each day's homework, as a line
+  on Today (listed, never ticked or counted, since nothing records it) and
+  on `/reading`, linked from Learn, so somebody without a start date sees
+  it too. **No copy of the book is stored, linked or shown**: it is in
+  copyright, and the owner's copy is an edition for sale in South Asia
+  only. Learners read from their own copy or the firm's. The note says it
+  is written for England and Wales and to check court rules with the
+  supervisor. Not legal content, like homework. Tests: `tests/reading.test.ts`.
 - **Malaysia only, for now** (the owner, November 2026: "just have
   Malaysian for now, and Australian keep it there but don't have it
   visible"). `NEXT_PUBLIC_OPEN_COUNTRIES` (`src/lib/countries.ts`; unset is
