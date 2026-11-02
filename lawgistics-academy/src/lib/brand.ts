@@ -1,3 +1,4 @@
+import { OPEN_COUNTRIES } from './countries';
 /**
  * Whose product this is.
  *
@@ -159,7 +160,9 @@ export const brand: Brand = {
   fullName: suffix ? `${name} ${suffix}` : name,
   tagline: clean(
     process.env.NEXT_PUBLIC_BRAND_TAGLINE,
-    'Australian and Malaysian litigation training.',
+    OPEN_COUNTRIES.includes('AU')
+      ? 'Australian and Malaysian litigation training.'
+      : 'Malaysian litigation training.',
   ),
   firm,
   association: clean(

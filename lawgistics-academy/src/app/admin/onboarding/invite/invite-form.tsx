@@ -3,6 +3,10 @@
 import { useActionState, useState } from 'react';
 import { Button, Card, Notice } from '@/components/ui';
 import { PRACTICE_CHOICES } from '@/lib/types';
+import { OPEN_COUNTRIES, choicesFor } from '@/lib/countries';
+
+/** The programmes a firm can invite to: the open countries' only (src/lib/countries.ts). */
+const INVITE_CHOICES = choicesFor(PRACTICE_CHOICES);
 import { createAccount, invite, type AccountState, type InviteState } from '../actions';
 
 /**
@@ -118,18 +122,19 @@ export function InviteForm() {
               <select
                 id="choice"
                 name="choice"
-                defaultValue="AU"
+                defaultValue={INVITE_CHOICES.find((c) => c.country === OPEN_COUNTRIES[0])?.key}
                 className="h-11 w-full rounded-[5px] border border-rule-strong bg-paper px-3 text-base outline-none focus:border-accent sm:h-10"
               >
-                {PRACTICE_CHOICES.map((c) => (
+                {INVITE_CHOICES.map((c) => (
                   <option key={c.key} value={c.key}>
                     {c.label}
                   </option>
                 ))}
               </select>
               <p className="mt-1 text-xs text-muted">
-                Australia, Malaysia, or the Malaysian litigation trainee programme. This
-                decides which law they are trained on and what their dashboard shows.
+                {OPEN_COUNTRIES.length > 1 ? 'Australia, Malaysia, or' : 'Malaysia, or'} the Malaysian
+                litigation trainee programme. This decides which law they are trained on and what
+                their dashboard shows.
               </p>
             </div>
           </div>

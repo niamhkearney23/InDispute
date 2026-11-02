@@ -4,6 +4,7 @@ import { useActionState, useState } from 'react';
 import { saveOnboarding, type OnboardingState } from '../actions';
 import { Button, Card, Notice, cn } from '@/components/ui';
 import { ArrowIcon, CheckIcon } from '@/components/icons';
+import { choicesFor, openCountryOr } from '@/lib/countries';
 import {
   careerStageLabel,
   HOME_JURISDICTIONS,
@@ -90,17 +91,29 @@ export function OnboardingForm({
   const [minutes, setMinutes] = useState(
     defaultMinutes && MINUTES.includes(defaultMinutes) ? defaultMinutes : 10,
   );
+  // Somebody who has trained before keeps their country even if it is no
+  // longer offered to new people; somebody setting up for the first time is
+  // started on an offered one (a new account can carry a country it was
+  // never asked for: the database's default). The invitation's country
+  // stands either way (src/lib/countries.ts).
+  const startCountry = editing || invited ? defaultCountry : openCountryOr(defaultCountry);
   const [choice, setChoice] = useState<PracticeChoice>(() =>
-    practiceChoiceFor(defaultCountry, defaultTrack),
+    practiceChoiceFor(startCountry, defaultTrack),
   );
   const country = choice.country;
+  // Only the countries this deployment offers, plus the one they already
+  // have (src/lib/countries.ts).
+  const countryChoices = choicesFor(
+    PRACTICE_CHOICES.filter((option) => option.track === 'general'),
+    editing ? defaultCountry : null,
+  );
   // Where they work, kept in step with the country: choosing Malaysia must not
   // leave a Victorian home behind, and a Malaysian home that is one of the
   // old country-wide tags starts them on the peninsula.
   const [home, setHome] = useState<Jurisdiction>(() =>
-    JURISDICTIONS[defaultCountry].includes(defaultJurisdiction)
+    JURISDICTIONS[startCountry].includes(defaultJurisdiction)
       ? defaultJurisdiction
-      : HOME_DEFAULT[defaultCountry],
+      : HOME_DEFAULT[startCountry],
   );
   // Somebody who chose "Australia, general principle" before it stopped being
   // offered is started on the first tile, and told, so they do not save a
@@ -157,6 +170,17 @@ export function OnboardingForm({
             </div>
           </div>
         </Card>
+      ) : countryChoices.length === 1 ? (
+        // One country offered: told, not asked.
+        <Card>
+          <div className="flex items-center gap-3">
+            <StepNumber n={1} done />
+            <div>
+              <p className="eyebrow">Your country</p>
+              <p className="text-lg">{countryChoices[0].label}</p>
+            </div>
+          </div>
+        </Card>
       ) : (
         <Card>
           <fieldset>
@@ -169,7 +193,7 @@ export function OnboardingForm({
               bodies of law, so it decides which questions you are ever shown.
             </p>
             <div className="grid gap-2 sm:grid-cols-2">
-              {PRACTICE_CHOICES.filter((option) => option.track === 'general').map((option) => (
+              {countryChoices.map((option) => (
                 <Choice
                   key={option.key}
                   selected={choice.key === option.key}

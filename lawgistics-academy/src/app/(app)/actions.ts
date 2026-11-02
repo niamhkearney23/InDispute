@@ -52,6 +52,7 @@ import type { AnswerFeedback, SessionKind } from '@/lib/types';
 import { hasAccess } from '@/lib/access/service';
 import { userFacingError } from '@/lib/env';
 import { scheduleForPerson } from '@/lib/training/cohorts';
+import { countryOpen } from '@/lib/countries';
 
 const GOAL_SLUGS = IMPROVEMENT_GOALS.map((g) => g.slug);
 
@@ -98,6 +99,18 @@ export async function saveOnboarding(
   const invited = await acceptedInvitationFor(user.id);
   const country = invited?.country ?? parsed.data.country;
   const track = invited?.track ?? parsed.data.track;
+
+  // A country this deployment does not offer (src/lib/countries.ts) is
+  // refused, unless the firm's invitation chose it or the person finished
+  // setting up on it before: the form does not show it, but this action is
+  // a public endpoint. Not finished setting up does not count, because a
+  // new account can carry the database's default country unasked.
+  if (!invited && !countryOpen(country)) {
+    const current = await getLearnerProfile(user.id);
+    if (!current?.onboardedAt || current.country !== country) {
+      return { error: 'That country is not offered here yet.' };
+    }
+  }
 
   // The database refuses this pair too. Checked here so the person gets a
   // sentence rather than a constraint name.

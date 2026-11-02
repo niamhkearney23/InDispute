@@ -3,6 +3,7 @@ import { connection } from 'next/server';
 import { Figtree, JetBrains_Mono, Newsreader } from 'next/font/google';
 import './globals.css';
 import { brand } from '@/lib/brand';
+import { OPEN_COUNTRIES } from '@/lib/countries';
 
 // Headings in an editorial serif, the voice of a law report.
 const display = Newsreader({
@@ -32,8 +33,9 @@ export const metadata: Metadata = {
     default: brand.fullName,
     template: `%s · ${brand.fullName}`,
   },
-  description:
-    'Adaptive litigation training for law students and junior lawyers: PLT students in Australia, pupils and interns in Malaysia. Train like a lawyer.',
+  description: OPEN_COUNTRIES.includes('AU')
+    ? 'Adaptive litigation training for law students and junior lawyers: PLT students in Australia, pupils and interns in Malaysia. Train like a lawyer.'
+    : 'Adaptive litigation training for law students, pupils and interns in Malaysia. Train like a lawyer.',
 };
 
 export const viewport: Viewport = {

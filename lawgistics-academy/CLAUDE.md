@@ -774,6 +774,20 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   `tools/integration/rehearse-update.sh <live commit>` rehearses UPDATE.sql
   on the live site's schema with production-like data, using
   `supabase/checks/before-update.sql` and `after-update.sql`.
+- **Malaysia only, for now** (the owner, November 2026: "just have
+  Malaysian for now, and Australian keep it there but don't have it
+  visible"). `NEXT_PUBLIC_OPEN_COUNTRIES` (`src/lib/countries.ts`; unset is
+  `MY`, `MY,AU` opens Australia again) decides what is offered: the front
+  page's country buttons and prices, the sign-up question (hidden when one
+  country is open; the trainee link stays), the first questions (told, not
+  asked), a staff invitation, the site description and the default
+  tagline. `saveOnboarding`, `invite` and `createAccount` refuse a closed
+  country on the server too; `saveOnboarding` lets somebody keep one they
+  finished setting up on, never a new account carrying the database's
+  default. Nothing is removed: Australian questions, lessons, the court map
+  and sign-offs stay, staff still review them, and anybody already on
+  Australia keeps it. The marketing site (`../lawgistics-site`) is a
+  separate deployment and was not changed. Tests: `tests/countries.test.ts`.
 - **Server region per firm.** `vercel.json` pins no region; each firm's Vercel
   project sets its Function Region to match its database (sin1 or syd1) and
   names it in `EXPECTED_FUNCTION_REGION`; Admin warns when they differ

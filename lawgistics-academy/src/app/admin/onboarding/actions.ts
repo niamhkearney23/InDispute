@@ -17,6 +17,7 @@ import type { LearnerTrack } from '@/lib/types';
 import { publicEnv } from '@/lib/env';
 import { PROGRAMME } from '@/content/programme';
 import type { AdminState } from '../actions';
+import { countryOpen } from '@/lib/countries';
 
 /**
  * Overseeing the pre-start checklist.
@@ -272,7 +273,7 @@ export async function invite(_state: InviteState, formData: FormData): Promise<I
     email: formData.get('email'),
     displayName: formData.get('displayName') ?? '',
     startsOn: formData.get('startsOn') ?? '',
-    choice: formData.get('choice') ?? 'AU',
+    choice: formData.get('choice') ?? 'MY',
   });
 
   if (!parsed.success) {
@@ -280,6 +281,7 @@ export async function invite(_state: InviteState, formData: FormData): Promise<I
   }
 
   const { country, track } = choiceToProgramme(parsed.data.choice);
+  if (!countryOpen(country)) return { error: 'That country is not offered here yet.' };
   const result = await createInvitation({
     invitedBy: adminId,
     email: parsed.data.email,
@@ -335,7 +337,7 @@ export async function createAccount(
     email: formData.get('email'),
     displayName: formData.get('displayName') ?? '',
     startsOn: formData.get('startsOn') ?? '',
-    choice: formData.get('choice') ?? 'AU',
+    choice: formData.get('choice') ?? 'MY',
   });
 
   if (!parsed.success) {
@@ -343,6 +345,7 @@ export async function createAccount(
   }
 
   const { country, track } = choiceToProgramme(parsed.data.choice);
+  if (!countryOpen(country)) return { error: 'That country is not offered here yet.' };
   const result = await createAccountDirectly({
     invitedBy: adminId,
     email: parsed.data.email,

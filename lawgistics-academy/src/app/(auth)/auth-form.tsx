@@ -15,6 +15,7 @@ import {
   type Country,
   type PracticeChoice,
 } from '@/lib/types';
+import { OPEN_COUNTRIES, choicesFor, openCountryOr } from '@/lib/countries';
 
 /**
  * After a sign-up, whether the address was new or already had an account.
@@ -93,8 +94,11 @@ export function AuthForm({
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [choice, setChoice] = useState<PracticeChoice>(() =>
-    practiceChoiceFor(trainee ? 'MY' : defaultCountry, trainee ? 'litigation_trainee' : 'general'),
+    practiceChoiceFor(trainee ? 'MY' : openCountryOr(defaultCountry), trainee ? 'litigation_trainee' : 'general'),
   );
+  // Only countries this deployment offers (src/lib/countries.ts); with one,
+  // nobody is asked.
+  const countryChoices = choicesFor(PRACTICE_CHOICES.filter((c) => c.track === 'general'));
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(problem ?? null);
   const [notice, setNotice] = useState<string | null>(welcome ?? null);
@@ -229,46 +233,50 @@ export function AuthForm({
           <form onSubmit={onSubmit} className="space-y-5">
             {isSignup && !trainee ? (
               <fieldset>
-                <legend className="mb-2 block text-sm font-semibold">
-                  Which country do you plan to practise in?
-                </legend>
-                <div className="grid grid-cols-2 gap-2.5">
-                  {PRACTICE_CHOICES.filter((c) => c.track === 'general').map((option) => {
-                    const on = choice.key === option.key;
-                    return (
-                      <button
-                        key={option.key}
-                        type="button"
-                        aria-pressed={on}
-                        onClick={() => setChoice(option)}
-                        className={cn(
-                          'relative rounded-lg border-2 px-3.5 py-3 text-left transition-all duration-150',
-                          on
-                            ? 'border-accent bg-accent-wash shadow-card'
-                            : 'border-rule bg-paper-raised hover:-translate-y-px hover:border-rule-strong hover:shadow-card',
-                        )}
-                      >
-                        <span
-                          aria-hidden
-                          className={cn(
-                            'absolute top-2.5 right-2.5 grid size-5 place-items-center rounded-full border-2 transition-colors',
-                            on ? 'border-accent bg-accent text-paper' : 'border-rule-strong',
-                          )}
-                        >
-                          {on ? <CheckIcon className="size-3" /> : null}
-                        </span>
-                        <span className="block pr-6 text-[0.9375rem] font-semibold">
-                          {option.label}
-                        </span>
-                        <span className="mt-0.5 block text-xs text-slate">{option.detail}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-                <p className="mt-2 text-xs text-muted">
-                  This decides which law you are trained on. You can change it later.
-                </p>
-                <p className="mt-3 rounded-lg bg-accent-wash px-3.5 py-2.5 text-sm">
+                {countryChoices.length > 1 ? (
+                  <>
+                    <legend className="mb-2 block text-sm font-semibold">
+                      Which country do you plan to practise in?
+                    </legend>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      {countryChoices.map((option) => {
+                        const on = choice.key === option.key;
+                        return (
+                          <button
+                            key={option.key}
+                            type="button"
+                            aria-pressed={on}
+                            onClick={() => setChoice(option)}
+                            className={cn(
+                              'relative rounded-lg border-2 px-3.5 py-3 text-left transition-all duration-150',
+                              on
+                                ? 'border-accent bg-accent-wash shadow-card'
+                                : 'border-rule bg-paper-raised hover:-translate-y-px hover:border-rule-strong hover:shadow-card',
+                            )}
+                          >
+                            <span
+                              aria-hidden
+                              className={cn(
+                                'absolute top-2.5 right-2.5 grid size-5 place-items-center rounded-full border-2 transition-colors',
+                                on ? 'border-accent bg-accent text-paper' : 'border-rule-strong',
+                              )}
+                            >
+                              {on ? <CheckIcon className="size-3" /> : null}
+                            </span>
+                            <span className="block pr-6 text-[0.9375rem] font-semibold">
+                              {option.label}
+                            </span>
+                            <span className="mt-0.5 block text-xs text-slate">{option.detail}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <p className="mt-2 text-xs text-muted">
+                      This decides which law you are trained on. You can change it later.
+                    </p>
+                  </>
+                ) : null}
+                <p className={cn('rounded-lg bg-accent-wash px-3.5 py-2.5 text-sm', countryChoices.length > 1 && 'mt-3')}>
                   On a firm&apos;s litigation trainee programme?{' '}
                   <Link
                     href={`/trainee${next && next !== '/onboarding' ? `?next=${encodeURIComponent(next)}` : ''}`}
@@ -435,7 +443,9 @@ function BrandPanel({
           'Know where you stand',
           'A short diagnostic maps what you know, then training fills the gaps.',
         ],
-        ['Your country’s law', 'Australian and Malaysian procedure, kept strictly apart.'],
+        OPEN_COUNTRIES.length > 1
+          ? ['Your country’s law', 'Australian and Malaysian procedure, kept strictly apart.']
+          : ['Malaysian law', 'Malaysian courts and procedure, from your first question.'],
         [
           'Real work, real feedback',
           'Work from the firm’s lawyers, marked with notes, if you join through one.',

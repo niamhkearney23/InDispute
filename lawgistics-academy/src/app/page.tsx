@@ -14,6 +14,7 @@ import { DEFAULT_SCHEDULE, monthYear } from '@/lib/training/schedule';
 import { todayIn } from '@/lib/onboarding/rules';
 import { paymentsOn } from '@/lib/access/service';
 import { PRICES, formatPrice, traineeValue } from '@/lib/access/rules';
+import { OPEN_COUNTRIES } from '@/lib/countries';
 
 /**
  * The front door: navy and cream, product first.
@@ -260,18 +261,23 @@ export default async function LandingPage() {
               </p>
               {payments ? (
                 <p className="mt-3 text-sm text-slate">
-                  {formatPrice(PRICES.MY.month)} a month in Malaysia, {formatPrice(PRICES.AU.month)} in
-                  Australia. Free with a code from your firm or university, once they confirm it.
+                  {formatPrice(PRICES.MY.month)} a month in Malaysia
+                  {OPEN_COUNTRIES.includes('AU') ? `, ${formatPrice(PRICES.AU.month)} in Australia` : ''}. Free
+                  with a code from your firm or university, once they confirm it.
                 </p>
               ) : null}
-              <p className="mt-6 text-xs font-medium text-slate">Where will you practise?</p>
-              <div className="mt-2 grid grid-cols-2 gap-2">
+              <p className="mt-6 text-xs font-medium text-slate">
+                {OPEN_COUNTRIES.length > 1 ? 'Where will you practise?' : 'Malaysian law'}
+              </p>
+              <div className={`mt-2 grid gap-2 ${OPEN_COUNTRIES.length > 1 ? 'grid-cols-2' : ''}`}>
                 {(
                   [
-                    ['MY', 'Malaysia'],
+                    ['MY', OPEN_COUNTRIES.length > 1 ? 'Malaysia' : 'Start training'],
                     ['AU', 'Australia'],
                   ] as const
-                ).map(([code, name]) => (
+                )
+                  .filter(([code]) => OPEN_COUNTRIES.includes(code))
+                  .map(([code, name]) => (
                   <Link
                     key={code}
                     href={`/signup?country=${code}`}
