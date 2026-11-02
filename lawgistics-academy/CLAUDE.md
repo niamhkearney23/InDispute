@@ -559,9 +559,12 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   reads or writes it with their own token, and playback is a 30-minute
   signed link the server makes after reading the row under the caller's
   own rules. Feedback (`requestStudioFeedback`, from the attempt page,
-  `maxDuration` 60): OpenAI transcription (`STUDIO_TRANSCRIBE_MODEL`,
-  default whisper-1, segment timings), then the configured AI against the
-  exercise's rubric, then `groundFeedback`, which trusts nothing: a
+  `maxDuration` 60): transcription by OpenAI or Groq (`transcriberFor`,
+  `src/lib/studio/transcribe.ts`: `STUDIO_TRANSCRIBE_PROVIDER`, else Groq
+  when `GROQ_API_KEY` is set, else OpenAI; Whisper, segment timings; 25MB
+  at most), then the configured AI (Claude or OpenAI) against the
+  exercise's rubric inside a 52-second budget (`ASSESS_BUDGET_MS`), then
+  `groundFeedback`, which trusts nothing: a
   quotation stays only if its words are in the transcript, a strength or a
   mark only with one, a mark only for a rubric dimension and as a whole
   number 0 to 10, "not assessed" otherwise with the reason, legal reasoning
@@ -572,7 +575,10 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   reference items (`studio-<slug>`): no learner sees one until a lawyer
   signs off its exact wording, rubric included, at Admin, Courts and
   essays; the attempt pins the hash it was given and feedback is refused if
-  the wording changed since. The four written are drafts on invented facts
+  the wording changed since. The consent notice names the companies
+  actually switched on; `NOTICE_VERSION` changes whenever its words or a
+  company change, so everybody is asked again (2026-11 when Groq became
+  possible). The four written are drafts on invented facts
   with no authorities, so legal reasoning is assessed on none. **Coaches**
   (Admin, Studio, reviewers only) see only attempts shared and not deleted,
   read with the code typed (`is_coach()` in the read policy); opening one

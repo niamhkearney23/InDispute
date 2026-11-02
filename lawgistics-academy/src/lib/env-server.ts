@@ -23,12 +23,21 @@ export const aiEnv = {
 };
 
 /**
- * The Advocacy Studio's transcription (0053). OpenAI only, because the other
- * provider has no speech-to-text; it runs only when AI is switched on and an
- * OpenAI key is set. whisper-1 is the default because it returns real
- * segment timings, which is what lets a comment jump to its place in the
- * recording; a model that returns none gets no timings, never made-up ones.
+ * The Advocacy Studio's speech to text (0053). Neither Claude nor the
+ * feedback model hears audio, so a recording is transcribed by OpenAI or by
+ * Groq, both running Whisper behind the same kind of API.
+ * STUDIO_TRANSCRIBE_PROVIDER picks one; unset, it is Groq when GROQ_API_KEY
+ * is set and OpenAI otherwise. It runs only when AI is switched on and that
+ * company's key is set. The Whisper models return real segment timings,
+ * which is what lets a comment jump to its place in the recording; a model
+ * that returns none gets no timings, never made-up ones.
+ *
+ * The consent notice names whichever companies are switched on. Changing
+ * either company means changing NOTICE_VERSION (src/lib/studio/rules.ts) so
+ * everybody is asked again: an earlier yes was to the companies named then.
  */
 export const studioEnv = {
-  transcribeModel: process.env.STUDIO_TRANSCRIBE_MODEL || 'whisper-1',
+  transcribeProvider: process.env.STUDIO_TRANSCRIBE_PROVIDER,
+  transcribeModel: process.env.STUDIO_TRANSCRIBE_MODEL,
+  groqApiKey: process.env.GROQ_API_KEY,
 };

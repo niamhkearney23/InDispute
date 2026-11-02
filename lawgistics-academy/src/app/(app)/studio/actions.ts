@@ -11,7 +11,7 @@ import { studioExerciseFor, studioExercisesFor, viewerIsStaff } from '@/lib/cont
 import { getProvider } from '@/lib/ai/provider';
 import { assess, AssessmentFailed } from '@/lib/studio/assess';
 import { latestConsent, ownAttempt } from '@/lib/studio/service';
-import { transcribe, transcriptionAvailable } from '@/lib/studio/transcribe';
+import { RecordingTooLarge, transcribe, transcriptionAvailable } from '@/lib/studio/transcribe';
 import {
   NOTICE_VERSION,
   PROCESSING_STALE_MS,
@@ -246,6 +246,9 @@ export async function requestStudioFeedback(attemptId: string): Promise<Feedback
         .eq('id', attempt.id);
       if (saveError) return fail('The transcript could not be saved.', timings);
     } catch (e) {
+      if (e instanceof RecordingTooLarge) {
+        return fail('This recording is too large to turn into text (over 25 MB). Record a shorter one, or sound only.', timings);
+      }
       console.error('[studio] transcription failed', e);
       return fail('The recording could not be transcribed just now.', timings);
     }

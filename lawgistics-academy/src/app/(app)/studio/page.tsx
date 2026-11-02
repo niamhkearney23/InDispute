@@ -8,7 +8,7 @@ import { aiCompany } from '@/lib/ai/provider';
 import { asCountry } from '@/lib/types';
 import { studioExercisesFor, viewerIsStaff } from '@/lib/content/service';
 import { attemptsFor, latestConsent } from '@/lib/studio/service';
-import { transcriptionAvailable } from '@/lib/studio/transcribe';
+import { transcriptionCompany } from '@/lib/studio/transcribe';
 import { NOTICE_VERSION, STATUS_LABELS, mayRecord, spokenLength } from '@/lib/studio/rules';
 import { Card, Notice, Pill } from '@/components/ui';
 import { StudioConsentForm } from '@/components/advocacy-studio/consent-form';
@@ -38,7 +38,7 @@ export default async function StudioPage() {
   ]);
   const provider = aiCompany();
   const company = provider ? COMPANY[provider] : null;
-  const transcription = transcriptionAvailable();
+  const transcriber = transcriptionCompany();
   const ready = mayRecord(consent);
   const current = consent && consent.noticeVersion === NOTICE_VERSION ? consent : null;
   const titles = new Map(exercises.map((e) => [e.exercise.slug, e.exercise.title]));
@@ -48,7 +48,7 @@ export default async function StudioPage() {
   const consentForm = (
     <StudioConsentForm
       aiCompany={company}
-      transcription={transcription}
+      transcriber={transcriber}
       current={
         current
           ? { recording: current.recording, aiProcessing: current.aiProcessing, trainerSharing: current.trainerSharing }

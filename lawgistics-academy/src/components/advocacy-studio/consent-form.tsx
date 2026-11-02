@@ -12,13 +12,13 @@ import { Button, Notice } from '@/components/ui';
  */
 export function StudioConsentForm({
   aiCompany,
-  transcription,
+  transcriber,
   current,
 }: {
   /** The company that writes feedback here, or null when AI is off. */
   aiCompany: 'OpenAI' | 'Anthropic' | null;
-  /** Whether recordings are transcribed (by OpenAI) on this deployment. */
-  transcription: boolean;
+  /** The company that turns recordings into text here, or null when none is set up. */
+  transcriber: string | null;
   /** What they chose last time, if anything, to start from. */
   current: { recording: boolean; aiProcessing: boolean; trainerSharing: boolean } | null;
 }) {
@@ -40,11 +40,11 @@ export function StudioConsentForm({
             can play it, through a link that expires after half an hour. Nobody else sees it unless
             you share it with your coaches.
           </li>
-          {transcription && aiCompany ? (
+          {transcriber && aiCompany ? (
             <li>
-              If you agree to AI feedback, the recording is sent to OpenAI to be turned into text,
-              and that text, with the exercise, is sent to {aiCompany} to write feedback. These
-              companies may process it outside Malaysia. Their own terms govern what they keep.
+              {transcriber === aiCompany
+                ? `If you agree to AI feedback, the recording is sent to ${aiCompany} to be turned into text and to write feedback. This company may process it outside Malaysia. Its own terms govern what it keeps.`
+                : `If you agree to AI feedback, the recording is sent to ${transcriber} to be turned into text, and that text, with the exercise, is sent to ${aiCompany} to write feedback. These companies may process it outside Malaysia. Their own terms govern what they keep.`}
             </li>
           ) : (
             <li>

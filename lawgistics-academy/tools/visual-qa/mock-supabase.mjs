@@ -452,8 +452,8 @@ const TABLES = {
      has one recording with feedback and a coach's review, and one kept
      without feedback; the learner shared one with the coaches. */
   studio_consents: [
-    { id: 'a5a50053-0000-4000-8000-000000000001', user_id: USER_ID, notice_version: '2026-10', recording: true, ai_processing: true, trainer_sharing: true, decided_at: '2026-10-20T08:00:00Z' },
-    { id: 'a5a50053-0000-4000-8000-000000000002', user_id: LEARNER_USER_ID, notice_version: '2026-10', recording: true, ai_processing: true, trainer_sharing: true, decided_at: '2026-10-20T08:00:00Z' },
+    { id: 'a5a50053-0000-4000-8000-000000000001', user_id: USER_ID, notice_version: '2026-11', recording: true, ai_processing: true, trainer_sharing: true, decided_at: '2026-10-20T08:00:00Z' },
+    { id: 'a5a50053-0000-4000-8000-000000000002', user_id: LEARNER_USER_ID, notice_version: '2026-11', recording: true, ai_processing: true, trainer_sharing: true, decided_at: '2026-10-20T08:00:00Z' },
   ],
   studio_attempts: [
     studioAttempt('a5a50053-0000-4000-8000-000000000011', USER_ID, 'feedback', '2026-10-22T08:00:00Z', false),

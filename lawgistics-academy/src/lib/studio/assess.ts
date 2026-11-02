@@ -64,6 +64,11 @@ export function studioPrompt(
 
 export class AssessmentFailed extends Error {}
 
+/** Everything, transcription included, must be done within this of the request. */
+export const ASSESS_BUDGET_MS = 52_000;
+/** A try is not started with less than this left. */
+export const MIN_TRY_MS = 8_000;
+
 /**
  * Asks the AI once, and once more if the reply is not the JSON asked for.
  * Throws AssessmentFailed when neither reply can be used.
@@ -80,13 +85,21 @@ export async function assess(input: {
 }): Promise<StudioFeedback> {
   const now = input.now ?? Date.now;
   const prompt = studioPrompt(input.exercise, input.transcript, input.recordingSeconds, input.nextOptions);
+  let tried = false;
   for (let tries = 0; tries < 2; tries++) {
+    // The whole request has ASSESS_BUDGET_MS from when the learner asked,
+    // inside the page's sixty seconds. A second try is made only with time
+    // left for it; a slower model (Claude writes more carefully than the
+    // smaller OpenAI one) gets the whole of what remains on its first try.
+    const left = ASSESS_BUDGET_MS - (now() - input.startedAt);
+    if (left < MIN_TRY_MS) break;
+    tried = true;
     const reply = await input.provider.complete({
       system: STUDIO_SYSTEM,
       prompt,
       maxTokens: 1800,
       temperature: 0.2,
-      timeoutMs: 20_000,
+      timeoutMs: Math.min(left, 40_000),
     });
     const raw = parseRawFeedback(reply);
     if (raw) {
@@ -102,5 +115,8 @@ export async function assess(input: {
       });
     }
   }
+  // No try at all means the time went on transcription: the transcript is
+  // kept, so asking again goes straight to this step.
+  if (!tried) throw new Error('No time was left to ask for feedback.');
   throw new AssessmentFailed('The AI did not reply in the shape asked for.');
 }

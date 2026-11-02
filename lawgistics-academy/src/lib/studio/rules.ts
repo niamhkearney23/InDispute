@@ -16,8 +16,14 @@ export type { StudioDimension };
  * authorities, and never gets to state law the exercise does not contain.
  */
 
-/** Which wording of the consent notice a decision was made on. */
-export const NOTICE_VERSION = '2026-10';
+/**
+ * Which wording of the consent notice a decision was made on. Change it
+ * whenever the notice's words change or a different company is switched on
+ * for transcription or feedback, so everybody is asked again: an earlier yes
+ * was to what the notice said then. 2026-11 names the transcription company
+ * as configured (OpenAI or Groq) instead of always OpenAI.
+ */
+export const NOTICE_VERSION = '2026-11';
 
 export const STUDIO_BUCKET = 'studio-recordings';
 
