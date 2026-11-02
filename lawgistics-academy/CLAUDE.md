@@ -840,33 +840,26 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 - **The front page** says "In association with Thomas Philip" under the
   headline (`brand.association`, shown only under the Lawgistics name). Since October 2026 it shows the firm's own logo there in place of the
   name (`brand.associationLogo`, `public/brand/thomas-philip-lockup.png`,
-  reversed out in white on the forest hero), and the foot of every academy page
+  reversed out in white on the navy), and the foot of every academy page
   carries it too. It is the logo as the firm supplied it on a clear
   background, cut off above the "Litigation, Arbitration, Mediation" line,
   which cannot be read that small; the whole logo is
   `public/brand/thomas-philip.png`. Another name, another firm, or a changed
   association line shows no logo unless `NEXT_PUBLIC_BRAND_ASSOCIATION_LOGO`
   is set. The
-  trainee page (`/trainee`) has the same forest hero and the same video.
-- **The look: forest and citron** (the owner's choice with the Advocacy
-  Studio brief, October 2026: "the brief's forest and citron, everywhere").
-  One set of tokens in `globals.css` for every page: warm paper #F7F5EF,
-  deep ink #202926, dark forest #243B35 for whatever leads (buttons, the
-  front page and trainee heroes, the greeting card), ivory cards #FFFDF8,
-  pale sage #E5E9E1 for quieter surfaces, muted citron #D5DBA9 for the few
-  things that should catch the eye (lines and markers on forest), terracotta
-  #BA594B only while a camera or microphone is recording (`record`, and
-  `record-ink` for its small text). The brief's stone #66736D is darkened
-  to #5d6963 for small labels (`ice`, `muted`) so they pass WCAG AA on sage
-  as well as paper. No gradients, small radii, fine rules, next to no
-  shadow; the front page's drifting lights are not drawn. Titles (h1, h2)
-  in Instrument Serif, which has one weight, so never bold it; h3 and h4 in
-  Manrope (`font-heading`); everything else Inter. The old names `navy`,
-  `cream` and `wine` still exist and now mean forest, paper and forest, so
-  older pages follow. The `theme-paper` class on the academy, Admin and the
-  code step now only lets a firm's colour lead and gives cards a hairline.
-  Before this the academy was ivory and navy with Thomas Philip's taupe, in
-  Newsreader and Figtree.
+  trainee page (`/trainee`) has the same navy hero and the same video.
+- **The look.** The academy (everything under `src/app/(app)`), Admin and the
+  code step use the `theme-paper` class on their layouts, which swaps the
+  colour tokens in `globals.css`: ivory paper, deep navy type and buttons,
+  Thomas Philip's own taupe (#746c5a) for small labels, progress lines and
+  details, white cards with a hairline and a soft shadow, a navy greeting
+  card. No gold, by the owner's choice. Headings Newsreader, body Figtree.
+  The Advocacy Studio uses the same look; its one colour of its own is
+  terracotta (`record` #BA594B, `record-ink` for small text), shown only
+  while a camera or microphone is recording. In late October 2026 the whole
+  academy briefly went forest and citron (the Studio brief's palette, with
+  Instrument Serif, Manrope and Inter); the owner went back to navy in
+  November ("I kind of like navy"), the old look exactly, Studio included.
   The owner tried bright and playful and went back (October 2026): "it
   doesn't look like a law firm. Make it more like a coach, and this is the
   homework." Figma has the direction on the "Coach and homework" page: the
@@ -878,8 +871,9 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   hidden from `sm:` up, where the header carries the same names); the header
   keeps Courts (while `courtsShown`), Admin or Coach, and Sign out. It only
   links to pages every learner could already open. The round clock sits
-  above it. The certificate and a matter's case file stay cream paper
-  inside it. The Advocacy Studio is on Learn, not in the menu.
+  above it. The front page and sign-in stay cream. The certificate and a
+  matter's case file stay cream paper inside it. The Advocacy Studio is on
+  Learn, not in the menu.
   Use the tokens, never fixed Tailwind colours, or a page breaks in one look.
 - **Content security policy** (`src/lib/security/csp.ts`, set by
   `src/middleware.ts`): scripts run only with a nonce minted per request, so

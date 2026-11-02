@@ -351,7 +351,7 @@ function CommentList({
       <h2 className="text-2xl">{title}</h2>
       <ul className="space-y-4">
         {comments.map((c) => (
-          <li key={c.id} className="border-l-2 border-citron pl-4">
+          <li key={c.id} className="border-l-2 border-ice pl-4">
             <p className={cn('leading-relaxed', decisions[c.id] === 'rejected' && 'text-slate line-through')}>{c.text}</p>
             {decisions[c.id] === 'rejected' ? (
               <p className="mt-1 text-sm text-slate">Your trainer disagreed with this comment.</p>

@@ -1,27 +1,19 @@
 import type { Metadata, Viewport } from 'next';
 import { connection } from 'next/server';
-import { Instrument_Serif, Inter, JetBrains_Mono, Manrope } from 'next/font/google';
+import { Figtree, JetBrains_Mono, Newsreader } from 'next/font/google';
 import './globals.css';
 import { brand } from '@/lib/brand';
 
-// Page and section titles in an editorial serif, set large. It has one weight.
-const display = Instrument_Serif({
+// Headings in an editorial serif, the voice of a law report.
+const display = Newsreader({
   subsets: ['latin'],
-  weight: '400',
+  weight: ['400', '500', '600'],
   style: ['normal', 'italic'],
   variable: '--font-display',
   display: 'swap',
 });
 
-// Smaller headings.
-const head = Manrope({
-  subsets: ['latin'],
-  variable: '--font-head',
-  display: 'swap',
-});
-
-// Everything else.
-const body = Inter({
+const body = Figtree({
   subsets: ['latin'],
   variable: '--font-body',
   display: 'swap',
@@ -59,7 +51,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // few that read no cookies of their own, like the not-found page.
   await connection();
   return (
-    <html lang="en-AU" className={`${display.variable} ${head.variable} ${body.variable} ${code.variable}`}>
+    <html lang="en-AU" className={`${display.variable} ${body.variable} ${code.variable}`}>
       <body
         // A firm's accent replaces the default everywhere it is used, rather
         // than in the one button somebody remembered: --color-accent for the
