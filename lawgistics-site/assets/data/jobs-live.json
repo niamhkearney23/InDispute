@@ -1,45 +1,35 @@
 {
-  "generatedDate": "2026-11-01",
+  "generatedDate": "2026-11-03",
   "jobs": [
     {
-      "employer": "The Law Society of New South Wales",
-      "program": "NSW Clerkship Recruitment Program — Summer Clerkships 2027/28 (scheme-wide dates for all participating NSW employers)",
+      "employer": "The Law Society of New South Wales (scheme-wide, all participating employers)",
+      "program": "Summer Clerkship — 2027 NSW Clerkship Recruitment Program cycle (clerkships over summer 2027/28)",
       "jurisdiction": "NSW",
       "opens": "2027-06-09",
       "closes": null,
-      "notes": "Scheme confirms applications open 9:00am AEST Wed 9 June 2027 with offers from 9:00am Wed 8 September 2027, but the scheme sets two permitted closing dates (Sun 4 July or Sun 11 July 2027, 11:59pm) chosen by each participating firm, so a single close date cannot be confirmed; eligibility is penultimate (and at some firms final) year students.",
+      "notes": "Applications open 9:00am AEST Wed 9 June 2027; the Law Society publishes two staggered closing dates (Sun 4 July and Sun 11 July 2027, 11:59pm AEST) depending on the employer, so a single confirmed close date cannot be given — offers can be made from 9:00am Wed 8 Sept 2027 and must be accepted/declined by 1:00pm Thu 9 Sept 2027; eligibility is penultimate-year students.",
       "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Clerkship-Recruitment-Program",
-      "verifiedDate": "2026-11-01"
+      "verifiedDate": "2026-11-03"
+    },
+    {
+      "employer": "The Law Society of New South Wales (scheme-wide, all participating organisations)",
+      "program": "Graduate Program — 2027 NSW Graduate Recruitment Program cycle",
+      "jurisdiction": "NSW",
+      "opens": "2027-02-22",
+      "closes": "2027-04-04",
+      "notes": "Market-offer stream: applications open 9:00am AEST Mon 22 Feb 2027 and close 11:59pm AEST Sun 4 Apr 2027, with interviews commencing Tue 27 Apr 2027 and offers from 9:00am Wed 2 June 2027; individual participating firms apply their own eligibility criteria.",
+      "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Graduate-Recruitment-Program",
+      "verifiedDate": "2026-11-03"
     },
     {
       "employer": "Allens",
-      "program": "First Nations Legal Internship 2027",
-      "jurisdiction": "National",
-      "opens": null,
-      "closes": "2026-11-02",
-      "notes": "Currently open on the firm's own graduate careers site with a stated close of Monday 2 November 2026; the original opening date is not published on the page so it is left null.",
-      "url": "https://graduates.allens.com.au/our-programs/",
-      "verifiedDate": "2026-11-01"
-    },
-    {
-      "employer": "Allens",
-      "program": "Dive In (First Nations / diversity insight program) — May 2027 intake",
+      "program": "Dive In (pre-penultimate early-careers insight program, May 2027 intake)",
       "jurisdiction": "National",
       "opens": null,
       "closes": null,
-      "notes": "The firm's careers page confirms a future opening in March 2027 for the May 2027 program but gives only the month, so no exact open or close date can be confirmed.",
+      "notes": "Allens' own graduate careers page states applications for the May 2027 Dive In program open in March 2027 but publishes no exact open or close date, so both are left null; open to pre-penultimate students (2nd–3rd year LLB or 1st year JD), and Allens' 2026/27 clerkship applications are shown as closed.",
       "url": "https://graduates.allens.com.au/our-programs/",
-      "verifiedDate": "2026-11-01"
-    },
-    {
-      "employer": "Clayton Utz",
-      "program": "Seasonal Clerkship Program 2027/28",
-      "jurisdiction": "National",
-      "opens": null,
-      "closes": null,
-      "notes": "The firm's early careers page states applications are currently closed and will reopen in June for the 2027/28 seasonal clerkship program, but only the month is given and state-by-state dates follow each Law Society scheme, so exact dates are unconfirmed.",
-      "url": "https://www.claytonutz.com/careers/early-careers/seasonal-clerkships",
-      "verifiedDate": "2026-11-01"
+      "verifiedDate": "2026-11-03"
     }
   ]
 }
