@@ -5,6 +5,7 @@ import { AdminNav, type AdminNavGroup, type AdminNavItem } from '@/components/ad
 import { SchemaBehind } from '@/components/schema-behind';
 import { RegionCheck } from '@/components/region-check';
 import { ErasureAlert } from '@/components/erasure-alert';
+import { AdminTour } from '@/components/admin-tour';
 
 /** Auth-gated and per-request. Never prerender anything under /admin. */
 export const dynamic = 'force-dynamic';
@@ -13,7 +14,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // The floor for this whole area: a learner never gets past here. Which of the
   // two staff roles somebody has is decided by each page, because a coach may
   // open the review queue and the joiners list and nothing else.
-  const { isAdmin, isFirmAdmin, isReviewer } = await requireCoach();
+  const { userId, isAdmin, isFirmAdmin, isReviewer } = await requireCoach();
 
   // Each person is shown what they can actually use. The pages refuse them
   // anyway, so this is not the security boundary; it is not putting links in
@@ -97,6 +98,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         {/* Unfinished deletions and a nightly check that is not running (0049).
             Deletions are an administrator's, so only they are told. */}
         {isAdmin ? <ErasureAlert /> : null}
+        <AdminTour key={userId} userId={userId} allowedPaths={groups.flatMap((group) => group.items.map((item) => item.href))} />
         {children}
       </main>
     </div>
