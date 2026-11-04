@@ -24,7 +24,7 @@ import type { AdminState } from '../actions';
  */
 
 const schema = z.object({
-  id: z.string().uuid().optional().or(z.literal('')),
+  id: z.guid().optional().or(z.literal('')),
   title: z.string().trim().min(3, 'Give it a title.').max(200),
   summary: z.string().trim().max(2000).optional().or(z.literal('')),
   url: z.string().trim().url('That is not a web address.'),

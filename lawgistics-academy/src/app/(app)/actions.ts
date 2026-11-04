@@ -257,8 +257,8 @@ export async function beginModule(slug: string): Promise<{ error: string } | und
 }
 
 const answerSchema = z.object({
-  sessionId: z.string().uuid(),
-  questionVersionId: z.string().uuid(),
+  sessionId: z.guid(),
+  questionVersionId: z.guid(),
   // The same option twice is not a second answer; refused before grading.
   selectedOptionIds: z
     .array(z.string().max(40))
@@ -289,8 +289,8 @@ export async function answerQuestion(
 }
 
 const coachNoteSchema = z.object({
-  sessionId: z.string().uuid(),
-  questionVersionId: z.string().uuid(),
+  sessionId: z.guid(),
+  questionVersionId: z.guid(),
 });
 
 /**
@@ -317,7 +317,7 @@ export async function finishSession(sessionId: string) {
   const user = await getCurrentUser();
   if (!user) redirect('/login');
 
-  if (!z.string().uuid().safeParse(sessionId).success) redirect('/dashboard');
+  if (!z.guid().safeParse(sessionId).success) redirect('/dashboard');
 
   const result = await completeSession(user.id, sessionId);
   if ('error' in result) redirect('/dashboard');
@@ -402,7 +402,7 @@ export async function declareHomework(
 
 export type WorkState = { error: string | null; ok?: string };
 
-const claimSchema = z.object({ postId: z.string().uuid() });
+const claimSchema = z.object({ postId: z.guid() });
 
 /**
  * Putting your name on a piece of work.
@@ -445,10 +445,10 @@ export async function claimWork(_prev: WorkState, formData: FormData): Promise<W
 }
 
 const submitSchema = z.object({
-  postId: z.string().uuid(),
+  postId: z.guid(),
   note: z.string().trim().max(2000),
   // Optional only so a page open since before the nonce existed still works.
-  nonce: z.string().uuid().nullable(),
+  nonce: z.guid().nullable(),
 });
 
 /**
@@ -560,8 +560,8 @@ function handedIn(postId: string): WorkState {
 }
 
 const messageSchema = z.object({
-  postId: z.string().uuid(),
-  threadUserId: z.string().uuid(),
+  postId: z.guid(),
+  threadUserId: z.guid(),
   body: z.string().trim().min(1, 'Write something first.').max(2000),
 });
 
@@ -605,7 +605,7 @@ export async function sendWorkMessage(_prev: WorkState, formData: FormData): Pro
 }
 
 const commentSchema = z.object({
-  postId: z.string().uuid(),
+  postId: z.guid(),
   body: z.string().trim().min(1, 'Write something first.').max(COMMENT_MAX_LENGTH),
 });
 
@@ -661,7 +661,7 @@ export async function startMatter(formData: FormData): Promise<void> {
   if (!user) redirect('/login?next=/matters');
   if (!(await hasAccess(user.id))) redirect('/pricing');
 
-  const matterId = z.string().uuid().safeParse(formData.get('matterId'));
+  const matterId = z.guid().safeParse(formData.get('matterId'));
   if (!matterId.success) redirect('/matters');
 
   const supabase = await createSupabaseServerClient();
@@ -671,7 +671,7 @@ export async function startMatter(formData: FormData): Promise<void> {
 }
 
 const matterWorkSchema = z.object({
-  attemptId: z.string().uuid(),
+  attemptId: z.guid(),
   procedureAnswer: z.string().max(PROCEDURE_MAX),
   draftAnswer: z.string().max(DRAFT_MAX),
   followUpAnswers: z.array(z.string().max(FOLLOW_UP_ANSWER_MAX)).max(FOLLOW_UP_COUNT),
@@ -748,7 +748,7 @@ export async function askFollowUps(_prev: MatterState, formData: FormData): Prom
     return { error: 'This needs a plan, or a code from your firm. See the pricing page.' };
   }
 
-  const attemptId = z.string().uuid().safeParse(formData.get('attemptId'));
+  const attemptId = z.guid().safeParse(formData.get('attemptId'));
   if (!attemptId.success) return { error: 'That attempt could not be found.' };
 
   const attempt = await attemptForCaller(attemptId.data);
@@ -815,7 +815,7 @@ export async function uploadMatterRecording(
   const user = await getCurrentUser();
   if (!user) return { error: 'You are not signed in.' };
 
-  const attemptId = z.string().uuid().safeParse(formData.get('attemptId'));
+  const attemptId = z.guid().safeParse(formData.get('attemptId'));
   const file = formData.get('memo');
   if (!attemptId.success) return { error: 'That attempt could not be found.' };
   if (!(file instanceof File) || file.size === 0) return { error: 'Record something first.' };

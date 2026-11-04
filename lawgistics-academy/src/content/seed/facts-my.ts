@@ -34,7 +34,7 @@ export const MALAYSIAN_FACTS: SeedFact[] = [
   {
     slug: 'my-fact-two-high-courts',
     title: 'Malaysia has two High Courts, not one.',
-    body: 'The High Court in Malaya and the High Court in Sabah and Sarawak are of coordinate jurisdiction and status. Each has its own Chief Judge, and neither is an appeal court for the other.',
+    body: 'Peninsular Malaysia has one High Court, and Sabah with Sarawak has another, and the two rank equally. Each has its own Chief Judge, and neither is an appeal court for the other.',
     whyItMatters:
       'A decision of the High Court in Sabah and Sarawak is persuasive, not binding, in Kuala Lumpur, and the other way round.',
     jurisdiction: 'MY_FEDERAL',
@@ -71,7 +71,7 @@ export const MALAYSIAN_FACTS: SeedFact[] = [
   },
   {
     slug: 'my-fact-subordinate-courts',
-    title: 'Below the High Court sit the Sessions Courts and the Magistrates’ Courts.',
+    title: 'Beneath the High Court are the Sessions Courts and Magistrates’ Courts.',
     body: 'Together they are the subordinate courts, set up under the Subordinate Courts Act 1948 rather than the Federal Constitution. Most civil claims of modest value begin and end there.',
     jurisdiction: 'MY_FEDERAL',
     domain: 'court-system',
@@ -128,7 +128,7 @@ export const MALAYSIAN_FACTS: SeedFact[] = [
   {
     slug: 'my-fact-federal-court-leave',
     title: 'There is no appeal to the Federal Court in a civil case without leave.',
-    body: 'A party who loses in the Court of Appeal must first obtain leave from the Federal Court, usually by showing a question of general principle decided for the first time, or of importance to the public.',
+    body: 'A party who loses in the Court of Appeal must first obtain leave from the Federal Court, usually by showing a point of general principle that has not been decided before, or one that matters to the public.',
     whyItMatters:
       'Most civil cases end in the Court of Appeal. Telling a client that a further appeal is "automatic" would be wrong.',
     jurisdiction: 'MY_FEDERAL',
@@ -138,7 +138,7 @@ export const MALAYSIAN_FACTS: SeedFact[] = [
   {
     slug: 'my-fact-art-121-1a',
     title: 'The civil courts do not decide matters within the jurisdiction of the Syariah courts.',
-    body: 'An amendment to the Federal Constitution in 1988 added clause (1A) to article 121, which says the High Courts and the subordinate courts have no jurisdiction in respect of any matter within the jurisdiction of the Syariah courts.',
+    body: 'An amendment to the Federal Constitution in 1988 added clause (1A) to article 121, so that neither the High Courts nor the subordinate courts may decide a matter that falls to the Syariah courts.',
     whyItMatters:
       'Where a dispute touches Islamic personal law, the first question may be which court system it belongs to at all.',
     jurisdiction: 'MY_FEDERAL',
@@ -209,7 +209,7 @@ export const MALAYSIAN_FACTS: SeedFact[] = [
   {
     slug: 'my-fact-roc-2012',
     title: 'One set of rules governs civil procedure in every civil court below the appellate courts.',
-    body: 'The Rules of Court 2012 came into force on 1 August 2012. They replaced both the Rules of the High Court 1980 and the Subordinate Courts Rules 1980, so the High Court, Sessions Courts and Magistrates’ Courts now follow the same rules.',
+    body: 'The Rules of Court 2012 came into force on 1 August 2012. They took the place of two older sets, one for the High Court and one for the subordinate courts, both from 1980, so the High Court, Sessions Courts and Magistrates’ Courts now follow the same rules.',
     whyItMatters:
       'Pre-2012 cases on the old rules are still cited. Check the old rule matches the new one before relying on them.',
     jurisdiction: 'MY_FEDERAL',
@@ -275,7 +275,7 @@ export const MALAYSIAN_FACTS: SeedFact[] = [
   {
     slug: 'my-fact-material-facts-only',
     title: 'A pleading states facts, not evidence.',
-    body: 'Every pleading must contain a statement in summary form of the material facts relied on, and not the evidence by which those facts are to be proved.',
+    body: 'A pleading sets out, briefly, the material facts a party depends on. How those facts will be proved belongs at trial, not in the pleading.',
     whyItMatters:
       'A statement of claim that tells the story of every meeting and email is usually a pleading that has not decided what its case is.',
     jurisdiction: 'MY_FEDERAL',
@@ -323,7 +323,7 @@ export const MALAYSIAN_FACTS: SeedFact[] = [
   {
     slug: 'my-fact-striking-out-no-evidence',
     title: 'On the first ground for striking out, no evidence is allowed.',
-    body: 'An application to strike out because a pleading discloses no reasonable cause of action or defence is decided on the pleading alone. No affidavit evidence is admissible on that ground.',
+    body: 'Where the only complaint is that the pleading shows no arguable claim or defence on its face, the court looks at the pleading alone. No affidavit evidence is admissible on that ground.',
     whyItMatters:
       'If the argument depends on facts outside the pleading, it belongs under one of the other grounds, or in a different application.',
     jurisdiction: 'MY_FEDERAL',
@@ -349,7 +349,7 @@ export const MALAYSIAN_FACTS: SeedFact[] = [
   {
     slug: 'my-fact-summary-judgment',
     title: 'Summary judgment is for cases with no real defence.',
-    body: 'After the defendant has entered appearance, a plaintiff may apply for judgment without a trial on the ground that the defendant has no defence. The defendant avoids it by showing a triable issue.',
+    body: 'After the defendant has entered appearance, a plaintiff may ask for judgment without a trial, saying there is nothing the defendant can raise against the claim. The defendant avoids it by showing a triable issue.',
     whyItMatters:
       'It is the quickest route to a judgment where the debt is clear, and the first thing a defendant’s lawyer must answer with real evidence.',
     jurisdiction: 'MY_FEDERAL',
@@ -512,7 +512,7 @@ export const MALAYSIAN_FACTS: SeedFact[] = [
   // ---------------------------------------------------------------------------
   {
     slug: 'my-fact-affidavit-first-person',
-    title: 'An affidavit is written in the first person.',
+    title: 'Affidavits speak in the deponent’s own voice.',
     body: 'It must be framed in the first person and state the deponent’s description and address. It is the deponent’s own evidence, not the lawyer’s summary of it.',
     whyItMatters:
       'Draft it in words the deponent would actually use and can defend in cross-examination.',
@@ -572,7 +572,7 @@ export const MALAYSIAN_FACTS: SeedFact[] = [
   {
     slug: 'my-fact-limitation-six-years',
     title: 'Claims in contract and tort must be brought within six years.',
-    body: 'In Peninsular Malaysia, an action founded on a contract or on tort cannot be brought after six years from the date the cause of action accrued.',
+    body: 'In Peninsular Malaysia, an action founded on a contract or on tort is out of time once six years have passed since the right to sue first arose.',
     whyItMatters:
       'Work out the limitation date on every new matter, before anything else.',
     jurisdiction: 'MY_MALAYA',
@@ -705,7 +705,7 @@ export const MALAYSIAN_FACTS: SeedFact[] = [
   {
     slug: 'my-fact-leading-questions',
     title: 'Leading questions are not allowed in chief if objected to.',
-    body: 'A leading question suggests the answer. It must not be asked in examination-in-chief or re-examination if objected to, except on introductory or undisputed matters, but may be asked in cross-examination.',
+    body: 'A leading question suggests the answer. Your own witness, in chief or on re-examination, may not be led over the other side’s objection, save on introductory or undisputed points. In cross-examination you may lead.',
     jurisdiction: 'MY_FEDERAL',
     domain: 'advocacy',
     sourceReference: 'Evidence Act 1950, ss 141 to 143',
@@ -721,7 +721,7 @@ export const MALAYSIAN_FACTS: SeedFact[] = [
   {
     slug: 'my-fact-expert-opinion',
     title: 'Expert opinion is admissible on matters of science or art.',
-    body: 'When the court has to form an opinion on foreign law, science, art, or the identity of handwriting or finger impressions, the opinions of persons specially skilled in those matters are relevant facts.',
+    body: 'On foreign law, science, art, handwriting or fingerprints, what a specially skilled person thinks is a relevant fact the court may weigh.',
     jurisdiction: 'MY_FEDERAL',
     domain: 'evidence',
     sourceReference: 'Evidence Act 1950, s 45',

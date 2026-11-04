@@ -21,7 +21,7 @@ export async function redactTutorMessage(
 ): Promise<RedactState> {
   const adminId = await checkAdmin();
   if (!adminId) return { error: 'You are not signed in as an administrator.' };
-  const id = z.string().uuid().safeParse(formData.get('messageId'));
+  const id = z.guid().safeParse(formData.get('messageId'));
   if (!id.success) return { error: 'That message could not be found.' };
   const conversationId = await conversationOfMessage(id.data);
   if (!conversationId) return { error: 'That message could not be found.' };

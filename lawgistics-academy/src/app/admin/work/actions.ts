@@ -36,7 +36,7 @@ import type { AdminState } from '../actions';
 const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 const schema = z.object({
-  id: z.string().uuid().optional().or(z.literal('')),
+  id: z.guid().optional().or(z.literal('')),
   kind: z.enum(['task', 'material']),
   title: z.string().trim().min(3, 'Give it a title.').max(200),
   instructions: z.string().trim().max(5000).optional().or(z.literal('')),
@@ -47,7 +47,7 @@ const schema = z.object({
   traineesOnly: z.boolean(),
   country: z.enum(['ALL', 'AU', 'MY']),
   dueOn: z.string().trim().regex(DAY_RE, 'Use the date picker').optional().or(z.literal('')),
-  sessionId: z.string().uuid().optional().or(z.literal('')),
+  sessionId: z.guid().optional().or(z.literal('')),
   homeworkDay: z.coerce.number().int().min(0).max(20),
   published: z.boolean(),
 });
@@ -202,7 +202,7 @@ export async function saveWorkPost(
 }
 
 const markSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   verdict: z.enum(['good', 'again']),
   feedback: z.string().trim().max(5000),
 });
@@ -307,8 +307,8 @@ export async function suggestWorkTime(
 
 const keepSchema = z.object({
   kind: z.enum(['message', 'comment']),
-  id: z.string().uuid(),
-  postId: z.string().uuid(),
+  id: z.guid(),
+  postId: z.guid(),
   keep: z.enum(['keep', 'release']),
   reason: z.string().trim().min(3, 'Say why, in a few words.').max(500),
 });

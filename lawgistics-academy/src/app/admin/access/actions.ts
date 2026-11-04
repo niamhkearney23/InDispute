@@ -24,7 +24,7 @@ export async function decideAccess(_state: AdminState, formData: FormData): Prom
 
   const userId = String(formData.get('userId') ?? '');
   const decision = String(formData.get('decision') ?? '');
-  if (!z.string().uuid().safeParse(userId).success)
+  if (!z.guid().safeParse(userId).success)
     return { error: 'That person could not be found.' };
   if (decision !== 'confirmed' && decision !== 'declined') {
     return { error: 'That is not a decision this records.' };
@@ -96,7 +96,7 @@ export async function setAccessCodeActive(
 
   const id = String(formData.get('id') ?? '');
   const active = formData.get('active') === 'true';
-  if (!z.string().uuid().safeParse(id).success) return { error: 'That code could not be found.' };
+  if (!z.guid().safeParse(id).success) return { error: 'That code could not be found.' };
 
   const db = createServiceClient();
   const { error } = await db.from('access_codes').update({ active }).eq('id', id);

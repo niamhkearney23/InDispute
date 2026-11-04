@@ -22,7 +22,7 @@ export const dynamic = 'force-dynamic';
 export default async function DeletionPage({ params }: { params: Promise<{ id: string }> }) {
   const { userId: adminId } = await requireAdmin();
   const { id } = await params;
-  if (!z.string().uuid().safeParse(id).success) notFound();
+  if (!z.guid().safeParse(id).success) notFound();
   const detail = await deletionDetail(id);
   if (!detail) notFound();
   const timeZone = (await getLearnerProfile(adminId))?.timezone ?? DEFAULT_TIMEZONE;

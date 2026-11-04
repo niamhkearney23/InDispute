@@ -21,7 +21,7 @@ import type { AdminState } from '../actions';
  */
 
 const schema = z.object({
-  moduleId: z.string().uuid().optional().or(z.literal('')),
+  moduleId: z.guid().optional().or(z.literal('')),
   slug: z
     .string()
     .trim()

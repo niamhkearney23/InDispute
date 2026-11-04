@@ -23,7 +23,7 @@ const questionSchema = z.object({
     .min(3)
     .max(120)
     .regex(/^[a-z0-9-]+$/, 'Use lower-case letters, numbers and hyphens only'),
-  domainId: z.string().uuid(),
+  domainId: z.guid(),
   questionType: z.enum(['multiple_choice', 'true_false', 'scenario']),
   difficulty: z.coerce.number().int().min(1).max(5),
   jurisdiction: z.enum(JURISDICTION_VALUES),
@@ -39,9 +39,9 @@ const questionSchema = z.object({
   sourceReference: z.string().trim().max(500).optional().or(z.literal('')),
   sourceUrl: z.string().trim().url().max(1000).optional().or(z.literal('')),
   sourceCheckedOn: z.string().trim().optional().or(z.literal('')),
-  conceptIds: z.array(z.string().uuid()).min(1, 'Link at least one concept'),
+  conceptIds: z.array(z.guid()).min(1, 'Link at least one concept'),
   // None is a fine answer: a recall question tests no skill.
-  skillIds: z.array(z.string().uuid()),
+  skillIds: z.array(z.guid()),
 });
 
 function parseQuestionForm(formData: FormData) {
@@ -154,7 +154,7 @@ export async function updateQuestion(
   if (!adminId) return { error: 'Not authorised.' };
 
   const questionId = String(formData.get('questionId') ?? '');
-  if (!z.string().uuid().safeParse(questionId).success) {
+  if (!z.guid().safeParse(questionId).success) {
     return { error: 'Unknown question.' };
   }
 
@@ -384,7 +384,7 @@ async function replaceLinks(
 /* -------------------------------------------------------------------------- */
 
 const transitionSchema = z.object({
-  questionId: z.string().uuid(),
+  questionId: z.guid(),
   action: z.enum(['submit_for_review', 'verify', 'publish', 'retire', 'unpublish']),
 });
 

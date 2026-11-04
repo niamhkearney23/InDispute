@@ -18,7 +18,7 @@ import type { AdminState } from '../actions';
  */
 
 const schema = z.object({
-  id: z.string().uuid().optional().or(z.literal('')),
+  id: z.guid().optional().or(z.literal('')),
   body: z
     .string()
     .trim()

@@ -16,7 +16,7 @@ import type { AdminState } from '../actions';
  * check again that the id they are given belongs to an administrator.
  */
 
-const uuid = z.string().uuid();
+const uuid = z.guid();
 
 function refresh(userId: string) {
   revalidatePath('/admin/deletions');

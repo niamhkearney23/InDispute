@@ -154,7 +154,7 @@ export async function startStudioAttempt(input: z.input<typeof startSchema>): Pr
   return { attemptId, path, token: link.token };
 }
 
-const idSchema = z.string().uuid();
+const idSchema = z.guid();
 
 /** After the browser's upload: checks the file is really there, and its size, before anything uses it. */
 export async function confirmStudioUpload(attemptId: string): Promise<{ error: string } | { ok: true }> {

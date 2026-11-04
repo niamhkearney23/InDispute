@@ -31,7 +31,7 @@ export default async function AdminTraineePage({ params }: { params: Promise<{ i
   // before in UTC, where the server keeps time.
   const timeZone = (await getLearnerProfile(userId))?.timezone ?? DEFAULT_TIMEZONE;
   const { id } = await params;
-  if (!z.string().uuid().safeParse(id).success) notFound();
+  if (!z.guid().safeParse(id).success) notFound();
   if (!(await staffMayRead(id, isAdmin))) notFound();
   const person = await learnerDetail(id, isAdmin);
   if (!person) notFound();

@@ -23,7 +23,7 @@ type Person = {
 export default async function CohortPage({ params }: { params: Promise<{ id: string }> }) {
   await requireFirmAdmin();
   const { id } = await params;
-  if (!z.string().uuid().safeParse(id).success) notFound();
+  if (!z.guid().safeParse(id).success) notFound();
   const [cohort, all] = await Promise.all([getCohort(id), listCohorts()]);
   if (!cohort) notFound();
 

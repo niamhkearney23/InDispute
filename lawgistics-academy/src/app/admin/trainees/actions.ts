@@ -26,7 +26,7 @@ export async function eraseLearner(_prev: EraseState, formData: FormData): Promi
   const adminId = await checkAdmin();
   if (!adminId) return { error: 'You are not signed in as an administrator.' };
 
-  const id = z.string().uuid().safeParse(formData.get('learnerId'));
+  const id = z.guid().safeParse(formData.get('learnerId'));
   if (!id.success) return { error: 'That person could not be found.' };
   if (!confirmsWord(formData.get('confirmWord'))) {
     return { error: `Type ${CONFIRM_WORD} to delete this account.` };

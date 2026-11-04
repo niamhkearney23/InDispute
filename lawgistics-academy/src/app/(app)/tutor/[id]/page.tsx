@@ -31,7 +31,7 @@ export default async function TutorConversationPage({
   if (!user) redirect('/login?next=/tutor');
 
   const { id } = await params;
-  if (!z.string().uuid().safeParse(id).success) notFound();
+  if (!z.guid().safeParse(id).success) notFound();
   const convo = await conversation(id);
   // Coaches read conversations on their own page; this one is the learner's.
   if (!convo || convo.userId !== user.id) notFound();

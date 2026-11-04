@@ -19,7 +19,7 @@ import type { AdminState } from '../actions';
  */
 
 const schema = z.object({
-  attemptId: z.string().uuid(),
+  attemptId: z.guid(),
   feedback: z.string().trim().min(1, 'Write your feedback first.').max(6000, 'Keep it under 6,000 characters.'),
   scoreOverrides: ScoreOverridesSchema,
   commentDecisions: CommentDecisionsSchema,

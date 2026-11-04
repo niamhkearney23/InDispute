@@ -37,7 +37,7 @@ export async function saveCohort(_state: AdminState, formData: FormData): Promis
   if (!adminId) return { error: 'You are not signed in as an administrator or firm administrator.' };
 
   const id = String(formData.get('id') ?? '');
-  if (id && !z.string().uuid().safeParse(id).success) return { error: 'That cohort could not be found.' };
+  if (id && !z.guid().safeParse(id).success) return { error: 'That cohort could not be found.' };
 
   const name = String(formData.get('name') ?? '').trim();
   const startsOn = String(formData.get('startsOn') ?? '');
@@ -104,12 +104,12 @@ export async function assignCohort(_state: AdminState, formData: FormData): Prom
   if (!adminId) return { error: 'You are not signed in as an administrator or firm administrator.' };
 
   const cohortId = String(formData.get('cohortId') ?? '');
-  if (!z.string().uuid().safeParse(cohortId).success) return { error: 'That cohort could not be found.' };
+  if (!z.guid().safeParse(cohortId).success) return { error: 'That cohort could not be found.' };
   const remove = formData.get('action') === 'remove';
   const ids = formData
     .getAll('userId')
     .map(String)
-    .filter((v) => z.string().uuid().safeParse(v).success);
+    .filter((v) => z.guid().safeParse(v).success);
   if (ids.length === 0) return { error: 'Tick at least one person first.' };
   if (ids.length > 500) return { error: 'That is more than 500 people at once.' };
 

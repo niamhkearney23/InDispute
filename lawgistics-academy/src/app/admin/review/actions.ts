@@ -16,14 +16,14 @@ import { HOLD_CHOICES, dueDateFrom, type HoldMonths } from '@/lib/review/expiry'
 
 const decisionSchema = z.object({
   kind: z.enum(['question', 'fact']),
-  id: z.string().uuid(),
+  id: z.guid(),
   /**
    * The version the reviewer was shown. A sign-off is a statement about the
    * words somebody read, so it lands on that version or not at all: if the
    * question was edited while the card was open, the current version is one
    * they never saw.
    */
-  versionId: z.string().uuid().optional(),
+  versionId: z.guid().optional(),
   /**
    * When what the reviewer read was last changed, as the card was given it.
    * Explanations and facts are corrected in place, so the version alone does

@@ -29,7 +29,7 @@ export default async function AdminTutorConversationPage({
 }) {
   const { isAdmin } = await requireCoach();
   const { id } = await params;
-  if (!z.string().uuid().safeParse(id).success) notFound();
+  if (!z.guid().safeParse(id).success) notFound();
   const convo = await conversation(id);
   if (!convo || !(await staffMayRead(convo.userId, isAdmin))) notFound();
 

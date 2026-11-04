@@ -20,7 +20,7 @@ const factSchema = z.object({
   whyItMatters: z.string().trim().max(2000).optional().or(z.literal('')),
   jurisdiction: z.enum(JURISDICTION_VALUES),
   court: z.string().trim().max(200).optional().or(z.literal('')),
-  domainId: z.string().uuid().optional().or(z.literal('')),
+  domainId: z.guid().optional().or(z.literal('')),
   sourceReference: z.string().trim().max(500).optional().or(z.literal('')),
   sourceUrl: z.string().trim().url().max(1000).optional().or(z.literal('')),
   sourceCheckedOn: z.string().trim().optional().or(z.literal('')),
@@ -102,7 +102,7 @@ export async function updateFact(
   if (!adminId) return { error: 'Not authorised.' };
 
   const factId = String(formData.get('factId') ?? '');
-  if (!z.string().uuid().safeParse(factId).success) return { error: 'Unknown fact.' };
+  if (!z.guid().safeParse(factId).success) return { error: 'Unknown fact.' };
 
   const parsed = parseForm(formData);
   if (!parsed.success) {
@@ -168,7 +168,7 @@ export async function updateFact(
 }
 
 const transitionSchema = z.object({
-  factId: z.string().uuid(),
+  factId: z.guid(),
   action: z.enum(['verify', 'publish', 'unpublish', 'retire']),
 });
 

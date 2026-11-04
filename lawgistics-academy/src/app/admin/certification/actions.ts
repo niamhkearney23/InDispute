@@ -18,7 +18,7 @@ import type { AdminState } from '../actions';
  */
 
 const traineeSchema = z.object({
-  id: z.string().uuid().optional().or(z.literal('')),
+  id: z.guid().optional().or(z.literal('')),
   fullName: z.string().trim().min(1, 'Give them a name.').max(200),
   firmName: z.string().trim().min(1, 'Which firm are they at?').max(200),
   notes: z.string().trim().max(2000).optional().or(z.literal('')),
@@ -68,8 +68,8 @@ export async function saveTrainee(_state: AdminState, formData: FormData): Promi
 }
 
 const entrySchema = z.object({
-  id: z.string().uuid().optional().or(z.literal('')),
-  traineeId: z.string().uuid(),
+  id: z.guid().optional().or(z.literal('')),
+  traineeId: z.guid(),
   boxNumber: z.coerce.number().int().min(1).max(15),
   caseNo: z.string().trim().min(1, "Give it your firm's matter reference.").max(200),
   courtFileRef: z.string().trim().max(200).optional().or(z.literal('')),
@@ -145,7 +145,7 @@ export async function saveCertificationEntry(
 }
 
 const linkSchema = z.object({
-  traineeId: z.string().uuid(),
+  traineeId: z.guid(),
   email: z.string().trim().max(320),
 });
 

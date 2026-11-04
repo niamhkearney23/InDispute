@@ -25,7 +25,7 @@ function revalidateMatter(id?: string) {
 }
 
 const matterSchema = z.object({
-  id: z.string().uuid().optional().or(z.literal('')),
+  id: z.guid().optional().or(z.literal('')),
   number: z.coerce.number().int().min(1).max(999),
   title: z.string().trim().min(3, 'Give it a title.').max(200),
   country: z.enum(['MY', 'AU']),
@@ -125,7 +125,7 @@ export async function saveMatter(_prev: AdminState, formData: FormData): Promise
 }
 
 const decisionSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   decision: z.enum(['verify', 'flag']),
   note: z.string().trim().max(2000),
   // When the words on the coach's screen were last changed. Required: a
@@ -201,7 +201,7 @@ export async function setMatterPublished(_prev: AdminState, formData: FormData):
   const adminId = await checkAdmin();
   if (!adminId) return { error: 'Only an administrator can publish a matter.' };
 
-  const id = z.string().uuid().safeParse(formData.get('id'));
+  const id = z.guid().safeParse(formData.get('id'));
   if (!id.success) return { error: 'That matter could not be found.' };
   const publish = formData.get('published') === 'true';
 
@@ -217,7 +217,7 @@ export async function setMatterPublished(_prev: AdminState, formData: FormData):
 }
 
 const markSchema = z.object({
-  attemptId: z.string().uuid(),
+  attemptId: z.guid(),
   verdict: z.enum(['good', 'again']),
   feedback: z.string().trim().max(4000),
 });

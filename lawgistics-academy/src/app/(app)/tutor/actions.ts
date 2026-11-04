@@ -151,7 +151,7 @@ export async function startTutor(_prev: TutorState, formData: FormData): Promise
 async function ownConversation(userId: string, conversationId: unknown, mode: 'explain' | 'test') {
   if (!(await hasAccess(userId))) return { ok: false, error: NO_ACCESS } as const;
 
-  const id = z.string().uuid().safeParse(conversationId);
+  const id = z.guid().safeParse(conversationId);
   if (!id.success) return { ok: false, error: NOT_FOUND } as const;
   const convo = await conversation(id.data);
   if (!convo || convo.userId !== userId || convo.mode !== mode) {

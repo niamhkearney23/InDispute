@@ -206,7 +206,7 @@ export default async function IntakePage() {
               ) : (
                 <Link
                   href={`/admin/sessions/new?${sessionPrefill(todayEntry)}`}
-                  className="font-medium text-accent underline underline-offset-2"
+                  className="-my-2 inline-block py-2 font-medium text-accent underline underline-offset-2"
                 >
                   Add today&rsquo;s video
                 </Link>

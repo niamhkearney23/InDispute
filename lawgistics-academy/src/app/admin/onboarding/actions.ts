@@ -40,7 +40,7 @@ import { countryOpen } from '@/lib/countries';
 
 const stepSchema = z
   .object({
-    stepId: z.string().uuid().optional().or(z.literal('')),
+    stepId: z.guid().optional().or(z.literal('')),
     slug: z
       .string()
       .trim()
@@ -50,7 +50,7 @@ const stepSchema = z
     title: z.string().trim().min(2).max(200),
     detail: z.string().trim().max(2000).optional().or(z.literal('')),
     kind: z.enum(['read', 'sign', 'task']),
-    firmModuleId: z.string().uuid().optional().or(z.literal('')),
+    firmModuleId: z.guid().optional().or(z.literal('')),
     needsFirmCheck: z.coerce.boolean(),
     country: z.enum(['ALL', 'AU', 'MY']),
     required: z.coerce.boolean(),
@@ -192,7 +192,7 @@ const dateField = z
 
 const placementDatesSchema = z
   .object({
-    userId: z.string().uuid(),
+    userId: z.guid(),
     // An empty string clears it. A person whose date was entered wrongly
     // should not have to be given a fictional one to get rid of it.
     startsOn: dateField,
@@ -392,7 +392,7 @@ export async function confirmTrainee(
 
   const userId = String(formData.get('userId') ?? '');
   const decision = String(formData.get('decision') ?? '');
-  if (!z.string().uuid().safeParse(userId).success) {
+  if (!z.guid().safeParse(userId).success) {
     return { error: 'That person could not be found.' };
   }
   if (decision !== 'confirm' && decision !== 'decline') {
