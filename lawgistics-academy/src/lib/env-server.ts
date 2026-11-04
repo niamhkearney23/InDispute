@@ -15,12 +15,33 @@ export function requireServiceRoleKey(): string {
 /**
  * The AI coach is strictly additive. V1 must work with every one of these unset.
  */
-export const aiEnv = {
-  provider: (process.env.AI_PROVIDER ?? 'none') as 'none' | 'anthropic' | 'openai',
-  anthropicApiKey: process.env.ANTHROPIC_API_KEY,
-  openaiApiKey: process.env.OPENAI_API_KEY,
-  model: process.env.AI_MODEL,
-};
+export const aiEnv = readAiEnv(process.env);
+
+/** A setting as typed into Vercel: spaces and a pasted line break removed; empty is unset. */
+function setting(value: string | undefined): string | undefined {
+  const v = value?.trim();
+  return v ? v : undefined;
+}
+
+/**
+ * Forgiving about how a setting was typed (the owner, November 2026: the key
+ * was in Vercel and the Studio still said AI was off). "OpenAI" and "openai "
+ * mean openai; anything else not recognised means off, never a guess.
+ */
+export function readAiEnv(env: Record<string, string | undefined>): {
+  provider: 'none' | 'anthropic' | 'openai';
+  anthropicApiKey: string | undefined;
+  openaiApiKey: string | undefined;
+  model: string | undefined;
+} {
+  const named = setting(env.AI_PROVIDER)?.toLowerCase();
+  return {
+    provider: named === 'openai' || named === 'anthropic' ? named : 'none',
+    anthropicApiKey: setting(env.ANTHROPIC_API_KEY),
+    openaiApiKey: setting(env.OPENAI_API_KEY),
+    model: setting(env.AI_MODEL),
+  };
+}
 
 /**
  * The Advocacy Studio's speech to text (0053). Neither Claude nor the
@@ -37,7 +58,7 @@ export const aiEnv = {
  * everybody is asked again: an earlier yes was to the companies named then.
  */
 export const studioEnv = {
-  transcribeProvider: process.env.STUDIO_TRANSCRIBE_PROVIDER,
-  transcribeModel: process.env.STUDIO_TRANSCRIBE_MODEL,
-  groqApiKey: process.env.GROQ_API_KEY,
+  transcribeProvider: setting(process.env.STUDIO_TRANSCRIBE_PROVIDER),
+  transcribeModel: setting(process.env.STUDIO_TRANSCRIBE_MODEL),
+  groqApiKey: setting(process.env.GROQ_API_KEY),
 };
