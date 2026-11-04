@@ -898,6 +898,14 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   academy briefly went forest and citron (the Studio brief's palette, with
   Instrument Serif, Manrope and Inter); the owner went back to navy in
   November ("I kind of like navy"), the old look exactly, Studio included.
+  Feel (the owner, November 2026: "premium like an expert designed it"):
+  every page fades in (`template.tsx`, `page-in`), a grey placeholder shows
+  the moment a link is tapped (`loading.tsx`), buttons give under the finger
+  (`active:scale`), and any card or row that is a link uses `pressable`.
+  A card that is a link is a link all over (the stretched-link `::after`),
+  not a card with an underlined line at the bottom. Shortcuts are grouped as
+  one list of rows with an icon and a chevron (Learn, "Ways to practise"),
+  never a stack of separate boxes each with its own button.
   The owner tried bright and playful and went back (October 2026): "it
   doesn't look like a law firm. Make it more like a coach, and this is the
   homework." Figma has the direction on the "Coach and homework" page: the

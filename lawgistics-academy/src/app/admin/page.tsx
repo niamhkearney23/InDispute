@@ -126,7 +126,7 @@ export default async function AdminHome({
           <strong>{unverifiedPublished.length} published question(s) have not been
           verified by a person.</strong>{' '}
           Seed content ships in this state deliberately; it is drafted to be accurate but
-          has not been signed off by an Australian legal practitioner. Work through the
+          has not been signed off by a lawyer. Work through the
           list below and verify each one before real learners use this.{' '}
           <Link
             href="/admin/review"

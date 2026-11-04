@@ -374,7 +374,10 @@ test('the menu, the Learn page and the tour do not lead a learner to a court map
   assert.match(layout, /courtsShown \? \(\s*<NavLink href="\/courts"/);
   assert.match(layout, /courtMapFor\(profile\.country, await viewerIsStaff\(user\.id\)\)/);
   const learn = read('src/app/(app)/modules/page.tsx');
-  assert.match(learn, /\{courtMap \? \(\s*<Card[\s\S]*?href="\/courts"/);
+  // The court map is one of the ways to practise only when there is a map
+  // for this person, and that is the only place the page links to it.
+  assert.match(learn, /\.\.\.\(courtMap\s*\?\s*\[\s*\{\s*href: '\/courts'/);
+  assert.equal(learn.match(/\/courts['"]/g)?.length, 1, 'one link to the court map, behind courtMap');
   const welcome = read('src/app/(app)/welcome/page.tsx');
   assert.match(welcome, /courts: Boolean\(await courtMapFor\(profile\.country, await viewerIsStaff\(user\.id\)\)\)/);
 });

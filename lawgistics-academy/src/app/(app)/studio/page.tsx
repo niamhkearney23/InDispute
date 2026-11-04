@@ -93,7 +93,13 @@ export default async function StudioPage() {
           <ul className="grid gap-4 md:grid-cols-2">
             {exercises.map(({ exercise, checked }) => (
               <li key={exercise.slug}>
-                <Card className="flex h-full flex-col">
+                <Card
+                  className={
+                    ready
+                      ? 'pressable relative flex h-full flex-col hover:border-rule-strong hover:shadow-raised'
+                      : 'flex h-full flex-col'
+                  }
+                >
                   <div className="mb-2 flex flex-wrap items-center gap-2">
                     <span className="eyebrow">Up to {spokenLength(exercise.maxSeconds)}</span>
                     {!checked ? <Pill tone="warn">Not yet checked by a lawyer</Pill> : null}
@@ -103,9 +109,12 @@ export default async function StudioPage() {
                   {ready ? (
                     <Link
                       href={`/studio/${exercise.slug}`}
-                      className="mt-4 inline-flex min-h-11 items-center font-medium underline underline-offset-4"
+                      // The whole card is the link (the ::after covers it), so a
+                      // tap anywhere on it opens the exercise.
+                      className="mt-4 inline-flex min-h-11 items-center gap-1.5 font-medium text-accent after:absolute after:inset-0 after:rounded-lg after:content-['']"
                     >
                       Open the exercise
+                      <span aria-hidden>→</span>
                     </Link>
                   ) : (
                     <p className="mt-4 text-sm text-muted">Make your choices above to record.</p>

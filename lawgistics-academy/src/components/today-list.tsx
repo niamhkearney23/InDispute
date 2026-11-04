@@ -38,7 +38,8 @@ export function TodayList({
           {items.map((item) => {
             const number = item.done === null ? null : ++n;
             const startable = Boolean(item.start && startTraining);
-            const rowClass = 'flex min-h-14 items-center gap-3.5 py-3 hover:bg-paper-sunk/60';
+            const rowClass =
+              'pressable flex min-h-14 items-center gap-3.5 py-3 hover:bg-paper-sunk/60 active:bg-paper-sunk';
             const inner = (
               <>
                 <span

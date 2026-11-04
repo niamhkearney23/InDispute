@@ -12,17 +12,18 @@ export function cn(...classes: Array<string | false | null | undefined>) {
 
 const BUTTON_BASE =
   'inline-flex items-center justify-center gap-2 rounded-[5px] font-medium ' +
-  'transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-45 ' +
-  'select-none touch-manipulation';
+  'transition-[background-color,box-shadow,transform,color] duration-150 ' +
+  'active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-45 disabled:active:scale-100 ' +
+  'select-none touch-manipulation [-webkit-tap-highlight-color:transparent]';
 
 const BUTTON_VARIANTS = {
-  primary: 'bg-ink text-paper shadow-button hover:bg-charcoal active:translate-y-px',
-  accent: 'bg-accent text-paper shadow-button hover:bg-accent-soft active:translate-y-px',
+  primary: 'bg-ink text-paper shadow-button hover:bg-charcoal',
+  accent: 'bg-accent text-paper shadow-button hover:bg-accent-soft',
   outline:
-    'border border-rule-strong bg-paper-raised text-ink shadow-button hover:bg-paper-sunk active:translate-y-px',
+    'border border-rule-strong bg-paper-raised text-ink shadow-button hover:bg-paper-sunk',
   ghost: 'text-slate hover:text-ink hover:bg-paper-sunk',
   // On an accent-coloured surface, where the accent button would vanish.
-  light: 'bg-paper text-accent shadow-button hover:bg-white active:translate-y-px',
+  light: 'bg-paper text-accent shadow-button hover:bg-white',
 } as const;
 
 const BUTTON_SIZES = {
