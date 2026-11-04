@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from '@/components/app-link';
 import { requireCoach } from '@/lib/admin/guard';
 import { allWorkPosts, emailDrafts } from '@/lib/work/service';
+import { prioritiseWork } from '@/lib/work/queue';
 import { traineesAwaitingConfirmation } from '@/lib/onboarding/service';
 import { describeMinutes, slotsLabel } from '@/lib/work/links';
 import { ButtonLink, Card, EmptyState, Pill } from '@/components/ui';
@@ -26,6 +27,7 @@ export default async function WorkBoardAdminPage() {
     emailDrafts(),
   ]);
 
+  const orderedPosts = prioritiseWork(posts);
   const waiting = posts.reduce((n, p) => n + p.waiting, 0);
   const unanswered = posts.reduce((n, p) => n + p.unanswered, 0);
 
@@ -34,18 +36,17 @@ export default async function WorkBoardAdminPage() {
       <section>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="eyebrow mb-2">Work</p>
-            <h1 className="text-3xl">What you give them to do</h1>
+            <p className="eyebrow mb-2">Marking</p>
+            <h1 className="text-3xl">Work and questions from your juniors</h1>
           </div>
           <ButtonLink href="/admin/work/new" variant="accent">
             Post work
           </ButtonLink>
         </div>
         <p className="mt-3 max-w-2xl text-slate">
-          A piece of work, or something to read. Record a memo or type it, say how many people
-          can take it, and send the link. Interns put their name on a task, hand it in here,
-          and you mark it: good, or needs another go, and why. Nothing with a client&apos;s
-          name in it, on either side.
+          Handed-in work comes first, then conversations waiting for a reply. Open a task
+          to mark it or answer a question. You can also post a task or something to read,
+          typed or as a voice memo. Keep client names out of the work and your feedback.
         </p>
         {pendingTrainees.length > 0 ? (
           <p className="mt-2 text-sm text-accent">
@@ -67,7 +68,7 @@ export default async function WorkBoardAdminPage() {
               ? `${waiting} piece${waiting === 1 ? '' : 's'} of work waiting to be marked. `
               : ''}
             {unanswered > 0
-              ? `${unanswered} message${unanswered === 1 ? '' : 's'} waiting for a reply.`
+              ? `${unanswered} conversation${unanswered === 1 ? '' : 's'} waiting for a reply.`
               : ''}
           </p>
         ) : null}
@@ -81,7 +82,7 @@ export default async function WorkBoardAdminPage() {
       ) : null}
 
       <div className="space-y-3">
-        {posts.map(({ post, claims, submissions, waiting: toMark, unanswered: toAnswer }) => (
+        {orderedPosts.map(({ post, claims, submissions, waiting: toMark, unanswered: toAnswer }) => (
           <Card key={post.id}>
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
@@ -116,7 +117,9 @@ export default async function WorkBoardAdminPage() {
                 href={`/admin/work/${post.id}`}
                 className="shrink-0 rounded-[5px] border border-rule-strong px-3 py-2 text-sm text-slate hover:bg-paper hover:text-ink"
               >
-                {toMark > 0 || toAnswer > 0 ? 'Open' : 'Edit'}
+                {toMark > 0
+                  ? toAnswer > 0 ? 'Mark and reply' : 'Mark work'
+                  : toAnswer > 0 ? 'Reply' : 'Edit'}
               </Link>
             </div>
           </Card>
