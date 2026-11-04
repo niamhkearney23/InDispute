@@ -88,7 +88,7 @@ export default async function AdminStudioAttemptPage({ params }: { params: Promi
               </p>
             </details>
           ) : (
-            <p className="text-sm text-slate">No transcript: the learner did not ask for AI feedback on this one.</p>
+            <p className="text-sm text-slate">No transcript. A transcript is made only when the learner asks for AI feedback and the AI is switched on, so either they did not ask or it was not available.</p>
           )}
         </div>
 

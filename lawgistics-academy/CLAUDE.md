@@ -192,7 +192,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0053`.
+- Migrations run to `0054`.
   `supabase/UPDATE.sql` is the one-paste update for a database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -581,7 +581,8 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   possible). The four written are drafts on invented facts
   with no authorities, so legal reasoning is assessed on none. **Coaches**
   (Admin, Studio, reviewers only) see only attempts shared and not deleted,
-  read with the code typed (`is_coach()` in the read policy); opening one
+  read through the server only: since 0054 the read policies have no coach
+  clause, so a coach's own token reads nothing. Opening one
   writes `studio_access_log` first and shows nothing if that fails, because
   the learner is told every opening is recorded. The log is server only, and
   a trigger refuses update, delete and truncate for anybody the app runs as;

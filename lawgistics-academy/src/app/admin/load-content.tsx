@@ -13,7 +13,13 @@ import { loadNewContent } from './actions';
  * this button is the last place to be approximately right about what it is
  * about to do to a database.
  */
-export function LoadContent({ missing }: { missing: number }) {
+export function LoadContent({
+  missing,
+  noun = 'question',
+}: {
+  missing: number;
+  noun?: 'question' | 'fact';
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [result, setResult] = useState<{ ok: boolean; text: string } | null>(null);
@@ -32,15 +38,15 @@ export function LoadContent({ missing }: { missing: number }) {
   return (
     <Card>
       <h2 className="text-lg">
-        {missing} question{missing === 1 ? '' : 's'} in this release are not in the database
+        {`${missing} ${noun}${missing === 1 ? '' : 's'}`} in this release are not in the database
       </h2>
       <p className="mt-1 text-sm text-slate">
         Content is loaded once at first run, so anything written since then is sitting in
-        the deployment unused. Loading it again brings those across. A question already
-        here is left exactly as it is, sign-off included. One whose wording has changed
-        gets a new version, and the old version is kept because past attempts point at
-        what the learner actually saw. New questions, and reworded ones, wait for a
-        person to sign them off and publish them before any learner sees them.
+        the deployment unused. Loading it again brings those across. Anything already
+        here is left exactly as it is, sign-off included. A question whose wording has
+        changed gets a new version, and the old version is kept because past attempts
+        point at what the learner actually saw. Everything new, and anything reworded,
+        waits for a person to sign it off and publish it before any learner sees it.
       </p>
 
       {result ? (

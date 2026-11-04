@@ -63,6 +63,7 @@
 --   0051_lapsed_signoffs_and_truncate.sql
 --   0052_content_expiry.sql
 --   0053_advocacy_studio.sql
+--   0054_studio_reads_via_server.sql
 -- =============================================================================
 
 
@@ -8411,6 +8412,37 @@ create or replace trigger profiles_erase_studio
   after update of erased_at on public.profiles
   for each row execute function public.erase_studio_attempts();
 
+
+-- >>> 0054_studio_reads_via_server.sql ----------------------------
+
+-- =============================================================================
+-- Advocacy Studio: a coach reads a recording only through the server
+-- =============================================================================
+-- The Studio tells a learner: "each time a coach opens it, that is recorded."
+-- The coach pages do read through the server, which writes to
+-- `studio_access_log` first. But 0053 also let any coach (is_coach(), which
+-- includes a firm administrator) read `studio_attempts` and `studio_reviews`
+-- directly with their own sign-in, past the server and so past the log.
+--
+-- Now a person reading these tables with their own sign-in sees only their
+-- own attempts and the reviews of them. Coaches lose nothing in the app: the
+-- coach pages use the server's key and log each view.
+--
+-- This does not protect against the database's owners or administrators,
+-- who can read any table; it closes the route for people signed in to the
+-- Academy.
+
+drop policy if exists studio_attempts_read on public.studio_attempts;
+create policy studio_attempts_read on public.studio_attempts
+  for select to authenticated using (user_id = auth.uid());
+
+drop policy if exists studio_reviews_read on public.studio_reviews;
+create policy studio_reviews_read on public.studio_reviews
+  for select to authenticated using (
+    exists (select 1 from public.studio_attempts a
+             where a.id = attempt_id and a.user_id = auth.uid())
+  );
+
 -- >>> deleted accounts refused everywhere (generated) ------------------------
 -- 0045 puts a restrictive policy refusing a deleted account on every table
 -- with Row Level Security. Run again here, after every migration, so a table
@@ -8427,7 +8459,7 @@ $$;
 -- >>> schema version (generated) ---------------------------------------------
 
 create or replace function public.schema_version()
-returns text language sql immutable set search_path = public as $$ select '0053'::text $$;
+returns text language sql immutable set search_path = public as $$ select '0054'::text $$;
 
 revoke all on function public.schema_version() from public, anon, authenticated;
 grant execute on function public.schema_version() to service_role;

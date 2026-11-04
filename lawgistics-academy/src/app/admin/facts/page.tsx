@@ -8,6 +8,8 @@ import { ButtonLink, Card, Notice, Pill, SectionHeading, Stat } from '@/componen
 import { JURISDICTION_SHORT, type Jurisdiction } from '@/lib/types';
 import { pickForDay } from '@/lib/facts/service';
 import { localDateString } from '@/lib/learning/progression';
+import { FACTS } from '@/content/seed';
+import { LoadContent } from '../load-content';
 
 export const metadata: Metadata = { title: 'Daily brief' };
 
@@ -25,6 +27,9 @@ export default async function AdminFactsPage() {
     .order('id', { ascending: true });
 
   const facts = data ?? [];
+  // Facts this release carries that the database has not got yet, by slug.
+  const here = new Set(facts.map((f) => f.slug as string));
+  const missing = FACTS.filter((f) => !here.has(f.slug)).length;
   // Signed off and not past its date: the only kind learners are given, and
   // the only kind this page calls signed off, whatever the job has done.
   const current = (f: { verification_status: string; review_due_on: string | null }) =>
@@ -33,9 +38,9 @@ export default async function AdminFactsPage() {
   const unverified = facts.filter((f) => f.status === 'published' && !current(f));
 
   // Same rotation the dashboard uses. The date is resolved in the learner's own
-  // timezone, so this preview is for the default one, a learner in Perth may
-  // still be seeing yesterday's.
-  const previewTimezone = 'Australia/Melbourne';
+  // timezone, so this preview is for Kuala Lumpur; a learner elsewhere may be
+  // a day either side.
+  const previewTimezone = 'Asia/Kuala_Lumpur';
   const today = pickForDay(published, localDateString(previewTimezone));
 
   return (
@@ -54,6 +59,8 @@ export default async function AdminFactsPage() {
           New fact
         </ButtonLink>
       </section>
+
+      {missing > 0 ? <LoadContent missing={missing} noun="fact" /> : null}
 
       {lapseJob === null ? (
         <Notice tone="warn">

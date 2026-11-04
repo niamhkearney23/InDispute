@@ -10,8 +10,8 @@
 
 with checks(n, what, ok) as (
   values
-  (1, 'The database is at the version the website expects (0053)',
-     (select public.schema_version()) = '0053'),
+  (1, 'The database is at the version the website expects (0054)',
+     (select public.schema_version()) = '0054'),
 
   (2, 'No question is published without a lawyer''s sign-off on its current wording',
      not exists (
@@ -142,7 +142,7 @@ with checks(n, what, ok) as (
      and not exists (select 1 from public.daily_facts
                       where verification_status = 'human_verified' and review_due_on <= current_date)),
 
-  (18, 'Advocacy Studio recordings are private: a closed bucket, nobody writes the Studio tables from a browser, consent records are kept, and the access log cannot be changed',
+  (18, 'Advocacy Studio recordings are private: a closed bucket, nobody writes the Studio tables from a browser, consent records are kept, the access log cannot be changed, and a coach reads only through the logged server route',
      exists (select 1 from storage.buckets where id = 'studio-recordings' and not public)
      and not exists (select 1 from pg_policies where schemaname = 'storage' and tablename = 'objects'
                       and coalesce(qual, '') || coalesce(with_check, '') like '%studio-recordings%')
@@ -160,7 +160,11 @@ with checks(n, what, ok) as (
      and not has_table_privilege('service_role', 'public.studio_access_log', 'DELETE')
      and not has_table_privilege('service_role', 'public.studio_access_log', 'UPDATE')
      and exists (select 1 from pg_trigger where tgname = 'studio_consents_kept' and not tgisinternal)
-     and exists (select 1 from pg_trigger where tgname = 'profiles_erase_studio' and not tgisinternal))
+     and exists (select 1 from pg_trigger where tgname = 'profiles_erase_studio' and not tgisinternal)
+     -- 0054: no coach clause, so every coach read goes through the logged server route.
+     and not exists (select 1 from pg_policies where schemaname = 'public'
+                      and tablename in ('studio_attempts', 'studio_reviews')
+                      and coalesce(qual, '') like '%is_coach%'))
 )
 select n as "#", what as "check", case when ok then 'OK' else 'NOT OK' end as result
 from checks

@@ -1,6 +1,6 @@
 # Releasing this version: staging first, then the live site
 
-This release changes the database (migrations `0043` to `0053`) and the
+This release changes the database (migrations `0043` to `0054`) and the
 website. The database goes first, on a restored copy, then on the live
 project, then the website. Nothing in here is done for you: each step is
 yours to approve and do.
@@ -29,7 +29,7 @@ release:
 | 0052 | A sign-off that has run out goes back to the review queue, with a kept record of it | **Yes**: any question or daily fact already past its sign-off date goes back to review |
 | 0053 | The Advocacy Studio: consent, recordings in a private bucket, AI feedback, coaches' reviews and a log of every time staff open a recording | No rows change. Adds four tables and the `studio-recordings` bucket |
 
-The file ends by recording the version (`schema_version()` returns `0053`).
+The file ends by recording the version (`schema_version()` returns `0054`).
 
 ## 1. Rehearse on a restored copy (staging)
 

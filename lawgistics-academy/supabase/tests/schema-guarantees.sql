@@ -4919,9 +4919,8 @@ select pg_temp.expect(
 set local request.jwt.claims = '{"sub":"44444444-4444-4444-4444-444444444444","aal":"aal2","role":"authenticated"}';
 set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
 select pg_temp.expect(
-  exists (select 1 from public.studio_attempts where id = 'a0530000-0000-0000-0000-000000000001')
-  and not exists (select 1 from public.studio_attempts where id = 'a0530000-0000-0000-0000-000000000002'),
-  'a coach with the code typed reads an attempt the learner shared, and not one they did not');
+  not exists (select 1 from public.studio_attempts where user_id = 'eeee0053-0000-0000-0000-000000000001'),
+  'a coach, even with the code typed, reads no attempt directly: only through the server, which logs it (0054)');
 set local request.jwt.claims = '{"sub":"44444444-4444-4444-4444-444444444444","aal":"aal1","role":"authenticated"}';
 select pg_temp.expect(
   not exists (select 1 from public.studio_attempts where id = 'a0530000-0000-0000-0000-000000000001'),
@@ -4980,6 +4979,12 @@ set local request.jwt.claim.sub = 'eeee0053-0000-0000-0000-000000000002';
 select pg_temp.expect(
   not exists (select 1 from public.studio_reviews where id = 'b0530000-0000-0000-0000-000000000001'),
   'another learner does not');
+set local request.jwt.claims = '{"sub":"44444444-4444-4444-4444-444444444444","aal":"aal2","role":"authenticated"}';
+set local request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+select pg_temp.expect(
+  not exists (select 1 from public.studio_reviews where id = 'b0530000-0000-0000-0000-000000000001'),
+  'nor does a coach directly, even the one who wrote it (0054)');
+set local request.jwt.claims = '';
 reset role;
 set local request.jwt.claim.sub = '';
 

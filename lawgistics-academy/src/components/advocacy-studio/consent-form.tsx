@@ -48,8 +48,8 @@ export function StudioConsentForm({
             </li>
           ) : (
             <li>
-              AI feedback is not switched on for this academy yet. If it is switched on later, you
-              will be asked again before anything is sent to an AI company.
+              AI feedback is not switched on for this academy yet. If it is switched on later,
+              nothing is sent to an AI company until you come back here and agree to it.
             </li>
           )}
           <li>
@@ -72,9 +72,13 @@ export function StudioConsentForm({
         <Choice name="recording" defaultChecked={current?.recording ?? false}>
           Record me and keep the recording for me to watch back.
         </Choice>
-        <Choice name="aiProcessing" defaultChecked={current?.aiProcessing ?? false}>
-          Send my recordings for AI transcription and feedback, as described above.
-        </Choice>
+        {/* Only offered when there is a company to name: agreeing to send
+            recordings to nobody in particular is not an agreement. */}
+        {transcriber && aiCompany ? (
+          <Choice name="aiProcessing" defaultChecked={current?.aiProcessing ?? false}>
+            Send my recordings for AI transcription and feedback, as described above.
+          </Choice>
+        ) : null}
         <Choice name="trainerSharing" defaultChecked={current?.trainerSharing ?? false}>
           Share my recordings, their transcripts and feedback with the academy&rsquo;s coaches, so
           they can review them. I can stop sharing any one of them later.

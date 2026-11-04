@@ -441,7 +441,7 @@ export function mayRequestFeedback(status: AttemptStatus): boolean {
 export const PROCESSING_STALE_MS = 3 * 60 * 1000;
 
 /** A coach's mark for one dimension: a whole number 0 to 10, or "not_assessed". */
-export const ScoreOverridesSchema = z.record(
+export const ScoreOverridesSchema = z.partialRecord(
   z.enum(['structure', 'clarity', 'persuasiveness', 'responsiveness', 'legal_reasoning']),
   z.union([z.number().int().min(0).max(10), z.literal('not_assessed')]),
 );

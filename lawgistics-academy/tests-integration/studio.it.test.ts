@@ -6,8 +6,8 @@
  * reads or writes a recording with their own token; a file arrives only
  * through a one-time upload link the server made for exactly its path, and
  * plays only through a short-lived link the server signed. Rows: a learner
- * reads their own attempts and nobody else's, a coach reads one only when it
- * was shared and only with the code typed, and nobody writes the Studio's
+ * reads their own attempts and nobody else's, a coach reads none with their
+ * own token (only through the server, which logs it), and nobody writes the Studio's
  * tables from a browser. The access log cannot be read from a browser or
  * changed by anybody, the server included.
  */
@@ -136,19 +136,24 @@ test('a learner reads their own attempts and nobody else’s', async () => {
   assert.deepEqual(theirs.data ?? [], [], 'another learner sees none of them');
 });
 
-test('a coach reads only what was shared, and only with the code typed', async () => {
+test('a coach reads nothing directly, not even what was shared: only through the server, which logs it (0054)', async () => {
+  // The learner is told every opening by a coach is recorded. The coach
+  // pages read through the server and write the access log first; a coach's
+  // own token must not be a way round that.
   const withCode = await asToken(coachWithCode).from('studio_attempts').select('id').eq('user_id', learner.id);
   assert.equal(withCode.error, null);
-  assert.deepEqual(withCode.data!.map((r) => r.id), [sharedAttempt], 'the shared one, not the private one');
+  assert.deepEqual(withCode.data ?? [], [], 'not the shared one, and not the private one');
+  assert.equal(
+    (await service().from('studio_attempts').select('id').eq('id', sharedAttempt).eq('shared_with_trainer', true)).data?.length,
+    1,
+    'the attempt is shared, so the empty result is the policy, not the data',
+  );
 
   const passwordOnly = await asToken(coachPasswordOnly).from('studio_attempts').select('id').eq('user_id', learner.id);
-  assert.deepEqual(passwordOnly.data ?? [], [], 'a password alone shows a coach nothing');
+  assert.deepEqual(passwordOnly.data ?? [], [], 'nor with a password alone');
 
-  // Stopping sharing takes it away at once.
-  await service().from('studio_attempts').update({ shared_with_trainer: false }).eq('id', sharedAttempt);
-  const after = await asToken(coachWithCode).from('studio_attempts').select('id').eq('user_id', learner.id);
-  assert.deepEqual(after.data ?? [], []);
-  await service().from('studio_attempts').update({ shared_with_trainer: true }).eq('id', sharedAttempt);
+  const reviews = await asToken(coachWithCode).from('studio_reviews').select('id');
+  assert.deepEqual(reviews.data ?? [], [], 'nor the reviews');
 });
 
 test('nobody writes the Studio’s tables from a browser', async () => {

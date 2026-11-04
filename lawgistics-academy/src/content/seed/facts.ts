@@ -1,4 +1,5 @@
 import type { Jurisdiction } from '@/lib/types';
+import { MALAYSIAN_FACTS } from './facts-my';
 
 /**
  * The daily brief.
@@ -486,4 +487,6 @@ export const FACTS: SeedFact[] = [
     jurisdiction: 'AU_GENERAL',
     domain: 'advocacy',
   },
+  // Malaysia: drafted, unchecked, loaded awaiting a lawyer's sign-off.
+  ...MALAYSIAN_FACTS,
 ];

@@ -17,6 +17,7 @@ import {
   spokenLength,
   type RawFeedback,
   type TranscriptSegment,
+  ScoreOverridesSchema,
 } from '../src/lib/studio/rules';
 
 /**
@@ -242,4 +243,14 @@ test('the exercises are honest drafts: invented facts, no authorities, nothing u
   assert.equal(spokenLength(90), '90 seconds');
   assert.equal(spokenLength(120), '2 minutes');
   assert.equal(spokenLength(60), '1 minute');
+});
+
+test('a coach can mark some dimensions and leave the rest alone', () => {
+  // Zod 4's record with enum keys demands every key, which meant a review
+  // could never be saved unless all five were marked.
+  assert.equal(ScoreOverridesSchema.safeParse({}).success, true);
+  assert.equal(ScoreOverridesSchema.safeParse({ clarity: 7 }).success, true);
+  assert.equal(ScoreOverridesSchema.safeParse({ structure: 'not_assessed' }).success, true);
+  assert.equal(ScoreOverridesSchema.safeParse({ clarity: 11 }).success, false);
+  assert.equal(ScoreOverridesSchema.safeParse({ charm: 5 }).success, false);
 });

@@ -8,10 +8,10 @@ import { hasAccess } from '@/lib/access/service';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { asCountry } from '@/lib/types';
 import { studioExerciseFor, studioExercisesFor, viewerIsStaff } from '@/lib/content/service';
-import { getProvider } from '@/lib/ai/provider';
+import { aiCompany, getProvider } from '@/lib/ai/provider';
 import { assess, AssessmentFailed } from '@/lib/studio/assess';
 import { latestConsent, ownAttempt } from '@/lib/studio/service';
-import { RecordingTooLarge, transcribe, transcriptionAvailable } from '@/lib/studio/transcribe';
+import { RecordingTooLarge, transcribe, transcriptionAvailable, transcriptionCompany } from '@/lib/studio/transcribe';
 import {
   NOTICE_VERSION,
   PROCESSING_STALE_MS,
@@ -46,7 +46,10 @@ export async function recordStudioConsent(_prev: ConsentState, formData: FormDat
   if (!(await hasAccess(user.id))) return { error: 'Your access to the academy has ended.', ok: false };
 
   const recording = formData.get('recording') === 'on';
-  const aiProcessing = recording && formData.get('aiProcessing') === 'on';
+  // Agreement to AI feedback counts only when there is a company to send to,
+  // the one the notice named; while it is off, nobody has agreed to anything.
+  const aiOffered = Boolean(transcriptionCompany() && aiCompany());
+  const aiProcessing = aiOffered && recording && formData.get('aiProcessing') === 'on';
   const trainerSharing = recording && formData.get('trainerSharing') === 'on';
   const { error } = await createServiceClient().from('studio_consents').insert({
     user_id: user.id,
@@ -56,6 +59,21 @@ export async function recordStudioConsent(_prev: ConsentState, formData: FormDat
     trainer_sharing: trainerSharing,
   });
   if (error) return { error: 'Your choice could not be saved. Please try again.', ok: false };
+  // Saying no to sharing takes back what was shared before, not only what
+  // comes next; a coach's review already written stays with the learner.
+  if (!trainerSharing) {
+    const { error: unshareError } = await createServiceClient()
+      .from('studio_attempts')
+      .update({ shared_with_trainer: false })
+      .eq('user_id', user.id)
+      .eq('shared_with_trainer', true);
+    if (unshareError) {
+      return {
+        error: 'Your choice was saved, but your earlier recordings are still shared. Unshare each one on its page.',
+        ok: false,
+      };
+    }
+  }
   revalidatePath('/studio');
   return { error: null, ok: true };
 }
@@ -183,6 +201,13 @@ export async function requestStudioFeedback(attemptId: string): Promise<Feedback
   if (!attempt || !attempt.path) return { error: 'That recording could not be found.' };
   if (!attempt.aiProcessing) {
     return { error: 'You did not agree to AI feedback for this recording. A coach can still review it if you share it.' };
+  }
+  // The agreement on the recording was what they said then. If they have
+  // since withdrawn it, or the notice has changed and they have not agreed
+  // to the new one, nothing goes to the AI companies.
+  const consent = await latestConsent(user.id);
+  if (!consent || !consent.aiProcessing || consent.noticeVersion !== NOTICE_VERSION) {
+    return { error: 'You have not agreed to AI feedback under the current notice. Agree to it on the Studio page first.' };
   }
   const stale =
     attempt.status === 'processing' &&

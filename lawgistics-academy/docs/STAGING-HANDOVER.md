@@ -99,7 +99,7 @@ with an error: stop, and do not touch the live project.
 
 | # | What it proves | Since |
 | --- | --- | --- |
-| 1 | The database is at the version the website expects (0053) | |
+| 1 | The database is at the version the website expects (0054) | |
 | 2 | No question is published without a lawyer's sign-off on its current wording | 0044 |
 | 3 | No daily fact is published without a lawyer's sign-off | 0044 |
 | 4 | Publishing without a sign-off is refused (the three guards are in place) | 0044 |
