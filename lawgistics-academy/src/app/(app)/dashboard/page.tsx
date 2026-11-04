@@ -2,7 +2,7 @@ import Link from '@/components/app-link';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getCurrentUser, createSupabaseServerClient } from '@/lib/supabase/server';
-import { getLearnerOverview } from '@/lib/learner-overview';
+import { getLearnerOverview, getLearnerProfile } from '@/lib/learner-overview';
 import { outstandingRequired } from '@/lib/modules/service';
 import { outstandingFirmModules } from '@/lib/firm/service';
 import { beforeYouBegin } from '@/lib/onboarding/service';
@@ -37,82 +37,19 @@ export const metadata: Metadata = { title: 'Today' };
 
 export default async function DashboardPage() {
   await requireAccess();
+  // Already read by requireAccess and the layout; cached for this page view.
   const user = await getCurrentUser();
   if (!user) redirect('/login');
 
-  const overview = await getLearnerOverview(user.id);
-  if (!overview) redirect('/account-problem');
-  if (!overview.profile.onboardedAt) redirect('/onboarding');
-
-  // Somebody who has not sat the diagnostic is asked to, at the top of the
-  // page, rather than sent to it. Today used to redirect them there, which
-  // held a new learner on the diagnostic with their homework, the work board,
-  // their coach's sessions, the list of things to do before they begin and a
-  // trainee's "waiting for your supervisor" all on the other side of it. Only
-  // when there are questions to sit it with: without them it cannot be done.
-  const open = await trainingOpen(overview.profile.country);
-  const needsDiagnostic = open && !overview.profile.diagnosticCompletedAt;
-  const staff =
-    overview.profile.isAdmin || overview.profile.isCoach || overview.profile.isFirmAdmin;
-  // Somebody with a supervisor: on the trainee programme, or invited by the
-  // firm. Only they are told a supervisor will set their start date, because
-  // a learner on their own has nobody who will. Read only for the card that
-  // says it, since the invitation lookup is a query of its own.
-  const supervised =
-    !open && !staff && !overview.profile.startsOn
-      ? overview.profile.track === 'litigation_trainee' ||
-        Boolean(await acceptedInvitationFor(user.id))
-      : false;
-  const countryName = overview.profile.country === 'MY' ? 'Malaysia' : 'Australia';
-  // Trainee-only notes and videos for staff only with the code typed (0047).
-  const staffView = staff ? await viewerIsStaff(user.id) : false;
-
-  const { profile, level } = overview;
-  const supabase = await createSupabaseServerClient();
-  const [
-    fact,
-    outstanding,
-    firmOutstanding,
-    joining,
-    sessions,
-    work,
-    homeworkRows,
-    matters,
-  ] =
-    await Promise.all([
-      getFactOfTheDay(profile.timezone, profile.country),
-      outstandingRequired(user.id, profile.country),
-      outstandingFirmModules(user.id, profile.country),
-      beforeYouBegin(user.id, profile.country),
-      sessionsForLearner(profile.country, seesTraineeVideos(profile, staffView)),
-      workBoardFor(user.id),
-      profile.startsOn
-        ? supabase.from('homework_declarations').select('day').eq('user_id', user.id)
-        : Promise.resolve({ data: null }),
-      mattersForLearner(user.id),
-    ]);
-
-  const homework = homeworkDay(
-      profile.startsOn,
-      profile.endsOn,
-      profile.timezone,
-      new Date(),
-      (await scheduleForPerson(user.id)).holidays,
-    );
-  // A confirmed trainee's working morning is four rounds of ten (rounds.ts),
-  // in place of the daily goal. The calendar of every morning is on Programme.
+  // The profile alone decides where this person goes and what else to ask
+  // for, so it comes first; the scores and streaks (the overview) are asked
+  // for with everything else.
+  const profile = await getLearnerProfile(user.id);
+  if (!profile) redirect('/account-problem');
+  if (!profile.onboardedAt) redirect('/onboarding');
+  const staff = profile.isAdmin || profile.isCoach || profile.isFirmAdmin;
+  const countryName = profile.country === 'MY' ? 'Malaysia' : 'Australia';
   const isTrainee = profile.track === 'litigation_trainee' && profile.traineeConfirmed;
-  const rounds = isTrainee ? await roundsToday(user.id).catch(() => null) : null;
-  const openNow = rounds ? openRound(rounds.rounds) : null;
-  const declaredDays = new Set((homeworkRows.data ?? []).map((r) => r.day as number));
-  // The homework lines: today's task, or what the day is when it has none,
-  // and earlier days not ticked off (homeworkLines, tested on its own).
-  const { note: homeworkNote, missed: missedHomework } = homeworkLines({
-    startsOn: profile.startsOn,
-    day: homework,
-    declared: declaredDays,
-    longDate,
-  });
 
   /* Today in the learner's own timezone, not the server's. A coach in Kuala
      Lumpur dating a session for Tuesday means Tuesday there, and a session
@@ -123,8 +60,99 @@ export default async function DashboardPage() {
     month: '2-digit',
     day: '2-digit',
   }).format(new Date());
+
+  // Everything below depends only on the profile, so it is asked for at
+  // once rather than one thing after another: each ask is a trip to the
+  // database, and in a row they were most of the wait for this page.
+  // Trainee-only notes and videos for staff only with the code typed (0047).
+  const sees = (staff ? viewerIsStaff(user.id) : Promise.resolve(false)).then((staffView) =>
+    seesTraineeVideos(profile, staffView),
+  );
+  const sessionsLoad = sees.then((s) => sessionsForLearner(profile.country, s));
+  const supabase = await createSupabaseServerClient();
+  const [
+    overview,
+    open,
+    invitation,
+    fact,
+    outstanding,
+    firmOutstanding,
+    joining,
+    sessions,
+    leadMaterials,
+    work,
+    homeworkRows,
+    matters,
+    schedule,
+    rounds,
+    note,
+  ] = await Promise.all([
+    getLearnerOverview(user.id),
+    trainingOpen(profile.country),
+    // Asked only of somebody it could matter for (see `supervised`).
+    !staff && !profile.startsOn && profile.track !== 'litigation_trainee'
+      ? acceptedInvitationFor(user.id)
+      : Promise.resolve(null),
+    getFactOfTheDay(profile.timezone, profile.country),
+    outstandingRequired(user.id, profile.country),
+    outstandingFirmModules(user.id, profile.country),
+    beforeYouBegin(user.id, profile.country),
+    sessionsLoad,
+    sessionsLoad.then((all) => {
+      const first = leadSession(all, today);
+      return first ? postsForSession(first.id) : [];
+    }),
+    workBoardFor(user.id),
+    profile.startsOn
+      ? supabase.from('homework_declarations').select('day').eq('user_id', user.id)
+      : Promise.resolve({ data: null }),
+    mattersForLearner(user.id),
+    scheduleForPerson(user.id),
+    // A confirmed trainee's working morning is four rounds of ten (rounds.ts),
+    // in place of the daily goal. The calendar of every morning is on Programme.
+    isTrainee ? roundsToday(user.id).catch(() => null) : Promise.resolve(null),
+    // The coach first, then the homework they set (0050).
+    sees
+      .then((s) => morningNoteFor({ country: profile.country, seesTraineeNotes: s }, today))
+      .catch(() => null),
+  ]);
+
+  if (!overview) redirect('/account-problem');
+  const { level } = overview;
+
+  // Somebody who has not sat the diagnostic is asked to, at the top of the
+  // page, rather than sent to it. Today used to redirect them there, which
+  // held a new learner on the diagnostic with their homework, the work board,
+  // their coach's sessions, the list of things to do before they begin and a
+  // trainee's "waiting for your supervisor" all on the other side of it. Only
+  // when there are questions to sit it with: without them it cannot be done.
+  const needsDiagnostic = open && !profile.diagnosticCompletedAt;
+  // Somebody with a supervisor: on the trainee programme, or invited by the
+  // firm. Only they are told a supervisor will set their start date, because
+  // a learner on their own has nobody who will.
+  const supervised =
+    !open && !staff && !profile.startsOn
+      ? profile.track === 'litigation_trainee' || Boolean(invitation)
+      : false;
+
+  const homework = homeworkDay(
+    profile.startsOn,
+    profile.endsOn,
+    profile.timezone,
+    new Date(),
+    schedule.holidays,
+  );
+  const openNow = rounds ? openRound(rounds.rounds) : null;
+  const declaredDays = new Set((homeworkRows.data ?? []).map((r) => r.day as number));
+  // The homework lines: today's task, or what the day is when it has none,
+  // and earlier days not ticked off (homeworkLines, tested on its own).
+  const { note: homeworkNote, missed: missedHomework } = homeworkLines({
+    startsOn: profile.startsOn,
+    day: homework,
+    declared: declaredDays,
+    longDate,
+  });
   const lead = leadSession(sessions, today);
-  const leadMaterials = lead ? await postsForSession(lead.id) : [];
 
   // Work this person took on, for the checklist.
   const workTasks = work.filter((w) => w.post.kind === 'task');
@@ -137,12 +165,6 @@ export default async function DashboardPage() {
   const questionCount =
     QUESTIONS_PER_MINUTE_GOAL[profile.dailyGoalMinutes] ?? QUESTIONS_PER_MINUTE_GOAL[10];
 
-  // The coach first, then the homework they set (0050): a note for this
-  // morning, and one checklist of the day built from what is already here.
-  const note = await morningNoteFor(
-    { country: profile.country, seesTraineeNotes: seesTraineeVideos(profile, staffView) },
-    today,
-  ).catch(() => null);
   const todayTask = homework.state === 'day' && profile.startsOn ? homeworkForDay(homework.day) : undefined;
   const todayReading = homework.state === 'day' && profile.startsOn ? readingForDay(homework.day) : undefined;
   // What the firm needs first: the joining list, or the firm's own reading.

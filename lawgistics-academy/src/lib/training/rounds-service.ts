@@ -1,4 +1,5 @@
 import 'server-only';
+import { cache } from 'react';
 import { createServiceClient } from '@/lib/supabase/service';
 import { localMidnight, shiftLocalDate } from '@/lib/local-day';
 import { todayIn } from '@/lib/onboarding/rules';
@@ -169,7 +170,11 @@ function nextMorningAfter(
  *
  * Service client, so every caller passes the signed-in user's own id.
  */
-export async function roundsToday(userId: string, now: Date = new Date()): Promise<RoundsToday | null> {
+// Cached for one page view: the layout's clock and Today both ask.
+export const roundsToday = cache(async function roundsToday(
+  userId: string,
+  now: Date = new Date(),
+): Promise<RoundsToday | null> {
   const db = createServiceClient();
   const { data: p } = await db
     .from('profiles')
@@ -199,7 +204,7 @@ export async function roundsToday(userId: string, now: Date = new Date()): Promi
     rounds: roundsFor(schedule, date, sessions, now, notBefore),
     nextMorning: nextMorningAfter(date, startsOn, endsOn, schedule.holidays),
   };
-}
+});
 
 export interface RoundDay {
   date: string;

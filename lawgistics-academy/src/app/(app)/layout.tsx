@@ -53,26 +53,30 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // A confirmed trainee on a working morning gets the corner clock: how long
   // the open round has left, or when the next one opens. Nothing for anyone
   // else, and nothing if the rounds cannot be read.
-  let clock: { at: string; label: string } | null = null;
-  if (profile?.track === 'litigation_trainee' && profile.traineeConfirmed) {
-    const today = await roundsToday(user.id).catch(() => null);
-    if (today) {
-      const open = openRound(today.rounds);
-      const next = nextOpening(today.rounds);
-      clock = open
-        ? { at: open.closesAt.toISOString(), label: `Round ${open.number} closes` }
-        : next
-          ? { at: next.opensAt.toISOString(), label: `Round ${next.number} opens` }
-          : null;
-    }
-  }
-
   // The menu offers the court map only to somebody who may open it: until a
   // lawyer signs off their country's map, a learner has no Courts link to
   // follow to a page with nothing on it. Staff always have it.
-  const courtsShown = profile
-    ? Boolean(await courtMapFor(profile.country, await viewerIsStaff(user.id)).catch(() => null))
-    : false;
+  // Both are asked at once: each is a trip to the database.
+  const [rounds, courtsShown] = await Promise.all([
+    profile?.track === 'litigation_trainee' && profile.traineeConfirmed
+      ? roundsToday(user.id).catch(() => null)
+      : Promise.resolve(null),
+    profile
+      ? (async () => Boolean(await courtMapFor(profile.country, await viewerIsStaff(user.id))))().catch(
+          () => false,
+        )
+      : Promise.resolve(false),
+  ]);
+  let clock: { at: string; label: string } | null = null;
+  if (rounds) {
+    const open = openRound(rounds.rounds);
+    const next = nextOpening(rounds.rounds);
+    clock = open
+      ? { at: open.closesAt.toISOString(), label: `Round ${open.number} closes` }
+      : next
+        ? { at: next.opensAt.toISOString(), label: `Round ${next.number} opens` }
+        : null;
+  }
 
   return (
     <div className="theme-paper flex min-h-dvh flex-col">

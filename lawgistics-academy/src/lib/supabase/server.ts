@@ -69,6 +69,14 @@ const accountErased = cache(async (): Promise<boolean> => {
  */
 export async function getCurrentUser() {
   if (!signedInUseOpen(siteAccess())) return null;
+  return signedInUser();
+}
+
+// Once per page view (React's cache lasts one render; a server action runs
+// outside it and asks afresh). The layout, the page and the helpers they call
+// each asked, and each ask was a trip to Supabase's sign-in service. The
+// site access switch above is asked every time, before this.
+const signedInUser = cache(async () => {
   if (!publicEnv.supabaseUrl || !publicEnv.supabaseAnonKey) return null;
 
   const supabase = await createSupabaseServerClient();
@@ -77,4 +85,4 @@ export async function getCurrentUser() {
   } = await supabase.auth.getUser();
   if (!user || signInRefused(user)) return null;
   return (await accountErased()) ? null : user;
-}
+});

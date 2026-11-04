@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { cache } from 'react';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/service';
 import { functionMissing } from '@/lib/supabase/errors';
@@ -89,7 +90,15 @@ export interface LearnerOverview {
 }
 
 
-export async function getLearnerProfile(userId: string): Promise<LearnerProfile | null> {
+/**
+ * Read once per page view: the layout and the page both ask, and each ask
+ * was a trip to the database. React's cache lasts for one render only, and a
+ * server action runs outside it, so a change saved by an action is read
+ * fresh by the page drawn after it.
+ */
+export const getLearnerProfile = cache(async function getLearnerProfile(
+  userId: string,
+): Promise<LearnerProfile | null> {
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
   if (!data) return null;
@@ -118,7 +127,7 @@ export async function getLearnerProfile(userId: string): Promise<LearnerProfile 
     traineeConfirmed: Boolean(data.trainee_approved_at),
     leaderboardOptOut: Boolean(data.leaderboard_opt_out),
   };
-}
+});
 
 export async function getLearnerOverview(userId: string): Promise<LearnerOverview | null> {
   const supabase = await createSupabaseServerClient();
@@ -138,6 +147,10 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
   const today = localDateString(profile.timezone);
   const dayStart = localMidnight(profile.timezone, today).toISOString();
   const yesterdayStart = localMidnight(profile.timezone, shiftLocalDate(today, -1)).toISOString();
+
+  // Started now, read further down: it needs nothing from the batch below,
+  // and waiting for the batch first was one more trip in a row.
+  const areaLoad = Promise.resolve(createServiceClient().rpc('area_scores', { uid: userId }));
 
   const [
     xpAll,
@@ -258,9 +271,7 @@ export async function getLearnerOverview(userId: string): Promise<LearnerOvervie
   // for a database that has not had 0036 yet. Any other failure (a timeout,
   // a missing key) is not a reason to show the over-count, so the scores are
   // marked unavailable instead.
-  const { data: byArea, error: areaError } = await createServiceClient().rpc('area_scores', {
-    uid: userId,
-  });
+  const { data: byArea, error: areaError } = await areaLoad;
   let areaScoresUnavailable = false;
   if (!areaError && Array.isArray(byArea)) {
     for (const row of byArea as Array<{ domain_id: string; answered: number; right_answers: number }>) {
