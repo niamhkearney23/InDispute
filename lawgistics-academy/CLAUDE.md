@@ -778,7 +778,12 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   they read *Pleadings Without Tears*, and everyone reads it). A reading
   list, not the book: `src/content/seed/reading.ts` gives chapters and pages
   (eighth edition, Oxford University Press) for each working day 1 to 20,
-  straight through with no gap, shown under each day's homework, as a line
+  by the week's subject (`READING_WEEKS`, the owner: "this week we are just
+  seeing what pleadings are, next week drafting pleadings and drafting
+  affidavits"), so week 1 is the Introduction and Chapter 1 and the start
+  of the claim, week 2 the claim, the defence and Chapter 10 on witness
+  statements and affidavits, and the rest after. Every page is read exactly
+  once (a test checks), shown under each day's homework, as a line
   on Today (listed, never ticked or counted, since nothing records it) and
   on `/reading`, linked from Learn, so somebody without a start date sees
   it too. **No copy of the book is stored, linked or shown**: it is in
