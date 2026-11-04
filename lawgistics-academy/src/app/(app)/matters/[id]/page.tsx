@@ -185,10 +185,12 @@ function HandedIn({
       </section>
 
       {attempt.feedback || attempt.verdict ? (
+        <div id="feedback" className="scroll-mt-24">
         <Notice tone={attempt.verdict === 'good' ? 'good' : 'warn'}>
           <span className="block font-medium">From the lawyer who marked it</span>
           <span className="mt-1 block whitespace-pre-line">{attempt.feedback || 'No note.'}</span>
         </Notice>
+        </div>
       ) : null}
 
       <section className="brief-open rounded-2xl border-2 border-accent/30 bg-accent-wash p-5 sm:p-7">

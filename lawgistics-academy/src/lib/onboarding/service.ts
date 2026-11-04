@@ -296,12 +296,18 @@ export interface RosterEntry {
  * what they were supposed to. People with no start date sort last: they are not
  * joiners, they are everybody else who already has an account.
  */
-export async function onboardingRoster(): Promise<RosterEntry[]> {
+export async function onboardingRoster(
+  options: { withStartDate?: boolean } = {},
+): Promise<RosterEntry[]> {
   const db = createServiceClient();
-  const { data: profiles } = await db
+  let query = db
     .from('profiles')
     .select('id, display_name, email, starts_on, country, track')
     .order('starts_on', { nullsFirst: false });
+  // Admin Today asks about joiners only: reading every account's checklist
+  // to find the few with a start date is one checklist per account.
+  if (options.withStartDate) query = query.not('starts_on', 'is', null);
+  const { data: profiles } = await query;
 
   const people = profiles ?? [];
 

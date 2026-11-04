@@ -87,14 +87,17 @@ export function ButtonLink({
 export function Card({
   children,
   className,
+  id,
   as: Tag = 'div',
 }: {
   children: ReactNode;
   className?: string;
+  id?: string;
   as?: 'div' | 'section' | 'article' | 'li';
 }) {
   return (
     <Tag
+      id={id}
       className={cn(
         'panel rounded-lg border border-rule bg-paper-raised p-5 shadow-card sm:p-6',
         className,

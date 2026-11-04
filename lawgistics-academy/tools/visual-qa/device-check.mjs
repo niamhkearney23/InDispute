@@ -76,7 +76,13 @@ const PAGES = [
   // fixture has, so this page would redirect and the check would quietly
   // report on the dashboard instead.
   { name: 'onboarding', path: '/onboarding', auth: true, as: 'new@lawgistics.test' },
-  { name: 'dashboard', path: '/dashboard', auth: true },
+  {
+    name: 'dashboard',
+    path: '/dashboard',
+    auth: true,
+    signed: { present: ['Your next task'] },
+    unsigned: { present: ['Your next task'] },
+  },
   { name: 'skills', path: '/skills', auth: true },
   // The court map, three ways (0046). The stand-in signs off the Malaysian
   // map and not the Australian one (signed-fixtures.ts), so: an Australian
@@ -247,6 +253,24 @@ const PAGES = [
   { name: 'summary', path: `/train/${SESSION_ID}/summary`, auth: true },
   { name: 'summary-module', path: '/train/99999999-9999-9999-9999-999999999998/summary', auth: true },
   { name: 'admin', path: '/admin', auth: true },
+  // Admin Today, the first screen for staff: an administrator gets
+  // operations and content; a coach lands on marking and never sees
+  // operations, which only an administrator can act on.
+  {
+    name: 'admin-today',
+    path: '/admin/today',
+    auth: true,
+    signed: { present: ['Content awaiting review', 'People awaiting confirmation', 'Work awaiting feedback'] },
+    unsigned: { present: ['Content awaiting review', 'Work awaiting feedback'] },
+  },
+  {
+    name: 'admin-today-coach',
+    path: '/admin/today',
+    auth: true,
+    as: 'coach2step@lawgistics.test',
+    signed: { present: ['Work awaiting feedback', 'Trainees needing attention'], absent: ['Operational problems', 'New question'] },
+    unsigned: { present: ['Work awaiting feedback'], absent: ['Operational problems', 'New question'] },
+  },
   { name: 'admin-facts', path: '/admin/facts', auth: true },
   { name: 'admin-review', path: '/admin/review', auth: true },
   { name: 'admin-sessions', path: '/admin/sessions', auth: true },

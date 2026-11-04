@@ -28,6 +28,8 @@ import { requireAccess } from '@/lib/access/service';
 import { scheduleForPerson } from '@/lib/training/cohorts';
 import { morningNoteFor } from '@/lib/notes/service';
 import { MorningNoteCard } from '@/components/morning-note';
+import { NextTaskCard } from '@/components/next-task';
+import { nextTask, recentlyMarkedGood } from '@/lib/homework/next-task';
 import { homeworkLines, todaysHomework } from '@/lib/homework/today-list';
 import { TodayList } from '@/components/today-list';
 import { PROGRAMME_BOOK, readingForDay } from '@/content/seed/reading';
@@ -237,6 +239,45 @@ export default async function DashboardPage() {
   });
 
 
+  // One action above the checklist: what to do next, when, and where the
+  // feedback is. Work sent back comes before anything new (next-task.ts).
+  const myWork = workTasks
+    .filter((w) => w.claimed)
+    .map((w) => ({
+      id: w.post.id,
+      title: w.post.title,
+      dueOn: w.post.dueOn,
+      state: w.state,
+      replyWaiting: w.replyWaiting,
+      markedAt: w.latest?.markedAt ?? null,
+    }));
+  const roundNow = rounds?.rounds.find((r) => r.state === 'open') ?? null;
+  const roundNext = rounds?.rounds.find((r) => r.state === 'upcoming') ?? null;
+  const returned = matters.find((m) => m.latest?.stage === 'again') ?? null;
+  const firstTask = nextTask({
+    today,
+    beforeYouBegin:
+      firstThing && (hasChecklist ? joining.outstanding.length > 0 : firmOutstanding.length > 0)
+        ? firstThing
+        : null,
+    needsDiagnostic,
+    openRound:
+      open && roundNow
+        ? { number: roundNow.number, closesLabel: roundNow.closesLabel, left: Math.max(0, ROUND_SIZE - roundNow.answered) }
+        : null,
+    nextRound: open && roundNext ? { number: roundNext.number, opensLabel: roundNext.opensLabel } : null,
+    openMatter: openMatter ? { id: openMatter.matter.id, title: openMatter.matter.title } : null,
+    returnedMatter: returned ? { id: returned.matter.id, title: returned.matter.title } : null,
+    work: myWork,
+    homework:
+      todayTask && homework.state === 'day'
+        ? { day: homework.day, title: todayTask.title, done: declaredDays.has(homework.day) }
+        : null,
+    goal: rounds ? null : { questions: questionCount, answered: overview.answeredToday },
+    trainingOpen: open && !needsDiagnostic,
+  });
+  const markedGood = recentlyMarkedGood(myWork, new Date());
+
   const trainingLine = setForToday.find((i) => i.key === 'training');
   const startLabel = (short: string) =>
     openNow
@@ -265,6 +306,8 @@ export default async function DashboardPage() {
       </header>
 
       {note ? <MorningNoteCard note={note} timezone={profile.timezone} /> : null}
+
+      <NextTaskCard task={firstTask} markedGood={markedGood} />
 
       {profile.track === 'litigation_trainee' && !profile.traineeConfirmed ? (
         <Notice>

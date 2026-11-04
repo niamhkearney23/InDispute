@@ -5,6 +5,7 @@ import { AdminNav, type AdminNavGroup, type AdminNavItem } from '@/components/ad
 import { SchemaBehind } from '@/components/schema-behind';
 import { RegionCheck } from '@/components/region-check';
 import { ErasureAlert } from '@/components/erasure-alert';
+import { HiddenOn } from '@/components/hidden-on';
 
 /** Auth-gated and per-request. Never prerender anything under /admin. */
 export const dynamic = 'force-dynamic';
@@ -24,6 +25,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // seventeen; a group with nothing in it for this person is left out.
   const groups: AdminNavGroup[] = (
     [
+      {
+        // The first screen: what needs attention today, for every role.
+        label: 'Today',
+        items: [{ href: '/admin/today', label: 'Today', shown: true }],
+      },
       {
         label: 'People',
         items: [
@@ -79,9 +85,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <header className="border-b border-rule bg-paper-sunk">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-5 py-3.5 sm:px-8">
           <div className="flex items-baseline gap-3">
-            {/* Home is the first thing this person can actually open. Pointing a
-                coach at /admin sends them to a redirect from the masthead. */}
-            <Link href={groups[0].items[0].href} className="-mx-1 rounded-[5px] px-1 py-2">
+            {/* Home is Admin Today, which every staff role can open. */}
+            <Link href="/admin/today" className="-mx-1 rounded-[5px] px-1 py-2">
               <Wordmark compact />
             </Link>
             <span className="eyebrow">{role}</span>
@@ -91,12 +96,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </header>
 
       <main className="mx-auto w-full max-w-5xl flex-1 px-5 py-8 sm:px-8">
-        {/* Only an administrator can run UPDATE.sql, so only they are told. */}
-        {isAdmin ? <SchemaBehind /> : null}
-        {isAdmin ? <RegionCheck /> : null}
-        {/* Unfinished deletions and a nightly check that is not running (0049).
-            Deletions are an administrator's, so only they are told. */}
-        {isAdmin ? <ErasureAlert /> : null}
+        {/* Admin Today shows these as its own Operations section. */}
+        <HiddenOn path="/admin/today">
+          {/* Only an administrator can run UPDATE.sql, so only they are told. */}
+          {isAdmin ? <SchemaBehind /> : null}
+          {isAdmin ? <RegionCheck /> : null}
+          {/* Unfinished deletions and a nightly check that is not running (0049).
+              Deletions are an administrator's, so only they are told. */}
+          {isAdmin ? <ErasureAlert /> : null}
+        </HiddenOn>
         {children}
       </main>
     </div>

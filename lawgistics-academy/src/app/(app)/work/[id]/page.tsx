@@ -228,7 +228,7 @@ export default async function WorkPostPage({ params }: { params: Promise<{ id: s
       ) : null}
 
       {submissions.length > 0 ? (
-        <section>
+        <section id="feedback" className="scroll-mt-24">
           <p className="eyebrow mb-3">What you handed in</p>
           <div className="space-y-3">
             {submissions.map((s, i) => (
@@ -280,7 +280,7 @@ export default async function WorkPostPage({ params }: { params: Promise<{ id: s
         {post.published ? <CommentForm postId={post.id} /> : null}
       </Card>
 
-      <Card>
+      <Card className="scroll-mt-24" id="messages">
         <p className="eyebrow mb-1">Message your coach privately</p>
         <p className="mb-3 text-sm text-slate">
           Not sure what is wanted, or whether to take it? Ask here. Only you and the coaches see

@@ -116,7 +116,12 @@ export async function requireAdmin(): Promise<{ userId: string }> {
   if (!user) redirect('/login?next=/admin');
 
   const profile = await getLearnerProfile(user.id);
-  if (!profile?.isAdmin) redirect('/dashboard');
+  // Other staff opening an administrator's page go to their own first
+  // screen, not out to the learner side.
+  if (!profile?.isAdmin) {
+    if (profile?.isCoach || profile?.isFirmAdmin) redirect('/admin/today');
+    redirect('/dashboard');
+  }
   await requireStaffTwoStep(user, '/admin');
 
   return { userId: user.id };
@@ -156,7 +161,7 @@ export async function requireCoach(): Promise<{
 
   const profile = await getLearnerProfile(user.id);
   if (!profile?.isAdmin && !profile?.isCoach && !profile?.isFirmAdmin) redirect('/dashboard');
-  await requireStaffTwoStep(user, '/admin/work');
+  await requireStaffTwoStep(user, '/admin/today');
 
   return {
     userId: user.id,
@@ -186,7 +191,7 @@ export async function requireReviewer(): Promise<{ userId: string; isAdmin: bool
   if (staffAreaClosed()) redirect(MAINTENANCE_PATH);
   // requireCoach has already asked for two-step sign-in.
   const staff = await requireCoach();
-  if (!staff.isReviewer) redirect('/admin/trainees');
+  if (!staff.isReviewer) redirect('/admin/today');
   return { userId: staff.userId, isAdmin: staff.isAdmin };
 }
 
@@ -212,7 +217,7 @@ export async function requireFirmAdmin(): Promise<{ userId: string; isAdmin: boo
 
   const profile = await getLearnerProfile(user.id);
   if (!profile?.isAdmin && !profile?.isFirmAdmin) redirect('/dashboard');
-  await requireStaffTwoStep(user, '/admin/work');
+  await requireStaffTwoStep(user, '/admin/today');
 
   return { userId: user.id, isAdmin: Boolean(profile?.isAdmin) };
 }

@@ -1,4 +1,5 @@
 import 'server-only';
+import { cache } from 'react';
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/service';
@@ -466,7 +467,9 @@ export interface WorkPostSummary {
 }
 
 /** Every post, drafts included, with how much sits under each. */
-export async function allWorkPosts(): Promise<WorkPostSummary[]> {
+// Read once per page view: Admin Today asks for it directly and through the
+// intake overview.
+export const allWorkPosts = cache(async function allWorkPosts(): Promise<WorkPostSummary[]> {
   const db = createServiceClient();
 
   const [posts, claims, submissions, messages] = await Promise.all([
@@ -523,7 +526,7 @@ export async function allWorkPosts(): Promise<WorkPostSummary[]> {
     waiting: waiting.get(post.id) ?? 0,
     unanswered: unanswered.get(post.id) ?? 0,
   }));
-}
+});
 
 export interface NamedClaim {
   userId: string;

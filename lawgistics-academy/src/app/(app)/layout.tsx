@@ -123,16 +123,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
                 Courts
               </NavLink>
             ) : null}
-            {profile?.isAdmin ? (
-              <NavLink href="/admin" className="inline-flex hover:bg-paper-sunk">
-                Admin
-              </NavLink>
-            ) : profile?.isCoach || profile?.isFirmAdmin ? (
-              // A coach's way in. Without it the work to mark was reachable only
-              // by typing the address. The admin index is administrators' only,
-              // so a coach lands on the work board, which is most of their week.
-              <NavLink href="/admin/work" className="inline-flex hover:bg-paper-sunk">
-                Marking
+            {profile?.isAdmin || profile?.isCoach || profile?.isFirmAdmin ? (
+              // Staff land on Admin Today, which leads with what their role
+              // needs: marking for a coach, people for a firm administrator.
+              <NavLink href="/admin/today" className="inline-flex hover:bg-paper-sunk">
+                {profile.isAdmin || profile.isFirmAdmin ? 'Admin' : 'Marking'}
               </NavLink>
             ) : null}
             {/* An icon-sized link rather than a fifth word: the nav is already

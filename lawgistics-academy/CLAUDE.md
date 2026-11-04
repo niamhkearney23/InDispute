@@ -806,6 +806,43 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   and sign-offs stay, staff still review them, and anybody already on
   Australia keeps it. The marketing site (`../lawgistics-site`) is a
   separate deployment and was not changed. Tests: `tests/countries.test.ts`.
+- **Admin Today** (`/admin/today`, the owner, November 2026: "an Admin
+  Today page that tells you and Mathew what needs attention ... making
+  daily supervision easier"). The first screen of Admin for every staff
+  role: the masthead, the Today menu group, the app header's Admin or
+  Marking link, the two-step return path, and a coach or firm administrator
+  opening an administrator's page all land here. Six sections, each its own
+  Suspense boundary reading its own data (`src/lib/admin/today-service.ts`),
+  each saying "could not be read" on a failed read, never "nothing waiting":
+  **Work awaiting feedback** (each unmarked hand-in, thread whose last word
+  is the intern's, handed-in matter and unreviewed Studio share, oldest
+  first, with who and how long; listing a Studio share never touches the
+  access log), **Trainees needing attention** (the firm's supervised people:
+  rounds missed this week, work past its due date not handed in or sent
+  back, homework days not ticked, questions wrong twice in a fortnight,
+  each with the reason; thresholds in `ATTENTION`), **Today's teaching**
+  (the morning note, today's video and due work from the intake plan, the
+  next day's video, intake setup gaps), **People awaiting confirmation**
+  (trainees, code requests, joiners starting within a fortnight with items
+  outstanding or steps waiting on the firm), **Content awaiting review**
+  (live without a sign-off and lapsed first, then what holds up teaching:
+  no published Malaysian questions, no signed Studio exercise, the court
+  map; then ready to publish for an administrator, then the queue; there
+  is no stored link from a programme day to content), and **Operational
+  problems** (database behind, region, deletions), an administrator's only,
+  at the top when there is one; the layout hides its own banners on this
+  page (`HiddenOn`). Order by role is `sectionsFor` (`src/lib/admin/today.ts`,
+  pure, tested): coach work, trainees, teaching; firm administrator people,
+  teaching; administrator alone content, operations. A firm administrator's
+  marking is work and replies only. Nothing on the page writes.
+- **Your next task** (Today, under the coach's note): one action, what to
+  do, when it is due and where the feedback is (`nextTask`,
+  `src/lib/homework/next-task.ts`, pure, tested). Order: the firm's joining
+  list, an open round, a matter with its clock running, work sent back
+  (to `/work/<id>#feedback`, before anything new), a matter sent back, a
+  coach's reply, the diagnostic, work to hand in (overdue first), today's
+  homework, the daily goal, the next round. Work marked Good in the last
+  three days is a line under it, pointing at the feedback and Progress.
 - **Server region per firm.** `vercel.json` pins no region; each firm's Vercel
   project sets its Function Region to match its database (sin1 or syd1) and
   names it in `EXPECTED_FUNCTION_REGION`; Admin warns when they differ
