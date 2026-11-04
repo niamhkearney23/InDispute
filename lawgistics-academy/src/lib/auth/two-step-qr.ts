@@ -10,8 +10,21 @@
  * the page offers the typed key instead.
  */
 export function qrImageSource(raw: string): string | null {
-  const svg = raw.replace(/^(?:data:image\/svg\+xml;utf-8,)+/i, '').trim();
+  // Any data-address label in front (utf-8, utf8, charset=..., repeated).
+  let svg = raw.replace(/^(?:data:image\/svg\+xml(?:;[a-z0-9=-]+)*,)+/i, '').trim();
   if (/^data:image\/(?:png|svg\+xml);base64,[a-z0-9+/=]+$/i.test(svg)) return svg;
-  if (!/^(?:<\?xml[^>]*>\s*)?<svg[\s>]/i.test(svg)) return null;
+  // Some servers send the drawing percent-encoded.
+  if (/^%3c/i.test(svg)) {
+    try {
+      svg = decodeURIComponent(svg).trim();
+    } catch {
+      return null;
+    }
+  }
+  // An XML declaration, a doctype or a comment may come before the drawing;
+  // what matters is that it is one SVG drawing. Shown in an <img>, an SVG
+  // cannot run anything, so nothing else needs checking.
+  const start = svg.search(/<svg[\s>]/i);
+  if (start < 0 || /<script/i.test(svg) || !/<\/svg>\s*$/i.test(svg)) return null;
   return `data:image/svg+xml;base64,${Buffer.from(svg, 'utf8').toString('base64')}`;
 }

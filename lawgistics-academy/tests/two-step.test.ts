@@ -239,6 +239,25 @@ test('the QR picture is sent as base64, so a colour in it cannot cut it short', 
   assert.equal(qrImageSource('<script>alert(1)</script>'), null);
 });
 
+test('the QR picture is drawn whatever label or header the server puts on it', () => {
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg"><rect fill="#000000"/></svg>';
+  const prolog = '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "x.dtd">\n';
+  for (const raw of [
+    `data:image/svg+xml;utf-8,${prolog}${svg}`,
+    `data:image/svg+xml;utf8,${svg}`,
+    `data:image/svg+xml;charset=utf-8,${svg}`,
+    `data:image/svg+xml;utf-8,data:image/svg+xml;utf-8,${svg}`,
+    `data:image/svg+xml;utf-8,${encodeURIComponent(svg)}`,
+    `<!-- drawn by a library -->\n${svg}\n`,
+  ]) {
+    const out = qrImageSource(raw);
+    assert.ok(out?.startsWith('data:image/svg+xml;base64,'), raw.slice(0, 40));
+    assert.ok(Buffer.from(out!.split(',')[1], 'base64').toString('utf8').includes('<rect fill="#000000"/>'));
+  }
+  assert.equal(qrImageSource('data:image/svg+xml;utf-8,not a picture'), null);
+  assert.equal(qrImageSource(`<svg><script>alert(1)</script></svg>`), null, 'never a drawing with a script');
+});
+
 /* -------------------------------------------------------------------------- */
 /* The guard: every function asks                                             */
 /* -------------------------------------------------------------------------- */
