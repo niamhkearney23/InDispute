@@ -39,7 +39,7 @@ test('every task says what, and where the feedback is', () => {
     const t = nextTask(input);
     assert.ok(t, JSON.stringify(input));
     assert.ok(t.title.length > 5 && t.feedback.length > 10 && t.href.length > 0, t.key);
-    assert.doesNotMatch(`${t.title} ${t.detail} ${t.feedback}`, /—/, 'no long dash');
+    assert.doesNotMatch(`${t.title} ${t.detail} ${t.feedback}`, /\u2014/, 'no long dash');
   }
 });
 

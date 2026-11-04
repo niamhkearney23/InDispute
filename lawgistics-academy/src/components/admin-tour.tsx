@@ -11,14 +11,14 @@ export function AdminTour({ userId, allowedPaths }: { userId: string; allowedPat
   const [index, setIndex] = useState(0);
   const storageKey = 'academy:admin-tour:v1:' + userId;
   const steps: Step[] = [
-    { title: 'Start with just three things', text: 'Check your people, set their work, then give feedback. This quick tour shows you where to start. You can explore the other menus when you need them.' },
+    { title: 'Start with just three things', text: 'Check your people, set their work, then give feedback. Today, the first screen, lists what needs you each morning, most pressing first. This quick tour shows where each thing lives.', href: '/admin/today', action: 'Open Today' },
     { title: '1. Check who needs your help', text: 'People > Trainees shows progress and topics people find difficult. Joining is where you review their preparation before confirming they are ready.', href: '/admin/trainees', action: 'Open Trainees' },
-    { title: '2. Set the work for today', text: 'Teaching > Morning notes puts your instructions on the learner\'s Today page. Sessions holds your teaching videos. The Work board is where you post a task or reading.', href: '/admin/notes', action: 'Open Morning notes' },
+    { title: '2. Set the work for today', text: 'Teaching > Morning notes puts your instructions on the learner’s Today page. Sessions holds your teaching videos. The Work board is where you post a task or reading.', href: '/admin/notes', action: 'Open Morning notes' },
     { title: '3. Give feedback', text: 'Open Teaching > Work board to read submissions, leave a verdict and comment, and reply to questions. This is a useful place to return to each day.', href: '/admin/work', action: 'Open Work board' },
     ...(allowedPaths.includes('/admin/review') ? [
       { title: 'Before teaching from the question bank', text: 'Content > Sign off is the lawyer review queue. Review the actual words and sources before signing. Signing off and publishing are separate steps; publishing requires the appropriate permissions.', href: '/admin/review', action: 'Open Sign off' },
     ] : []),
-    { title: 'You do not need every menu today', text: 'Use Intake when preparing a group. Return to Trainees and the Work board for daily supervision. The other menus are there when you need them. Reopen this Quick tour at any time.', href: '/admin/intake', action: 'Open Intake' },
+    { title: 'You do not need every menu today', text: 'Use Intake when preparing a group. Start each morning on Today, which links to Trainees and the Work board. The other menus are there when you need them. Reopen this Quick tour at any time.', href: '/admin/intake', action: 'Open Intake' },
   ].filter((step) => !step.href || allowedPaths.includes(step.href));
   const step = steps[Math.min(index, steps.length - 1)];
   const button = 'min-h-11 rounded-[5px] border border-rule-strong px-4 py-2 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
