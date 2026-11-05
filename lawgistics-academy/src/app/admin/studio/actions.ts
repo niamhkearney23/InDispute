@@ -3,6 +3,8 @@
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { checkReviewer } from '@/lib/admin/guard';
+import { emailFeedbackLater } from '@/lib/email/notify';
+import { studioExercise } from '@/content/studio/exercises';
 import { createServiceClient } from '@/lib/supabase/service';
 import { logStudioAccess, sharedAttempt } from '@/lib/studio/service';
 import { CommentDecisionsSchema, ScoreOverridesSchema } from '@/lib/studio/rules';
@@ -73,6 +75,14 @@ export async function reviewStudioAttempt(_state: AdminState, formData: FormData
     return { error: 'That could not be saved. The learner may have stopped sharing it.' };
   }
   await logStudioAccess(attempt.id, reviewerId, 'reviewed');
+  const exercise = studioExercise(attempt.exerciseKey) ?? studioExercise(attempt.exerciseKey.replace(/^studio-/, ''));
+  emailFeedbackLater(async () => ({
+    userId: attempt.userId,
+    kind: 'studio',
+    title: exercise?.title ?? 'your recording',
+    verdict: null,
+    path: `/studio/attempts/${attempt.id}`,
+  }));
 
   revalidatePath('/admin/studio');
   revalidatePath(`/admin/studio/${attempt.id}`);

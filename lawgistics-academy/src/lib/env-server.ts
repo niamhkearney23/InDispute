@@ -62,3 +62,14 @@ export const studioEnv = {
   transcribeModel: setting(process.env.STUDIO_TRANSCRIBE_MODEL),
   groqApiKey: setting(process.env.GROQ_API_KEY),
 };
+
+/**
+ * Emails when a coach marks work (Resend). Both are needed: the API key, and
+ * the address it is sent from, on a domain verified in Resend, for example
+ * "Your Academy <academy@yourfirm.com>". Unset, nothing is sent.
+ */
+export const emailEnv = {
+  resendApiKey: setting(process.env.RESEND_API_KEY),
+  from: setting(process.env.EMAIL_FROM),
+};
+

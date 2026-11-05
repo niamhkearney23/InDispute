@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { checkAdmin, checkReviewer } from '@/lib/admin/guard';
+import { emailFeedbackLater } from '@/lib/email/notify';
 import { createServiceClient } from '@/lib/supabase/service';
 import type { AdminState } from '../actions';
 
@@ -258,6 +259,21 @@ export async function markMatterAttempt(_prev: AdminState, formData: FormData): 
     .select('matter_id')
     .maybeSingle();
   if (error || !data) return { error: 'Only an attempt that has been handed in can be marked.' };
+  const matterId = data.matter_id as string;
+  const learnerId = attempt?.user_id as string | undefined;
+  const verdict = parsed.data.verdict;
+  if (learnerId) {
+    emailFeedbackLater(async () => {
+      const { data: matter } = await createServiceClient().from('matters').select('title').eq('id', matterId).maybeSingle();
+      return {
+        userId: learnerId,
+        kind: 'matter',
+        title: (matter?.title as string | undefined) ?? 'your practice file',
+        verdict,
+        path: `/matters/${matterId}#feedback`,
+      };
+    });
+  }
   revalidateMatter(data.matter_id as string);
   revalidatePath('/certificate');
   revalidatePath('/dashboard');

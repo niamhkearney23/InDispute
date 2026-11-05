@@ -67,6 +67,7 @@ and only on our instructions:
 | Supabase | Database, sign-in, file storage | [Singapore / Sydney: the firm's project region] |
 | Vercel | Runs the website | [Singapore (sin1) / Sydney (syd1): the firm's function region] |
 | [Email provider] | Sends sign-in and password emails | [region] |
+| Resend (when switched on) | Emails a learner when a coach marks their work: their name, email address, the work's title and the verdict, never the coach's comments | [region] |
 | [OpenAI / Anthropic], only if the firm switches on AI features | Tutor replies, follow-up questions on matters, time estimates | [region; per the provider's data processing terms] |
 
 **Overseas transfers.** Some of these providers may process information

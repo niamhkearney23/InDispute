@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { checkCoach, checkReviewer } from '@/lib/admin/guard';
+import { emailFeedbackLater } from '@/lib/email/notify';
 import { createServiceClient } from '@/lib/supabase/service';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import {
@@ -254,6 +255,21 @@ export async function markSubmission(
   if (error || !data) return { error: 'That could not be saved.' };
 
   const postId = (data as { post_id: string } | null)?.post_id;
+  // The learner hears by email that it is marked (once the reply has gone).
+  const learnerId = handIn?.user_id as string | undefined;
+  const verdict = parsed.data.verdict;
+  if (postId && learnerId) {
+    emailFeedbackLater(async () => {
+      const { data: post } = await createServiceClient().from('work_posts').select('title').eq('id', postId).maybeSingle();
+      return {
+        userId: learnerId,
+        kind: 'work',
+        title: (post?.title as string | undefined) ?? 'your work',
+        verdict,
+        path: `/work/${postId}#feedback`,
+      };
+    });
+  }
   revalidatePath('/admin/work');
   revalidatePath('/work');
   revalidatePath('/dashboard');

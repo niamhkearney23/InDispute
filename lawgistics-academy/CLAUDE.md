@@ -843,6 +843,17 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   coach's reply, the diagnostic, work to hand in (overdue first), today's
   homework, the daily goal, the next round. Work marked Good in the last
   three days is a line under it, pointing at the feedback and Progress.
+- **Emails when work is marked** (the owner, November 2026). Marking a
+  hand-in, a practice file or reviewing a Studio recording emails the
+  learner after the response has gone (`emailFeedbackLater`, Next's
+  `after`), only once the action's own write succeeded, through Resend
+  (`src/lib/email/`). Off unless `RESEND_API_KEY` and `EMAIL_FROM` are both
+  set. The email says what happened (Good, another go, reviewed) and links to
+  the page; it never carries the coach's comments, which stay behind the
+  sign-in. A deleted account, or an address ending `.invalid`, gets nothing.
+  Links use `NEXT_PUBLIC_SITE_URL`, else Vercel's production address, never
+  a local one. Five-second timeout, never throws; a failed email never
+  touches the mark. No opt-out yet: it is the firm's training notice.
 - **Server region per firm.** `vercel.json` pins no region; each firm's Vercel
   project sets its Function Region to match its database (sin1 or syd1) and
   names it in `EXPECTED_FUNCTION_REGION`; Admin warns when they differ

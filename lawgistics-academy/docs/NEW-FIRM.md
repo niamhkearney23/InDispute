@@ -61,6 +61,7 @@ Add each of these in Vercel, under **Settings, Environment Variables**:
 | `NEXT_PUBLIC_BRAND_ACCENT` | The firm's colour, six characters, for example `1f3a6b` |
 | `NEXT_PUBLIC_BRAND_LOGO` | A link to the logo starting `https://`, or leave it out |
 | `EXPECTED_FUNCTION_REGION` | `sin1` for a Malaysian firm, `syd1` for an Australian one: the same as the Function Region. Admin shows a warning when the server is running anywhere else |
+| `RESEND_API_KEY` and `EMAIL_FROM` | Optional. Together they email a learner when a coach marks their work (the title and verdict, and a link; never the comments). `EMAIL_FROM` is like `Your Academy <academy@yourfirm.com>` on a domain verified in Resend. Leave both unset and nothing is sent |
 | `CRON_SECRET` | A long random password you make up. Vercel sends it when it runs the nightly clean-up (finishing account deletions) |
 | `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` | Only if this firm has the AI features |
 
