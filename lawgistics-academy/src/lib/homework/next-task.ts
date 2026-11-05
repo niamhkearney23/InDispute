@@ -50,6 +50,13 @@ export interface NextTask {
   action: string;
   /** Sent back or overdue: shown with more weight. */
   urgent: boolean;
+  /**
+   * The line on "Set for today" this is the same thing as, so the list does
+   * not show it twice; null when the list has no such line.
+   */
+  listKey: string | null;
+  /** The action is starting training, so the card carries the real start button. */
+  startsTraining?: boolean;
 }
 
 function shortDate(iso: string): string {
@@ -74,6 +81,7 @@ export function nextTask(input: NextTaskInput): NextTask | null {
   if (input.beforeYouBegin) {
     return {
       key: 'before',
+      listKey: 'before',
       // Said as something to do: "Finish your joining list", "Read ...".
       title: input.beforeYouBegin.label === 'Your joining list' ? 'Finish your joining list' : input.beforeYouBegin.label,
       detail: `${input.beforeYouBegin.meta}. The firm asks for this before anything else.`,
@@ -89,6 +97,8 @@ export function nextTask(input: NextTaskInput): NextTask | null {
   if (input.openRound) {
     return {
       key: 'round',
+      listKey: 'training',
+      startsTraining: true,
       title: `Answer round ${input.openRound.number}`,
       detail: `${input.openRound.left} ${input.openRound.left === 1 ? 'question' : 'questions'} left. A round is open for its hour and cannot be made up after.`,
       due: `Closes at ${input.openRound.closesLabel}`,
@@ -102,6 +112,7 @@ export function nextTask(input: NextTaskInput): NextTask | null {
   if (input.openMatter) {
     return {
       key: 'matter-open',
+      listKey: 'matter',
       title: `Finish ${input.openMatter.title}`,
       detail: 'You have this practice file open and its clock is running.',
       due: 'Before the clock runs out',
@@ -121,6 +132,7 @@ export function nextTask(input: NextTaskInput): NextTask | null {
     const due = dueWords(w.dueOn, input.today);
     return {
       key: `again-${w.id}`,
+      listKey: `work-${w.id}`,
       title: `Have another go at ${w.title}`,
       detail: 'Your coach asked for another go. Read what they said, change what they pointed to, and hand in the new version.',
       due: due.text ?? 'As soon as you can',
@@ -133,6 +145,7 @@ export function nextTask(input: NextTaskInput): NextTask | null {
   if (input.returnedMatter) {
     return {
       key: `matter-again-${input.returnedMatter.id}`,
+      listKey: null,
       title: `Try ${input.returnedMatter.title} again`,
       detail: 'Your coach asked for another go at this practice file. Read their comment, then start a fresh attempt.',
       due: 'As soon as you can',
@@ -147,6 +160,7 @@ export function nextTask(input: NextTaskInput): NextTask | null {
   if (replied) {
     return {
       key: `reply-${replied.id}`,
+      listKey: `work-${replied.id}`,
       title: `Read your coach’s reply about ${replied.title}`,
       detail: 'Your coach answered your message.',
       due: null,
@@ -160,6 +174,7 @@ export function nextTask(input: NextTaskInput): NextTask | null {
   if (input.needsDiagnostic) {
     return {
       key: 'diagnostic',
+      listKey: 'diagnostic',
       title: 'Take the diagnostic',
       detail: 'A short set of questions with no pass mark. It decides what your daily training covers.',
       due: null,
@@ -179,6 +194,7 @@ export function nextTask(input: NextTaskInput): NextTask | null {
     const due = dueWords(w.dueOn, input.today);
     return {
       key: `hand-in-${w.id}`,
+      listKey: `work-${w.id}`,
       title: `Hand in ${w.title}`,
       detail: 'You put your name on this. Upload your work on its page when it is ready.',
       due: due.text,
@@ -192,6 +208,7 @@ export function nextTask(input: NextTaskInput): NextTask | null {
   if (input.homework && !input.homework.done) {
     return {
       key: 'homework',
+      listKey: 'homework',
       title: `Do day ${input.homework.day}’s homework: ${input.homework.title}`,
       detail: 'Set by the programme for today. Tick it off when it is done.',
       due: 'Today',
@@ -206,7 +223,9 @@ export function nextTask(input: NextTaskInput): NextTask | null {
     const left = input.goal.questions - input.goal.answered;
     return {
       key: 'goal',
-      title: "Answer today's questions",
+      listKey: 'training',
+      startsTraining: true,
+      title: 'Answer today’s questions',
       detail: `${left} ${left === 1 ? 'question' : 'questions'} to reach your daily goal.`,
       due: 'Today',
       feedback: 'Each answer is marked as you go, with the reason.',
@@ -219,6 +238,7 @@ export function nextTask(input: NextTaskInput): NextTask | null {
   if (input.nextRound) {
     return {
       key: 'round-next',
+      listKey: 'training',
       title: `Round ${input.nextRound.number} opens at ${input.nextRound.opensLabel}`,
       detail: 'Nothing else is due before then. Come back when it opens.',
       due: `Opens at ${input.nextRound.opensLabel}`,

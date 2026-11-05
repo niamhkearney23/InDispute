@@ -107,3 +107,16 @@ test('the end of the loop: work marked Good in the last few days', () => {
   assert.deepEqual(recentlyMarkedGood(work, now), { id: 'new', title: 'New' });
   assert.equal(recentlyMarkedGood(work.slice(0, 1), now), null);
 });
+
+test('the card names the checklist line it is about, so the page has one Start', () => {
+  assert.equal(nextTask({ ...base, goal: { questions: 10, answered: 0 } })!.listKey, 'training');
+  assert.equal(nextTask({ ...base, goal: { questions: 10, answered: 0 } })!.startsTraining, true);
+  assert.equal(nextTask({ ...base, openRound: { number: 1, closesLabel: '8am', left: 10 } })!.listKey, 'training');
+  assert.equal(
+    nextTask({ ...base, work: [{ id: 'w1', title: 'Chronology', dueOn: null, state: 'again' }] })!.listKey,
+    'work-w1',
+  );
+  assert.equal(nextTask({ ...base, homework: { day: 2, title: 'Read', done: false } })!.listKey, 'homework');
+  assert.equal(nextTask({ ...base, returnedMatter: { id: 'm', title: 'File' } })!.listKey, null);
+  assert.ok(!nextTask({ ...base, homework: { day: 2, title: 'Read', done: false } })!.startsTraining);
+});

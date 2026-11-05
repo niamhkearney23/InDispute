@@ -18,7 +18,7 @@ import { SessionCard } from '@/components/session-card';
 import { leadSession, seesTraineeVideos, sessionsForLearner } from '@/lib/lessons/sessions';
 import { viewerIsStaff } from '@/lib/content/service';
 import { isFull, postsForSession, workBoardFor } from '@/lib/work/service';
-import { ButtonLink, Notice } from '@/components/ui';
+import { ButtonLink } from '@/components/ui';
 import { BeginSessionButton } from '../begin-session-button';
 import { trainingOpen } from '@/lib/training/service';
 import { DailyBrief } from '@/components/daily-brief';
@@ -307,19 +307,34 @@ export default async function DashboardPage() {
 
       {note ? <MorningNoteCard note={note} timezone={profile.timezone} /> : null}
 
-      <NextTaskCard task={firstTask} markedGood={markedGood} />
+      <NextTaskCard
+        task={firstTask}
+        markedGood={markedGood}
+        start={
+          // Starting training is a real action, not a link: the card carries
+          // the same button the list would have, so there is one Start.
+          firstTask?.startsTraining && trainingLine?.start ? (
+            <BeginSessionButton kind="daily" variant="light" label={startLabel(trainingLine.start)} />
+          ) : undefined
+        }
+      />
 
       {profile.track === 'litigation_trainee' && !profile.traineeConfirmed ? (
-        <Notice>
-          <strong>Waiting for your supervisor.</strong> They need to confirm you are on the
-          trainee programme before the work posted for trainees appears. Everything else here
-          works now.
-        </Notice>
+        // A side note, not an alarm: everything else on the page works.
+        <p className="flex gap-2.5 text-sm text-slate">
+          <span aria-hidden className="mt-1.5 size-2 shrink-0 rounded-full bg-rule-strong" />
+          <span>
+            <strong className="font-semibold text-ink">Waiting for your supervisor</strong> to
+            confirm you on the trainee programme. Until then, work posted for trainees stays
+            hidden; everything else works now.
+          </span>
+        </p>
       ) : null}
 
       <div id="training" className="scroll-mt-24">
         <TodayList
           items={setForToday}
+          upNext={firstTask?.listKey ?? null}
           startTraining={
             trainingLine?.start
               ? (label) => (
@@ -363,39 +378,42 @@ export default async function DashboardPage() {
 
       {fact ? <DailyBrief fact={fact} /> : null}
 
-      {profile.track === 'litigation_trainee' ? (
+      {/* Where they stand, and (for a trainee) the programme: two matching
+          tiles side by side, each a link all over. */}
+      <div className={profile.track === 'litigation_trainee' ? 'grid gap-4 sm:grid-cols-2' : ''}>
+        {profile.track === 'litigation_trainee' ? (
+          <Link
+            href="/programme"
+            className="pressable panel flex h-full flex-col justify-between gap-4 rounded-xl border border-rule bg-paper-raised p-5 shadow-card hover:border-rule-strong hover:shadow-raised sm:p-6"
+          >
+            <span>
+              <span className="eyebrow block">Your programme</span>
+              <span className="mt-2 block font-serif text-xl leading-snug">Today&rsquo;s concept and your mornings</span>
+              <span className="mt-1 block text-sm text-slate">The training file and the month ahead</span>
+            </span>
+            <span className="text-sm font-semibold text-accent">Open the programme ›</span>
+          </Link>
+        ) : null}
+
+        {/* Everything about how they are doing lives on Progress; here, one tile. */}
         <Link
-          href="/programme"
-          className="panel flex items-center justify-between gap-4 rounded-lg border border-rule bg-paper-raised p-4 shadow-card hover:bg-paper-sunk/60"
+          href="/skills"
+          className="pressable panel flex h-full flex-col justify-between gap-4 rounded-xl border border-rule bg-paper-raised p-5 shadow-card hover:border-rule-strong hover:shadow-raised sm:p-6"
         >
-          <span className="min-w-0">
-            <span className="eyebrow block">Your programme</span>
-            <span className="mt-1 block text-sm text-muted">
-              Today&rsquo;s concept, the training file, your mornings and the month
+          <span>
+            <span className="eyebrow block">Your progress</span>
+            <span className="mt-2 block font-serif text-xl leading-snug">
+              Level {level.level} · {level.name}
+            </span>
+            <span className="mt-1 block text-sm text-slate">
+              {overview.currentStreak} {overview.currentStreak === 1 ? 'day' : 'days'} in a row ·{' '}
+              {overview.weeklyXp} XP this week
+              {level.xpForNextLevel !== null ? ` · ${level.xpForNextLevel} XP to the next level` : ''}
             </span>
           </span>
-          <span className="shrink-0 text-sm font-semibold text-accent">Open ›</span>
+          <span className="text-sm font-semibold text-accent">See your progress ›</span>
         </Link>
-      ) : null}
-
-      {/* Everything about how they are doing lives on Progress; here, one line. */}
-      <Link
-        href="/skills"
-        className="panel flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-lg border border-rule bg-paper-raised p-4 shadow-card hover:bg-paper-sunk/60"
-      >
-        <span className="min-w-0">
-          <span className="eyebrow block">Your progress</span>
-          <span className="mt-1 block font-semibold">
-            Level {level.level} · {level.name}
-          </span>
-          <span className="mt-0.5 block text-sm text-muted">
-            {overview.currentStreak} {overview.currentStreak === 1 ? 'day' : 'days'} in a row ·{' '}
-            {overview.weeklyXp} XP this week
-            {level.xpForNextLevel !== null ? ` · ${level.xpForNextLevel} XP to the next level` : ''}
-          </span>
-        </span>
-        <span className="text-sm font-semibold text-accent">See your progress ›</span>
-      </Link>
+      </div>
     </div>
   );
 }

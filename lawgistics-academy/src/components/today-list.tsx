@@ -7,10 +7,17 @@ import { doneCount, type TodayItem } from '@/lib/homework/today-list';
 export function TodayList({
   items,
   startTraining,
+  upNext,
 }: {
   items: TodayItem[];
   /** The real start button for the training line, made by the page. */
   startTraining?: (label: string) => React.ReactNode;
+  /**
+   * The line the "Your next task" card above is about. It stays on the list,
+   * which is the whole day's checklist, marked "Up next" and without a start
+   * button of its own: the card carries it, so the page has one Start.
+   */
+  upNext?: string | null;
 }) {
   const { done, of } = doneCount(items);
   let n = 0;
@@ -37,7 +44,8 @@ export function TodayList({
         <ol className="divide-y divide-rule border-y border-rule">
           {items.map((item) => {
             const number = item.done === null ? null : ++n;
-            const startable = Boolean(item.start && startTraining);
+            const isNext = Boolean(upNext) && item.key === upNext;
+            const startable = Boolean(item.start && startTraining) && !isNext;
             const rowClass =
               'pressable flex min-h-14 items-center gap-3.5 py-3 hover:bg-paper-sunk/60 active:bg-paper-sunk';
             const inner = (
@@ -68,7 +76,11 @@ export function TodayList({
                     {item.meta}
                   </span>
                 </span>
-                {startable ? (
+                {isNext ? (
+                  <span className="shrink-0 rounded-full bg-paper-sunk px-2.5 py-1 text-xs font-medium text-slate">
+                    Up next
+                  </span>
+                ) : startable ? (
                   startTraining!(item.start!)
                 ) : (
                   <span aria-hidden className="text-muted">
@@ -82,7 +94,7 @@ export function TodayList({
                 {startable ? (
                   <div className={rowClass}>{inner}</div>
                 ) : (
-                  <Link href={item.href} className={rowClass}>
+                  <Link href={isNext && item.start ? '#next-task' : item.href} className={rowClass}>
                     {inner}
                   </Link>
                 )}
