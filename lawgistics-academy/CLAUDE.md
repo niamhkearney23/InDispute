@@ -954,6 +954,40 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   not a card with an underlined line at the bottom. Shortcuts are grouped as
   one list of rows with an icon and a chevron (Learn, "Ways to practise"),
   never a stack of separate boxes each with its own button.
+  **The design system** (the owner's design brief, November 2026: "a
+  premium legal learning product: editorial, intelligent, welcoming and
+  exceptionally easy to navigate"). Ivory paper, white surfaces with a fine
+  border, navy type, and one restrained **periwinkle** (`periwinkle`,
+  `periwinkle-ink` for text, `periwinkle-wash`) only for what is selected
+  and for learning progress; green, amber and red only for status. Shadows
+  sparingly; no decorative gradients or glass (the header and bottom menu
+  are solid). Serif for page titles and the odd editorial moment, sans for
+  everything else. Shared pieces in `ui.tsx`: `PageHeader` (one title size
+  for every page), `ProgressBar` (always with its count in words),
+  `StatusBadge` (Not started, In progress, Complete, Not published yet).
+  **Shell:** a compact header; Admin (or Marking) is an outlined pill after
+  a hairline, apart from the learner's five places; Account settings, "Help:
+  quick tour" and Sign out live in the account menu behind the picture
+  (`account-menu.tsx`, a disclosure: Escape and a tap outside close it). The
+  footer follows the content and is compact; `main` no longer stretches to
+  push it down. **Today:** compact greeting, the navy next-task card ("Start"
+  or "Continue today's questions" from real state), then Set for today split
+  into Required (with its own "x of y done") and Also today (not counted);
+  progress, programme and the daily fact beside it from 1024px. A pending
+  trainee gets one short status line. **Learn:** "Continue where you left
+  off" first, then the firm's reading, then module cards (status, "n of m
+  questions right", bar, Start/Continue/Review), then Practice and reference
+  as small tiles. **Coach:** honest groups (Feedback for you, To do,
+  Awaiting feedback, Open to take, To read, Done); an empty board says
+  "Waiting for confirmation" to a pending trainee, never "No work set".
+  **Progress:** Accuracy (with its sample), Modules complete, Streak and
+  Level (XP labelled as effort, not accuracy) apart; What to practise next,
+  each traceable to a result on the page; Progress by topic with counts; the
+  trend line only from three days of answers. **Courts:** a list by rung on
+  a phone, the diagram from tablet up, and a details panel beside it from
+  1024px; the legal words are unchanged. **Learner tour** (`learner-tour.tsx`):
+  four steps on Today on a first visit, Skip or Finish remembered on the
+  browser, reopened by "Help: quick tour" (`/dashboard?tour=1`).
   The owner tried bright and playful and went back (October 2026): "it
   doesn't look like a law firm. Make it more like a coach, and this is the
   homework." Figma has the direction on the "Coach and homework" page: the
@@ -963,7 +997,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   Admin, Work is "Marking". **On a phone the menu is at the foot of the screen**
   (`src/components/bottom-nav.tsx`: Today, Learn, Coach, Progress, Account,
   hidden from `sm:` up, where the header carries the same names); the header
-  keeps Courts (while `courtsShown`), Admin or Coach, and Sign out. It only
+  keeps Courts (while `courtsShown`), Admin or Marking, and the account menu (Sign out is in it). It only
   links to pages every learner could already open. The round clock sits
   above it. The front page and sign-in stay cream. The certificate and a
   matter's case file stay cream paper inside it. The Advocacy Studio is on

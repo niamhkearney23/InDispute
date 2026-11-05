@@ -225,8 +225,11 @@ export function nextTask(input: NextTaskInput): NextTask | null {
       key: 'goal',
       listKey: 'training',
       startsTraining: true,
-      title: 'Answer today’s questions',
-      detail: `${left} ${left === 1 ? 'question' : 'questions'} to reach your daily goal.`,
+      title: input.goal.answered > 0 ? 'Continue today’s questions' : 'Start today’s questions',
+      detail:
+        input.goal.answered > 0
+          ? `${input.goal.answered} of ${input.goal.questions} answered. ${left} to go for your daily goal.`
+          : `Your daily goal is ${input.goal.questions} ${input.goal.questions === 1 ? 'question' : 'questions'}.`,
       due: 'Today',
       feedback: 'Each answer is marked as you go, with the reason.',
       href: '#training',

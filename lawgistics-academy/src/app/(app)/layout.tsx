@@ -5,6 +5,7 @@ import { getLearnerProfile } from '@/lib/learner-overview';
 import { Wordmark } from '@/components/ui';
 import { brand } from '@/lib/brand';
 import { Avatar } from '@/components/avatar';
+import { AccountMenu } from '@/components/account-menu';
 import { NavLink } from '@/components/nav-link';
 import { BottomNav } from '@/components/bottom-nav';
 import { FirstPassword } from './account/password-form';
@@ -80,21 +81,17 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="theme-paper flex min-h-dvh flex-col">
-      <header className="sticky top-0 z-20 border-b border-rule bg-paper/95 backdrop-blur-sm print:hidden">
-        {/* Tight on a 360px Android. The nav keeps its labels on one line and
-            tightens its spacing rather than wrapping, but it is allowed to wrap
-            as a last resort, which happens only for somebody who also has the
-            Admin link at the very narrowest widths.
+      <header className="sticky top-0 z-20 border-b border-rule bg-paper print:hidden">
+        {/* Compact: the wordmark, the learner's five places, Admin set apart
+            for staff, and the account menu. On a phone the five live in the
+            menu at the foot of the screen (BottomNav) and the header keeps
+            Courts, Admin and the account menu.
 
             The wordmark does not shrink. It used to carry min-w-0, which let
-            flex squash its box to 54px while the lettering inside stayed 88px
-            wide and did not clip, so the nav was laid out from the squashed box
-            and "Today" was printed on top of the last three letters. 34px of
-            overlap on a 360px Android, 19px on an iPhone SE, on every page a
-            learner opens. Invisible to the device sweep, which looks for things
-            past the edge of the screen and for horizontal scrolling, and two
-            elements sitting on top of each other are neither. */}
-        <div className="mx-auto flex max-w-4xl items-center justify-between gap-2 px-4 py-2.5 sm:gap-4 sm:px-8 sm:py-3.5">
+            flex squash its box while the lettering inside stayed full width,
+            so "Today" was printed on top of the last three letters on a
+            360px Android. */}
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-2 px-4 py-1.5 sm:gap-4 sm:px-8">
           <Link
             href="/dashboard"
             className="-mx-1 flex min-h-11 shrink-0 items-center rounded-[5px] px-1 py-2 hover:bg-paper-sunk"
@@ -102,10 +99,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <Wordmark compact />
           </Link>
 
-          <nav className="flex flex-wrap items-center justify-end gap-0 text-[0.8125rem] sm:gap-1 sm:text-sm">
-            {/* On a phone these four and the account link live in the menu
-                at the foot of the screen (BottomNav), so the header keeps
-                only what is not there. */}
+          <nav aria-label="Primary" className="flex items-center justify-end gap-0 text-[0.8125rem] sm:gap-0.5 sm:text-sm">
             <NavLink href="/dashboard" className="hidden hover:bg-paper-sunk sm:inline-flex">
               Today
             </NavLink>
@@ -124,59 +118,62 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               </NavLink>
             ) : null}
             {profile?.isAdmin || profile?.isCoach || profile?.isFirmAdmin ? (
-              // Staff land on Admin Today, which leads with what their role
-              // needs: marking for a coach, people for a firm administrator.
-              <NavLink href="/admin/today" className="inline-flex hover:bg-paper-sunk">
-                {profile.isAdmin || profile.isFirmAdmin ? 'Admin' : 'Marking'}
-              </NavLink>
+              // Staff land on Admin Today. Set apart from the learner's own
+              // places: a hairline before it and an outlined label, so it
+              // reads as a different area, not a sixth tab.
+              <span className="ml-1 flex items-center border-l border-rule pl-1.5 sm:ml-2 sm:pl-2.5">
+                <Link
+                  href="/admin/today"
+                  className="inline-flex min-h-9 items-center rounded-full border border-rule-strong px-3 text-[0.8125rem] font-medium text-ink hover:border-ink hover:bg-paper-sunk"
+                >
+                  {profile.isAdmin || profile.isFirmAdmin ? 'Admin' : 'Marking'}
+                </Link>
+              </span>
             ) : null}
-            {/* An icon-sized link rather than a fifth word: the nav is already
-                tight at 360px (see the note above on the wordmark), and a photo
-                or an initial takes less width than "Account" ever could. The
-                26px avatar sits inside a 44px tap target, the same minimum the
-                sign-out button and every other nav link are held to; padding
-                around a small photo is not optional, it is half a thumb. */}
-            <Link
-              href="/account"
-              aria-label="Your account"
-              className="-mx-1 hidden min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full hover:bg-paper-sunk sm:flex"
-            >
-              <Avatar url={profile?.avatarUrl ?? null} cartoon={profile?.cartoon ?? null} name={profile?.displayName ?? null} size={26} />
-            </Link>
-            <form action="/auth/sign-out" method="post">
-              <button
-                type="submit"
-                className="min-h-11 rounded-[5px] px-2 py-2 whitespace-nowrap text-slate hover:bg-paper-sunk hover:text-ink sm:px-2.5"
-              >
-                Sign out
-              </button>
-            </form>
+            {/* Account settings, the quick tour and Sign out, behind the
+                person's picture. The 26px picture sits inside a 44px target. */}
+            <span className="ml-1 sm:ml-2">
+              <AccountMenu
+                name={profile?.displayName ?? null}
+                tourHref="/dashboard?tour=1"
+                avatar={
+                  <Avatar url={profile?.avatarUrl ?? null} cartoon={profile?.cartoon ?? null} name={profile?.displayName ?? null} size={28} />
+                }
+              />
+            </span>
           </nav>
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-4xl flex-1 px-5 py-7 sm:px-8 sm:py-10">
-        {children}
-      </main>
+      {/* Not stretched to fill the screen: the footer follows the content,
+          rather than a short page being padded out to push it down. */}
+      <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-8 sm:py-8">{children}</main>
 
       {clock ? <NextRoundClock at={clock.at} label={clock.label} /> : null}
 
+      {/* Compact: the disclaimer, who the academy belongs to, and the firm's
+          mark, readable and out of the way. The bottom padding on a phone is
+          the height of the menu at the foot of the screen, not spacing. */}
       <footer
-        className={`mx-auto w-full max-w-4xl px-5 sm:px-8 print:hidden ${clock ? 'pb-40 sm:pb-20' : 'pb-28 sm:pb-8'}`}
+        className={`mx-auto w-full max-w-5xl px-4 sm:px-8 print:hidden ${clock ? 'pb-36 sm:pb-16' : 'pb-24 sm:pb-6'}`}
       >
-        <p className="border-t border-rule pt-5 text-xs text-muted">
-          Training content only, not legal advice. Levels are game levels, not
-          professional titles or qualifications. Always check the current rules of the
-          relevant court before acting on a point of procedure.
-        </p>
-        {brand.parentLine ? <p className="mt-2 text-xs text-muted">{brand.parentLine}</p> : null}
-        {brand.associationLogo ? (
-          <p className="mt-4 flex items-center gap-3 text-xs text-muted">
-            In association with
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={brand.associationLogo} alt={brand.firm} className="h-10 w-auto" />
-          </p>
-        ) : null}
+        <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-3 border-t border-rule pt-4 text-xs text-muted">
+          <div className="max-w-xl space-y-1">
+            <p>
+              Training content only, not legal advice. Levels are game levels, not professional
+              titles or qualifications. Always check the current rules of the relevant court
+              before acting on a point of procedure.
+            </p>
+            {brand.parentLine ? <p>{brand.parentLine}</p> : null}
+          </div>
+          {brand.associationLogo ? (
+            <p className="flex shrink-0 items-center gap-2.5">
+              In association with
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={brand.associationLogo} alt={brand.firm} className="h-8 w-auto" />
+            </p>
+          ) : null}
+        </div>
       </footer>
       <BottomNav />
     </div>

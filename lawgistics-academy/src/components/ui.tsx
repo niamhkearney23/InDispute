@@ -309,6 +309,83 @@ export function Notice({
   );
 }
 
+/**
+ * The top of a page: an optional small label, the serif title, one short
+ * line of what the page is for, and an optional action on the right. One
+ * size everywhere, so pages read as one product.
+ */
+export function PageHeader({
+  eyebrow,
+  title,
+  description,
+  action,
+}: {
+  eyebrow?: string;
+  title: ReactNode;
+  description?: ReactNode;
+  action?: ReactNode;
+}) {
+  return (
+    <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+      <div className="min-w-0">
+        {eyebrow ? <p className="eyebrow mb-1.5">{eyebrow}</p> : null}
+        <h1 className="text-[1.75rem] leading-tight sm:text-[2rem]">{title}</h1>
+        {description ? <p className="mt-1.5 max-w-2xl text-[0.9375rem] text-slate">{description}</p> : null}
+      </div>
+      {action ? <div className="shrink-0">{action}</div> : null}
+    </header>
+  );
+}
+
+/**
+ * Learning progress as a thin periwinkle bar with its label in words, so the
+ * number is never only a length. `label` says what is counted ("10 of 19
+ * questions right"); the bar is decoration beside it.
+ */
+export function ProgressBar({
+  value,
+  max,
+  label,
+  className,
+}: {
+  value: number;
+  max: number;
+  label?: string;
+  className?: string;
+}) {
+  const share = max > 0 ? Math.min(1, Math.max(0, value / max)) : 0;
+  return (
+    <div className={className}>
+      {label ? <p className="mb-1.5 text-xs text-slate tabular-nums">{label}</p> : null}
+      <div
+        className="h-1.5 w-full overflow-hidden rounded-full bg-periwinkle-wash"
+        role="progressbar"
+        aria-valuenow={value}
+        aria-valuemin={0}
+        aria-valuemax={max}
+        aria-label={label}
+      >
+        <div className="h-full rounded-full bg-periwinkle transition-[width] duration-500" style={{ width: `${share * 100}%` }} />
+      </div>
+    </div>
+  );
+}
+
+/** Where somebody stands on a module or a piece of work, in one word or two. */
+export function StatusBadge({ status }: { status: 'not-started' | 'in-progress' | 'complete' | 'unavailable' }) {
+  const look = {
+    'not-started': ['Not started', 'border-rule-strong text-slate'],
+    'in-progress': ['In progress', 'border-periwinkle/40 bg-periwinkle-wash text-periwinkle-ink'],
+    complete: ['Complete', 'border-verdict-correct/30 bg-verdict-correct-wash text-verdict-correct'],
+    unavailable: ['Not published yet', 'border-rule text-muted'],
+  }[status];
+  return (
+    <span className={cn('inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium', look[1])}>
+      {look[0]}
+    </span>
+  );
+}
+
 /* -------------------------------------------------------------------------- */
 /* Brand                                                                      */
 /* -------------------------------------------------------------------------- */

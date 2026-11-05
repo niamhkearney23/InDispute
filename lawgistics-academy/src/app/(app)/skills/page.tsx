@@ -9,14 +9,13 @@ import { ScoreHistoryChart } from '@/components/score-history-chart';
 import { getFactOfTheDay } from '@/lib/facts/service';
 import { getModuleProgress } from '@/lib/modules/service';
 import { trainingOpen } from '@/lib/training/service';
-import { greeting, greetingName } from '@/lib/greeting';
 import { COUNTRY_LABELS } from '@/lib/types';
 import Link from '@/components/app-link';
 import { AreaBreakdown, type Area } from './area-breakdown';
 import { FactCard } from './fact-card';
-import { ButtonLink, Card, EmptyState, Pill, SectionHeading } from '@/components/ui';
+import { ButtonLink, PageHeader } from '@/components/ui';
 import { requireAccess } from '@/lib/access/service';
-import { ProgressSummary, ReviewLists, StreakSection } from '@/components/progress-details';
+import { ReviewLists, StreakSection } from '@/components/progress-details';
 import { Disclosure } from '@/components/disclosure';
 import { LeaderboardCard } from '@/components/leaderboard-card';
 import { weeklyLeaderboard } from '@/lib/leaderboard';
@@ -112,11 +111,18 @@ export default async function SkillsPage() {
   // The area bars carry their concepts with them, so opening one shows the
   // level a learner can actually act on rather than a single number per subject.
   const domainIdBySlug = new Map((domains ?? []).map((d) => [d.slug as string, d.id as string]));
+  // Where an area is practised: the first published module that draws on it.
+  const moduleFor = (domainSlug: string) =>
+    modules.find((m) => m.total > 0 && m.module.domains.includes(domainSlug)) ?? null;
+  const domainSlugById = new Map((domains ?? []).map((d) => [d.id as string, d.slug as string]));
   const areas: Area[] = overview.skillMap.map((entry) => ({
     slug: entry.slug,
     name: entry.name,
     score: entry.score,
     attempts: entry.attempts,
+    practice: moduleFor(entry.slug)
+      ? { href: `/modules/${moduleFor(entry.slug)!.module.slug}`, label: `Practise in ${moduleFor(entry.slug)!.module.name}` }
+      : null,
     concepts: concepts
       .filter((c) => c.domainId === domainIdBySlug.get(entry.slug))
       .map((c) => ({
@@ -131,157 +137,226 @@ export default async function SkillsPage() {
 
   const last = history.length > 0 ? history[history.length - 1] : null;
   const answeredInAll = history.reduce((sum, d) => sum + d.answered, 0);
+  const rightInAll = history.reduce((sum, d) => sum + d.right, 0);
   const conceptsMet = concepts.length;
   const dueNow = concepts.filter((c) => {
     const due = dueByConcept.get(c.id);
     return due && new Date(due) <= new Date();
   }).length;
 
-  return (
-    <div className="space-y-7 sm:space-y-9">
-      <header>
-        <p className="eyebrow mb-1.5">Progress</p>
-        <h1 className="text-3xl sm:text-4xl">How you are doing</h1>
-        <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate">
-          <span>
-            {greeting(new Date(), profile.timezone)}
-            {greetingName(profile.displayName) ? `, ${greetingName(profile.displayName)}` : ''}
-          </span>
-          <span aria-hidden className="text-muted">
-            &middot;
-          </span>
-          <span>{COUNTRY_LABELS[profile.country]}</span>
-        </p>
-        {/* Its own line, a full 44px tall: pulled into the line above with
-            negative margins it covered the greeting (the device sweep). */}
-        <Link
-          href="/onboarding?edit=1"
-          className="mt-1 inline-flex min-h-11 items-center rounded-[5px] text-sm text-slate underline underline-offset-4 hover:text-ink"
-        >
-          Change country or goals
-        </Link>
-      </header>
+  // What to practise next, each one traceable to a result shown on this
+  // page: certain-and-wrong concepts first (a belief to correct), then the
+  // weakest area with enough answers to mean something, then reviews due,
+  // then a module begun and not finished. Never more than three.
+  const MIN_AREA_ANSWERS = 5;
+  const weakest = [...areas]
+    .filter((a) => a.attempts >= MIN_AREA_ANSWERS && a.score < 70)
+    .sort((a, b) => a.score - b.score)[0];
+  const inProgress = modules.find((m) => m.total > 0 && m.answered > 0 && !m.complete);
+  const next: Array<{ key: string; title: string; why: string; href: string; action: string }> = [
+    ...blindSpots.slice(0, 2).map((c) => {
+      const m = moduleFor(domainSlugById.get(c.domainId) ?? '');
+      return {
+        key: `blind-${c.slug}`,
+        title: c.name,
+        why: `Answered wrong ${c.confidentAndWrong} ${c.confidentAndWrong === 1 ? 'time' : 'times'} while marked Certain`,
+        href: m ? `/modules/${m.module.slug}` : '/dashboard#training',
+        action: m ? 'Practise' : 'Today’s questions',
+      };
+    }),
+    ...(weakest
+      ? [
+          {
+            key: `area-${weakest.slug}`,
+            title: weakest.name,
+            why: `Right on ${weakest.score}% of ${weakest.attempts} answers, your lowest area`,
+            href: weakest.practice?.href ?? '/dashboard#training',
+            action: weakest.practice ? 'Practise' : 'Today’s questions',
+          },
+        ]
+      : []),
+    ...(overview.dueCount > 0
+      ? [
+          {
+            key: 'due',
+            title: `${overview.dueCount} ${overview.dueCount === 1 ? 'concept is' : 'concepts are'} due for review`,
+            why: 'Your daily questions bring them back',
+            href: '/dashboard#training',
+            action: 'Today’s questions',
+          },
+        ]
+      : []),
+    ...(inProgress
+      ? [
+          {
+            key: `module-${inProgress.module.slug}`,
+            title: `Continue ${inProgress.module.name}`,
+            why: `${inProgress.correctOnce} of ${inProgress.total} questions right`,
+            href: `/modules/${inProgress.module.slug}`,
+            action: 'Continue',
+          },
+        ]
+      : []),
+  ].slice(0, 3);
+  const published = modules.filter((m) => m.total > 0);
+  const modulesDone = published.filter((m) => m.complete).length;
+  const days = history.length;
 
-      {/* The most meaningful numbers first, without opening anything. */}
-      <ProgressSummary
-        overview={overview}
-        overall={last ? last.overall : null}
-        answered={answeredInAll}
-       unreadable={marks === null} />
+  const stat = 'rounded-xl border border-rule bg-paper-raised p-4';
+  return (
+    <div className="space-y-8">
+      <PageHeader
+        eyebrow="Progress"
+        title="Your progress"
+        description={`${COUNTRY_LABELS[profile.country]} · what you have answered, what you have finished, and what to practise next.`}
+        action={
+          <Link
+            href="/onboarding?edit=1"
+            className="inline-flex min-h-11 items-center text-sm text-slate underline underline-offset-4 hover:text-ink"
+          >
+            Change country or goals
+          </Link>
+        }
+      />
+
+      {/* Three different measures, side by side and named apart: how often
+          right, how much finished, how steady. XP is effort, kept quieter. */}
+      <section aria-labelledby="summary">
+        <h2 id="summary" className="sr-only">
+          Summary
+        </h2>
+        <dl className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <div className={stat}>
+            <dt className="text-xs font-medium text-muted">Accuracy</dt>
+            <dd className="mt-1 font-serif text-2xl leading-none tabular-nums">
+              {marks === null || !last ? '–' : `${last.overall}%`}
+            </dd>
+            <dd className="mt-1.5 text-xs text-muted">
+              {marks === null
+                ? 'Could not be read just now'
+                : answeredInAll === 0
+                  ? 'No answers yet'
+                  : `${rightInAll} of ${answeredInAll} answers right`}
+            </dd>
+          </div>
+          <div className={stat}>
+            <dt className="text-xs font-medium text-muted">Modules complete</dt>
+            <dd className="mt-1 font-serif text-2xl leading-none tabular-nums">
+              {published.length === 0 ? '–' : `${modulesDone} of ${published.length}`}
+            </dd>
+            <dd className="mt-1.5 text-xs text-muted">
+              {published.length === 0 ? 'None published yet' : 'Every question right once'}
+            </dd>
+          </div>
+          <div className={stat}>
+            <dt className="text-xs font-medium text-muted">Streak</dt>
+            <dd className="mt-1 font-serif text-2xl leading-none tabular-nums">
+              {overview.currentStreak} {overview.currentStreak === 1 ? 'day' : 'days'}
+            </dd>
+            <dd className="mt-1.5 text-xs text-muted">Best {overview.longestStreak}</dd>
+          </div>
+          <div className={stat}>
+            <dt className="text-xs font-medium text-muted">Level</dt>
+            <dd className="mt-1 text-[0.9375rem] font-semibold leading-snug">
+              {overview.level.level}. {overview.level.name}
+            </dd>
+            <dd className="mt-1.5 text-xs text-muted">
+              {overview.weeklyXp} XP this week · XP counts effort, not accuracy
+            </dd>
+          </div>
+        </dl>
+      </section>
 
       {!hasData ? (
-        <EmptyState
-          title="Nothing measured yet"
-          description={
-            !open
-              ? 'This fills in once the questions are open and you have trained on them.'
-              : profile.diagnosticCompletedAt
-                ? 'Your diagnostic is done, but no scores have come through yet. They fill in as you train.'
-                : 'Complete the diagnostic and your first few sessions, and this page fills in.'
-          }
-          action={
-            !open ? undefined : profile.diagnosticCompletedAt ? (
-              <ButtonLink href="/dashboard" variant="accent">
-                Go to today
-              </ButtonLink>
-            ) : (
-              <ButtonLink href="/diagnostic" variant="accent">
-                Take the diagnostic
-              </ButtonLink>
-            )
-          }
-        />
-      ) : null}
-
-      {history.length > 0 ? (
-        <section>
-          <SectionHeading eyebrow="Overall" title="Your score over time" />
-          <Card>
-            <p className="mb-4 max-w-2xl text-sm text-slate">
-              Every answer you have given, right or wrong, as a share. It starts at 100% and only
-              comes down when you get one wrong.
+        <section className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-rule bg-paper-raised px-4 py-3.5 sm:px-5">
+          <div>
+            <h2 className="font-sans text-[0.9375rem] font-semibold">Nothing measured by topic yet</h2>
+            <p className="text-sm text-slate">
+              {!open
+                ? 'This fills in once questions are published and you have trained on them.'
+                : profile.diagnosticCompletedAt
+                  ? 'Your diagnostic is done; scores by topic fill in as you train.'
+                  : 'Take the diagnostic and a first session, and this fills in.'}
             </p>
-            <ScoreHistoryChart days={history} />
-          </Card>
+          </div>
+          {!open ? null : profile.diagnosticCompletedAt ? (
+            <ButtonLink href="/dashboard" variant="outline" size="sm">
+              Go to Today
+            </ButtonLink>
+          ) : (
+            <ButtonLink href="/diagnostic" variant="accent" size="sm">
+              Take the diagnostic
+            </ButtonLink>
+          )}
+        </section>
+      ) : (
+        <section aria-labelledby="practise-next">
+          <h2 id="practise-next" className="mb-3 text-xl">
+            What to practise next
+          </h2>
+          {next.length === 0 ? (
+            <p className="rounded-xl border border-rule bg-paper-raised px-4 py-3.5 text-sm text-slate sm:px-5">
+              Nothing stands out yet. Keep answering your daily questions; this fills in as patterns appear.
+            </p>
+          ) : (
+            <ul className="divide-y divide-rule overflow-hidden rounded-xl border border-rule bg-paper-raised">
+              {next.map((n) => (
+                <li key={n.key}>
+                  <Link
+                    href={n.href}
+                    className="pressable flex min-h-14 items-center gap-4 px-4 py-3 hover:bg-paper-sunk/60 sm:px-5"
+                  >
+                    <span className="min-w-0 flex-1">
+                      <span className="block font-semibold">{n.title}</span>
+                      <span className="block text-sm text-muted">{n.why}</span>
+                    </span>
+                    <span className="shrink-0 text-sm font-medium text-periwinkle-ink">{n.action} ›</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
+
+      {hasData ? (
+        <section aria-labelledby="by-topic">
+          <h2 id="by-topic" className="text-xl">
+            Progress by topic
+          </h2>
+          <p className="mt-1 mb-3 text-sm text-slate">The share of your answers in each area that were right, and how many it is based on.</p>
+          {overview.areaScoresUnavailable ? (
+            <p className="max-w-2xl text-sm text-slate">
+              Scores by area could not be read just now. Try again in a moment; your answers are all still recorded.
+            </p>
+          ) : (
+            <AreaBreakdown areas={areas} />
+          )}
         </section>
       ) : null}
 
-      {hasData ? (
-        <>
-          <section>
-            <SectionHeading eyebrow="By area" title="Open one to see what is underneath" />
-            <p className="-mt-2 mb-4 max-w-2xl text-sm text-slate">
-              The share of your answers that were right. Get them all right and it stays at 100%;
-              each wrong answer brings it down.
+      {/* A trend needs a few days of answers to be a trend. Before then, say
+          what there is rather than draw a line through one point. */}
+      {days > 0 ? (
+        <section aria-labelledby="over-time">
+          <h2 id="over-time" className="text-xl">
+            Accuracy over time
+          </h2>
+          <p className="mt-1 mb-3 max-w-2xl text-sm text-slate">
+            The share of all your answers that were right, counted from your first. A right answer
+            moves it up and a wrong one moves it down; the more you have answered, the less any one
+            answer moves it.
+          </p>
+          {days >= 3 ? (
+            <div className="rounded-xl border border-rule bg-paper-raised p-4 sm:p-5">
+              <ScoreHistoryChart days={history} />
+            </div>
+          ) : (
+            <p className="rounded-xl border border-rule bg-paper-raised px-4 py-3.5 text-sm text-slate sm:px-5">
+              {last ? `${last.overall}% of ${answeredInAll} ${answeredInAll === 1 ? 'answer' : 'answers'} right` : ''}
+              {days === 1 ? ', all on one day' : `, over ${days} days`}. A trend line appears once you have answered on three days.
             </p>
-            {overview.areaScoresUnavailable ? (
-              <p className="max-w-2xl text-sm text-slate">
-                Scores by area could not be read just now. Try again in a moment; your answers are
-                all still recorded.
-              </p>
-            ) : (
-              <AreaBreakdown areas={areas} />
-            )}
-          </section>
-        </>
-      ) : null}
-
-      {/* Worth acting on, so it stays in view rather than folded away. */}
-      {hasData ? (
-        <>
-          {blindSpots.length > 0 ? (
-            <section>
-              <SectionHeading eyebrow="Worth your attention" title="Certain and wrong" />
-              <Card>
-                <p className="mb-4 text-sm text-slate">
-                  On these concepts you have answered incorrectly while marking yourself Certain
-                  (not Somewhat sure). That is a belief that needs correcting rather than a gap that
-                  needs filling, and it is weighted accordingly in your training.
-                </p>
-                <ul className="divide-y divide-rule">
-                  {blindSpots.map((concept) => (
-                    <li
-                      key={concept.slug}
-                      className="flex items-center justify-between gap-3 py-2.5"
-                    >
-                      <span className="text-sm">{concept.name}</span>
-                      <Pill tone="wrong">{concept.confidentAndWrong}×</Pill>
-                    </li>
-                  ))}
-                </ul>
-              </Card>
-            </section>
-          ) : null}
-        </>
-      ) : null}
-
-      {modules.length > 0 ? (
-        <section>
-          <SectionHeading eyebrow="Modules" title="Things to have covered" />
-          <div className="grid gap-2.5 sm:grid-cols-2">
-            {modules.map((entry) => (
-              <ButtonLink
-                key={entry.module.slug}
-                href={`/modules/${entry.module.slug}`}
-                variant="outline"
-                className="h-auto w-full flex-col items-start gap-1 px-4 py-3.5 text-left"
-              >
-                <span className="flex w-full items-center justify-between gap-2">
-                  <span className="font-medium">{entry.module.name}</span>
-                  {entry.complete ? (
-                    <Pill tone="correct">Done</Pill>
-                  ) : entry.module.required ? (
-                    <Pill tone="accent">Required</Pill>
-                  ) : null}
-                </span>
-                <span className="text-xs font-normal text-slate">
-                  {entry.total === 0
-                    ? 'Not published yet'
-                    : `${entry.correctOnce} of ${entry.total}`}
-                </span>
-              </ButtonLink>
-            ))}
-          </div>
+          )}
         </section>
       ) : null}
 

@@ -177,7 +177,7 @@ test('Admin Today is the first screen, behind the staff guard, and writes nothin
   assert.match(layout, /<Link href="\/admin\/today"/);
   assert.match(layout, /label: 'Today',\s*items: \[\{ href: '\/admin\/today'/);
   const app = read('src/app/(app)/layout.tsx');
-  assert.match(app, /<NavLink href="\/admin\/today"/);
+  assert.match(app, /href="\/admin\/today"/);
 });
 
 test('a read that fails is said, never shown as nothing waiting', () => {

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from '@/components/app-link';
-import type { Court, CourtHierarchy } from '@/content/seed/court-shape';
+import { tiersOf, type Court, type CourtHierarchy } from '@/content/seed/court-shape';
 import { CourtTiers } from '@/components/court-tiers';
 import { cn } from '@/components/ui';
 
@@ -73,43 +73,125 @@ export function CourtMap({
     if (court?.alsoAppealsTo) queue.push(court.alsoAppealsTo);
   }
 
+  const relations = (court: Court) => ({
+    appealsTo: [court.appealsTo, court.alsoAppealsTo]
+      .map((slug) => (slug ? bySlug.get(slug) : undefined))
+      .filter((c): c is Court => Boolean(c)),
+    hearsFrom: hierarchy.courts.filter((c) => c.appealsTo === court.slug || c.alsoAppealsTo === court.slug),
+  });
+  const toggle = (slug: string) => setOpen((current) => (current === slug ? null : slug));
+  const selected = open ? bySlug.get(open) ?? null : null;
+
   return (
     <div>
-      {/* A faint skyline behind the whole map. Decorative only: the cards
-          sit on solid paper, and at this opacity the row labels still pass
-          AA (about 5:1) over the darkest pixel of the skyline. */}
-      <div className="relative isolate overflow-hidden rounded-xl border border-rule bg-paper px-3 pb-4 pt-3 sm:px-5 sm:pb-6 sm:pt-5">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/courts/backdrop.webp"
-          alt=""
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-72 w-full object-cover object-bottom opacity-40 [mask-image:linear-gradient(to_bottom,black_75%,transparent)] sm:h-96"
-        />
-        <CourtTiers
-          hierarchy={hierarchy}
-          lit={path}
-          label={`${hierarchy.name}. Choose a court to see what it does.`}
-          renderCourt={(court) => (
-            // Capped and centred so a court alone on its row is a building,
-            // not a banner. The appeal lines meet the centre of the cell,
-            // which is still the centre of the card.
-            <div className="mx-auto max-w-[20rem]">
-              <CourtNode
-                court={court}
-                appealsTo={[court.appealsTo, court.alsoAppealsTo]
-                  .map((slug) => (slug ? bySlug.get(slug) : undefined))
-                  .filter((c): c is Court => Boolean(c))}
-                hearsFrom={hierarchy.courts.filter(
-                  (c) => c.appealsTo === court.slug || c.alsoAppealsTo === court.slug,
-                )}
-                isOpen={open === court.slug}
-                onPath={path.has(court.slug)}
-                onToggle={() => setOpen((current) => (current === court.slug ? null : court.slug))}
-              />
-            </div>
+      {/* On a phone: the courts as a list by rung, each opening in place. A
+          diagram shrunk to 375px makes the names too small to read and the
+          appeal lines too short to follow. */}
+      <ol className="space-y-5 sm:hidden" aria-label={`${hierarchy.name}, from the top`}>
+        {tiersOf(hierarchy).map((row) => (
+          <li key={row[0].tier}>
+            <p className="eyebrow mb-1.5">{hierarchy.tierLabels[row[0].tier] ?? ''}</p>
+            <ul className="divide-y divide-rule overflow-hidden rounded-xl border border-rule bg-paper-raised">
+              {row.map((court) => {
+                const isOpen = open === court.slug;
+                const picture = COURT_PICTURES[court.slug];
+                return (
+                  <li key={court.slug}>
+                    <button
+                      type="button"
+                      aria-expanded={isOpen}
+                      onClick={() => toggle(court.slug)}
+                      className={cn(
+                        'flex min-h-14 w-full items-center gap-3 px-3 py-2.5 text-left',
+                        isOpen ? 'bg-periwinkle-wash' : 'hover:bg-paper-sunk/60',
+                      )}
+                    >
+                      {picture ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={`/courts/${picture}.webp`}
+                          alt=""
+                          width={720}
+                          height={480}
+                          loading="lazy"
+                          className="h-11 w-16 shrink-0 rounded-md object-cover object-[50%_75%]"
+                        />
+                      ) : null}
+                      <span className="min-w-0 flex-1 font-serif text-[1.0625rem] leading-snug text-ink">
+                        {court.short ?? court.name}
+                      </span>
+                      <span aria-hidden className={cn('shrink-0 text-muted transition-transform', isOpen && 'rotate-90')}>
+                        ›
+                      </span>
+                    </button>
+                    {isOpen ? (
+                      <div className="border-t border-rule px-3 pt-2.5 pb-3">
+                        <CourtDetails court={court} {...relations(court)} />
+                      </div>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+          </li>
+        ))}
+      </ol>
+
+      {/* From tablet up: the picture of the hierarchy, and on a wide screen
+          the chosen court's details in a panel beside it. */}
+      <div className="hidden gap-6 sm:block lg:grid lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
+        {/* A faint skyline behind the map. Decorative only: the cards sit on
+            solid paper, and at this opacity the row labels still pass AA. */}
+        <div className="relative isolate overflow-hidden rounded-xl border border-rule bg-paper px-3 pt-3 pb-4 sm:px-5 sm:pt-5 sm:pb-6">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/courts/backdrop.webp"
+            alt=""
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-72 w-full object-cover object-bottom opacity-30 [mask-image:linear-gradient(to_bottom,black_75%,transparent)] sm:h-96"
+          />
+          <CourtTiers
+            hierarchy={hierarchy}
+            lit={path}
+            label={`${hierarchy.name}. Choose a court to see what it does.`}
+            renderCourt={(court) => (
+              // Capped and centred so a court alone on its row is a building,
+              // not a banner. The appeal lines meet the centre of the cell.
+              <div className="mx-auto max-w-[17rem]">
+                <CourtNode
+                  court={court}
+                  {...relations(court)}
+                  isOpen={open === court.slug}
+                  onPath={path.has(court.slug)}
+                  onToggle={() => toggle(court.slug)}
+                />
+              </div>
+            )}
+          />
+        </div>
+
+        <aside
+          aria-live="polite"
+          aria-label="Court details"
+          className="hidden rounded-xl border border-rule bg-paper-raised p-5 lg:sticky lg:top-20 lg:block"
+        >
+          {selected ? (
+            <>
+              <p className="eyebrow mb-1">{hierarchy.tierLabels[selected.tier] ?? ''}</p>
+              <h2 className="text-xl leading-snug">{selected.name}</h2>
+              <div className="mt-2">
+                <CourtDetails court={selected} {...relations(selected)} hideName />
+              </div>
+            </>
+          ) : (
+            <>
+              <h2 className="text-lg">Choose a court</h2>
+              <p className="mt-1 text-sm text-slate">
+                Its details appear here, and its appeal route lights up on the map.
+              </p>
+            </>
           )}
-        />
+        </aside>
       </div>
 
       <p className="mt-4 text-xs text-slate">
@@ -124,6 +206,40 @@ export function CourtMap({
           Test yourself on this →
         </Link>
       ) : null}
+    </div>
+  );
+}
+
+/** What a court does, and where its appeals go: the same words in every view. */
+function CourtDetails({
+  court,
+  appealsTo,
+  hearsFrom,
+  hideName = false,
+}: {
+  court: Court;
+  appealsTo: Court[];
+  hearsFrom: Court[];
+  hideName?: boolean;
+}) {
+  return (
+    <div className="text-left text-[0.8125rem] leading-relaxed text-slate">
+      {!hideName && court.name !== court.short ? <p className="font-medium text-ink">{court.name}</p> : null}
+      {court.note ? <p className="mt-1">{court.note}</p> : null}
+      <dl className="mt-2.5 space-y-1 border-t border-rule pt-2.5 text-xs">
+        <div className="flex flex-wrap gap-x-2">
+          <dt className="shrink-0 text-muted">Appeals go to</dt>
+          <dd className="min-w-0 text-ink">
+            {appealsTo.length === 0 ? 'Nowhere. This is the top.' : appealsTo.map((c) => c.short ?? c.name).join(', or ')}
+          </dd>
+        </div>
+        {hearsFrom.length > 0 ? (
+          <div className="flex flex-wrap gap-x-2">
+            <dt className="shrink-0 text-muted">Hears appeals from</dt>
+            <dd className="min-w-0 text-ink">{hearsFrom.map((c) => c.short ?? c.name).join(', ')}</dd>
+          </div>
+        ) : null}
+      </dl>
     </div>
   );
 }
@@ -149,10 +265,10 @@ function CourtNode({
   return (
     <div
       className={cn(
-        'court-box overflow-hidden rounded-lg border bg-paper transition-[border-color,box-shadow,background-color]',
-        isOpen && 'border-accent bg-accent-wash shadow-raised',
-        !isOpen && onPath && 'border-accent/50 bg-accent-wash/40',
-        !isOpen && !onPath && 'border-rule-strong shadow-sm hover:border-ink/40',
+        'court-box overflow-hidden rounded-lg border bg-paper-raised transition-[border-color,box-shadow,background-color]',
+        isOpen && 'border-periwinkle bg-periwinkle-wash ring-2 ring-periwinkle/30',
+        !isOpen && onPath && 'border-periwinkle/60 bg-periwinkle-wash/50',
+        !isOpen && !onPath && 'border-rule-strong hover:border-ink/40 hover:shadow-card',
         apex && 'court-box-apex',
       )}
     >
@@ -160,7 +276,7 @@ function CourtNode({
         type="button"
         aria-expanded={isOpen}
         onClick={onToggle}
-        className="flex min-h-14 w-full flex-col justify-center text-center focus-visible:outline-offset-[-3px]"
+        className="group flex min-h-14 w-full cursor-pointer flex-col justify-center text-center focus-visible:outline-offset-[-3px]"
       >
         {picture ? (
           // Decorative: the button is named by the court's name below it.
@@ -173,54 +289,38 @@ function CourtNode({
             loading="lazy"
             decoding="async"
             className={cn(
-              'block aspect-[2/1] w-full border-b object-cover object-[50%_75%] transition-opacity',
-              isOpen || onPath ? 'border-accent/20' : 'border-rule',
+              'block aspect-[5/2] w-full border-b object-cover object-[50%_75%]',
+              isOpen || onPath ? 'border-periwinkle/25' : 'border-rule',
             )}
           />
         ) : null}
         <span
           className={cn(
-            'block px-3 py-2.5 font-serif text-[0.9375rem] leading-snug',
-            isOpen || onPath ? 'text-accent' : 'text-ink',
+            'flex items-center justify-center gap-1.5 px-3 py-2 font-serif text-[0.9375rem] leading-snug',
+            isOpen || onPath ? 'text-periwinkle-ink' : 'text-ink',
           )}
         >
           {court.short ?? court.name}
+          <span aria-hidden className={cn('font-sans text-xs text-muted transition-transform', isOpen && 'rotate-90')}>
+            ›
+          </span>
         </span>
       </button>
 
-      {/* Height-animated open rather than a hard show/hide: a note that just
-          appears reads as the layout jumping, and jumping content under a
-          thumb is how a tap lands somewhere the person did not mean. */}
+      {/* In place on a tablet; on a wide screen the panel beside the map
+          carries the details instead. Height-animated so content does not
+          jump under a thumb. */}
       <div
         aria-hidden={!isOpen}
         inert={!isOpen}
         className={cn(
-          'grid transition-[grid-template-rows] duration-200 ease-out',
+          'grid transition-[grid-template-rows] duration-200 ease-out lg:hidden',
           isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
         )}
       >
         <div className="overflow-hidden">
-          <div className="border-t border-accent/15 px-3 pb-3 pt-2.5 text-left text-[0.8125rem] leading-relaxed text-slate">
-            {court.name !== court.short ? (
-              <p className="font-medium text-ink">{court.name}</p>
-            ) : null}
-            {court.note ? <p className="mt-1">{court.note}</p> : null}
-            <dl className="mt-2.5 space-y-1 border-t border-accent/15 pt-2.5 text-xs">
-              <div className="flex flex-wrap gap-x-2">
-                <dt className="shrink-0 text-muted">Appeals go to</dt>
-                <dd className="min-w-0 text-ink">
-                  {appealsTo.length === 0
-                    ? 'Nowhere. This is the top.'
-                    : appealsTo.map((c) => c.short ?? c.name).join(', or ')}
-                </dd>
-              </div>
-              {hearsFrom.length > 0 ? (
-                <div className="flex flex-wrap gap-x-2">
-                  <dt className="shrink-0 text-muted">Hears appeals from</dt>
-                  <dd className="min-w-0 text-ink">{hearsFrom.map((c) => c.short ?? c.name).join(', ')}</dd>
-                </div>
-              ) : null}
-            </dl>
+          <div className="border-t border-periwinkle/20 px-3 pt-2.5 pb-3">
+            <CourtDetails court={court} appealsTo={appealsTo} hearsFrom={hearsFrom} />
           </div>
         </div>
       </div>

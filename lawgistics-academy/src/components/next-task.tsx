@@ -7,7 +7,8 @@ import type { NextTask } from '@/lib/homework/next-task';
  * The one thing to do next, at the top of Today: what, when it is due, and
  * where the feedback will be. Navy, the one dark surface on the page, so it
  * reads as the place to start (the owner, November 2026: "cleaner, and more
- * premium"). When starting training is the task, the page passes the real
+ * premium"; no decorative light or shadow, the colour does the work). When
+ * starting training is the task, the page passes the real
  * start button in, so there is one Start on the page, not two.
  */
 export function NextTaskCard({
@@ -23,13 +24,8 @@ export function NextTaskCard({
   return (
     <section
       aria-labelledby="next-task"
-      className="relative overflow-hidden rounded-xl bg-ink px-6 py-7 text-paper shadow-raised sm:px-8 sm:py-8"
+      className="relative overflow-hidden rounded-xl bg-ink px-5 py-6 text-paper sm:px-7 sm:py-7"
     >
-      {/* A soft light in the corner: depth without another colour. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-paper/[0.06] blur-2xl"
-      />
       <div className="relative">
         <div className="flex flex-wrap items-center gap-3">
           <p className={label}>Your next task</p>

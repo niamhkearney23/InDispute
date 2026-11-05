@@ -5,7 +5,7 @@ import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { getModuleProgress } from '@/lib/modules/service';
 import { listFirmModulesForLearner } from '@/lib/firm/service';
-import { Card, Pill, SectionHeading } from '@/components/ui';
+import { ButtonLink, PageHeader, Pill, ProgressBar, SectionHeading, StatusBadge } from '@/components/ui';
 import { ModuleArt, artFor } from '@/components/module-art';
 import { requireAccess } from '@/lib/access/service';
 import { PROGRAMME_BOOK } from '@/content/seed/reading';
@@ -27,153 +27,185 @@ export default async function ModulesPage() {
     courtMapFor(profile.country, await viewerIsStaff(user.id)),
   ]);
 
+  // Where somebody stands on each module, in the module's own unit:
+  // questions answered right at least once (a module is complete when every
+  // one has been).
+  const status = (e: (typeof progress)[number]) =>
+    e.total === 0 ? 'unavailable' : e.complete ? 'complete' : e.answered > 0 ? 'in-progress' : 'not-started';
+  const action = { 'not-started': 'Start', 'in-progress': 'Continue', complete: 'Review', unavailable: null } as const;
+  // The one to carry on with: the first begun and not finished, or else the
+  // first required one not started.
+  const resume =
+    progress.find((e) => status(e) === 'in-progress') ??
+    progress.find((e) => e.module.required && status(e) === 'not-started') ??
+    null;
+  const tools = [
+    ...(courtMap
+      ? [
+          {
+            href: '/courts',
+            title: 'Which court does this go in?',
+            text: 'The court hierarchy, and where an appeal goes.',
+            icon: 'courts' as const,
+          },
+        ]
+      : []),
+    {
+      href: '/matters',
+      title: 'Practice files',
+      text: 'A problem against the clock, then how a lawyer would do it.',
+      icon: 'file' as const,
+    },
+    {
+      href: '/tutor',
+      title: 'Tutor',
+      text: 'Explain an idea back, or be tested on checked questions.',
+      icon: 'talk' as const,
+    },
+    {
+      href: '/reading',
+      title: `The reading: ${PROGRAMME_BOOK.title}`,
+      text: 'A few pages each working day.',
+      icon: 'book' as const,
+    },
+    {
+      href: '/studio',
+      title: 'Advocacy Studio',
+      text: 'Record a short submission and watch it back.',
+      icon: 'mic' as const,
+    },
+  ];
+
   return (
     <div className="space-y-8">
-      <section>
-        <p className="eyebrow mb-2">Learn</p>
-        <h1 className="text-3xl sm:text-4xl">Lessons, then questions</h1>
-        <p className="mt-3 max-w-xl text-slate">
-          Each of these teaches for a few minutes and then asks. Daily training never
-          finishes, which is right for staying sharp and no use for saying whether someone
-          has covered something. A module has a finishing line.
-        </p>
-      </section>
+      <PageHeader
+        eyebrow="Learn"
+        title="Modules and practice"
+        description="Each module teaches for a few minutes, then asks. It is complete once every question has been answered right."
+      />
 
-      {/* Ways to practise, as one list rather than a box each: they are
-          shortcuts for somebody who already knows what they want, not the main
-          thing on this page. The court map is offered only once a lawyer has
-          signed off this country's map, so it never leads a learner to a page
-          with nothing on it. */}
-      <section aria-labelledby="ways-to-practise">
-        <h2 id="ways-to-practise" className="eyebrow mb-2">
-          Ways to practise
-        </h2>
-        <ul className="divide-y divide-rule overflow-hidden rounded-lg border border-rule bg-paper-raised shadow-card">
-          {[
-            ...(courtMap
-              ? [
-                  {
-                    href: '/courts',
-                    title: 'Which court does this go in?',
-                    text: 'Tap through the hierarchy and see where an appeal goes.',
-                    icon: 'courts' as const,
-                  },
-                ]
-              : []),
-            {
-              href: '/matters',
-              title: 'Practise on a file',
-              text: 'Matters: the problem first, against the clock, then how a lawyer would do it.',
-              icon: 'file' as const,
-            },
-            {
-              href: '/tutor',
-              title: 'Talk it through',
-              text: 'The tutor: explain an idea back, or be tested on what a lawyer has checked.',
-              icon: 'talk' as const,
-            },
-            {
-              href: '/reading',
-              title: `The reading: ${PROGRAMME_BOOK.title}`,
-              text: 'A few pages each working day, from the first day of the programme.',
-              icon: 'book' as const,
-            },
-            {
-              href: '/studio',
-              title: 'Practise on your feet',
-              text: 'The Advocacy Studio: record a short submission, watch it back, and see what to work on.',
-              icon: 'mic' as const,
-            },
-          ].map((tool) => (
-            <li key={tool.href}>
-              <Link
-                href={tool.href}
-                className="pressable flex min-h-16 items-center gap-4 px-4 py-3.5 hover:bg-paper-sunk/60 active:bg-paper-sunk sm:px-5"
-              >
-                <span
-                  aria-hidden
-                  className="flex size-10 shrink-0 items-center justify-center rounded-md bg-paper-sunk text-accent"
-                >
-                  <ToolIcon kind={tool.icon} />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block font-semibold">{tool.title}</span>
-                  <span className="mt-0.5 block text-sm text-slate">{tool.text}</span>
-                </span>
-                <span aria-hidden className="text-muted">
-                  ›
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
+      {resume ? (
+        <section aria-labelledby="resume" className="flex flex-wrap items-center gap-4 rounded-xl border border-rule bg-paper-raised p-4 sm:flex-nowrap sm:p-5">
+          <ModuleArt kind={artFor(resume.module.slug)} className="h-16 w-24 shrink-0 rounded-lg" />
+          <div className="min-w-0 flex-1">
+            <p className="eyebrow">{status(resume) === 'in-progress' ? 'Continue where you left off' : 'Start here'}</p>
+            <h2 id="resume" className="mt-1 text-lg leading-snug">
+              {resume.module.name}
+            </h2>
+            <ProgressBar
+              className="mt-2 max-w-sm"
+              value={resume.correctOnce}
+              max={resume.total}
+              label={`${resume.correctOnce} of ${resume.total} questions right`}
+            />
+          </div>
+          <ButtonLink href={`/modules/${resume.module.slug}`} variant="accent" className="w-full sm:w-auto">
+            {status(resume) === 'in-progress' ? 'Continue' : 'Start'}
+          </ButtonLink>
+        </section>
+      ) : null}
 
       {/* The firm's own content sits above ours on purpose. On somebody's first
           day, "what this firm allows you to put into a tool" outranks anything
           we can teach them about the law. */}
       {firmModules.length > 0 ? (
-        <section>
+        <section aria-labelledby="from-the-firm">
           <SectionHeading eyebrow="From the firm" title="Read these first" />
-          <div className="space-y-3">
+          <ul className="divide-y divide-rule overflow-hidden rounded-xl border border-rule bg-paper-raised">
             {firmModules.map((module) => (
-              <Link key={module.id} href={`/modules/firm/${module.slug}`} className="block">
-                <Card className="pressable hover:border-rule-strong hover:shadow-raised">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <ModuleArt kind="firm" className="h-16 w-20 shrink-0 rounded-md" />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="text-lg">{module.name}</h3>
-                        {module.required ? <Pill tone="accent">Required</Pill> : null}
-                        {module.acknowledgedAt ? <Pill tone="correct">Read</Pill> : null}
-                      </div>
-                      {module.summary ? (
-                        <p className="mt-1 text-sm text-slate">{module.summary}</p>
-                      ) : null}
-                    </div>
-                    {!module.acknowledgedAt ? (
-                      <p className="shrink-0 text-sm text-muted">Not read yet</p>
-                    ) : null}
-                  </div>
-                </Card>
-              </Link>
+              <li key={module.id}>
+                <Link
+                  href={`/modules/firm/${module.slug}`}
+                  className="pressable flex min-h-16 items-center gap-4 px-4 py-3 hover:bg-paper-sunk/60 sm:px-5"
+                >
+                  <ModuleArt kind="firm" className="h-12 w-16 shrink-0 rounded-md" />
+                  <span className="min-w-0 flex-1">
+                    <span className="flex flex-wrap items-center gap-2">
+                      <span className="font-semibold">{module.name}</span>
+                      {module.required ? <Pill tone="accent">Required</Pill> : null}
+                    </span>
+                    {module.summary ? <span className="mt-0.5 block text-sm text-slate">{module.summary}</span> : null}
+                  </span>
+                  {module.acknowledgedAt ? (
+                    <StatusBadge status="complete" />
+                  ) : (
+                    <span className="shrink-0 text-sm font-medium text-periwinkle-ink">Read ›</span>
+                  )}
+                </Link>
+              </li>
             ))}
-          </div>
+          </ul>
         </section>
       ) : null}
 
-      <section>
-        <SectionHeading title="Your modules" />
-        <div className="grid grid-cols-2 gap-3">
-          {progress.map((entry) => (
-            <Link
-              key={entry.module.slug}
-              href={`/modules/${entry.module.slug}`}
-              className="block"
-            >
-              <div className="flex h-full flex-col justify-between overflow-hidden rounded-lg border border-rule bg-paper-raised shadow-card pressable hover:border-rule-strong hover:shadow-raised">
-                <div>
-                  <ModuleArt kind={artFor(entry.module.slug)} className="h-24 w-full sm:aspect-[2/1] sm:h-auto" />
-                  <div className="px-4 pt-4 sm:px-5">
-                  {entry.module.required || entry.complete ? (
+      <section aria-labelledby="your-modules">
+        <h2 id="your-modules" className="mb-3 text-xl">
+          Your modules
+        </h2>
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {progress.map((entry) => {
+            const st = status(entry);
+            return (
+              <li key={entry.module.slug}>
+                <Link
+                  href={`/modules/${entry.module.slug}`}
+                  className="pressable flex h-full flex-col overflow-hidden rounded-xl border border-rule bg-paper-raised hover:border-rule-strong"
+                >
+                  <ModuleArt kind={artFor(entry.module.slug)} className="aspect-[3/1] w-full" />
+                  <div className="flex flex-1 flex-col p-4">
                     <div className="mb-2 flex flex-wrap items-center gap-1.5">
+                      <StatusBadge status={st} />
                       {entry.module.required ? <Pill tone="accent">Required</Pill> : null}
-                      {entry.complete ? <Pill tone="correct">Complete</Pill> : null}
                     </div>
-                  ) : null}
-                  <h3 className="text-base leading-snug sm:text-lg">{entry.module.name}</h3>
-                  <p className="mt-1.5 text-sm text-slate">{entry.module.summary}</p>
+                    <h3 className="font-sans text-base leading-snug font-semibold">{entry.module.name}</h3>
+                    <p className="mt-1 line-clamp-2 text-sm text-slate">{entry.module.summary}</p>
+                    <div className="mt-auto pt-4">
+                      {entry.total > 0 ? (
+                        <ProgressBar
+                          value={entry.correctOnce}
+                          max={entry.total}
+                          label={`${entry.correctOnce} of ${entry.total} questions right`}
+                        />
+                      ) : (
+                        <p className="text-xs text-muted">Questions appear once a lawyer has signed them off.</p>
+                      )}
+                      {action[st] ? (
+                        <p className="mt-3 text-sm font-medium text-periwinkle-ink">{action[st]} ›</p>
+                      ) : null}
+                    </div>
                   </div>
-                </div>
-                <p className="px-4 pb-4 pt-3 text-sm tabular-nums text-muted sm:px-5 sm:pb-5">
-                  {entry.total === 0
-                    ? 'Not published yet'
-                    : `${entry.correctOnce} of ${entry.total}`}
-                </p>
-              </div>
-            </Link>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+
+      {/* Practice and reference, as one compact group under the modules. The
+          court map is offered only once a lawyer has signed off this
+          country's map, so it never leads to a page with nothing on it. */}
+      <section aria-labelledby="ways-to-practise">
+        <h2 id="ways-to-practise" className="mb-3 text-xl">
+          Practice and reference
+        </h2>
+        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {tools.map((tool) => (
+            <li key={tool.href}>
+              <Link
+                href={tool.href}
+                className="pressable flex h-full items-start gap-3 rounded-xl border border-rule bg-paper-raised p-4 hover:border-rule-strong"
+              >
+                <span aria-hidden className="flex size-9 shrink-0 items-center justify-center rounded-md bg-paper-sunk text-accent">
+                  <ToolIcon kind={tool.icon} />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[0.9375rem] font-semibold leading-snug">{tool.title}</span>
+                  <span className="mt-0.5 block text-sm text-slate">{tool.text}</span>
+                </span>
+              </Link>
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
     </div>
   );

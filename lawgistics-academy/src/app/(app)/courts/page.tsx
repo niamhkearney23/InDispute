@@ -8,7 +8,7 @@ import { moduleBySlug } from '@/content/seed/modules';
 import { getModuleProgress } from '@/lib/modules/service';
 import { requireAccess } from '@/lib/access/service';
 import { courtMapFor, viewerIsStaff } from '@/lib/content/service';
-import { ButtonLink, Notice, Pill } from '@/components/ui';
+import { ButtonLink, Notice, PageHeader, Pill } from '@/components/ui';
 
 export const metadata: Metadata = { title: 'Court map' };
 
@@ -68,12 +68,11 @@ export default async function CourtsPage() {
   return (
     <div className="space-y-6">
       <section>
-        <p className="eyebrow mb-2">Reference</p>
-        <h1 className="text-3xl sm:text-4xl">{map.item.name}</h1>
-        <p className="mt-3 max-w-xl text-slate">
-          Where a matter starts, and where it goes if somebody appeals. Tap any court to
-          open it.
-        </p>
+        <PageHeader
+          eyebrow="Reference"
+          title={map.item.name}
+          description="Where a matter starts, and where an appeal goes. Choose a court to see what it does."
+        />
         {/* Only staff ever see an unchecked map, and it says so. */}
         {!map.checked ? (
           <p className="mt-3 text-sm text-slate">

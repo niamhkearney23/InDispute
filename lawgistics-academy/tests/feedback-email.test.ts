@@ -60,7 +60,7 @@ test('without a link it says to sign in, and there is no long dash anywhere', ()
   for (const kind of ['work', 'matter', 'studio'] as const) {
     for (const verdict of ['good', 'again', null] as const) {
       const all = feedbackEmail({ ...base, kind, verdict });
-      assert.doesNotMatch(`${all.subject}${all.text}${all.html}`, /—/);
+      assert.doesNotMatch(`${all.subject}${all.text}${all.html}`, /\u2014/);
     }
   }
 });

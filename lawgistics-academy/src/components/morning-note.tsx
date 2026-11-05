@@ -7,7 +7,7 @@ import { sentTime, type MorningNote } from '@/lib/notes/rules';
 export function MorningNoteCard({ note, timezone }: { note: MorningNote; timezone: string }) {
   const name = note.authorName ?? 'Your coach';
   return (
-    <section aria-label="A note from your coach" className="panel rounded-xl border border-rule bg-paper-raised p-5 shadow-card sm:p-6">
+    <section aria-label="A note from your coach" className="rounded-xl border border-rule bg-paper-raised p-4 sm:p-5">
       <div className="flex items-center gap-3">
         <span
           aria-hidden
@@ -20,7 +20,7 @@ export function MorningNoteCard({ note, timezone }: { note: MorningNote; timezon
           <p className="text-xs text-muted">Your coach · sent {sentTime(note.createdAt, timezone)}</p>
         </div>
       </div>
-      <blockquote className="mt-4 font-serif text-lg leading-relaxed whitespace-pre-line italic">
+      <blockquote className="mt-3 font-serif text-[1.0625rem] leading-relaxed whitespace-pre-line italic">
         {note.body}
       </blockquote>
     </section>

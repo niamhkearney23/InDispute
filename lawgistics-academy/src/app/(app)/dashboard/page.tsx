@@ -29,6 +29,7 @@ import { scheduleForPerson } from '@/lib/training/cohorts';
 import { morningNoteFor } from '@/lib/notes/service';
 import { MorningNoteCard } from '@/components/morning-note';
 import { NextTaskCard } from '@/components/next-task';
+import { LearnerTour } from '@/components/learner-tour';
 import { nextTask, recentlyMarkedGood } from '@/lib/homework/next-task';
 import { homeworkLines, todaysHomework } from '@/lib/homework/today-list';
 import { TodayList } from '@/components/today-list';
@@ -37,10 +38,16 @@ import { PROGRAMME_BOOK, readingForDay } from '@/content/seed/reading';
 export const metadata: Metadata = { title: 'Today' };
 
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tour?: string }>;
+}) {
   await requireAccess();
   // Already read by requireAccess and the layout; cached for this page view.
   const user = await getCurrentUser();
+  // "Help: quick tour" in the account menu comes here with ?tour=1.
+  const tourAsked = (await searchParams).tour === '1';
   if (!user) redirect('/login');
 
   // The profile alone decides where this person goes and what else to ask
@@ -286,11 +293,14 @@ export default async function DashboardPage() {
         ? 'Train again'
         : short;
 
+  const tile =
+    'pressable flex flex-col gap-1 rounded-xl border border-rule bg-paper-raised p-4 hover:border-rule-strong sm:p-5';
+
   return (
-    <div className="space-y-7">
-      {/* Who it is for, and when: the day's greeting, then the coach. */}
+    <div className="space-y-6">
+      {/* Who it is for, and when: compact, so the next action is in view. */}
       <header>
-        <p className="eyebrow mb-1.5">
+        <p className="eyebrow mb-1">
           {new Intl.DateTimeFormat('en-GB', {
             weekday: 'long',
             day: 'numeric',
@@ -299,120 +309,151 @@ export default async function DashboardPage() {
           }).format(new Date())}
           {homework.state === 'day' && profile.startsOn ? ` · Day ${homework.day} of 20` : ''}
         </p>
-        <h1 className="text-3xl leading-tight break-words sm:text-4xl">
+        <h1 id="main-title" tabIndex={-1} className="text-[1.75rem] leading-tight break-words focus:outline-none sm:text-[2rem]">
           {greeting(new Date(), profile.timezone)}
           {greetingName(profile.displayName) ? `, ${greetingName(profile.displayName)}` : ''}
         </h1>
       </header>
 
-      {note ? <MorningNoteCard note={note} timezone={profile.timezone} /> : null}
-
-      <NextTaskCard
-        task={firstTask}
-        markedGood={markedGood}
-        start={
-          // Starting training is a real action, not a link: the card carries
-          // the same button the list would have, so there is one Start.
-          firstTask?.startsTraining && trainingLine?.start ? (
-            <BeginSessionButton kind="daily" variant="light" label={startLabel(trainingLine.start)} />
-          ) : undefined
-        }
+      {/* Four places, what each is for, and only what this person has. */}
+      <LearnerTour
+        userId={user.id}
+        forceOpen={tourAsked}
+        steps={[
+          {
+            title: 'Today: your next task',
+            text: 'The navy card is what to do now, when it is due and where the feedback appears. Below it, what is required today and what is not counted.',
+            href: '/dashboard#next-task',
+            action: 'See your next task',
+          },
+          {
+            title: 'Learn: modules and practice',
+            text: 'Each module teaches for a few minutes, then asks. Practice files, the tutor and the reading sit underneath.',
+            href: '/modules',
+            action: 'Open Learn',
+          },
+          {
+            title: 'Coach: assignments and feedback',
+            text:
+              profile.track === 'litigation_trainee' && !profile.traineeConfirmed
+                ? 'Work your coaches set, and their feedback on it. Trainee work appears once your supervisor confirms you.'
+                : 'Work your coaches set. Put your name on a task, hand it in, and read their feedback there.',
+            href: '/work',
+            action: 'Open Coach',
+          },
+          {
+            title: 'Progress: what to review',
+            text: 'How often you are right in each topic, how many answers that rests on, and what to practise next.',
+            href: '/skills',
+            action: 'Open Progress',
+          },
+        ]}
       />
 
       {profile.track === 'litigation_trainee' && !profile.traineeConfirmed ? (
-        // A side note, not an alarm: everything else on the page works.
-        <p className="flex gap-2.5 text-sm text-slate">
-          <span aria-hidden className="mt-1.5 size-2 shrink-0 rounded-full bg-rule-strong" />
+        // A status, not an alarm: say what is waiting and what works now.
+        <p className="flex items-start gap-2.5 rounded-lg border border-rule bg-paper-raised px-4 py-2.5 text-sm text-slate">
+          <span aria-hidden className="mt-1.5 size-2 shrink-0 rounded-full bg-warn" />
           <span>
-            <strong className="font-semibold text-ink">Waiting for your supervisor</strong> to
-            confirm you on the trainee programme. Until then, work posted for trainees stays
-            hidden; everything else works now.
+            <strong className="font-semibold text-ink">Programme confirmation pending.</strong>{' '}
+            Modules, questions and practice files work now. Trainee work appears once your
+            supervisor confirms you.
           </span>
         </p>
       ) : null}
 
-      <div id="training" className="scroll-mt-24">
-        <TodayList
-          items={setForToday}
-          upNext={firstTask?.listKey ?? null}
-          startTraining={
-            trainingLine?.start
-              ? (label) => (
-                  <BeginSessionButton kind="daily" variant="accent" compact label={startLabel(label)} />
-                )
-              : undefined
-          }
-        />
-        {!open && !needsDiagnostic ? (
-          // No training line on the list until questions are published: say
-          // why, and to staff, what opens it.
-          <p className="mt-3 text-sm text-slate">
-            {profile.isAdmin
-              ? `No ${countryName === 'Malaysia' ? 'Malaysian' : 'Australian'} questions are published yet. Sign off the ones you are sure of, then press “Publish everything signed off”, and daily training opens for everyone in ${countryName}.`
-              : profile.isCoach
-                ? `No ${countryName === 'Malaysia' ? 'Malaysian' : 'Australian'} questions are published yet. Sign off the ones you are sure of, and training opens for everyone in ${countryName} once an administrator publishes them.`
-                : `${profile.country === 'MY' ? 'Malaysian questions are published only once a lawyer has signed them off, and none have been yet.' : 'No questions have been published yet.'}${
-                    profile.startsOn
-                      ? ''
-                      : supervised
-                        ? ' Anything your coach posts for you will appear here, and your homework starts once your supervisor sets your start date.'
-                        : ' Anything posted for you will appear here.'
-                  }`}
-          </p>
-        ) : null}
-        {!open && !needsDiagnostic && staff ? (
-          <div className="mt-3">
-            <ButtonLink href="/admin/review" variant="outline" size="sm" className="min-h-11">
-              Check the questions
-            </ButtonLink>
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:items-start">
+        <div className="min-w-0 space-y-6">
+          {note ? <MorningNoteCard note={note} timezone={profile.timezone} /> : null}
+
+          <NextTaskCard
+            task={firstTask}
+            markedGood={markedGood}
+            start={
+              // Starting training is a real action, not a link: the card carries
+              // the same button the list would have, so there is one Start.
+              firstTask?.startsTraining && trainingLine?.start ? (
+                <BeginSessionButton kind="daily" variant="light" label={startLabel(trainingLine.start)} />
+              ) : undefined
+            }
+          />
+
+          <div id="training" className="scroll-mt-24">
+            <TodayList
+              items={setForToday}
+              upNext={firstTask?.listKey ?? null}
+              startTraining={
+                trainingLine?.start
+                  ? (label) => (
+                      <BeginSessionButton kind="daily" variant="accent" compact label={startLabel(label)} />
+                    )
+                  : undefined
+              }
+            />
+            {!open && !needsDiagnostic ? (
+              // No training line on the list until questions are published: say
+              // why, and to staff, what opens it.
+              <p className="mt-3 text-sm text-slate">
+                {profile.isAdmin
+                  ? `No ${countryName === 'Malaysia' ? 'Malaysian' : 'Australian'} questions are published yet. Sign off the ones you are sure of, then press “Publish everything signed off”, and daily training opens for everyone in ${countryName}.`
+                  : profile.isCoach
+                    ? `No ${countryName === 'Malaysia' ? 'Malaysian' : 'Australian'} questions are published yet. Sign off the ones you are sure of, and training opens for everyone in ${countryName} once an administrator publishes them.`
+                    : `${profile.country === 'MY' ? 'Malaysian questions are published only once a lawyer has signed them off, and none have been yet.' : 'No questions have been published yet.'}${
+                        profile.startsOn
+                          ? ''
+                          : supervised
+                            ? ' Anything your coach posts for you will appear here, and your homework starts once your supervisor sets your start date.'
+                            : ' Anything posted for you will appear here.'
+                      }`}
+              </p>
+            ) : null}
+            {!open && !needsDiagnostic && staff ? (
+              <div className="mt-3">
+                <ButtonLink href="/admin/review" variant="outline" size="sm" className="min-h-11">
+                  Check the questions
+                </ButtonLink>
+              </div>
+            ) : null}
           </div>
-        ) : null}
-      </div>
 
-      {/* The coach's own session: the thing with a time on it. */}
-      {lead ? (
-        <div id="session" className="scroll-mt-24">
-          <SessionCard session={lead} more={sessions.length - 1} materials={leadMaterials} />
+          {/* The coach's own session: the thing with a time on it. */}
+          {lead ? (
+            <div id="session" className="scroll-mt-24">
+              <SessionCard session={lead} more={sessions.length - 1} materials={leadMaterials} />
+            </div>
+          ) : null}
         </div>
-      ) : null}
 
-      {fact ? <DailyBrief fact={fact} /> : null}
-
-      {/* Where they stand, and (for a trainee) the programme: two matching
-          tiles side by side, each a link all over. */}
-      <div className={profile.track === 'litigation_trainee' ? 'grid gap-4 sm:grid-cols-2' : ''}>
-        {profile.track === 'litigation_trainee' ? (
-          <Link
-            href="/programme"
-            className="pressable panel flex h-full flex-col justify-between gap-4 rounded-xl border border-rule bg-paper-raised p-5 shadow-card hover:border-rule-strong hover:shadow-raised sm:p-6"
-          >
-            <span>
-              <span className="eyebrow block">Your programme</span>
-              <span className="mt-2 block font-serif text-xl leading-snug">Today&rsquo;s concept and your mornings</span>
-              <span className="mt-1 block text-sm text-slate">The training file and the month ahead</span>
+        {/* Beside the main task on a wide screen, under it otherwise: where
+            they stand, the programme, and the day's fact. */}
+        <aside aria-label="Your progress and programme" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+          {/* Everything about how they are doing lives on Progress; here, a summary. */}
+          <Link href="/skills" className={tile}>
+            <span className="eyebrow">Your progress</span>
+            <span className="mt-1 text-[0.9375rem] font-semibold text-ink">
+              {overview.answeredToday} answered today · {overview.currentStreak}-day streak
             </span>
-            <span className="text-sm font-semibold text-accent">Open the programme ›</span>
+            <span className="text-sm text-muted">
+              Level {level.level}, {level.name} · {overview.weeklyXp} XP this week
+            </span>
+            <span className="mt-2 text-sm font-medium text-periwinkle-ink">See your progress ›</span>
           </Link>
-        ) : null}
-
-        {/* Everything about how they are doing lives on Progress; here, one tile. */}
-        <Link
-          href="/skills"
-          className="pressable panel flex h-full flex-col justify-between gap-4 rounded-xl border border-rule bg-paper-raised p-5 shadow-card hover:border-rule-strong hover:shadow-raised sm:p-6"
-        >
-          <span>
-            <span className="eyebrow block">Your progress</span>
-            <span className="mt-2 block font-serif text-xl leading-snug">
-              Level {level.level} · {level.name}
-            </span>
-            <span className="mt-1 block text-sm text-slate">
-              {overview.currentStreak} {overview.currentStreak === 1 ? 'day' : 'days'} in a row ·{' '}
-              {overview.weeklyXp} XP this week
-              {level.xpForNextLevel !== null ? ` · ${level.xpForNextLevel} XP to the next level` : ''}
-            </span>
-          </span>
-          <span className="text-sm font-semibold text-accent">See your progress ›</span>
-        </Link>
+          {profile.track === 'litigation_trainee' ? (
+            <Link href="/programme" className={tile}>
+              <span className="eyebrow">Your programme</span>
+              <span className="mt-1 text-[0.9375rem] font-semibold text-ink">
+                Today&rsquo;s concept and your mornings
+              </span>
+              <span className="text-sm text-muted">The training file and the month ahead</span>
+              <span className="mt-2 text-sm font-medium text-periwinkle-ink">Open the programme ›</span>
+            </Link>
+          ) : null}
+          {fact ? (
+            <div className="sm:col-span-2 lg:col-span-1">
+              <DailyBrief fact={fact} />
+            </div>
+          ) : null}
+        </aside>
       </div>
     </div>
   );

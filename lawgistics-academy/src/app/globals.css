@@ -32,6 +32,14 @@
   --color-mist: #8a98a8;
   --color-wine: #7a2e3a;
 
+  /* The one accent beyond navy (the owner's design brief, November 2026): a
+     restrained periwinkle, only for what is selected and for learning
+     progress. Never for status, which keeps green, amber and red. The ink
+     is for text and holds AA on white and on the wash. */
+  --color-periwinkle: #5c68c4;
+  --color-periwinkle-ink: #3f4a9f;
+  --color-periwinkle-wash: #eceefa;
+
   --color-verdict-correct: #2f5d4f;
   --color-verdict-correct-wash: #eaf1ee;
   --color-verdict-wrong: #8a2f22;
@@ -597,8 +605,9 @@
   color: var(--color-ink);
 }
 
+/* Solid, not glass: a header that blurs what is under it reads as an effect. */
 .theme-paper header.sticky {
-  background-color: rgba(247, 245, 240, 0.94);
+  background-color: var(--color-paper);
 }
 
 /* Small labels in the firm's taupe, spaced like a letterhead. */

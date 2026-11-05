@@ -5,8 +5,10 @@ import { rightShare } from './mastery';
  * A person's overall score, day by day.
  *
  * The overall score is the share of every answer they have ever given that
- * was right, the same rule as the scores by area: all right is 100%, and it
- * only comes down when they get one wrong. Each day carries where the overall
+ * was right, the same rule as the scores by area: a right answer moves it
+ * up, a wrong one down, and each moves it less as the total grows. (The
+ * page said once that it "only comes down"; it does not, and it no longer
+ * says so.) Each day carries where the overall
  * score stood at the end of that day, and how that day went on its own.
  */
 
