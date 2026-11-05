@@ -324,8 +324,8 @@ export function SessionRunner({
           safe-area padding is not decoration either: without it the iPhone home
           indicator covers "Next question", the only control on this screen. */}
       {answered ? (
-        <div className="sticky bottom-0 z-30 -mx-5 mt-8 border-t border-rule bg-paper/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm sm:-mx-8">
-          <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
+        <div className="sticky bottom-0 z-30 -mx-4 mt-8 border-t border-rule bg-paper pb-[env(safe-area-inset-bottom)] sm:-mx-8">
+          <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-3.5 sm:px-8">
             <p className="flex items-center gap-2.5 text-sm text-slate tabular-nums">
               <span>
                 {correctSoFar} of {answeredThisSitting} correct
