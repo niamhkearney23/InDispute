@@ -1,4 +1,5 @@
 import 'server-only';
+import { cache } from 'react';
 import { deliveryOrder } from '@/lib/learning/option-order';
 
 import { after } from 'next/server';
@@ -167,16 +168,27 @@ export async function startSession(
  * past.
  */
 export async function trainingOpen(country: Country): Promise<boolean> {
+  // A failed count is not evidence the bank is empty. Say it is open and let
+  // pressing the button report the real problem, as it did before this check.
+  return (await questionsPublished(country)) ?? true;
+}
+
+/**
+ * Whether any question is published for the country, or null when that
+ * could not be read. Asked once per page view (the layout, Today and the
+ * diagnostic all ask). The first-visit hold (first-steps.ts) holds somebody
+ * on the diagnostic only on a definite yes, so a failed read never locks a
+ * learner out of the academy.
+ */
+export const questionsPublished = cache(async (country: Country): Promise<boolean | null> => {
   const db = createServiceClient();
   const { count, error } = await db
     .from('v_question_delivery')
     .select('question_version_id', { count: 'exact', head: true })
     .eq('country', country);
-  // A failed count is not evidence the bank is empty. Say it is open and let
-  // pressing the button report the real problem, as it did before this check.
-  if (error) return true;
+  if (error) return null;
   return (count ?? 0) > 0;
-}
+});
 
 /**
  * Whether an existing session is still "today's", where the learner is.

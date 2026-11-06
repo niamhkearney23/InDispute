@@ -1,31 +1,36 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
+import { useHydrated } from '@/lib/client/use-hydrated';
 import { useRouter } from 'next/navigation';
 import Link from '@/components/app-link';
 import { createClient } from '@/lib/supabase/client';
 import { userFacingError } from '@/lib/env';
-import { Button, Notice, Wordmark, cn } from '@/components/ui';
+import { Wordmark, cn } from '@/components/ui';
 import { brand } from '@/lib/brand';
 import { RotatingMaxim, type MaximRule } from '@/components/rotating-maxim';
-import { ArrowIcon, CheckIcon } from '@/components/icons';
 import {
   PRACTICE_CHOICES,
   practiceChoiceFor,
   type Country,
   type PracticeChoice,
 } from '@/lib/types';
-import { OPEN_COUNTRIES, choicesFor, openCountryOr } from '@/lib/countries';
+import { choicesFor, openCountryOr } from '@/lib/countries';
 
 /**
- * After a sign-up, whether the address was new or already had an account.
- * Worded so it is true either way: an address with an account already is
- * told nothing more, and its owner can sign in or reset the password.
+ * What the page says once an email has gone. Either is worded so it is true
+ * whether or not the address has an account: an address with one is told
+ * nothing more, and its owner can sign in or reset the password.
  */
-const CHECK_INBOX =
-  'Nearly there. If that address can be used, we have sent it an email: open it and press ' +
-  'the link to finish signing up. If it has not arrived in a few minutes, check your junk ' +
-  'folder. Already have an account? Sign in instead.';
+type Sent = 'check-inbox' | 'reset-link';
+/** After a sign-up, whether the address was new or already had an account. */
+const CHECK_INBOX: Sent = 'check-inbox';
+/** After asking for a new password. */
+const RESET_LINK: Sent = 'reset-link';
+
+/** A link inside a sentence on the dark page. */
+const inlineLink =
+  '-my-2 inline-block py-2 font-medium text-paper underline decoration-paper/35 underline-offset-4 transition-colors hover:decoration-paper';
 
 /** Sign-up problems in our words, by Supabase's error code, never its message. */
 function signUpProblem(code: string | undefined): string {
@@ -44,14 +49,31 @@ function signUpProblem(code: string | undefined): string {
  * the same sentence, as Supabase itself intends, so the form cannot be used
  * to find out who has an account.
  */
-function signInProblem(code: string | undefined): string {
+function signInProblem(code: string | undefined): ReactNode {
   if (code === 'email_not_confirmed') {
     return 'Your email address is not confirmed yet. Open the link in the email we sent when you signed up.';
   }
   if (code === 'over_request_rate_limit') return 'Too many attempts just now. Wait a few minutes and try again.';
-  return 'That email and password do not match an account here. Check them, or reset your password.';
+  return (
+    <>
+      That email and password do not match an account here. Check them, or{' '}
+      <Link href="/forgot-password" className={inlineLink}>
+        reset your password
+      </Link>
+      .
+    </>
+  );
 }
 
+/**
+ * Sign in, sign up, the trainee sign-up and the forgotten password: one
+ * centred column on a dark page, opening on "Hi." and arriving slowly, the
+ * greeting first and the form after it (the owner, November 2026: "centered
+ * and it slowly come onto the screen ... premium, maybe darker color and
+ * the font to be a bit different"). No drifting lights, grid or boxes: the
+ * type and the space do the work. Nothing here claims anything the product
+ * does not do; the front page explains the product.
+ */
 export function AuthForm({
   mode,
   next,
@@ -61,14 +83,13 @@ export function AuthForm({
   trainee = false,
   maxims = null,
 }: {
-  /** The twenty rules for the side panel, only once signed off; otherwise none. */
+  /** The twenty rules for the foot of the page, only once signed off; otherwise none. */
   maxims?: MaximRule[] | null;
   /** 'reset' is the forgotten-password form: an email, and a link sent to it. */
   mode: 'login' | 'signup' | 'reset';
   /**
    * The litigation trainees' own sign-up. No country question, because the
-   * programme is Malaysian and the database would refuse anything else, and
-   * a panel that speaks to a trainee rather than to every learner.
+   * programme is Malaysian and the database would refuse anything else.
    */
   trainee?: boolean;
   next: string;
@@ -79,20 +100,16 @@ export function AuthForm({
   /**
    * Which country to start on. The marketing site knows the answer already,
    * because it asks before it sends anyone here, so it passes it rather than
-   * making somebody choose twice and land on the wrong body of law if they do
-   * not notice. It is a starting point, not a decision: the buttons are still
-   * there and still change it.
-   *
-   * Malaysia when nobody says otherwise, because that is where most of the
-   * people using this are. A default is a guess, and it should be the guess
-   * that is right most often.
+   * making somebody choose twice. It is a starting point, not a decision:
+   * the buttons are still there and still change it. Malaysia when nobody
+   * says otherwise, because that is where most of the people using this are.
    */
   defaultCountry?: Country;
 }) {
   const router = useRouter();
+  const hydrated = useHydrated();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [displayName, setDisplayName] = useState('');
   const [choice, setChoice] = useState<PracticeChoice>(() =>
     practiceChoiceFor(trainee ? 'MY' : openCountryOr(defaultCountry), trainee ? 'litigation_trainee' : 'general'),
   );
@@ -100,17 +117,23 @@ export function AuthForm({
   // nobody is asked.
   const countryChoices = choicesFor(PRACTICE_CHOICES.filter((c) => c.track === 'general'));
   const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(problem ?? null);
-  const [notice, setNotice] = useState<string | null>(welcome ?? null);
+  const [error, setError] = useState<ReactNode>(problem ?? null);
+  const [notice, setNotice] = useState<Sent | null>(null);
+  const [greeting, setGreeting] = useState<string | null>(welcome ?? null);
 
   const isSignup = mode === 'signup';
   const isReset = mode === 'reset';
+  // Signing in instead of signing up keeps where they were going. Without
+  // it, somebody sent to sign up from a link to a work post who already had
+  // an account landed on Today instead.
+  const signInHref = isSignup ? `/login${next ? `?next=${encodeURIComponent(next)}` : ''}` : '/login';
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
     setPending(true);
     setError(null);
     setNotice(null);
+    setGreeting(null);
 
     try {
       await submitCredentials();
@@ -136,11 +159,7 @@ export function AuthForm({
       await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent('/account/password?reset=1')}`,
       });
-      setNotice(
-        'If there is an account for that email, we have sent it a link to choose a new ' +
-          'password. Open it on this device. If it has not arrived in a few minutes, check ' +
-          'your junk folder.',
-      );
+      setNotice(RESET_LINK);
       setPending(false);
       return;
     }
@@ -155,7 +174,8 @@ export function AuthForm({
           // trainee is general, because these values are written by the
           // browser and are therefore whatever the browser felt like sending.
           data: {
-            display_name: displayName || email.split('@')[0],
+            // The first screen after this asks what to call them.
+            display_name: email.split('@')[0],
             country: choice.country,
             track: choice.track,
           },
@@ -181,8 +201,6 @@ export function AuthForm({
       // With "Confirm email" switched off in Supabase there is a session
       // already, and the person goes straight in below. With it switched on
       // there is not, and they are told the one thing they can do about it.
-      // What an administrator can do when the email never arrives lives in
-      // the setup notes, not here: somebody signing up cannot act on it.
       if (!data.session) {
         setNotice(CHECK_INBOX);
         setPending(false);
@@ -205,37 +223,45 @@ export function AuthForm({
     router.refresh();
   }
 
+  const lead = trainee
+    ? `Join the ${brand.traineeAcademy}. Your supervisor confirms you once you have signed up.`
+    : isSignup
+      ? 'Create your account to begin.'
+      : isReset
+        ? 'Forgotten your password? We will email you a link to choose a new one.'
+        : 'Welcome back. Sign in to carry on.';
+
   return (
-    <div className="min-h-dvh md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
-      <BrandPanel isSignup={isSignup} trainee={trainee} maxims={maxims} />
+    <div className="auth-surface">
+      <header className="auth-in flex justify-center px-5 pt-[max(1.75rem,env(safe-area-inset-top))]">
+        <Link href="/" className="-mx-1 inline-block rounded-[5px] px-1 py-2">
+          <Wordmark light />
+        </Link>
+      </header>
 
-      <main className="flex items-start justify-center px-5 pt-8 pb-12 sm:px-10 md:items-center md:py-16">
-        <div className="rise-in w-full max-w-md">
-          <h2 className="mb-2 text-3xl sm:text-4xl">
-            {trainee
-              ? 'Join as a trainee'
-              : isSignup
-                ? 'Create your account'
-                : isReset
-                  ? 'Forgotten your password?'
-                  : 'Sign in'}
-          </h2>
-          <p className="mb-8 text-slate">
-            {trainee
-              ? 'Your name, your email and a password. Your supervisor then confirms you are on the programme, and the work they post for trainees opens up.'
-              : isSignup
-                ? 'A few questions about you, then a diagnostic that shows your score in each area once questions are published for your country.'
-                : isReset
-                  ? 'Enter your email and we will send you a link to choose a new one.'
-                  : 'Pick up where you left off.'}
-          </p>
+      <main className="flex flex-1 items-center justify-center px-5 py-12 sm:py-16">
+        <div className="w-full max-w-[23.5rem]">
+          {notice ? (
+            <SentMessage
+              key={notice}
+              kind={notice}
+              email={email}
+              signInHref={signInHref}
+              onAgain={() => setNotice(null)}
+            />
+          ) : (
+            <>
+              <div className="text-center">
+                <h1 className="auth-hello auth-in auth-in--hello">Hi.</h1>
+                <p className="auth-in auth-in--2 mx-auto mt-5 max-w-[21rem] text-[1.0625rem] leading-relaxed text-balance text-paper/65">
+                  {lead}
+                </p>
+              </div>
 
-          <form onSubmit={onSubmit} className="space-y-5">
-            {isSignup && !trainee ? (
-              <fieldset>
-                {countryChoices.length > 1 ? (
-                  <>
-                    <legend className="mb-2 block text-sm font-semibold">
+              <form onSubmit={onSubmit} className="auth-in auth-in--3 mt-10 space-y-5">
+                {isSignup && !trainee && countryChoices.length > 1 ? (
+                  <fieldset>
+                    <legend className="mb-2 block text-[0.8125rem] text-paper/70">
                       Which country do you plan to practise in?
                     </legend>
                     <div className="grid grid-cols-2 gap-2.5">
@@ -248,257 +274,190 @@ export function AuthForm({
                             aria-pressed={on}
                             onClick={() => setChoice(option)}
                             className={cn(
-                              'relative rounded-lg border-2 px-3.5 py-3 text-left transition-all duration-150',
+                              'rounded-[6px] border px-3.5 py-3 text-left transition-colors',
                               on
-                                ? 'border-accent bg-accent-wash shadow-card'
-                                : 'border-rule bg-paper-raised hover:-translate-y-px hover:border-rule-strong hover:shadow-card',
+                                ? 'border-paper/70 bg-paper/[0.08]'
+                                : 'border-paper/15 hover:border-paper/35',
                             )}
                           >
-                            <span
-                              aria-hidden
-                              className={cn(
-                                'absolute top-2.5 right-2.5 grid size-5 place-items-center rounded-full border-2 transition-colors',
-                                on ? 'border-accent bg-accent text-paper' : 'border-rule-strong',
-                              )}
-                            >
-                              {on ? <CheckIcon className="size-3" /> : null}
-                            </span>
-                            <span className="block pr-6 text-[0.9375rem] font-semibold">
-                              {option.label}
-                            </span>
-                            <span className="mt-0.5 block text-xs text-slate">{option.detail}</span>
+                            <span className="block text-[0.9375rem] font-medium text-paper">{option.label}</span>
+                            <span className="mt-0.5 block text-xs text-paper/55">{option.detail}</span>
                           </button>
                         );
                       })}
                     </div>
-                    <p className="mt-2 text-xs text-muted">
+                    <p className="mt-2 text-xs text-paper/45">
                       This decides which law you are trained on. You can change it later.
                     </p>
-                  </>
+                  </fieldset>
                 ) : null}
-                <p className={cn('rounded-lg bg-accent-wash px-3.5 py-2.5 text-sm', countryChoices.length > 1 && 'mt-3')}>
-                  On a firm&apos;s litigation trainee programme?{' '}
-                  <Link
-                    href={`/trainee${next && next !== '/onboarding' ? `?next=${encodeURIComponent(next)}` : ''}`}
-                    className="-my-2 inline-block py-2 font-semibold text-accent underline underline-offset-4"
-                  >
-                    Sign up here instead
+
+
+                <Field
+                  label="Email"
+                  id="email"
+                  type="email"
+                  value={email}
+                  autoComplete="email"
+                  required
+                  onChange={setEmail}
+                  placeholder="you@example.com"
+                />
+
+                {isReset ? null : (
+                  <Field
+                    label="Password"
+                    id="password"
+                    type="password"
+                    value={password}
+                    autoComplete={isSignup ? 'new-password' : 'current-password'}
+                    required
+                    // Ten for a new password, the same rule as joining by invitation.
+                    // Not on sign-in, where it would lock out anybody whose older
+                    // password is shorter.
+                    minLength={isSignup ? 10 : undefined}
+                    hint={isSignup ? 'At least 10 characters.' : undefined}
+                    onChange={setPassword}
+                    aside={
+                      mode === 'login' ? (
+                        <Link
+                          href="/forgot-password"
+                          className="-my-2 inline-block py-2 text-[0.8125rem] text-paper/60 transition-colors hover:text-paper"
+                        >
+                          Forgot your password?
+                        </Link>
+                      ) : null
+                    }
+                  />
+                )}
+
+                {greeting ? (
+                  <p role="status" className="text-[0.9375rem] leading-relaxed text-paper/85">
+                    {greeting}
+                  </p>
+                ) : null}
+                {error ? (
+                  <p role="alert" className="text-[0.9375rem] leading-relaxed text-[#f3b9ae]">
+                    {error}
+                  </p>
+                ) : null}
+
+                <button
+                  type="submit"
+                  // Until the page's code is running a press would reload the
+                  // page and empty the form, which reads as the button not
+                  // working. It is ready long before the form has faded in.
+                  disabled={pending || !hydrated}
+                  className="auth-button"
+                >
+                  {pending ? (
+                    <span
+                      aria-hidden
+                      className="size-4 animate-spin rounded-full border-2 border-[#0c1520]/25 border-t-[#0c1520]"
+                    />
+                  ) : null}
+                  {pending
+                    ? isSignup
+                      ? 'Creating your account…'
+                      : isReset
+                        ? 'Sending…'
+                        : 'Signing you in…'
+                    : isSignup
+                      ? 'Create account'
+                      : isReset
+                        ? 'Send the link'
+                        : 'Sign in'}
+                </button>
+              </form>
+
+              <div className="auth-in auth-in--4 mt-9 space-y-2 text-center text-[0.9375rem] text-paper/55">
+                <p>
+                  {isSignup ? 'Already have an account? ' : isReset ? 'Remembered it? ' : 'No account yet? '}
+                  <Link href={isSignup || isReset ? signInHref : '/signup'} className={inlineLink}>
+                    {isSignup || isReset ? 'Sign in' : 'Create one'}
                   </Link>
                 </p>
-              </fieldset>
-            ) : null}
-
-            {isSignup ? (
-              <Field
-                label="Name"
-                id="displayName"
-                type="text"
-                value={displayName}
-                autoComplete="name"
-                // The most a display name holds; the database cuts anything longer.
-                maxLength={80}
-                onChange={setDisplayName}
-                placeholder="How should we greet you?"
-              />
-            ) : null}
-
-            <Field
-              label="Email"
-              id="email"
-              type="email"
-              value={email}
-              autoComplete="email"
-              required
-              onChange={setEmail}
-              placeholder="you@example.com"
-            />
-
-            {isReset ? null : (
-              <Field
-                label="Password"
-                id="password"
-                type="password"
-                value={password}
-                autoComplete={isSignup ? 'new-password' : 'current-password'}
-                required
-                // Ten for a new password, the same rule as joining by invitation.
-                // Not on sign-in, where it would lock out anybody whose older
-                // password is shorter.
-                minLength={isSignup ? 10 : undefined}
-                hint={isSignup ? 'At least 10 characters.' : undefined}
-                onChange={setPassword}
-              />
-            )}
-            {mode === 'login' ? (
-              <p className="-mt-2 text-right text-sm">
-                <Link
-                  href="/forgot-password"
-                  className="-my-2 inline-block py-2 font-medium text-accent underline-offset-4 hover:underline"
-                >
-                  Forgot your password?
-                </Link>
-              </p>
-            ) : null}
-
-            {error ? <Notice tone="error">{error}</Notice> : null}
-            {notice ? <Notice tone="warn">{notice}</Notice> : null}
-
-            <Button
-              type="submit"
-              size="lg"
-              variant="accent"
-              disabled={pending}
-              className="group h-14 w-full rounded-lg text-[1.0625rem] sm:w-full"
-            >
-              {pending ? (
-                <span
-                  aria-hidden
-                  className="size-4 animate-spin rounded-full border-2 border-paper/40 border-t-paper"
-                />
-              ) : null}
-              {pending
-                ? isSignup
-                  ? 'Creating your account…'
-                  : isReset
-                    ? 'Sending…'
-                    : 'Signing you in…'
-                : isSignup
-                  ? 'Create account'
-                  : isReset
-                    ? 'Send the link'
-                    : 'Sign in'}
-              {pending ? null : (
-                <ArrowIcon className="size-4 transition-transform group-hover:translate-x-0.5" />
-              )}
-            </Button>
-          </form>
-
-          <p className="mt-8 border-t border-rule pt-6 text-sm text-slate">
-            {isSignup
-              ? 'Already have an account? '
-              : isReset
-                ? 'Remembered it? '
-                : 'No account yet? '}
-            <Link
-              // Signing in instead of signing up keeps where they were going.
-              // Without it, somebody sent to sign up from a link to a work
-              // post who already had an account landed on Today instead.
-              href={
-                isSignup
-                  ? `/login${next ? `?next=${encodeURIComponent(next)}` : ''}`
-                  : isReset
-                    ? '/login'
-                    : '/signup'
-              }
-              // Negative margin keeps the sentence on one line while the padding
-              // grows the tap target to something a thumb can actually hit.
-              className="-my-2 inline-block rounded-[5px] px-1 py-2 font-semibold text-accent underline underline-offset-4"
-            >
-              {isSignup || isReset ? 'Sign in' : 'Create one'}
-            </Link>
-          </p>
-          {brand.parentLine ? <p className="mt-6 text-xs text-muted">{brand.parentLine}</p> : null}
+                {isSignup && !trainee ? (
+                  <p>
+                    On a firm&apos;s trainee programme?{' '}
+                    <Link
+                      href={`/trainee${next && next !== '/onboarding' ? `?next=${encodeURIComponent(next)}` : ''}`}
+                      className={inlineLink}
+                    >
+                      Sign up here instead
+                    </Link>
+                  </p>
+                ) : null}
+              </div>
+            </>
+          )}
         </div>
       </main>
+
+      <footer className="auth-in auth-in--4 px-5 pb-[max(1.75rem,env(safe-area-inset-bottom))] text-center">
+        {maxims && maxims.length > 0 ? (
+          <RotatingMaxim className="mx-auto mb-6 hidden max-w-md md:block" rules={maxims} />
+        ) : null}
+        <p className="text-xs text-paper/35">{brand.parentLine ?? brand.tagline}</p>
+      </footer>
     </div>
   );
 }
 
 /**
- * The coloured half. On a wide screen it stands beside the form and says, in
- * three lines, what somebody is signing up to; on a phone it shrinks to a
- * band above the form with the name and the headline, so the form is still
- * the first thing a thumb reaches.
- *
- * Every line in it is something the product does today. Nothing here says
- * the questions are verified, because the review queue has not been through
- * a lawyer yet, and a sign-up page is the worst place to overstate that.
+ * Once the email has gone: the form steps aside for one plain message, with
+ * the address it went to, so a typing mistake is seen at once and can be put
+ * right with "Use a different email".
  */
-function BrandPanel({
-  isSignup,
-  trainee,
-  maxims,
+function SentMessage({
+  kind,
+  email,
+  signInHref,
+  onAgain,
 }: {
-  isSignup: boolean;
-  trainee: boolean;
-  maxims: MaximRule[] | null;
+  kind: Sent;
+  email: string;
+  signInHref: string;
+  onAgain: () => void;
 }) {
-  const points: Array<[string, string]> = trainee
-    ? [
-        [
-          'A task every working day',
-          'Twenty days of homework on how the firm works, from the start date your supervisor sets.',
-        ],
-        [
-          'Work from your supervisor',
-          'Real pieces of work to put your name on, marked with notes.',
-        ],
-        [
-          'Mornings with your coach',
-          'Short sessions your coach records, waiting when you open the app.',
-        ],
-      ]
-    : [
-        [
-          'Know where you stand',
-          'A short diagnostic maps what you know, then training fills the gaps.',
-        ],
-        OPEN_COUNTRIES.length > 1
-          ? ['Your country’s law', 'Australian and Malaysian procedure, kept strictly apart.']
-          : ['Malaysian law', 'Malaysian courts and procedure, from your first question.'],
-        [
-          'Real work, real feedback',
-          'Work from the firm’s lawyers, marked with notes, if you join through one.',
-        ],
-      ];
-
+  const address = <span className="text-paper">{email}</span>;
   return (
-    <aside className="landing-hero">
-      <div aria-hidden className="landing-light landing-light--a" />
-      <div aria-hidden className="landing-light landing-light--b" />
-      <div aria-hidden className="landing-light landing-light--c" />
-      <div aria-hidden className="landing-grid" />
-      <div aria-hidden className="landing-grain" />
-
-      <div className="flex h-full flex-col px-5 pt-6 pb-8 sm:px-10 md:min-h-dvh md:justify-between md:p-12 lg:p-14">
-        <Link href="/" className="-mx-1 inline-block self-start rounded-[5px] px-1 py-2">
-          <Wordmark light />
-        </Link>
-
-        <div className="mt-6 md:mt-0">
-          <p className="rise-up mb-3 text-[0.6875rem] font-semibold tracking-[0.16em] text-paper/70 uppercase">
-            {trainee ? brand.traineeAcademy : isSignup ? 'Start here' : 'Welcome back'}
+    <div className="text-center" role="status">
+      <h1 className="auth-hello auth-hello--small auth-in auth-in--hello">Check your email.</h1>
+      {kind === 'check-inbox' ? (
+        <p className="auth-in auth-in--2 mt-6 text-[1.0625rem] leading-relaxed text-paper/70">
+          Nearly there. If {address} can be used, we have sent it an email: open it and press the link to
+          finish signing up. If it has not arrived in a few minutes, check your junk folder.
+        </p>
+      ) : (
+        <p className="auth-in auth-in--2 mt-6 text-[1.0625rem] leading-relaxed text-paper/70">
+          If there is an account for {address}, we have sent it a link to choose a new password. Open it on
+          this device. If it has not arrived in a few minutes, check your junk folder.
+        </p>
+      )}
+      <div className="auth-in auth-in--3 mt-9 space-y-2 text-[0.9375rem] text-paper/55">
+        {kind === 'check-inbox' ? (
+          <p>
+            Already have an account?{' '}
+            <Link href={signInHref} className={inlineLink}>
+              Sign in instead
+            </Link>
+            .
           </p>
-          <h1 className="rise-up delay-1 max-w-md text-[2.25rem] leading-[1.05] sm:text-5xl lg:text-6xl">
-            {trainee
-              ? 'Your traineeship starts here.'
-              : isSignup
-                ? 'Train like a litigator.'
-                : 'Good to see you again.'}
-          </h1>
-
-          {isSignup ? (
-            <ul className="rise-up delay-2 mt-10 hidden max-w-md space-y-5 md:block">
-              {points.map(([title, body]) => (
-                <li key={title} className="flex gap-3.5">
-                  <span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-full bg-paper/15 ring-1 ring-paper/25">
-                    <CheckIcon className="size-3.5" />
-                  </span>
-                  <span>
-                    <span className="block font-semibold">{title}</span>
-                    <span className="block text-sm text-paper/75">{body}</span>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          ) : maxims && maxims.length > 0 ? (
-            <RotatingMaxim className="rise-up delay-2 mt-10 hidden max-w-md md:block" rules={maxims} />
-          ) : null}
-        </div>
-
-        <p className="mt-10 hidden text-sm text-paper/60 md:block">{brand.tagline}</p>
+        ) : (
+          <p>
+            <Link href="/login" className={inlineLink}>
+              Back to sign in
+            </Link>
+          </p>
+        )}
+        <p>
+          <button type="button" onClick={onAgain} className={cn(inlineLink, 'decoration-paper/20 text-paper/70')}>
+            Use a different email
+          </button>
+        </p>
       </div>
-    </aside>
+    </div>
   );
 }
 
@@ -509,6 +468,7 @@ function Field({
   value,
   onChange,
   hint,
+  aside,
   ...rest
 }: {
   label: string;
@@ -517,21 +477,26 @@ function Field({
   value: string;
   onChange: (value: string) => void;
   hint?: string;
+  /** Something small on the label's line, such as "Forgot your password?". */
+  aside?: ReactNode;
 } & Omit<React.ComponentProps<'input'>, 'onChange' | 'value' | 'type' | 'id'>) {
   return (
     <div>
-      <label htmlFor={id} className="mb-1.5 block text-sm font-semibold">
-        {label}
-      </label>
+      <div className="mb-2 flex items-baseline justify-between gap-3">
+        <label htmlFor={id} className="text-[0.8125rem] text-paper/70">
+          {label}
+        </label>
+        {aside}
+      </div>
       <input
         id={id}
         type={type}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-13 w-full rounded-lg border-2 border-rule bg-paper-raised px-4 text-base transition-[border-color,box-shadow] outline-none placeholder:text-muted/70 hover:border-rule-strong focus:border-accent focus:ring-4 focus:ring-accent/15"
+        className="auth-input"
         {...rest}
       />
-      {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
+      {hint ? <p className="mt-1.5 text-xs text-paper/45">{hint}</p> : null}
     </div>
   );
 }

@@ -145,7 +145,17 @@ const AU_LEARNER = {
   user_metadata: { display_name: 'Jack' },
 };
 
-const USERS = [USER, NEW_USER, TRAINEE_USER, LEARNER_USER, STAFF2_USER, AU_LEARNER];
+// Through the first steps, diagnostic not taken: Today shows only the first
+// test, and every other page sends them back to it (first-steps.ts).
+const FRESH_USER_ID = '88888888-8888-8888-8888-888888888888';
+const FRESH_USER = {
+  ...USER,
+  id: FRESH_USER_ID,
+  email: 'fresh@lawgistics.test',
+  user_metadata: { display_name: 'Mei Ling' },
+};
+
+const USERS = [USER, NEW_USER, TRAINEE_USER, LEARNER_USER, STAFF2_USER, AU_LEARNER, FRESH_USER];
 
 // Which lessons, court maps and essay topics count as signed off, worked out
 // from the code with the app's own fingerprints. If it cannot be worked out,
@@ -838,6 +848,23 @@ const TABLES = {
       timezone: 'Australia/Melbourne',
       onboarded_at: '2026-02-01T00:00:00Z',
       diagnostic_completed_at: '2026-02-01T00:20:00Z',
+      is_admin: false,
+    },
+    {
+      id: FRESH_USER_ID,
+      email: FRESH_USER.email,
+      display_name: 'Mei Ling',
+      career_stage: 'law_student',
+      improvement_goals: ['litigation_knowledge'],
+      daily_goal_minutes: 10,
+      // Australian, because the stand-in's published questions are, and the
+      // hold applies only while there are questions to sit it with.
+      country: 'AU',
+      track: 'general',
+      home_jurisdiction: 'VIC',
+      timezone: 'Australia/Melbourne',
+      onboarded_at: '2026-11-01T00:00:00Z',
+      diagnostic_completed_at: null,
       is_admin: false,
     },
     {
@@ -1576,6 +1603,11 @@ const server = http.createServer((req, res) => {
         email = String(JSON.parse(body || '{}').email ?? USER.email);
       } catch {
         /* a malformed body just signs in the default learner */
+      }
+      // One address that never signs in, so the sign-in page's own words for
+      // a wrong password (with its reset link) can be drawn.
+      if (email.toLowerCase() === 'wrong@lawgistics.test') {
+        return send(400, { code: 400, error_code: 'invalid_credentials', msg: 'Invalid login credentials' });
       }
       const user = USERS.find((u) => u.email.toLowerCase() === email.toLowerCase()) ?? USER;
       return send(200, sessionFor(withFactors(user)));

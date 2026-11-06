@@ -20,7 +20,9 @@ import { viewerIsStaff } from '@/lib/content/service';
 import { isFull, postsForSession, workBoardFor } from '@/lib/work/service';
 import { ButtonLink } from '@/components/ui';
 import { BeginSessionButton } from '../begin-session-button';
-import { trainingOpen } from '@/lib/training/service';
+import { questionsPublished, trainingOpen } from '@/lib/training/service';
+import { FirstTest } from '../diagnostic/first-test';
+import { LEVEL_MIN_ANSWERS, SKILL_LEVELS, currentSkillLevel } from '@/lib/learning/skill-level';
 import { DailyBrief } from '@/components/daily-brief';
 import { getFactOfTheDay } from '@/lib/facts/service';
 import { mattersForLearner } from '@/lib/matters/service';
@@ -57,6 +59,12 @@ export default async function DashboardPage({
   if (!profile) redirect('/account-problem');
   if (!profile.onboardedAt) redirect('/onboarding');
   const staff = profile.isAdmin || profile.isCoach || profile.isFirmAdmin;
+  // The first visit (first-steps.ts): until the diagnostic is done, Today is
+  // only the diagnostic (the owner, November 2026: "today, all it has is the
+  // diagnostic, obviously"), and nothing else is read for it.
+  if (!staff && !profile.diagnosticCompletedAt && (await questionsPublished(profile.country)) === true) {
+    return <FirstTest name={profile.displayName} />;
+  }
   const countryName = profile.country === 'MY' ? 'Malaysia' : 'Australia';
   const isTrainee = profile.track === 'litigation_trainee' && profile.traineeConfirmed;
 
@@ -127,7 +135,10 @@ export default async function DashboardPage({
   ]);
 
   if (!overview) redirect('/account-problem');
-  const { level } = overview;
+  // The level in a word (skill-level.ts), from every answer by area.
+  const answeredAll = overview.skillMap.reduce((sum, a) => sum + a.attempts, 0);
+  const rightAll = overview.skillMap.reduce((sum, a) => sum + Math.round((a.score * a.attempts) / 100), 0);
+  const skill = overview.areaScoresUnavailable ? null : currentSkillLevel(rightAll, answeredAll);
 
   // Somebody who has not sat the diagnostic is asked to, at the top of the
   // page, rather than sent to it. Today used to redirect them there, which
@@ -327,8 +338,8 @@ export default async function DashboardPage({
             action: 'See your next task',
           },
           {
-            title: 'Learn: modules and practice',
-            text: 'Each module teaches for a few minutes, then asks. Practice files, the tutor and the reading sit underneath.',
+            title: 'Learn: optional, at your own pace',
+            text: 'Modules teach for a few minutes, then ask. Practice files, the tutor, the reading and the courts sit underneath.',
             href: '/modules',
             action: 'Open Learn',
           },
@@ -342,8 +353,8 @@ export default async function DashboardPage({
             action: 'Open Coach',
           },
           {
-            title: 'Progress: what to review',
-            text: 'How often you are right in each topic, how many answers that rests on, and what to practise next.',
+            title: 'Progress: behind your picture',
+            text: 'Tap your picture, top right, then Progress: your level, how often you are right in each topic, and what to practise next.',
             href: '/skills',
             action: 'Open Progress',
           },
@@ -431,10 +442,10 @@ export default async function DashboardPage({
           <Link href="/skills" className={tile}>
             <span className="eyebrow">Your progress</span>
             <span className="mt-1 text-[0.9375rem] font-semibold text-ink">
-              {overview.answeredToday} answered today · {overview.currentStreak}-day streak
+              {skill ? `${SKILL_LEVELS[skill].name} level` : `Your level shows after ${LEVEL_MIN_ANSWERS} answers`}
             </span>
             <span className="text-sm text-muted">
-              Level {level.level}, {level.name} · {overview.weeklyXp} XP this week
+              {overview.answeredToday} answered today · {overview.currentStreak}-day streak
             </span>
             <span className="mt-2 text-sm font-medium text-periwinkle-ink">See your progress ›</span>
           </Link>

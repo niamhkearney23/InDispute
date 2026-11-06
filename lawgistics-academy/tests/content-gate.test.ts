@@ -370,9 +370,12 @@ test('the court map page sends the map only when the rule allows, and says why w
 });
 
 test('the menu, the Learn page and the tour do not lead a learner to a court map they cannot open', () => {
+  // The court map is on Learn, not in the menu (the owner, November 2026), so
+  // neither menu links to it at all, signed off or not.
   const layout = read('src/app/(app)/layout.tsx');
-  assert.match(layout, /courtsShown \? \(\s*<NavLink href="\/courts"/);
-  assert.match(layout, /courtMapFor\(profile\.country, await viewerIsStaff\(user\.id\)\)/);
+  assert.doesNotMatch(layout, /\/courts/);
+  assert.doesNotMatch(read('src/components/bottom-nav.tsx'), /\/courts/);
+  assert.doesNotMatch(read('src/components/account-menu.tsx'), /\/courts/);
   const learn = read('src/app/(app)/modules/page.tsx');
   // The court map is one of the ways to practise only when there is a map
   // for this person, and that is the only place the page links to it.

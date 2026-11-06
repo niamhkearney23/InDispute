@@ -12,7 +12,9 @@ import { FirstPassword } from './account/password-form';
 import { NextRoundClock } from '@/components/next-round-clock';
 import { roundsToday } from '@/lib/training/rounds-service';
 import { nextOpening, openRound } from '@/lib/training/rounds';
-import { courtMapFor, viewerIsStaff } from '@/lib/content/service';
+import { firstStepNow } from '@/lib/learning/first-steps-server';
+import { FirstVisitShell } from '@/components/first-visit-shell';
+import { hello } from '../fonts';
 
 /**
  * Every page under this layout is per-learner and auth-gated. Say so explicitly
@@ -51,23 +53,40 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     );
   }
 
+  // The first visit (src/lib/learning/first-steps.ts): their first steps,
+  // then the diagnostic while there are questions for it, with nothing else
+  // open until each is done. Here only the plain shell is drawn; the pages
+  // send people back to the step (requireAccess), because a redirect from a
+  // layout loops while moving between pages.
+  const staff = Boolean(profile?.isAdmin || profile?.isCoach || profile?.isFirmAdmin);
+  const firstStep = await firstStepNow();
+  if (firstStep && profile) {
+    return (
+      <div className={hello.variable}>
+        <FirstVisitShell
+          step={firstStep}
+          menu={
+            <AccountMenu
+              minimal
+              name={profile.displayName}
+              tourHref="/dashboard"
+              avatar={<Avatar url={profile.avatarUrl} cartoon={profile.cartoon} name={profile.displayName} size={28} />}
+            />
+          }
+        >
+          {children}
+        </FirstVisitShell>
+      </div>
+    );
+  }
+
   // A confirmed trainee on a working morning gets the corner clock: how long
   // the open round has left, or when the next one opens. Nothing for anyone
   // else, and nothing if the rounds cannot be read.
-  // The menu offers the court map only to somebody who may open it: until a
-  // lawyer signs off their country's map, a learner has no Courts link to
-  // follow to a page with nothing on it. Staff always have it.
-  // Both are asked at once: each is a trip to the database.
-  const [rounds, courtsShown] = await Promise.all([
+  const rounds =
     profile?.track === 'litigation_trainee' && profile.traineeConfirmed
-      ? roundsToday(user.id).catch(() => null)
-      : Promise.resolve(null),
-    profile
-      ? (async () => Boolean(await courtMapFor(profile.country, await viewerIsStaff(user.id))))().catch(
-          () => false,
-        )
-      : Promise.resolve(false),
-  ]);
+      ? await roundsToday(user.id).catch(() => null)
+      : null;
   let clock: { at: string; label: string } | null = null;
   if (rounds) {
     const open = openRound(rounds.rounds);
@@ -80,12 +99,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="theme-paper flex min-h-dvh flex-col">
+    <div className={`theme-paper flex min-h-dvh flex-col ${hello.variable}`}>
       <header className="sticky top-0 z-20 border-b border-rule bg-paper print:hidden">
-        {/* Compact: the wordmark, the learner's five places, Admin set apart
-            for staff, and the account menu. On a phone the five live in the
-            menu at the foot of the screen (BottomNav) and the header keeps
-            Courts, Admin and the account menu.
+        {/* Compact: the wordmark, the learner's three places (Today, Learn,
+            Coach), Admin set apart for staff, and the account menu, which
+            holds Progress. On a phone the three live in the menu at the foot
+            of the screen (BottomNav) and the header keeps Admin and the
+            account menu. The court map is on Learn, not in the menu (the
+            owner, November 2026: "why has it got its own little tab?").
 
             The wordmark does not shrink. It used to carry min-w-0, which let
             flex squash its box while the lettering inside stayed full width,
@@ -109,15 +130,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <NavLink href="/work" className="hidden hover:bg-paper-sunk sm:inline-flex">
               Coach
             </NavLink>
-            <NavLink href="/skills" className="hidden hover:bg-paper-sunk sm:inline-flex">
-              Progress
-            </NavLink>
-            {courtsShown ? (
-              <NavLink href="/courts" className="inline-flex hover:bg-paper-sunk">
-                Courts
-              </NavLink>
-            ) : null}
-            {profile?.isAdmin || profile?.isCoach || profile?.isFirmAdmin ? (
+            {staff && profile ? (
               // Staff land on Admin Today. Set apart from the learner's own
               // places: a hairline before it and an outlined label, so it
               // reads as a different area, not a sixth tab.
@@ -130,8 +143,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
                 </Link>
               </span>
             ) : null}
-            {/* Account settings, the quick tour and Sign out, behind the
-                person's picture. The 26px picture sits inside a 44px target. */}
+            {/* Progress, Account settings, the quick tour and Sign out, behind
+                the person's picture. The 26px picture sits inside a 44px target. */}
             <span className="ml-1 sm:ml-2">
               <AccountMenu
                 name={profile?.displayName ?? null}
@@ -160,8 +173,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-3 border-t border-rule pt-4 text-xs text-muted">
           <div className="max-w-xl space-y-1">
             <p>
-              Training content only, not legal advice. Levels are game levels, not professional
-              titles or qualifications. Always check the current rules of the relevant court
+              Training content only, not legal advice. Levels describe your answers here, not
+              professional titles or qualifications. Always check the current rules of the relevant court
               before acting on a point of procedure.
             </p>
             {brand.parentLine ? <p>{brand.parentLine}</p> : null}

@@ -21,6 +21,7 @@ import { LeaderboardCard } from '@/components/leaderboard-card';
 import { weeklyLeaderboard } from '@/lib/leaderboard';
 import { essayFor, viewerIsStaff } from '@/lib/content/service';
 import { longDate } from '@/lib/onboarding/rules';
+import { LEVEL_MIN_ANSWERS, SKILL_LEVELS, currentSkillLevel } from '@/lib/learning/skill-level';
 
 export const metadata: Metadata = { title: 'Your progress' };
 
@@ -138,6 +139,8 @@ export default async function SkillsPage() {
   const last = history.length > 0 ? history[history.length - 1] : null;
   const answeredInAll = history.reduce((sum, d) => sum + d.answered, 0);
   const rightInAll = history.reduce((sum, d) => sum + d.right, 0);
+  // The level in a word (skill-level.ts), from the same answers as Accuracy.
+  const skill = marks === null ? null : currentSkillLevel(rightInAll, answeredInAll);
   const conceptsMet = concepts.length;
   const dueNow = concepts.filter((c) => {
     const due = dueByConcept.get(c.id);
@@ -209,18 +212,11 @@ export default async function SkillsPage() {
         eyebrow="Progress"
         title="Your progress"
         description={`${COUNTRY_LABELS[profile.country]} · what you have answered, what you have finished, and what to practise next.`}
-        action={
-          <Link
-            href="/onboarding?edit=1"
-            className="inline-flex min-h-11 items-center text-sm text-slate underline underline-offset-4 hover:text-ink"
-          >
-            Change country or goals
-          </Link>
-        }
       />
 
       {/* Three different measures, side by side and named apart: how often
-          right, how much finished, how steady. XP is effort, kept quieter. */}
+          right, how much finished, how steady, and the level in a word. XP is
+          effort, not accuracy, and stays on the leaderboard. */}
       <section aria-labelledby="summary">
         <h2 id="summary" className="sr-only">
           Summary
@@ -256,12 +252,16 @@ export default async function SkillsPage() {
             <dd className="mt-1.5 text-xs text-muted">Best {overview.longestStreak}</dd>
           </div>
           <div className={stat}>
-            <dt className="text-xs font-medium text-muted">Level</dt>
-            <dd className="mt-1 text-[0.9375rem] font-semibold leading-snug">
-              {overview.level.level}. {overview.level.name}
+            <dt className="text-xs font-medium text-muted">Your level</dt>
+            <dd className="mt-1 font-serif text-2xl leading-none">
+              {skill ? SKILL_LEVELS[skill].name : '–'}
             </dd>
             <dd className="mt-1.5 text-xs text-muted">
-              {overview.weeklyXp} XP this week · XP counts effort, not accuracy
+              {skill
+                ? `${SKILL_LEVELS[skill].range}. ${SKILL_LEVELS[skill].meaning}`
+                : marks === null
+                  ? 'Could not be read just now'
+                  : `Shows after ${LEVEL_MIN_ANSWERS} answers`}
             </dd>
           </div>
         </dl>
@@ -414,9 +414,15 @@ export default async function SkillsPage() {
 
         <Disclosure
           id="streak"
-          title="Your streak"
-          preview={`${overview.currentStreak} ${overview.currentStreak === 1 ? 'day' : 'days'} in a row · best ${overview.longestStreak}`}
+          title="Streak and XP"
+          preview={`${overview.currentStreak} ${overview.currentStreak === 1 ? 'day' : 'days'} in a row · game level ${overview.level.level}, ${overview.level.name}`}
         >
+          {/* The game: kept apart from the skill level above, because XP
+              counts effort, not how often somebody is right. */}
+          <p className="mb-4 text-sm text-slate">
+            Game level {overview.level.level}, {overview.level.name} · {overview.weeklyXp} XP this week. XP
+            counts effort, not accuracy.
+          </p>
           <StreakSection overview={overview} timezone={profile.timezone} />
         </Disclosure>
 

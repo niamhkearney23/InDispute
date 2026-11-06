@@ -918,11 +918,43 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 - **The LinkedIn ad** for the trainee programme is `video/linkedin-trainee-ad/`,
   with the video, stills and post text in `out/`. Posted by hand, once the
   firm has approved it.
-- **The tour** (`/welcome`, words in `src/content/tour.ts`): joining ends on a
-  short card-by-card tour of what each part of the academy is and where to
-  find it, then the diagnostic (or Today when there is nothing to sit).
-  Trainees also get the rounds, the work board and the month. Open again from
-  Account. Change it when a menu item or a rule it describes changes.
+- **The tour** (`/welcome`, words in `src/content/tour.ts`): a short
+  card-by-card tour of what each part of the academy is and where to find
+  it. Trainees also get the rounds, the work board and the month. Since
+  November 2026 joining no longer passes through it (the first visit, below,
+  goes straight to the diagnostic); it is opened from Account. Change it
+  when a menu item or a rule it describes changes.
+- **The first visit** (the owner, November 2026: "it says like hi, what's
+  your name? Then it says do a test to see where you're at and don't have
+  another option ... the diagnostic thing is just a one-time thing").
+  `src/lib/learning/first-steps.ts` (pure, tested) says which step somebody
+  is on: **onboarding** until they finish their first steps, then
+  **diagnostic** until it is done, only while their country has published
+  questions (a failed count is not a yes: `questionsPublished` returns null
+  and nobody is held), never for staff. While held, only the step, Account
+  and Pricing open; every other page sends them back. The sending is in
+  `requireAccess` (`holdForFirstSteps`, `first-steps-server.ts`), which every
+  training page calls, never in the layout: a redirect thrown by a layout
+  looped while moving between pages. The layout only draws the plain shell
+  (`first-visit-shell.tsx`: the name and an account menu with Account
+  settings and Sign out), dark like the sign-in pages for the greeting,
+  Today and the start of the test, paper for the questions. The first steps
+  (`onboarding/first-steps.tsx`) are one question to a screen: "Hi." and
+  their name, their cartoon (`CartoonPicker`, saved by `saveOnboarding`
+  through `strictCartoon`), career stage, minutes a day, where in the
+  country, then "Start the test". Goals start on litigation knowledge and
+  are changed on Account. Today and `/diagnostic` show only `FirstTest`
+  until it is done; `finishSession` re-reads every layout so the full shell
+  appears with the result. Sign-up asks only for an email and password; the
+  name is the first question after it. **The programme is never the
+  person's to change**: `saveOnboarding` keeps the invitation's track or the
+  profile's, whatever the form sends.
+- **The level in a word** (`src/lib/learning/skill-level.ts`): Basic (up to
+  55% right), Intermediate (56 to 79%), Advanced (80% or more), the same
+  lines as every score (`masteryBand`), with what each means. The diagnostic
+  result leads with it; Today's progress tile and Progress show it from
+  every answer by area once there are 20. XP and its game levels are effort,
+  not accuracy: on Progress under "Streak and XP" and on the leaderboard.
 - **The front page** says "In association with Thomas Philip" under the
   headline (`brand.association`, shown only under the Lawgistics name). Since October 2026 it shows the firm's own logo there in place of the
   name (`brand.associationLogo`, `public/brand/thomas-philip-lockup.png`,
@@ -965,23 +997,30 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   everything else. Shared pieces in `ui.tsx`: `PageHeader` (one title size
   for every page), `ProgressBar` (always with its count in words),
   `StatusBadge` (Not started, In progress, Complete, Not published yet).
-  **Shell:** a compact header; Admin (or Marking) is an outlined pill after
-  a hairline, apart from the learner's five places; Account settings, "Help:
-  quick tour" and Sign out live in the account menu behind the picture
-  (`account-menu.tsx`, a disclosure: Escape and a tap outside close it). The
+  **Shell:** a compact header with three places, Today, Learn and Coach (the
+  owner, November 2026: "there's too much things happening"); Admin (or
+  Marking) is an outlined pill after a hairline; Progress, Account settings,
+  "Help: quick tour" and Sign out live in the account menu behind the
+  picture (`account-menu.tsx`, a disclosure: Escape and a tap outside close
+  it). The phone's bottom menu has the same three. Courts is not in any
+  menu: it is a row under Learn, Practice and reference, shown only once the
+  map is signed off. The
   footer follows the content and is compact; `main` no longer stretches to
   push it down. **Today:** compact greeting, the navy next-task card ("Start"
   or "Continue today's questions" from real state), then Set for today split
   into Required (with its own "x of y done") and Also today (not counted);
   progress, programme and the daily fact beside it from 1024px. A pending
-  trainee gets one short status line. **Learn:** "Continue where you left
-  off" first, then the firm's reading, then module cards (status, "n of m
-  questions right", bar, Start/Continue/Review), then Practice and reference
-  as small tiles. **Coach:** honest groups (Feedback for you, To do,
+  trainee gets one short status line. **Learn:** optional, at your own pace
+  (what the coach sets is on Today); "Carry on" only for a module with
+  something right in it (answered is not begun: diagnostic and daily
+  answers count as answered, and "Continue" on 0 of 19 confused the owner);
+  the firm's reading; the modules as one numbered contents list with no
+  pictures (the owner found the illustrated cards "very AI"); then Practice
+  and reference as one list of rows. **Coach:** honest groups (Feedback for you, To do,
   Awaiting feedback, Open to take, To read, Done); an empty board says
   "Waiting for confirmation" to a pending trainee, never "No work set".
-  **Progress:** Accuracy (with its sample), Modules complete, Streak and
-  Level (XP labelled as effort, not accuracy) apart; What to practise next,
+  **Progress** (behind the picture): Accuracy (with its sample), Modules
+  complete, Streak and the level in a word apart; What to practise next,
   each traceable to a result on the page; Progress by topic with counts; the
   trend line only from three days of answers. **Courts:** a list by rung on
   a phone, the diagram from tablet up, and a details panel beside it from
@@ -995,11 +1034,19 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   `NEXT_PUBLIC_BRAND_ACCENT` still wins (`--brand-accent`). The work board is
   "Coach" in the menu (its page is "From your coach"), and the staff link to
   Admin, Work is "Marking". **On a phone the menu is at the foot of the screen**
-  (`src/components/bottom-nav.tsx`: Today, Learn, Coach, Progress, Account,
-  hidden from `sm:` up, where the header carries the same names); the header
-  keeps Courts (while `courtsShown`), Admin or Marking, and the account menu (Sign out is in it). It only
+  (`src/components/bottom-nav.tsx`: Today, Learn, Coach, hidden from `sm:`
+  up, where the header carries the same names); the header keeps Admin or
+  Marking and the account menu (Progress and Sign out are in it). It only
   links to pages every learner could already open. The round clock sits
-  above it. The front page and sign-in stay cream. The certificate and a
+  above it. The front page stays cream. The sign-in pages (login, sign-up,
+  the trainee sign-up, a forgotten password) are one centred column on a
+  dark page (#0c1520) opening on "Hi." in Libre Caslon Display
+  (`src/app/fonts.ts`, loaded by the (auth) and (app) layouts only),
+  arriving slowly (`auth-in`); a sent email replaces the form with "Check
+  your email." and the address it went to. Their submit button is disabled
+  until the page's code runs (`useHydrated`), as is `BeginSessionButton`, so
+  an early tap is not silently lost. The emails Supabase sends are branded
+  by `docs/email-templates/` (custom SMTP removes Supabase's footer). The certificate and a
   matter's case file stay cream paper inside it. The Advocacy Studio is on
   Learn, not in the menu.
   Use the tokens, never fixed Tailwind colours, or a page breaks in one look.

@@ -1,4 +1,5 @@
 import 'server-only';
+import { holdForFirstSteps } from '@/lib/learning/first-steps-server';
 import { redirect } from 'next/navigation';
 import { createServiceClient } from '@/lib/supabase/service';
 import { getCurrentUser } from '@/lib/supabase/server';
@@ -101,6 +102,9 @@ export async function hasAccess(userId: string): Promise<boolean> {
  * profile) do not call it, and a test holds every other page to it.
  */
 export async function requireAccess(): Promise<void> {
+  // The first visit comes first: somebody on their first steps or their
+  // diagnostic is sent back to it from any other page (first-steps.ts).
+  await holdForFirstSteps();
   if (!paymentsOn()) return;
   const user = await getCurrentUser();
   if (!user) redirect('/login');

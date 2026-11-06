@@ -2,8 +2,9 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getCurrentUser, createSupabaseServerClient } from '@/lib/supabase/server';
 import { masteryBand } from '@/lib/learning/mastery';
-import { ButtonLink, Card, ScoreBar, SectionHeading, Stat } from '@/components/ui';
+import { ButtonLink, Card, ScoreBar, SectionHeading, cn } from '@/components/ui';
 import { requireAccess } from '@/lib/access/service';
+import { SKILL_LEVELS, SKILL_LEVEL_ORDER, skillLevelFor } from '@/lib/learning/skill-level';
 
 export const metadata: Metadata = { title: 'Your skill map' };
 
@@ -50,31 +51,45 @@ export default async function DiagnosticResultsPage({
     }))
     .sort((a, b) => b.score - a.score);
 
+  const percent = result.total_questions > 0 ? Math.round((result.total_correct / result.total_questions) * 100) : 0;
+  const level = skillLevelFor(percent);
+
   return (
     <div className="mx-auto max-w-2xl space-y-8">
-      <section>
-        <p className="eyebrow mb-2">Diagnostic complete</p>
-        <h1 className="text-3xl sm:text-4xl">Your litigation skill map</h1>
-        <p className="mt-3 text-slate">
-          This is a starting position, not a verdict. Every score moves as you train, and
-          the areas at the bottom are simply where the next few weeks are most worth
-          spending.
+      {/* The level in a word, what it means, and where it sits on the
+          scale (the owner, November 2026: "see what level you're at"). */}
+      <section aria-labelledby="your-level" className="rise-in rounded-2xl bg-ink px-6 py-9 text-center text-paper sm:px-10 sm:py-11">
+        <p className="text-sm text-paper/60">
+          Diagnostic complete · {result.total_correct} of {result.total_questions} right ({percent}%)
+        </p>
+        <p className="mt-6 text-sm text-paper/60">Your level</p>
+        <h1 id="your-level" className="auth-hello auth-hello--small mt-1">
+          {SKILL_LEVELS[level].name}
+        </h1>
+        <p className="mx-auto mt-4 max-w-md text-paper/80 text-balance">{SKILL_LEVELS[level].meaning}</p>
+        <ol className="mx-auto mt-8 grid max-w-md grid-cols-3 gap-2 text-left" aria-label="The three levels">
+          {SKILL_LEVEL_ORDER.map((key) => (
+            <li
+              key={key}
+              aria-current={key === level ? 'true' : undefined}
+              className={cn(
+                'rounded-lg border px-3 py-2.5',
+                key === level ? 'border-paper/70 bg-paper/10' : 'border-paper/15',
+              )}
+            >
+              <span className={cn('block text-sm font-semibold', key === level ? 'text-paper' : 'text-paper/60')}>
+                {SKILL_LEVELS[key].name}
+              </span>
+              <span className="mt-0.5 block text-xs leading-snug text-paper/50">{SKILL_LEVELS[key].range}</span>
+            </li>
+          ))}
+        </ol>
+        <p className="mx-auto mt-6 max-w-md text-xs text-paper/50 text-balance">
+          A starting point from {result.total_questions} questions, not a verdict on you as a lawyer. It moves
+          as you train, and Progress shows it as it changes. Areas assessed:{' '}
+          {Object.keys(domainScores).length} of {(domains ?? []).length}.
         </p>
       </section>
-
-      <Card>
-        <div className="grid grid-cols-2 gap-5">
-          <Stat
-            label="Answered correctly"
-            value={`${result.total_correct}/${result.total_questions}`}
-          />
-          <Stat
-            label="Areas assessed"
-            value={Object.keys(domainScores).length}
-            hint={`of ${(domains ?? []).length} areas`}
-          />
-        </div>
-      </Card>
 
       <section>
         <SectionHeading title="By area" />
@@ -119,10 +134,10 @@ export default async function DiagnosticResultsPage({
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <ButtonLink href="/dashboard" size="lg" variant="accent">
-          Start training
+          Go to Today
         </ButtonLink>
         <ButtonLink href="/skills" size="lg" variant="outline">
-          See the full breakdown
+          See your progress
         </ButtonLink>
       </div>
     </div>

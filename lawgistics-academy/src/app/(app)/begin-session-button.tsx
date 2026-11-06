@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { beginSession } from './actions';
 import { Button, Notice } from '@/components/ui';
 import { isRedirect } from '@/lib/is-redirect';
+import { useHydrated } from '@/lib/client/use-hydrated';
 import type { SessionKind } from '@/lib/types';
 
 export function BeginSessionButton({
@@ -20,6 +21,9 @@ export function BeginSessionButton({
 }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  // Shown, but not pressable, until the page's code runs: a tap before
+  // then would do nothing at all.
+  const hydrated = useHydrated();
 
   function start() {
     setError(null);
@@ -49,7 +53,7 @@ export function BeginSessionButton({
       <Button
         size={compact ? 'sm' : 'lg'}
         variant={variant}
-        disabled={pending}
+        disabled={pending || !hydrated}
         onClick={start}
         className={compact ? 'min-h-11' : undefined}
       >

@@ -99,7 +99,7 @@ export function tourSteps({
     },
     {
       key: 'skills',
-      where: 'Menu: Skills',
+      where: 'Your picture, then Progress',
       title: 'Where you are',
       body: 'Your score in each area is the share of your answers that were right. It starts at 100% and only a wrong answer brings it down. You also see your score over time, and anything you were certain about and got wrong.',
       icon: 'level',
@@ -108,7 +108,7 @@ export function tourSteps({
       ? [
           {
             key: 'courts',
-            where: 'Menu: Courts',
+            where: 'Learn, then Courts',
             title: 'Courts',
             body: 'The court map: where a matter starts, and where it goes if somebody appeals. Tap any court to open it.',
             icon: 'arrow' as const,

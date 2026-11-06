@@ -6,7 +6,6 @@ import { getLearnerProfile } from '@/lib/learner-overview';
 import { getModuleProgress } from '@/lib/modules/service';
 import { listFirmModulesForLearner } from '@/lib/firm/service';
 import { ButtonLink, PageHeader, Pill, ProgressBar, SectionHeading, StatusBadge } from '@/components/ui';
-import { ModuleArt, artFor } from '@/components/module-art';
 import { requireAccess } from '@/lib/access/service';
 import { PROGRAMME_BOOK } from '@/content/seed/reading';
 import { courtMapFor, viewerIsStaff } from '@/lib/content/service';
@@ -30,22 +29,21 @@ export default async function ModulesPage() {
   // Where somebody stands on each module, in the module's own unit:
   // questions answered right at least once (a module is complete when every
   // one has been).
+  // In progress once something is right, not merely answered: a question
+  // met in the diagnostic or daily training counts as answered, and "Continue
+  // where you left off" on 0 of 19 read as a module they had never opened.
   const status = (e: (typeof progress)[number]) =>
-    e.total === 0 ? 'unavailable' : e.complete ? 'complete' : e.answered > 0 ? 'in-progress' : 'not-started';
+    e.total === 0 ? 'unavailable' : e.complete ? 'complete' : e.correctOnce > 0 ? 'in-progress' : 'not-started';
   const action = { 'not-started': 'Start', 'in-progress': 'Continue', complete: 'Review', unavailable: null } as const;
-  // The one to carry on with: the first begun and not finished, or else the
-  // first required one not started.
-  const resume =
-    progress.find((e) => status(e) === 'in-progress') ??
-    progress.find((e) => e.module.required && status(e) === 'not-started') ??
-    null;
+  // The one to carry on with, only when one is begun and not finished.
+  const resume = progress.find((e) => status(e) === 'in-progress') ?? null;
   const tools = [
     ...(courtMap
       ? [
           {
             href: '/courts',
-            title: 'Which court does this go in?',
-            text: 'The court hierarchy, and where an appeal goes.',
+            title: 'Courts',
+            text: 'Which court a matter starts in, and where an appeal goes.',
             icon: 'courts' as const,
           },
         ]
@@ -76,31 +74,30 @@ export default async function ModulesPage() {
     },
   ];
 
+  const row = 'pressable flex items-center gap-4 px-4 py-4 hover:bg-paper-sunk/60 sm:px-5';
   return (
-    <div className="space-y-8">
+    <div className="space-y-9">
       <PageHeader
-        eyebrow="Learn"
-        title="Modules and practice"
-        description="Each module teaches for a few minutes, then asks. It is complete once every question has been answered right."
+        title="Learn"
+        description="Optional, at your own pace: modules, practice and reference. What your coach sets you is on Today."
       />
 
       {resume ? (
-        <section aria-labelledby="resume" className="flex flex-wrap items-center gap-4 rounded-xl border border-rule bg-paper-raised p-4 sm:flex-nowrap sm:p-5">
-          <ModuleArt kind={artFor(resume.module.slug)} className="h-16 w-24 shrink-0 rounded-lg" />
+        <section aria-labelledby="resume" className="flex flex-wrap items-center gap-x-6 gap-y-3 border-y border-rule py-4">
           <div className="min-w-0 flex-1">
-            <p className="eyebrow">{status(resume) === 'in-progress' ? 'Continue where you left off' : 'Start here'}</p>
-            <h2 id="resume" className="mt-1 text-lg leading-snug">
+            <p className="text-xs text-muted">Carry on</p>
+            <h2 id="resume" className="mt-0.5 font-sans text-[0.9375rem] font-semibold">
               {resume.module.name}
             </h2>
             <ProgressBar
-              className="mt-2 max-w-sm"
+              className="mt-2 max-w-xs"
               value={resume.correctOnce}
               max={resume.total}
               label={`${resume.correctOnce} of ${resume.total} questions right`}
             />
           </div>
           <ButtonLink href={`/modules/${resume.module.slug}`} variant="accent" className="w-full sm:w-auto">
-            {status(resume) === 'in-progress' ? 'Continue' : 'Start'}
+            Continue
           </ButtonLink>
         </section>
       ) : null}
@@ -114,11 +111,7 @@ export default async function ModulesPage() {
           <ul className="divide-y divide-rule overflow-hidden rounded-xl border border-rule bg-paper-raised">
             {firmModules.map((module) => (
               <li key={module.id}>
-                <Link
-                  href={`/modules/firm/${module.slug}`}
-                  className="pressable flex min-h-16 items-center gap-4 px-4 py-3 hover:bg-paper-sunk/60 sm:px-5"
-                >
-                  <ModuleArt kind="firm" className="h-12 w-16 shrink-0 rounded-md" />
+                <Link href={`/modules/firm/${module.slug}`} className={row}>
                   <span className="min-w-0 flex-1">
                     <span className="flex flex-wrap items-center gap-2">
                       <span className="font-semibold">{module.name}</span>
@@ -138,70 +131,74 @@ export default async function ModulesPage() {
         </section>
       ) : null}
 
+      {/* The modules as a contents page: a number, the name, one line, and
+          how far along, in one list. No pictures: the owner found the
+          illustrated cards "very AI". */}
       <section aria-labelledby="your-modules">
         <h2 id="your-modules" className="mb-3 text-xl">
-          Your modules
+          Modules
         </h2>
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {progress.map((entry) => {
+        <ol className="divide-y divide-rule overflow-hidden rounded-xl border border-rule bg-paper-raised">
+          {progress.map((entry, i) => {
             const st = status(entry);
             return (
               <li key={entry.module.slug}>
-                <Link
-                  href={`/modules/${entry.module.slug}`}
-                  className="pressable flex h-full flex-col overflow-hidden rounded-xl border border-rule bg-paper-raised hover:border-rule-strong"
-                >
-                  <ModuleArt kind={artFor(entry.module.slug)} className="aspect-[3/1] w-full" />
-                  <div className="flex flex-1 flex-col p-4">
-                    <div className="mb-2 flex flex-wrap items-center gap-1.5">
-                      <StatusBadge status={st} />
+                <Link href={`/modules/${entry.module.slug}`} className={`${row} items-start`}>
+                  <span aria-hidden className="w-7 shrink-0 pt-0.5 font-serif text-lg leading-none text-muted tabular-nums">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <span className="text-[0.9375rem] font-semibold leading-snug">{entry.module.name}</span>
                       {entry.module.required ? <Pill tone="accent">Required</Pill> : null}
-                    </div>
-                    <h3 className="font-sans text-base leading-snug font-semibold">{entry.module.name}</h3>
-                    <p className="mt-1 line-clamp-2 text-sm text-slate">{entry.module.summary}</p>
-                    <div className="mt-auto pt-4">
-                      {entry.total > 0 ? (
-                        <ProgressBar
-                          value={entry.correctOnce}
-                          max={entry.total}
-                          label={`${entry.correctOnce} of ${entry.total} questions right`}
-                        />
-                      ) : (
-                        <p className="text-xs text-muted">Questions appear once a lawyer has signed them off.</p>
-                      )}
-                      {action[st] ? (
-                        <p className="mt-3 text-sm font-medium text-periwinkle-ink">{action[st]} ›</p>
-                      ) : null}
-                    </div>
-                  </div>
+                      {st === 'complete' ? <StatusBadge status="complete" /> : null}
+                    </span>
+                    <span className="mt-0.5 block text-sm text-slate">{entry.module.summary}</span>
+                    {entry.total > 0 ? (
+                      <ProgressBar
+                        className="mt-2.5 max-w-xs"
+                        value={entry.correctOnce}
+                        max={entry.total}
+                        label={`${entry.correctOnce} of ${entry.total} questions right`}
+                      />
+                    ) : (
+                      <span className="mt-1.5 block text-xs text-muted">
+                        Questions appear once a lawyer has signed them off.
+                      </span>
+                    )}
+                  </span>
+                  {action[st] ? (
+                    <span className="hidden shrink-0 self-center text-sm font-medium text-periwinkle-ink sm:inline">
+                      {action[st]} ›
+                    </span>
+                  ) : null}
                 </Link>
               </li>
             );
           })}
-        </ul>
+        </ol>
       </section>
 
-      {/* Practice and reference, as one compact group under the modules. The
-          court map is offered only once a lawyer has signed off this
-          country's map, so it never leads to a page with nothing on it. */}
+      {/* Practice and reference, one list of rows. The court map is offered
+          only once a lawyer has signed off this country's map, so it never
+          leads to a page with nothing on it; it is here rather than in the
+          menu. */}
       <section aria-labelledby="ways-to-practise">
         <h2 id="ways-to-practise" className="mb-3 text-xl">
           Practice and reference
         </h2>
-        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="divide-y divide-rule overflow-hidden rounded-xl border border-rule bg-paper-raised">
           {tools.map((tool) => (
             <li key={tool.href}>
-              <Link
-                href={tool.href}
-                className="pressable flex h-full items-start gap-3 rounded-xl border border-rule bg-paper-raised p-4 hover:border-rule-strong"
-              >
+              <Link href={tool.href} className={row}>
                 <span aria-hidden className="flex size-9 shrink-0 items-center justify-center rounded-md bg-paper-sunk text-accent">
                   <ToolIcon kind={tool.icon} />
                 </span>
-                <span className="min-w-0">
+                <span className="min-w-0 flex-1">
                   <span className="block text-[0.9375rem] font-semibold leading-snug">{tool.title}</span>
                   <span className="mt-0.5 block text-sm text-slate">{tool.text}</span>
                 </span>
+                <span aria-hidden className="shrink-0 text-muted">›</span>
               </Link>
             </li>
           ))}

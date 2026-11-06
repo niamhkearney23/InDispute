@@ -1,14 +1,9 @@
 'use client';
 
 import { useActionState, useMemo, useState } from 'react';
-import { Button, Notice, cn } from '@/components/ui';
-import {
-  CARTOON_PARTS,
-  DEFAULT_CARTOON,
-  randomCartoon,
-  type CartoonPart,
-  type CartoonStyle,
-} from '@/lib/avatar/cartoon';
+import { Button, Notice } from '@/components/ui';
+import { CARTOON_PARTS, DEFAULT_CARTOON, randomCartoon, type CartoonStyle } from '@/lib/avatar/cartoon';
+import { CartoonPicker } from '@/components/cartoon-picker';
 import { cartoonDataUri } from '@/lib/avatar/draw';
 import { clearCartoon, saveCartoon, type CartoonState } from './actions';
 
@@ -22,7 +17,6 @@ const initialState: CartoonState = { error: null };
  */
 export function CartoonMaker({ saved }: { saved: CartoonStyle | null }) {
   const [draft, setDraft] = useState<CartoonStyle>(saved ?? DEFAULT_CARTOON);
-  const [partKey, setPartKey] = useState<CartoonPart>('hair');
   const [saveState, saveAction, saving] = useActionState(saveCartoon, initialState);
   const [clearState, clearAction, clearing] = useActionState(clearCartoon, initialState);
   // Which button was pressed last. Only its result is shown, and changing
@@ -33,17 +27,7 @@ export function CartoonMaker({ saved }: { saved: CartoonStyle | null }) {
     setLast(null);
   };
 
-  const part = CARTOON_PARTS.find((p) => p.key === partKey)!;
   const face = useMemo(() => cartoonDataUri(draft), [draft]);
-  // The face with each choice for this part tried on: what makes it a
-  // picker rather than a list of words.
-  const tries = useMemo(
-    () =>
-      part.kind === 'shape'
-        ? part.choices.map((c) => cartoonDataUri({ ...draft, [part.key]: c.id }))
-        : [],
-    [draft, part],
-  );
 
   const changed = !saved || CARTOON_PARTS.some(({ key }) => draft[key] !== saved[key]);
   const result = last === 'save' ? saveState : last === 'clear' ? clearState : null;
@@ -92,65 +76,7 @@ export function CartoonMaker({ saved }: { saved: CartoonStyle | null }) {
       </div>
 
       <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap gap-1.5" role="group" aria-label="Which part to change">
-          {CARTOON_PARTS.map((p) => (
-            <button
-              key={p.key}
-              type="button"
-              aria-pressed={p.key === partKey}
-              onClick={() => setPartKey(p.key)}
-              className={cn(
-                'min-h-11 rounded-full border px-3 py-1.5 text-sm transition-colors sm:min-h-0',
-                p.key === partKey
-                  ? 'border-accent bg-accent text-paper'
-                  : 'border-rule bg-paper-raised hover:border-accent',
-              )}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
-
-        <div
-          className={cn(
-            'mt-4 grid gap-2',
-            part.kind === 'shape' ? 'grid-cols-3 sm:grid-cols-5' : 'grid-cols-4 sm:grid-cols-6',
-          )}
-          role="group"
-          aria-label={part.label}
-        >
-          {part.choices.map((c, i) => {
-            const on = draft[part.key] === c.id;
-            return (
-              <button
-                key={c.id}
-                type="button"
-                aria-pressed={on}
-                onClick={() => change({ ...draft, [part.key]: c.id })}
-                className={cn(
-                  'flex flex-col items-center gap-1.5 rounded-lg border-2 px-1 py-2 text-center transition-colors',
-                  on ? 'border-accent bg-paper-sunk' : 'border-transparent hover:border-rule',
-                )}
-              >
-                {part.kind === 'shape' ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={tries[i]} alt="" width={64} height={64} className="size-16 rounded-full" />
-                ) : (
-                  <span
-                    aria-hidden
-                    className="size-10 rounded-full border border-rule"
-                    style={{ backgroundColor: `#${c.id}` }}
-                  />
-                )}
-                <span className="text-xs leading-tight">{c.label}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {part.key === 'clothesColour' ? (
-          <p className="mt-3 text-xs text-muted">A hijab, turban or hat takes this colour too.</p>
-        ) : null}
+        <CartoonPicker value={draft} onChange={change} />
 
         <div className="mt-4" aria-live="polite">
           {message ? (

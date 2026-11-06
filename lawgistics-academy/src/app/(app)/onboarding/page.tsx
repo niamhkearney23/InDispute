@@ -7,6 +7,8 @@ import { OnboardingForm } from './onboarding-form';
 import { AccentSurface } from '@/components/accent-surface';
 import { acceptedInvitationFor } from '@/lib/onboarding/invitations';
 import { trainingOpen } from '@/lib/training/service';
+import { DIAGNOSTIC_QUESTION_COUNT } from '@/lib/learning/config';
+import { FirstSteps } from './first-steps';
 
 export const metadata: Metadata = { title: 'Getting started' };
 
@@ -36,46 +38,44 @@ export default async function OnboardingPage({
   const country = invitation?.country ?? profile.country;
   const track = invitation?.track ?? profile.track;
 
-  // What comes after the button, as it is: the tour, then the diagnostic
-  // when there are questions to sit it with. The button used to say "Start
-  // my diagnostic" and led to the tour.
-  const steps = (await trainingOpen(country))
-    ? ['Five questions', 'A quick tour', 'Diagnostic']
-    : ['Five questions', 'A quick tour'];
+  // The first visit: one question to a screen on the dark surface
+  // (first-steps.tsx), ending on the diagnostic when there are questions.
+  if (!editing) {
+    // Sign-up names nobody (it asks only for an address), so the address's
+    // own first part is not offered back as a name.
+    const fromAddress = profile.email ? profile.email.split('@')[0] : null;
+    return (
+      <FirstSteps
+        defaultName={profile.displayName && profile.displayName !== fromAddress ? profile.displayName : ''}
+        defaultCountry={country}
+        track={track}
+        invited={Boolean(invitation)}
+        questionsOpen={await trainingOpen(country)}
+        diagnosticQuestions={DIAGNOSTIC_QUESTION_COUNT}
+      />
+    );
+  }
 
   return (
     <div className="mx-auto max-w-2xl">
       <AccentSurface as="section" className="rise-in mb-8 rounded-2xl shadow-raised">
         <div className="px-6 py-8 sm:px-9 sm:py-10">
           <p className="mb-3 text-[0.6875rem] font-semibold tracking-[0.16em] text-paper/70 uppercase">
-            {editing ? 'Your settings' : `Welcome to ${brand.fullName}`}
+            Your settings
           </p>
-          <h1 className="text-[2.25rem] leading-[1.05] sm:text-5xl">
-            {editing ? 'Change what you are training on' : 'Train like a lawyer.'}
-          </h1>
-          {editing && !invitation ? (
+          <h1 className="text-[2.25rem] leading-[1.05] sm:text-5xl">Your training</h1>
+          {track === 'litigation_trainee' ? (
+            <p className="mt-4 max-w-xl text-paper/85">
+              You are on the {brand.traineeAcademy}. That was set when you joined and cannot be
+              changed here; your name and how you train can.
+            </p>
+          ) : !invitation ? (
             <p className="mt-4 max-w-xl text-paper/85">
               Changing country changes which questions you are shown, because Australian and
               Malaysian law are different bodies of law. Everything you have already answered is
               kept.
             </p>
           ) : null}
-          {editing ? null : (
-            <ol className="mt-6 flex flex-wrap gap-2 text-sm" aria-label="What happens next">
-              {steps.map((step, i) => (
-                <li
-                  key={step}
-                  className={
-                    i === 0
-                      ? 'rounded-full bg-paper px-3.5 py-1.5 font-semibold text-accent'
-                      : 'rounded-full bg-paper/10 px-3.5 py-1.5 text-paper/80 ring-1 ring-paper/25'
-                  }
-                >
-                  {i + 1}. {step}
-                </li>
-              ))}
-            </ol>
-          )}
         </div>
       </AccentSurface>
 

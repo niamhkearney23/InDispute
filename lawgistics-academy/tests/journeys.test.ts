@@ -178,8 +178,11 @@ test("an invited person keeps the invitation's country", () => {
   const update = body.indexOf(".from('profiles')");
   assert.ok(lookup > 0 && update > lookup, 'the invitation is read before the profile is written');
   assert.match(body, /const country = invited\?\.country \?\? parsed\.data\.country/);
-  assert.match(body, /const track = invited\?\.track \?\? parsed\.data\.track/);
+  // The programme is never the person's to change: the invitation's, or the
+  // one already on their profile, whatever the form sends.
+  assert.match(body, /const track = invited\?\.track \?\? current\.track/);
   assert.doesNotMatch(body, /track: parsed\.data\.track/);
+  assert.doesNotMatch(body, /\?\? parsed\.data\.track/);
 
   const page = code(read('src/app/(app)/onboarding/page.tsx'));
   assert.match(page, /invited=\{Boolean\(invitation\)\}/);

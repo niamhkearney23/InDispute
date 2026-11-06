@@ -7,6 +7,7 @@ import { AvatarForm } from './avatar-form';
 import { CartoonMaker } from './cartoon-maker';
 import { LeaderboardForm } from './leaderboard-form';
 import { DeleteAccountForm } from './delete-account-form';
+import { brand } from '@/lib/brand';
 
 export const metadata: Metadata = { title: 'Your account' };
 
@@ -44,6 +45,16 @@ export default async function AccountPage() {
           avatarUrl={profile.avatarUrl}
           hasCartoon={profile.cartoon !== null}
         />
+      </Card>
+
+      <Card>
+        <p className="eyebrow mb-2">Your training</p>
+        <p className="text-sm text-slate">
+          {profile.track === 'litigation_trainee'
+            ? `You are on the ${brand.traineeAcademy}, set when you joined. Your name, how long you train each day and what you want to improve can be changed.`
+            : 'Your name, how long you train each day, where you are in your career and what you want to improve.'}{' '}
+          <InlineLink href="/onboarding?edit=1">Change them</InlineLink>
+        </p>
       </Card>
 
       <Card>

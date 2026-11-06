@@ -14,6 +14,7 @@ import {
   resumeOrStartSession,
   startModuleSession,
   submitAnswer,
+  trainingOpen,
 } from '@/lib/training/service';
 import { moduleBySlug } from '@/content/seed/modules';
 import { HOMEWORK_DAYS, homeworkForDay } from '@/content/seed/homework';
@@ -53,6 +54,7 @@ import { hasAccess } from '@/lib/access/service';
 import { userFacingError } from '@/lib/env';
 import { scheduleForPerson } from '@/lib/training/cohorts';
 import { countryOpen } from '@/lib/countries';
+import { strictCartoon } from '@/lib/avatar/cartoon';
 
 const GOAL_SLUGS = IMPROVEMENT_GOALS.map((g) => g.slug);
 
@@ -96,9 +98,15 @@ export async function saveOnboarding(
   // switch, but this action is a public endpoint, and an intern recorded as
   // Australian by their own hand would be trained on the wrong law with the
   // firm's invitation saying otherwise.
-  const invited = await acceptedInvitationFor(user.id);
+  // The programme is set when somebody signs up (the trainee page or a
+  // firm's invitation) and is never changed by the person: the owner,
+  // November 2026, "the litigation thing is set in stone". The form only
+  // shows it, and this action is a public endpoint, so whatever is sent
+  // for it is ignored.
+  const [invited, current] = await Promise.all([acceptedInvitationFor(user.id), getLearnerProfile(user.id)]);
+  if (!current) return { error: 'Your answers could not be saved. Please try again.' };
   const country = invited?.country ?? parsed.data.country;
-  const track = invited?.track ?? parsed.data.track;
+  const track = invited?.track ?? current.track;
 
   // A country this deployment does not offer (src/lib/countries.ts) is
   // refused, unless the firm's invitation chose it or the person finished
@@ -106,8 +114,7 @@ export async function saveOnboarding(
   // a public endpoint. Not finished setting up does not count, because a
   // new account can carry the database's default country unasked.
   if (!invited && !countryOpen(country)) {
-    const current = await getLearnerProfile(user.id);
-    if (!current?.onboardedAt || current.country !== country) {
+    if (!current.onboardedAt || current.country !== country) {
       return { error: 'That country is not offered here yet.' };
     }
   }
@@ -135,6 +142,19 @@ export async function saveOnboarding(
   const goals = parsed.data.goals.filter((slug) => GOAL_SLUGS.includes(slug as never));
   if (goals.length === 0) return { error: 'Choose at least one area to improve.' };
 
+  // The first steps include making a cartoon (the owner: "when you first
+  // open it, I want you to be able to pick what you look like"). Only
+  // choices from the app's own lists, all of them or none, as on Account;
+  // a skipped or unreadable one leaves the picture as it was.
+  let cartoon: ReturnType<typeof strictCartoon> = null;
+  if (!editing && formData.get('style')) {
+    try {
+      cartoon = strictCartoon(JSON.parse(String(formData.get('style'))));
+    } catch {
+      cartoon = null;
+    }
+  }
+
   // A learner editing their own profile needs no elevated privilege, go
   // through RLS. The trigger on `profiles` blocks any attempt to set is_admin.
   const supabase = await createSupabaseServerClient();
@@ -148,6 +168,7 @@ export async function saveOnboarding(
       country,
       track,
       home_jurisdiction: parsed.data.homeJurisdiction,
+      ...(cartoon ? { avatar_style: cartoon } : {}),
       // Changing settings is not joining again: the date they started stays.
       ...(editing ? {} : { onboarded_at: new Date().toISOString() }),
     })
@@ -157,12 +178,15 @@ export async function saveOnboarding(
   // to know only that it did not save.
   if (error) return { error: 'Your answers could not be saved. Please try again.' };
 
-  revalidatePath('/dashboard');
-  // Somebody joining goes to the tour, which ends on the diagnostic when there
-  // are questions to sit it with and on their day when there are not.
-  // Somebody changing their settings goes back to their day rather than into
-  // a tour or a diagnostic they did not ask for.
-  redirect(editing ? '/dashboard' : '/welcome');
+  // The whole shell changes once somebody has finished their first steps
+  // (src/lib/learning/first-steps.ts), so every layout is read again.
+  revalidatePath('/', 'layout');
+  // Somebody joining goes straight to the diagnostic when there are
+  // questions to sit it with, and to their day when there are not (the tour
+  // is still on Account and in the account menu). Somebody changing their
+  // settings goes back to their day.
+  if (editing) redirect('/dashboard');
+  redirect((await trainingOpen(country)) ? '/diagnostic' : '/dashboard');
 }
 
 const SESSION_KINDS: SessionKind[] = ['diagnostic', 'daily', 'review', 'practice'];
@@ -322,7 +346,9 @@ export async function finishSession(sessionId: string) {
   const result = await completeSession(user.id, sessionId);
   if ('error' in result) redirect('/dashboard');
 
-  revalidatePath('/dashboard');
+  // Finishing the diagnostic opens the rest of the academy for the first
+  // time (src/lib/learning/first-steps.ts), so the shell is read again.
+  revalidatePath(result.kind === 'diagnostic' ? '/' : '/dashboard', result.kind === 'diagnostic' ? 'layout' : undefined);
   redirect(
     result.kind === 'diagnostic'
       ? `/diagnostic/results?session=${sessionId}`

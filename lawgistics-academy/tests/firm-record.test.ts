@@ -80,9 +80,11 @@ test('the walker actually found the firm-facing views', () => {
 test('the learner still gets the game', () => {
   // The other half of the same rule. If levels vanish from the learner's own
   // pages the split has been "fixed" by deleting the thing worth keeping.
-  const dashboard = fs.readFileSync(
-    path.join(ROOT, 'src/app/(app)/dashboard/page.tsx'),
+  // Since November 2026 the game level lives on Progress, beside the streak,
+  // and Today shows the skill level in its place (skill-level.ts).
+  const progress = fs.readFileSync(
+    path.join(ROOT, 'src/app/(app)/skills/page.tsx'),
     'utf8',
   );
-  assert.match(dashboard, /level\.name/, 'the dashboard should still show the level name');
+  assert.match(progress, /overview\.level\.name/, 'Progress should still show the game level name');
 });

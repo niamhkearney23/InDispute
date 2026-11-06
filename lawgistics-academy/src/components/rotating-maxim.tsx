@@ -38,27 +38,14 @@ export function RotatingMaxim({ className, rules }: { className?: string; rules:
 
   return (
     <figure className={className}>
-      <div className="rounded-2xl border border-paper/20 bg-paper/10 p-5 backdrop-blur-sm sm:p-6">
-        <p className="mb-3 flex items-center justify-between gap-3 text-[0.6875rem] font-semibold tracking-[0.16em] text-paper/70 uppercase">
-          <span>Rule {rule.day} of {RULES.length}</span>
-          <span className="truncate normal-case tracking-normal">{rule.concept}</span>
-        </p>
-        <blockquote key={rule.day} className="maxim-in font-serif text-2xl leading-snug sm:text-[1.75rem]">
-          {rule.line}
-        </blockquote>
-        <div className="mt-5 flex gap-1" aria-hidden>
-          {RULES.map((r, i) => (
-            <span
-              key={r.day}
-              className={
-                i === index
-                  ? 'h-1 flex-[3] rounded-full bg-paper transition-all duration-500'
-                  : 'h-1 flex-1 rounded-full bg-paper/25 transition-all duration-500'
-              }
-            />
-          ))}
-        </div>
-      </div>
+      {/* A quiet line at the foot of the sign-in pages: the rule in the
+          serif, and which of the twenty it is, nothing boxed. */}
+      <blockquote key={rule.day} className="maxim-in font-serif text-lg leading-snug text-paper/70 italic">
+        {rule.line}
+      </blockquote>
+      <p className="mt-2 text-xs text-paper/35">
+        Rule {rule.day} of {RULES.length} · {rule.concept}
+      </p>
       <figcaption className="sr-only">One of twenty rules for running a file</figcaption>
     </figure>
   );

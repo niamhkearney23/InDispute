@@ -5,7 +5,8 @@ import { getLearnerProfile } from '@/lib/learner-overview';
 import { DIAGNOSTIC_QUESTION_COUNT, diagnosticMinutes } from '@/lib/learning/config';
 import { ButtonLink, Card } from '@/components/ui';
 import { BeginSessionButton } from '../begin-session-button';
-import { trainingOpen } from '@/lib/training/service';
+import { questionsPublished, trainingOpen } from '@/lib/training/service';
+import { FirstTest } from './first-test';
 import { requireAccess } from '@/lib/access/service';
 
 export const metadata: Metadata = { title: 'Diagnostic' };
@@ -20,6 +21,11 @@ export default async function DiagnosticPage() {
   if (!profile.onboardedAt) redirect('/onboarding');
 
   const retaking = Boolean(profile.diagnosticCompletedAt);
+  const staff = profile.isAdmin || profile.isCoach || profile.isFirmAdmin;
+  // The first visit's hold (first-steps.ts): the same one card Today shows.
+  if (!retaking && !staff && (await questionsPublished(profile.country)) === true) {
+    return <FirstTest name={profile.displayName} />;
+  }
   const open = await trainingOpen(profile.country);
 
   return (

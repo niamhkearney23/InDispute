@@ -76,6 +76,25 @@ const PAGES = [
   // fixture has, so this page would redirect and the check would quietly
   // report on the dashboard instead.
   { name: 'onboarding', path: '/onboarding', auth: true, as: 'new@lawgistics.test' },
+  // Through the first steps, diagnostic not taken: Today is the first test
+  // alone, and Learn sends them back to it (first-steps.ts). The stand-in's
+  // published questions are Australian, and so is this learner.
+  {
+    name: 'first-test',
+    path: '/dashboard',
+    auth: true,
+    as: 'fresh@lawgistics.test',
+    signed: { present: ['First, a test to see where you are.'], absent: ['Your next task'] },
+    unsigned: { present: ['First, a test to see where you are.'], absent: ['Your next task'] },
+  },
+  {
+    name: 'first-test-held',
+    path: '/modules',
+    auth: true,
+    as: 'fresh@lawgistics.test',
+    signed: { present: ['First, a test to see where you are.'] },
+    unsigned: { present: ['First, a test to see where you are.'] },
+  },
   {
     name: 'dashboard',
     path: '/dashboard',
