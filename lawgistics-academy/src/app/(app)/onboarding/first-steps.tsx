@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useMemo, useState } from 'react';
+import { useActionState, useEffect, useMemo, useRef, useState } from 'react';
 import { saveOnboarding, type OnboardingState } from '../actions';
 import { cn } from '@/components/ui';
 import { CartoonPicker } from '@/components/cartoon-picker';
@@ -310,8 +310,21 @@ export function FirstSteps({
   );
 }
 
+/**
+ * Each screen's question. Every screen is drawn afresh, so its heading takes
+ * the focus as it arrives: a screen reader says the new question, and the
+ * keyboard starts from it.
+ */
 function Title({ children }: { children: React.ReactNode }) {
-  return <h1 className="auth-hello auth-hello--small text-balance">{children}</h1>;
+  const ref = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    ref.current?.focus({ preventScroll: true });
+  }, []);
+  return (
+    <h1 ref={ref} tabIndex={-1} className="auth-hello auth-hello--small text-balance focus:outline-none">
+      {children}
+    </h1>
+  );
 }
 
 function Lead({ children }: { children: React.ReactNode }) {
