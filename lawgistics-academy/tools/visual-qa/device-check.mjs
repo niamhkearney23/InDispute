@@ -90,6 +90,7 @@ const PAGES = [
   {
     name: 'first-test-held',
     path: '/modules',
+    landsOn: '/dashboard',
     auth: true,
     as: 'fresh@lawgistics.test',
     signed: { present: ['First, a test to see where you are.'] },
@@ -146,16 +147,16 @@ const PAGES = [
     path: '/modules',
     auth: true,
     as: 'aulearner@lawgistics.test',
-    signed: { absent: ['href="/courts"', 'Which court does this go in?'] },
-    unsigned: { absent: ['href="/courts"', 'Which court does this go in?'] },
+    signed: { absent: ['href="/courts"', 'Which court a matter starts in'] },
+    unsigned: { absent: ['href="/courts"', 'Which court a matter starts in'] },
   },
   {
     name: 'modules-my-trainee',
     path: '/modules',
     auth: true,
     as: 'trainee@lawgistics.test',
-    signed: { present: ['Which court does this go in?', 'href="/courts"'] },
-    unsigned: { absent: ['href="/courts"', 'Which court does this go in?'] },
+    signed: { present: ['Which court a matter starts in', 'href="/courts"'] },
+    unsigned: { absent: ['href="/courts"', 'Which court a matter starts in'] },
   },
   // A signed lesson for a learner, and an unsigned one: waiting for them,
   // labelled for staff.
@@ -578,7 +579,9 @@ const context = await browser.newContext({
       // A page that redirects elsewhere was never rendered, and reporting "no
       // problems" for it is worse than reporting nothing: it reads as coverage.
       const landed = new URL(view.url()).pathname;
-      const redirected = target.path !== landed && !target.path.startsWith(landed);
+      // `landsOn`: a page whose whole point is to send somebody elsewhere
+      // (the first visit's hold), checked on the page it lands on.
+      const redirected = target.path !== landed && !target.path.startsWith(landed) && landed !== target.landsOn;
 
       if (target.answer) {
         // Drive the runner into its answered state so the feedback panel and
