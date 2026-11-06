@@ -3,6 +3,7 @@ import 'server-only';
 import { createServiceClient } from '@/lib/supabase/service';
 import { reviewRisk, type ReviewRisk } from './triage';
 import { isDueSoon, isLapsed } from './expiry';
+import { missingFlag } from '@/lib/learning/diagnostic-set';
 import type { Jurisdiction, QuestionOption } from '@/lib/types';
 
 /**
@@ -32,6 +33,8 @@ export interface ReviewItem {
   seenAt: string;
   slug: string;
   domainName: string | null;
+  /** Asked in the diagnostic and nowhere else (0055). Always false for facts. */
+  diagnosticOnly: boolean;
 
   /** Fact title, or question stem. */
   heading: string;
@@ -113,21 +116,32 @@ export async function getReviewItems(order: ReviewOrder = 'riskiest'): Promise<R
   // Read once, so every item in a single queue is judged against the same day.
   const today = todayIso();
 
-  const [{ data: questionRows }, { data: factRows }] = await Promise.all([
+  // `*` rather than an explicit column list: the review card shows the whole
+  // item, and a list this long defeats supabase-js's select-string types.
+  const readQuestions = (withFlag: boolean) =>
     db
       .from('question_versions')
-      // `*` rather than an explicit column list: the review card shows the whole
-      // item, and a list this long defeats supabase-js's select-string types.
-      .select('*, questions(slug, status, withdrawn_at, domains(name))')
-      .eq('is_current', true),
+      .select(
+        withFlag
+          ? '*, questions(slug, status, withdrawn_at, diagnostic_only, domains(name))'
+          : '*, questions(slug, status, withdrawn_at, domains(name))',
+      )
+      .eq('is_current', true);
+
+  const [firstRead, { data: factRows }] = await Promise.all([
+    readQuestions(true),
     db.from('daily_facts').select('*, domains(name)'),
   ]);
+  // A database without 0055 has no diagnostic_only column; read again without
+  // it, and nothing is labelled diagnostic-only, as before.
+  const { data: questionRows } = missingFlag(firstRead.error) ? await readQuestions(false) : firstRead;
 
   const questions: ReviewItem[] = (questionRows ?? []).flatMap((row) => {
     const question = first<{
       slug: string;
       status: string;
       withdrawn_at: string | null;
+      diagnostic_only?: boolean | null;
       domains: unknown;
     }>(row.questions);
     if (!question) return [];
@@ -145,6 +159,7 @@ export async function getReviewItems(order: ReviewOrder = 'riskiest'): Promise<R
         seenAt: row.updated_at as string,
         slug: question.slug,
         domainName: first<{ name: string }>(question.domains)?.name ?? null,
+        diagnosticOnly: question.diagnostic_only === true,
         heading: row.stem as string,
         scenario: row.scenario,
         body: null,
@@ -186,6 +201,7 @@ export async function getReviewItems(order: ReviewOrder = 'riskiest'): Promise<R
     seenAt: row.updated_at as string,
     slug: row.slug as string,
     domainName: first<{ name: string }>(row.domains)?.name ?? null,
+    diagnosticOnly: false,
     heading: row.title as string,
     scenario: null,
     body: row.body as string,

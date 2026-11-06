@@ -578,6 +578,11 @@ function ReviewCard({
             {JURISDICTION_SHORT[item.jurisdiction]}
           </span>
         </Pill>
+        {item.diagnosticOnly ? (
+          <Pill tone="accent">
+            <span title="Asked in the diagnostic only, never in daily training or a module">Diagnostic only</span>
+          </Pill>
+        ) : null}
         {item.liveToLearners && !outcome ? <Pill tone="wrong">Live now</Pill> : null}
         {item.lapsed && !outcome ? <Pill tone="wrong">Sign-off expired</Pill> : null}
         {item.dueSoon && !outcome ? <Pill tone="warn">Due again soon</Pill> : null}
