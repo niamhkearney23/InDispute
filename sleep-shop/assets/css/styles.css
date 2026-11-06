@@ -1204,3 +1204,93 @@ h2 { font-size: clamp(2.1rem, 5vw, 3.5rem); line-height: 1; letter-spacing: -.02
 
 .h-ship { font-size: 11px; letter-spacing: .03em; color: var(--mute); margin: .55rem 0 0; }
 .h-piece__blurb { font-size: 13.5px; line-height: 1.55; color: var(--ink-soft); margin: .2rem 0 0; }
+
+/* ---------------------------------------------------------- Night shop */
+.announce--closed { background: #1f130d; color: #cdbba7; }
+
+.curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem 16px;
+  background: rgba(20, 12, 8, .94);
+  color: var(--cream);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .6s ease, visibility 0s linear .6s;
+  overflow-y: auto;
+}
+.curtain.is-open { opacity: 1; visibility: visible; transition: opacity .6s ease; }
+html.curtain-open { overflow: hidden; }
+
+.curtain__inner {
+  width: min(100%, 440px);
+  text-align: center;
+  display: grid;
+  gap: 1rem;
+  justify-items: center;
+}
+.curtain__art {
+  width: min(180px, 50vw);
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  filter: brightness(.45) saturate(.6);
+  transition: filter 1.2s ease;
+}
+.curtain__art > * { width: 100%; height: 100%; }
+.curtain__eyebrow {
+  font-family: var(--util);
+  font-size: 10px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: #a8907c;
+  margin: .5rem 0 0;
+}
+.curtain__title {
+  font-family: var(--display);
+  font-size: clamp(2.2rem, 7vw, 3.2rem);
+  font-weight: 400;
+  line-height: 1.05;
+  margin: 0;
+  color: var(--cream);
+  text-wrap: balance;
+}
+.curtain__body {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #d9c9b6;
+  margin: 0;
+  max-width: 34ch;
+}
+.curtain__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+  justify-content: center;
+  margin-top: .75rem;
+}
+.curtain__btn {
+  font-family: var(--util);
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  padding: .95rem 1.4rem;
+  border: 1px solid var(--cream);
+  background: var(--cream);
+  color: var(--cocoa);
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 0;
+}
+.curtain__btn--quiet { background: transparent; color: var(--cream); border-color: rgba(242, 233, 220, .4); }
+.curtain__btn:hover { border-color: var(--cream); }
+.curtain__btn:focus-visible { outline: 2px solid var(--powder); outline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .curtain, .curtain.is-open, .curtain__art { transition: none; }
+}
+@media (max-width: 480px) {
+  .curtain__art { width: 120px; }
+}

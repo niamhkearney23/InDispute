@@ -162,7 +162,7 @@
           '<div class="footer__bottom">' +
             '<span>&copy; ' + new Date().getFullYear() + ' ' + CONFIG.brand +
               (CONFIG.abn ? '. ABN ' + CONFIG.abn : '') + '. Prices in ' + CONFIG.currency + '.</span>' +
-            '<span>Pre-order is real, processed by Stripe. The contact form is a demonstration only.</span>' +
+            '<span>' + hoursLine() + '. Pre-order is real, processed by Stripe. The contact form is a demonstration only.</span>' +
           '</div>' +
         '</div>' +
       '</footer>';
@@ -185,7 +185,8 @@
     if (link) {
       return '<a class="btn btn--lg" href="' + escapeHtml(link) + '" target="_blank" rel="noopener">' +
           'Pre-order &middot; ' + Store.money(price) + '</a>' +
-        '<p class="tiny muted">Ships from ' + escapeHtml(CONFIG.preorderShipsFrom) +
+        '<p class="tiny muted">Orders open ' + hourLabel(NIGHT.opens) + ' to ' + hourLabel(NIGHT.closes) +
+          ', Melbourne time. Ships from ' + escapeHtml(CONFIG.preorderShipsFrom) +
           '. Card processed securely by Stripe, off this site.</p>';
     }
     return '<button class="btn btn--lg" type="button" disabled>Pre-order, opening soon</button>';
@@ -207,6 +208,177 @@
     root.querySelectorAll('[data-ships-from]').forEach(function (el) {
       el.textContent = CONFIG.preorderShipsFrom;
     });
+  }
+
+  /* ---------------------------------------------------------- night shop */
+
+  /* Orders are only taken from 8pm to midnight in Melbourne. Browsing is
+     always allowed; outside those hours a buy click draws the curtain
+     instead of opening Stripe. ?lights=on or ?lights=off previews either. */
+  var NIGHT = CONFIG.nightShop || { timeZone: 'Australia/Melbourne', opens: 20, closes: 24 };
+
+  function melbourneClock() {
+    var parts = new Intl.DateTimeFormat('en-AU', {
+      timeZone: NIGHT.timeZone, hour: 'numeric', minute: 'numeric', hourCycle: 'h23'
+    }).formatToParts(new Date());
+    var get = function (type) {
+      for (var i = 0; i < parts.length; i++) if (parts[i].type === type) return Number(parts[i].value);
+      return 0;
+    };
+    return { h: get('hour') % 24, m: get('minute') };
+  }
+
+  function lightsOverride() {
+    var match = /[?&]lights=(on|off)\b/.exec(global.location.search);
+    return match ? match[1] === 'on' : null;
+  }
+
+  function isOpen() {
+    var forced = lightsOverride();
+    if (forced !== null) return forced;
+    var t = melbourneClock();
+    return t.h >= NIGHT.opens && t.h < NIGHT.closes;
+  }
+
+  function minutesUntilOpen() {
+    var t = melbourneClock();
+    var now = t.h * 60 + t.m;
+    var opens = NIGHT.opens * 60;
+    return now < opens ? opens - now : 24 * 60 - now + opens;
+  }
+
+  function hourLabel(h) {
+    if (h % 24 === 0) return 'midnight';
+    return (h % 12 || 12) + (h < 12 ? 'am' : 'pm');
+  }
+
+  function untilOpenText() {
+    var mins = minutesUntilOpen();
+    var h = Math.floor(mins / 60);
+    var m = mins % 60;
+    if (h === 0) return m + (m === 1 ? ' minute' : ' minutes');
+    return h + (h === 1 ? ' hour' : ' hours') + (m ? ' ' + m + ' min' : '');
+  }
+
+  /* A calendar reminder for the next opening, built in the browser, standing
+     in for an email list until there is one. */
+  function reminderHref() {
+    var start = new Date(Math.ceil((Date.now() + minutesUntilOpen() * 60000) / 60000) * 60000);
+    var end = new Date(start.getTime() + 30 * 60000);
+    var stamp = function (d) { return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, ''); };
+    var ics = [
+      'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Sleep Shop//Night shop//EN',
+      'BEGIN:VEVENT',
+      'UID:open-' + stamp(start) + '@sleepshop.online',
+      'DTSTAMP:' + stamp(new Date()),
+      'DTSTART:' + stamp(start),
+      'DTEND:' + stamp(end),
+      'SUMMARY:Sleep Shop is open',
+      'DESCRIPTION:The shop is open until midnight. https://sleepshop.online',
+      'URL:https://sleepshop.online',
+      'END:VEVENT', 'END:VCALENDAR'
+    ].join('\r\n');
+    return 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics);
+  }
+
+  function hoursLine() {
+    return 'Open ' + hourLabel(NIGHT.opens) + ' to ' + hourLabel(NIGHT.closes) + ', Melbourne time';
+  }
+
+  function renderAnnounce() {
+    var bar = doc.querySelector('.announce');
+    if (!bar) return;
+    bar.classList.toggle('announce--closed', !isOpen());
+    bar.innerHTML = isOpen()
+      ? 'The lights are on &middot; open until ' + hourLabel(NIGHT.closes) + ' tonight'
+      : 'We are asleep &middot; doors open at ' + hourLabel(NIGHT.opens) + ' Melbourne time, in ' + untilOpenText();
+  }
+
+  function renderCurtain() {
+    var el = doc.querySelector('[data-curtain]');
+    if (!el) {
+      el = doc.createElement('div');
+      el.className = 'curtain';
+      el.setAttribute('data-curtain', '');
+      el.setAttribute('role', 'dialog');
+      el.setAttribute('aria-modal', 'true');
+      el.setAttribute('aria-labelledby', 'curtain-title');
+      doc.body.appendChild(el);
+    }
+    el.innerHTML =
+      '<div class="curtain__inner">' +
+        '<div class="curtain__art">' + Art.render({ art: 'lamp', ground: 'cocoa', name: 'A bedside lamp, switched off' }) + '</div>' +
+        '<p class="curtain__eyebrow">' + hoursLine() + '</p>' +
+        '<h2 class="curtain__title" id="curtain-title">We are asleep.</h2>' +
+        '<p class="curtain__body">The shop takes orders from ' + hourLabel(NIGHT.opens) + ' until ' +
+          hourLabel(NIGHT.closes) + ', which is when you are in bed with your phone anyway. ' +
+          'Doors open in <span data-until-open>' + untilOpenText() + '</span>.</p>' +
+        '<div class="curtain__actions">' +
+          '<a class="curtain__btn" href="' + reminderHref() + '" download="sleep-shop-opens.ics">Remind me at ' + hourLabel(NIGHT.opens) + '</a>' +
+          '<button class="curtain__btn curtain__btn--quiet" type="button" data-curtain-close>Look around anyway</button>' +
+        '</div>' +
+      '</div>';
+    return el;
+  }
+
+  var lastFocus = null;
+
+  function openCurtain() {
+    var el = renderCurtain();
+    lastFocus = doc.activeElement;
+    doc.documentElement.classList.add('curtain-open');
+    el.classList.add('is-open');
+    var close = el.querySelector('[data-curtain-close]');
+    if (close) close.focus();
+  }
+
+  function closeCurtain() {
+    var el = doc.querySelector('[data-curtain]');
+    if (!el) return;
+    el.classList.remove('is-open');
+    doc.documentElement.classList.remove('curtain-open');
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  function isBuyLink(el) {
+    return el.matches('[data-preorder], a[href^="https://buy.stripe.com"]');
+  }
+
+  function bindNightShop() {
+    doc.addEventListener('click', function (event) {
+      if (event.target.closest('[data-curtain-close]')) return closeCurtain();
+      var link = event.target.closest('a');
+      if (!link || !isBuyLink(link) || isOpen()) return;
+      event.preventDefault();
+      openCurtain();
+    });
+    doc.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && doc.documentElement.classList.contains('curtain-open')) closeCurtain();
+    });
+
+    var wasOpen = isOpen();
+    doc.documentElement.setAttribute('data-shop', wasOpen ? 'open' : 'closed');
+    renderAnnounce();
+
+    /* The first visit while closed gets the curtain once per tab. */
+    if (!wasOpen) {
+      var seen = false;
+      try { seen = global.sessionStorage.getItem('sleepshop.curtain') === '1'; } catch (err) { /* ignore */ }
+      if (!seen) {
+        openCurtain();
+        try { global.sessionStorage.setItem('sleepshop.curtain', '1'); } catch (err) { /* ignore */ }
+      }
+    }
+
+    global.setInterval(function () {
+      var open = isOpen();
+      doc.documentElement.setAttribute('data-shop', open ? 'open' : 'closed');
+      renderAnnounce();
+      var until = doc.querySelector('[data-until-open]');
+      if (until) until.textContent = untilOpenText();
+      if (open && !wasOpen) closeCurtain();
+      wasOpen = open;
+    }, 30000);
   }
 
   /* ------------------------------------------------------------- pieces */
@@ -297,6 +469,7 @@
     applyTheme(doc.documentElement.getAttribute('data-theme') || preferredTheme());
     bindGlobalEvents();
     wirePreorder();
+    bindNightShop();
     revealOnScroll();
   }
 
@@ -306,6 +479,7 @@
     productCard: productCard,
     preorderCta: preorderCta,
     wirePreorder: wirePreorder,
+    isOpen: isOpen,
     groundForRibbon: groundForRibbon,
     ribbonSwatch: ribbonSwatch,
     escapeHtml: escapeHtml,

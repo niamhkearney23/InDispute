@@ -26,6 +26,9 @@
        Stripe is verified — the button reads "opening soon" and stays
        unclickable rather than pointing nowhere. Fill in, do not remove keys. */
     preorderShipsFrom: '1 December',
+    /* The shop only takes orders at night. Hours are in Melbourne time, on a
+       24-hour clock; closes at 24 means midnight. */
+    nightShop: { timeZone: 'Australia/Melbourne', opens: 20, closes: 24 },
     preorderLinks: {
       'gift-of-sleep-box': 'https://buy.stripe.com/aFa7sE3nJ0dQ1t22ZPa7C08',
       'silk-sleep-mask': 'https://buy.stripe.com/aFa4gs0bx2lY8Vubwla7C07',
