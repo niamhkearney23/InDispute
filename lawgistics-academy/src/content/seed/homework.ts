@@ -35,11 +35,11 @@ export const HOMEWORK_TASKS: HomeworkTask[] = [
   {
     day: 1,
     // Replaced in November 2026: the owner found "write down five people
-    // you will work with" weird. Same spirit, a thing to find in the firm.
-    slug: 'find-the-precedents',
-    title: 'Where the precedents are',
-    task: 'Ask your supervisor where the firm keeps its precedents and templates. Find the one used to start a claim, and note where it is and who keeps it up to date.',
-    why: 'Most first drafts here start from a precedent. Knowing where they live saves you an hour every time.',
+    // you will work with" weird. Day 1 is now pleadings, so its task is too.
+    slug: 'read-the-pleadings',
+    title: 'Read the pleadings',
+    task: 'Ask your supervisor for the pleadings on one closed file. Read them, then write two lines for each side: what they say the case is about.',
+    why: 'Everything later on a case goes back to what each side pleaded. Reading a real set early makes the rest of the month make sense.',
   },
   {
     day: 2,

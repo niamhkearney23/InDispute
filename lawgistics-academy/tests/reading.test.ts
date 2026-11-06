@@ -74,7 +74,7 @@ const base: TodayInput = {
   rounds: null,
   roundSize: 10,
   goal: { questions: 10, answered: 0 },
-  homework: { day: 1, title: 'Where the precedents are', done: false },
+  homework: { day: 1, title: 'Read the pleadings', done: false },
   homeworkNote: null,
   missedHomework: 0,
   work: [],
