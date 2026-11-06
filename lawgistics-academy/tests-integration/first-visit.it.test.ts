@@ -47,52 +47,64 @@ async function signedIn(p: Person): Promise<Page> {
 const path = (page: Page) => new URL(page.url()).pathname;
 const FIRST_TEST = 'First, a test to see where you are.';
 
+/**
+ * Where a page ends up. The pages under the app's layout stream behind its
+ * loading placeholder, so a page's redirect reaches the browser as an
+ * instruction after the page has loaded, not as a 307: wait for the
+ * address to settle before reading it.
+ */
+async function open(page: Page, asked: string, expected: string): Promise<string> {
+  await page.goto(`${APP}${asked}`, { waitUntil: 'load' });
+  await page.waitForURL((u) => u.pathname === expected, { timeout: 10000 }).catch(() => {});
+  await page.waitForLoadState('networkidle').catch(() => {});
+  // Expected to stay: give a late redirect the time it would take to arrive.
+  if (asked === expected) {
+    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle').catch(() => {});
+  }
+  return path(page);
+}
+
 test('somebody set up but not diagnosed sees only the test, and every other page sends them back', async () => {
   const country = (await questionsOpen('MY')) ? 'MY' : 'AU';
-  const open = await questionsOpen(country);
+  const held = await questionsOpen(country);
   const p = await person('learner', country);
   const now = new Date().toISOString();
   const { error } = await service().from('profiles').update({ onboarded_at: now }).eq('id', p.id);
   if (error) throw error;
 
   const page = await signedIn(p);
-  await page.goto(`${APP}/dashboard`, { waitUntil: 'load' });
+  assert.equal(await open(page, '/dashboard', '/dashboard'), '/dashboard');
   const today = await page.content();
-  if (open) {
+  if (held) {
     assert.match(today, new RegExp(FIRST_TEST));
     assert.doesNotMatch(today, /Your next task/, 'Today showed more than the test');
     for (const asked of ['/modules', '/skills', '/work', '/courts', '/programme']) {
-      await page.goto(`${APP}${asked}`, { waitUntil: 'load' });
-      assert.equal(path(page), '/dashboard', `${asked} opened during the diagnostic`);
+      assert.equal(await open(page, asked, '/dashboard'), '/dashboard', `${asked} opened during the diagnostic`);
     }
     // Their account stays open: to sign out, change a password or leave.
-    await page.goto(`${APP}/account`, { waitUntil: 'load' });
-    assert.equal(path(page), '/account');
+    assert.equal(await open(page, '/account', '/account'), '/account');
   } else {
     // Without questions the diagnostic cannot be taken, so nobody is held.
     assert.doesNotMatch(today, new RegExp(FIRST_TEST));
-    await page.goto(`${APP}/modules`, { waitUntil: 'load' });
-    assert.equal(path(page), '/modules');
+    assert.equal(await open(page, '/modules', '/modules'), '/modules');
   }
 
   // Once it is done, the hold is gone for good.
   const done = await service().from('profiles').update({ diagnostic_completed_at: now }).eq('id', p.id);
   if (done.error) throw done.error;
-  await page.goto(`${APP}/modules`, { waitUntil: 'load' });
-  assert.equal(path(page), '/modules');
-  await page.goto(`${APP}/dashboard`, { waitUntil: 'load' });
+  assert.equal(await open(page, '/modules', '/modules'), '/modules');
+  assert.equal(await open(page, '/dashboard', '/dashboard'), '/dashboard');
   assert.doesNotMatch(await page.content(), new RegExp(FIRST_TEST), 'the test was asked for again');
   await page.context().close();
 });
 
 test('the first steps save the name and cartoon, keep the programme, and go to the diagnostic', async () => {
-  const open = await questionsOpen('MY');
+  const held = await questionsOpen('MY');
   const p = await person('learner', 'MY');
   const page = await signedIn(p);
-  await page.goto(`${APP}/dashboard`, { waitUntil: 'load' });
-  assert.equal(path(page), '/onboarding', 'somebody new was not sent to their first steps');
-  await page.goto(`${APP}/modules`, { waitUntil: 'load' });
-  assert.equal(path(page), '/onboarding', 'Learn opened before the first steps');
+  assert.equal(await open(page, '/dashboard', '/onboarding'), '/onboarding', 'somebody new was not sent to their first steps');
+  assert.equal(await open(page, '/modules', '/onboarding'), '/onboarding', 'Learn opened before the first steps');
 
   await page.fill('#first-name', 'Mei Ling');
   await page.getByRole('button', { name: 'Continue' }).click();
@@ -108,10 +120,11 @@ test('the first steps save the name and cartoon, keep the programme, and go to t
   });
   await Promise.all([
     page.waitForURL((u) => u.pathname !== '/onboarding', { timeout: 20000 }),
-    page.getByRole('button', { name: open ? 'Start the test' : 'Go to Today' }).click(),
+    page.getByRole('button', { name: held ? 'Start the test' : 'Go to Today' }).click(),
   ]);
-  assert.equal(path(page), open ? '/diagnostic' : '/dashboard');
-  if (open) assert.match(await page.content(), new RegExp(FIRST_TEST));
+  await page.waitForLoadState('networkidle').catch(() => {});
+  assert.equal(path(page), held ? '/diagnostic' : '/dashboard');
+  if (held) assert.match(await page.content(), new RegExp(FIRST_TEST));
 
   const { data, error } = await service()
     .from('profiles')
