@@ -35,7 +35,7 @@ import { LearnerTour } from '@/components/learner-tour';
 import { nextTask, recentlyMarkedGood } from '@/lib/homework/next-task';
 import { homeworkLines, todaysHomework } from '@/lib/homework/today-list';
 import { TodayList } from '@/components/today-list';
-import { PROGRAMME_BOOK, readingForDay } from '@/content/seed/reading';
+import { readingForWeek, readingWeekOf, startsAWeek } from '@/content/seed/reading';
 
 export const metadata: Metadata = { title: 'Today' };
 
@@ -186,7 +186,13 @@ export default async function DashboardPage({
     QUESTIONS_PER_MINUTE_GOAL[profile.dailyGoalMinutes] ?? QUESTIONS_PER_MINUTE_GOAL[10];
 
   const todayTask = homework.state === 'day' && profile.startsOn ? homeworkForDay(homework.day) : undefined;
-  const todayReading = homework.state === 'day' && profile.startsOn ? readingForDay(homework.day) : undefined;
+  // The week's reading, said once, on the first working day of the week
+  // ("Welcome to week 1"), not every day (the owner, November 2026). It is
+  // on Homework and Reading all week.
+  const weekReading =
+    homework.state === 'day' && profile.startsOn && startsAWeek(homework.day)
+      ? readingForWeek(readingWeekOf(homework.day))
+      : undefined;
   // What the firm needs first: the joining list, or the firm's own reading.
   const firstThing = hasChecklist
     ? joining.outstanding.length > 0
@@ -228,7 +234,12 @@ export default async function DashboardPage({
       todayTask && homework.state === 'day'
         ? { day: homework.day, title: todayTask.title, done: declaredDays.has(homework.day) }
         : null,
-    reading: todayReading ? { label: PROGRAMME_BOOK.title, pages: todayReading.pages } : null,
+    reading: weekReading
+      ? {
+          label: `Welcome to week ${weekReading.week}: this week’s reading`,
+          detail: `${weekReading.book.title}, pages ${weekReading.pages}`,
+        }
+      : null,
     homeworkNote,
     missedHomework,
     work: workTasks

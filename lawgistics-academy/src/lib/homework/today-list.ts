@@ -42,7 +42,8 @@ export interface TodayInput {
   goal: { questions: number; answered: number };
   homework: { day: number; title: string; done: boolean } | null;
   /** The day's pages of the programme's book, for somebody on a working day. */
-  reading?: { label: string; pages: string } | null;
+  /** The week's reading, on the first working day of the week only. */
+  reading?: { label: string; detail: string } | null;
   /**
    * Somebody with a start date on a day with no task of its own (before the
    * start, a weekend or holiday, or after the last day): one line saying so,
@@ -169,7 +170,7 @@ export function todaysHomework(input: TodayInput): TodayItem[] {
     items.push({
       key: 'reading',
       label: input.reading.label,
-      meta: `Read: pages ${input.reading.pages}`,
+      meta: input.reading.detail,
       href: '/reading',
       done: null,
     });

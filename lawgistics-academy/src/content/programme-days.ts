@@ -31,10 +31,13 @@ export const PROGRAMME_DAYS: ProgrammeDay[] = [
   // Week one: the file and the facts
   {
     day: 1,
-    title: 'Arrive',
-    morning: 'Welcome, who is who, and the training file handed over. A tour of how a file moves through the firm.',
-    afternoon: 'Sit the diagnostic quiz. Then read the file front to back, once, without taking notes.',
-    video: 'How a matter arrives, and what the first hour is for.',
+    // Day 1 is pleadings (the owner, November 2026: "day 1 learning,
+    // pleadings: what they are, what's the purpose"), with a video the
+    // coach chooses, posted as that morning's session.
+    title: 'Pleadings',
+    morning: 'Welcome, and the training file handed over. Then the first idea of the month: what pleadings are, and what they are for.',
+    afternoon: 'Sit the diagnostic. Then read the file front to back, once, without taking notes.',
+    video: 'Pleadings: what they are, and what they are for.',
     due: [],
   },
   {

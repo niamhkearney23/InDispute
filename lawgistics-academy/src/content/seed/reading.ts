@@ -86,3 +86,66 @@ export const READING_DAYS: ReadingDay[] = [
 export function readingForDay(day: number): ReadingDay | undefined {
   return READING_DAYS.find((r) => r.day === day);
 }
+
+/**
+ * The reading as it is set: one reading a week, not a few pages a day (the
+ * owner, November 2026: "just say welcome to week 1, this week's reading,
+ * then have that book ... but don't say it daily"). Each week names its own
+ * book, so a later week can set a different one; today all four are the
+ * programme's book. The pages are the days' pages above, joined.
+ */
+export interface ReadingWeek {
+  week: 1 | 2 | 3 | 4;
+  /** What the week is about (READING_WEEKS). */
+  theme: string;
+  book: ProgrammeBook;
+  /** The chapters, as the contents page names them. */
+  what: string;
+  /** Pages in the eighth edition. */
+  pages: string;
+}
+
+export const READING_BY_WEEK: ReadingWeek[] = [
+  {
+    week: 1,
+    theme: READING_WEEKS[1],
+    book: PROGRAMME_BOOK,
+    what: 'The Foreword, prefaces and Introduction; Chapter 1, Pillars of Understanding; and the first half of Chapter 2, Getting the Show on the Road (the claim)',
+    pages: 'vii to 32',
+  },
+  {
+    week: 2,
+    theme: READING_WEEKS[2],
+    book: PROGRAMME_BOOK,
+    what: 'Chapter 2 to the end (drafting the claim); Chapter 3, Making a Fight of It (the defence and counterclaim), to page 90; and Chapter 10, To Tell You the Truth (witness statements and affidavits)',
+    pages: '33 to 90, and 243 to 280',
+  },
+  {
+    week: 3,
+    theme: READING_WEEKS[3],
+    book: PROGRAMME_BOOK,
+    what: 'Chapter 3 to the end; Chapters 4 to 7 (the reply, the rejoinder, requests for further information and the answer to one); and Chapter 8, Come and Join In (additional claims)',
+    pages: '91 to 224',
+  },
+  {
+    week: 4,
+    theme: READING_WEEKS[4],
+    book: PROGRAMME_BOOK,
+    what: 'Chapter 9, Pieces of Eight (the Part 8 procedure); Chapter 11, Just a Minute (minutes and agreed orders); Chapter 12, Bones of Contention (the skeleton argument); Chapter 13, A Matter of Opinions; and the Epilogue',
+    pages: '225 to 242, and 281 to the end',
+  },
+];
+
+/** The week a working day falls in, 1 to 4. */
+export function readingWeekOf(day: number): 1 | 2 | 3 | 4 {
+  return Math.min(4, Math.max(1, Math.ceil(day / 5))) as 1 | 2 | 3 | 4;
+}
+
+export function readingForWeek(week: number): ReadingWeek | undefined {
+  return READING_BY_WEEK.find((w) => w.week === week);
+}
+
+/** The first working day of a week, when Today says "Welcome to week N". */
+export function startsAWeek(day: number): boolean {
+  return day >= 1 && day <= 20 && (day - 1) % 5 === 0;
+}

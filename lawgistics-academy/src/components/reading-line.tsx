@@ -1,13 +1,16 @@
-import { PROGRAMME_BOOK, type ReadingDay } from '@/content/seed/reading';
+import type { ReadingWeek } from '@/content/seed/reading';
 
-/** The day's pages of the programme's book, in a box under the day's task. */
-export function ReadingLine({ reading }: { reading: ReadingDay | undefined }) {
+/** A week's reading: the book, its chapters and pages, in a box under the week's heading. */
+export function WeekReading({ reading, current = false }: { reading: ReadingWeek | undefined; current?: boolean }) {
   if (!reading) return null;
   return (
-    <div className="mt-3 rounded-md border border-rule bg-paper-sunk px-3.5 py-2.5 text-sm">
-      <p className="eyebrow mb-1">Read</p>
-      <p>
-        <em>{PROGRAMME_BOOK.title}</em>: {reading.what}, pages {reading.pages}.
+    <div className="mb-4 rounded-md border border-rule bg-paper-sunk px-4 py-3 text-sm">
+      <p className="eyebrow mb-1">{current ? 'This week’s reading' : `Week ${reading.week}’s reading`}</p>
+      <p className="font-serif text-base">
+        <em>{reading.book.title}</em>
+      </p>
+      <p className="mt-1 text-slate">
+        {reading.what}. Pages {reading.pages}.
       </p>
     </div>
   );

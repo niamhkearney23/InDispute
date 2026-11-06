@@ -31,14 +31,14 @@ export const DAY_CONCEPTS: DayConcept[] = [
   // Week one: the file and the facts
   {
     day: 1,
-    concept: 'How a file is organised',
+    concept: 'Pleadings: what they are and what they are for',
     talkingPoints: [
-      'Open a real (closed, anonymised) file on camera and name its parts: correspondence, pleadings, documents, attendance notes, bills.',
-      'Explain why the order matters to the next person who opens it.',
-      'Say what the first hour with a new file is for: read everything once, write nothing.',
-      'Show them the training file and what they will do with it over four weeks.',
+      'Start with a question: what do they think a pleading is? Then show one, from a closed and anonymised file.',
+      'Explain, in your own words, what pleadings are for and who reads them.',
+      'Name the pleadings in the order they come, and show where each sits on a file.',
+      'Say why this comes first in the month: the rest of the work on a case goes back to what was pleaded.',
     ],
-    remember: 'Read the whole file once before you write anything.',
+    remember: 'Know what each side has pleaded before you do anything else.',
   },
   {
     day: 2,

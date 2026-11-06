@@ -4,8 +4,8 @@ import { redirect } from 'next/navigation';
 import { getCurrentUser, createSupabaseServerClient } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { HOMEWORK_TASKS } from '@/content/seed/homework';
-import { PROGRAMME_BOOK, readingForDay } from '@/content/seed/reading';
-import { ReadingLine } from '@/components/reading-line';
+import { readingForWeek } from '@/content/seed/reading';
+import { WeekReading } from '@/components/reading-line';
 import { PROGRAMME_WEEKS, weekOfDay } from '@/content/programme-plan';
 import { homeworkDay, lastArrivedDay } from '@/lib/homework/rules';
 import { Card, Pill, SectionHeading } from '@/components/ui';
@@ -51,9 +51,7 @@ export default async function HomeworkPage() {
           Twenty tasks, one for each working day. A day that has already come round can be
           ticked off any time after, so a day out of the office does not have to leave a gap.
         </p>
-        <p className="mt-3 text-slate">
-          Each day also has a few pages of <em>{PROGRAMME_BOOK.title}</em> to read.
-        </p>
+        <p className="mt-3 text-slate">Each week also has its reading, set out under the week.</p>
         <Link
           href="/reading"
           className="mt-1 inline-flex min-h-11 items-center font-medium underline underline-offset-4"
@@ -65,6 +63,10 @@ export default async function HomeworkPage() {
       {PROGRAMME_WEEKS.map((week) => (
       <section key={week.number}>
         <SectionHeading eyebrow={`Week ${week.number}`} title={week.title} />
+        <WeekReading
+          reading={readingForWeek(week.number)}
+          current={homework.state === 'day' && weekOfDay(homework.day) === week.number}
+        />
         <div className="space-y-3">
           {HOMEWORK_TASKS.filter((t) => weekOfDay(t.day) === week.number).map((t) => {
             const arrived = t.day <= arrivedDay;
@@ -84,7 +86,6 @@ export default async function HomeworkPage() {
                   <>
                     <p className="mt-2 text-slate">{t.task}</p>
                     <p className="mt-2 text-sm text-muted">{t.why}</p>
-                    <ReadingLine reading={readingForDay(t.day)} />
                     {!done ? <HomeworkForm day={t.day} /> : null}
                     <Materials posts={materials.get(t.day) ?? []} />
                   </>

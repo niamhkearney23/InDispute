@@ -68,8 +68,8 @@ export default async function ModulesPage() {
       : []),
     {
       href: '/reading',
-      title: `The reading: ${PROGRAMME_BOOK.title}`,
-      text: 'A few pages each working day.',
+      title: 'Each week’s reading',
+      text: `One reading a week, from ${PROGRAMME_BOOK.title}.`,
       icon: 'book' as const,
     },
     {

@@ -1,8 +1,21 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { HOMEWORK_DAYS } from '../src/content/seed/homework';
-import { PROGRAMME_BOOK, READING_DAYS, READING_WEEKS, readingForDay } from '../src/content/seed/reading';
+import fs from 'node:fs';
+import path from 'node:path';
+import {
+  PROGRAMME_BOOK,
+  READING_BY_WEEK,
+  READING_DAYS,
+  READING_WEEKS,
+  readingForDay,
+  readingForWeek,
+  readingWeekOf,
+  startsAWeek,
+} from '../src/content/seed/reading';
 import { doneCount, todaysHomework, type TodayInput } from '../src/lib/homework/today-list';
+
+const read = (file: string) => fs.readFileSync(path.join(__dirname, '..', file), 'utf8');
 
 /**
  * The programme's book, read a little each working day (the owner, November
@@ -73,13 +86,40 @@ const base: TodayInput = {
   nextModule: null,
 };
 
-test('Today lists the day’s reading, and never ticks or counts it', () => {
-  const items = todaysHomework({ ...base, reading: { label: PROGRAMME_BOOK.title, pages: 'vii to 4' } });
+test('Today lists the week’s reading, and never ticks or counts it', () => {
+  const items = todaysHomework({
+    ...base,
+    reading: { label: 'Welcome to week 1: this week’s reading', detail: `${PROGRAMME_BOOK.title}, pages vii to 32` },
+  });
   const reading = items.find((i) => i.key === 'reading');
   assert.ok(reading);
   assert.equal(reading.href, '/reading');
-  assert.equal(reading.meta, 'Read: pages vii to 4');
+  assert.equal(reading.meta, `${PROGRAMME_BOOK.title}, pages vii to 32`);
   assert.equal(reading.done, null);
   assert.deepEqual(doneCount(items), doneCount(todaysHomework(base)), 'the reading does not change the count');
   assert.equal(todaysHomework(base).some((i) => i.key === 'reading'), false);
+});
+
+test('the reading is set a week at a time, and said on the first day of each week only', () => {
+  // The owner, November 2026: "welcome to week 1, this week's reading ...
+  // but don't say it daily".
+  assert.deepEqual(READING_BY_WEEK.map((w) => w.week), [1, 2, 3, 4]);
+  for (const w of READING_BY_WEEK) {
+    assert.equal(w.theme, READING_WEEKS[w.week]);
+    assert.ok(w.book.title, 'every week names its book');
+    // The week's pages begin where its first day's do.
+    const first = READING_DAYS.find((d) => readingWeekOf(d.day) === w.week)!;
+    assert.equal(w.pages.split(' ')[0], first.pages.split(' ')[0], `week ${w.week} starts on the wrong page`);
+  }
+  assert.deepEqual(
+    Array.from({ length: 20 }, (_, i) => i + 1).filter(startsAWeek),
+    [1, 6, 11, 16],
+  );
+  assert.equal(readingWeekOf(5), 1);
+  assert.equal(readingWeekOf(6), 2);
+  assert.equal(readingWeekOf(20), 4);
+  assert.equal(readingForWeek(2)?.week, 2);
+  const today = read('src/app/(app)/dashboard/page.tsx');
+  assert.match(today, /startsAWeek\(homework\.day\)/, 'Today says it only as a week starts');
+  assert.doesNotMatch(today, /readingForDay/, 'Today no longer lists the day’s pages');
 });
