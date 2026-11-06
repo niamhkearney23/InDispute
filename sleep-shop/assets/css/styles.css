@@ -1294,3 +1294,29 @@ html.curtain-open { overflow: hidden; }
 @media (max-width: 480px) {
   .curtain__art { width: 120px; }
 }
+
+/* ------------------------------------------------- Moments (manifesto) */
+.h-moments {
+  list-style: none;
+  margin: 3rem 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  column-gap: 3rem;
+  max-width: 900px;
+}
+.h-moments li {
+  font-family: var(--display);
+  font-size: clamp(1.15rem, 2.4vw, 1.5rem);
+  line-height: 1.3;
+  color: var(--cream);
+  padding: .9rem 0;
+  border-top: 1px solid rgba(242, 233, 220, .22);
+}
+@media (min-width: 720px) {
+  .h-moments { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 800px) {
+  .h-manifesto { min-height: 0; }
+  .h-manifesto__note { margin-top: 2.6rem; }
+}
