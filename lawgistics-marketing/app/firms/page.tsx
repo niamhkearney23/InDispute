@@ -287,7 +287,7 @@ export default function FirmsPage() {
             <span className="lname">Lawgistics</span>
             <span className="lsuffix">Marketing</span>
           </span>
-          <span>Content systems for modern law firms.</span>
+          <span>Built by Lawgistics in Australia.</span>
           <span>&copy; 2026 Lawgistics</span>
         </div>
       </footer>
