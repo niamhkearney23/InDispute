@@ -192,7 +192,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0054`.
+- Migrations run to `0055`.
   `supabase/UPDATE.sql` is the one-paste update for a database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -235,6 +235,11 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   and takes the matter down; an attempt keeps a snapshot of what it was given
   and is frozen at hand-in. `certificates` are issued once, by the server,
   when every required module is finished and five matters are marked Good.
+  The spoken explanation is sent with the form as a file the page holds
+  (Safari on an iPad ignores a file put into a hidden field, so the server
+  said "Record something first"), and pressing Save is the learner's
+  statement that it names no client, said beside the button, in place of a
+  tick box the owner found silly on a file with an invented client.
   `0028` loads five AI-drafted Malaysian matters, unpublished, unsigned and
   with no author, for a lawyer to correct and sign off.
 - `0029` is **work by email**: a lawyer emails the inbound address,
@@ -296,6 +301,11 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   the limit reached. More
   modes (sprint, error simulator, learning path) were proposed and deferred
   until matters and questions are signed off.
+  **Hidden for now** (the owner, November 2026: "can we get rid of the
+  tutor section for now actually?"): `TUTOR_SHOWN = false` in
+  `src/lib/tutor/shown.ts` keeps it off Learn and the tour, sends its pages
+  to Learn and makes its actions start nothing. Conversations stay, and
+  staff still read them at Admin, Tutor chats.
 - `0032` is **lesson sign-offs**. Lessons live in `src/content/seed/lessons.ts`;
   `DRAFT_LESSONS` are rewrites (a client story, a guess before each screen)
   that replace a live lesson only once signed off at Admin, Lessons, and are
@@ -784,10 +794,14 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   affidavits"), so week 1 is the Introduction and Chapter 1 and the start
   of the claim, week 2 the claim, the defence and Chapter 10 on witness
   statements and affidavits, and the rest after. Every page is read exactly
-  once (a test checks), shown under each day's homework, as a line
-  on Today (listed, never ticked or counted, since nothing records it) and
-  on `/reading`, linked from Learn, so somebody without a start date sees
-  it too. **No copy of the book is stored, linked or shown**: it is in
+  once (a test checks). **It is set a week at a time** (the owner, November
+  2026: "welcome to week 1, this week's reading ... but don't say it
+  daily"): `READING_BY_WEEK`, each week naming its own book (all four the
+  programme's book today). Today says it once, on the first working day of
+  the week ("Welcome to week N: this week's reading"; listed, never ticked
+  or counted, since nothing records it); Homework shows it under each
+  week's heading; `/reading`, linked from Learn, lists the four weeks, so
+  somebody without a start date sees it too. **No copy of the book is stored, linked or shown**: it is in
   copyright, and the owner's copy is an edition for sale in South Asia
   only. Learners read from their own copy or the firm's. The note says it
   is written for England and Wales and to check court rules with the
@@ -951,6 +965,27 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   name is the first question after it. **The programme is never the
   person's to change**: `saveOnboarding` keeps the invitation's track or the
   profile's, whatever the form sends.
+- **The diagnostic** (the owner, November 2026: "way too easy", having come
+  out Advanced without studying Malaysian law). `diagnosticPaper`
+  (`selection.ts`, pure, tested on the real bank) gives every area an even
+  share and spreads each share from that area's easiest question to its
+  hardest, and runs the paper easy to hard; it used to take each area's
+  easiest. **Its own questions** (`0055`, `questions.diagnostic_only`, at
+  the end of `v_question_delivery`; `src/lib/learning/diagnostic-set.ts`):
+  daily training, modules and reviews never serve one and a module never
+  counts one; the diagnostic draws on them alone once a country has a
+  paper's worth published (thirty), and on the whole bank until then. A
+  database without 0055 is read exactly as before (`missingFlag`: the read
+  is made again without the column), and loading content there skips the
+  diagnostic questions rather than making them ordinary ones.
+  `src/content/seed/questions/diagnostic-my.ts` holds 32 Malaysian ones,
+  four an area at difficulty 2 to 5, AI-drafted and unsigned, seven marked
+  tentative. The result page says how many questions each area rests on,
+  and that Advocacy and Drafting are multiple-choice questions about them,
+  never a measure of how anybody speaks or writes (the owner: "how the hell
+  can it score my advocacy skills?"); Progress says the same. The running
+  count covers the whole session (`answeredBefore`, `correctBefore` from the
+  server), so a reopened page no longer finishes on "24 of 28".
 - **The level in a word** (`src/lib/learning/skill-level.ts`): Basic (up to
   55% right), Intermediate (56 to 79%), Advanced (80% or more), the same
   lines as every score (`masteryBand`), with what each means. The diagnostic
