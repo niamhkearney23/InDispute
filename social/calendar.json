@@ -140,7 +140,7 @@
           "ground": "cocoa",
           "headline": "Give the most important thing",
           "shoot": "Nothing. Generated tile.",
-          "caption": "Give the most important thing.\n\nThe box is $149. The silk mask on its own is $49. Both leave Melbourne the same afternoon if you order before the cut-off.",
+          "caption": "Give the most important thing.\n\nThe box is $149. The silk mask on its own is $49. Both are on pre-order, leaving Melbourne from 1 December. Orders open at 8pm.",
           "tile": {
             "kind": "script",
             "text": "Give the most important thing",
