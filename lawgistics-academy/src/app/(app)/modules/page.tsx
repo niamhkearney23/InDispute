@@ -9,6 +9,7 @@ import { ButtonLink, PageHeader, Pill, ProgressBar, SectionHeading, StatusBadge 
 import { requireAccess } from '@/lib/access/service';
 import { PROGRAMME_BOOK } from '@/content/seed/reading';
 import { courtMapFor, viewerIsStaff } from '@/lib/content/service';
+import { TUTOR_SHOWN } from '@/lib/tutor/shown';
 
 export const metadata: Metadata = { title: 'Modules' };
 
@@ -54,12 +55,17 @@ export default async function ModulesPage() {
       text: 'A problem against the clock, then how a lawyer would do it.',
       icon: 'file' as const,
     },
-    {
-      href: '/tutor',
-      title: 'Tutor',
-      text: 'Explain an idea back, or be tested on checked questions.',
-      icon: 'talk' as const,
-    },
+    // Hidden for now (src/lib/tutor/shown.ts).
+    ...(TUTOR_SHOWN
+      ? [
+          {
+            href: '/tutor',
+            title: 'Tutor',
+            text: 'Explain an idea back, or be tested on checked questions.',
+            icon: 'talk' as const,
+          },
+        ]
+      : []),
     {
       href: '/reading',
       title: `The reading: ${PROGRAMME_BOOK.title}`,

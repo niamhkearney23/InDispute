@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getCurrentUser, createSupabaseServerClient } from '@/lib/supabase/server';
+import { diagnosticAreaCounts } from '@/lib/training/service';
 import { masteryBand } from '@/lib/learning/mastery';
 import { ButtonLink, Card, ScoreBar, SectionHeading, cn } from '@/components/ui';
 import { requireAccess } from '@/lib/access/service';
@@ -36,6 +37,10 @@ export default async function DiagnosticResultsPage({
     .from('domains')
     .select('slug, name, sort_order')
     .order('sort_order');
+
+  // How many questions each area rests on, from this sitting's own answers:
+  // a percentage from two questions is shown as the two questions it is.
+  const tally = await diagnosticAreaCounts(user.id, result.session_id as string);
 
   const domainScores = (result.domain_scores ?? {}) as Record<string, number>;
   const priority = (result.priority_domains ?? []) as string[];
@@ -99,6 +104,11 @@ export default async function DiagnosticResultsPage({
               <ScoreBar
                 key={row.slug}
                 label={row.name}
+                sublabel={
+                  tally.get(row.slug)
+                    ? `${tally.get(row.slug)!.right} of ${tally.get(row.slug)!.of} ${tally.get(row.slug)!.of === 1 ? 'question' : 'questions'} right`
+                    : undefined
+                }
                 score={row.score}
                 band={masteryBand(row.score)}
                 unit="%"
@@ -107,6 +117,14 @@ export default async function DiagnosticResultsPage({
               />
             ))}
           </div>
+          {/* What these numbers are, and what they are not (the owner: "how
+              the hell can it score my advocacy skills?"). */}
+          <p className="mt-4 border-t border-rule pt-4 text-sm text-slate">
+            Each area is the share right of the multiple-choice questions asked about it, so an area
+            with two questions moves a long way on one answer. Advocacy and Drafting here are
+            questions about them: they do not measure how you speak or write. Those are marked by
+            your coach, and in the Advocacy Studio.
+          </p>
         </Card>
       </section>
 

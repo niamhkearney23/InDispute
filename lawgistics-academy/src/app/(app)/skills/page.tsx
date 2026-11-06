@@ -324,7 +324,11 @@ export default async function SkillsPage() {
           <h2 id="by-topic" className="text-xl">
             Progress by topic
           </h2>
-          <p className="mt-1 mb-3 text-sm text-slate">The share of your answers in each area that were right, and how many it is based on.</p>
+          <p className="mt-1 mb-3 text-sm text-slate">
+            The share of your answers in each area that were right, and how many it is based on.
+            Advocacy and Drafting are multiple-choice questions about them, not a measure of how you
+            speak or write; your coach and the Advocacy Studio mark those.
+          </p>
           {overview.areaScoresUnavailable ? (
             <p className="max-w-2xl text-sm text-slate">
               Scores by area could not be read just now. Try again in a moment; your answers are all still recorded.

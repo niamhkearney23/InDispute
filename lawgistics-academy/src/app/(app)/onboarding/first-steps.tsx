@@ -281,8 +281,8 @@ export function FirstSteps({
             <Title>You are all set{first ? `, ${first}` : ''}.</Title>
             {questionsOpen ? (
               <Lead>
-                Next, a test to see where you are: {diagnosticQuestions} questions across every area, with
-                no pass mark. The rest of the academy opens when it is done.
+                Next, the diagnostic assessment: {diagnosticQuestions} questions across every area, with no
+                pass mark. The rest of the academy opens once it is complete.
               </Lead>
             ) : (
               <Lead>Your day is ready. The diagnostic opens as soon as questions are published.</Lead>
@@ -300,7 +300,7 @@ export function FirstSteps({
                     className="size-4 animate-spin rounded-full border-2 border-[#0c1520]/25 border-t-[#0c1520]"
                   />
                 ) : null}
-                {pending ? 'Setting up…' : questionsOpen ? 'Start the test' : 'Go to Today'}
+                {pending ? 'Setting up…' : questionsOpen ? 'Continue to the assessment' : 'Go to Today'}
               </button>
             </Actions>
           </>

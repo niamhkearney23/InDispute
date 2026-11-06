@@ -1,4 +1,5 @@
 import { DEFAULT_SCHEDULE, roundCountWord, roundTimes, zoneName, type Schedule } from '@/lib/training/schedule';
+import { TUTOR_SHOWN } from '@/lib/tutor/shown';
 
 import { DIAGNOSTIC_QUESTION_COUNT } from '@/lib/learning/config';
 
@@ -90,13 +91,18 @@ export function tourSteps({
       body: 'Modules: a few minutes of teaching, then questions. A lesson appears once a lawyer has checked it. Unlike daily training, a module has a finishing line: it is done when you have got every question in it right at least once.',
       icon: 'book',
     },
-    {
-      key: 'tutor',
-      where: 'Learn, then Tutor',
-      title: 'The tutor',
-      body: 'Two ways to find out what you really know: explain an idea back in plain words, or let it test you on a module. It asks questions. It does not lecture, and it never tells you the law.',
-      icon: 'repeat',
-    },
+    // Hidden for now (src/lib/tutor/shown.ts).
+    ...(TUTOR_SHOWN
+      ? [
+          {
+            key: 'tutor',
+            where: 'Learn, then Tutor',
+            title: 'The tutor',
+            body: 'Two ways to find out what you really know: explain an idea back in plain words, or let it test you on a module. It asks questions. It does not lecture, and it never tells you the law.',
+            icon: 'repeat' as const,
+          },
+        ]
+      : []),
     {
       key: 'skills',
       where: 'Your picture, then Progress',

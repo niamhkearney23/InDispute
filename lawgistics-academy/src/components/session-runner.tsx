@@ -25,12 +25,17 @@ export function SessionRunner({
   kind,
   questions,
   startIndex,
+  answeredBefore = 0,
+  correctBefore = 0,
   courtMaps = {},
 }: {
   sessionId: string;
   kind: SessionKind;
   questions: DeliveredQuestion[];
   startIndex: number;
+  /** Answers already given in this session before this page opened, and how many were right. */
+  answeredBefore?: number;
+  correctBefore?: number;
   /**
    * The court maps this person may see, from the server: a country's map is
    * here only once a lawyer has signed it off (or for staff, with `checked`
@@ -45,10 +50,11 @@ export function SessionRunner({
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [finishing, startFinishing] = useTransition();
-  // Counted for this sitting only. A resumed session starts partway through, so
-  // deriving the tally from the question index would report it wrong.
-  const [correctSoFar, setCorrectSoFar] = useState(0);
-  const [answeredThisSitting, setAnsweredThisSitting] = useState(0);
+  // Counted for the whole session: what was answered before this page opened
+  // comes from the server. Deriving it from the question index would be wrong
+  // when a question was withdrawn mid-session.
+  const [correctSoFar, setCorrectSoFar] = useState(correctBefore);
+  const [answeredThisSitting, setAnsweredThisSitting] = useState(answeredBefore);
   // Correct answers in a row, this sitting. The badge that celebrates it is
   // the cheapest part of the loop to make rewarding, and it resets to zero
   // without comment: a run ending is not a failure worth naming.
@@ -192,8 +198,11 @@ export function SessionRunner({
           ) : null}
         </div>
 
+        {/* The facts the question rests on: read first, so at reading size
+            and in the main text colour, not as small grey print beside the
+            question (the owner, November 2026: "hard to read"). */}
         {question.scenario ? (
-          <div className="mb-5 border-l-2 border-rule-strong pl-4 text-base leading-relaxed text-slate sm:text-lg">
+          <div className="mb-5 border-l-2 border-rule-strong pl-4 text-lg leading-relaxed text-ink sm:text-xl sm:leading-relaxed">
             {question.scenario}
           </div>
         ) : null}

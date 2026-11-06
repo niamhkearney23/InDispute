@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { requireAccess } from '@/lib/access/service';
+import { TUTOR_SHOWN } from '@/lib/tutor/shown';
 import { aiCompany } from '@/lib/ai/provider';
 import { modulesFor } from '@/content/seed/modules';
 import { Card, Notice } from '@/components/ui';
@@ -16,6 +17,8 @@ export const metadata: Metadata = { title: 'Tutor' };
 /** The tutor's front page: two ways to practise, and what you did before. */
 export default async function TutorPage() {
   await requireAccess();
+  // Hidden for now (src/lib/tutor/shown.ts): Learn instead.
+  if (!TUTOR_SHOWN) redirect('/modules');
   const user = await getCurrentUser();
   if (!user) redirect('/login?next=/tutor');
   const profile = await getLearnerProfile(user.id);

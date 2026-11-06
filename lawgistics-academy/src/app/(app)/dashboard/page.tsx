@@ -63,7 +63,7 @@ export default async function DashboardPage({
   // only the diagnostic (the owner, November 2026: "today, all it has is the
   // diagnostic, obviously"), and nothing else is read for it.
   if (!staff && !profile.diagnosticCompletedAt && (await questionsPublished(profile.country)) === true) {
-    return <FirstTest name={profile.displayName} />;
+    return <FirstTest />;
   }
   const countryName = profile.country === 'MY' ? 'Malaysia' : 'Australia';
   const isTrainee = profile.track === 'litigation_trainee' && profile.traineeConfirmed;
@@ -339,7 +339,7 @@ export default async function DashboardPage({
           },
           {
             title: 'Learn: optional, at your own pace',
-            text: 'Modules teach for a few minutes, then ask. Practice files, the tutor, the reading and the courts sit underneath.',
+            text: 'Modules teach for a few minutes, then ask. Practice files, the reading and the courts sit underneath.',
             href: '/modules',
             action: 'Open Learn',
           },

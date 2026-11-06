@@ -37,7 +37,7 @@ test('every task has a task and a why', () => {
 });
 
 test('homeworkForDay finds the matching task, and nothing out of range', () => {
-  assert.equal(homeworkForDay(1)?.slug, 'find-your-way');
+  assert.equal(homeworkForDay(1)?.slug, 'find-the-precedents');
   assert.equal(homeworkForDay(20)?.slug, 'handover');
   assert.equal(homeworkForDay(0), undefined);
   assert.equal(homeworkForDay(21), undefined);

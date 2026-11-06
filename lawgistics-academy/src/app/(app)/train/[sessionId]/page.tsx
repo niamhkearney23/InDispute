@@ -54,6 +54,8 @@ export default async function TrainPage({
       kind={plan.kind}
       questions={plan.questions}
       startIndex={plan.resumeIndex}
+      answeredBefore={plan.answeredBefore}
+      correctBefore={plan.correctBefore}
       courtMaps={courtMaps}
     />
   );

@@ -84,8 +84,8 @@ const PAGES = [
     path: '/dashboard',
     auth: true,
     as: 'fresh@lawgistics.test',
-    signed: { present: ['First, a test to see where you are.'], absent: ['Your next task'] },
-    unsigned: { present: ['First, a test to see where you are.'], absent: ['Your next task'] },
+    signed: { present: ['Diagnostic assessment'], absent: ['Your next task'] },
+    unsigned: { present: ['Diagnostic assessment'], absent: ['Your next task'] },
   },
   {
     name: 'first-test-held',
@@ -93,8 +93,8 @@ const PAGES = [
     landsOn: '/dashboard',
     auth: true,
     as: 'fresh@lawgistics.test',
-    signed: { present: ['First, a test to see where you are.'] },
-    unsigned: { present: ['First, a test to see where you are.'] },
+    signed: { present: ['Diagnostic assessment'] },
+    unsigned: { present: ['Diagnostic assessment'] },
   },
   {
     name: 'dashboard',

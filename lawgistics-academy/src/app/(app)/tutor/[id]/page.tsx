@@ -4,6 +4,7 @@ import { notFound, redirect } from 'next/navigation';
 import { z } from 'zod';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { requireAccess } from '@/lib/access/service';
+import { TUTOR_SHOWN } from '@/lib/tutor/shown';
 import { Notice } from '@/components/ui';
 import { TutorThread } from '@/components/tutor-thread';
 import { aiCompany } from '@/lib/ai/provider';
@@ -27,6 +28,8 @@ export default async function TutorConversationPage({
   params: Promise<{ id: string }>;
 }) {
   await requireAccess();
+  // Hidden for now (src/lib/tutor/shown.ts): Learn instead.
+  if (!TUTOR_SHOWN) redirect('/modules');
   const user = await getCurrentUser();
   if (!user) redirect('/login?next=/tutor');
 

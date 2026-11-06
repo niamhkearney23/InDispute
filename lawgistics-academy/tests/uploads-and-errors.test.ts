@@ -42,7 +42,12 @@ test('a matter recording carries the same declaration', () => {
   const asked = upload.indexOf("formData.get('recordingDeclaredClean') !== 'on'");
   assert.ok(asked > 0 && asked < upload.indexOf('.upload('));
   assert.match(upload, /recording_declared_clean: true/);
-  assert.match(read('src/app/(app)/matters/[id]/matter-workspace.tsx'), /name="recordingDeclaredClean"/);
+  // Pressing Save is the statement (the owner found a tick box on a file with
+  // an invented client silly), so the words are on the page beside the
+  // button and are sent with the recording, never assumed by the server.
+  const page = read('src/app/(app)/matters/[id]/matter-workspace.tsx');
+  assert.match(page, /Saving confirms there is nothing in this recording that identifies a real client\./);
+  assert.match(page, /data\.set\('recordingDeclaredClean', 'on'\);\s*startSaving\(\(\) => recAction\(data\)\)/);
 });
 
 test('one form hands work in once, and a failed hand-in takes its file back out', () => {

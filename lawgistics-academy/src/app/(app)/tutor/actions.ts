@@ -1,5 +1,6 @@
 'use server';
 
+import { TUTOR_HIDDEN_MESSAGE, TUTOR_SHOWN } from '@/lib/tutor/shown';
 import { optionLetter } from '@/lib/learning/option-order';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
@@ -74,6 +75,7 @@ const ALREADY_ANSWERED =
 export async function startTutor(_prev: TutorState, formData: FormData): Promise<TutorState> {
   const user = await getCurrentUser();
   if (!user) redirect('/login?next=/tutor');
+  if (!TUTOR_SHOWN) return { error: TUTOR_HIDDEN_MESSAGE };
   if (!(await hasAccess(user.id))) return { error: NO_ACCESS };
 
   const profile = await getLearnerProfile(user.id);
@@ -171,6 +173,7 @@ async function ownConversation(userId: string, conversationId: unknown, mode: 'e
 export async function sendExplanation(_prev: TutorState, formData: FormData): Promise<TutorState> {
   const user = await getCurrentUser();
   if (!user) return { error: 'You are not signed in.' };
+  if (!TUTOR_SHOWN) return { error: TUTOR_HIDDEN_MESSAGE };
   const retry = formData.get('retry') === '1';
   const body = String(formData.get('body') ?? '')
     .trim()
@@ -267,6 +270,7 @@ export async function answerTutorQuestion(
 ): Promise<TutorState> {
   const user = await getCurrentUser();
   if (!user) return { error: 'You are not signed in.' };
+  if (!TUTOR_SHOWN) return { error: TUTOR_HIDDEN_MESSAGE };
   const reason = String(formData.get('reason') ?? '')
     .trim()
     .slice(0, 600);

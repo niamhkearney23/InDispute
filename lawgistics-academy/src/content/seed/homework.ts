@@ -34,10 +34,12 @@ export const HOMEWORK_TASKS: HomeworkTask[] = [
   // Week one: finding your feet
   {
     day: 1,
-    slug: 'find-your-way',
-    title: 'Who is who',
-    task: 'Write down the names and roles of five people you will work with, and one thing you would go to each of them about.',
-    why: 'Knowing who to ask is most of what a first month is for.',
+    // Replaced in November 2026: the owner found "write down five people
+    // you will work with" weird. Same spirit, a thing to find in the firm.
+    slug: 'find-the-precedents',
+    title: 'Where the precedents are',
+    task: 'Ask your supervisor where the firm keeps its precedents and templates. Find the one used to start a claim, and note where it is and who keeps it up to date.',
+    why: 'Most first drafts here start from a precedent. Knowing where they live saves you an hour every time.',
   },
   {
     day: 2,

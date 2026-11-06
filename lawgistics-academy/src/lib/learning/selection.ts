@@ -346,9 +346,12 @@ export async function selectDailyQuestions(
 }
 
 /**
- * The diagnostic is a different job: measure breadth, not fix weakness. Spread
- * evenly across domains and lean towards the easier end so a beginner still
- * produces signal rather than 30 blanks.
+ * The diagnostic measures breadth and depth: every area, and in each area a
+ * spread from its easiest question to its hardest. It used to take the
+ * easiest first in every area, so with thirty questions across eight areas
+ * it seldom reached anything hard, and somebody who had never studied
+ * Malaysian law came out Advanced (the owner, November 2026: "the questions
+ * in the diagnostic are way too easy").
  */
 export async function selectDiagnosticQuestions(
   db: SupabaseClient,
@@ -356,48 +359,82 @@ export async function selectDiagnosticQuestions(
   count: number = DIAGNOSTIC_QUESTION_COUNT,
 ): Promise<SelectedQuestion[]> {
   const bank = await loadBank(db, country);
-  if (bank.length === 0) return [];
+  return diagnosticPaper(bank, count).map((q) => ({
+    questionId: q.questionId,
+    questionVersionId: q.questionVersionId,
+    reason: 'diagnostic_spread' as const,
+  }));
+}
 
-  const byDomain = new Map<string, BankQuestion[]>();
+/**
+ * The paper itself, pure so it can be tested. Each area gets an even share
+ * of the questions (round-robin, as many as it has), and an area's share is
+ * spread across its difficulties: with four questions from an area of ten,
+ * it takes ones near the easy end, the middle and the hard end, never the
+ * four easiest. The paper then runs from easy to hard, so it opens gently
+ * and ends on the questions that tell someone who knows a lot from
+ * someone who does not. A shuffle breaks ties, so two people do not sit an
+ * identical paper.
+ */
+export function diagnosticPaper<Q extends { domainSlug: string; difficulty: number }>(
+  bank: Q[],
+  count: number,
+  random: () => number = Math.random,
+): Q[] {
+  const shuffled = <T,>(items: T[]): T[] => {
+    const copy = [...items];
+    for (let i = copy.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  };
+
+  const byDomain = new Map<string, Q[]>();
   for (const q of bank) {
     const list = byDomain.get(q.domainSlug) ?? [];
     list.push(q);
     byDomain.set(q.domainSlug, list);
   }
-
-  for (const list of byDomain.values()) {
-    shuffle(list);
-    // Easiest-first within a domain, with the shuffle breaking ties so two
-    // learners don't sit an identical paper.
-    list.sort((a, b) => a.difficulty - b.difficulty);
+  for (const [slug, list] of byDomain) {
+    byDomain.set(slug, shuffled(list).sort((a, b) => a.difficulty - b.difficulty));
   }
 
+  // How many from each area: round-robin until the paper is full or every
+  // area has given all it has.
   const domains = [...byDomain.keys()].sort();
-  const chosen: SelectedQuestion[] = [];
-  const cursors = new Map(domains.map((d) => [d, 0]));
-
-  // Round-robin across domains until the paper is full.
-  let exhausted = false;
-  while (chosen.length < count && !exhausted) {
-    exhausted = true;
-    for (const domain of domains) {
-      if (chosen.length >= count) break;
-      const list = byDomain.get(domain)!;
-      const cursor = cursors.get(domain)!;
-      if (cursor >= list.length) continue;
-
-      exhausted = false;
-      cursors.set(domain, cursor + 1);
-      const q = list[cursor];
-      chosen.push({
-        questionId: q.questionId,
-        questionVersionId: q.questionVersionId,
-        reason: 'diagnostic_spread',
-      });
+  const share = new Map(domains.map((d) => [d, 0]));
+  let given = 0;
+  let room = true;
+  while (given < count && room) {
+    room = false;
+    for (const d of domains) {
+      if (given >= count) break;
+      if (share.get(d)! < byDomain.get(d)!.length) {
+        share.set(d, share.get(d)! + 1);
+        given += 1;
+        room = true;
+      }
     }
   }
 
-  return chosen;
+  // Each area's share, spread evenly along its easy-to-hard list: the
+  // middle of each of `k` equal slices, so one question is the middle one,
+  // two are the first and second halves' middles, and so on.
+  const chosen: Q[] = [];
+  for (const d of domains) {
+    const list = byDomain.get(d)!;
+    const k = share.get(d)!;
+    const taken = new Set<number>();
+    for (let i = 0; i < k; i += 1) {
+      let at = Math.min(list.length - 1, Math.floor(((i + 0.5) * list.length) / k));
+      while (taken.has(at)) at = (at + 1) % list.length;
+      taken.add(at);
+      chosen.push(list[at]);
+    }
+  }
+
+  return shuffled(chosen).sort((a, b) => a.difficulty - b.difficulty);
 }
 
 /**

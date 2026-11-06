@@ -589,7 +589,7 @@ function ReviewCard({
       </div>
 
       {item.scenario ? (
-        <p className="mb-3 border-l-2 border-rule-strong pl-3 text-sm text-slate">
+        <p className="mb-3 border-l-2 border-rule-strong pl-3 text-base leading-relaxed text-ink">
           {item.scenario}
         </p>
       ) : null}

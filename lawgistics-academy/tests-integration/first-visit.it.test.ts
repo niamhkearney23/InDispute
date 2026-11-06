@@ -45,7 +45,7 @@ async function signedIn(p: Person): Promise<Page> {
 }
 
 const path = (page: Page) => new URL(page.url()).pathname;
-const FIRST_TEST = 'First, a test to see where you are.';
+const FIRST_TEST = 'Diagnostic assessment';
 
 /**
  * Where a page ends up. The pages under the app's layout stream behind its
@@ -120,7 +120,7 @@ test('the first steps save the name and cartoon, keep the programme, and go to t
   });
   await Promise.all([
     page.waitForURL((u) => u.pathname !== '/onboarding', { timeout: 20000 }),
-    page.getByRole('button', { name: held ? 'Start the test' : 'Go to Today' }).click(),
+    page.getByRole('button', { name: held ? 'Continue to the assessment' : 'Go to Today' }).click(),
   ]);
   await page.waitForLoadState('networkidle').catch(() => {});
   assert.equal(path(page), held ? '/diagnostic' : '/dashboard');

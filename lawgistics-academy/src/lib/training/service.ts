@@ -51,6 +51,14 @@ export interface SessionPlan {
   questions: DeliveredQuestion[];
   /** Index of the first question still to answer. Equals the length when done. */
   resumeIndex: number;
+  /**
+   * Answers already given in this session, and how many were right, so the
+   * running count covers the whole session. Counted from this sitting only,
+   * somebody who reopened the page at question 3 finished a 30-question
+   * diagnostic on "24 of 28 correct" (the owner, November 2026).
+   */
+  answeredBefore: number;
+  correctBefore: number;
 }
 
 /** The most AI coach notes one person is given in a day. */
@@ -167,6 +175,47 @@ export async function startSession(
  * the diagnostic, which would otherwise hold them on a page they cannot get
  * past.
  */
+/**
+ * How many questions a person's diagnostic asked in each area, and how many
+ * they got right, read for that person and that session only. The result
+ * page shows these beside each area's percentage, so a score resting on two
+ * questions says so (the owner, November 2026: "how the hell can it score my
+ * advocacy skills?"). Here, not on the page, because the questions table
+ * holds the answer keys and no learner page may read it.
+ */
+export async function diagnosticAreaCounts(
+  userId: string,
+  sessionId: string,
+): Promise<Map<string, { right: number; of: number }>> {
+  const db = createServiceClient();
+  const tally = new Map<string, { right: number; of: number }>();
+  const { data: given } = await db
+    .from('user_question_attempts')
+    .select('question_id, is_correct')
+    .eq('user_id', userId)
+    .eq('session_id', sessionId);
+  if (!given?.length) return tally;
+  const { data: asked } = await db
+    .from('questions')
+    .select('id, domains(slug)')
+    .in('id', given.map((g) => g.question_id as string));
+  const areaOf = new Map(
+    (asked ?? []).map((q) => {
+      const d = q.domains as unknown as { slug: string } | { slug: string }[] | null;
+      return [q.id as string, Array.isArray(d) ? d[0]?.slug : d?.slug] as const;
+    }),
+  );
+  for (const g of given) {
+    const slug = areaOf.get(g.question_id as string);
+    if (!slug) continue;
+    const t = tally.get(slug) ?? { right: 0, of: 0 };
+    t.of += 1;
+    if (g.is_correct) t.right += 1;
+    tally.set(slug, t);
+  }
+  return tally;
+}
+
 export async function trainingOpen(country: Country): Promise<boolean> {
   // A failed count is not evidence the bank is empty. Say it is open and let
   // pressing the button report the real problem, as it did before this check.
@@ -287,11 +336,14 @@ export async function getSessionPlan(
   // withdrawn mid-session. With no country to go on, nothing is shown.
   if (!profile?.country) return null;
 
-  const { data: rows } = await db
-    .from('training_session_questions')
-    .select('question_id, question_version_id, position, answered_at')
-    .eq('session_id', sessionId)
-    .order('position', { ascending: true });
+  const [{ data: rows }, { data: given }] = await Promise.all([
+    db
+      .from('training_session_questions')
+      .select('question_id, question_version_id, position, answered_at')
+      .eq('session_id', sessionId)
+      .order('position', { ascending: true }),
+    db.from('user_question_attempts').select('is_correct').eq('session_id', sessionId).eq('user_id', userId),
+  ]);
 
   if (!rows || rows.length === 0) return null;
 
@@ -345,6 +397,8 @@ export async function getSessionPlan(
       questions.map((q) => q.questionVersionId),
       answeredVersionIds,
     ),
+    answeredBefore: given?.length ?? 0,
+    correctBefore: (given ?? []).filter((a) => a.is_correct === true).length,
   };
 }
 

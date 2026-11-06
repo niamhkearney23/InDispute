@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useActionState, useEffect, useRef, useState, useSyncExternalStore, useTransition } from 'react';
 import { Button, Notice, cn } from '@/components/ui';
 import { CheckIcon } from '@/components/icons';
 import {
@@ -112,7 +112,12 @@ export function MatterWorkspace({
               </Button>
               <p className="mt-2 text-xs text-muted">
                 {procedure.trim().length < 20 || draft.trim().length < 80
-                  ? 'Write your procedure and a few sentences of advice first.'
+                  ? `They are about what you have written, so write a little more first: ${[
+                      procedure.trim().length < 20 ? `${20 - procedure.trim().length} more characters of procedure` : null,
+                      draft.trim().length < 80 ? `${80 - draft.trim().length} more characters of advice` : null,
+                    ]
+                      .filter(Boolean)
+                      .join(' and ')}.`
                   : 'They are asked once, about what you have written, so finish your draft first.'}
               </p>
               {askState.error ? (
@@ -289,6 +294,13 @@ function SpeakRecorder({
   ok?: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  // The recording itself, kept here and sent with the form when Save is
+  // pressed. It used to be slipped into the hidden file field with a
+  // DataTransfer, which Safari on an iPad does not honour: the server got an
+  // empty field and said "Record something first" over a recording that
+  // played back (the owner, November 2026).
+  const fileRef = useRef<File | null>(null);
+  const [, startSaving] = useTransition();
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<number | null>(null);
@@ -298,11 +310,19 @@ function SpeakRecorder({
   const [preview, setPreview] = useState<string | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
 
-  // Once uploaded, the file leaves the form, so later saves do not resend it.
+  // Once uploaded, the recording is let go, so later saves do not resend it:
+  // the preview as the result arrives (adjusted while rendering, React's
+  // pattern for state that follows a prop), the kept file and the file
+  // field just after.
+  const [seenOk, setSeenOk] = useState(ok);
+  if (ok !== seenOk) {
+    setSeenOk(ok);
+    if (ok) setPreview(null);
+  }
   useEffect(() => {
-    if (ok && inputRef.current) {
-      inputRef.current.value = '';
-      setPreview(null);
+    if (ok) {
+      if (inputRef.current) inputRef.current.value = '';
+      fileRef.current = null;
     }
   }, [ok]);
 
@@ -314,10 +334,24 @@ function SpeakRecorder({
     const type = bareMemoType(blob.type) || 'audio/webm';
     const ext = type === 'audio/mp4' ? 'm4a' : type === 'audio/ogg' ? 'ogg' : 'webm';
     const file = new File([blob], `explanation.${ext}`, { type });
-    const transfer = new DataTransfer();
-    transfer.items.add(file);
-    if (inputRef.current) inputRef.current.files = transfer.files;
+    fileRef.current = file;
     setPreview(URL.createObjectURL(file));
+  }
+
+  /**
+   * Sends the form's own fields with the recording added. Pressing Save is
+   * the learner's statement that the recording names no client (the box it
+   * replaced read as silly on a file with an invented client), said in so
+   * many words beside the button; the server and the database still require
+   * it with every recording.
+   */
+  function save(event: React.MouseEvent<HTMLButtonElement>) {
+    const form = event.currentTarget.form;
+    if (!form || !fileRef.current) return;
+    const data = new FormData(form);
+    data.set('memo', fileRef.current, fileRef.current.name);
+    data.set('recordingDeclaredClean', 'on');
+    startSaving(() => recAction(data));
   }
 
   async function start() {
@@ -384,7 +418,7 @@ function SpeakRecorder({
           )
         ) : null}
         {preview && !recording ? (
-          <Button type="submit" variant="accent" formAction={recAction} disabled={uploading}>
+          <Button type="button" variant="accent" onClick={save} disabled={uploading}>
             {uploading ? 'Saving…' : 'Save this recording'}
           </Button>
         ) : null}
@@ -396,14 +430,12 @@ function SpeakRecorder({
           <audio controls src={preview} className="w-full" />
         </figure>
       ) : null}
-      {/* Asked with the recording, not as a rule somewhere else: the box is
-          a statement the learner is making. Not pre-ticked, and not marked
-          required, because the same form also saves the written answers. */}
+      {/* Said with the recording, not as a rule somewhere else: pressing
+          Save is the statement, and the learner is told so before they do. */}
       {preview && !recording ? (
-        <label className="mt-3 flex items-start gap-2.5 py-2 text-sm">
-          <input type="checkbox" name="recordingDeclaredClean" className="mt-0.5 size-5" />
-          <span>I have checked, and there is nothing in this recording that identifies a client.</span>
-        </label>
+        <p className="mt-3 text-sm text-slate">
+          Saving confirms there is nothing in this recording that identifies a real client.
+        </p>
       ) : null}
       {problem ? <p className="mt-1.5 text-xs text-verdict-wrong">{problem}</p> : null}
       {ok && !preview ? <p className="mt-1.5 text-xs text-verdict-correct">Recording saved.</p> : null}
@@ -416,7 +448,10 @@ function SpeakRecorder({
         accept={WORK_MEMO_ACCEPT}
         onChange={(e) => {
           const file = e.target.files?.[0];
-          if (file) setPreview(URL.createObjectURL(file));
+          if (file) {
+            fileRef.current = file;
+            setPreview(URL.createObjectURL(file));
+          }
         }}
         className={
           supported

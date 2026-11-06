@@ -942,7 +942,9 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   (`onboarding/first-steps.tsx`) are one question to a screen: "Hi." and
   their name, their cartoon (`CartoonPicker`, saved by `saveOnboarding`
   through `strictCartoon`), career stage, minutes a day, where in the
-  country, then "Start the test". Goals start on litigation knowledge and
+  country, then "Continue to the assessment". The assessment screen
+  (`FirstTest`) is set out like an assessment notice (the owner: "more
+  serious"): "Diagnostic assessment", one line, and its terms as a list. Goals start on litigation knowledge and
   are changed on Account. Today and `/diagnostic` show only `FirstTest`
   until it is done; `finishSession` re-reads every layout so the full shell
   appears with the result. Sign-up asks only for an email and password; the

@@ -24,7 +24,7 @@ export default async function DiagnosticPage() {
   const staff = profile.isAdmin || profile.isCoach || profile.isFirmAdmin;
   // The first visit's hold (first-steps.ts): the same one card Today shows.
   if (!retaking && !staff && (await questionsPublished(profile.country)) === true) {
-    return <FirstTest name={profile.displayName} />;
+    return <FirstTest />;
   }
   const open = await trainingOpen(profile.country);
 
