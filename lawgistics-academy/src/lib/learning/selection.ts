@@ -10,6 +10,7 @@ import {
   type MixBucket,
 } from './config';
 import type { Country, SelectionReason } from '@/lib/types';
+import { forDiagnostic, forTraining, missingFlag } from './diagnostic-set';
 
 /**
  * Session composition.
@@ -38,6 +39,8 @@ interface BankQuestion {
   domainId: string;
   domainSlug: string;
   conceptIds: string[];
+  /** Asked in the diagnostic only (0055, diagnostic-set.ts). */
+  diagnosticOnly: boolean;
 }
 
 export interface SelectedQuestion {
@@ -55,13 +58,15 @@ export interface SelectedQuestion {
  * irrelevant, it is wrong.
  */
 async function loadBank(db: SupabaseClient, country: Country): Promise<BankQuestion[]> {
-  const [{ data: rows, error }, { data: links, error: linkError }] = await Promise.all([
-    db
-      .from('v_question_delivery')
-      .select('question_id, question_version_id, difficulty, domain_id, domain_slug')
-      .eq('country', country),
+  const columns = 'question_id, question_version_id, difficulty, domain_id, domain_slug';
+  const read = (cols: string) => db.from('v_question_delivery').select(cols).eq('country', country);
+  const [first, { data: links, error: linkError }] = await Promise.all([
+    read(`${columns}, diagnostic_only`),
     db.from('question_concepts').select('question_id, concept_id'),
   ]);
+  // A database without 0055 has no diagnostic_only: read again without it,
+  // and nothing is diagnostic-only, as before (diagnostic-set.ts).
+  const { data: rows, error } = missingFlag(first.error) ? await read(columns) : first;
 
   // The detail goes to the log; what is thrown is a plain sentence, because
   // a thrown message can travel all the way to the button that was pressed.
@@ -77,14 +82,28 @@ async function loadBank(db: SupabaseClient, country: Country): Promise<BankQuest
     conceptsByQuestion.set(link.question_id, list);
   }
 
-  return (rows ?? []).map((row) => ({
+  type Row = {
+    question_id: string;
+    question_version_id: string;
+    difficulty: number;
+    domain_id: string;
+    domain_slug: string;
+    diagnostic_only?: boolean | null;
+  };
+  return ((rows ?? []) as unknown as Row[]).map((row) => ({
     questionId: row.question_id,
     questionVersionId: row.question_version_id,
     difficulty: row.difficulty,
     domainId: row.domain_id,
     domainSlug: row.domain_slug,
     conceptIds: conceptsByQuestion.get(row.question_id) ?? [],
+    diagnosticOnly: row.diagnostic_only === true,
   }));
+}
+
+/** The bank for daily training, modules and reviews: never a diagnostic-only question. */
+async function loadTrainingBank(db: SupabaseClient, country: Country): Promise<BankQuestion[]> {
+  return forTraining(await loadBank(db, country));
 }
 
 interface LearnerState {
@@ -249,7 +268,7 @@ export async function selectDailyQuestions(
   options: { preferredDomainSlugs?: string[]; country: Country },
 ): Promise<SelectedQuestion[]> {
   const [bank, state] = await Promise.all([
-    loadBank(db, options.country),
+    loadTrainingBank(db, options.country),
     loadLearnerState(db, userId),
   ]);
   if (bank.length === 0) return [];
@@ -358,7 +377,9 @@ export async function selectDiagnosticQuestions(
   country: Country,
   count: number = DIAGNOSTIC_QUESTION_COUNT,
 ): Promise<SelectedQuestion[]> {
-  const bank = await loadBank(db, country);
+  // Its own questions once there are a paper's worth published, the whole
+  // bank until then (diagnostic-set.ts).
+  const bank = forDiagnostic(await loadBank(db, country), count);
   return diagnosticPaper(bank, count).map((q) => ({
     questionId: q.questionId,
     questionVersionId: q.questionVersionId,
@@ -453,7 +474,7 @@ export async function selectModuleQuestions(
   domainSlugs: string[],
   count: number,
 ): Promise<SelectedQuestion[]> {
-  const bank = (await loadBank(db, country)).filter((q) => domainSlugs.includes(q.domainSlug));
+  const bank = (await loadTrainingBank(db, country)).filter((q) => domainSlugs.includes(q.domainSlug));
   if (bank.length === 0) return [];
 
   const questionIds = bank.map((q) => q.questionId);

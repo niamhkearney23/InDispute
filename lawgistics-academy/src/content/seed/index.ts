@@ -16,6 +16,7 @@ import { BASICS_QUESTIONS } from './questions/basics';
 import { BASICS_MY_QUESTIONS } from './questions/basics-my';
 import { ADVANCED_QUESTIONS } from './questions/advanced';
 import { ADVANCED_MY_QUESTIONS } from './questions/advanced-my';
+import { DIAGNOSTIC_MY_QUESTIONS } from './questions/diagnostic-my';
 import { FACTS } from './facts';
 import { COUNTRIES, JURISDICTION_COUNTRY } from '@/lib/types';
 import type { SeedQuestion } from './types';
@@ -38,6 +39,8 @@ export const QUESTIONS: SeedQuestion[] = [
   ...BASICS_MY_QUESTIONS,
   ...ADVANCED_QUESTIONS,
   ...ADVANCED_MY_QUESTIONS,
+  // The diagnostic's own (0055): asked there and nowhere else.
+  ...DIAGNOSTIC_MY_QUESTIONS,
 ];
 
 export { CONCEPTS, DOMAINS, SKILLS, FACTS };

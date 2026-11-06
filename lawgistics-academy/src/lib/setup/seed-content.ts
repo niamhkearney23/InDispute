@@ -1,4 +1,5 @@
 import 'server-only';
+import { missingFlag } from '@/lib/learning/diagnostic-set';
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { CONCEPTS, DOMAINS, FACTS, QUESTIONS, SKILLS, validateSeed } from '@/content/seed';
@@ -119,11 +120,18 @@ export async function seedContent(db: SupabaseClient): Promise<SeedSummary> {
   const skillIdBySlug = new Map((skillRows ?? []).map((s) => [s.slug, s.id]));
 
   /* --- questions --------------------------------------------------------- */
+  // A database without 0055 cannot mark a question diagnostic-only. Loading
+  // one there would make it an ordinary training question, so they wait until
+  // the database is updated (the admin pages say when it needs updating).
+  const flagProbe = await db.from('questions').select('diagnostic_only').limit(1);
+  const canMarkDiagnostic = !missingFlag(flagProbe.error);
+
   let created = 0;
   let reversioned = 0;
   let unchanged = 0;
 
   for (const q of QUESTIONS) {
+    if (q.diagnosticOnly && !canMarkDiagnostic) continue;
     const domainId = domainIdBySlug.get(q.domain);
     if (!domainId) throw new Error(`Unknown domain ${q.domain}`);
 
@@ -142,7 +150,13 @@ export async function seedContent(db: SupabaseClient): Promise<SeedSummary> {
     if (!questionId) {
       const { data: inserted, error } = await db
         .from('questions')
-        .insert({ slug: q.slug, domain_id: domainId, status, country })
+        .insert({
+          slug: q.slug,
+          domain_id: domainId,
+          status,
+          country,
+          ...(q.diagnosticOnly ? { diagnostic_only: true } : {}),
+        })
         .select('id')
         .single();
       if (error) throw error;

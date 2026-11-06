@@ -53,6 +53,13 @@ export interface SeedQuestion {
    * corrected, not so it can be answered.
    */
   tentative?: boolean;
+
+  /**
+   * Asked in the diagnostic only, never in training, a module or a review
+   * (0055, src/lib/learning/diagnostic-set.ts). Signed off and published like
+   * any other question.
+   */
+  diagnosticOnly?: boolean;
 }
 
 export const TRUE_FALSE_OPTIONS = [

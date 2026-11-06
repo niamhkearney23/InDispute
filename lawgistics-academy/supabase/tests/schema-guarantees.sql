@@ -5025,6 +5025,48 @@ select pg_temp.expect(
      from public.studio_attempts where id = 'a0530000-0000-0000-0000-000000000003'),
   'deleting the account empties the person''s Studio attempts');
 
+-- 0055: the diagnostic's own questions ------------------------------------------
+-- A question can be for the diagnostic only. It is gated exactly like any
+-- other: no sign-off, no publishing; published, it shows in the delivery view
+-- with its flag; its sign-off cleared, it leaves the view.
+
+select pg_temp.expect(
+  exists (select 1 from information_schema.columns
+           where table_schema = 'public' and table_name = 'questions'
+             and column_name = 'diagnostic_only' and is_nullable = 'NO'
+             and column_default = 'false'),
+  'a question is not for the diagnostic only unless it says so');
+insert into public.questions (id, slug, domain_id, status, country, diagnostic_only)
+values ('cccc0055-0000-0000-0000-000000000001', 'diagnostic-only-0055',
+        'aaaaaaaa-0000-0000-0000-000000000001', 'requires_review', 'AU', true);
+insert into public.question_versions
+  (id, question_id, version, question_type, stem, options, correct_option_ids,
+   explanation, difficulty, jurisdiction, verification_status)
+values ('dddd0055-0000-0000-0000-000000000001', 'cccc0055-0000-0000-0000-000000000001', 1,
+        'multiple_choice', 'Diagnostic only?',
+        '[{"id":"a","text":"Yes"},{"id":"b","text":"No"}]'::jsonb, array['a'], 'Because yes.', 4,
+        'VIC', 'requires_review');
+select pg_temp.expect_failure(
+  $$update public.questions set status = 'published' where id = 'cccc0055-0000-0000-0000-000000000001'$$,
+  'a diagnostic question cannot be published before a lawyer signs it off');
+update public.question_versions set verification_status = 'human_verified'
+ where id = 'dddd0055-0000-0000-0000-000000000001';
+update public.questions set status = 'published' where id = 'cccc0055-0000-0000-0000-000000000001';
+select pg_temp.expect(
+  (select diagnostic_only from public.v_question_delivery
+    where question_id = 'cccc0055-0000-0000-0000-000000000001'),
+  'a published diagnostic question reaches the delivery view with its flag');
+select pg_temp.expect(
+  (select count(*) = 0 from public.v_question_delivery
+    where diagnostic_only and question_id <> 'cccc0055-0000-0000-0000-000000000001'),
+  'no other question is taken for a diagnostic one');
+update public.question_versions set verification_status = 'requires_review'
+ where id = 'dddd0055-0000-0000-0000-000000000001';
+select pg_temp.expect(
+  not exists (select 1 from public.v_question_delivery
+               where question_id = 'cccc0055-0000-0000-0000-000000000001'),
+  'a diagnostic question that loses its sign-off leaves learners like any other');
+
 -- Schema version ---------------------------------------------------------------
 -- The admin pages compare this with the version the code expects.
 

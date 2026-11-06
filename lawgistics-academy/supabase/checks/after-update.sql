@@ -10,8 +10,8 @@
 
 with checks(n, what, ok) as (
   values
-  (1, 'The database is at the version the website expects (0054)',
-     (select public.schema_version()) = '0054'),
+  (1, 'The database is at the version the website expects (0055)',
+     (select public.schema_version()) = '0055'),
 
   (2, 'No question is published without a lawyer''s sign-off on its current wording',
      not exists (
@@ -164,7 +164,17 @@ with checks(n, what, ok) as (
      -- 0054: no coach clause, so every coach read goes through the logged server route.
      and not exists (select 1 from pg_policies where schemaname = 'public'
                       and tablename in ('studio_attempts', 'studio_reviews')
-                      and coalesce(qual, '') like '%is_coach%'))
+                      and coalesce(qual, '') like '%is_coach%')),
+  (19, 'Diagnostic questions are kept apart (0055)',
+     exists (select 1 from information_schema.columns
+              where table_schema = 'public' and table_name = 'questions'
+                and column_name = 'diagnostic_only' and is_nullable = 'NO')
+     and exists (select 1 from information_schema.columns
+              where table_schema = 'public' and table_name = 'v_question_delivery'
+                and column_name = 'diagnostic_only')
+     -- The gate still stands on the view that gained the column.
+     and (select pg_get_viewdef('public.v_question_delivery'::regclass)) like '%human_verified%'
+     and (select pg_get_viewdef('public.v_question_delivery'::regclass)) like '%review_due_on%')
 )
 select n as "#", what as "check", case when ok then 'OK' else 'NOT OK' end as result
 from checks

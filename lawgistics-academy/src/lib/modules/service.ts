@@ -1,4 +1,5 @@
 import 'server-only';
+import { missingFlag } from '@/lib/learning/diagnostic-set';
 
 import { createServiceClient } from '@/lib/supabase/service';
 import { modulesFor, moduleBySlug, type SeedModule } from '@/content/seed/modules';
@@ -38,11 +39,15 @@ async function questionIdsByModule(
   // Only published questions count. A module whose questions are still drafts
   // is not one a learner can complete, and saying otherwise would let someone
   // finish an induction by answering three of sixteen.
-  const { data } = await db
-    .from('v_question_delivery')
-    .select('question_id, domain_slug')
-    .eq('country', country)
-    .in('domain_slug', domains);
+  // A diagnostic-only question (0055) is never part of a module. On a
+  // database without that column the read is made again without it.
+  const read = (cols: string) =>
+    db.from('v_question_delivery').select(cols).eq('country', country).in('domain_slug', domains);
+  const first = await read('question_id, domain_slug, diagnostic_only');
+  const { data: rows } = missingFlag(first.error) ? await read('question_id, domain_slug') : first;
+  const data = ((rows ?? []) as unknown as Array<{ question_id: string; domain_slug: string; diagnostic_only?: boolean | null }>).filter(
+    (row) => row.diagnostic_only !== true,
+  );
 
   const byDomain = new Map<string, string[]>();
   for (const row of data ?? []) {
