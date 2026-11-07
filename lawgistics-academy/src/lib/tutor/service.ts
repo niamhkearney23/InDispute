@@ -1,6 +1,7 @@
 import 'server-only';
 import { deliveryOrder } from '@/lib/learning/option-order';
 import { createServiceClient } from '@/lib/supabase/service';
+import { missingFlag } from '@/lib/learning/diagnostic-set';
 import { modulesFor, moduleBySlug } from '@/content/seed/modules';
 import type { Country } from '@/lib/types';
 import { REDACTED, askable, stillChecked, type TutorMode, type VerifiedQuestion } from './rules';
@@ -135,18 +136,25 @@ async function checkedPool(
   if (domainIds.length === 0) return [];
   const today = todayUtc();
   const db = createServiceClient();
-  const { data } = await db
-    .from('question_versions')
-    .select(CHECKED_COLUMNS)
-    .eq('is_current', true)
-    .eq('verification_status', 'human_verified')
-    .eq('review_flagged', false)
-    .or(`review_due_on.is.null,review_due_on.gt.${today}`)
-    .eq('questions.status', 'published')
-    .eq('questions.country', country)
-    .in('questions.domain_id', domainIds);
+  // A diagnostic-only question (0055) is asked in the diagnostic and nowhere
+  // else, the tutor's "Test me" included. On a database without the column
+  // the read is made again without it.
+  const read = (withFlag: boolean) =>
+    db
+      .from('question_versions')
+      .select(withFlag ? CHECKED_COLUMNS.replace('domain_id)', 'domain_id, diagnostic_only)') : CHECKED_COLUMNS)
+      .eq('is_current', true)
+      .eq('verification_status', 'human_verified')
+      .eq('review_flagged', false)
+      .or(`review_due_on.is.null,review_due_on.gt.${today}`)
+      .eq('questions.status', 'published')
+      .eq('questions.country', country)
+      .in('questions.domain_id', domainIds);
+  const firstRead = await read(true);
+  const { data } = missingFlag(firstRead.error) ? await read(false) : firstRead;
   const out: Array<VerifiedQuestion & { domainId: string }> = [];
-  for (const row of (data ?? []) as unknown as CheckedRow[]) {
+  for (const row of (data ?? []) as unknown as Array<CheckedRow & { questions: { diagnostic_only?: boolean | null } | null }>) {
+    if (row.questions?.diagnostic_only === true) continue;
     const q = asChecked(row, today);
     if (!q || !row.questions || row.questions.country !== country) continue;
     if (!domainIds.includes(row.questions.domain_id)) continue;

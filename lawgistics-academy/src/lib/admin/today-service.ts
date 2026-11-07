@@ -529,6 +529,8 @@ export async function contentCounts(): Promise<ContentCounts | null> {
       publishedMalaysianQuestions: items.filter(
         (i) =>
           i.kind === 'question' &&
+          // The diagnostic's own (0055) are never given in a round.
+          !i.diagnosticOnly &&
           JURISDICTION_COUNTRY[i.jurisdiction] === 'MY' &&
           i.status === 'published' &&
           !waiting(i),

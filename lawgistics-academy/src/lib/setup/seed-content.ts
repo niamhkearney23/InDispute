@@ -26,6 +26,12 @@ export interface SeedSummary {
   questionsCreated: number;
   questionsReversioned: number;
   questionsUnchanged: number;
+  /**
+   * Diagnostic-only questions not loaded because the database has not had
+   * 0055 yet. Said in the result, so pressing the button again is not a
+   * mystery: they load once UPDATE.sql has been run.
+   */
+  questionsWaitingForUpdate: number;
   facts: number;
   awaitingVerification: number;
 }
@@ -129,9 +135,13 @@ export async function seedContent(db: SupabaseClient): Promise<SeedSummary> {
   let created = 0;
   let reversioned = 0;
   let unchanged = 0;
+  let waitingForUpdate = 0;
 
   for (const q of QUESTIONS) {
-    if (q.diagnosticOnly && !canMarkDiagnostic) continue;
+    if (q.diagnosticOnly && !canMarkDiagnostic) {
+      waitingForUpdate += 1;
+      continue;
+    }
     const domainId = domainIdBySlug.get(q.domain);
     if (!domainId) throw new Error(`Unknown domain ${q.domain}`);
 
@@ -141,11 +151,26 @@ export async function seedContent(db: SupabaseClient): Promise<SeedSummary> {
 
     const { data: existing } = await db
       .from('questions')
-      .select('id')
+      .select(canMarkDiagnostic ? 'id, diagnostic_only' : 'id')
       .eq('slug', q.slug)
       .maybeSingle();
 
-    let questionId = existing?.id as string | undefined;
+    let questionId = (existing as { id: string } | null)?.id;
+
+    // Where a question is asked follows the seed for one already here too, not
+    // only at first load: otherwise moving a question into or out of the
+    // diagnostic's own set would need a migration, as relabelling did (0035).
+    // It touches no wording, so no sign-off changes.
+    if (questionId && canMarkDiagnostic) {
+      const flagged = (existing as { diagnostic_only?: boolean | null } | null)?.diagnostic_only === true;
+      if (flagged !== Boolean(q.diagnosticOnly)) {
+        const { error } = await db
+          .from('questions')
+          .update({ diagnostic_only: Boolean(q.diagnosticOnly) })
+          .eq('id', questionId);
+        if (error) throw error;
+      }
+    }
 
     if (!questionId) {
       const { data: inserted, error } = await db
@@ -343,6 +368,7 @@ export async function seedContent(db: SupabaseClient): Promise<SeedSummary> {
     questionsCreated: created,
     questionsReversioned: reversioned,
     questionsUnchanged: unchanged,
+    questionsWaitingForUpdate: waitingForUpdate,
     facts: FACTS.length,
     awaitingVerification: count ?? 0,
   };

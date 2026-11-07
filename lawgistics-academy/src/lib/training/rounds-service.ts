@@ -12,6 +12,7 @@ import {
 } from './rounds';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { trainingOpen } from './service';
+import { missingFlag } from '@/lib/learning/diagnostic-set';
 import { scheduleForCohort } from './cohorts';
 import type { Schedule } from './schedule';
 import { JURISDICTION_COUNTRY, asCountry, type Country, type Jurisdiction } from '@/lib/types';
@@ -92,18 +93,30 @@ async function roundSessions(db: SupabaseClient, userId: string, since: string):
  * would fix.
  */
 async function firstQuestionAt(db: SupabaseClient, country: Country): Promise<Date | null> {
-  const { data } = await db
-    .from('question_versions')
-    .select('verified_at, jurisdiction, questions!inner(status, country)')
-    .eq('is_current', true)
-    .eq('verification_status', 'human_verified')
-    .eq('questions.status', 'published')
-    // Filtered in the query: the first two hundred sign-offs could all be the
-    // other country's, and then this country's first day was never found.
-    .eq('questions.country', country)
-    .not('verified_at', 'is', null)
-    .order('verified_at', { ascending: true })
-    .limit(1);
+  // A diagnostic-only question (0055) is never given in a round, so its
+  // sign-off does not start the clock; on a database without the column the
+  // read is made again without it.
+  const read = (trainingOnly: boolean) => {
+    const query = db
+      .from('question_versions')
+      .select(
+        trainingOnly
+          ? 'verified_at, jurisdiction, questions!inner(status, country, diagnostic_only)'
+          : 'verified_at, jurisdiction, questions!inner(status, country)',
+      )
+      .eq('is_current', true)
+      .eq('verification_status', 'human_verified')
+      .eq('questions.status', 'published')
+      // Filtered in the query: the first two hundred sign-offs could all be the
+      // other country's, and then this country's first day was never found.
+      .eq('questions.country', country)
+      .not('verified_at', 'is', null);
+    return (trainingOnly ? query.eq('questions.diagnostic_only', false) : query)
+      .order('verified_at', { ascending: true })
+      .limit(1);
+  };
+  const firstRead = await read(true);
+  const { data } = missingFlag(firstRead.error) ? await read(false) : firstRead;
   // Checked again by jurisdiction, so a question whose country and
   // jurisdiction disagree does not start the other country's calendar.
   const first = ((data ?? []) as Array<{ verified_at: string; jurisdiction: Jurisdiction }>).find(

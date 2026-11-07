@@ -511,13 +511,20 @@ export async function loadNewContent(): Promise<
       `${summary.questionsReversioned} updated`,
       `${summary.questionsUnchanged} already here and untouched`,
     ];
+    // Skipped, not lost: they need the database update first (0055).
+    const waiting =
+      summary.questionsWaitingForUpdate > 0
+        ? ` ${summary.questionsWaitingForUpdate} diagnostic question${
+            summary.questionsWaitingForUpdate === 1 ? ' was' : 's were'
+          } not loaded because the database needs updating first: run UPDATE.sql in Supabase, then load again.`
+        : '';
     revalidatePath('/admin');
     revalidatePath('/admin/review');
     return {
       ok: true,
       message: `${parts.join(', ')}. ${summary.awaitingVerification} item${
         summary.awaitingVerification === 1 ? '' : 's'
-      } now await verification.`,
+      } now await verification.${waiting}`,
     };
   } catch (error) {
     return {

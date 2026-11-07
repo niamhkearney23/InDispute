@@ -972,15 +972,27 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   hardest, and runs the paper easy to hard; it used to take each area's
   easiest. **Its own questions** (`0055`, `questions.diagnostic_only`, at
   the end of `v_question_delivery`; `src/lib/learning/diagnostic-set.ts`):
-  daily training, modules and reviews never serve one and a module never
-  counts one; the diagnostic draws on them alone once a country has a
-  paper's worth published (thirty), and on the whole bank until then. A
-  database without 0055 is read exactly as before (`missingFlag`: the read
-  is made again without the column), and loading content there skips the
-  diagnostic questions rather than making them ordinary ones.
+  daily training, modules, reviews and the tutor's "Test me" never serve
+  one and a module never counts one; the diagnostic draws on them alone
+  once a country has a paper's worth published (thirty), and on the whole
+  bank until then. **They never open training**: `questionsPublished` (so
+  `trainingOpen` and the first-visit hold), the rounds clock
+  (`firstQuestionAt`) and Admin Today count training questions only, because
+  with only the diagnostic set published every round would be missed. A
+  **retake** leaves out every question an earlier diagnostic asked
+  (`forRetake`): the unseen ones of its own set when there are thirty,
+  otherwise any unseen question; repeats only when nothing else fills a
+  paper. A database without 0055 is read exactly as before (`missingFlag`:
+  only a missing-column error naming `diagnostic_only`, 42703 or PGRST204,
+  never any other failure, because the read again treats every question as
+  an ordinary one); loading content there skips the diagnostic questions
+  rather than making them ordinary ones and says how many it skipped, and
+  the flag follows the seed for questions already loaded.
   `src/content/seed/questions/diagnostic-my.ts` holds 32 Malaysian ones,
-  four an area at difficulty 2 to 5, AI-drafted and unsigned, seven marked
-  tentative. The result page says how many questions each area rests on,
+  four an area at difficulty 2 to 5, AI-drafted and unsigned, four marked
+  tentative. An AI audit (November 2026, secondary sources only) found no
+  marked answer wrong and six to correct; they were corrected, and the
+  Sessions Court fact's date with them (1 March 2013, not 2012). The result page says how many questions each area rests on,
   and that Advocacy and Drafting are multiple-choice questions about them,
   never a measure of how anybody speaks or writes (the owner: "how the hell
   can it score my advocacy skills?"); Progress says the same. The running

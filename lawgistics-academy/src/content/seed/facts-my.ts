@@ -80,7 +80,7 @@ export const MALAYSIAN_FACTS: SeedFact[] = [
   {
     slug: 'my-fact-sessions-court-limit',
     title: 'A Sessions Court can hear civil claims up to RM1 million.',
-    body: 'Above that figure a claim belongs in the High Court. The limit was raised to RM1 million by amendments that took effect in 2012.',
+    body: 'Above that figure a claim belongs in the High Court. The limit was raised to RM1 million by the Subordinate Courts (Amendment) Act 2010, which came into force on 1 March 2013.',
     whyItMatters:
       'Choosing the right court by the value of the claim is one of the first decisions on a new file, and getting it wrong costs time and money.',
     jurisdiction: 'MY_FEDERAL',

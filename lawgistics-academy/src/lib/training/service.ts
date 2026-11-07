@@ -7,6 +7,7 @@ import { after } from 'next/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServiceClient } from '@/lib/supabase/service';
 import { QUESTIONS_PER_MINUTE_GOAL, DIAGNOSTIC_QUESTION_COUNT } from '@/lib/learning/config';
+import { missingFlag } from '@/lib/learning/diagnostic-set';
 import {
   selectDailyQuestions,
   selectDiagnosticQuestions,
@@ -116,7 +117,7 @@ export async function startSession(
 
   const selected =
     kind === 'diagnostic'
-      ? await selectDiagnosticQuestions(db, country, count)
+      ? await selectDiagnosticQuestions(db, country, count, await askedInDiagnostics(db, userId))
       : await selectDailyQuestions(db, userId, count, { preferredDomainSlugs, country });
 
   if (selected.length === 0) {
@@ -165,6 +166,27 @@ export async function startSession(
 }
 
 /**
+ * Every question this person's earlier diagnostics asked, so a retake can
+ * leave them out (forRetake). Empty on a first sitting. A failed read is
+ * empty too: the paper is then drawn as a first sitting, which is how it
+ * always was, rather than refusing to start.
+ */
+async function askedInDiagnostics(db: SupabaseClient, userId: string): Promise<Set<string>> {
+  const { data: sessions } = await db
+    .from('training_sessions')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('kind', 'diagnostic');
+  const ids = (sessions ?? []).map((s) => s.id as string);
+  if (ids.length === 0) return new Set();
+  const { data: asked } = await db
+    .from('training_session_questions')
+    .select('question_id')
+    .in('session_id', ids);
+  return new Set((asked ?? []).map((a) => a.question_id as string));
+}
+
+/**
  * Whether there is anything to train on, for one country.
  *
  * Asked before a training button is drawn rather than after it is pressed.
@@ -188,30 +210,41 @@ export async function diagnosticAreaCounts(
   sessionId: string,
 ): Promise<Map<string, { right: number; of: number }>> {
   const db = createServiceClient();
-  const tally = new Map<string, { right: number; of: number }>();
   const { data: given } = await db
     .from('user_question_attempts')
     .select('question_id, is_correct')
     .eq('user_id', userId)
     .eq('session_id', sessionId);
-  if (!given?.length) return tally;
-  const { data: asked } = await db
-    .from('questions')
-    .select('id, domains(slug)')
-    .in('id', given.map((g) => g.question_id as string));
-  const areaOf = new Map(
-    (asked ?? []).map((q) => {
-      const d = q.domains as unknown as { slug: string } | { slug: string }[] | null;
-      return [q.id as string, Array.isArray(d) ? d[0]?.slug : d?.slug] as const;
-    }),
-  );
-  for (const g of given) {
-    const slug = areaOf.get(g.question_id as string);
+  if (!given?.length) return new Map();
+  const areas = await areasOf(db, given.map((g) => g.question_id as string));
+  return tallyByArea(given, areas);
+}
+
+/** Each question's area (its domain's slug). The result page and the stored result read it the same way. */
+async function areasOf(db: SupabaseClient, questionIds: string[]): Promise<Map<string, string>> {
+  const { data } = await db.from('questions').select('id, domains(slug)').in('id', questionIds);
+  const areas = new Map<string, string>();
+  for (const row of data ?? []) {
+    const domain = row.domains as unknown as { slug: string } | { slug: string }[] | null;
+    const slug = Array.isArray(domain) ? domain[0]?.slug : domain?.slug;
+    if (slug) areas.set(row.id as string, slug);
+  }
+  return areas;
+}
+
+/** Answers right and answers given, per area. One rule for the score kept and the counts shown beside it. */
+function tallyByArea(
+  answers: Array<{ question_id: unknown; is_correct: unknown }>,
+  areas: Map<string, string>,
+): Map<string, { right: number; of: number }> {
+  const tally = new Map<string, { right: number; of: number }>();
+  for (const answer of answers) {
+    const slug = areas.get(answer.question_id as string);
     if (!slug) continue;
-    const t = tally.get(slug) ?? { right: 0, of: 0 };
-    t.of += 1;
-    if (g.is_correct) t.right += 1;
-    tally.set(slug, t);
+    const entry = tally.get(slug) ?? { right: 0, of: 0 };
+    entry.of += 1;
+    if (answer.is_correct === true) entry.right += 1;
+    tally.set(slug, entry);
   }
   return tally;
 }
@@ -231,12 +264,19 @@ export async function trainingOpen(country: Country): Promise<boolean> {
  */
 export const questionsPublished = cache(async (country: Country): Promise<boolean | null> => {
   const db = createServiceClient();
-  const { count, error } = await db
-    .from('v_question_delivery')
-    .select('question_version_id', { count: 'exact', head: true })
-    .eq('country', country);
+  // Training questions only: the diagnostic's own (0055) can never be given
+  // in daily training, so with only those published there is nothing to
+  // train on, and rounds that opened would all be missed (the audit,
+  // November 2026). One row is enough to know; a plain read rather than a
+  // head-only count, so a failure comes back with its reason.
+  const read = (trainingOnly: boolean) => {
+    const query = db.from('v_question_delivery').select('question_version_id').eq('country', country);
+    return (trainingOnly ? query.eq('diagnostic_only', false) : query).limit(1);
+  };
+  const first = await read(true);
+  const { data, error } = missingFlag(first.error) ? await read(false) : first;
   if (error) return null;
-  return (count ?? 0) > 0;
+  return (data ?? []).length > 0;
 });
 
 /**
@@ -1162,19 +1202,11 @@ async function recordDiagnosticResult(
 
   const questionIds = attempts.map((a) => a.question_id as string);
 
-  const [{ data: questionRows }, { data: skillLinks }, { data: skillRows }] =
-    await Promise.all([
-      db.from('questions').select('id, domains(slug, name)').in('id', questionIds),
-      db.from('question_skills').select('question_id, skill_id').in('question_id', questionIds),
-      db.from('skills').select('id, slug, name'),
-    ]);
-
-  const domainByQuestion = new Map<string, string>();
-  for (const row of questionRows ?? []) {
-    const domain = row.domains as unknown as { slug: string } | { slug: string }[] | null;
-    const slug = Array.isArray(domain) ? domain[0]?.slug : domain?.slug;
-    if (slug) domainByQuestion.set(row.id as string, slug);
-  }
+  const [areas, { data: skillLinks }, { data: skillRows }] = await Promise.all([
+    areasOf(db, questionIds),
+    db.from('question_skills').select('question_id, skill_id').in('question_id', questionIds),
+    db.from('skills').select('id, slug, name'),
+  ]);
 
   const skillSlugById = new Map(
     (skillRows ?? []).map((s) => [s.id as string, s.slug as string]),
@@ -1188,20 +1220,14 @@ async function recordDiagnosticResult(
     skillsByQuestion.set(link.question_id as string, list);
   }
 
-  const domainTally = new Map<string, { correct: number; total: number }>();
+  const domainTally = new Map(
+    [...tallyByArea(attempts, areas)].map(([slug, { right, of }]) => [slug, { correct: right, total: of }]),
+  );
   const skillTally = new Map<string, { correct: number; total: number }>();
 
   for (const attempt of attempts) {
     const questionId = attempt.question_id as string;
     const isCorrect = attempt.is_correct as boolean;
-
-    const domainSlug = domainByQuestion.get(questionId);
-    if (domainSlug) {
-      const entry = domainTally.get(domainSlug) ?? { correct: 0, total: 0 };
-      entry.total += 1;
-      if (isCorrect) entry.correct += 1;
-      domainTally.set(domainSlug, entry);
-    }
 
     for (const skillSlug of skillsByQuestion.get(questionId) ?? []) {
       const entry = skillTally.get(skillSlug) ?? { correct: 0, total: 0 };

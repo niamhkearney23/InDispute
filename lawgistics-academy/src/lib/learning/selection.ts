@@ -10,7 +10,7 @@ import {
   type MixBucket,
 } from './config';
 import type { Country, SelectionReason } from '@/lib/types';
-import { forDiagnostic, forTraining, missingFlag } from './diagnostic-set';
+import { forDiagnostic, forRetake, forTraining, missingFlag } from './diagnostic-set';
 
 /**
  * Session composition.
@@ -376,10 +376,14 @@ export async function selectDiagnosticQuestions(
   db: SupabaseClient,
   country: Country,
   count: number = DIAGNOSTIC_QUESTION_COUNT,
+  /** On a retake, the questions earlier diagnostics asked: left out where the bank allows. */
+  askedBefore: ReadonlySet<string> = new Set(),
 ): Promise<SelectedQuestion[]> {
   // Its own questions once there are a paper's worth published, the whole
-  // bank until then (diagnostic-set.ts).
-  const bank = forDiagnostic(await loadBank(db, country), count);
+  // bank until then; a retake leaves out what was asked before
+  // (diagnostic-set.ts).
+  const whole = await loadBank(db, country);
+  const bank = askedBefore.size > 0 ? forRetake(whole, count, askedBefore) : forDiagnostic(whole, count);
   return diagnosticPaper(bank, count).map((q) => ({
     questionId: q.questionId,
     questionVersionId: q.questionVersionId,

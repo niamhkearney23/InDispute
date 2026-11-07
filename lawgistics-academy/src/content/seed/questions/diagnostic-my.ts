@@ -16,10 +16,18 @@ import { type SeedQuestion } from '../types';
  * it off and it is published. The diagnostic uses them only once at least
  * thirty are published for Malaysia; until then it uses the main bank.
  *
- * TENTATIVE: seven of them, marked tentative below, turn on a number, a
- * section or a case name that is the likeliest thing to be wrong or out of
- * date. Check each question against the source named, not against how sure
- * the wording sounds. Options were
+ * TENTATIVE: four of them, marked tentative below, turn on a number, a date
+ * or a point that is the likeliest thing to be wrong, out of date or
+ * arguable. Check each question against the source named, not against how
+ * sure the wording sounds.
+ *
+ * AUDITED, NOT SIGNED OFF (November 2026): an AI check against secondary
+ * sources (the official sites could not be opened from where it ran) found
+ * no marked answer wrong and six to correct, corrected here: the Sessions
+ * Court date, the 30-day limit on setting aside a default judgment, the
+ * ratio question's second reason, the 1998 "Supreme Court", section 92's
+ * timing and the "official" online text of an Act. That is no substitute
+ * for a lawyer reading the current text of each source. Options were
  * written to similar lengths, because the bank's right answer is otherwise
  * usually the longest; the sign-off page still flags any that are not.
  */
@@ -42,13 +50,14 @@ export const DIAGNOSTIC_MY_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['b'],
     explanation:
-      'Since the amendments that came into force in 2012, the Sessions Court hears civil claims up to RM 1 million and the Magistrates’ Court up to RM 100,000. A RM 750,000 contract claim is within the Sessions Court’s limit. The High Court could hear it too, but it is not the lowest court that can.',
+      'Since the Subordinate Courts (Amendment) Act 2010 came into force on 1 March 2013, the Sessions Court hears civil claims up to RM 1 million and the Magistrates’ Court up to RM 100,000. A RM 750,000 contract claim is within the Sessions Court’s limit. The High Court could hear it too, but it is not the lowest court that can.',
     whyItMatters:
       'Starting in the wrong court costs the client time and money, and the limits are the first thing a supervisor will ask about.',
     commonMisconception: 'That any claim over RM 100,000 has to go to the High Court.',
     concepts: ['my-monetary-jurisdiction'],
     skills: [],
-    sourceReference: 'Subordinate Courts Act 1948 ss 65 and 90, as amended by the Subordinate Courts (Amendment) Act 2010',
+    sourceReference:
+      'Subordinate Courts Act 1948 ss 65 and 90, as amended by the Subordinate Courts (Amendment) Act 2010 (Act A1382), in force 1 March 2013',
     tentative: true,
     diagnosticOnly: true,
   },
@@ -75,7 +84,6 @@ export const DIAGNOSTIC_MY_QUESTIONS: SeedQuestion[] = [
     concepts: ['appellate-structure', 'my-court-structure'],
     skills: [],
     sourceReference: 'Courts of Judicature Act 1964 s 68(1)(a)',
-    tentative: true,
     diagnosticOnly: true,
   },
   {
@@ -97,13 +105,12 @@ export const DIAGNOSTIC_MY_QUESTIONS: SeedQuestion[] = [
     explanation:
       'Section 96 of the Courts of Judicature Act 1964 allows an appeal to the Federal Court only with its leave, on the grounds the section sets out: in broad terms, a question of general principle decided for the first time, or a question of importance on which further argument and a decision of the Federal Court would be to the public advantage, or a question on the effect of a provision of the Constitution. The amount at stake is not the test.',
     whyItMatters:
-      'Most leave applications fail because they argue that the Court of Appeal was wrong, which is not what section 96 asks.',
+      'An application that only argues the Court of Appeal was wrong misses what section 96 asks for.',
     commonMisconception: 'That a big enough claim, or a split decision, gives a right to go further.',
     concepts: ['appellate-structure', 'my-court-structure'],
     skills: [],
     sourceReference:
       'Courts of Judicature Act 1964 s 96; Terengganu Forest Products Sdn Bhd v Cosco Container Lines Co Ltd [2011] 1 MLJ 25 (FC)',
-    tentative: true,
     diagnosticOnly: true,
   },
   {
@@ -129,7 +136,6 @@ export const DIAGNOSTIC_MY_QUESTIONS: SeedQuestion[] = [
     concepts: ['my-court-structure'],
     skills: [],
     sourceReference: 'Federal Constitution art 128(2); Courts of Judicature Act 1964 s 84',
-    tentative: true,
     diagnosticOnly: true,
   },
 
@@ -204,7 +210,6 @@ export const DIAGNOSTIC_MY_QUESTIONS: SeedQuestion[] = [
     skills: [],
     sourceReference:
       'Rules of Court 2012 O 14 rr 1 and 3; National Company for Foreign Trade v Kayu Raya Sdn Bhd [1984] 2 MLJ 300 (FC)',
-    tentative: true,
     diagnosticOnly: true,
   },
   {
@@ -214,7 +219,7 @@ export const DIAGNOSTIC_MY_QUESTIONS: SeedQuestion[] = [
     difficulty: 5,
     jurisdiction: 'MY_GENERAL',
     scenario:
-      'Judgment in default of defence was entered properly against your client, who missed the deadline. Two months later the client brings you a strong answer to the claim.',
+      'Judgment in default of defence was entered properly against your client, who missed the deadline. Ten days after the judgment was served, the client brings you a strong answer to the claim.',
     stem: 'On an application to set the judgment aside, what will the court treat as the most important question?',
     options: [
       { id: 'a', text: 'Whether every day of the delay can be explained' },
@@ -224,13 +229,13 @@ export const DIAGNOSTIC_MY_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['b'],
     explanation:
-      'A judgment entered irregularly is set aside as of right. One entered regularly is set aside in the court’s discretion, and the Malaysian courts treat a defence on the merits as the paramount consideration; delay and the reasons for it are relevant but not decisive on their own. The application is supported by an affidavit setting out that defence.',
+      'A judgment entered irregularly is set aside as of right. One entered regularly is set aside in the court’s discretion, and the question the court asks first is whether the defendant has a defence on the merits, set out in a supporting affidavit; the reasons for the default are weighed as well. The application must be made within 30 days after the judgment is served (Order 42 rule 13). After that an extension of time is needed under Order 3 rule 5, and the delay has to be explained.',
     whyItMatters:
-      'Clients who missed a deadline usually think the case is lost. Often it is not, if there is a real defence and the application is made promptly.',
+      'Clients who missed a deadline usually think the case is lost. Often it is not, if there is a real defence and the application is made in time.',
     concepts: ['default-judgment', 'rules-of-court-2012'],
     skills: ['strategic-reasoning'],
     sourceReference:
-      'Rules of Court 2012 O 13 r 8 and O 19 r 9; Hasil Bumi Perumahan Sdn Bhd v United Malayan Banking Corp Bhd [1994] 1 MLJ 312 (SC)',
+      'Rules of Court 2012 O 19 r 9, O 42 r 13 and O 3 r 5; Hasil Bumi Perumahan Sdn Bhd v United Malayan Banking Corp Bhd [1994] 1 MLJ 312 (SC)',
     tentative: true,
     diagnosticOnly: true,
   },
@@ -270,7 +275,7 @@ export const DIAGNOSTIC_MY_QUESTIONS: SeedQuestion[] = [
     stem: 'What may the court do?',
     options: [
       { id: 'a', text: 'Nothing: a party may run its case as it likes' },
-      { id: 'b', text: 'Presume the minutes would not have helped the defendant' },
+      { id: 'b', text: 'Presume the minutes would be unfavourable to the defendant' },
       { id: 'c', text: 'Order the director to be arrested and brought to court' },
       { id: 'd', text: 'Strike out the defence without further argument' },
     ],
@@ -300,7 +305,7 @@ export const DIAGNOSTIC_MY_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['a'],
     explanation:
-      'Where the terms of a contract have been reduced to writing, section 92 of the Evidence Act 1950 bars evidence of an oral agreement made at the time to contradict, vary, add to or subtract from them. Its provisos let some evidence in, for example of fraud, or of a separate oral agreement on a matter the document is silent on and which is not inconsistent with it, so the tenant’s case depends on fitting one of them.',
+      'Where the terms of a contract have been reduced to writing, section 92 of the Evidence Act 1950 bars evidence of any oral agreement or statement, whether made before or at the time of signing, to contradict, vary, add to or subtract from them. Its provisos let some evidence in. Proviso (2), a separate oral agreement on a matter the document is silent on, cannot help here, because RM 4,000 contradicts the written RM 5,000; the tenant would need proviso (1), such as fraud or mistake, to get it in.',
     whyItMatters: 'Clients often rely on what was said before signing; whether it counts depends on section 92.',
     concepts: ['evidence-act-1950', 'documentary-evidence'],
     skills: [],
@@ -353,8 +358,8 @@ export const DIAGNOSTIC_MY_QUESTIONS: SeedQuestion[] = [
     whyItMatters: 'Getting the form of address wrong is the first thing a judge notices about a new advocate.',
     concepts: ['oral-submissions', 'courtroom-conduct'],
     skills: [],
-    sourceReference: 'Practice in the Malaysian superior courts; check with your supervisor',
-    tentative: true,
+    sourceReference:
+      'Kuala Lumpur Bar, Recommended Practices for Lawyers on Courtroom Etiquette; check with your supervisor',
     diagnosticOnly: true,
   },
   {
@@ -374,7 +379,7 @@ export const DIAGNOSTIC_MY_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['a'],
     explanation:
-      'A leading question suggests the answer the person asking it wants. Under section 142 of the Evidence Act 1950, leading questions must not, if objected to, be asked in examination-in-chief or re-examination except with the court’s permission, which is usually given on introductory or undisputed matters. They may be asked in cross-examination (section 143).',
+      'A leading question suggests the answer the person asking it wants. Under section 142 of the Evidence Act 1950, leading questions must not, if objected to, be asked in examination-in-chief or re-examination except with the court’s permission, and the court must permit them on matters that are introductory or undisputed, or already sufficiently proved. They may be asked in cross-examination (section 143).',
     whyItMatters: 'Evidence your witness gives in their own words carries weight; evidence you put in their mouth does not.',
     concepts: ['examination-in-chief', 'objections'],
     skills: [],
@@ -426,7 +431,8 @@ export const DIAGNOSTIC_MY_QUESTIONS: SeedQuestion[] = [
     whyItMatters: 'Non-disclosure loses injunctions that would otherwise have been granted, and damages the advocate’s standing.',
     concepts: ['candour-and-disclosure', 'duty-to-court'],
     skills: ['professional-judgment'],
-    sourceReference: 'Rules of Court 2012 O 29; the duty of full and frank disclosure on applications without notice',
+    sourceReference:
+      'Rules of Court 2012 O 29 r 1(2A); the duty of full and frank disclosure on applications without notice',
     diagnosticOnly: true,
   },
 
@@ -556,7 +562,7 @@ export const DIAGNOSTIC_MY_QUESTIONS: SeedQuestion[] = [
     difficulty: 3,
     jurisdiction: 'MY_GENERAL',
     scenario:
-      'A judgment holds that a notice was bad because it was sent to the wrong address. The judge adds that, even if it had been sent properly, the 7 days it gave would have been too short.',
+      'A judgment holds that a notice was bad because it was sent to the wrong address. The judge adds that he need not decide whether the 7 days it gave were long enough, though he is inclined to think they were not.',
     stem: 'How should you treat the remark about the 7 days?',
     options: [
       { id: 'a', text: 'As part of the binding reasoning of the case' },
@@ -566,11 +572,12 @@ export const DIAGNOSTIC_MY_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['b'],
     explanation:
-      'The ratio decidendi is the reasoning necessary to the decision. The decision here rested on the wrong address; what the judge said about the notice period was not needed to decide it, so it is obiter dictum. It may be persuasive, more so from a senior court, but it does not bind.',
+      'The ratio decidendi is the reasoning necessary to the decision. The decision here rested on the wrong address, and the judge expressly left the notice period undecided, so what he said about it is obiter dictum. It may be persuasive, more so from a senior court, but it does not bind. Had he decided the notice period as a second, independent reason for the same result, it would be arguable that both reasons bind.',
     whyItMatters: 'Citing an obiter remark as if it decided the point is an easy way to lose a judge’s confidence.',
     concepts: ['ratio-and-obiter'],
     skills: ['argument-construction'],
     sourceReference: 'The doctrine of precedent: ratio decidendi and obiter dicta',
+    tentative: true,
     diagnosticOnly: true,
   },
   {
@@ -643,7 +650,8 @@ export const DIAGNOSTIC_MY_QUESTIONS: SeedQuestion[] = [
     whyItMatters: 'One paste can put a client’s confidential material somewhere the firm can never get it back from.',
     concepts: ['ai-confidentiality', 'ai-policy'],
     skills: [],
-    sourceReference: 'The firm’s AI policy; the duty of confidentiality owed to clients',
+    sourceReference:
+      'The firm’s AI policy; the duty of confidentiality owed to clients; Malaysian Bar Circular No 342/2023',
     diagnosticOnly: true,
   },
   {
@@ -666,7 +674,9 @@ export const DIAGNOSTIC_MY_QUESTIONS: SeedQuestion[] = [
     whyItMatters: 'Courts in several countries have sanctioned lawyers for citing cases an AI made up.',
     concepts: ['ai-verification', 'ai-candour'],
     skills: [],
-    sourceReference: 'The duty not to mislead the court; the firm’s AI policy',
+    sourceReference:
+      'The duty not to mislead the court; Malaysian Bar Circular No 242/2025; the firm’s AI policy. Check against the Chief Justice’s practice direction on AI, announced in October 2026, once it is issued: if it requires AI use to be disclosed, option (d) becomes a requirement too',
+    tentative: true,
     diagnosticOnly: true,
   },
   {
@@ -690,7 +700,7 @@ export const DIAGNOSTIC_MY_QUESTIONS: SeedQuestion[] = [
     whyItMatters: 'How a mistake is corrected decides whether it stays a mistake or becomes misconduct.',
     concepts: ['ai-candour', 'ai-verification'],
     skills: ['professional-judgment'],
-    sourceReference: 'The duty not to mislead the court',
+    sourceReference: 'The duty not to mislead the court; Legal Profession (Practice and Etiquette) Rules 1978 r 17',
     diagnosticOnly: true,
   },
   {
@@ -725,7 +735,7 @@ export const DIAGNOSTIC_MY_QUESTIONS: SeedQuestion[] = [
     type: 'multiple_choice',
     difficulty: 2,
     jurisdiction: 'MY_GENERAL',
-    stem: 'You need the current text of an Act of Parliament, with its amendments. Which source is official?',
+    stem: 'You need the current text of an Act of Parliament, with its amendments. Which is the authoritative place to start?',
     options: [
       { id: 'a', text: 'A summary of the Act on a law firm’s own website' },
       { id: 'b', text: 'The Laws of Malaysia from the Attorney General’s Chambers' },
@@ -734,11 +744,11 @@ export const DIAGNOSTIC_MY_QUESTIONS: SeedQuestion[] = [
     ],
     correct: ['b'],
     explanation:
-      'The Attorney General’s Chambers publishes the Laws of Malaysia, including reprints that bring amendments together, and its online portal is the place to start for the current text. Commentary and textbooks help with meaning, but may be out of date, and the amendment you need may have come after them.',
+      'The Attorney General’s Chambers publishes the Laws of Malaysia, including reprints that bring amendments together, and its online portal is the place to start for the current text. The updated text online is for reference: the authentic text is a reprint under the Revision of Laws Act 1968, or the Act and its amending Acts as published in the Gazette. Commentary and textbooks help with meaning, but may be out of date, and the amendment you need may have come after them.',
     whyItMatters: 'Advice based on an old version of an Act is wrong advice, however good the reasoning.',
     concepts: ['authoritative-sources', 'currency'],
     skills: [],
-    sourceReference: 'Attorney General’s Chambers, Laws of Malaysia',
+    sourceReference: 'Attorney General’s Chambers, Laws of Malaysia; Revision of Laws Act 1968',
     diagnosticOnly: true,
   },
   {
@@ -747,7 +757,7 @@ export const DIAGNOSTIC_MY_QUESTIONS: SeedQuestion[] = [
     type: 'multiple_choice',
     difficulty: 3,
     jurisdiction: 'MY_GENERAL',
-    scenario: 'You have found a 1998 decision of the former Supreme Court that is exactly on point.',
+    scenario: 'You have found a 1992 decision of the former Supreme Court that is exactly on point.',
     stem: 'Before relying on it, what should you check first?',
     options: [
       { id: 'a', text: 'That more than one law report has published it' },

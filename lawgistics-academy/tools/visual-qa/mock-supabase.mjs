@@ -1249,7 +1249,8 @@ const TABLES = {
         answered_at: '2026-08-06T09:05:00Z',
       })),
   ],
-  v_question_delivery: deliveryQuestions,
+  // Ordinary training questions: the view carries the diagnostic flag since 0055.
+  v_question_delivery: deliveryQuestions.map((q) => ({ diagnostic_only: false, ...q })),
   concepts: conceptMastery.map((c) => c.concepts),
   skills: skillMastery.map((s) => ({ id: s.skills.slug, ...s.skills })),
   questions: [

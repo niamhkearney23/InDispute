@@ -9,6 +9,12 @@ import { SKILL_LEVELS, SKILL_LEVEL_ORDER, skillLevelFor } from '@/lib/learning/s
 
 export const metadata: Metadata = { title: 'Your skill map' };
 
+/** "3 of 4 questions right", or nothing for an area with no answers in this sitting. */
+function answeredIn(area: { right: number; of: number } | undefined): string | undefined {
+  if (!area) return undefined;
+  return `${area.right} of ${area.of} ${area.of === 1 ? 'question' : 'questions'} right`;
+}
+
 export default async function DiagnosticResultsPage({
   searchParams,
 }: {
@@ -104,11 +110,7 @@ export default async function DiagnosticResultsPage({
               <ScoreBar
                 key={row.slug}
                 label={row.name}
-                sublabel={
-                  tally.get(row.slug)
-                    ? `${tally.get(row.slug)!.right} of ${tally.get(row.slug)!.of} ${tally.get(row.slug)!.of === 1 ? 'question' : 'questions'} right`
-                    : undefined
-                }
+                sublabel={answeredIn(tally.get(row.slug))}
                 score={row.score}
                 band={masteryBand(row.score)}
                 unit="%"
