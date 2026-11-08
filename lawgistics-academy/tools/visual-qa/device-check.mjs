@@ -110,6 +110,13 @@ const PAGES = [
   // the signed map, and an Australian learner sees only that it is waiting.
   // `signed` and `unsigned` say what each page must and must not contain,
   // with those fixtures and on a fresh install (MOCK_NOTHING_SIGNED=1).
+  // Exams (0056): the start page, with the drill builder.
+  {
+    name: 'exams',
+    path: '/exams',
+    auth: true,
+    text: 'Start the mock exam',
+  },
   {
     name: 'courts',
     path: '/courts',
