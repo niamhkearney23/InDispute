@@ -139,7 +139,7 @@ export function safeInitial(value: string): string {
 
 const name = clean(process.env.NEXT_PUBLIC_BRAND_NAME, DEFAULT_NAME);
 const DEFAULT_PARENT_LINE =
-  'Lawgistics Academy is part of Lawgistics: business development and operations for lawyers and law firms.';
+  'Lawgistics Academy is part of Lawgistics: B2B law firm operations.';
 const DEFAULT_PARTNERS_EMAIL = 'partners@lawgistics.my';
 const DEFAULT_FIRM = 'Thomas Philip';
 // Their logo as they supplied it (October 2026), on a clear background, down
