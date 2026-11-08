@@ -1,45 +1,55 @@
 {
-  "generatedDate": "2026-11-07",
+  "generatedDate": "2026-11-08",
   "jobs": [
     {
-      "employer": "The Law Society of New South Wales (scheme-wide recruitment program)",
-      "program": "Summer Clerkship 2027/28 recruitment round (NSW signatory firms)",
+      "employer": "The Law Society of New South Wales",
+      "program": "2027 Summer Clerkship Recruitment Program (scheme-wide key dates)",
       "jurisdiction": "NSW",
       "opens": "2027-06-09",
       "closes": null,
-      "notes": "Applications open 9:00am AEST Wed 9 June 2027; the Law Society page lists two alternative closing dates (Sun 4 July and Sun 11 July 2027, 11:59pm AEST) applying to different participating firms, so no single scheme-wide close date can be confirmed — offers can be made from 9:00am 8 September 2027 and eligibility is generally penultimate/final-year students.",
+      "notes": "Applications open 9:00am AEST Wed 9 June 2027 and offers can be made from 9:00am Wed 8 September 2027; 'closes' is null because the Law Society publishes two alternative closing dates (Sun 4 July and Sun 11 July 2027, 11:59pm) and each participating employer picks one, so no single close date can be stated — eligibility is generally penultimate (some firms final) year students.",
       "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Clerkship-Recruitment-Program",
-      "verifiedDate": "2026-11-07"
+      "verifiedDate": "2026-11-08"
     },
     {
-      "employer": "A&O Shearman",
-      "program": "Sydney Summer Clerkship 2027/28",
+      "employer": "The Law Society of New South Wales",
+      "program": "2027 Graduate Recruitment Program (scheme-wide key dates)",
       "jurisdiction": "NSW",
-      "opens": "2027-06-09",
-      "closes": "2027-07-11",
-      "notes": "Firm's own early careers page confirms the next Sydney round opens 9:00am AEST 9 June 2027 and closes 11:59pm AEST 11 July 2027, with interviews from early August 2027, offers from 8 September 2027 and the clerkship running 29 November 2027 – 4 February 2028; the Perth round shown on the same page has already closed.",
-      "url": "https://www.aoshearman.com/en/careers/australia/students-and-graduates",
-      "verifiedDate": "2026-11-07"
+      "opens": "2027-02-22",
+      "closes": "2027-04-04",
+      "notes": "Applications open 9:00am AEST Mon 22 February 2027 and close 11:59pm AEST Sun 4 April 2027, with interviews commencing Tue 27 April 2027; for final-year students applying to participating firms and organisations.",
+      "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Graduate-Recruitment-Program",
+      "verifiedDate": "2026-11-08"
     },
     {
       "employer": "Clayton Utz",
-      "program": "Seasonal Clerkship 2027/28 (Brisbane, Canberra, Melbourne, Perth, Sydney)",
+      "program": "Seasonal Clerkship 2027/28",
       "jurisdiction": "National",
       "opens": null,
       "closes": null,
-      "notes": "Firm page states applications are currently closed and will open 'in June' for the 2027/28 seasonal clerkship program with a pre-registration option, but no exact 2027 open/close dates are published yet (each office follows its state society's guidelines), so dates are left null rather than guessed.",
+      "notes": "The firm's own early careers page states applications are currently closed and will open in June for the 2027/28 seasonal clerkship program, but no exact 2027 open/close dates are published yet, so both are null; the firm recruits to each state scheme's timetable.",
       "url": "https://www.claytonutz.com/careers/early-careers/seasonal-clerkships",
-      "verifiedDate": "2026-11-07"
+      "verifiedDate": "2026-11-08"
     },
     {
-      "employer": "Allens",
-      "program": "Dive In insight program, May 2027 intake",
-      "jurisdiction": "National",
+      "employer": "Barry Nilsson",
+      "program": "Sydney Vacation Clerkship 2027",
+      "jurisdiction": "NSW",
+      "opens": "2027-06-09",
+      "closes": "2027-07-11",
+      "notes": "Firm's own careers page confirms applications open 9:00am Wed 9 June 2027 and close 11:59pm Sun 11 July 2027, with offers made 9:00am Wed 8 September 2027 and accepted/declined by 1:00pm Thu 9 September 2027; open to penultimate-year students.",
+      "url": "https://bnlaw.com.au/work-with-us/graduate-and-clerkship-programs/",
+      "verifiedDate": "2026-11-08"
+    },
+    {
+      "employer": "Queensland Law Society",
+      "program": "Seasonal Clerkship and Graduate Recruitment — next (2028) program cycle",
+      "jurisdiction": "QLD",
       "opens": null,
       "closes": null,
-      "notes": "Not a clerkship or graduate round but an early-insight program for pre-penultimate students (2nd/3rd-year LLB or 1st-year JD); the firm's graduate site confirms applications for the May 2027 program will open in March 2027 without specifying a day, so both dates are null, and Allens' clerkship rounds open in line with each state law society's guidelines.",
-      "url": "https://graduates.allens.com.au/our-programs/",
-      "verifiedDate": "2026-11-07"
+      "notes": "The QLS page currently publishes only the 2027 cycle, whose clerkship window (13 July – 7 August 2026) has already closed; QLS states the cycle recommences with clerkship recruitment in July/August each year but the next cycle's dates are not yet published, so both dates are null.",
+      "url": "https://www.qls.com.au/the-hub-early-career-lawyers/your-legal-career/seasonal-clerkship-and-graduate-recruitment",
+      "verifiedDate": "2026-11-08"
     }
   ]
 }
