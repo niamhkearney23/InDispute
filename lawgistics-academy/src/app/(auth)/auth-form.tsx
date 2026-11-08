@@ -219,8 +219,13 @@ export function AuthForm({
       }
     }
 
+    // One fetch of the next page, not two. This used to call router.refresh()
+    // as well, which fetched the same page a second time and made the server
+    // repeat every check on it: the owner, November 2026, "I press it then
+    // wait". Next does not keep a page it has not been asked to (a dynamic
+    // page's cache time is zero), and the signed-in layout is a different
+    // segment from this page's, so it is read fresh either way.
     router.replace(next);
-    router.refresh();
   }
 
   const lead = trainee
