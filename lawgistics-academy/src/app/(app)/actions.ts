@@ -55,6 +55,9 @@ import { userFacingError } from '@/lib/env';
 import { scheduleForPerson } from '@/lib/training/cohorts';
 import { countryOpen } from '@/lib/countries';
 import { strictCartoon } from '@/lib/avatar/cartoon';
+import { MOCK_EXAM, parseDrill, type ExamSettings } from '@/lib/exams/rules';
+import { startExam } from '@/lib/exams/service';
+import { DOMAINS } from '@/content/seed/taxonomy';
 
 const GOAL_SLUGS = IMPROVEMENT_GOALS.map((g) => g.slug);
 
@@ -280,6 +283,45 @@ export async function beginModule(slug: string): Promise<{ error: string } | und
   redirect(`/train/${outcome.sessionId}`);
 }
 
+export type ExamStartState = { error: string | null };
+
+/**
+ * Starts a mock exam or a drill (0056, src/lib/exams). The settings come
+ * from the form and are read strictly against fixed lists: they decide which
+ * questions are served. One exam at a time; a second start goes back to the
+ * one already running.
+ */
+export async function beginExam(_prev: ExamStartState, formData: FormData): Promise<ExamStartState> {
+  const user = await getCurrentUser();
+  if (!user) redirect('/login');
+  if (!(await hasAccess(user.id))) redirect('/pricing');
+
+  let settings: ExamSettings | null;
+  if (formData.get('mode') === 'mock') {
+    settings = MOCK_EXAM;
+  } else {
+    settings = parseDrill({
+      areas: formData.getAll('areas').map(String),
+      difficulty: formData.get('difficulty') as string | null,
+      pool: formData.get('pool') as string | null,
+      count: formData.get('count') as string | null,
+      minutes: formData.get('minutes') as string | null,
+      knownAreas: DOMAINS.map((d) => d.slug),
+    });
+  }
+  if (!settings) return { error: 'Those choices could not be read. Please choose again.' };
+
+  let outcome: { sessionId: string } | { error: string };
+  try {
+    outcome = await startExam(user.id, settings);
+  } catch (caught) {
+    console.error('[beginExam] could not start', caught);
+    outcome = { error: userFacingError(caught, 'The exam could not be started. Please try again.') };
+  }
+  if ('error' in outcome) return { error: outcome.error };
+  redirect(`/train/${outcome.sessionId}`);
+}
+
 const answerSchema = z.object({
   sessionId: z.guid(),
   questionVersionId: z.guid(),
@@ -352,7 +394,9 @@ export async function finishSession(sessionId: string) {
   redirect(
     result.kind === 'diagnostic'
       ? `/diagnostic/results?session=${sessionId}`
-      : `/train/${sessionId}/summary`,
+      : result.kind === 'exam'
+        ? `/exams/${sessionId}`
+        : `/train/${sessionId}/summary`,
   );
 }
 

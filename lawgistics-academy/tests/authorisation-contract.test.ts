@@ -116,6 +116,7 @@ test('the server actions were actually found', () => {
     'answerTutorQuestion',
     'askFollowUps',
     'assignCohort',
+    'beginExam',
     'beginModule',
     'beginSession',
     'changePassword',

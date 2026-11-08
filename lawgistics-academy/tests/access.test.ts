@@ -105,6 +105,7 @@ test('starting training and asking the AI check access on the server too', () =>
   for (const name of [
     'beginSession',
     'beginModule',
+    'beginExam',
     'requestCoachNote',
     'startMatter',
     'askFollowUps',

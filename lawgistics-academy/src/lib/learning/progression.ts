@@ -69,7 +69,7 @@ export function xpForAnswer(isCorrect: boolean, difficulty: number): PendingXpEv
 
 /** XP earned for finishing a session. */
 export function xpForSessionCompletion(args: {
-  kind: 'diagnostic' | 'daily' | 'review' | 'practice';
+  kind: 'diagnostic' | 'daily' | 'review' | 'practice' | 'exam';
   totalAnswered: number;
   correctCount: number;
   newStreak: number;

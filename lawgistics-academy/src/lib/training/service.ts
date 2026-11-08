@@ -8,6 +8,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServiceClient } from '@/lib/supabase/service';
 import { QUESTIONS_PER_MINUTE_GOAL, DIAGNOSTIC_QUESTION_COUNT } from '@/lib/learning/config';
 import { missingFlag } from '@/lib/learning/diagnostic-set';
+import { examOver } from '@/lib/exams/rules';
 import {
   selectDailyQuestions,
   selectDiagnosticQuestions,
@@ -539,7 +540,7 @@ export async function submitAnswer(args: {
   const [{ data: session }, { data: slot }, { data: learner }] = await Promise.all([
     db
       .from('training_sessions')
-      .select('id, user_id, kind, status, total_answered, correct_count')
+      .select('id, user_id, kind, status, total_answered, correct_count, started_at, target_minutes')
       .eq('id', args.sessionId)
       .maybeSingle(),
     db
@@ -562,6 +563,11 @@ export async function submitAnswer(args: {
 
   if (!slot) return { error: 'That question is not part of this session.' };
   if (slot.answered_at) return { error: 'You have already answered this question.' };
+  // An exam's clock is the server's (0056): an answer after time is up is not
+  // recorded, whatever the page in front of the learner says.
+  if (session.kind === 'exam' && examOver(session.started_at as string, session.target_minutes as number | null, now)) {
+    return { error: 'Time is up. This exam has ended.' };
+  }
 
   // The claim and the decision are one transaction in the database
   // (claim_answer, 0052): it closes the slot (a compare-and-set, so a second

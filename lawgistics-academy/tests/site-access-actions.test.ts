@@ -112,8 +112,8 @@ async function call(action: Action, access: string | undefined): Promise<Outcome
 }
 
 test('every action in the app was loaded', () => {
-  // The same ninety-one the authorisation contract names.
-  assert.equal(ACTIONS.length, 91);
+  // The same ninety-two the authorisation contract names (beginExam, 0056, is the latest).
+  assert.equal(ACTIONS.length, 92);
   // Forty-nine under /admin, and first-run setup.
   assert.equal(ACTIONS.filter(isStaffAction).length, 50);
 });

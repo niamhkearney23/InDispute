@@ -50,6 +50,12 @@ export default async function ModulesPage() {
         ]
       : []),
     {
+      href: '/exams',
+      title: 'Exams',
+      text: 'A mock exam against the clock, or a drill you build yourself.',
+      icon: 'file' as const,
+    },
+    {
       href: '/matters',
       title: 'Practice files',
       text: 'A problem against the clock, then how a lawyer would do it.',

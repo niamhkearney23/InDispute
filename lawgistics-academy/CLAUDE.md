@@ -192,7 +192,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0055`.
+- Migrations run to `0056`.
   `supabase/UPDATE.sql` is the one-paste update for a database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -998,6 +998,27 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   can it score my advocacy skills?"); Progress says the same. The running
   count covers the whole session (`answeredBefore`, `correctBefore` from the
   server), so a reopened page no longer finishes on "24 of 28".
+- **Exams** (`0056`, the owner, November 2026: "like how it can help for
+  law school"): `/exams`, a row on Learn. A **mock exam** (40 questions, 60
+  minutes, spread across every area from easy to hard like the diagnostic)
+  or a **drill** the learner builds (areas, difficulty easy 1-2, medium 3,
+  hard 4-5, 10/20/40 questions, untimed or 10 to 60 minutes, any question,
+  ones never answered or ones last answered wrong), then a history of
+  attempts with the score, time taken and a result page per attempt
+  (`/exams/<id>`: by area and every answer, the right answer and explanation
+  only while the version is still signed off). An exam is a training
+  session of kind `exam` (`training_sessions.exam_settings` holds the
+  choices), so questions come only from the training bank (signed off,
+  published, in date, the learner's country, never diagnostic-only), the
+  server marks each answer once, and the learner writes nothing. Answers are
+  final and nothing is marked on screen until the end (no confidence
+  question). The time limit is `target_minutes` from `started_at` on the
+  server (`examOver`, 15 seconds' grace): `submitAnswer` refuses an answer
+  after it, the page finishes the exam at zero, and an exam whose time ran
+  out with the page closed is finished on the next visit. One exam at a
+  time. Rules in `src/lib/exams/rules.ts` (pure, `tests/exams.test.ts`),
+  reads and writes in `src/lib/exams/service.ts`, the action is
+  `beginExam`; `tests-integration/exams.it.test.ts` sits one in a browser.
 - **The level in a word** (`src/lib/learning/skill-level.ts`): Basic (up to
   55% right), Intermediate (56 to 79%), Advanced (80% or more), the same
   lines as every score (`masteryBand`), with what each means. The diagnostic

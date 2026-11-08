@@ -4,6 +4,7 @@ import { getCurrentUser } from '@/lib/supabase/server';
 import { completeSession, getSessionPlan } from '@/lib/training/service';
 import { SessionRunner } from '@/components/session-runner';
 import { requireAccess } from '@/lib/access/service';
+import { examClock } from '@/lib/exams/service';
 import { courtMapsFor, viewerIsStaff } from '@/lib/content/service';
 
 export const metadata: Metadata = { title: 'Training' };
@@ -26,12 +27,16 @@ export default async function TrainPage({
   // answered the last question and closed the tab before pressing Finish
   // left the session open; finish it now (it is safe to finish twice), or
   // every Train again would bring them back here with no XP and no streak.
-  if (plan.resumeIndex >= plan.questions.length) {
+  // An exam whose time is up is finished and marked, wherever the page was.
+  const clock = plan.kind === 'exam' ? await examClock(user.id, sessionId) : null;
+  if (plan.resumeIndex >= plan.questions.length || clock?.over) {
     if (plan.kind !== 'diagnostic') await completeSession(user.id, sessionId);
     redirect(
       plan.kind === 'diagnostic'
         ? `/diagnostic/results?session=${sessionId}`
-        : `/train/${sessionId}/summary`,
+        : plan.kind === 'exam'
+          ? `/exams/${sessionId}`
+          : `/train/${sessionId}/summary`,
     );
   }
 
@@ -57,6 +62,7 @@ export default async function TrainPage({
       answeredBefore={plan.answeredBefore}
       correctBefore={plan.correctBefore}
       courtMaps={courtMaps}
+      exam={clock ? { endsAt: clock.endsAt } : undefined}
     />
   );
 }

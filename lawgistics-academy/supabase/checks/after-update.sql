@@ -10,8 +10,8 @@
 
 with checks(n, what, ok) as (
   values
-  (1, 'The database is at the version the website expects (0055)',
-     (select public.schema_version()) = '0055'),
+  (1, 'The database is at the version the website expects (0056)',
+     (select public.schema_version()) = '0056'),
 
   (2, 'No question is published without a lawyer''s sign-off on its current wording',
      not exists (
@@ -174,7 +174,13 @@ with checks(n, what, ok) as (
                 and column_name = 'diagnostic_only')
      -- The gate still stands on the view that gained the column.
      and (select pg_get_viewdef('public.v_question_delivery'::regclass)) like '%human_verified%'
-     and (select pg_get_viewdef('public.v_question_delivery'::regclass)) like '%review_due_on%')
+     and (select pg_get_viewdef('public.v_question_delivery'::regclass)) like '%review_due_on%'),
+  (20, 'Exams can be recorded (0056)',
+     exists (select 1 from pg_enum e join pg_type t on t.oid = e.enumtypid
+              where t.typname = 'session_kind' and e.enumlabel = 'exam')
+     and exists (select 1 from information_schema.columns
+              where table_schema = 'public' and table_name = 'training_sessions'
+                and column_name = 'exam_settings'))
 )
 select n as "#", what as "check", case when ok then 'OK' else 'NOT OK' end as result
 from checks

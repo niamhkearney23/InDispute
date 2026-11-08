@@ -11,6 +11,7 @@ import {
 } from './config';
 import type { Country, SelectionReason } from '@/lib/types';
 import { forDiagnostic, forRetake, forTraining, missingFlag } from './diagnostic-set';
+import { drillPaper, type ExamSettings } from '@/lib/exams/rules';
 
 /**
  * Session composition.
@@ -502,5 +503,28 @@ export async function selectModuleQuestions(
     questionId: q.questionId,
     questionVersionId: q.questionVersionId,
     reason: 'new_material' as SelectionReason,
+  }));
+}
+
+/**
+ * An exam's questions (0056, src/lib/exams/rules.ts), from the training bank
+ * only: signed off, published, in date, the learner's country, never a
+ * diagnostic-only question. A mock exam is spread like the diagnostic; a
+ * drill is the learner's filter. `history` is what the learner has answered
+ * before, for a drill of unanswered or wrongly answered questions.
+ */
+export async function selectExamQuestions(
+  db: SupabaseClient,
+  country: Country,
+  settings: ExamSettings,
+  history: { answered: ReadonlySet<string>; lastWrong: ReadonlySet<string> },
+): Promise<SelectedQuestion[]> {
+  const bank = await loadTrainingBank(db, country);
+  const paper =
+    settings.mode === 'mock' ? diagnosticPaper(bank, settings.count) : drillPaper(bank, settings, history);
+  return paper.map((q) => ({
+    questionId: q.questionId,
+    questionVersionId: q.questionVersionId,
+    reason: settings.mode === 'mock' ? ('diagnostic_spread' as const) : ('new_material' as const),
   }));
 }

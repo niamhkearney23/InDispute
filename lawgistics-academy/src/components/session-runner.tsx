@@ -28,6 +28,7 @@ export function SessionRunner({
   answeredBefore = 0,
   correctBefore = 0,
   courtMaps = {},
+  exam,
 }: {
   sessionId: string;
   kind: SessionKind;
@@ -42,6 +43,12 @@ export function SessionRunner({
    * false). Without one, a court question is answered from a plain list.
    */
   courtMaps?: Partial<Record<Country, { hierarchy: CourtHierarchy; checked: boolean }>>;
+  /**
+   * An exam (0056): answers are final and nothing is marked on screen until
+   * the end, no confidence question, and a countdown when it is timed. The
+   * server keeps the real clock and refuses an answer after it.
+   */
+  exam?: { endsAt: string | null };
 }) {
   const [index, setIndex] = useState(Math.min(startIndex, questions.length - 1));
   const [selected, setSelected] = useState<string[]>([]);
@@ -80,7 +87,7 @@ export function SessionRunner({
   }, [index]);
 
   const submit = useCallback(
-    (confidence: ConfidenceLevel) => {
+    (confidence: ConfidenceLevel | null) => {
       if (selected.length === 0 || answered || pending) return;
       setError(null);
 
@@ -102,8 +109,19 @@ export function SessionRunner({
           return;
         }
 
-        setFeedback(result);
         setAnsweredThisSitting((n) => n + 1);
+        // An exam shows nothing until the end: on to the next question, or
+        // finish after the last.
+        if (exam) {
+          if (index === questions.length - 1) {
+            startFinishing(() => finishSession(sessionId));
+          } else {
+            setSelected([]);
+            setIndex((i) => i + 1);
+          }
+          return;
+        }
+        setFeedback(result);
         // Taken back for a lawyer's check before it was answered: nothing was
         // marked, so nothing counts and there is no note to ask for.
         if (result.withdrawn) return;
@@ -127,7 +145,7 @@ export function SessionRunner({
         });
       });
     },
-    [answered, pending, question, selected, sessionId],
+    [answered, pending, question, selected, sessionId, exam, index, questions.length],
   );
 
   function next() {
@@ -161,8 +179,15 @@ export function SessionRunner({
       <div className="mb-6">
         <div className="mb-2 flex items-baseline justify-between text-xs">
           <span className="eyebrow">
-            {kind === 'diagnostic' ? 'Diagnostic' : 'Daily training'}
+            {kind === 'diagnostic' ? 'Diagnostic' : kind === 'exam' ? 'Exam' : 'Daily training'}
           </span>
+          {exam ? (
+            <ExamClock
+              endsAt={exam.endsAt}
+              finishing={finishing}
+              onEnd={() => startFinishing(() => finishSession(sessionId))}
+            />
+          ) : null}
           <span className="text-muted tabular-nums">
             {index + 1} of {questions.length}
           </span>
@@ -293,7 +318,16 @@ export function SessionRunner({
         )}
 
         {/* Confidence, asked before the verdict, deliberately ----------- */}
-        {!answered && selected.length > 0 ? (
+        {exam && selected.length > 0 ? (
+          <div className="mt-7 flex flex-wrap items-center gap-4 rise-in">
+            <Button onClick={() => submit(null)} variant="accent" disabled={pending || finishing}>
+              {pending ? 'Saving…' : index === questions.length - 1 ? 'Confirm and finish' : 'Confirm answer'}
+            </Button>
+            <p className="text-xs text-muted">Answers are final. You see your marks at the end.</p>
+          </div>
+        ) : null}
+
+        {!exam && !answered && selected.length > 0 ? (
           <div className="mt-7 rise-in">
             <p className="mb-3 text-base font-medium">How sure are you?</p>
             <div className="grid grid-cols-3 gap-2">
@@ -498,5 +532,65 @@ function Block({ label, children }: { label: string; children: React.ReactNode }
       <p className="eyebrow mb-1.5">{label}</p>
       <p>{children}</p>
     </div>
+  );
+}
+
+/**
+ * The exam's countdown and its End button. The time shown is the page's
+ * reading of the server's end time; at zero the exam is finished, and the
+ * server would refuse a later answer anyway.
+ */
+function ExamClock({
+  endsAt,
+  finishing,
+  onEnd,
+}: {
+  endsAt: string | null;
+  finishing: boolean;
+  onEnd: () => void;
+}) {
+  const [left, setLeft] = useState<number | null>(null);
+  const ended = useRef(false);
+  useEffect(() => {
+    if (!endsAt) return;
+    const end = new Date(endsAt).getTime();
+    const tick = () => {
+      const ms = end - Date.now();
+      setLeft(Math.max(0, ms));
+      if (ms <= 0 && !ended.current) {
+        ended.current = true;
+        onEnd();
+      }
+    };
+    tick();
+    const timer = window.setInterval(tick, 1000);
+    return () => window.clearInterval(timer);
+  }, [endsAt, onEnd]);
+
+  const minutes = left === null ? null : Math.floor(left / 60000);
+  const seconds = left === null ? null : Math.floor((left % 60000) / 1000);
+  const low = left !== null && left < 5 * 60_000;
+  return (
+    <span className="ml-auto mr-4 flex items-center gap-3">
+      {endsAt && left !== null ? (
+        <span
+          className={cn('rounded-full border px-2.5 py-0.5 font-mono text-xs tabular-nums', low ? 'border-warn text-warn' : 'border-rule-strong text-ink')}
+          role="timer"
+          aria-label="Time left"
+        >
+          {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+        </span>
+      ) : null}
+      <button
+        type="button"
+        disabled={finishing}
+        onClick={() => {
+          if (window.confirm('End the exam now? Questions you have not answered count as unanswered.')) onEnd();
+        }}
+        className="rounded-full border border-verdict-wrong/50 px-2.5 py-0.5 text-xs text-verdict-wrong hover:bg-verdict-wrong-wash disabled:opacity-50"
+      >
+        {finishing ? 'Ending…' : 'End exam'}
+      </button>
+    </span>
   );
 }

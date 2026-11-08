@@ -64,7 +64,7 @@ export type VerificationStatus =
 
 export type ConfidenceLevel = 'guess' | 'somewhat_sure' | 'certain';
 
-export type SessionKind = 'diagnostic' | 'daily' | 'review' | 'practice';
+export type SessionKind = 'diagnostic' | 'daily' | 'review' | 'practice' | 'exam';
 
 export type SessionStatus = 'in_progress' | 'completed' | 'abandoned';
 
