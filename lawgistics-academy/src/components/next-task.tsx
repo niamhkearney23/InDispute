@@ -24,7 +24,7 @@ export function NextTaskCard({
   return (
     <section
       aria-labelledby="next-task"
-      className="relative overflow-hidden rounded-xl bg-ink px-5 py-6 text-paper sm:px-7 sm:py-7"
+      className="accent-surface relative overflow-hidden rounded-xl bg-ink px-5 py-6 text-paper sm:px-7 sm:py-7"
     >
       <div className="relative">
         <div className="flex flex-wrap items-center gap-3">

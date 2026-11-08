@@ -69,7 +69,7 @@ export default async function DiagnosticResultsPage({
     <div className="mx-auto max-w-2xl space-y-8">
       {/* The level in a word, what it means, and where it sits on the
           scale (the owner, November 2026: "see what level you're at"). */}
-      <section aria-labelledby="your-level" className="rise-in rounded-2xl bg-ink px-6 py-9 text-center text-paper sm:px-10 sm:py-11">
+      <section aria-labelledby="your-level" className="accent-surface rise-in rounded-2xl bg-ink px-6 py-9 text-center text-paper sm:px-10 sm:py-11">
         <p className="text-sm text-paper/60">
           Diagnostic complete · {result.total_correct} of {result.total_questions} right ({percent}%)
         </p>

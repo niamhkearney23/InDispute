@@ -344,7 +344,7 @@ export default async function DashboardPage({
         steps={[
           {
             title: 'Today: your next task',
-            text: 'The navy card is what to do now, when it is due and where the feedback appears. Below it, what is required today and what is not counted.',
+            text: 'The highlighted card is what to do now, when it is due and where the feedback appears. Below it, what is required today and what is not counted.',
             href: '/dashboard#next-task',
             action: 'See your next task',
           },

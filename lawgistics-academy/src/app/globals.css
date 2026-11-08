@@ -399,65 +399,91 @@
    tokens above, so a look is a set of token values rather than a second copy
    of every page. No gold, by the owner's choice; the taupe is the firm's.
    ========================================================================== */
+/* The dark look (the owner, November 2026: "more techy", from a dark
+   product design they sent, with a blue-violet accent rather than its pink).
+   Near-black ground, raised cards with a faint top light and a hairline, light
+   type, one blue-violet for what is selected and for progress. Status keeps
+   green, amber and red, lightened to read on the dark. Headings in a grotesk. */
 .theme-paper {
-  --color-paper: #f7f5f0;
-  --color-paper-raised: #ffffff;
-  --color-paper-sunk: #efebe3;
-  --color-ink: #0f1e35;
-  --color-charcoal: #22304a;
-  --color-slate: #4a5160;
-  --color-muted: #5e6573;
-  --color-rule: #e4ded3;
-  --color-rule-strong: #cfc7b8;
-  /* Navy leads, with paper type on it, unless the firm set its own colour. */
-  --color-accent: var(--brand-accent, #0f1e35);
-  --color-accent-soft: #1b2c47;
-  --color-accent-wash: #ece7dd;
-  /* The details colour. */
-  --color-ice: #746c5a;
-  --color-verdict-correct: #2c6a4c;
-  --color-verdict-correct-wash: #e6f0ea;
-  --color-verdict-wrong: #8e2a36;
-  --color-verdict-wrong-wash: #f6e9ea;
-  --color-warn: #8a5a12;
-  --color-warn-wash: #fbf3e2;
-  --shadow-card: 0 1px 2px rgba(15, 30, 53, 0.05), 0 10px 24px -10px rgba(15, 30, 53, 0.08);
-  --shadow-raised: 0 1px 2px rgba(15, 30, 53, 0.06), 0 16px 36px -16px rgba(15, 30, 53, 0.16);
-  color-scheme: light;
+  --color-paper: #090a12;
+  --color-paper-raised: #12131f;
+  --color-paper-sunk: #1a1c2b;
+  --color-ink: #eceefb;
+  --color-charcoal: #d2d5ea;
+  --color-slate: #a9adc6;
+  --color-muted: #9094ae;
+  --color-rule: #23263a;
+  --color-rule-strong: #353954;
+  --color-accent: var(--brand-accent, #7c84f8);
+  --color-accent-soft: #9aa1ff;
+  --color-accent-wash: #1c1f3d;
+  /* The details colour: small labels, a cool violet-grey. */
+  --color-ice: #959bd6;
+  --color-periwinkle: #8c94ff;
+  --color-periwinkle-ink: #b3b8ff;
+  --color-periwinkle-wash: #1e2142;
+  --color-verdict-correct: #5fd3a2;
+  --color-verdict-correct-wash: #0f2a21;
+  --color-verdict-wrong: #ff8f97;
+  --color-verdict-wrong-wash: #2e1519;
+  --color-warn: #f3bd62;
+  --color-warn-wash: #2c2312;
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 12px 30px -14px rgba(0, 0, 0, 0.7);
+  --shadow-raised: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 20px 50px -20px rgba(92, 104, 230, 0.35);
+  --shadow-button: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 6px 18px -8px rgba(124, 132, 248, 0.45);
+  --font-serif: var(--font-tech), ui-sans-serif, system-ui, sans-serif;
+  color-scheme: dark;
   background-color: var(--color-paper);
   color: var(--color-ink);
 }
 
-/* Solid, not glass: a header that blurs what is under it reads as an effect. */
-.theme-paper header.sticky {
-  background-color: var(--color-paper);
+/* So pulling past the end of a page shows the same dark. */
+:root:has(.theme-paper) body {
+  background-color: #090a12;
+  background-image: none;
 }
 
-/* Small labels in the firm's taupe, spaced like a letterhead. */
+.theme-paper h1,
+.theme-paper h2,
+.theme-paper h3 {
+  letter-spacing: -0.02em;
+}
+
+.theme-paper header.sticky {
+  background-color: rgba(9, 10, 18, 0.92);
+  border-color: var(--color-rule);
+}
+
 .theme-paper .eyebrow {
   font-weight: 600;
   letter-spacing: 0.12em;
   color: var(--color-ice);
 }
 
-/* Panels: white cards on the paper, a hairline, a soft shadow. */
+/* Cards: a faint light along the top edge, a hairline, a deep shadow. */
 .theme-paper .panel {
   background-color: var(--color-paper-raised);
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0) 60%);
   border-color: var(--color-rule);
   box-shadow: var(--shadow-card);
 }
 
-/* The greeting card is navy with paper type, its details in a light taupe. */
+/* The next-task card: deep indigo with a violet glow from one corner. */
 .theme-paper .accent-surface {
-  --color-paper: #f7f5f0;
-  --color-accent: var(--brand-accent, #0f1e35);
+  --color-paper: #f2f3ff;
+  --color-accent: #151735;
+  background-color: #151735;
+  background-image:
+    radial-gradient(120% 140% at 100% 0%, rgba(124, 132, 248, 0.45), rgba(124, 132, 248, 0) 55%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0));
+  border: 1px solid rgba(140, 148, 255, 0.28);
   box-shadow: var(--shadow-raised);
 }
 .theme-paper .accent-surface .text-amber-300 {
-  color: #c9bfa8;
+  color: #b9beff;
 }
 .theme-paper .accent-surface .bg-amber-300 {
-  background-color: #c9bfa8;
+  background-color: #b9beff;
 }
 .theme-paper .text-amber-300 {
   color: var(--color-ice);
