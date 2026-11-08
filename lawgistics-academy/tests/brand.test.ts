@@ -42,7 +42,7 @@ test('the default brand is Lawgistics Academy, and it is complete', () => {
   assert.equal(brand.suffix, 'Academy');
   assert.equal(brand.fullName, 'Lawgistics Academy');
   assert.equal(brand.traineeAcademy, 'Litigation Trainee Academy');
-  assert.match(brand.parentLine, /B2B law firm operations/);
+  assert.equal(brand.parentLine, '', 'no parent line unless a firm sets one');
   assert.equal(brand.association, 'In association with Thomas Philip');
   assert.equal(brand.associationLogo, '/brand/thomas-philip-lockup.png');
   assert.ok(brand.tagline.length > 10);

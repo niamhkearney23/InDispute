@@ -398,7 +398,7 @@ export function AuthForm({
         {maxims && maxims.length > 0 ? (
           <RotatingMaxim className="mx-auto mb-6 hidden max-w-md md:block" rules={maxims} />
         ) : null}
-        <p className="text-xs text-paper/35">{brand.parentLine ?? brand.tagline}</p>
+        {brand.parentLine ? <p className="text-xs text-paper/35">{brand.parentLine}</p> : null}
       </footer>
     </div>
   );

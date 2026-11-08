@@ -138,8 +138,9 @@ export function safeInitial(value: string): string {
 }
 
 const name = clean(process.env.NEXT_PUBLIC_BRAND_NAME, DEFAULT_NAME);
-const DEFAULT_PARENT_LINE =
-  'Lawgistics Academy is part of Lawgistics: B2B law firm operations.';
+// No parent line by default (the owner, November 2026: "delete this"). A firm
+// may still set one with NEXT_PUBLIC_BRAND_PARENT_LINE.
+const DEFAULT_PARENT_LINE = '';
 const DEFAULT_PARTNERS_EMAIL = 'partners@lawgistics.my';
 const DEFAULT_FIRM = 'Thomas Philip';
 // Their logo as they supplied it (October 2026), on a clear background, down
