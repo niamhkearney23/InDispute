@@ -1019,6 +1019,26 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   time. Rules in `src/lib/exams/rules.ts` (pure, `tests/exams.test.ts`),
   reads and writes in `src/lib/exams/service.ts`, the action is
   `beginExam`; `tests-integration/exams.it.test.ts` sits one in a browser.
+- **Practice skills** (the owner, November 2026: ten skills "the new
+  generation of lawyers" can build, "practical soft skills", "also want
+  questions on this"): plain-language communication, precise drafting,
+  legal research and checking it, time management, commercial awareness,
+  client care, negotiation, business development, technology fluency, and
+  resilience and self-management. Seven are areas of their own
+  (`PRACTICE_SKILL_DOMAINS`, `taxonomy.ts`); drafting, legal research and
+  technology fluency (in Ethics and AI) are the existing areas.
+  `src/content/seed/questions/practice-skills-my.ts` has 45 Malaysian
+  situational-judgement questions, AI-drafted, unsigned and loaded as drafts
+  like everything else, three marked tentative (publicity, touting and
+  recording a client call, which touch the profession's own rules). They
+  state almost no law: a senior lawyer's judgement signs them off, and a
+  chosen option shows what somebody knows to do, never how well they speak,
+  write, negotiate or cope, and the pages say so. The diagnostic stays on
+  the eight knowledge areas; the mock exam, drills and daily training use
+  all fifteen. A Learn module (`practice-skills-my`) holds the seven, with
+  no lesson for now (its questions are the teaching). The right answer is
+  the longest option no more often than chance (`tests/practice-skills`).
+  No migration: areas and concepts are loaded by "Load the missing content".
 - **The level in a word** (`src/lib/learning/skill-level.ts`): Basic (up to
   55% right), Intermediate (56 to 79%), Advanced (80% or more), the same
   lines as every score (`masteryBand`), with what each means. The diagnostic
