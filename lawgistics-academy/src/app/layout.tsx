@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { connection } from 'next/server';
-import { Figtree, JetBrains_Mono, Newsreader, Space_Grotesk } from 'next/font/google';
+import { Figtree, JetBrains_Mono, Newsreader } from 'next/font/google';
 import './globals.css';
 import { brand } from '@/lib/brand';
 import { OPEN_COUNTRIES } from '@/lib/countries';
@@ -17,16 +17,6 @@ const display = Newsreader({
 const body = Figtree({
   subsets: ['latin'],
   variable: '--font-body',
-  display: 'swap',
-});
-
-// The academy's headings since the dark look (the owner, November 2026:
-// "more techy"): a grotesk, used inside .theme-paper only; the front page
-// keeps the serif.
-const tech = Space_Grotesk({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-tech',
   display: 'swap',
 });
 
@@ -63,7 +53,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // few that read no cookies of their own, like the not-found page.
   await connection();
   return (
-    <html lang="en-AU" className={`${display.variable} ${body.variable} ${code.variable} ${tech.variable}`}>
+    <html lang="en-AU" className={`${display.variable} ${body.variable} ${code.variable}`}>
       <body
         // A firm's accent replaces the default everywhere it is used, rather
         // than in the one button somebody remembered: --color-accent for the
