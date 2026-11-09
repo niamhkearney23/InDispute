@@ -65,6 +65,12 @@ export const DOMAINS: SeedDomain[] = [
   // questions/practice-skills-my.ts. Drafting, legal research and technology
   // fluency (in Ethics and AI) are the existing areas above.
   {
+    slug: 'urgent-applications',
+    name: 'The urgent application',
+    description:
+      'One worked task from start to finish: an urgent injunction, with the law, the client, the people around the matter and what to do when the judge says no.',
+  },
+  {
     slug: 'plain-language',
     name: 'Plain-language communication',
     description:
@@ -123,6 +129,16 @@ export const PRACTICE_SKILL_DOMAINS = [
   'business-development',
   'resilience',
 ] as const;
+
+/**
+ * Areas that are one worked task told as a story (the urgent injunction), not
+ * knowledge areas. Left out of the diagnostic and, like the practice skills,
+ * Malaysian only.
+ */
+export const WORKED_TASK_DOMAINS = ['urgent-applications'] as const;
+
+/** Every area the diagnostic does not draw on. */
+export const NOT_KNOWLEDGE_DOMAINS: readonly string[] = [...PRACTICE_SKILL_DOMAINS, ...WORKED_TASK_DOMAINS];
 
 export const CONCEPTS: SeedConcept[] = [
   // --- Court System ---------------------------------------------------------
@@ -224,6 +240,11 @@ export const CONCEPTS: SeedConcept[] = [
   { slug: 'rules-of-court-2012', domain: 'civil-procedure', name: 'Rules of Court 2012', description: 'The unified rules governing civil procedure in the Malaysian courts.' },
   { slug: 'evidence-act-1950', domain: 'evidence', name: 'Evidence Act 1950', description: 'The codified Malaysian law of evidence.' },
   // --- Practice skills --------------------------------------------------------
+  { slug: 'interim-injunction-test', domain: 'urgent-applications', name: 'The test for an interim injunction', description: 'A serious question to be tried, whether damages would be enough, and where the balance of convenience lies.' },
+  { slug: 'full-frank-disclosure', domain: 'urgent-applications', name: 'Full and frank disclosure', description: 'Telling the court everything material when the other side is not there to answer, including what hurts.' },
+  { slug: 'client-under-pressure', domain: 'urgent-applications', name: 'The client under pressure', description: 'Saying the hard thing plainly, and keeping a frightened client from making it worse overnight.' },
+  { slug: 'people-around-the-matter', domain: 'urgent-applications', name: 'The people around the matter', description: 'The registry, the other side and the referrer: one useful move with each.' },
+  { slug: 'taking-a-setback', domain: 'urgent-applications', name: 'Taking a setback', description: 'Moving within the hour, telling the truth about what went wrong, and planning the week.' },
   { slug: 'explain-to-decide', domain: 'plain-language', name: 'Explaining so that somebody can decide', description: 'Leading with the answer and the reason, so that the client can act on it.' },
   { slug: 'plain-words', domain: 'plain-language', name: 'Plain words', description: 'Saying a technical thing in the client’s own terms, without false promises.' },
   { slug: 'advice-structure', domain: 'plain-language', name: 'Structuring advice', description: 'Ordering a long document so that the point is found first.' },

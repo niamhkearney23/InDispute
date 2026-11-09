@@ -1239,3 +1239,26 @@ guarantee for it, and plant a deliberate error to prove the test catches it.
   (`ask_usage`: who and when only, never what was asked; a count that cannot be
   read counts as the limit). Not yet: speaking the question (needs the
   recording consent notice).
+
+- **The urgent injunction** (the owner, November 2026: "The Four Intelligences
+  Module", module 1 of five; the owner's own pilot plan is to build it alone and
+  try it on the trainees and interns before the other four). One legal task as
+  one story over six screens (the brief, the law, the pressure point, the
+  people, the setback, the debrief): `urgent-injunction-my` in `modules.ts`, its
+  lesson in `WORKED_LESSONS` (`lessons.ts`; a story from the start, so nothing
+  for it to replace), its area `urgent-applications` in `WORKED_TASK_DOMAINS`
+  (left out of the diagnostic and Malaysian only, `NOT_KNOWLEDGE_DOMAINS`) and
+  14 questions in `questions/urgent-injunction-my.ts`, six on the law and eight
+  on the client, the people and the setback. All AI-drafted and unsigned: the
+  law is the owner's starting outline (Order 29 of the Rules of Court 2012, the
+  American Cyanamid approach, full and frank disclosure) and a Malaysian
+  litigator must check every rule and case before anyone but staff sees it.
+  The outline's sub-rule numbers and the lapse period of a without-notice order
+  are deliberately NOT stated anywhere (a test checks). The owner's build rules
+  are tested: no lesson or question leads with IQ, EQ, SQ or AQ, the "80 per
+  cent" claim is not used, the strands are never called measured
+  intelligences. The writing and voice tasks the story asks for are done on
+  paper or with a supervisor for now; nothing marks them (marking them on the
+  Advocacy Studio is the next step, if the owner wants it). Modules 2 to 5
+  (letter of demand, first client meeting, defence under a deadline, settlement)
+  are not built.

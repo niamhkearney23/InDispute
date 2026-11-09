@@ -174,6 +174,23 @@ export const MODULES: SeedModule[] = [
     required: false,
     order: 4,
   },
+  {
+    slug: 'urgent-injunction-my',
+    name: 'The urgent injunction',
+    summary: 'One evening on a real file: the law, the client\u2019s call, the people around the matter, and what to do when the judge says no.',
+    rationale:
+      'Most of the hard moments on a file are not about the law, but the law ' +
+      'still has to be right. This is one task, told as one story: an urgent ' +
+      'application to stop assets being moved. You work out what the court needs ' +
+      'to hear, decide what to say to a frightened client, deal with the people ' +
+      'around the matter, and plan your next hour when the application fails. ' +
+      'Choosing well here shows what you know to do; it does not measure how ' +
+      'well you speak or write, and your supervisor still sees that.',
+    country: 'MY',
+    domains: ['urgent-applications'],
+    required: false,
+    order: 5,
+  },
 ];
 
 export function modulesFor(country: Country): SeedModule[] {

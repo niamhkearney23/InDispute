@@ -4,7 +4,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { forDiagnostic, forRetake, forTraining, missingFlag } from '../src/lib/learning/diagnostic-set';
 import { DIAGNOSTIC_QUESTION_COUNT } from '../src/lib/learning/config';
-import { PRACTICE_SKILL_DOMAINS, QUESTIONS } from '../src/content/seed';
+import { NOT_KNOWLEDGE_DOMAINS, QUESTIONS } from '../src/content/seed';
 import { JURISDICTION_COUNTRY } from '../src/lib/types';
 
 /**
@@ -105,7 +105,7 @@ test('Malaysia has a full diagnostic of its own, across every area, waiting for 
   // The knowledge areas: the practice skills are not part of the diagnostic.
   const areas = new Set(
     QUESTIONS.filter(
-      (x) => JURISDICTION_COUNTRY[x.jurisdiction] === 'MY' && !(PRACTICE_SKILL_DOMAINS as readonly string[]).includes(x.domain),
+      (x) => JURISDICTION_COUNTRY[x.jurisdiction] === 'MY' && !NOT_KNOWLEDGE_DOMAINS.includes(x.domain),
     ).map((x) => x.domain),
   );
   assert.deepEqual(new Set(my.map((x) => x.domain)), areas, 'an area has no diagnostic questions');

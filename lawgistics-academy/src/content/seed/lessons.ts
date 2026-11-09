@@ -365,8 +365,80 @@ export const LESSONS: SeedLesson[] = [
   },
 ];
 
+/**
+ * Lessons that are one worked task told as a story from the start, so there is
+ * no earlier lesson for them to replace (the owner's Four Intelligences module).
+ * Signed off and gated exactly like any other lesson.
+ */
+export const WORKED_LESSONS: SeedLesson[] = [
+  // The urgent injunction: one task told as one evening (the owner, November
+  // 2026, "The Four Intelligences Module"). A DRAFT: the law is a starting
+  // outline for a Malaysian litigator to check rule by rule and case by case,
+  // so nobody but staff sees it until a lawyer signs it off. Six screens, one
+  // for each stage of the task. The writing and speaking the story asks for is
+  // done on paper or with a supervisor for now; nothing here marks it.
+  {
+    slug: 'urgent-injunction-my-story',
+    moduleSlug: 'urgent-injunction-my',
+    title: 'Thursday, six o\u2019clock',
+    minutes: 12,
+    country: 'MY',
+    scene: {
+      who: 'A client\u2019s former director, and a partner on the way to the airport',
+      setup:
+        'It is Thursday evening. Your client has just learned that its former director plans to transfer the company\u2019s assets to a new entity tomorrow morning. The partner has left for the airport. You are the junior on the matter, and the first thing anybody has said to you is \u201cdo what you can tonight\u201d.',
+    },
+    steps: [
+      {
+        heading: 'The brief arrives',
+        body: 'Nobody gives you a heading for this. You have a worried client, a deadline that is tomorrow morning and a partner you cannot reach for an hour. What you do in the next ten minutes decides whether there is anything left to protect.',
+        takeaway: 'Start by working out what has to happen tonight, and what can wait.',
+      },
+      {
+        heading: 'What the court needs to hear',
+        guess: {
+          prompt:
+            'The other side will not be in court when you apply. What must the affidavit that supports your application include?',
+          options: [
+            { id: 'a', text: 'Only the facts that help your client, so the order is clear' },
+            { id: 'b', text: 'Every material fact, including the ones that hurt your client\u2019s case' },
+            { id: 'c', text: 'The facts the client has asked you to put forward' },
+          ],
+          answer: 'b',
+        },
+        body: 'The court is asked to act without hearing from the person it affects. For that reason it must be told everything material, including what weakens the application, and an order won without that can be undone. Alongside it, the court asks whether there is a serious question to be tried, whether money would be enough to put the claimant right, and where the balance of convenience lies.',
+        takeaway: 'When the other side is absent, you are the only one who can tell the court the whole truth.',
+      },
+      {
+        heading: 'The client calls again',
+        body: 'The client has now rung three times in an hour. He wants a guarantee, and he is thinking of calling the director himself. You are tired, and you are a little afraid of the partner, so notice that too before you answer. Say plainly that nobody can promise this, say what you can do tonight, and say what he must not do.',
+        takeaway: 'Write down what you would say in two minutes. Then show it to the partner or your supervisor.',
+      },
+      {
+        heading: 'Who else is in this',
+        body: 'The registry officer can tell you whether a judge is sitting for urgent matters tomorrow. The director\u2019s solicitor is somebody you will deal with again for years. The person who sent you this client will want to hear how tonight went. Pick one useful move for each of them, in a few lines, and keep every one of them courteous.',
+        takeaway: 'A call script, a firm and polite first letter, and a two-line update: write all three.',
+      },
+      {
+        heading: 'Friday: the judge says no',
+        body: 'The judge refuses the application without the other side present and lists it for a hearing with both sides in ten days. The assets are moving and the client is furious. The partner\u2019s first question is what went wrong. Write what you would do in the next hour, and what you would do in the next week, including whether the facts could support another kind of order, which is a question for a lawyer, not a guess.',
+        takeaway: 'Move within the hour, and tell the truth about what happened.',
+      },
+      {
+        heading: 'What you take from it',
+        body: 'Ask yourself two questions and write both answers down. What did you learn about the law in this task? And what did you learn about being a lawyer? Keep the answers: the second one is the one you will be glad to read back in a year.',
+        takeaway: 'The law is the backbone. The rest is how you carry it.',
+      },
+    ],
+  },
+];
+
 export function lessonForModule(moduleSlug: string): SeedLesson | null {
-  return LESSONS.find((lesson) => lesson.moduleSlug === moduleSlug) ?? null;
+  return (
+    LESSONS.find((lesson) => lesson.moduleSlug === moduleSlug) ??
+    WORKED_LESSONS.find((lesson) => lesson.moduleSlug === moduleSlug) ??
+    null
+  );
 }
 
 /**
@@ -936,7 +1008,7 @@ export const DRAFT_LESSONS: SeedLesson[] = [
 ];
 
 /** Every lesson, live or waiting for sign-off. */
-export const ALL_LESSONS: SeedLesson[] = [...LESSONS, ...DRAFT_LESSONS];
+export const ALL_LESSONS: SeedLesson[] = [...LESSONS, ...DRAFT_LESSONS, ...WORKED_LESSONS];
 
 export function lessonBySlug(slug: string): SeedLesson | null {
   return ALL_LESSONS.find((lesson) => lesson.slug === slug) ?? null;
