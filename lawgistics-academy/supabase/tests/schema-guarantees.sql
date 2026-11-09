@@ -4891,6 +4891,13 @@ select pg_temp.expect(
                    and policyname not like 'erased%'
                    and coalesce(qual, '') || coalesce(with_check, '') like '%speech%'),
   'the spoken-audio bucket is private, with no policy letting anybody at it directly');
+select pg_temp.expect(
+  not has_table_privilege('authenticated', 'public.ask_usage', 'SELECT')
+  and not has_table_privilege('anon', 'public.ask_usage', 'INSERT')
+  and not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'ask_usage')
+  and not exists (select 1 from information_schema.columns where table_schema = 'public'
+                   and table_name = 'ask_usage' and column_name in ('question', 'answer', 'body', 'text')),
+  'the question counter is the server''s alone and keeps nothing anybody typed');
 
 select pg_temp.expect_failure(
   $$insert into public.studio_attempts (user_id, exercise_key, exercise_hash, recording_path)

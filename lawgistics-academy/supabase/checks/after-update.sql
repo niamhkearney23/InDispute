@@ -10,8 +10,8 @@
 
 with checks(n, what, ok) as (
   values
-  (1, 'The database is at the version the website expects (0057)',
-     (select public.schema_version()) = '0057'),
+  (1, 'The database is at the version the website expects (0058)',
+     (select public.schema_version()) = '0058'),
 
   (2, 'No question is published without a lawyer''s sign-off on its current wording',
      not exists (
@@ -187,6 +187,15 @@ with checks(n, what, ok) as (
               where schemaname = 'storage' and tablename = 'objects'
                 and policyname not like 'erased%'
                 and coalesce(qual, '') || coalesce(with_check, '') like '%speech%'))
+,
+  (22, 'The question counter is server-only (0058)',
+     exists (select 1 from pg_class c where c.oid = 'public.ask_usage'::regclass and c.relrowsecurity)
+     and not has_table_privilege('authenticated', 'public.ask_usage', 'SELECT')
+     and not has_table_privilege('anon', 'public.ask_usage', 'SELECT')
+     and not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'ask_usage')
+     and not exists (select 1 from information_schema.columns
+              where table_schema = 'public' and table_name = 'ask_usage'
+                and column_name in ('question', 'answer', 'body', 'text')))
 )
 select n as "#", what as "check", case when ok then 'OK' else 'NOT OK' end as result
 from checks

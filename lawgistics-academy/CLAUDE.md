@@ -192,7 +192,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0057`.
+- Migrations run to `0058`.
   `supabase/UPDATE.sql` is the one-paste update for a database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -1227,3 +1227,15 @@ guarantee for it, and plant a deliberate error to prove the test catches it.
   accent keeps its own letter). The manifest and icons are outside the
   middleware matcher so a signed-out browser can read them. No service worker
   yet, so it needs a connection, as the site does.
+
+- **Ask a question** (`0058`, the owner, November 2026). A box on Today
+  (`src/components/ask-box.tsx`, `POST /api/ask`). Answers come only from lesson
+  steps a lawyer has signed off (never a draft, even for staff): the steps are
+  found by matching (`src/lib/ask/rules.ts`), no match means no AI is asked and
+  the person is told the lessons do not cover it. With a match, the AI may only
+  put those words into two to four sentences; the tutor's guard throws away any
+  reply stating law that is not in them, and then the lesson text itself is
+  shown. With the AI off, the lesson text is shown. Fifteen questions a day
+  (`ask_usage`: who and when only, never what was asked; a count that cannot be
+  read counts as the limit). Not yet: speaking the question (needs the
+  recording consent notice).
