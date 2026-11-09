@@ -59,7 +59,70 @@ export const DOMAINS: SeedDomain[] = [
     description:
       'Precedent, ratio and obiter, statutory interpretation and reasoning by elements and analogy.',
   },
+
+  // --- Practice skills (the owner, November 2026: the skills "the new
+  // generation of lawyers" can build). Situational judgement, not law: see
+  // questions/practice-skills-my.ts. Drafting, legal research and technology
+  // fluency (in Ethics and AI) are the existing areas above.
+  {
+    slug: 'plain-language',
+    name: 'Plain-language communication',
+    description:
+      'Explaining a complicated issue so that a client can make a decision: the answer first, plain words, and checking it was understood.',
+  },
+  {
+    slug: 'time-management',
+    name: 'Time management',
+    description:
+      'Recording time accurately, meeting deadlines, and managing several matters and several seniors at once.',
+  },
+  {
+    slug: 'commercial-awareness',
+    name: 'Commercial awareness',
+    description:
+      'How a client’s business makes money, what a dispute costs against what it is worth, and advice that solves the real problem.',
+  },
+  {
+    slug: 'client-care',
+    name: 'Client care',
+    description:
+      'Responding promptly, managing expectations, delivering bad news and keeping clients informed.',
+  },
+  {
+    slug: 'negotiation',
+    name: 'Negotiation',
+    description:
+      'Knowing your position and your fallback, taking instructions, and recording what was agreed.',
+  },
+  {
+    slug: 'business-development',
+    name: 'Business development',
+    description:
+      'Building relationships, referral networks and a professional reputation from day one, within the profession’s rules.',
+  },
+  {
+    slug: 'resilience',
+    name: 'Resilience and self-management',
+    description:
+      'Handling pressure, asking for feedback and looking after your own wellbeing.',
+  },
 ];
+
+/**
+ * The seven areas that are practice skills rather than knowledge of the law.
+ * The diagnostic's own set is about the eight knowledge areas, so these are
+ * not required of it (tests/diagnostic-set.test.ts); the mock exam, drills
+ * and daily training draw on them like any other area.
+ */
+export const PRACTICE_SKILL_DOMAINS = [
+  'plain-language',
+  'time-management',
+  'commercial-awareness',
+  'client-care',
+  'negotiation',
+  'business-development',
+  'resilience',
+] as const;
 
 export const CONCEPTS: SeedConcept[] = [
   // --- Court System ---------------------------------------------------------
@@ -160,6 +223,31 @@ export const CONCEPTS: SeedConcept[] = [
   { slug: 'syariah-courts', domain: 'court-system', name: 'Syariah courts', description: 'State courts of limited personal jurisdiction, outside the civil hierarchy.' },
   { slug: 'rules-of-court-2012', domain: 'civil-procedure', name: 'Rules of Court 2012', description: 'The unified rules governing civil procedure in the Malaysian courts.' },
   { slug: 'evidence-act-1950', domain: 'evidence', name: 'Evidence Act 1950', description: 'The codified Malaysian law of evidence.' },
+  // --- Practice skills --------------------------------------------------------
+  { slug: 'explain-to-decide', domain: 'plain-language', name: 'Explaining so that somebody can decide', description: 'Leading with the answer and the reason, so that the client can act on it.' },
+  { slug: 'plain-words', domain: 'plain-language', name: 'Plain words', description: 'Saying a technical thing in the client’s own terms, without false promises.' },
+  { slug: 'advice-structure', domain: 'plain-language', name: 'Structuring advice', description: 'Ordering a long document so that the point is found first.' },
+  { slug: 'time-recording', domain: 'time-management', name: 'Recording time', description: 'Accurate, prompt time records, including late entries.' },
+  { slug: 'deadlines', domain: 'time-management', name: 'Deadlines', description: 'Diarising dates, working back from them and saying early when one is at risk.' },
+  { slug: 'prioritising', domain: 'time-management', name: 'Prioritising', description: 'Handling competing requests and several matters at once.' },
+  { slug: 'client-business', domain: 'commercial-awareness', name: 'The client’s business', description: 'How the client makes money and what matters to it.' },
+  { slug: 'cost-benefit', domain: 'commercial-awareness', name: 'Cost against benefit', description: 'What a step costs against what it is worth, and fee estimates.' },
+  { slug: 'commercial-outcome', domain: 'commercial-awareness', name: 'The commercial outcome', description: 'Advising on the result the client needs, not only the legal result.' },
+  { slug: 'responsiveness', domain: 'client-care', name: 'Responsiveness', description: 'Acknowledging promptly and saying when the client will hear more.' },
+  { slug: 'expectations', domain: 'client-care', name: 'Managing expectations', description: 'Setting honest expectations of time, cost and outcome early.' },
+  { slug: 'keeping-informed', domain: 'client-care', name: 'Keeping the client informed', description: 'Delivering bad news, owning an error, and agreeing how often to update.' },
+  { slug: 'position-and-fallback', domain: 'negotiation', name: 'Position and fallback', description: 'Knowing your target, your walk-away point and what the other side needs.' },
+  { slug: 'settlement', domain: 'negotiation', name: 'Settlement', description: 'Taking instructions, weighing an offer and recording what was agreed.' },
+  { slug: 'relationships', domain: 'business-development', name: 'Relationships', description: 'Building and keeping professional relationships, without pitching.' },
+  { slug: 'referrals', domain: 'business-development', name: 'Referrals', description: 'Handling referrals within the profession’s rules.' },
+  { slug: 'reputation', domain: 'business-development', name: 'Reputation', description: 'Being known for reliable work, and publicity within the rules.' },
+  { slug: 'feedback', domain: 'resilience', name: 'Feedback', description: 'Receiving criticism, asking for feedback and learning from a loss.' },
+  { slug: 'pressure', domain: 'resilience', name: 'Pressure', description: 'Handling workload and setbacks.' },
+  { slug: 'wellbeing', domain: 'resilience', name: 'Wellbeing', description: 'Looking after yourself and asking for help early.' },
+  { slug: 'precise-wording', domain: 'drafting', name: 'Precise wording', description: 'Exact dates, defined terms and the request placed first.' },
+  { slug: 'asking-a-senior', domain: 'legal-research', name: 'Knowing when to ask a senior', description: 'Asking early, with what you have tried.' },
+  { slug: 'document-management', domain: 'ethics-and-ai', name: 'Document management', description: 'Filing in the right matter and handling a misfiled document.' },
+  { slug: 'e-discovery', domain: 'ethics-and-ai', name: 'E-discovery tools', description: 'Using review software without handing it the responsibility.' },
 ];
 
 export const SKILLS: SeedSkill[] = [

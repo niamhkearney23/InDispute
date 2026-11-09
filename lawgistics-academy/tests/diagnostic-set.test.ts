@@ -4,7 +4,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { forDiagnostic, forRetake, forTraining, missingFlag } from '../src/lib/learning/diagnostic-set';
 import { DIAGNOSTIC_QUESTION_COUNT } from '../src/lib/learning/config';
-import { QUESTIONS } from '../src/content/seed';
+import { PRACTICE_SKILL_DOMAINS, QUESTIONS } from '../src/content/seed';
 import { JURISDICTION_COUNTRY } from '../src/lib/types';
 
 /**
@@ -72,7 +72,7 @@ test('the readers keep the rule: training and modules leave them out, the diagno
   assert.match(selection, /missingFlag\(first\.error\) \? await read\(columns\) : first/);
   assert.match(selection, /loadTrainingBank\(db, options\.country\)/, 'daily training');
   assert.match(selection, /\(await loadTrainingBank\(db, country\)\)\.filter\(\(q\) => domainSlugs\.includes/, 'modules');
-  assert.match(selection, /const whole = await loadBank\(db, country\);/, 'the diagnostic');
+  assert.match(selection, /const whole = \(await loadBank\(db, country\)\)\.filter\(/, 'the diagnostic, on the knowledge areas');
   assert.match(selection, /askedBefore\.size > 0 \? forRetake\(whole, count, askedBefore\) : forDiagnostic\(whole, count\)/);
   assert.match(read('src/lib/training/service.ts'), /selectDiagnosticQuestions\(db, country, count, await askedInDiagnostics\(db, userId\)\)/);
   assert.equal(selection.match(/await loadBank\(/g)?.length, 2, 'only the training bank and the diagnostic read the whole bank');
@@ -102,7 +102,12 @@ test('Malaysia has a full diagnostic of its own, across every area, waiting for 
   const my = own.filter((x) => JURISDICTION_COUNTRY[x.jurisdiction] === 'MY');
   assert.equal(my.length, own.length, 'every diagnostic-only question so far is Malaysian');
   assert.ok(my.length >= DIAGNOSTIC_QUESTION_COUNT, `only ${my.length}; the diagnostic needs ${DIAGNOSTIC_QUESTION_COUNT}`);
-  const areas = new Set(QUESTIONS.filter((x) => JURISDICTION_COUNTRY[x.jurisdiction] === 'MY').map((x) => x.domain));
+  // The knowledge areas: the practice skills are not part of the diagnostic.
+  const areas = new Set(
+    QUESTIONS.filter(
+      (x) => JURISDICTION_COUNTRY[x.jurisdiction] === 'MY' && !(PRACTICE_SKILL_DOMAINS as readonly string[]).includes(x.domain),
+    ).map((x) => x.domain),
+  );
   assert.deepEqual(new Set(my.map((x) => x.domain)), areas, 'an area has no diagnostic questions');
   assert.ok(my.some((x) => x.difficulty >= 4) && my.some((x) => x.difficulty <= 2), 'a spread of difficulty');
   assert.match(read('src/content/seed/questions/diagnostic-my.ts'), /NOT CHECKED BY A LAWYER/);

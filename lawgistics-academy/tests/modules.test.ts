@@ -200,7 +200,10 @@ test('every module has a lesson', () => {
   // Three modules taught and three did not, which reads as unfinished rather
   // than as a choice. If a module should genuinely have no lesson, this test is
   // the place to say so out loud.
-  const without = MODULES.filter((m) => !lessonForModule(m.slug)).map((m) => m.slug);
+  // The practice skills module has no lesson on purpose, for now: its
+  // questions are the teaching (each explanation says why), and a lesson would
+  // be one more thing a lawyer must read and sign off before anyone sees it.
+  const without = MODULES.filter((m) => m.slug !== 'practice-skills-my' && !lessonForModule(m.slug)).map((m) => m.slug);
   assert.deepEqual(without, [], 'these modules go straight to questions with no teaching');
 });
 

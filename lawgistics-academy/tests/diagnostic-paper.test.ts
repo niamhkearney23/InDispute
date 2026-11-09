@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { diagnosticPaper } from '../src/lib/learning/selection';
-import { QUESTIONS } from '../src/content/seed';
+import { PRACTICE_SKILL_DOMAINS, QUESTIONS } from '../src/content/seed';
 
 /**
  * The diagnostic's paper (the owner, November 2026: "way too easy ... add a
@@ -54,7 +54,10 @@ test('a bank smaller than the paper is asked in full, and an empty one gives not
 });
 
 test('on the Malaysian bank as written, the paper reaches the hard questions', () => {
-  const bank = QUESTIONS.filter((q) => String(q.jurisdiction).startsWith('MY')).map((q, i) => ({
+  // The diagnostic's bank: knowledge areas only, never the practice skills.
+  const bank = QUESTIONS.filter(
+    (q) => String(q.jurisdiction).startsWith('MY') && !(PRACTICE_SKILL_DOMAINS as readonly string[]).includes(q.domain),
+  ).map((q, i) => ({
     id: `${q.slug ?? i}`,
     domainSlug: q.domain,
     difficulty: q.difficulty,

@@ -149,6 +149,31 @@ export const MODULES: SeedModule[] = [
     required: false,
     order: 3,
   },
+  {
+    slug: 'practice-skills-my',
+    name: 'Skills every lawyer builds',
+    summary: 'Explaining plainly, managing time and clients, negotiating, building a name, and looking after yourself.',
+    rationale:
+      'Most of what separates a trusted junior from a forgettable one is not ' +
+      'knowledge of the law. It is explaining a problem so a client can decide, ' +
+      'keeping to deadlines, understanding how the client makes money, ' +
+      'answering promptly, knowing when to settle, and asking for help early. ' +
+      'These are situations, with a better and a worse way to handle each. ' +
+      'Choosing well here shows what you know to do; it does not measure how ' +
+      'well you speak, write or cope, and your supervisor still sees that.',
+    country: 'MY',
+    domains: [
+      'plain-language',
+      'time-management',
+      'commercial-awareness',
+      'client-care',
+      'negotiation',
+      'business-development',
+      'resilience',
+    ],
+    required: false,
+    order: 4,
+  },
 ];
 
 export function modulesFor(country: Country): SeedModule[] {

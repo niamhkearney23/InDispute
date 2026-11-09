@@ -1,4 +1,4 @@
-import { CONCEPTS, DOMAINS, SKILLS } from './taxonomy';
+import { CONCEPTS, DOMAINS, PRACTICE_SKILL_DOMAINS, SKILLS } from './taxonomy';
 import { COURT_SYSTEM_QUESTIONS } from './questions/court-system';
 import { CIVIL_PROCEDURE_QUESTIONS } from './questions/civil-procedure';
 import { EVIDENCE_QUESTIONS } from './questions/evidence';
@@ -17,6 +17,7 @@ import { BASICS_MY_QUESTIONS } from './questions/basics-my';
 import { ADVANCED_QUESTIONS } from './questions/advanced';
 import { ADVANCED_MY_QUESTIONS } from './questions/advanced-my';
 import { DIAGNOSTIC_MY_QUESTIONS } from './questions/diagnostic-my';
+import { PRACTICE_SKILLS_MY_QUESTIONS } from './questions/practice-skills-my';
 import { FACTS } from './facts';
 import { COUNTRIES, JURISDICTION_COUNTRY } from '@/lib/types';
 import type { SeedQuestion } from './types';
@@ -41,9 +42,11 @@ export const QUESTIONS: SeedQuestion[] = [
   ...ADVANCED_MY_QUESTIONS,
   // The diagnostic's own (0055): asked there and nowhere else.
   ...DIAGNOSTIC_MY_QUESTIONS,
+  // Practice skills (the owner, November 2026): situational judgement, drafted by an AI.
+  ...PRACTICE_SKILLS_MY_QUESTIONS,
 ];
 
-export { CONCEPTS, DOMAINS, SKILLS, FACTS };
+export { CONCEPTS, DOMAINS, PRACTICE_SKILL_DOMAINS, SKILLS, FACTS };
 export * from './types';
 export type { SeedFact } from './facts';
 
@@ -149,6 +152,9 @@ export function validateSeed(): string[] {
     if (inCountry.length === 0) continue;
 
     for (const domain of DOMAINS) {
+      // The practice skills are written for Malaysia, the only country open
+      // for now; nothing is owed in the other.
+      if ((PRACTICE_SKILL_DOMAINS as readonly string[]).includes(domain.slug) && country !== 'MY') continue;
       const count = inCountry.filter((q) => q.domain === domain.slug).length;
       if (count < 5) {
         errors.push(

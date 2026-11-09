@@ -12,6 +12,7 @@ import {
 import type { Country, SelectionReason } from '@/lib/types';
 import { forDiagnostic, forRetake, forTraining, missingFlag } from './diagnostic-set';
 import { drillPaper, type ExamSettings } from '@/lib/exams/rules';
+import { PRACTICE_SKILL_DOMAINS } from '@/content/seed/taxonomy';
 
 /**
  * Session composition.
@@ -383,7 +384,11 @@ export async function selectDiagnosticQuestions(
   // Its own questions once there are a paper's worth published, the whole
   // bank until then; a retake leaves out what was asked before
   // (diagnostic-set.ts).
-  const whole = await loadBank(db, country);
+  // The diagnostic is about knowledge of the law: the practice-skills areas
+  // (exams and daily training draw on them) are not part of it.
+  const whole = (await loadBank(db, country)).filter(
+    (q) => !(PRACTICE_SKILL_DOMAINS as readonly string[]).includes(q.domainSlug),
+  );
   const bank = askedBefore.size > 0 ? forRetake(whole, count, askedBefore) : forDiagnostic(whole, count);
   return diagnosticPaper(bank, count).map((q) => ({
     questionId: q.questionId,
