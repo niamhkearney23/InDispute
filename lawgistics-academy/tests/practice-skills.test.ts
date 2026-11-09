@@ -68,10 +68,10 @@ test('nothing in them says it has been verified, or states a figure as law', () 
 });
 
 test('the practice skills have a module, and the diagnostic leaves them out', () => {
-  const module = MODULES.find((m) => m.slug === 'practice-skills-my');
-  assert.ok(module);
-  assert.deepEqual([...module!.domains].sort(), [...PRACTICE_SKILL_DOMAINS].sort());
-  assert.equal(module!.required, false, 'optional, like the rest of Learn');
+  const practiceModule = MODULES.find((m) => m.slug === 'practice-skills-my');
+  assert.ok(practiceModule);
+  assert.deepEqual([...practiceModule!.domains].sort(), [...PRACTICE_SKILL_DOMAINS].sort());
+  assert.equal(practiceModule!.required, false, 'optional, like the rest of Learn');
   const selection = read('src/lib/learning/selection.ts');
   assert.match(selection, /const whole = \(await loadBank\(db, country\)\)\.filter\(/);
   assert.ok(QUESTIONS.some((q) => q.domain === 'client-care'));

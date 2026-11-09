@@ -75,3 +75,63 @@ test('a certificate PDF is only ever the signed-in learner\'s own', () => {
 test('downloads are never cached', () => {
   assert.match(read('src/lib/reports/pdf.ts'), /'Cache-Control': 'private, no-store'/);
 });
+
+import { cohortImprovement, improvementFor, signed } from '../src/lib/reports/rules';
+
+/**
+ * The start-to-end report (the pilot a firm is sold on): a person's first
+ * diagnostic against their latest. It must never invent a change from one
+ * sitting, and an average counts only the people who have both.
+ */
+
+const sitting = (date: string, correct: number, of: number, scores: Record<string, number>) => ({
+  completedAt: `${date}T09:00:00Z`,
+  totalQuestions: of,
+  totalCorrect: correct,
+  domainScores: scores,
+});
+
+test('no sitting, one sitting and two are three different things', () => {
+  assert.deepEqual(improvementFor([]), { sittings: 0, first: null, latest: null, change: null, areas: [] });
+  const one = improvementFor([sitting('2026-11-01', 12, 30, { evidence: 50 })]);
+  assert.equal(one.sittings, 1);
+  assert.equal(one.first?.percent, 40);
+  assert.equal(one.latest, null, 'no latest from a single sitting');
+  assert.equal(one.change, null, 'never a change from nothing');
+});
+
+test('two sittings give the change in points, overall and by area, whichever order they arrive in', () => {
+  const rows = [
+    sitting('2026-12-01', 21, 30, { evidence: 75, advocacy: 50, drafting: 100 }),
+    sitting('2026-11-01', 12, 30, { evidence: 50, advocacy: 50 }),
+  ];
+  const r = improvementFor(rows);
+  assert.equal(r.first?.date, '2026-11-01');
+  assert.equal(r.latest?.date, '2026-12-01');
+  assert.equal(r.change, 30, '40% to 70%');
+  const by = Object.fromEntries(r.areas.map((a) => [a.slug, a]));
+  assert.equal(by.evidence.change, 25);
+  assert.equal(by.advocacy.change, 0);
+  assert.equal(by.drafting.change, null, 'an area missing from the first paper has no change');
+  assert.equal(signed(30), '+30');
+  assert.equal(signed(-4), '-4');
+  assert.equal(signed(0), '0');
+  assert.equal(signed(null), '');
+});
+
+test('the cohort average counts only people with two sittings, and says how many were left out', () => {
+  const a = improvementFor([sitting('2026-11-01', 12, 30, { evidence: 40 }), sitting('2026-12-01', 21, 30, { evidence: 80 })]);
+  const b = improvementFor([sitting('2026-11-01', 15, 30, { evidence: 60 }), sitting('2026-12-01', 18, 30, { evidence: 70 })]);
+  const c = improvementFor([sitting('2026-11-02', 30, 30, { evidence: 100 })]);
+  const none = improvementFor([]);
+  const cohort = cohortImprovement([a, b, c, none]);
+  assert.equal(cohort.measured, 2);
+  assert.equal(cohort.startedOnly, 1);
+  assert.equal(cohort.none, 1);
+  assert.equal(cohort.averageFirst, 45, 'the person with one sitting is not in the average');
+  assert.equal(cohort.averageLatest, 65);
+  assert.equal(cohort.averageChange, 20);
+  assert.deepEqual(cohort.areas, [{ slug: 'evidence', people: 2, before: 50, after: 75, change: 25 }]);
+  const empty = cohortImprovement([none]);
+  assert.equal(empty.averageChange, null);
+});

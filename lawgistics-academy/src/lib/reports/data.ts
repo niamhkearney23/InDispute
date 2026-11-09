@@ -8,7 +8,7 @@ import { DEFAULT_SCHEDULE } from '@/lib/training/schedule';
 import { rosterWithStatus } from '@/lib/certification/service';
 import { todayIn } from '@/lib/onboarding/rules';
 import { localMidnight } from '@/lib/local-day';
-import { activeByMonth, monthBounds, monthsUpTo, type ActiveMonth } from './rules';
+import { activeByMonth, improvementFor, monthBounds, monthsUpTo, type ActiveMonth, type Improvement, type Sitting } from './rules';
 
 /**
  * What the firm's reports read. Service-role reads, so every caller has
@@ -196,4 +196,44 @@ export async function registerRows(): Promise<RegisterRow[]> {
     advocacy: status.hasAdvocacyBox,
     certified: status.certified,
   }));
+}
+
+export interface ImprovementRow {
+  person: Person;
+  improvement: Improvement;
+}
+
+/**
+ * Each person's first diagnostic against their latest (the start-to-end
+ * report). Null when the sittings could not be read, so a report says so
+ * rather than showing a firm that nobody has been assessed.
+ */
+export async function improvementRows(people: Person[]): Promise<ImprovementRow[] | null> {
+  if (people.length === 0) return [];
+  const db = createServiceClient();
+  const ids = people.map((p) => p.id);
+  const bySitter = new Map<string, Sitting[]>();
+  const PAGE = 1000;
+  for (let page = 0; page < 20; page++) {
+    const { data, error } = await db
+      .from('diagnostic_results')
+      .select('user_id, completed_at, total_questions, total_correct, domain_scores')
+      .in('user_id', ids)
+      .order('completed_at', { ascending: true })
+      .order('id', { ascending: true })
+      .range(page * PAGE, page * PAGE + PAGE - 1);
+    if (error) return null;
+    for (const row of data ?? []) {
+      const list = bySitter.get(row.user_id as string) ?? [];
+      list.push({
+        completedAt: row.completed_at as string,
+        totalQuestions: row.total_questions as number,
+        totalCorrect: row.total_correct as number,
+        domainScores: (row.domain_scores ?? {}) as Record<string, number>,
+      });
+      bySitter.set(row.user_id as string, list);
+    }
+    if ((data ?? []).length < PAGE) break;
+  }
+  return people.map((person) => ({ person, improvement: improvementFor(bySitter.get(person.id) ?? []) }));
 }

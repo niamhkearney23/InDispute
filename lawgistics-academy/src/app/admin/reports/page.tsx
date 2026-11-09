@@ -18,6 +18,11 @@ const DOWNLOADS: Array<{ title: string; body: string; kind: string }> = [
     kind: 'progress',
   },
   {
+    title: 'Start to end',
+    body: 'Each person’s first diagnostic against their latest, overall and by area, with the group’s averages. Knowledge questions only: drafting and advocacy are marked by supervisors.',
+    kind: 'improvement',
+  },
+  {
     title: 'Certification register',
     body: 'Each trainee in the register: competencies at the top grade, core ones still to show, and whether they are certified.',
     kind: 'register',
@@ -79,7 +84,7 @@ export default async function ReportsPage() {
         )}
       </Card>
 
-      <section className="grid gap-4 md:grid-cols-3">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {DOWNLOADS.map((d) => (
           <Card key={d.kind}>
             <h2 className="text-lg">{d.title}</h2>

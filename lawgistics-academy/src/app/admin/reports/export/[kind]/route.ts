@@ -1,8 +1,9 @@
 import { checkFirmAdmin } from '@/lib/admin/guard';
 import { brand } from '@/lib/brand';
-import { activeMonths, firmPeople, progressFor, registerRows } from '@/lib/reports/data';
+import { activeMonths, firmPeople, improvementRows, progressFor, registerRows } from '@/lib/reports/data';
 import { Report, downloadHeaders } from '@/lib/reports/pdf';
-import { fileSlug, monthName, toCsv } from '@/lib/reports/rules';
+import { cohortImprovement, fileSlug, monthName, signed, toCsv } from '@/lib/reports/rules';
+import { DOMAINS } from '@/content/seed/taxonomy';
 import { SPINE_BOX_NUMBERS, CERTIFICATION_BOXES } from '@/content/seed/certification-boxes';
 
 /**
@@ -15,7 +16,7 @@ import { SPINE_BOX_NUMBERS, CERTIFICATION_BOXES } from '@/content/seed/certifica
 
 export const dynamic = 'force-dynamic';
 
-const KINDS = ['active-csv', 'active-pdf', 'progress-csv', 'progress-pdf', 'register-csv', 'register-pdf'] as const;
+const KINDS = ['active-csv', 'active-pdf', 'progress-csv', 'progress-pdf', 'improvement-csv', 'improvement-pdf', 'register-csv', 'register-pdf'] as const;
 type Kind = (typeof KINDS)[number];
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -124,6 +125,96 @@ export async function GET(_request: Request, { params }: { params: Promise<{ kin
     );
     return new Response(Buffer.from(await report.finish()), {
       headers: downloadHeaders(file('progress', 'pdf'), 'application/pdf'),
+    });
+  }
+
+  if (kind === 'improvement-csv' || kind === 'improvement-pdf') {
+    const rows = await improvementRows(await firmPeople());
+    if (!rows) {
+      return new Response('The diagnostic results could not be read just now. Try again, and if it continues check that Supabase is working.', { status: 503 });
+    }
+    const areaName = (slug: string) => DOMAINS.find((d) => d.slug === slug)?.name ?? slug;
+    const dateOf = (x: { date: string } | null) => x?.date ?? '';
+    if (kind === 'improvement-csv') {
+      const header = ['Name', 'Email', 'Role', 'Cohort', 'Sittings', 'First sitting', 'First result (%)', 'Latest sitting', 'Latest result (%)', 'Change (points)'];
+      const people = rows.map((r) => [
+        r.person.name,
+        r.person.email,
+        r.person.role,
+        r.person.cohort,
+        r.improvement.sittings,
+        dateOf(r.improvement.first),
+        r.improvement.first?.percent ?? '',
+        dateOf(r.improvement.latest),
+        r.improvement.latest?.percent ?? '',
+        signed(r.improvement.change),
+      ]);
+      const byArea = rows.flatMap((r) =>
+        r.improvement.areas.map((a) => [r.person.name, areaName(a.slug), a.before ?? '', a.after ?? '', signed(a.change)]),
+      );
+      const body =
+        toCsv(header, people) +
+        '\r\n\r\n' +
+        toCsv(['Name', 'Area', 'First (%)', 'Latest (%)', 'Change (points)'], byArea);
+      return new Response(body, { headers: downloadHeaders(file('improvement', 'csv'), 'text/csv; charset=utf-8') });
+    }
+    const cohort = cohortImprovement(rows.map((r) => r.improvement));
+    const report = await Report.start(
+      'Start to end',
+      'Each person’s first diagnostic against their latest. It measures knowledge across the areas of the programme by multiple-choice questions, and nothing more: drafting and advocacy are marked by supervisors, in the Progress report. The two papers use different questions (a retake leaves out what was asked before), and an area rests on only a few questions in each, so read an area as an indication and the overall figure as the firm.',
+    );
+    report.heading('The group');
+    report.table(
+      [
+        { label: 'People measured', share: 0.25, align: 'right' },
+        { label: 'Average first', share: 0.25, align: 'right' },
+        { label: 'Average latest', share: 0.25, align: 'right' },
+        { label: 'Change', share: 0.25, align: 'right' },
+      ],
+      [
+        [
+          cohort.measured,
+          cohort.averageFirst === null ? 'n/a' : `${cohort.averageFirst}%`,
+          cohort.averageLatest === null ? 'n/a' : `${cohort.averageLatest}%`,
+          cohort.averageChange === null ? 'n/a' : `${signed(cohort.averageChange)} points`,
+        ],
+      ],
+    );
+    report.paragraph(
+      `${cohort.measured} ${cohort.measured === 1 ? 'person has' : 'people have'} two or more sittings and ${cohort.measured === 1 ? 'is' : 'are'} counted in the averages. ${cohort.startedOnly} ${cohort.startedOnly === 1 ? 'has' : 'have'} sat it once and ${cohort.none} ${cohort.none === 1 ? 'has' : 'have'} not sat it; neither is counted.`,
+    );
+    report.heading('Each person');
+    report.table(
+      [
+        { label: 'Name', share: 0.28 },
+        { label: 'Cohort', share: 0.16 },
+        { label: 'First', share: 0.18, align: 'right' },
+        { label: 'Latest', share: 0.18, align: 'right' },
+        { label: 'Change', share: 0.2, align: 'right' },
+      ],
+      rows.map((r) => [
+        r.person.name,
+        r.person.cohort,
+        r.improvement.first ? `${r.improvement.first.percent}%` : 'Not yet',
+        r.improvement.latest ? `${r.improvement.latest.percent}%` : r.improvement.first ? 'One sitting' : '',
+        r.improvement.change === null ? '' : `${signed(r.improvement.change)} points`,
+      ]),
+    );
+    if (cohort.areas.length > 0) {
+      report.heading('By area, across the group');
+      report.table(
+        [
+          { label: 'Area', share: 0.4 },
+          { label: 'People', share: 0.12, align: 'right' },
+          { label: 'First', share: 0.16, align: 'right' },
+          { label: 'Latest', share: 0.16, align: 'right' },
+          { label: 'Change', share: 0.16, align: 'right' },
+        ],
+        cohort.areas.map((a) => [areaName(a.slug), a.people, `${a.before}%`, `${a.after}%`, `${signed(a.change)}`]),
+      );
+    }
+    return new Response(Buffer.from(await report.finish()), {
+      headers: downloadHeaders(file('improvement', 'pdf'), 'application/pdf'),
     });
   }
 
