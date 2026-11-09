@@ -400,28 +400,29 @@
    of every page. No gold, by the owner's choice; the taupe is the firm's.
    ========================================================================== */
 /* The dark look (the owner, November 2026: "more techy", from a dark
-   product design they sent, with a blue-violet accent rather than its pink).
+   product design they sent, then "a dark blue, not purple": a blue-black
+   ground and one blue accent).
    Near-black ground, raised cards with a faint top light and a hairline, light
-   type, one blue-violet for what is selected and for progress. Status keeps
+   type, one blue for what is selected and for progress. Status keeps
    green, amber and red, lightened to read on the dark. Headings in a grotesk. */
 .theme-paper {
-  --color-paper: #090a12;
-  --color-paper-raised: #12131f;
-  --color-paper-sunk: #1a1c2b;
-  --color-ink: #eceefb;
-  --color-charcoal: #d2d5ea;
-  --color-slate: #a9adc6;
-  --color-muted: #9094ae;
-  --color-rule: #23263a;
-  --color-rule-strong: #353954;
-  --color-accent: var(--brand-accent, #7c84f8);
-  --color-accent-soft: #9aa1ff;
-  --color-accent-wash: #1c1f3d;
-  /* The details colour: small labels, a cool violet-grey. */
-  --color-ice: #959bd6;
-  --color-periwinkle: #8c94ff;
-  --color-periwinkle-ink: #b3b8ff;
-  --color-periwinkle-wash: #1e2142;
+  --color-paper: #070d17;
+  --color-paper-raised: #0f1827;
+  --color-paper-sunk: #16233a;
+  --color-ink: #e8eefb;
+  --color-charcoal: #cdd8ee;
+  --color-slate: #a3b1cc;
+  --color-muted: #8b9ab8;
+  --color-rule: #1c2b44;
+  --color-rule-strong: #2c4166;
+  --color-accent: var(--brand-accent, #3b8cff);
+  --color-accent-soft: #69a8ff;
+  --color-accent-wash: #10284d;
+  /* The details colour: small labels, a cool blue-grey. */
+  --color-ice: #7fa6d8;
+  --color-periwinkle: #4d9aff;
+  --color-periwinkle-ink: #8dbdff;
+  --color-periwinkle-wash: #122c52;
   --color-verdict-correct: #5fd3a2;
   --color-verdict-correct-wash: #0f2a21;
   --color-verdict-wrong: #ff8f97;
@@ -429,8 +430,8 @@
   --color-warn: #f3bd62;
   --color-warn-wash: #2c2312;
   --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 12px 30px -14px rgba(0, 0, 0, 0.7);
-  --shadow-raised: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 20px 50px -20px rgba(92, 104, 230, 0.35);
-  --shadow-button: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 6px 18px -8px rgba(124, 132, 248, 0.45);
+  --shadow-raised: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 20px 50px -20px rgba(40, 110, 230, 0.35);
+  --shadow-button: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 6px 18px -8px rgba(59, 140, 255, 0.45);
   --font-serif: var(--font-tech), ui-sans-serif, system-ui, sans-serif;
   color-scheme: dark;
   background-color: var(--color-paper);
@@ -439,7 +440,7 @@
 
 /* So pulling past the end of a page shows the same dark. */
 :root:has(.theme-paper) body {
-  background-color: #090a12;
+  background-color: #070d17;
   background-image: none;
 }
 
@@ -450,7 +451,7 @@
 }
 
 .theme-paper header.sticky {
-  background-color: rgba(9, 10, 18, 0.92);
+  background-color: rgba(7, 13, 23, 0.92);
   border-color: var(--color-rule);
 }
 
@@ -468,22 +469,22 @@
   box-shadow: var(--shadow-card);
 }
 
-/* The next-task card: deep indigo with a violet glow from one corner. */
+/* The next-task card: deep navy with a blue glow from one corner. */
 .theme-paper .accent-surface {
-  --color-paper: #f2f3ff;
-  --color-accent: #151735;
-  background-color: #151735;
+  --color-paper: #f1f6ff;
+  --color-accent: #0c1d3a;
+  background-color: #0c1d3a;
   background-image:
-    radial-gradient(120% 140% at 100% 0%, rgba(124, 132, 248, 0.45), rgba(124, 132, 248, 0) 55%),
+    radial-gradient(120% 140% at 100% 0%, rgba(59, 140, 255, 0.45), rgba(59, 140, 255, 0) 55%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0));
-  border: 1px solid rgba(140, 148, 255, 0.28);
+  border: 1px solid rgba(90, 160, 255, 0.30);
   box-shadow: var(--shadow-raised);
 }
 .theme-paper .accent-surface .text-amber-300 {
-  color: #b9beff;
+  color: #a9cdff;
 }
 .theme-paper .accent-surface .bg-amber-300 {
-  background-color: #b9beff;
+  background-color: #a9cdff;
 }
 .theme-paper .text-amber-300 {
   color: var(--color-ice);
