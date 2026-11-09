@@ -124,7 +124,8 @@ test('the first steps save the name and cartoon, keep the programme, and go to t
   ]);
   await page.waitForLoadState('networkidle').catch(() => {});
   assert.equal(path(page), held ? '/diagnostic' : '/dashboard');
-  if (held) assert.match(await page.content(), new RegExp(FIRST_TEST));
+  // The page streams in behind its loading placeholder: wait for the text, not for the address.
+  if (held) await page.getByText(FIRST_TEST).first().waitFor({ timeout: 15000 });
 
   const { data, error } = await service()
     .from('profiles')
