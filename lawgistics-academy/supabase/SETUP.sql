@@ -64,6 +64,7 @@
 --   0054_studio_reads_via_server.sql
 --   0055_diagnostic_questions.sql
 --   0056_exams.sql
+--   0057_speech_cache.sql
 -- =============================================================================
 
 
@@ -9277,6 +9278,30 @@ alter table public.training_sessions
 comment on column public.training_sessions.exam_settings is
   'For an exam session: mode, areas, difficulty, pool, count and minutes as the learner chose them.';
 
+
+-- >>> 0057_speech_cache.sql ---------------------------------------
+
+-- =============================================================================
+-- Reading lessons and the daily fact aloud
+-- =============================================================================
+-- The owner, November 2026, with an ElevenLabs key: a "Listen" button on a
+-- lesson screen and on the daily fact. What is read is only text a lawyer has
+-- signed off for the reader, found by the server itself; the page names the
+-- thing and never sends words.
+--
+-- Each distinct text in a voice is made once and kept here, so the cost
+-- follows the amount of content, not the number of times it is played. The
+-- bucket is private with no policy for anybody (the server reads and writes
+-- it with the service role, as it does for the Studio's recordings in 0053),
+-- and holds nothing about any person: only audio of our own text.
+
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('speech', 'speech', false, 10485760, array['audio/mpeg'])
+on conflict (id) do update
+  set public = excluded.public,
+      file_size_limit = excluded.file_size_limit,
+      allowed_mime_types = excluded.allowed_mime_types;
+
 -- >>> deleted accounts refused everywhere (generated) ------------------------
 -- 0045 puts a restrictive policy refusing a deleted account on every table
 -- with Row Level Security. Run again here, after every migration, so a table
@@ -9293,7 +9318,7 @@ $$;
 -- >>> schema version (generated) ---------------------------------------------
 
 create or replace function public.schema_version()
-returns text language sql immutable set search_path = public as $$ select '0056'::text $$;
+returns text language sql immutable set search_path = public as $$ select '0057'::text $$;
 
 revoke all on function public.schema_version() from public, anon, authenticated;
 grant execute on function public.schema_version() to service_role;

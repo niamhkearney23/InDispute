@@ -24,6 +24,7 @@ import { questionsPublished, trainingOpen } from '@/lib/training/service';
 import { FirstTest } from '../diagnostic/first-test';
 import { LEVEL_MIN_ANSWERS, SKILL_LEVELS, currentSkillLevel } from '@/lib/learning/skill-level';
 import { DailyBrief } from '@/components/daily-brief';
+import { speechConfigured } from '@/lib/speech/service';
 import { getFactOfTheDay } from '@/lib/facts/service';
 import { mattersForLearner } from '@/lib/matters/service';
 import { requireAccess } from '@/lib/access/service';
@@ -472,7 +473,7 @@ export default async function DashboardPage({
           ) : null}
           {fact ? (
             <div className="sm:col-span-2 lg:col-span-1">
-              <DailyBrief fact={fact} />
+              <DailyBrief fact={fact} listen={speechConfigured()} />
             </div>
           ) : null}
         </aside>

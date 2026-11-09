@@ -192,7 +192,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0056`.
+- Migrations run to `0057`.
   `supabase/UPDATE.sql` is the one-paste update for a database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -1208,3 +1208,14 @@ decision looks strange, because most of the strange ones were deliberate.
 
 When adding anything that produces a record a firm might rely on, add a schema
 guarantee for it, and plant a deliberate error to prove the test catches it.
+
+- **Reading aloud and ElevenLabs** (`0057`, the owner, November 2026). Three
+  uses, all optional and off until the keys are set. (1) Studio transcription:
+  `STUDIO_TRANSCRIBE_PROVIDER=elevenlabs` with `ELEVENLABS_API_KEY` (Scribe);
+  never chosen by default, and the consent notice version moved to `2026-11b`
+  so people are asked again. (2) A "Listen" button on lesson steps and the daily
+  fact, served by `GET /api/speak` (signed in, with access), which needs
+  `ELEVENLABS_API_KEY` and `ELEVENLABS_VOICE_ID` (optional
+  `ELEVENLABS_TTS_MODEL`). Audio is made once and kept in the private `speech`
+  bucket (no policies, server only) keyed by a hash of the words, voice and
+  model, so cost follows the amount of content, not plays.

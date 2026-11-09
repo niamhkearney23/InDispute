@@ -61,6 +61,22 @@ export const studioEnv = {
   transcribeProvider: setting(process.env.STUDIO_TRANSCRIBE_PROVIDER),
   transcribeModel: setting(process.env.STUDIO_TRANSCRIBE_MODEL),
   groqApiKey: setting(process.env.GROQ_API_KEY),
+  // ElevenLabs transcribes only when STUDIO_TRANSCRIBE_PROVIDER names it: a
+  // key being set never changes who hears a learner's recording.
+  elevenlabsApiKey: setting(process.env.ELEVENLABS_API_KEY),
+};
+
+/**
+ * Reading lessons and the daily fact aloud (ElevenLabs). Needs the key and the
+ * voice's id (ElevenLabs, Voices, the voice's ID). What is spoken is only
+ * text a lawyer has already signed off for this reader, and each distinct
+ * text is made once and kept (src/lib/speech/service.ts), so cost follows the
+ * amount of content, not the number of listens. No learner's words are sent.
+ */
+export const speechEnv = {
+  apiKey: setting(process.env.ELEVENLABS_API_KEY),
+  voiceId: setting(process.env.ELEVENLABS_VOICE_ID),
+  model: setting(process.env.ELEVENLABS_TTS_MODEL),
 };
 
 /**

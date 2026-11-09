@@ -9,6 +9,7 @@ import { LessonPlayer } from './lesson-player';
 import { courtMapFor, lessonFor, viewerIsStaff } from '@/lib/content/service';
 import { ModuleArt, artFor } from '@/components/module-art';
 import { requireAccess } from '@/lib/access/service';
+import { speechConfigured } from '@/lib/speech/service';
 
 export const metadata: Metadata = { title: 'Module' };
 
@@ -109,6 +110,7 @@ export default async function ModulePage({
             lesson={lesson}
             diagram={diagram ? { hierarchy: diagram.item, checked: diagram.checked } : null}
             moduleSlug={definition.slug}
+            listen={speechConfigured()}
             quizLabel={
               entry.complete
                 ? 'Answer them again'

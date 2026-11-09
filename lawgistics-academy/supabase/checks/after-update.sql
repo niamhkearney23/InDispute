@@ -10,8 +10,8 @@
 
 with checks(n, what, ok) as (
   values
-  (1, 'The database is at the version the website expects (0056)',
-     (select public.schema_version()) = '0056'),
+  (1, 'The database is at the version the website expects (0057)',
+     (select public.schema_version()) = '0057'),
 
   (2, 'No question is published without a lawyer''s sign-off on its current wording',
      not exists (
@@ -180,7 +180,13 @@ with checks(n, what, ok) as (
               where t.typname = 'session_kind' and e.enumlabel = 'exam')
      and exists (select 1 from information_schema.columns
               where table_schema = 'public' and table_name = 'training_sessions'
-                and column_name = 'exam_settings'))
+                and column_name = 'exam_settings')),
+  (21, 'The spoken-audio store is private (0057)',
+     exists (select 1 from storage.buckets where id = 'speech' and not public)
+     and not exists (select 1 from pg_policies
+              where schemaname = 'storage' and tablename = 'objects'
+                and policyname not like 'erased%'
+                and coalesce(qual, '') || coalesce(with_check, '') like '%speech%'))
 )
 select n as "#", what as "check", case when ok then 'OK' else 'NOT OK' end as result
 from checks

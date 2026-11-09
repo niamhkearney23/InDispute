@@ -21,9 +21,10 @@ export type { StudioDimension };
  * whenever the notice's words change or a different company is switched on
  * for transcription or feedback, so everybody is asked again: an earlier yes
  * was to what the notice said then. 2026-11 names the transcription company
- * as configured (OpenAI or Groq) instead of always OpenAI.
+ * as configured (OpenAI or Groq) instead of always OpenAI; 2026-11b adds
+ * ElevenLabs as a company that can be named.
  */
-export const NOTICE_VERSION = '2026-11';
+export const NOTICE_VERSION = '2026-11b';
 
 export const STUDIO_BUCKET = 'studio-recordings';
 

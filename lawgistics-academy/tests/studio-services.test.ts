@@ -5,6 +5,7 @@ import { ASSESS_BUDGET_MS, AssessmentFailed, MIN_TRY_MS, assess } from '../src/l
 import {
   RecordingTooLarge,
   TRANSCRIBE_MAX_BYTES,
+  segmentsFromWords,
   transcribe,
   transcriberFor,
   type Transcriber,
@@ -148,4 +149,60 @@ test('feedback gets the time left, and a second try only when there is time for 
     assess({ provider: provider(['x', 'y']), exercise, transcript, segments: null, recordingSeconds: 20, nextOptions: [], startedAt: start, now: () => clock }),
     AssessmentFailed,
   );
+});
+
+test('ElevenLabs transcribes only when it is named, never because its key is there', () => {
+  const withKey = { ...base, elevenlabsApiKey: 'e', openaiApiKey: 'o' };
+  assert.equal(transcriberFor(withKey)!.company, 'OpenAI', 'a key alone changes nothing');
+  assert.equal(transcriberFor({ ...withKey, groqApiKey: 'g' })!.company, 'Groq');
+  const named = transcriberFor({ ...withKey, choice: 'ElevenLabs' })!;
+  assert.equal(named.company, 'ElevenLabs');
+  assert.equal(named.url, 'https://api.elevenlabs.io/v1/speech-to-text');
+  assert.equal(named.model, 'scribe_v1');
+  assert.equal(transcriberFor({ ...base, choice: 'elevenlabs', openaiApiKey: 'o' }), null, 'named, but no ElevenLabs key');
+  assert.equal(transcriberFor({ ...withKey, aiProvider: 'none', choice: 'elevenlabs' }), null, 'AI switched off');
+});
+
+test('ElevenLabs gets its own header and fields, and its words become segments with real timings', async () => {
+  const calls: Array<{ headers: Headers; form: FormData }> = [];
+  const fetchImpl = (async (_url: string, init: RequestInit) => {
+    calls.push({ headers: new Headers(init.headers), form: init.body as FormData });
+    return new Response(
+      JSON.stringify({
+        text: ' May it please the court. I appear for the claimant. ',
+        words: [
+          { text: 'May', start: 0, end: 0.2, type: 'word' },
+          { text: ' ', start: 0.2, end: 0.25, type: 'spacing' },
+          { text: 'it', start: 0.25, end: 0.4, type: 'word' },
+          { text: 'please', start: 0.4, end: 0.8, type: 'word' },
+          { text: 'the', start: 0.8, end: 0.9, type: 'word' },
+          { text: 'court.', start: 0.9, end: 1.4, type: 'word' },
+          { text: '(laughter)', start: 1.4, end: 1.8, type: 'audio_event' },
+          { text: 'I', start: 2, end: 2.1, type: 'word' },
+          { text: 'appear', start: 2.1, end: 2.5, type: 'word' },
+          { text: 'for', start: 2.5, end: 2.6, type: 'word' },
+        ],
+      }),
+    );
+  }) as unknown as typeof fetch;
+  const eleven: Transcriber = { name: 'elevenlabs', company: 'ElevenLabs', url: 'https://api.elevenlabs.io/v1/speech-to-text', model: 'scribe_v1', apiKey: 'secret' };
+  const result = await transcribe(new Blob([new Uint8Array(10)]), 'recording.webm', { fetchImpl, transcriber: eleven });
+  assert.equal(calls[0].headers.get('xi-api-key'), 'secret');
+  assert.equal(calls[0].headers.get('authorization'), null, 'not the bearer header the other two use');
+  assert.equal(calls[0].form.get('model_id'), 'scribe_v1');
+  assert.equal(result.text, 'May it please the court. I appear for the claimant.');
+  assert.deepEqual(result.segments, [
+    { start: 0, end: 1.4, text: 'May it please the court.' },
+    { start: 2, end: 2.6, text: 'I appear for' },
+  ]);
+});
+
+test('segments break at the end of a sentence or after thirty words, and never invent a timing', () => {
+  const words = Array.from({ length: 70 }, (_, i) => ({ text: `w${i}`, start: i, end: i + 0.5, type: 'word' }));
+  const segments = segmentsFromWords(words);
+  assert.equal(segments.length, 3, '30, 30 and 10');
+  assert.equal(segments[0].start, 0);
+  assert.equal(segments[1].start, 30);
+  assert.deepEqual(segmentsFromWords([{ text: 'no timing', type: 'word' }]), [], 'a word without a time is skipped');
+  assert.deepEqual(segmentsFromWords([]), []);
 });

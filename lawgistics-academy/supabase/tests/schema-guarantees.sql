@@ -4885,6 +4885,12 @@ select pg_temp.expect(
   and not exists (select 1 from pg_policies where schemaname = 'storage' and tablename = 'objects'
                    and with_check like '%studio-recordings%'),
   'the recordings bucket is private, with no policy letting anybody at it directly');
+select pg_temp.expect(
+  (select public from storage.buckets where id = 'speech') = false
+  and not exists (select 1 from pg_policies where schemaname = 'storage' and tablename = 'objects'
+                   and policyname not like 'erased%'
+                   and coalesce(qual, '') || coalesce(with_check, '') like '%speech%'),
+  'the spoken-audio bucket is private, with no policy letting anybody at it directly');
 
 select pg_temp.expect_failure(
   $$insert into public.studio_attempts (user_id, exercise_key, exercise_hash, recording_path)

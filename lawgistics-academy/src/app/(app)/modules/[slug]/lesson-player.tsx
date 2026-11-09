@@ -8,6 +8,7 @@ import type { CourtHierarchy } from '@/content/seed/court-shape';
 import { isEmbeddable } from '@/lib/lessons/embed';
 import { deliveryOrder, optionLetter } from '@/lib/learning/option-order';
 import { StartModuleButton } from '../start-module-button';
+import { ListenButton } from '@/components/listen-button';
 
 /**
  * A lesson, one screen at a time.
@@ -32,6 +33,7 @@ export function LessonPlayer({
   moduleSlug,
   quizLabel,
   preview = false,
+  listen = false,
 }: {
   lesson: SeedLesson;
   /**
@@ -44,6 +46,8 @@ export function LessonPlayer({
   quizLabel: string;
   /** Staff reading it before sign-off: no button that starts the questions. */
   preview?: boolean;
+  /** Reading aloud is switched on (ElevenLabs): a Listen button on each screen. */
+  listen?: boolean;
 }) {
   const [index, setIndex] = useState(0);
   const [guesses, setGuesses] = useState<Record<number, string>>({});
@@ -142,6 +146,15 @@ export function LessonPlayer({
 
           {showBody ? (
             <p className="text-[1.0625rem] leading-relaxed sm:text-lg">{step.body}</p>
+          ) : null}
+          {/* Only once the teaching is showing: before a guess it is hidden, and
+              reading it aloud would give it away. */}
+          {listen && showBody ? (
+            <ListenButton
+              key={index}
+              src={`/api/speak?kind=lesson&module=${encodeURIComponent(moduleSlug)}&step=${index}`}
+              className="mt-3"
+            />
           ) : null}
 
           {showBody ? (

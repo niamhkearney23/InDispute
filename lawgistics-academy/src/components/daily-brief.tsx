@@ -1,3 +1,4 @@
+import { ListenButton } from '@/components/listen-button';
 import { Pill } from '@/components/ui';
 import { JURISDICTION_LABELS, JURISDICTION_SHORT } from '@/lib/types';
 import type { DailyFact } from '@/lib/facts/service';
@@ -11,7 +12,7 @@ import type { DailyFact } from '@/lib/facts/service';
  * remember. A native disclosure, so it works without script, with a
  * keyboard, and with a screen reader announcing it as expandable.
  */
-export function DailyBrief({ fact }: { fact: DailyFact }) {
+export function DailyBrief({ fact, listen = false }: { fact: DailyFact; listen?: boolean }) {
   return (
     <details className="brief group rounded-xl border border-ink/12 bg-paper-sunk shadow-card">
       <summary className="cursor-pointer list-none rounded-xl p-5 sm:p-6 [&::-webkit-details-marker]:hidden">
@@ -39,6 +40,7 @@ export function DailyBrief({ fact }: { fact: DailyFact }) {
 
       <div className="brief-body px-5 pb-5 sm:px-6 sm:pb-6">
         <p className="text-[0.9375rem] leading-relaxed text-slate">{fact.body}</p>
+        {listen ? <ListenButton src="/api/speak?kind=fact" className="mt-3" /> : null}
 
         {fact.whyItMatters ? (
           <div className="mt-4 rounded-lg border-l-2 border-accent bg-paper px-4 py-3">
