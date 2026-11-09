@@ -1045,6 +1045,14 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
   result leads with it; Today's progress tile and Progress show it from
   every answer by area once there are 20. XP and its game levels are effort,
   not accuracy: on Progress under "Streak and XP" and on the leaderboard.
+- **The front page's pathways** (the owner, November 2026: law firms, then
+  Thomas Philip, then Litigation Trainee; and one for anyone else): three
+  cards. "On your own" (sign-up for individuals), "Law firms" (a list of
+  firms: Thomas Philip, which leads to the Litigation Trainee programme at
+  `/trainee`, and "Your firm", an email to `brand.partnersEmail` about their
+  own copy; one firm still means one deployment, so nothing here is a sign-up
+  for a firm) and "University partner". Another firm's deployment names its
+  own firm in the first row (`brand.firm`).
 - **The front page** says "In association with Thomas Philip" under the
   headline (`brand.association`, shown only under the Lawgistics name). Since October 2026 it shows the firm's own logo there in place of the
   name (`brand.associationLogo`, `public/brand/thomas-philip-lockup.png`,

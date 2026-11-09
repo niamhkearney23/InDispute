@@ -102,6 +102,12 @@ export default async function LandingPage() {
             >
               Programmes
             </a>
+            <a
+              href="#firms"
+              className="hidden min-h-11 items-center text-cream/75 hover:text-cream md:inline-flex"
+            >
+              For law firms
+            </a>
             {PARTNERS_EMAIL ? (
               <a
                 href="#universities"
@@ -255,9 +261,9 @@ export default async function LandingPage() {
               <p className="text-[0.6875rem] font-semibold tracking-[0.18em] text-mist uppercase">
                 Academy
               </p>
-              <h3 className="mt-2 font-sans text-2xl font-semibold tracking-tight">Student</h3>
+              <h3 className="mt-2 font-sans text-2xl font-semibold tracking-tight">On your own</h3>
               <p className="mt-2 text-slate">
-                Practical training on your own, for law students, interns and pupils.
+                Practical training for anyone starting out in law: students, interns and pupils.
               </p>
               {payments ? (
                 <p className="mt-3 text-sm text-slate">
@@ -290,23 +296,46 @@ export default async function LandingPage() {
               </div>
             </div>
 
-            <div className="flex flex-col rounded-xl bg-navy p-6 text-cream sm:p-7">
+            <div
+              id="firms"
+              className="flex scroll-mt-4 flex-col rounded-xl bg-navy p-6 text-cream sm:p-7"
+            >
               <p className="text-[0.6875rem] font-semibold tracking-[0.18em] text-mist uppercase">
-                Programme · Malaysia
+                Law firms
               </p>
               <h3 className="mt-2 font-sans text-2xl font-semibold tracking-tight">
-                Litigation Trainee
+                Train your own juniors
               </h3>
               <p className="mt-2 text-cream/75">
-                A structured one-month litigation programme with practising lawyers at {brand.firm}.
+                A firm gets its own copy of the Academy in its name: its welcome, policies and joining
+                checklist, its supervisors marking the work, and a progress report for each person.
               </p>
-              <Link
-                href="/trainee"
-                className="group mt-auto inline-flex min-h-12 items-center justify-between rounded-md bg-cream px-4 pt-0 text-sm font-semibold text-navy transition-colors hover:bg-white max-lg:mt-6"
-              >
-                See the programme
-                <ArrowIcon className="size-4 transition-transform group-hover:translate-x-0.5" />
-              </Link>
+              <p className="mt-6 text-xs font-medium text-cream/60">Choose a firm</p>
+              <div className="mt-2 grid gap-2">
+                {/* The firm that runs it on itself, and its programme. */}
+                <Link
+                  href="/trainee"
+                  className="group flex min-h-12 items-center justify-between gap-3 rounded-md bg-cream px-4 py-2 text-left text-sm font-semibold text-navy transition-colors hover:bg-white"
+                >
+                  <span>
+                    {brand.firm}
+                    <span className="block text-xs font-normal text-slate">Litigation Trainee programme</span>
+                  </span>
+                  <ArrowIcon className="size-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
+                </Link>
+                {PARTNERS_EMAIL ? (
+                  <a
+                    href={`mailto:${PARTNERS_EMAIL}?subject=Law%20firm%20enquiry`}
+                    className="group flex min-h-12 items-center justify-between gap-3 rounded-md border border-cream/30 px-4 py-2 text-left text-sm font-semibold transition-colors hover:border-cream/70"
+                  >
+                    <span>
+                      Your firm
+                      <span className="block text-xs font-normal text-cream/60">Talk to us about your own copy</span>
+                    </span>
+                    <ArrowIcon className="size-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
+                  </a>
+                ) : null}
+              </div>
             </div>
 
             {PARTNERS_EMAIL ? (
