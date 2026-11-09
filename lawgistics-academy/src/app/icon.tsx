@@ -1,4 +1,4 @@
-import { DEFAULT_ACCENT, brand } from '@/lib/brand';
+import { markSvg } from '@/lib/brand-mark';
 
 /**
  * The tab icon, drawn from the brand rather than checked in as a file.
@@ -16,12 +16,7 @@ export const size = { width: 32, height: 32 };
 export const contentType = 'image/svg+xml';
 
 export default function Icon() {
-  const accent = brand.accent ?? DEFAULT_ACCENT;
-
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="${brand.initial}">
-  <rect width="32" height="32" rx="6" fill="${accent}" />
-  <text x="16" y="16" fill="#f7f4ee" font-family="Georgia, 'Times New Roman', serif" font-size="20" font-weight="600" text-anchor="middle" dominant-baseline="central">${brand.initial}</text>
-</svg>`;
+  const svg = markSvg();
 
   return new Response(svg, {
     headers: {

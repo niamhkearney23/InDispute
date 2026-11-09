@@ -1219,3 +1219,11 @@ guarantee for it, and plant a deliberate error to prove the test catches it.
   `ELEVENLABS_TTS_MODEL`). Audio is made once and kept in the private `speech`
   bucket (no policies, server only) keyed by a hash of the words, voice and
   model, so cost follows the amount of content, not plays.
+
+- **Installable app and the icon** (November 2026). `src/app/manifest.ts`
+  makes the site installable (standalone, starts at `/dashboard`); icons are
+  PNGs from `/pwa-icon/{180,192,512}`, drawn by `src/lib/brand-mark.ts` (scales
+  of justice, cream and gold on the brand navy; a deployment that sets its own
+  accent keeps its own letter). The manifest and icons are outside the
+  middleware matcher so a signed-out browser can read them. No service worker
+  yet, so it needs a connection, as the site does.

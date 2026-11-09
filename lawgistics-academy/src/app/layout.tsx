@@ -36,6 +36,8 @@ export const metadata: Metadata = {
   description: OPEN_COUNTRIES.includes('AU')
     ? 'Adaptive litigation training for law students and junior lawyers: PLT students in Australia, pupils and interns in Malaysia. Train like a lawyer.'
     : 'Adaptive litigation training for law students, pupils and interns in Malaysia. Train like a lawyer.',
+  appleWebApp: { capable: true, title: brand.name, statusBarStyle: 'default' },
+  icons: { apple: '/pwa-icon/180' },
 };
 
 export const viewport: Viewport = {

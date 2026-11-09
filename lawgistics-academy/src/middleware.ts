@@ -228,6 +228,6 @@ export async function middleware(request: NextRequest) {
 // front page's video, which is for people who have not signed in yet.
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|icon$|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|icon$|manifest.webmanifest$|pwa-icon/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4)$).*)',
   ],
 };
