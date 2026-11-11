@@ -1262,3 +1262,16 @@ guarantee for it, and plant a deliberate error to prove the test catches it.
   Advocacy Studio is the next step, if the owner wants it). Modules 2 to 5
   (letter of demand, first client meeting, defence under a deadline, settlement)
   are not built.
+
+- **The chronology** (the owner, November 2026: "AI does the junior work now.
+  We train your juniors to check it"). The template for modules in four parts:
+  the task done by hand once, what an AI tool does with it, what the tool
+  missed, and what the lawyer adds. `ai-chronology-my` (`modules.ts`), its
+  lesson in `WORKED_LESSONS` (invented facts, a supply dispute and forty
+  emails), its area `checking-ai-work` in `WORKED_TASK_DOMAINS`, and 13
+  situational questions in `questions/ai-chronology-my.ts` (one tentative:
+  putting client documents into a public AI tool). It states no law (a test
+  checks), so a senior lawyer's judgement signs it off; AI-drafted and unsigned
+  like everything else, staff only until then. The other modules proposed with
+  it (client intake, vulnerable clients, plain language, when AI is wrong) are
+  not built: the owner's test is to run this one with the interns first.

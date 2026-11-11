@@ -71,6 +71,12 @@ export const DOMAINS: SeedDomain[] = [
       'One worked task from start to finish: an urgent injunction, with the law, the client, the people around the matter and what to do when the judge says no.',
   },
   {
+    slug: 'checking-ai-work',
+    name: 'Checking AI\u2019s work',
+    description:
+      'One task in four parts: a chronology built by hand once, what an AI tool does with it, what the tool missed, and what the lawyer adds.',
+  },
+  {
     slug: 'plain-language',
     name: 'Plain-language communication',
     description:
@@ -135,7 +141,7 @@ export const PRACTICE_SKILL_DOMAINS = [
  * knowledge areas. Left out of the diagnostic and, like the practice skills,
  * Malaysian only.
  */
-export const WORKED_TASK_DOMAINS = ['urgent-applications'] as const;
+export const WORKED_TASK_DOMAINS = ['urgent-applications', 'checking-ai-work'] as const;
 
 /** Every area the diagnostic does not draw on. */
 export const NOT_KNOWLEDGE_DOMAINS: readonly string[] = [...PRACTICE_SKILL_DOMAINS, ...WORKED_TASK_DOMAINS];
@@ -240,6 +246,10 @@ export const CONCEPTS: SeedConcept[] = [
   { slug: 'rules-of-court-2012', domain: 'civil-procedure', name: 'Rules of Court 2012', description: 'The unified rules governing civil procedure in the Malaysian courts.' },
   { slug: 'evidence-act-1950', domain: 'evidence', name: 'Evidence Act 1950', description: 'The codified Malaysian law of evidence.' },
   // --- Practice skills --------------------------------------------------------
+  { slug: 'chronology-by-hand', domain: 'checking-ai-work', name: 'A chronology by hand', description: 'The date, what happened and the source, done yourself so that you can tell when one is wrong.' },
+  { slug: 'what-ai-does', domain: 'checking-ai-work', name: 'What the tool does', description: 'A fast, tidy first draft that nobody has checked.' },
+  { slug: 'what-ai-misses', domain: 'checking-ai-work', name: 'What the tool misses', description: 'One side\u2019s account stated as fact, guessed dates, conflicting dates, entries with no source, and what is not in the folder at all.' },
+  { slug: 'the-lawyers-check', domain: 'checking-ai-work', name: 'The lawyer\u2019s check', description: 'Opening the source, keeping client documents where the firm allows, and answering for the result.' },
   { slug: 'interim-injunction-test', domain: 'urgent-applications', name: 'The test for an interim injunction', description: 'A serious question to be tried, whether damages would be enough, and where the balance of convenience lies.' },
   { slug: 'full-frank-disclosure', domain: 'urgent-applications', name: 'Full and frank disclosure', description: 'Telling the court everything material when the other side is not there to answer, including what hurts.' },
   { slug: 'client-under-pressure', domain: 'urgent-applications', name: 'The client under pressure', description: 'Saying the hard thing plainly, and keeping a frightened client from making it worse overnight.' },

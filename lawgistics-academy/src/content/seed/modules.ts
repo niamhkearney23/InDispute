@@ -191,6 +191,22 @@ export const MODULES: SeedModule[] = [
     required: false,
     order: 5,
   },
+  {
+    slug: 'ai-chronology-my',
+    name: 'The chronology',
+    summary: 'Build one by hand, see what an AI tool makes of it, find what the tool missed, and add what only a lawyer can.',
+    rationale:
+      'Juniors used to learn judgement by doing the repeatable work: the ' +
+      'chronology, the bundle, the first draft. A tool now does much of that in ' +
+      'a minute, and somebody still has to know whether it is right. This is one ' +
+      'task in four parts: do it by hand once, see what the tool does, find what ' +
+      'it missed, and add what the lawyer adds. Choosing well here shows what ' +
+      'you know to do; your supervisor still sees how you do it.',
+    country: 'MY',
+    domains: ['checking-ai-work'],
+    required: false,
+    order: 6,
+  },
 ];
 
 export function modulesFor(country: Country): SeedModule[] {

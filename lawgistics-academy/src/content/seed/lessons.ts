@@ -431,6 +431,88 @@ export const WORKED_LESSONS: SeedLesson[] = [
       },
     ],
   },
+  // The chronology: the template for modules in four parts (the owner, November
+  // 2026): by hand once, what the tool does, what it missed, what the lawyer
+  // adds. Invented facts, no law. A DRAFT until a lawyer signs it off.
+  {
+    slug: 'ai-chronology-my-story',
+    moduleSlug: 'ai-chronology-my',
+    title: 'Forty emails by tomorrow',
+    minutes: 10,
+    country: 'MY',
+    scene: {
+      who: 'Encik Farid, an invented client, and a folder of forty emails',
+      setup:
+        'Encik Farid\u2019s company says a supplier delivered late and then stopped delivering. Your supervisor hands you a folder of forty emails, some messages and three invoices, and asks for a chronology by tomorrow. The tool the firm has approved can produce one in a minute.',
+    },
+    steps: [
+      {
+        heading: 'Do the first ten by hand',
+        guess: {
+          prompt: 'Why do the first ten documents yourself before using the tool?',
+          options: [
+            { id: 'a', text: 'Because the tool is not allowed for chronologies' },
+            { id: 'b', text: 'So you know what a right entry looks like and can check the rest' },
+            { id: 'c', text: 'Because it is quicker for only ten documents' },
+          ],
+          answer: 'b',
+        },
+        body: 'For each document write the date, who said what to whom, and where it is in the folder. It is slow, and that is the point: after ten you know the people, the dispute and what a correct entry looks like. You cannot check a chronology you could not have written.',
+        takeaway: 'Do it by hand once, so you can tell when it is wrong.',
+      },
+      {
+        heading: 'What the tool gives you',
+        guess: {
+          prompt: 'The table the tool returns looks complete. What is it at this point?',
+          options: [
+            { id: 'a', text: 'A finished chronology, ready for the partner' },
+            { id: 'b', text: 'A first draft that nobody has checked' },
+          ],
+          answer: 'b',
+        },
+        body: 'You give the rest of the folder to the firm\u2019s approved tool. In a minute it returns forty tidy rows, each with a date, an event and a source. It is faster than you and it does not get bored at row thirty. It also looks finished, which is the danger: a neat table reads as a checked one.',
+        takeaway: 'Fast and tidy is not the same as right.',
+      },
+      {
+        heading: 'What it missed',
+        guess: {
+          prompt:
+            'One row says the supplier \u201cagreed to deliver by 3 March\u201d. The source is your own client\u2019s email saying so. What is wrong with the row?',
+          options: [
+            { id: 'a', text: 'Nothing: the email is in the folder' },
+            { id: 'b', text: 'It records one side\u2019s account as if it were an agreed fact' },
+            { id: 'c', text: 'The date should be the date of the invoice' },
+          ],
+          answer: 'b',
+        },
+        body: 'Check each row against its source. Here the tool has recorded what your client said happened as if it were agreed. It has put an undated message where it guessed it belonged, without saying it guessed. And it has taken a date from an email when the invoice attached to it gives a different one.',
+        takeaway: 'Open the source for every row that matters.',
+      },
+      {
+        heading: 'What is not there',
+        guess: {
+          prompt: 'Three weeks in March have no documents at all. What do you do?',
+          options: [
+            { id: 'a', text: 'Leave it: a chronology lists what there is' },
+            { id: 'b', text: 'Note the gap and ask the client what happened then' },
+          ],
+          answer: 'b',
+        },
+        body: 'A tool lists what is in the documents. It does not notice what is missing. Between 10 and 31 March there is nothing at all, in a dispute about deliveries that were meant to be weekly. That silence may be the most important thing in the folder, and only somebody who understands the dispute will ask why.',
+        takeaway: 'Ask what should be here and is not.',
+      },
+      {
+        heading: 'What you add',
+        body: 'You mark what is alleged and what is agreed. You flag the undated message and the two dates that conflict, and you put the gap in as an entry of its own with a question for the client. Then you tell your supervisor what the tool did and what you checked, because the chronology goes out under the firm\u2019s name, not the tool\u2019s.',
+        takeaway: 'The tool drafts. You answer for it.',
+      },
+      {
+        heading: 'What you take from it',
+        body: 'Write two answers down. What did you learn about building a chronology? And what did you learn about checking work that arrives looking finished? You will be handed more of that every year, from tools and from people.',
+        takeaway: 'Checking is the skill now.',
+      },
+    ],
+  },
 ];
 
 export function lessonForModule(moduleSlug: string): SeedLesson | null {

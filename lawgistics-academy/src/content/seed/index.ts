@@ -19,6 +19,7 @@ import { ADVANCED_MY_QUESTIONS } from './questions/advanced-my';
 import { DIAGNOSTIC_MY_QUESTIONS } from './questions/diagnostic-my';
 import { PRACTICE_SKILLS_MY_QUESTIONS } from './questions/practice-skills-my';
 import { URGENT_INJUNCTION_MY_QUESTIONS } from './questions/urgent-injunction-my';
+import { AI_CHRONOLOGY_MY_QUESTIONS } from './questions/ai-chronology-my';
 import { FACTS } from './facts';
 import { COUNTRIES, JURISDICTION_COUNTRY } from '@/lib/types';
 import type { SeedQuestion } from './types';
@@ -46,6 +47,7 @@ export const QUESTIONS: SeedQuestion[] = [
   // Practice skills (the owner, November 2026): situational judgement, drafted by an AI.
   ...PRACTICE_SKILLS_MY_QUESTIONS,
   ...URGENT_INJUNCTION_MY_QUESTIONS,
+  ...AI_CHRONOLOGY_MY_QUESTIONS,
 ];
 
 export { CONCEPTS, DOMAINS, NOT_KNOWLEDGE_DOMAINS, PRACTICE_SKILL_DOMAINS, SKILLS, FACTS };
