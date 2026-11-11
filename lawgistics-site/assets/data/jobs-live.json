@@ -1,45 +1,35 @@
 {
-  "generatedDate": "2026-11-10",
+  "generatedDate": "2026-11-11",
   "jobs": [
     {
       "employer": "The Law Society of New South Wales",
-      "program": "Summer Clerkship 2027 Recruitment Program (scheme-wide dates for participating NSW employers)",
+      "program": "NSW Summer Clerkship Recruitment Program 2027 (clerkships commencing late 2027)",
       "jurisdiction": "NSW",
       "opens": "2027-06-09",
       "closes": null,
-      "notes": "Scheme opens 9:00am AEST Wed 9 June 2027 with offers from 9:00am Wed 8 September 2027; the Law Society lists two alternative closing dates (Sun 4 July and Sun 11 July 2027) depending on the employer, so a single scheme-wide close date cannot be stated — eligibility is penultimate-year students.",
+      "notes": "Scheme-wide dates for all signatory NSW firms: applications open 9:00am AEST Wed 9 June 2027, with offers from 9:00am 8 September 2027 and acceptances by 1:00pm 9 September 2027; the close date is listed as either Sunday 4 July or Sunday 11 July 2027 (11:59pm AEST) depending on the individual firm, so no single close date can be confirmed — eligibility is generally penultimate-year law students.",
       "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Clerkship-Recruitment-Program",
-      "verifiedDate": "2026-11-10"
+      "verifiedDate": "2026-11-11"
     },
     {
-      "employer": "The Law Society of New South Wales",
-      "program": "Graduate Recruitment Program 2027 (scheme-wide dates for participating NSW employers)",
+      "employer": "A&O Shearman",
+      "program": "Sydney Summer Clerkship 2027 (programme 29 Nov 2027 – 4 Feb 2028)",
       "jurisdiction": "NSW",
-      "opens": null,
-      "closes": null,
-      "notes": "The Law Society has published 2027 Graduate Recruitment Program key dates and 2027 guidelines, with the market-offer timetable beginning Monday 22 February 2027, but I could not read the full key-dates table to confirm which date is the open and which is the close, so both are left null rather than guessed.",
-      "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Graduate-Recruitment-Program",
-      "verifiedDate": "2026-11-10"
+      "opens": "2027-06-09",
+      "closes": "2027-07-11",
+      "notes": "Firm's own early careers page confirms a future window aligned to the Law Society of NSW scheme — applications open 9:00am AEST 9 June 2027 and close 11:59pm AEST 11 July 2027, interviews from early August 2027 and offers from 8 September 2027.",
+      "url": "https://careers.aoshearman.com/en/early-careers-australia",
+      "verifiedDate": "2026-11-11"
     },
     {
       "employer": "Clayton Utz",
-      "program": "Seasonal Clerkship 2027/28",
+      "program": "Seasonal Clerkship Program 2027/28",
       "jurisdiction": "National",
       "opens": null,
       "closes": null,
-      "notes": "The firm's own early-careers page states applications are currently closed and will open in June for the 2027/28 seasonal clerkship program, but gives no exact day, and state-by-state dates will follow each law society's 2027 guidelines.",
+      "notes": "The firm's seasonal clerkships page states applications are currently closed and will open in June for the 2027/28 program, but gives no exact 2027 open or close dates (per-office dates vary and follow each state Law Society/Law Institute scheme), so both fields are left null rather than guessed.",
       "url": "https://www.claytonutz.com/careers/early-careers/seasonal-clerkships",
-      "verifiedDate": "2026-11-10"
-    },
-    {
-      "employer": "Squire Patton Boggs",
-      "program": "Law Graduate Program 2027 (Sydney)",
-      "jurisdiction": "NSW",
-      "opens": null,
-      "closes": null,
-      "notes": "The firm's own careers page states applications for the 2027 Sydney law graduate program are open to final-year students commencing in February, but publishes no open or close date, so both fields are null.",
-      "url": "https://www.squirepattonboggs.com/join-us/student-and-graduate-opportunities/australia-law-graduate-program/",
-      "verifiedDate": "2026-11-10"
+      "verifiedDate": "2026-11-11"
     }
   ]
 }
