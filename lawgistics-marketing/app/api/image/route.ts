@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { guard } from "@/lib/access";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -61,6 +62,8 @@ async function generate(model: string, prompt: string, size: string, extra: Reco
 }
 
 export async function POST(req: Request) {
+  const denied = guard(req);
+  if (denied) return denied;
   if (!process.env.OPENAI_API_KEY) {
     return NextResponse.json({ error: "OPENAI_API_KEY is not set on the server." }, { status: 500 });
   }

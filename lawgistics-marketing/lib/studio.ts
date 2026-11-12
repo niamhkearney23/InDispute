@@ -634,6 +634,50 @@ export function initStudio(){
       '<span class="sep">/</span><span>'+textEsc(styleName)+'</span>'+
       '<button type="button" class="linkbtn edit" data-go="look">Change</button>';
   }
+  // The studio can be invite only. The code lives in this browser, is sent on
+  // every call that spends money, and is checked on the server: hiding the door
+  // here would protect nothing, so the real check is in lib/access.ts.
+  function storedCode(){ try{ return localStorage.getItem('lgm_access') || ''; }catch(e){ return ''; } }
+  function authHeaders(){
+    var h = {'Content-Type':'application/json'};
+    var c = storedCode();
+    if(c) h['x-access-code'] = c;
+    return h;
+  }
+  var gate = $('gate'), gateCode = $('gateCode'), gateGo = $('gateGo'), gateMsg = $('gateMsg');
+  function openGate(msg){
+    if(!gate) return;
+    gate.hidden = false;
+    document.body.classList.add('gated');
+    gateMsg.textContent = msg || '';
+    setTimeout(function(){ gateCode.focus(); }, 0);
+  }
+  function closeGate(){
+    if(!gate) return;
+    gate.hidden = true;
+    document.body.classList.remove('gated');
+  }
+  async function tryCode(code){
+    var r = await fetch('/api/access', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({code: code})});
+    return r.ok;
+  }
+  if(gateGo) gateGo.addEventListener('click', async function(){
+    var code = (gateCode.value||'').trim();
+    if(!code){ gateMsg.textContent = 'Enter the code you were given.'; return; }
+    gateGo.disabled = true; gateMsg.textContent = 'Checking…';
+    try{
+      if(await tryCode(code)){
+        try{ localStorage.setItem('lgm_access', code); }catch(e){}
+        gateCode.value = ''; closeGate();
+      } else {
+        gateMsg.textContent = 'That code was not recognised. Check it and try again.';
+      }
+    }catch(e){ gateMsg.textContent = 'Could not reach the studio. Check your connection.'; }
+    gateGo.disabled = false;
+  });
+  if(gateCode) gateCode.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); gateGo.click(); } });
+
   // Which model writes the post. The browser only ever names one; the keys
   // stay on the server. The control appears at all only when the server says
   // both are available, so it is never a dead switch.
@@ -650,6 +694,13 @@ export function initStudio(){
     try{
       var r = await fetch('/api/setup');
       var d = await r.json();
+      if(d && d.accessRequired){
+        var have = storedCode();
+        if(!have || !(await tryCode(have))){
+          if(have){ try{ localStorage.removeItem('lgm_access'); }catch(e){} }
+          openGate(have ? 'That code no longer works. Enter a current one.' : '');
+        }
+      }
       state.bothModels = !!(d && d.keys && d.keys.anthropic && d.keys.openai);
       if(!state.bothModels && d && d.writingWith && d.writingWith!=='nothing') state.provider = d.writingWith;
       renderModelPick();
@@ -961,7 +1012,7 @@ export function initStudio(){
     var index = state.activeIndex;
     setPhotoStatus(mode==='design' ? 'Designing in your colours. About 20 seconds.' : 'Generating. About 20 seconds.', 'busy');
     try{
-      var res = await fetch('/api/image', {method:'POST', headers:{'Content-Type':'application/json'},
+      var res = await fetch('/api/image', {method:'POST', headers:authHeaders(),
         body: JSON.stringify({prompt: prompt, mode: mode, colours: {navy: state.brand.navy, accent: state.brand.accent, cream: state.brand.cream}})});
       var data = await res.json();
       if(!res.ok) throw new Error(data && data.error ? data.error : 'request failed');
@@ -988,7 +1039,7 @@ export function initStudio(){
     wrap.classList.add('busy');
     status.textContent = 'Rewriting…'; status.className = 'refinestatus busy';
     try{
-      var res = await fetch('/api/refine', {method:'POST', headers:{'Content-Type':'application/json'},
+      var res = await fetch('/api/refine', {method:'POST', headers:authHeaders(),
         body: JSON.stringify({field: field, text: slide[field], instruction: instruction,
           voiceSample: state.brand.voice || '', audience: state.brand.audience || ''})});
       var data = await res.json();
@@ -1318,8 +1369,9 @@ export function initStudio(){
       if(fromAsk && state.sameAsLast && state.lastPattern && state.lastPattern.length) payload.pattern = state.lastPattern;
       if(Array.isArray(state.approved) && state.approved.length) payload.approved = state.approved.slice(-6);
       if(state.bothModels) payload.provider = providerChoice();
-      var res = await fetch('/api/draft', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+      var res = await fetch('/api/draft', {method:'POST', headers:authHeaders(), body: JSON.stringify(payload)});
       var data = await res.json();
+      if(res.status===401){ try{ localStorage.removeItem('lgm_access'); }catch(e){} openGate('Enter your access code to continue.'); }
       if(!res.ok) throw new Error(data && data.error ? data.error : 'request failed');
       var n = applyDraft(data.draft, revising);
       pending.text = revising

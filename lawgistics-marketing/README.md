@@ -165,3 +165,29 @@ Environments → Production**):
 - `app/globals.css`: the dark studio chrome plus the house-style slide CSS,
   ported verbatim from `tools/carousel/house-style.py`.
 - `public/fonts/`: Playfair Display and TikTok Sans, self-hosted.
+
+## Opening the studio to other people (access codes)
+
+Every post a visitor makes is paid for by your OpenAI and Anthropic accounts, so
+the three routes that spend money (`/api/draft`, `/api/refine`, `/api/image`) can
+be put behind access codes.
+
+Set one variable in the hosting dashboard:
+
+```
+ACCESS_CODES = anna-2026, bruce-9, founding-firm-3
+```
+
+- One code per firm or per person. Remove a code from the list to revoke just
+  that one. A revoked code stops working on the person's next click, and the
+  studio asks them for a current one rather than failing silently.
+- **Unset, the gate is off** and the studio is open to anyone with the link, so
+  setting this up can never lock you out. `/api/setup` shows `accessRequired`
+  and says so in its notes.
+- The check is on the server (`lib/access.ts`). The box in the browser is only
+  the way in, not the lock.
+- Codes are compared in constant time and are never returned by any endpoint.
+- Changing the variable needs a redeploy to take effect.
+
+This stops strangers. It does not cap what a code holder spends, so also set a
+monthly spend limit in the OpenAI and Anthropic dashboards.
