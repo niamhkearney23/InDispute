@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { pickProvider, resolveOpenAIModel } from "@/lib/provider";
+import { accessRequired } from "@/lib/access";
 
 export const runtime = "nodejs";
 
@@ -31,6 +32,12 @@ export async function GET() {
   if (pinned === "anthropic" && !hasAnthropic) {
     notes.push("DRAFT_PROVIDER is anthropic but ANTHROPIC_API_KEY is missing, so drafting will fail.");
   }
+  if (!accessRequired()) {
+    notes.push(
+      "The studio is open to anyone with the link, and every post they make is paid for by your model accounts. " +
+        "Set ACCESS_CODES to a comma separated list of codes to make it invite only.",
+    );
+  }
   if (!hasOpenAI) {
     notes.push("Photos and generated backgrounds need OPENAI_API_KEY and are off without it.");
   }
@@ -43,6 +50,7 @@ export async function GET() {
       draftProvider: pinned || "(not pinned)",
       writingWith: writing || "nothing",
       imagesAvailable: hasOpenAI,
+      accessRequired: accessRequired(),
       openaiModel,
       notes,
       deployedCommit: (process.env.VERCEL_GIT_COMMIT_SHA || "").slice(0, 7) || "(unknown)",

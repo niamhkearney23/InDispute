@@ -452,6 +452,32 @@ export default function Page() {
         </section>
       </div>
 
+      {/* Invite only studios open on this. It is hidden unless the server says a
+          code is required, and the real check is on the server either way. */}
+      <div className="gate" id="gate" hidden role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+        <div className="gatecard">
+          <p className="gatekicker">Lawgistics Marketing</p>
+          <h2 id="gateTitle">
+            This studio is <em>invite only.</em>
+          </h2>
+          <p className="gatecopy">
+            Enter the access code you were given. It opens the studio on this device and stays until you clear your
+            browser.
+          </p>
+          <div className="field">
+            <label htmlFor="gateCode">Access code</label>
+            <input type="text" id="gateCode" autoComplete="off" autoCapitalize="off" spellCheck={false} maxLength={200} />
+          </div>
+          <p className="gatemsg" id="gateMsg" role="status"></p>
+          <button className="btn btn-accent" id="gateGo" type="button">
+            Open the studio
+          </button>
+          <p className="gatefoot">
+            No code? <a href="/firms#book">Ask for one</a>
+          </p>
+        </div>
+      </div>
+
       <div style={{ position: "fixed", left: -99999, top: 0 }} id="exportStage"></div>
       <div className="toast" id="toast"></div>
     </>

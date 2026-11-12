@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { guard } from "@/lib/access";
 import { draftText, pickProvider } from "@/lib/provider";
 
 export const runtime = "nodejs";
@@ -19,6 +20,8 @@ const FIELD_RULES: Record<string, string> = {
 };
 
 export async function POST(req: Request) {
+  const denied = guard(req);
+  if (denied) return denied;
   const provider = pickProvider(null);
   if (!provider) {
     return NextResponse.json(

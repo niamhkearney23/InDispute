@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { guard } from "@/lib/access";
 import { draftText, pickProvider } from "@/lib/provider";
 
 export const runtime = "nodejs";
@@ -264,6 +265,8 @@ const ART_DIRECTION =
   "every single time, and a post that is just about chocolate is allowed to be just about chocolate.";
 
 export async function POST(req: Request) {
+  const denied = guard(req);
+  if (denied) return denied;
   let body: { topic?: unknown; voiceSample?: unknown; current?: unknown; brand?: unknown; format?: unknown; pattern?: unknown; approved?: unknown; provider?: unknown };
   try {
     body = await req.json();
