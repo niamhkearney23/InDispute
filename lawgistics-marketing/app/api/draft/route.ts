@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { guard } from "@/lib/access";
+import { getContext } from "@/lib/firm/auth";
+import { refundDraft, reserveDraft } from "@/lib/firm/quota";
 import { draftText, pickProvider } from "@/lib/provider";
 
 export const runtime = "nodejs";
@@ -265,7 +267,7 @@ const ART_DIRECTION =
   "every single time, and a post that is just about chocolate is allowed to be just about chocolate.";
 
 export async function POST(req: Request) {
-  const denied = guard(req);
+  const denied = await guard(req);
   if (denied) return denied;
   let body: { topic?: unknown; voiceSample?: unknown; current?: unknown; brand?: unknown; format?: unknown; pattern?: unknown; approved?: unknown; provider?: unknown };
   try {
@@ -345,10 +347,31 @@ export async function POST(req: Request) {
 
   const prompt = buildPrompt(topic, voiceSample, current, brand, format, pattern, approved);
 
+  // A signed in firm member has a monthly allowance of new posts. Revising an
+  // existing draft (current is set) is free. Solo users have no ctx and skip this.
+  let slot: number | null = null;
+  const ctx = await getContext(req).catch(() => null);
+  if (ctx && !current) {
+    const res = await reserveDraft(ctx);
+    if (!res.ok) {
+      return NextResponse.json(
+        {
+          error: `You have used all ${res.quota} posts for this month. Your allowance renews on the 1st, or ask your firm admin to raise it.`,
+          quotaReached: true,
+          used: res.used,
+          quota: res.quota,
+        },
+        { status: 429 },
+      );
+    }
+    slot = res.id;
+  }
+
   let text: string;
   try {
     text = await draftText(provider, prompt, 8000, true);
   } catch (err) {
+    await refundDraft(slot);
     const message = err instanceof Error ? err.message : "the drafting request failed";
     return NextResponse.json({ error: message }, { status: 502 });
   }
@@ -357,6 +380,7 @@ export async function POST(req: Request) {
     const draft = extractJson(text);
     return NextResponse.json({ draft, provider });
   } catch {
+    await refundDraft(slot);
     return NextResponse.json(
       { error: "The draft came back in an unexpected shape. Try again or rephrase the topic." },
       { status: 502 },

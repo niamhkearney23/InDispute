@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { timingSafeEqual } from "crypto";
+import { getContext } from "@/lib/firm/auth";
 
 // Access codes are how the studio is opened to people without opening it to
 // everyone. Every route that spends money on a model calls guard() first.
@@ -46,8 +47,12 @@ export function codeIsValid(code: string | null | undefined): boolean {
 }
 
 /** Returns a 401 response to send back, or null when the request may proceed. */
-export function guard(req: Request): NextResponse | null {
+export async function guard(req: Request): Promise<NextResponse | null> {
+  // open studio: nothing to check, exactly as before
+  if (!accessRequired()) return null;
   if (codeIsValid(req.headers.get("x-access-code"))) return null;
+  // a signed in firm member needs no code: their account is their key
+  if (await getContext(req).catch(() => null)) return null;
   return NextResponse.json(
     { error: "This studio is invite only. Enter your access code to continue.", needsCode: true },
     { status: 401 },

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { pickProvider, resolveOpenAIModel } from "@/lib/provider";
 import { accessRequired } from "@/lib/access";
+import { firmStatus } from "@/lib/firm/db";
 
 export const runtime = "nodejs";
 
@@ -51,6 +52,10 @@ export async function GET() {
       writingWith: writing || "nothing",
       imagesAvailable: hasOpenAI,
       accessRequired: accessRequired(),
+      firm: (() => {
+        const f = firmStatus();
+        return f.ok ? { configured: true } : { configured: false, reason: f.reason };
+      })(),
       openaiModel,
       notes,
       deployedCommit: (process.env.VERCEL_GIT_COMMIT_SHA || "").slice(0, 7) || "(unknown)",
