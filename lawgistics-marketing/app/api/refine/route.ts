@@ -20,7 +20,7 @@ const FIELD_RULES: Record<string, string> = {
 };
 
 export async function POST(req: Request) {
-  const denied = guard(req);
+  const denied = await guard(req);
   if (denied) return denied;
   const provider = pickProvider(null);
   if (!provider) {
