@@ -191,3 +191,97 @@ ACCESS_CODES = anna-2026, bruce-9, founding-firm-3
 
 This stops strangers. It does not cap what a code holder spends, so also set a
 monthly spend limit in the OpenAI and Anthropic dashboards.
+
+## Firm workspaces (profiles, a shared brand, approval, usage)
+
+This is what turns the solo studio into something a firm can use together. Each
+lawyer has their own profile, the firm has one locked brand, posts are reviewed
+before they can be saved, and whoever runs marketing can see usage.
+
+It is the only part of the app that stores anything, so it needs a database.
+**If it is not configured, none of it appears and the solo studio behaves exactly
+as before.**
+
+### Setting it up
+
+1. **Create a Postgres database.** Neon, Supabase and Vercel Postgres all work and
+   all give you a plain connection string. Use the pooled one if there is a choice.
+2. **Add three settings** in the hosting dashboard (Vercel: Settings, Environment
+   Variables), then redeploy:
+
+   | Setting | What it is |
+   |---|---|
+   | `DATABASE_URL` | the Postgres connection string |
+   | `SESSION_SECRET` | 32 or more random characters. Generate with `openssl rand -base64 32` |
+   | `OWNER_KEY` | 24 or more random characters, only you hold it. Same way to generate |
+
+   The tables create themselves on first use. There is nothing to run.
+3. **Check it.** Open `/api/setup`. `firm.configured` should read `true`. If not,
+   `firm.reason` says what is missing.
+4. **Create the first firm.** Open `/owner`, enter your `OWNER_KEY`, give the firm
+   a name and its first admin's name. You get an invite code **once**.
+5. **Send the admin their invite** (the code, or the link, which has the code
+   after a `#` so it never reaches a server log). They open it, sign in, and land
+   on `/team`.
+
+If a firm ever loses its only admin, `/owner` has "Add an admin" for that firm.
+
+### How it works for a firm
+
+- **Signing in** is by one-time invite code, so there is no email system and no
+  passwords. An admin adds a person and sends them the code. A code works once and
+  expires after 14 days. A lost phone: switch the person off, then issue a new invite.
+  A switched off person is signed out on their very next request.
+- **The firm brand** (colours, fonts, layout style, footer note) is set by an admin
+  on `/team`. Lawyers cannot change it. That is what makes it a firm brand.
+- **Approval** can be on or off per firm. On, a lawyer's post goes to the review
+  queue, and the studio will not save or copy it until a reviewer approves it.
+  **Any edit after approval sends it back to draft**, and a reviewer's decision
+  names the exact revision they read, so nobody can approve words that changed
+  underneath them.
+- **The allowance** is a monthly count of *new* posts per lawyer (revising is free),
+  counted in Sydney time, set by the admin. `0` means no limit. A failed model call
+  gives the slot back.
+
+### What it does not do, said plainly
+
+- **Approval is a process, not a lock.** The slides are drawn in the browser, so
+  someone determined can screenshot the preview. What it does is stop this app
+  saving or copying a post nobody approved. The sales page says the same.
+- **Invites are not emailed.** The admin sends them.
+- **No billing inside the app.**
+- **A stored post is capped at about 3.5MB**, so a post with several AI photos can be
+  too large to submit. The studio says so.
+- The allowance is a hard limit only if the studio is closed to people without an
+  account. Set `ACCESS_CODES` as well, otherwise someone can call `/api/draft`
+  without signing in and not be counted.
+
+### What is stored
+
+For a firm workspace: the firm's name and brand, each person's name, role and
+profile (including the writing sample they chose to give), the posts they submit
+for review, and a count of drafts per person per month. Invite codes are stored as
+a hash only. Nothing is stored for someone using the studio on their own: that
+stays in their browser. What a lawyer types is sent to the AI provider to write the
+post, as with any AI tool.
+
+### Security notes
+
+Every route that touches firm data takes the firm from the signed session and never
+from the request, and every query is scoped to it, so another firm's valid id is a
+plain 404. Request bodies are shaped by closed allow lists before they are stored or
+drawn. Mutating requests with a foreign `Origin` are refused. Sessions are signed
+cookies (HttpOnly, SameSite=Lax, Secure over https) that are re-checked against the
+database on every request.
+
+### Tests
+
+The firm layer was tested against a real Postgres wire protocol with the real `pg`
+driver: tenant isolation, forged, expired and wrongly signed sessions, forged
+origins, the approval rules, people management, the allowance across a month
+boundary, the layer switched off, and the access gate combined with accounts. The
+interface was driven end to end in a browser with an owner, an admin and a lawyer.
+One honest limit: the test database runs every connection on one shared backend, so
+it proves the logic but cannot demonstrate two requests racing across real
+connections. The allowance's correctness under true parallelism rests on a row lock
+on the member, which is the standard fix and was reasoned, not exercised.

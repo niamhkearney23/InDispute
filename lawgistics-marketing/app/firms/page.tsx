@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./firms.css";
 import { SLIDES } from "./slides";
 import { BrandControl, Deck, RevealScript } from "./interactive";
+import { firmStatus } from "@/lib/firm/db";
 
 export const metadata: Metadata = {
   title: "Lawgistics Marketing for firms",
@@ -14,7 +15,14 @@ export const metadata: Metadata = {
 const BOOK = "#book";
 
 
+// The claims below depend on whether the firm layer (database, accounts, approval) is
+// actually switched on for this deployment, so the page decides at request time rather
+// than relying on someone remembering to edit the copy. Off, it says what it always said:
+// the firm layer is the pilot. On, it says what is now true, and no more.
+export const dynamic = "force-dynamic";
+
 export default function FirmsPage() {
+  const live = firmStatus().ok;
   return (
     <div className="firms">
       <RevealScript />
@@ -25,9 +33,16 @@ export default function FirmsPage() {
             <span className="lname">Lawgistics</span>
             <span className="lsuffix">Marketing</span>
           </a>
-          <a className="barlink" href={BOOK}>
-            Book a demo
-          </a>
+          <div className="barlinks">
+            {live ? (
+              <a className="barlink quiet" href="/join">
+                Sign in
+              </a>
+            ) : null}
+            <a className="barlink" href={BOOK}>
+              Book a demo
+            </a>
+          </div>
         </div>
       </header>
 
@@ -146,7 +161,9 @@ export default function FirmsPage() {
         <section>
           <div className="fwrap">
             <p className="eyebrow">Plain about what is built</p>
-            <h2 className="serif">What works today, and what the pilot is for.</h2>
+            <h2 className="serif">
+              {live ? "What works today, and what does not yet." : "What works today, and what the pilot is for."}
+            </h2>
             <div className="ledger" data-reveal>
               <div className="fcol now">
                 <p className="fcolhead">Working now</p>
@@ -158,21 +175,40 @@ export default function FirmsPage() {
                   <li>Plain language changes: shorter, bolder, less corporate</li>
                   <li>Download the slides, copy the post text</li>
                   <li>Nothing publishes automatically, ever</li>
+                  {live ? (
+                    <>
+                      <li>A separate profile for each lawyer, with their own voice</li>
+                      <li>One firm brand, set once by an admin and locked for everyone else</li>
+                      <li>Review before saving: a post cannot be saved or copied until a reviewer approves it, and any edit sends it back</li>
+                      <li>A monthly allowance per lawyer, and usage visible to whoever runs marketing</li>
+                    </>
+                  ) : null}
                 </ul>
               </div>
               <div className="fcol soon">
-                <p className="fcolhead">What founding firms are building with us</p>
+                <p className="fcolhead">{live ? "Not built yet" : "What founding firms are building with us"}</p>
                 <ul>
-                  <li>A separate profile for each lawyer in the firm</li>
-                  <li>One brand shared across every profile</li>
-                  <li>Central review and approval before a post leaves the firm</li>
-                  <li>Usage visible to whoever runs marketing</li>
+                  {live ? (
+                    <>
+                      <li>Invites are sent by your admin, not emailed by us</li>
+                      <li>Signing in with a Google or Microsoft work account</li>
+                      <li>Billing and invoices inside the app</li>
+                    </>
+                  ) : (
+                    <>
+                      <li>A separate profile for each lawyer in the firm</li>
+                      <li>One brand shared across every profile</li>
+                      <li>Central review and approval before a post leaves the firm</li>
+                      <li>Usage visible to whoever runs marketing</li>
+                    </>
+                  )}
                 </ul>
               </div>
             </div>
             <p className="ledgernote">
-              Today this is strong for one lawyer at a time, and a lawyer sets themselves up in about three minutes.
-              The firm layer is genuinely not finished, and we would rather you heard that here than at the demo.
+              {live
+                ? "Review is a workflow, not a lock. It stops this app saving or copying a post nobody has approved. It cannot stop someone taking a screenshot of what is on their screen, so treat it as a process your firm follows, not as security."
+                : "Today this is strong for one lawyer at a time, and a lawyer sets themselves up in about three minutes. The firm layer is genuinely not finished, and we would rather you heard that here than at the demo."}
             </p>
           </div>
         </section>
@@ -206,7 +242,15 @@ export default function FirmsPage() {
                   <i>&#10003;</i> Founding firm onboarding, with us in the room
                 </li>
                 <li>
-                  <i>&#43;</i> Central review and approval, as it is built
+                  {live ? (
+                    <>
+                      <i>&#10003;</i> Review before saving, so nothing leaves your firm unapproved
+                    </>
+                  ) : (
+                    <>
+                      <i>&#43;</i> Central review and approval, as it is built
+                    </>
+                  )}
                 </li>
               </ul>
               <a className="fbtn" href={BOOK}>
@@ -252,12 +296,31 @@ export default function FirmsPage() {
                   row or putting three slides in a row on the same background.
                 </p>
               </div>
+              {live ? (
+                <div>
+                  <h3 className="serif">Does review really stop a post leaving the firm?</h3>
+                  <p>
+                    It stops this app saving or copying one. A lawyer sees &ldquo;waiting for your reviewer&rdquo; until it is
+                    approved, and if they change a word afterwards it needs approving again. It cannot stop a screenshot, so
+                    it is a process, not a security control.
+                  </p>
+                </div>
+              ) : null}
               <div>
                 <h3 className="serif">What happens to what we type?</h3>
-                <p>
-                  Your brand settings and drafts stay in your own browser. The idea you type is sent to the AI
-                  provider to write the post, the same way any AI tool works. We keep no copy of your drafts.
-                </p>
+                {live ? (
+                  <p>
+                    What a lawyer types is sent to the AI provider to write the post, the same way any AI tool works. For
+                    a firm workspace we also store the firm brand, each lawyer&rsquo;s profile, and any post they submit
+                    for review, so a reviewer can open it. Nothing is stored for someone using the studio on their own: that
+                    stays in their own browser.
+                  </p>
+                ) : (
+                  <p>
+                    Your brand settings and drafts stay in your own browser. The idea you type is sent to the AI
+                    provider to write the post, the same way any AI tool works. We keep no copy of your drafts.
+                  </p>
+                )}
               </div>
             </div>
           </div>
