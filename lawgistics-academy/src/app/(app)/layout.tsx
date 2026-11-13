@@ -128,7 +128,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               Learn
             </NavLink>
             <NavLink href="/work" className="hidden hover:bg-paper-sunk sm:inline-flex">
-              Coach
+              Work
             </NavLink>
             {staff && profile ? (
               // Staff land on Admin Today. Set apart from the learner's own

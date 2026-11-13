@@ -134,7 +134,7 @@ export function tourSteps({
     steps.push(
       {
         key: 'work',
-        where: 'Menu: Coach',
+        where: 'Menu: Work',
         title: 'The work board',
         body: 'Real pieces of work from our lawyers. Put your name on one, hand your work in, and the lawyer marks it and tells you what they would have done differently. Never upload anything that identifies a client.',
         icon: 'briefcase',

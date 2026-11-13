@@ -17,8 +17,8 @@ import { BookIcon, ChatIcon, SunIcon } from '@/components/icons';
 const ITEMS = [
   { href: '/dashboard', label: 'Today', Icon: SunIcon },
   { href: '/modules', label: 'Learn', Icon: BookIcon },
-  // The work board: what the coach sets, and what they say about it.
-  { href: '/work', label: 'Coach', Icon: ChatIcon },
+  // The work board: what the lawyers set, and what they say about it.
+  { href: '/work', label: 'Work', Icon: ChatIcon },
 ] as const;
 
 export function BottomNav() {

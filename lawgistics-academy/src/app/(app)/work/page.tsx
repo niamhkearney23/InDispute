@@ -60,9 +60,9 @@ export default async function WorkBoardPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="Coach"
-        title="From your coach"
-        description="Work set by your coaches. Put your name on a task, hand it in, and read their feedback here."
+        eyebrow="Work"
+        title="Work from your lawyers"
+        description="Work set by the lawyers supervising you. Put your name on a task, hand it in, and read their feedback here."
       />
 
       {/* Said first, because a trainee who signed themselves up and sees an

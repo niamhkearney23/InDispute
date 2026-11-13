@@ -24,7 +24,6 @@ import { questionsPublished, trainingOpen } from '@/lib/training/service';
 import { FirstTest } from '../diagnostic/first-test';
 import { LEVEL_MIN_ANSWERS, SKILL_LEVELS, currentSkillLevel } from '@/lib/learning/skill-level';
 import { DailyBrief } from '@/components/daily-brief';
-import { AskBox } from '@/components/ask-box';
 import { speechConfigured } from '@/lib/speech/service';
 import { getFactOfTheDay } from '@/lib/facts/service';
 import { mattersForLearner } from '@/lib/matters/service';
@@ -357,13 +356,13 @@ export default async function DashboardPage({
             action: 'Open Learn',
           },
           {
-            title: 'Coach: assignments and feedback',
+            title: 'Work: assignments and feedback',
             text:
               profile.track === 'litigation_trainee' && !profile.traineeConfirmed
                 ? 'Work your coaches set, and their feedback on it. Trainee work appears once your supervisor confirms you.'
                 : 'Work your coaches set. Put your name on a task, hand it in, and read their feedback there.',
             href: '/work',
-            action: 'Open Coach',
+            action: 'Open Work',
           },
           {
             title: 'Progress: behind your picture',
@@ -472,9 +471,6 @@ export default async function DashboardPage({
               <span className="mt-2 text-sm font-medium text-periwinkle-ink">Open the programme ›</span>
             </Link>
           ) : null}
-          <div className="sm:col-span-2 lg:col-span-1">
-            <AskBox />
-          </div>
           {fact ? (
             <div className="sm:col-span-2 lg:col-span-1">
               <DailyBrief fact={fact} listen={speechConfigured()} />

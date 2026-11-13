@@ -1228,17 +1228,14 @@ guarantee for it, and plant a deliberate error to prove the test catches it.
   middleware matcher so a signed-out browser can read them. No service worker
   yet, so it needs a connection, as the site does.
 
-- **Ask a question** (`0058`, the owner, November 2026). A box on Today
-  (`src/components/ask-box.tsx`, `POST /api/ask`). Answers come only from lesson
-  steps a lawyer has signed off (never a draft, even for staff): the steps are
-  found by matching (`src/lib/ask/rules.ts`), no match means no AI is asked and
-  the person is told the lessons do not cover it. With a match, the AI may only
-  put those words into two to four sentences; the tutor's guard throws away any
-  reply stating law that is not in them, and then the lesson text itself is
-  shown. With the AI off, the lesson text is shown. Fifteen questions a day
-  (`ask_usage`: who and when only, never what was asked; a count that cannot be
-  read counts as the limit). Not yet: speaking the question (needs the
-  recording consent notice).
+- **Ask a question** (`0058`) was built and then **removed** at the owner's
+  request (November 2026: "The ask a question just looks stupid ... let's just
+  delete that"). The box, `/api/ask` and `src/lib/ask` are gone. The
+  `ask_usage` table stays in the database, empty and server only; dropping it
+  would need its own migration.
+- **"Coach" is now "Work"** in the menu (the owner: "what the hell's coach?").
+  The header, the phone's bottom menu, the tour and Today say Work; the page is
+  "Work from your lawyers". The staff role is still called coach.
 
 - **The urgent injunction** (the owner, November 2026: "The Four Intelligences
   Module", module 1 of five; the owner's own pilot plan is to build it alone and
