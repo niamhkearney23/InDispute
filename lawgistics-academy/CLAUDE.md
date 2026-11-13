@@ -192,7 +192,7 @@ screen, and text with no gutter beside it. Seven pages failed when it arrived.
 
 ## Where things stand
 
-- Migrations run to `0058`.
+- Migrations run to `0059`.
   `supabase/UPDATE.sql` is the one-paste update for a database that already exists; `SETUP.sql` is for a new one. Both are generated
   by `npm run build:sql` and a test fails if they go stale.
 - `0022` came out of an audit of what the database allowed against what the
@@ -1275,3 +1275,7 @@ guarantee for it, and plant a deliberate error to prove the test catches it.
   like everything else, staff only until then. The other modules proposed with
   it (client intake, vulnerable clients, plain language, when AI is wrong) are
   not built: the owner's test is to run this one with the interns first.
+
+- **Studio consent notice versions may end in a letter** (`0059`). The consent
+  table refused "2026-11b" (0053 allowed only YYYY-MM), so every Studio choice
+  failed with "Your choice could not be saved". Relaxed, nothing else changed.

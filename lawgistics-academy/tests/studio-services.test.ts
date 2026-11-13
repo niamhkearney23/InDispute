@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { studioExercise } from '../src/content/studio/exercises';
@@ -205,4 +207,12 @@ test('segments break at the end of a sentence or after thirty words, and never i
   assert.equal(segments[1].start, 30);
   assert.deepEqual(segmentsFromWords([{ text: 'no timing', type: 'word' }]), [], 'a word without a time is skipped');
   assert.deepEqual(segmentsFromWords([]), []);
+});
+
+test('a consent notice version the database accepts: the notice version has a letter, and 0059 allows it', () => {
+  const rules = fs.readFileSync(path.join(__dirname, '..', 'src/lib/studio/rules.ts'), 'utf8');
+  const version = /NOTICE_VERSION = '([^']+)'/.exec(rules)?.[1] ?? '';
+  assert.match(version, /^[0-9]{4}-[0-9]{2}[a-z]?$/, 'the database check refuses anything else');
+  const migration = fs.readFileSync(path.join(__dirname, '..', 'supabase/migrations/0059_notice_version_letter.sql'), 'utf8');
+  assert.match(migration, /\[a-z\]\?/);
 });

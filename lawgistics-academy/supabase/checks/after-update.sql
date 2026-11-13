@@ -10,8 +10,8 @@
 
 with checks(n, what, ok) as (
   values
-  (1, 'The database is at the version the website expects (0058)',
-     (select public.schema_version()) = '0058'),
+  (1, 'The database is at the version the website expects (0059)',
+     (select public.schema_version()) = '0059'),
 
   (2, 'No question is published without a lawyer''s sign-off on its current wording',
      not exists (
@@ -196,7 +196,12 @@ with checks(n, what, ok) as (
                       and policyname not like 'erased%')
      and not exists (select 1 from information_schema.columns
               where table_schema = 'public' and table_name = 'ask_usage'
-                and column_name in ('question', 'answer', 'body', 'text')))
+                and column_name in ('question', 'answer', 'body', 'text'))),
+  (23, 'Studio consent notice versions may end in a letter (0059)',
+     exists (select 1 from pg_constraint c
+              where c.conrelid = 'public.studio_consents'::regclass
+                and c.conname = 'studio_consents_notice_version_check'
+                and pg_get_constraintdef(c.oid) like '%[a-z]?%'))
 )
 select n as "#", what as "check", case when ok then 'OK' else 'NOT OK' end as result
 from checks
