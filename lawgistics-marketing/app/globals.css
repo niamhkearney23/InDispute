@@ -1073,3 +1073,43 @@ body.gated{overflow:hidden;}
 .gatefoot{margin:16px 0 0;font-size:13px;color:var(--ink-faint);text-align:center;}
 .gatefoot a{color:var(--ink-soft);}
 @media (max-width:600px){.gatecard{padding:28px 22px 22px;}.gatecard h2{font-size:25px;}}
+
+/* ---- firm workspaces ---- */
+/* hold the first paint until we know whether this is a firm member, so the
+   setup screens never flash at someone who will be sent past them */
+body.firmcheck .step{visibility:hidden;}
+
+.firmbar{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:11px 14px;
+  background:var(--surface-2);border:1px solid var(--border);border-radius:12px;
+  font-size:13.5px;color:var(--ink-soft);
+}
+.firmbar[hidden]{display:none;}
+.firmbar b{color:var(--ink);font-weight:600;}
+.firmbar .sep{color:var(--ink-faint);}
+.firmbar .edit{margin-left:auto;}
+.firmbar .edit + .edit{margin-left:0;}
+@media (max-width:600px){.firmbar .edit{margin-left:0;}}
+
+.approvalbox{
+  display:grid;gap:8px;margin:0 0 22px;padding:18px 20px;border-radius:14px;
+  background:var(--surface-2);border:1px solid var(--border-strong);color:var(--ink-soft);font-size:14.5px;line-height:1.5;
+}
+.approvalbox[hidden]{display:none;}
+.approvalbox b{color:var(--ink);font-size:15.5px;font-weight:600;}
+.approvalbox a{color:var(--accent-strong);}
+.approvalbox .btn{justify-self:start;margin-top:4px;}
+.approvalbox.ok{border-color:var(--accent);background:rgba(124,147,209,.14);}
+.approvalbox.ok{color:var(--ink);}
+#exportArea[hidden]{display:none;}
+
+.reviewnote{
+  display:grid;gap:4px;margin:0 0 18px;padding:14px 18px;border-radius:12px;
+  border:1px solid var(--accent);background:rgba(124,147,209,.14);font-size:14.5px;line-height:1.5;color:var(--ink);
+}
+.reviewnote[hidden]{display:none;}
+.reviewnote b{font-weight:600;}
+.reviewnote span{color:var(--ink-soft);}
+
+/* the "one post a week" strapline is the solo studio's promise, and a firm sets its own allowance */
+body.firmmode .mk-tag{display:none;}

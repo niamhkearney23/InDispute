@@ -8,7 +8,7 @@ function blankSlideBase(){
   return {dark:false, size:'md', kicker:'', statement:'', sub:'', body:'', learn:'', cite:'', swipe:false};
 }
 
-function defaultBrand(){
+export function defaultBrand(){
   return {kind:'person', style:'editorial', cream:'#EDE7DC', navy:'#171D2B', accent:'#3A5697',
     wordmark:'', role:'', field:'', audience:'', disclaimer:'',
     serif:'default', sans:'default', voice:''};
@@ -112,7 +112,7 @@ function styleClass(brand){
   return (s && s!=='editorial' && STYLE_KEYS.indexOf(s)>=0) ? ' style-'+s : '';
 }
 var loadedGoogleFonts = {};
-function ensureGoogleFont(family){
+export function ensureGoogleFont(family){
   if(!family || family==='default' || loadedGoogleFonts[family]) return;
   loadedGoogleFonts[family] = true;
   var link = document.createElement('link');
@@ -433,7 +433,7 @@ function slideInnerHtml(slide, brand){
     '<div class="content">'+inner+'</div>'+ foot +
     '</div>';
 }
-function buildCanvasEl(slide, brand){
+export function buildCanvasEl(slide, brand){
   var div = document.createElement('div');
   var ground = groundOf(slide);
   var pm = (slide.photoMode==='plain' || slide.photoMode==='card') ? slide.photoMode : 'scrim';
@@ -524,6 +524,7 @@ export function initStudio(){
   function brandKind(){ return KINDS.indexOf(state.brand.kind)>=0 ? state.brand.kind : 'person'; }
   var captionText = $('captionText'), captionOut = $('captionOut'), btnCopyCaption = $('btnCopyCaption');
   var consentCheck = $('consentCheck'), changePanel = $('changePanel'), btnChange = $('btnChange');
+  var btnLooksGood = $('btnLooksGood');
   var btnRemindWeekly = $('btnRemindWeekly'), btnAnother = $('btnAnother');
   var sameAsLast = $('sameAsLast'), sameRow = $('sameRow'), brandBar = $('brandBar');
 
@@ -574,13 +575,15 @@ export function initStudio(){
 
   function showStep(name){
     if(STEP_KEYS.indexOf(name)<0) name = 'ask';
+    // a firm member's brand is set by the firm, so the setup screens are not theirs to use
+    if(firm && (name==='you' || name==='look' || name==='voice')){ location.href = '/team'; return; }
     state.step = name;
     if(name==='ask') state.setupDone = true;
     document.querySelectorAll('.step').forEach(function(sec){
       sec.classList.toggle('active', sec.dataset.step===name);
     });
-    if(name==='review'){ renderStrip(); setTimeout(updatePreview, 0); }
-    if(name==='save'){ captionOut.value = state.caption || ''; rememberApproved(); if(state.consented) prepareBlobs(); }
+    if(name==='review'){ renderStrip(); setTimeout(updatePreview, 0); renderReviewNote(); }
+    if(name==='save'){ captionOut.value = state.caption || ''; renderApprovalGate(); rememberApproved(); if(state.consented) prepareBlobs(); }
     if(name==='look') setTimeout(renderBrandPreview, 0);
     if(name==='you') setTimeout(function(){ brandName.focus(); }, 0);
     if(name==='ask'){ renderBrandBar(); renderSameRow(); renderModelPick(); setTimeout(function(){ askInput.focus(); }, 0); }
@@ -632,7 +635,7 @@ export function initStudio(){
       '<b>'+textEsc(b.wordmark || 'No name yet')+'</b>'+
       '<span class="sep">/</span><span>'+textEsc(pal || 'Custom colours')+'</span>'+
       '<span class="sep">/</span><span>'+textEsc(styleName)+'</span>'+
-      '<button type="button" class="linkbtn edit" data-go="look">Change</button>';
+      (firm ? '<span class="hint">set by your firm</span>' : '<button type="button" class="linkbtn edit" data-go="look">Change</button>');
   }
   // The studio can be invite only. The code lives in this browser, is sent on
   // every call that spends money, and is checked on the server: hiding the door
@@ -690,11 +693,209 @@ export function initStudio(){
       b.classList.toggle('active', b.dataset.provider===providerChoice());
     });
   }
+  // ---------- firm workspaces ----------
+  // A signed in member of a firm works inside the firm's brand, and a post cannot
+  // leave until a reviewer has approved it. Everything here is inert unless
+  // /api/firm/me says there is a signed in member, so the solo studio is untouched.
+  //
+  // The approval gate is a workflow control, not a lock. The slides are drawn in
+  // the browser, so someone determined could always screenshot the preview. What
+  // it does is stop this app saving or copying a post nobody has approved.
+  var firm = null;
+  var post = {id:null, rev:0, status:null, note:'', fp:''};
+  function resetPost(){ post = {id:null, rev:0, status:null, note:'', fp:''}; state.postId = null; }
+
+  // What the reviewer would see, boiled down. If it differs from what was approved,
+  // the approval no longer applies. Only the fields that show on a slide count, so a
+  // harmless internal change cannot lock someone out of their own approved post.
+  function fingerprint(slides, caption){
+    slides = slides || state.slides; if(caption === undefined) caption = state.caption;
+    var str = slides.map(function(sl){
+      return [sl.statement,sl.sub,sl.body,sl.learn,sl.kicker,sl.cite,sl.layout,sl.ground,sl.motif,
+              sl.anchor,sl.align,sl.tag,sl.size,sl.photo ? sl.photo.length : 0].join('\u0002');
+    }).join('\u0003') + '\u0004' + (caption || '');
+    var h = 5381;
+    for(var i=0;i<str.length;i++){ h = (((h<<5)+h) + str.charCodeAt(i)) | 0; }
+    return h + ':' + str.length;
+  }
+
+  async function api(method, url, body){
+    var r = await fetch(url, {method:method, headers:{'Content-Type':'application/json'},
+      body: body===undefined ? undefined : JSON.stringify(body)});
+    var d = null; try{ d = await r.json(); }catch(e){}
+    if(r.status===401 && d && d.needsSignIn){ location.href = '/join'; throw new Error('Please sign in.'); }
+    if(!r.ok) throw new Error(d && d.error ? d.error : 'That did not work. Try again.');
+    return d;
+  }
+
+  async function loadFirm(){
+    var ctrl = new AbortController();
+    var timer = setTimeout(function(){ ctrl.abort(); }, 3000);
+    try{
+      var r = await fetch('/api/firm/me', {signal: ctrl.signal});
+      var d = await r.json();
+      if(d && d.configured && d.member){ firm = d; applyFirmBrand(); }
+    }catch(e){ firm = null; }
+    finally{ clearTimeout(timer); document.body.classList.remove('firmcheck'); }
+  }
+
+  function applyFirmBrand(){
+    var b = firm.firm.brand || {}, p = firm.member.profile || {}, base = defaultBrand();
+    state.brand = Object.assign({}, base, {
+      kind:'person', wordmark: firm.member.name, role: p.role || '', field: p.field || '',
+      audience: p.audience || '', voice: p.voice || '',
+      cream: b.cream || base.cream, navy: b.navy || base.navy, accent: b.accent || base.accent,
+      serif: b.serif || 'default', sans: b.sans || 'default', style: b.style || 'editorial',
+      disclaimer: b.disclaimer || ''
+    });
+    ensureGoogleFont(state.brand.serif); ensureGoogleFont(state.brand.sans);
+    state.setupDone = true;
+    document.body.classList.add('firmmode');
+    var top = $('btnBrandTop'); if(top) top.textContent = 'My team';
+    btnLooksGood.textContent = firm.firm.requireApproval ? 'Submit for approval' : 'Looks good';
+    // a draft already on screen picks up the firm's footer note and look
+    state.slides.forEach(function(sl){ if(!sl.citeIsReal) sl.cite = state.brand.disclaimer || ''; });
+    if(['you','look','voice'].indexOf(state.step) >= 0) state.step = 'ask';
+    renderAll(); showStep(state.step); renderFirmBar();
+    var wanted = new URLSearchParams(location.search).get('post');
+    if(wanted) openPost(wanted);
+    else if(state.postId) restorePost(state.postId);
+  }
+
+  function renderFirmBar(){
+    var bar = $('firmBar'); if(!bar) return;
+    if(!firm){ bar.hidden = true; return; }
+    var u = firm.usage;
+    bar.hidden = false;
+    bar.innerHTML =
+      '<span><b>'+textEsc(firm.member.name)+'</b> at '+textEsc(firm.firm.name)+'</span>'+
+      '<span class="sep">/</span>'+
+      '<span>'+(u.quota>0 ? u.used+' of '+u.quota+' new posts used this month' : u.used+' posts this month')+'</span>'+
+      '<a class="linkbtn edit" href="/team">My posts and team</a>'+
+      '<button type="button" class="linkbtn edit" id="btnSignOut">Sign out</button>';
+  }
+  document.addEventListener('click', async function(e){
+    if(!e.target.closest || !e.target.closest('#btnSignOut')) return;
+    try{ await fetch('/api/firm/logout', {method:'POST'}); }catch(err){}
+    // a shared computer must not keep the last person's brand or writing sample
+    try{ localStorage.removeItem('lgm_state_v1'); }catch(err){}
+    location.href = '/join';
+  });
+
+  async function restorePost(id){
+    try{
+      var d = await api('GET', '/api/firm/posts/'+encodeURIComponent(id));
+      var p = d.post;
+      if(p.member_id !== firm.member.id){ state.postId = null; return; }
+      post = {id:p.id, rev:p.rev, status:p.status, note:p.reviewer_note || '', fp: fingerprint(p.slides || [], p.caption || '')};
+      if(state.step==='save') renderApprovalGate();
+      if(state.step==='review') renderReviewNote();
+    }catch(err){ state.postId = null; }
+  }
+
+  async function openPost(id){
+    try{
+      var d = await api('GET', '/api/firm/posts/'+encodeURIComponent(id));
+      var p = d.post;
+      if(p.member_id !== firm.member.id){ showToast('That post belongs to someone else.'); return; }
+      state.slides = (p.slides || []).map(function(sl){ return Object.assign(blankSlideBase(), sl); });
+      state.caption = p.caption || ''; state.activeIndex = 0; state.consented = false;
+      state.drafted = true; state.lastTopic = p.topic || '';
+      post = {id:p.id, rev:p.rev, status:p.status, note:p.reviewer_note || '', fp:''};
+      post.fp = fingerprint(); state.postId = p.id;
+      try{ history.replaceState(null, '', location.pathname); }catch(err){}
+      renderAll();
+      showStep(p.status==='approved' || p.status==='submitted' ? 'save' : 'review');
+    }catch(err){ showToast(err.message); }
+  }
+
+  async function submitForReview(){
+    if(btnLooksGood.disabled) return;
+    var same = post.id && post.fp === fingerprint();
+    // nothing has changed since it was approved, or since it went to a reviewer
+    if(same && (post.status==='approved' || post.status==='submitted')){ showStep('save'); return; }
+    var label = btnLooksGood.textContent;
+    btnLooksGood.disabled = true; btnLooksGood.textContent = 'Saving…';
+    try{
+      var body = {topic: state.lastTopic || '', slides: state.slides, caption: state.caption || ''};
+      var d = post.id ? await api('PUT', '/api/firm/posts/'+post.id, body) : await api('POST', '/api/firm/posts', body);
+      post.id = d.post.id; state.postId = post.id;
+      var sub = await api('POST', '/api/firm/posts/'+post.id+'/submit');
+      post.status = sub.post.status; post.rev = sub.post.rev; post.note = ''; post.fp = fingerprint();
+      showToast(post.status==='approved' ? 'Ready to save.' : 'Sent for approval.');
+      showStep('save');
+    }catch(err){ showToast(err.message); }
+    finally{ btnLooksGood.disabled = false; btnLooksGood.textContent = label; }
+  }
+
+  // The heading on the save screen promises "save it and post it", which is the
+  // wrong thing to say to someone who cannot yet. Set it to match, and put it back after.
+  var saveHeadEl = document.querySelector('.step[data-step="save"] .stephead h2');
+  var saveLedeEl = document.querySelector('.step[data-step="save"] .stephead p');
+  var saveHeadOriginal = saveHeadEl ? [saveHeadEl.innerHTML, saveLedeEl.textContent] : null;
+  function setSaveHead(h, p){
+    if(!saveHeadEl) return;
+    saveHeadEl.innerHTML = h || saveHeadOriginal[0];
+    saveLedeEl.textContent = p || saveHeadOriginal[1];
+  }
+
+  // The save screen. For a solo user this does nothing at all.
+  function renderApprovalGate(){
+    var box = $('approvalBox'), area = $('exportArea');
+    if(!firm){ setSaveHead(); box.hidden = true; area.hidden = false; return; }
+    var edited = !!(post.id && post.fp && post.fp !== fingerprint());
+    var status = edited ? 'draft' : (post.status || 'draft');
+    if(status==='approved'){
+      setSaveHead();
+      area.hidden = false; box.hidden = false; box.className = 'approvalbox ok';
+      box.textContent = 'Approved. You can save it now.';
+      return;
+    }
+    area.hidden = true; box.hidden = false; box.className = 'approvalbox';
+    if(status==='submitted') setSaveHead('Sent for <em>approval.</em>', 'Your reviewer has it. You can save it as soon as it is approved.');
+    else if(status==='changes_requested') setSaveHead('Changes <em>requested.</em>', 'Make the changes, then send it again.');
+    else setSaveHead('Needs <em>approval.</em>', 'A reviewer has to approve it before it can be saved.');
+    if(status==='submitted'){
+      box.innerHTML = '<b>Waiting for your reviewer.</b><span>You can save this once it is approved. This page updates by itself, '+
+        'or find it later under <a href="/team">My posts</a>.</span>';
+    } else if(status==='changes_requested'){
+      box.innerHTML = '<b>Changes requested.</b><span>'+textEsc(post.note || 'Your reviewer asked for changes.')+'</span>'+
+        '<button type="button" class="btn btn-sm" data-go="review">Edit it</button>';
+    } else {
+      box.innerHTML = '<b>'+(edited ? 'You changed this after it was submitted.' : 'This has not been submitted yet.')+'</b>'+
+        '<span>It needs approval before it can be saved or copied.</span>'+
+        '<button type="button" class="btn btn-sm btn-accent" id="btnSubmitFromSave">Submit for approval</button>';
+    }
+  }
+  document.addEventListener('click', function(e){
+    if(e.target.closest && e.target.closest('#btnSubmitFromSave')) submitForReview();
+  });
+
+  function renderReviewNote(){
+    var n = $('reviewNote'); if(!n) return;
+    if(firm && post.status==='changes_requested' && post.note){
+      n.hidden = false; n.innerHTML = '<b>Your reviewer asked for changes</b><span>'+textEsc(post.note)+'</span>';
+    } else { n.hidden = true; }
+  }
+
+  // while a post waits on a reviewer, notice the moment it is decided
+  setInterval(async function(){
+    if(!firm || state.step!=='save' || !post.id || post.status!=='submitted') return;
+    try{
+      var d = await api('GET', '/api/firm/posts/'+post.id);
+      if(d.post.status !== post.status){
+        post.status = d.post.status; post.note = d.post.reviewer_note || '';
+        renderApprovalGate();
+        if(post.status==='approved') showToast('Approved. You can save it now.');
+      }
+    }catch(err){}
+  }, 15000);
+
   async function loadServerSetup(){
     try{
       var r = await fetch('/api/setup');
       var d = await r.json();
-      if(d && d.accessRequired){
+      if(d && d.accessRequired && !firm){
         var have = storedCode();
         if(!have || !(await tryCode(have))){
           if(have){ try{ localStorage.removeItem('lgm_access'); }catch(e){} }
@@ -1139,6 +1340,7 @@ export function initStudio(){
     saveLocal(); renderAll();
   });
   function startNewPost(){
+    resetPost();
     state.slides = [blankSlideBase()]; state.activeIndex = 0; state.caption = ''; state.consented = false;
     state.drafted = false; state.messages = [];
     editDrawer.open = false; changePanel.hidden = true; btnChange.textContent = 'Change something';
@@ -1177,6 +1379,7 @@ export function initStudio(){
     if(!changePanel.hidden) chatInput.focus();
   });
   btnAnother.addEventListener('click', function(){ startNewPost(); });
+  btnLooksGood.addEventListener('click', function(){ if(firm) submitForReview(); else showStep('save'); });
   btnRemindWeekly.addEventListener('click', function(){
     var blob = new Blob([weeklyReminderIcs()], {type:'text/calendar'});
     saveBlob('weekly-post-reminder.ics', blob);
@@ -1352,7 +1555,7 @@ export function initStudio(){
     if(!text || sending) return;
     sending = true;
     var revising = !fromAsk && state.drafted;
-    if(fromAsk){ state.messages = []; state.drafted = false; }
+    if(fromAsk){ state.messages = []; state.drafted = false; state.lastTopic = text; }
     state.messages.push({role:'user', text:text});
     var pending = {role:'bot', text: revising ? 'On it.' : 'Drafting your post. Usually under a minute.', busy:true};
     state.messages.push(pending);
@@ -1371,9 +1574,11 @@ export function initStudio(){
       if(state.bothModels) payload.provider = providerChoice();
       var res = await fetch('/api/draft', {method:'POST', headers:authHeaders(), body: JSON.stringify(payload)});
       var data = await res.json();
+      if(res.status===401 && firm){ location.href = '/join'; return; }
       if(res.status===401){ try{ localStorage.removeItem('lgm_access'); }catch(e){} openGate('Enter your access code to continue.'); }
       if(!res.ok) throw new Error(data && data.error ? data.error : 'request failed');
       var n = applyDraft(data.draft, revising);
+      if(firm && !revising){ resetPost(); firm.usage.used++; renderFirmBar(); }
       pending.text = revising
         ? 'Done. Have a look, then tell me the next change, or tick the box and save it.'
         : (n===1 ? 'Done. Your poster and your post are ready.' : 'Done. '+n+' slides and your post are ready.')+
@@ -1563,11 +1768,12 @@ export function initStudio(){
     state = {slides: exampleSlides(), activeIndex: 0, brand: defaultBrand(), caption: exampleCaption(''), consented: false,
       step: 'you', messages: [{role:'bot', text: EXAMPLE_INTRO}], drafted: false, format: 'carousel', setupDone: false};
   }
+  document.body.classList.add('firmcheck');
   ensureGoogleFont(state.brand.serif);
   ensureGoogleFont(state.brand.sans);
   syncFormat();
   renderAll();
   showStep(state.step);
-  loadServerSetup();
+  loadFirm().then(loadServerSetup);
   window.addEventListener('resize', function(){ if(state.step==='brand') renderBrandPreview(); });
 }

@@ -703,3 +703,7 @@ body:has(.firms) {
     transform: none;
   }
 }
+
+.firms .barlinks{display:flex;align-items:center;gap:22px;}
+.firms .barlink.quiet{color:var(--ink-soft);border-bottom-color:transparent;}
+.firms .barlink.quiet:hover{color:var(--plum);border-bottom-color:var(--plum);}

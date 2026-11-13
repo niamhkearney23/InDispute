@@ -40,7 +40,7 @@ export default function Page() {
             <span className="mk-tag">one post a week</span>
           </div>
           <div className="topbar-actions">
-            <button className="btn btn-sm" type="button" data-go="you">
+            <button className="btn btn-sm" type="button" data-go="you" id="btnBrandTop">
               Brand
             </button>
             <button className="btn btn-sm" id="btnNewPost" type="button">
@@ -286,6 +286,7 @@ export default function Page() {
                 </div>
               </div>
             </div>
+            <div className="firmbar" id="firmBar" hidden></div>
             <div className="brandbar" id="brandBar"></div>
             <textarea
               className="askbox"
@@ -320,6 +321,8 @@ export default function Page() {
               </h2>
               <p>Read every line. You are the one publishing it.</p>
             </div>
+
+            <div className="reviewnote" id="reviewNote" hidden role="status"></div>
 
             <div className="stage">
               <div className="previewframe">
@@ -387,7 +390,7 @@ export default function Page() {
               <button className="btn" id="btnChange" type="button">
                 Change something
               </button>
-              <button className="btn btn-accent" type="button" data-go="save">
+              <button className="btn btn-accent" type="button" id="btnLooksGood">
                 Looks good
               </button>
             </div>
@@ -404,6 +407,9 @@ export default function Page() {
               <p>Slides to your camera roll, text to your clipboard. Then paste it into LinkedIn.</p>
             </div>
 
+            <div className="approvalbox" id="approvalBox" hidden role="status"></div>
+
+            <div id="exportArea">
             <label className="consentbar" htmlFor="consentCheck">
               <input type="checkbox" id="consentCheck" />
               <span>
@@ -438,6 +444,7 @@ export default function Page() {
                   Copy post
                 </button>
               </div>
+            </div>
             </div>
 
             <div className="stepfoot">
