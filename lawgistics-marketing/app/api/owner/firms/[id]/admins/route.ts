@@ -1,5 +1,6 @@
 import { tx } from "@/lib/firm/db";
-import { INVITE_DAYS, foreignOrigin, isUuid, json, newInvite, notConfigured, readJson, sameSecret } from "@/lib/firm/auth";
+import { INVITE_DAYS, foreignOrigin, isUuid, joinUrlFor, json, newInvite, notConfigured, readJson, sameSecret } from "@/lib/firm/auth";
+import { emailNote, emailStatus, sendInviteEmail, validEmail } from "@/lib/firm/email";
 import { cleanName } from "@/lib/firm/validate";
 
 export const runtime = "nodejs";
@@ -20,25 +21,36 @@ export async function POST(req: Request, { params }: Ctx) {
 
   const { id } = await params;
   if (!isUuid(id)) return json({ error: "Not found." }, 404);
-  const body = await readJson<{ adminName?: unknown }>(req, 2_000);
+  const body = await readJson<{ adminName?: unknown; adminEmail?: unknown }>(req, 2_000);
   if (body instanceof Response) return body;
   const name = cleanName(body.adminName);
   if (!name) return json({ error: "A name is needed." }, 400);
+  const given = typeof body.adminEmail === "string" ? body.adminEmail.trim() : "";
+  const adminEmail = given ? validEmail(given) : null;
+  if (given && !adminEmail) return json({ error: "That email address does not look right." }, 400);
 
   const invite = newInvite();
   const out = await tx(async (c) => {
     const f = await c.query(`select id, name from firms where id = $1`, [id]);
     if (!f.rows[0]) return null;
     const m = await c.query(
-      `insert into members (firm_id, name, role, invite_hash, invite_expires)
-       values ($1,$2,'admin',$3, now() + ($4 || ' days')::interval) returning id, name`,
-      [id, name, invite.hash, String(INVITE_DAYS)],
+      `insert into members (firm_id, name, role, email, invite_hash, invite_expires)
+       values ($1,$2,'admin',$3,$4, now() + ($5 || ' days')::interval) returning id, name`,
+      [id, name, adminEmail, invite.hash, String(INVITE_DAYS)],
     );
     return { firm: f.rows[0], admin: m.rows[0] };
   });
   if (!out) return json({ error: "Not found." }, 404);
 
-  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "";
-  const proto = req.headers.get("x-forwarded-proto") || new URL(req.url).protocol.replace(":", "");
-  return json({ ...out, inviteCode: invite.code, joinUrl: `${proto}://${host}/join#${invite.code}`, inviteValidDays: INVITE_DAYS }, 201);
+  const joinUrl = joinUrlFor(req, invite.code);
+  let emailed: boolean | null = null;
+  let note: string | null = null;
+  if (adminEmail && emailStatus().ok) {
+    const res = await sendInviteEmail({
+      firmId: out.firm.id, firmName: out.firm.name, to: adminEmail, name, code: invite.code, joinUrl, days: INVITE_DAYS,
+    }).catch(() => ({ sent: false as const, why: "unreachable" as const }));
+    emailed = res.sent;
+    note = emailNote(res);
+  }
+  return json({ ...out, inviteCode: invite.code, joinUrl, inviteValidDays: INVITE_DAYS, emailed, emailedTo: emailed ? adminEmail : null, emailNote: note }, 201);
 }

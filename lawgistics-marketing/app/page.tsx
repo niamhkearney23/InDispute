@@ -479,8 +479,8 @@ export default function Page() {
           <button className="btn btn-accent" id="gateGo" type="button">
             Open the studio
           </button>
-          <p className="gatefoot">
-            No code? <a href="/firms#book">Ask for one</a>
+          <p className="gatefoot" id="gateAsk">
+            No code? Ask whoever invited you.
           </p>
         </div>
       </div>

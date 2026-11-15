@@ -20,6 +20,7 @@ type Me = {
   member: { id: string; name: string; role: "admin" | "lawyer"; profile: Profile };
   firm: { id: string; name: string; brand: Brand; requireApproval: boolean; monthlyQuota: number };
   usage: { used: number; quota: number };
+  emailEnabled?: boolean;
 };
 type PostRow = {
   id: string;
@@ -111,7 +112,7 @@ async function copy(text: string): Promise<boolean> {
   }
 }
 
-function InviteCard({ name, code, url, days, onClose }: { name: string; code: string; url: string; days: number; onClose: () => void }) {
+function InviteCard({ name, code, url, days, emailedTo, emailNote, onClose }: { name: string; code: string; url: string; days: number; emailedTo?: string | null; emailNote?: string | null; onClose: () => void }) {
   const [said, setSaid] = useState("");
   async function c(what: string, text: string) {
     setSaid((await copy(text)) ? `${what} copied` : "Copy it by hand from the box");
@@ -122,8 +123,11 @@ function InviteCard({ name, code, url, days, onClose }: { name: string; code: st
         Invite for <b>{name}</b>
       </p>
       <p className="tm-invite-note">
-        Shown once. It works one time and expires in {days} days. Send it to them yourself.
+        {emailedTo
+          ? `Emailed to ${emailedTo}. The code is shown here once as well, in case it does not arrive.`
+          : `Shown once. It works one time and expires in ${days} days. Send it to them yourself.`}
       </p>
+      {emailNote ? <p className="tm-invite-note tm-warn">{emailNote}</p> : null}
       <input readOnly value={code} onFocus={(e) => e.target.select()} aria-label="Invite code" className="tm-code" />
       <div className="tm-row">
         <button className="btn btn-sm" type="button" onClick={() => c("Code", code)}>
@@ -376,6 +380,7 @@ function ReviewTab({ me, refreshBadge }: { me: Me; refreshBadge: () => void }) {
 type Member = {
   id: string;
   name: string;
+  email?: string | null;
   role: "admin" | "lawyer";
   active: boolean;
   invite_pending: boolean;
@@ -385,8 +390,9 @@ type Member = {
 
 function PeopleTab({ me }: { me: Me }) {
   const [members, setMembers] = useState<Member[] | null>(null);
-  const [invite, setInvite] = useState<{ name: string; code: string; url: string; days: number } | null>(null);
+  const [invite, setInvite] = useState<{ name: string; code: string; url: string; days: number; emailedTo?: string | null; emailNote?: string | null } | null>(null);
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [role, setRole] = useState<"lawyer" | "admin">("lawyer");
   const [err, setErr] = useState("");
   const load = useCallback(() => {
@@ -399,9 +405,10 @@ function PeopleTab({ me }: { me: Me }) {
   async function add() {
     setErr("");
     try {
-      const d = await api("POST", "/api/firm/members", { name, role });
-      setInvite({ name: d.member.name, code: d.inviteCode, url: d.joinUrl, days: d.inviteValidDays });
+      const d = await api("POST", "/api/firm/members", { name, role, email: email.trim() || undefined });
+      setInvite({ name: d.member.name, code: d.inviteCode, url: d.joinUrl, days: d.inviteValidDays, emailedTo: d.emailedTo, emailNote: d.emailNote });
       setName("");
+      setEmail("");
       load();
     } catch (e: any) {
       setErr(e.message);
@@ -412,8 +419,7 @@ function PeopleTab({ me }: { me: Me }) {
     try {
       const d = await api("PATCH", `/api/firm/members/${m.id}`, body);
       if (withInvite && d.inviteCode) {
-        const host = window.location.origin;
-        setInvite({ name: m.name, code: d.inviteCode, url: `${host}/join#${d.inviteCode}`, days: d.inviteValidDays });
+        setInvite({ name: m.name, code: d.inviteCode, url: d.joinUrl || `${window.location.origin}/join#${d.inviteCode}`, days: d.inviteValidDays, emailedTo: d.emailedTo, emailNote: d.emailNote });
       }
       load();
     } catch (e: any) {
@@ -431,6 +437,12 @@ function PeopleTab({ me }: { me: Me }) {
         <div className="field">
           <label htmlFor="newName">Add someone</label>
           <input id="newName" type="text" maxLength={60} value={name} onChange={(e) => setName(e.target.value)} placeholder="Their full name" />
+        </div>
+        <div className="field">
+          <label htmlFor="newEmail">
+            Email <span className="hint">{me.emailEnabled ? "optional. the invite is sent to it" : "optional"}</span>
+          </label>
+          <input id="newEmail" type="email" maxLength={254} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@firm.com.au" autoComplete="off" />
         </div>
         <select value={role} onChange={(e) => setRole(e.target.value as any)} aria-label="Role">
           <option value="lawyer">Lawyer</option>
@@ -454,6 +466,7 @@ function PeopleTab({ me }: { me: Me }) {
                 </b>
                 <span className="hint">
                   {m.role === "admin" ? "Admin" : "Lawyer"} ·{" "}
+                  {m.email ? `${m.email} · ` : ""}
                   {!m.active ? "Switched off" : m.invite_pending ? "Has not joined yet" : "Active"} ·{" "}
                   {me.firm.monthlyQuota > 0 ? `${m.used_this_month} of ${me.firm.monthlyQuota}` : `${m.used_this_month}`} new posts this month
                 </span>
@@ -488,8 +501,8 @@ function PeopleTab({ me }: { me: Me }) {
         </ul>
       )}
       <p className="hint tm-lede">
-        An invite is how someone signs in. If a phone is lost, switch the person off and create a new invite. A switched off
-        person is signed out on their very next click.
+        An invite is how someone signs in. {me.emailEnabled ? "If you give an email address, the invite is emailed as well as shown here." : "Send each invite to them yourself."} If a phone is lost,
+        switch the person off and create a new invite. A switched off person is signed out on their very next click.
       </p>
     </div>
   );

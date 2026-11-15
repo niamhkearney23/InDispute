@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import "../team/team.css";
 
 type Firm = { id: string; name: string; people: number; posts: number; created_at: string; monthly_quota: number; require_approval: boolean };
-type Invite = { label: string; code: string; url: string; days: number };
+type Invite = { label: string; code: string; url: string; days: number; emailedTo?: string | null; emailNote?: string | null };
 
 // The platform owner's page. It is not linked from anywhere, and it does nothing
 // without OWNER_KEY. The key lives in sessionStorage only, so closing the tab
@@ -15,6 +15,7 @@ export default function OwnerPage() {
   const [firms, setFirms] = useState<Firm[] | null>(null);
   const [firmName, setFirmName] = useState("");
   const [adminName, setAdminName] = useState("");
+  const [adminEmail, setAdminEmail] = useState("");
   const [invite, setInvite] = useState<Invite | null>(null);
   const [msg, setMsg] = useState("");
   const [said, setSaid] = useState("");
@@ -64,10 +65,11 @@ export default function OwnerPage() {
   async function create() {
     setMsg("");
     try {
-      const d = await call("POST", "/api/owner/firms", key, { firmName, adminName });
-      setInvite({ label: `${d.admin.name} at ${d.firm.name}`, code: d.inviteCode, url: d.joinUrl, days: d.inviteValidDays });
+      const d = await call("POST", "/api/owner/firms", key, { firmName, adminName, adminEmail: adminEmail.trim() || undefined });
+      setInvite({ label: `${d.admin.name} at ${d.firm.name}`, code: d.inviteCode, url: d.joinUrl, days: d.inviteValidDays, emailedTo: d.emailedTo, emailNote: d.emailNote });
       setFirmName("");
       setAdminName("");
+      setAdminEmail("");
       load(key);
     } catch (e: any) {
       setMsg(e.message);
@@ -76,9 +78,10 @@ export default function OwnerPage() {
   async function addAdmin(f: Firm) {
     const name = window.prompt(`New admin for ${f.name}. Their full name:`);
     if (!name) return;
+    const mail = window.prompt("Their email, to send the invite to (leave empty to send it yourself):") || "";
     try {
-      const d = await call("POST", `/api/owner/firms/${f.id}/admins`, key, { adminName: name });
-      setInvite({ label: `${d.admin.name} at ${d.firm.name}`, code: d.inviteCode, url: d.joinUrl, days: d.inviteValidDays });
+      const d = await call("POST", `/api/owner/firms/${f.id}/admins`, key, { adminName: name, adminEmail: mail.trim() || undefined });
+      setInvite({ label: `${d.admin.name} at ${d.firm.name}`, code: d.inviteCode, url: d.joinUrl, days: d.inviteValidDays, emailedTo: d.emailedTo, emailNote: d.emailNote });
       load(key);
     } catch (e: any) {
       setMsg(e.message);
@@ -132,7 +135,12 @@ export default function OwnerPage() {
                 <p className="tm-invite-title">
                   Invite for <b>{invite.label}</b>
                 </p>
-                <p className="tm-invite-note">Shown once. It works one time and expires in {invite.days} days. Send it to them yourself.</p>
+                <p className="tm-invite-note">
+                  {invite.emailedTo
+                    ? `Emailed to ${invite.emailedTo}. The code is shown here once as well, in case it does not arrive.`
+                    : `Shown once. It works one time and expires in ${invite.days} days. Send it to them yourself.`}
+                </p>
+                {invite.emailNote ? <p className="tm-invite-note tm-warn">{invite.emailNote}</p> : null}
                 <input readOnly value={invite.code} onFocus={(e) => e.target.select()} aria-label="Invite code" className="tm-code" />
                 <div className="tm-row">
                   <button className="btn btn-sm" type="button" onClick={() => c("Code", invite.code)}>
@@ -159,6 +167,12 @@ export default function OwnerPage() {
               <div className="field">
                 <label htmlFor="an">First admin&apos;s name</label>
                 <input id="an" type="text" maxLength={60} value={adminName} onChange={(e) => setAdminName(e.target.value)} />
+              </div>
+              <div className="field">
+                <label htmlFor="ae">
+                  Their email <span className="hint">optional. sends the invite</span>
+                </label>
+                <input id="ae" type="email" maxLength={254} value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} autoComplete="off" />
               </div>
               <button className="btn btn-accent" type="button" disabled={!firmName.trim() || !adminName.trim()} onClick={create}>
                 Create firm

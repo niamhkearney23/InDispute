@@ -3,6 +3,8 @@ import "./firms.css";
 import { SLIDES } from "./slides";
 import { BrandControl, Deck, RevealScript } from "./interactive";
 import { firmStatus } from "@/lib/firm/db";
+import { bookingUrl } from "@/lib/booking";
+import { emailStatus } from "@/lib/firm/email";
 
 export const metadata: Metadata = {
   title: "Lawgistics Marketing for firms",
@@ -10,9 +12,8 @@ export const metadata: Metadata = {
     "One idea in, a post your firm would sign off. LinkedIn posts and designed carousels in each lawyer's voice, inside one firm brand.",
 };
 
-// Replace with the real booking link (Calendly, Cal.com, a form) before this
-// goes in front of anyone. Left as an anchor so a dead external link cannot ship.
-const BOOK = "#book";
+// The booking link comes from BOOKING_URL (see lib/booking.ts). Until it is set, the buttons
+// that need it are left out rather than pointing at an anchor that goes nowhere.
 
 
 // The claims below depend on whether the firm layer (database, accounts, approval) is
@@ -23,6 +24,10 @@ export const dynamic = "force-dynamic";
 
 export default function FirmsPage() {
   const live = firmStatus().ok;
+  const BOOK = bookingUrl();
+  const emailing = emailStatus().ok;
+  // opens in a new tab so a visitor does not lose their place on this page
+  const bookProps = { href: BOOK || undefined, target: "_blank", rel: "noopener noreferrer" } as const;
   return (
     <div className="firms">
       <RevealScript />
@@ -39,9 +44,11 @@ export default function FirmsPage() {
                 Sign in
               </a>
             ) : null}
-            <a className="barlink" href={BOOK}>
-              Book a demo
-            </a>
+            {BOOK ? (
+              <a className="barlink" {...bookProps}>
+                Book a demo
+              </a>
+            ) : null}
           </div>
         </div>
       </header>
@@ -60,10 +67,12 @@ export default function FirmsPage() {
                 anywhere.
               </p>
               <div className="ctas">
-                <a className="fbtn" href={BOOK}>
-                  Book a firm demo
-                </a>
-                <a className="fbtn fbtn-ghost" href="/">
+                {BOOK ? (
+                  <a className="fbtn" {...bookProps}>
+                    Book a firm demo
+                  </a>
+                ) : null}
+                <a className={BOOK ? "fbtn fbtn-ghost" : "fbtn"} href="/">
                   Try it yourself
                 </a>
               </div>
@@ -190,7 +199,7 @@ export default function FirmsPage() {
                 <ul>
                   {live ? (
                     <>
-                      <li>Invites are sent by your admin, not emailed by us</li>
+                      {!emailing ? <li>Invites are sent by your admin, not emailed by us</li> : null}
                       <li>Signing in with a Google or Microsoft work account</li>
                       <li>Billing and invoices inside the app</li>
                     </>
@@ -253,9 +262,11 @@ export default function FirmsPage() {
                   )}
                 </li>
               </ul>
-              <a className="fbtn" href={BOOK}>
-                Join the founding firm pilot
-              </a>
+              {BOOK ? (
+                <a className="fbtn" {...bookProps}>
+                  Join the founding firm pilot
+                </a>
+              ) : null}
             </div>
             <p className="lede" style={{ marginTop: 24 }}>
               More than five lawyers? We will put a plan together around the firm.
@@ -332,10 +343,12 @@ export default function FirmsPage() {
               Make your firm&rsquo;s expertise <em>impossible to overlook.</em>
             </h2>
             <div className="ctas">
-              <a className="fbtn" href={BOOK}>
-                Book a firm demo
-              </a>
-              <a className="fbtn fbtn-ghost" href="/">
+              {BOOK ? (
+                <a className="fbtn" {...bookProps}>
+                  Book a firm demo
+                </a>
+              ) : null}
+              <a className={BOOK ? "fbtn fbtn-ghost" : "fbtn"} href="/">
                 Try it yourself first
               </a>
             </div>

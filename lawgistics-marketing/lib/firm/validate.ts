@@ -56,6 +56,9 @@ const SLIDE_STRINGS: Record<string, number> = {
   photoKind: 10,
   photoMode: 10,
 };
+// a photo's identity. It survives being shrunk for storage, and a replaced photo gets a new one,
+// which is how a changed picture is told apart from the same picture stored smaller
+const PHOTO_ID = /^[a-z0-9]{0,24}$/i;
 const SLIDE_FLAGS = ["dark", "swipe", "citeIsReal", "ownKicker"];
 const MAX_PHOTO = 1_800_000;
 
@@ -68,6 +71,7 @@ export function cleanSlides(input: unknown): Record<string, unknown>[] | null {
     const slide: Record<string, unknown> = {};
     for (const [k, max] of Object.entries(SLIDE_STRINGS)) slide[k] = str(s[k], max);
     for (const k of SLIDE_FLAGS) slide[k] = !!s[k];
+    if (typeof s.photoId === "string" && PHOTO_ID.test(s.photoId)) slide.photoId = s.photoId;
     // a stored photo is shown in an <img>, so it must be an inline image and nothing else
     if (typeof s.photo === "string" && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(s.photo)) {
       if (s.photo.length > MAX_PHOTO) return null;
@@ -77,3 +81,4 @@ export function cleanSlides(input: unknown): Record<string, unknown>[] | null {
   }
   return out;
 }
+

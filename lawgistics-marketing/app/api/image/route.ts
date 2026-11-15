@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { guard } from "@/lib/access";
+import { ProviderAuthError, openaiBase, safeMessage } from "@/lib/provider";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -49,12 +50,13 @@ function buildDesignPrompt(
 }
 
 async function generate(model: string, prompt: string, size: string, extra: Record<string, unknown>) {
-  const res = await fetch("https://api.openai.com/v1/images/generations", {
+  const res = await fetch(`${openaiBase()}/v1/images/generations`, {
     method: "POST",
     headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({ model, prompt, size, n: 1, ...extra }),
   });
   const data = (await res.json().catch(() => ({}))) as { data?: { b64_json?: string }[]; error?: { message?: string } };
+  if (res.status === 401 || res.status === 403) throw new ProviderAuthError("openai");
   if (!res.ok) throw new Error(data.error?.message || `image request failed (${res.status})`);
   const b64 = data.data?.[0]?.b64_json;
   if (!b64) throw new Error("no image came back");
@@ -87,12 +89,13 @@ export async function POST(req: Request) {
     let b64: string;
     try {
       b64 = await generate("gpt-image-1", prompt, "1024x1536", { quality: "medium" });
-    } catch {
+    } catch (first) {
+      // a rejected key will be rejected again by the second model, so do not try it
+      if (first instanceof ProviderAuthError) throw first;
       b64 = await generate("dall-e-3", prompt, "1024x1792", { response_format: "b64_json", quality: "standard" });
     }
     return NextResponse.json({ image: "data:image/png;base64," + b64 });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "image generation failed";
-    return NextResponse.json({ error: message }, { status: 502 });
+    return NextResponse.json({ error: safeMessage(err, "image generation failed") }, { status: 502 });
   }
 }

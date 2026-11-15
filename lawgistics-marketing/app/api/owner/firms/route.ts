@@ -1,5 +1,6 @@
 import { q, tx } from "@/lib/firm/db";
-import { INVITE_DAYS, foreignOrigin, json, newInvite, notConfigured, readJson, sameSecret } from "@/lib/firm/auth";
+import { INVITE_DAYS, foreignOrigin, joinUrlFor, json, newInvite, notConfigured, readJson, sameSecret } from "@/lib/firm/auth";
+import { emailNote, emailStatus, sendInviteEmail, validEmail } from "@/lib/firm/email";
 import { cleanName } from "@/lib/firm/validate";
 
 export const runtime = "nodejs";
@@ -50,11 +51,14 @@ export async function POST(req: Request) {
   const denied = ownerOnly(req);
   if (denied) return denied;
 
-  const body = await readJson<{ firmName?: unknown; adminName?: unknown; monthlyQuota?: unknown; requireApproval?: unknown }>(req);
+  const body = await readJson<{ firmName?: unknown; adminName?: unknown; adminEmail?: unknown; monthlyQuota?: unknown; requireApproval?: unknown }>(req);
   if (body instanceof Response) return body;
   const firmName = cleanName(body.firmName);
   const adminName = cleanName(body.adminName);
   if (!firmName || !adminName) return json({ error: "A firm name and the first admin's name are both needed." }, 400);
+  const given = typeof body.adminEmail === "string" ? body.adminEmail.trim() : "";
+  const adminEmail = given ? validEmail(given) : null;
+  if (given && !adminEmail) return json({ error: "That email address does not look right." }, 400);
   const quota = Number.isInteger(body.monthlyQuota) ? Math.min(Math.max(body.monthlyQuota as number, 0), 500) : 4;
   const requireApproval = body.requireApproval === false ? false : true;
 
@@ -65,22 +69,32 @@ export async function POST(req: Request) {
       [firmName, requireApproval, quota],
     );
     const m = await c.query(
-      `insert into members (firm_id, name, role, invite_hash, invite_expires)
-       values ($1,$2,'admin',$3, now() + ($4 || ' days')::interval) returning id, name`,
-      [f.rows[0].id, adminName, invite.hash, String(INVITE_DAYS)],
+      `insert into members (firm_id, name, role, email, invite_hash, invite_expires)
+       values ($1,$2,'admin',$3,$4, now() + ($5 || ' days')::interval) returning id, name`,
+      [f.rows[0].id, adminName, adminEmail, invite.hash, String(INVITE_DAYS)],
     );
     return { firm: f.rows[0], admin: m.rows[0] };
   });
 
-  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "";
-  const proto = req.headers.get("x-forwarded-proto") || new URL(req.url).protocol.replace(":", "");
+  const joinUrl = joinUrlFor(req, invite.code);
+  let emailed: boolean | null = null;
+  let note: string | null = null;
+  if (adminEmail && emailStatus().ok) {
+    const res = await sendInviteEmail({
+      firmId: out.firm.id, firmName: out.firm.name, to: adminEmail, name: adminName, code: invite.code, joinUrl, days: INVITE_DAYS,
+    }).catch(() => ({ sent: false as const, why: "unreachable" as const }));
+    emailed = res.sent;
+    note = emailNote(res);
+  }
   return json({
     ...out,
     inviteCode: invite.code,
     // the code rides in the fragment so it is never sent to a server or written to a log
-    joinUrl: `${proto}://${host}/join#${invite.code}`,
+    joinUrl,
     inviteValidDays: INVITE_DAYS,
+    emailed,
+    emailedTo: emailed ? adminEmail : null,
+    emailNote: note,
     note: "This code is shown once. It works one time.",
   }, 201);
 }
-

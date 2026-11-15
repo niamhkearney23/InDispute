@@ -70,7 +70,7 @@
 }
 
 .tm-form{max-width:640px;}
-.tm-form .field input[type=text],.tm-form .field input[type=number],.tm-form .field select,.tm-form .field textarea,
+.tm-form .field input[type=text],.tm-form .field input[type=email],.tm-form .field input[type=number],.tm-form .field select,.tm-form .field textarea,
 .tm-decide .field textarea{
   font:inherit;font-size:14px;padding:9px 10px;border-radius:8px;border:1px solid var(--border);
   background:var(--bg);color:var(--ink);width:100%;
@@ -107,3 +107,5 @@
 .tm-table tr.off{opacity:.55;}
 
 .tm-list + .tm-lede{margin-top:20px;}
+
+.tm-warn{color:#E7B27B;}

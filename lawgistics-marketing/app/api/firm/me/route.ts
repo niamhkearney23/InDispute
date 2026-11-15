@@ -1,5 +1,6 @@
 import { firmStatus, q, MONTH_START_SQL } from "@/lib/firm/db";
 import { getContext, json } from "@/lib/firm/auth";
+import { emailStatus } from "@/lib/firm/email";
 
 export const runtime = "nodejs";
 
@@ -27,5 +28,6 @@ export async function GET(req: Request) {
       monthlyQuota: ctx.firm.monthlyQuota,
     },
     usage: { used: used[0]?.n ?? 0, quota: ctx.firm.monthlyQuota },
+    emailEnabled: emailStatus().ok,
   });
 }

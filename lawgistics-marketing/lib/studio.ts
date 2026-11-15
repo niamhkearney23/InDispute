@@ -712,7 +712,7 @@ export function initStudio(){
     slides = slides || state.slides; if(caption === undefined) caption = state.caption;
     var str = slides.map(function(sl){
       return [sl.statement,sl.sub,sl.body,sl.learn,sl.kicker,sl.cite,sl.layout,sl.ground,sl.motif,
-              sl.anchor,sl.align,sl.tag,sl.size,sl.photo ? sl.photo.length : 0].join('\u0002');
+              sl.anchor,sl.align,sl.tag,sl.size,sl.photo ? (sl.photoId || 'p') : ''].join('\u0002');
     }).join('\u0003') + '\u0004' + (caption || '');
     var h = 5381;
     for(var i=0;i<str.length;i++){ h = (((h<<5)+h) + str.charCodeAt(i)) | 0; }
@@ -809,6 +809,37 @@ export function initStudio(){
     }catch(err){ showToast(err.message); }
   }
 
+  // A reviewer looks at a thumbnail, so the stored copy of a photo can be lighter than the one
+  // the author exports. Full size on this device, smaller on the server, and the photo keeps its
+  // id through the change so the approval is not disturbed. Two passes: a gentle one, and a
+  // harder one only if a post with many photos is still over the limit.
+  function reencode(src, w, h, q){
+    return new Promise(function(resolve){
+      var img = new Image();
+      img.onload = function(){
+        var c = document.createElement('canvas'); c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(c.toDataURL('image/jpeg', q));
+      };
+      img.onerror = function(){ resolve(src); };
+      img.src = src;
+    });
+  }
+  async function slidesForStorage(){
+    var tiers = [[1080, 1350, .74, 150000], [810, 1012, .66, 0]];
+    var out = [];
+    for(var t=0; t<tiers.length; t++){
+      out = [];
+      for(var i=0; i<state.slides.length; i++){
+        var copy = Object.assign({}, state.slides[i]);
+        if(copy.photo && copy.photo.length > tiers[t][3]) copy.photo = await reencode(copy.photo, tiers[t][0], tiers[t][1], tiers[t][2]);
+        out.push(copy);
+      }
+      if(JSON.stringify(out).length < 3300000) break;
+    }
+    return out;
+  }
+
   async function submitForReview(){
     if(btnLooksGood.disabled) return;
     var same = post.id && post.fp === fingerprint();
@@ -817,7 +848,7 @@ export function initStudio(){
     var label = btnLooksGood.textContent;
     btnLooksGood.disabled = true; btnLooksGood.textContent = 'Saving…';
     try{
-      var body = {topic: state.lastTopic || '', slides: state.slides, caption: state.caption || ''};
+      var body = {topic: state.lastTopic || '', slides: await slidesForStorage(), caption: state.caption || ''};
       var d = post.id ? await api('PUT', '/api/firm/posts/'+post.id, body) : await api('POST', '/api/firm/posts', body);
       post.id = d.post.id; state.postId = post.id;
       var sub = await api('POST', '/api/firm/posts/'+post.id+'/submit');
@@ -901,6 +932,11 @@ export function initStudio(){
           if(have){ try{ localStorage.removeItem('lgm_access'); }catch(e){} }
           openGate(have ? 'That code no longer works. Enter a current one.' : '');
         }
+      }
+      // the gate's "ask for a code" line points at the real booking link, if there is one
+      var ask = $('gateAsk');
+      if(ask && d && typeof d.bookingUrl === 'string' && /^https:\/\//.test(d.bookingUrl)){
+        ask.innerHTML = 'No code? <a href="'+attrEsc(d.bookingUrl)+'" target="_blank" rel="noopener noreferrer">Ask for one</a>';
       }
       state.bothModels = !!(d && d.keys && d.keys.anthropic && d.keys.openai);
       if(!state.bothModels && d && d.writingWith && d.writingWith!=='nothing') state.provider = d.writingWith;
@@ -1199,6 +1235,8 @@ export function initStudio(){
   async function setSlidePhoto(index, src, kind){
     var jpeg = await toSlideJpeg(src);
     state.slides[index].photo = jpeg;
+    // a new photo is a new identity, so replacing one after approval is seen as the change it is
+    state.slides[index].photoId = Math.random().toString(36).slice(2, 12) + Date.now().toString(36);
     state.slides[index].photoKind = kind || 'photo';
     saveLocal(); renderEditor(); updatePreview(); renderStrip();
     showToast(kind==='design' ? 'Design added' : 'Photo added');
@@ -1564,6 +1602,7 @@ export function initStudio(){
     var askLabel = btnAsk.textContent;
     if(fromAsk){ btnAsk.textContent = 'Writing…'; setAskStatus('Drafting your post and slides. Usually under a minute.', 'busy'); }
     var ok = false;
+    var fellMsg = '';
     try{
       var payload = {topic:text, voiceSample: state.brand.voice || '', format: state.format==='poster' ? 'poster' : 'carousel',
         brand: {kind: brandKind(), name: state.brand.wordmark || '', field: state.brand.field || '',
@@ -1577,6 +1616,11 @@ export function initStudio(){
       if(res.status===401 && firm){ location.href = '/join'; return; }
       if(res.status===401){ try{ localStorage.removeItem('lgm_access'); }catch(e){} openGate('Enter your access code to continue.'); }
       if(!res.ok) throw new Error(data && data.error ? data.error : 'request failed');
+      if(data.fellBack){
+        fellMsg = data.provider==='anthropic'
+          ? ' ChatGPT was unavailable, so Claude wrote this one.'
+          : ' Claude was unavailable, so ChatGPT wrote this one.';
+      }
       var n = applyDraft(data.draft, revising);
       if(firm && !revising){ resetPost(); firm.usage.used++; renderFirmBar(); }
       pending.text = revising
@@ -1596,7 +1640,7 @@ export function initStudio(){
       saveLocal(); renderAll();
       if(ok){
         if(fromAsk){ askInput.value = ''; setAskStatus('', ''); showStep('review'); }
-        showToast('Drafted. Check every fact before you post.');
+        showToast('Drafted. Check every fact before you post.' + fellMsg);
       }
     }
   }
