@@ -2,6 +2,31 @@ import Anthropic from "@anthropic-ai/sdk";
 
 export type Provider = "openai" | "anthropic";
 
+export function openaiBase(): string {
+  return (process.env.OPENAI_API_BASE || "https://api.openai.com").replace(/\/+$/, "");
+}
+
+// A rejected key is not a reason to show anyone an error message. OpenAI's own wording
+// includes the last characters of the key it was sent, and that was reaching the browser.
+// An auth failure is therefore a typed error with a fixed, harmless message.
+export class ProviderAuthError extends Error {
+  provider: Provider;
+  constructor(provider: Provider) {
+    super(`The ${provider === "openai" ? "ChatGPT" : "Claude"} service rejected its access key.`);
+    this.provider = provider;
+  }
+}
+
+/** Anything that goes back to a browser passes through this first. */
+export function safeMessage(err: unknown, fallback = "the request failed"): string {
+  if (err instanceof ProviderAuthError) {
+    return `${err.message} Whoever runs this studio needs to replace it.`;
+  }
+  const raw = err instanceof Error ? err.message : fallback;
+  // belt and braces: nothing shaped like a key or a bearer token leaves the server
+  return raw.replace(/sk-[A-Za-z0-9_\-*.]{4,}/g, "[key]").replace(/Bearer\s+\S+/gi, "Bearer [key]").slice(0, 300);
+}
+
 // Either provider can write. DRAFT_PROVIDER pins one; otherwise whichever key
 // is present wins, so the app works with just one of them set.
 export function hasKey(p: Provider): boolean {
@@ -52,7 +77,7 @@ export async function resolveOpenAIModel(): Promise<string> {
   if (pinned) return pinned;
   if (cachedModel) return cachedModel;
   try {
-    const res = await fetch("https://api.openai.com/v1/models", {
+    const res = await fetch(`${openaiBase()}/v1/models`, {
       headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
     });
     const data = (await res.json()) as { data?: { id?: string }[] };
@@ -71,7 +96,7 @@ export async function resolveOpenAIModel(): Promise<string> {
 
 async function withOpenAI(prompt: string, maxTokens: number, json: boolean): Promise<string> {
   const model = await resolveOpenAIModel();
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+  const res = await fetch(`${openaiBase()}/v1/chat/completions`, {
     method: "POST",
     headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -85,6 +110,7 @@ async function withOpenAI(prompt: string, maxTokens: number, json: boolean): Pro
     choices?: { message?: { content?: string } }[];
     error?: { message?: string };
   };
+  if (res.status === 401 || res.status === 403) throw new ProviderAuthError("openai");
   if (!res.ok) throw new Error(data.error?.message || `OpenAI request failed (${res.status})`);
   const text = data.choices?.[0]?.message?.content;
   if (!text) throw new Error("OpenAI returned nothing");
@@ -93,11 +119,16 @@ async function withOpenAI(prompt: string, maxTokens: number, json: boolean): Pro
 
 async function withAnthropic(prompt: string, maxTokens: number): Promise<string> {
   const anthropic = new Anthropic();
-  const response = await anthropic.messages.create({
-    model: "claude-opus-5",
-    max_tokens: maxTokens,
-    messages: [{ role: "user", content: prompt }],
-  });
+  const response = await anthropic
+    .messages.create({
+      model: "claude-opus-5",
+      max_tokens: maxTokens,
+      messages: [{ role: "user", content: prompt }],
+    })
+    .catch((e: { status?: number }) => {
+      if (e && (e.status === 401 || e.status === 403)) throw new ProviderAuthError("anthropic");
+      throw e;
+    });
   return response.content
     .filter((b) => b.type === "text")
     .map((b) => (b as { text: string }).text)
@@ -111,4 +142,65 @@ export async function draftText(
   json = false,
 ): Promise<string> {
   return provider === "openai" ? withOpenAI(prompt, maxTokens, json) : withAnthropic(prompt, maxTokens);
+}
+
+/**
+ * Writes with the chosen provider. If that provider's key is REJECTED (401 or 403, which
+ * never costs anything) and the other one has a key, writes with the other and says so.
+ * Only an authentication failure falls back: a timeout or a busy model is not a reason to
+ * quietly spend on a different provider than the one the owner chose.
+ */
+export async function draftWithFallback(
+  first: Provider,
+  prompt: string,
+  maxTokens = 8000,
+  json = false,
+): Promise<{ text: string; provider: Provider; fellBack: boolean }> {
+  try {
+    return { text: await draftText(first, prompt, maxTokens, json), provider: first, fellBack: false };
+  } catch (err) {
+    const other: Provider = first === "openai" ? "anthropic" : "openai";
+    if (err instanceof ProviderAuthError && hasKey(other)) {
+      return { text: await draftText(other, prompt, maxTokens, json), provider: other, fellBack: true };
+    }
+    throw err;
+  }
+}
+
+// ---- are the keys actually good? ------------------------------------------------
+// /api/setup used to say a key was "set". A key can be set and wrong, which is exactly
+// what drafting failed on. This asks each provider a free question (list models) and
+// remembers the answer for five minutes so a page refresh cannot become a flood.
+
+export type KeyState = "ok" | "rejected" | "unreachable" | "absent";
+let keyCache: { at: number; value: { openai: KeyState; anthropic: KeyState } } | null = null;
+
+async function ask(url: string, headers: Record<string, string>): Promise<KeyState> {
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 5000);
+    const r = await fetch(url, { headers, signal: ctrl.signal });
+    clearTimeout(t);
+    if (r.ok) return "ok";
+    return r.status === 401 || r.status === 403 ? "rejected" : "unreachable";
+  } catch {
+    return "unreachable";
+  }
+}
+
+export async function checkKeys(): Promise<{ openai: KeyState; anthropic: KeyState }> {
+  if (keyCache && Date.now() - keyCache.at < 5 * 60_000) return keyCache.value;
+  const [openai, anthropic] = await Promise.all([
+    hasKey("openai")
+      ? ask(`${openaiBase()}/v1/models`, { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` })
+      : Promise.resolve<KeyState>("absent"),
+    hasKey("anthropic")
+      ? ask(`${(process.env.ANTHROPIC_BASE_URL || "https://api.anthropic.com").replace(/\/+$/, "")}/v1/models`, {
+          "x-api-key": process.env.ANTHROPIC_API_KEY || "",
+          "anthropic-version": "2023-06-01",
+        })
+      : Promise.resolve<KeyState>("absent"),
+  ]);
+  keyCache = { at: Date.now(), value: { openai, anthropic } };
+  return keyCache.value;
 }

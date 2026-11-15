@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { guard } from "@/lib/access";
 import { getContext } from "@/lib/firm/auth";
 import { refundDraft, reserveDraft } from "@/lib/firm/quota";
-import { draftText, pickProvider } from "@/lib/provider";
+import { draftWithFallback, pickProvider, safeMessage } from "@/lib/provider";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -368,17 +368,21 @@ export async function POST(req: Request) {
   }
 
   let text: string;
+  let used = provider;
+  let fellBack = false;
   try {
-    text = await draftText(provider, prompt, 8000, true);
+    const out = await draftWithFallback(provider, prompt, 8000, true);
+    text = out.text;
+    used = out.provider;
+    fellBack = out.fellBack;
   } catch (err) {
     await refundDraft(slot);
-    const message = err instanceof Error ? err.message : "the drafting request failed";
-    return NextResponse.json({ error: message }, { status: 502 });
+    return NextResponse.json({ error: safeMessage(err, "the drafting request failed") }, { status: 502 });
   }
 
   try {
     const draft = extractJson(text);
-    return NextResponse.json({ draft, provider });
+    return NextResponse.json({ draft, provider: used, fellBack });
   } catch {
     await refundDraft(slot);
     return NextResponse.json(

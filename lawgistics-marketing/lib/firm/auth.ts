@@ -225,6 +225,15 @@ export async function readJson<T = Record<string, unknown>>(req: Request, maxByt
   }
 }
 
+/** The sign in link for an invite. APP_URL wins if set, so links never depend on a request header. */
+export function joinUrlFor(req: Request, code: string): string {
+  const fixed = (process.env.APP_URL || "").trim().replace(/\/+$/, "");
+  if (/^https?:\/\/[^\s/]+$/i.test(fixed)) return `${fixed}/join#${code}`;
+  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "";
+  const proto = req.headers.get("x-forwarded-proto") || new URL(req.url).protocol.replace(":", "");
+  return `${proto}://${host}/join#${code}`;
+}
+
 export function isUuid(s: unknown): s is string {
   return typeof s === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
 }

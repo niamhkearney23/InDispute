@@ -220,16 +220,61 @@ as before.**
    `firm.reason` says what is missing.
 4. **Create the first firm.** Open `/owner`, enter your `OWNER_KEY`, give the firm
    a name and its first admin's name. You get an invite code **once**.
-5. **Send the admin their invite** (the code, or the link, which has the code
-   after a `#` so it never reaches a server log). They open it, sign in, and land
-   on `/team`.
+5. **Send the admin their invite.** Either give an email address when you create
+   the firm (see "Emailing invites" below) or send the code, or the link, yourself.
+   The link has the code after a `#` so it never reaches a server log. They open it,
+   sign in, and land on `/team`.
 
 If a firm ever loses its only admin, `/owner` has "Add an admin" for that firm.
 
+### Optional settings
+
+None of these are needed for the firm layer to work. Each switches on one thing and
+`/api/setup` says which are set (it reports names and yes/no, never a value).
+
+| Setting | What it does |
+|---|---|
+| `RESEND_API_KEY` and `EMAIL_FROM` | Emails invites. Both are needed. See below. |
+| `APP_URL` | The address put in emailed links, e.g. `https://marketing.example.com`. Without it the address of the request is used, which is right on your own domain but can be a preview address on a preview deployment. |
+| `BOOKING_URL` | Your Calendly or booking form. The "Book a demo" buttons on `/firms` and the "Ask for one" link on the access gate point at it. It must be `https://`. **If it is not set the buttons are left out**, rather than shown pointing nowhere. |
+| `ACCESS_CODES` | Closes the solo studio to people without a code. See above. |
+
+### Emailing invites
+
+Without this, an admin copies each invite and sends it themselves. That works, and
+it is the default. To have the app email it instead:
+
+1. Make a [Resend](https://resend.com) account and **verify a sending domain**.
+   Resend only delivers from a domain you have verified. An unverified sender is
+   refused, and the admin is told so.
+2. Set `RESEND_API_KEY` and `EMAIL_FROM` (for example
+   `Lawgistics <invites@yourdomain.com>`), then redeploy.
+3. When an admin adds a person with an email address, or issues a new invite, the
+   invite is emailed to that address.
+
+Behaviour worth knowing: the code is **still shown on screen** every time, so a
+failed or slow email never strands anyone. If sending fails, the admin sees a
+warning instead of a silent failure. Addresses are checked strictly (one address,
+no names, no line breaks). At most 30 invite emails a day are sent per firm, so a
+stolen admin session cannot be used to send mail in bulk. The email is a short
+sentence, a sign in link and the code. It contains nothing from the firm's posts.
+
+### When a model key stops working
+
+`/api/setup` asks each provider whether it accepts its key and reports `ok`,
+`rejected`, `unreachable` or `absent` under `keyChecks`, with a plain note saying
+what to do (the result is kept for 5 minutes). If the OpenAI key is rejected and an
+Anthropic key is set, drafting **switches to Claude automatically and tells the
+person**, rather than failing. It switches only when a key is rejected. An OpenAI
+outage or a rate limit is an error, not a quiet change of provider, so nobody is
+charged on an account they did not choose. Photos need OpenAI and say so. A
+provider's error text is never shown to a browser, because some echo part of the
+key.
+
 ### How it works for a firm
 
-- **Signing in** is by one-time invite code, so there is no email system and no
-  passwords. An admin adds a person and sends them the code. A code works once and
+- **Signing in** is by one-time invite code, so there are no passwords. An admin
+  adds a person and the code reaches them by email or by hand. A code works once and
   expires after 14 days. A lost phone: switch the person off, then issue a new invite.
   A switched off person is signed out on their very next request.
 - **The firm brand** (colours, fonts, layout style, footer note) is set by an admin
@@ -248,10 +293,14 @@ If a firm ever loses its only admin, `/owner` has "Add an admin" for that firm.
 - **Approval is a process, not a lock.** The slides are drawn in the browser, so
   someone determined can screenshot the preview. What it does is stop this app
   saving or copying a post nobody approved. The sales page says the same.
-- **Invites are not emailed.** The admin sends them.
+- **Invites are emailed only if you set it up** (see "Emailing invites"). Otherwise
+  the admin sends them.
 - **No billing inside the app.**
-- **A stored post is capped at about 3.5MB**, so a post with several AI photos can be
-  too large to submit. The studio says so.
+- **A stored post is capped at about 3.5MB.** Photos stay full size on the lawyer's own
+  device, and a lighter copy is stored for the reviewer, so a post with many photos
+  still submits. A photo keeps an identity through that, so the lighter copy never
+  counts as an edit, while a replaced photo does and sends the post back for approval.
+  If a post is still too large after that, the studio says so.
 - The allowance is a hard limit only if the studio is closed to people without an
   account. Set `ACCESS_CODES` as well, otherwise someone can call `/api/draft`
   without signing in and not be counted.
@@ -276,11 +325,19 @@ database on every request.
 
 ### Tests
 
-The firm layer was tested against a real Postgres wire protocol with the real `pg`
+The firm layer, email, booking link and key handling were tested against a real
+Postgres wire protocol with the real `pg`
 driver: tenant isolation, forged, expired and wrongly signed sessions, forged
 origins, the approval rules, people management, the allowance across a month
 boundary, the layer switched off, and the access gate combined with accounts. The
 interface was driven end to end in a browser with an owner, an admin and a lawyer.
+Email and the model providers were tested against local stand-ins that record what
+they were sent: the bearer token, the single recipient, the link and code, escaping
+of hostile names, the 30 a day cap, a failing service, a refusing service, a rejected
+model key and the fallback. A stand-in proves what the app sends and how it reacts.
+**It cannot prove that Resend accepts your domain or that OpenAI accepts your key.**
+Only a real invite email, and `/api/setup` reading `ok` for both keys, show that.
+
 One honest limit: the test database runs every connection on one shared backend, so
 it proves the logic but cannot demonstrate two requests racing across real
 connections. The allowance's correctness under true parallelism rests on a row lock

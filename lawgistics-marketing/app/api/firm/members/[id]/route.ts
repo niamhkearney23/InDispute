@@ -1,5 +1,6 @@
 import { tx } from "@/lib/firm/db";
-import { INVITE_DAYS, foreignOrigin, isUuid, json, needAdmin, newInvite, readJson } from "@/lib/firm/auth";
+import { INVITE_DAYS, foreignOrigin, isUuid, joinUrlFor, json, needAdmin, newInvite, readJson } from "@/lib/firm/auth";
+import { emailNote, emailStatus, sendInviteEmail, validEmail } from "@/lib/firm/email";
 import { cleanName } from "@/lib/firm/validate";
 
 export const runtime = "nodejs";
@@ -17,7 +18,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
   const { id } = await params;
   if (!isUuid(id)) return json({ error: "Not found." }, 404);
 
-  const body = await readJson<{ name?: unknown; role?: unknown; active?: unknown; reissueInvite?: unknown }>(req, 2_000);
+  const body = await readJson<{ name?: unknown; role?: unknown; active?: unknown; reissueInvite?: unknown; email?: unknown }>(req, 2_000);
   if (body instanceof Response) return body;
 
   const result = await tx(async (c) => {
@@ -56,6 +57,12 @@ export async function PATCH(req: Request, { params }: Ctx) {
       add("name = ?", n);
     }
     if (body.role === "admin" || body.role === "lawyer") add("role = ?", body.role);
+    if (body.email !== undefined) {
+      const given = typeof body.email === "string" ? body.email.trim() : "";
+      const e = given ? validEmail(given) : null;
+      if (given && !e) return { status: 400, body: { error: "That email address does not look right." } };
+      add("email = ?", e); // an empty value clears it
+    }
     if (body.active === false) {
       // switching someone off also bumps their session generation, so a cookie
       // they already hold stops working on its next use, and clears any invite
@@ -84,11 +91,31 @@ export async function PATCH(req: Request, { params }: Ctx) {
     vals.push(id, r.ctx.firm.id);
     const upd = await c.query(
       `update members set ${sets.join(", ")} where id = $${vals.length - 1} and firm_id = $${vals.length}
-         returning id, name, role, active`,
+         returning id, name, role, active, email`,
       vals,
     );
-    return { status: 200, body: { member: upd.rows[0], inviteCode, inviteValidDays: inviteCode ? INVITE_DAYS : undefined } };
+    const m = upd.rows[0];
+    return {
+      status: 200,
+      body: { member: { id: m.id, name: m.name, role: m.role, active: m.active, email: m.email }, inviteCode, inviteValidDays: inviteCode ? INVITE_DAYS : undefined } as Record<string, unknown>,
+      mail: inviteCode && m.email ? { to: m.email as string, name: m.name as string, code: inviteCode } : null,
+    };
   });
+
+  // email a re-issued invite after the change is saved, never inside it
+  if (result.status === 200 && "mail" in result && result.mail && emailStatus().ok) {
+    const joinUrl = joinUrlFor(req, result.mail.code);
+    const res = await sendInviteEmail({
+      firmId: r.ctx.firm.id, firmName: r.ctx.firm.name, to: result.mail.to, name: result.mail.name,
+      code: result.mail.code, joinUrl, days: INVITE_DAYS,
+    }).catch(() => ({ sent: false as const, why: "unreachable" as const }));
+    (result.body as Record<string, unknown>).emailed = res.sent;
+    (result.body as Record<string, unknown>).emailedTo = res.sent ? result.mail.to : null;
+    (result.body as Record<string, unknown>).emailNote = emailNote(res);
+    (result.body as Record<string, unknown>).joinUrl = joinUrl;
+  } else if (result.status === 200 && "mail" in result && result.mail) {
+    (result.body as Record<string, unknown>).joinUrl = joinUrlFor(req, result.mail.code);
+  }
 
   return json(result.body, result.status);
 }

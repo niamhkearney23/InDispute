@@ -76,6 +76,7 @@ create table if not exists members (
   name text not null,
   role text not null check (role in ('admin','lawyer')),
   profile jsonb not null default '{}',
+  email text,
   invite_hash text,
   invite_expires timestamptz,
   active boolean not null default true,
@@ -113,6 +114,16 @@ create table if not exists usage (
   created_at timestamptz not null default now()
 );
 create index if not exists usage_member_month on usage(member_id, created_at);
+
+create table if not exists email_log (
+  id bigserial primary key,
+  firm_id uuid not null references firms(id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+create index if not exists email_log_firm on email_log(firm_id, created_at);
+
+-- a database created before these columns existed picks them up here
+alter table members add column if not exists email text;
 `;
 
 let ready: Promise<void> | null = null;

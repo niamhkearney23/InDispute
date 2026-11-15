@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { guard } from "@/lib/access";
-import { draftText, pickProvider } from "@/lib/provider";
+import { draftWithFallback, pickProvider, safeMessage } from "@/lib/provider";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -69,12 +69,11 @@ export async function POST(req: Request) {
     text;
 
   try {
-    const out = await draftText(provider, prompt, 1500);
+    const { text: out } = await draftWithFallback(provider, prompt, 1500);
     const cleaned = out.trim().replace(/^["“”']+|["“”']+$/g, "");
     if (!cleaned) throw new Error("nothing came back");
     return NextResponse.json({ text: cleaned });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "the rewrite failed";
-    return NextResponse.json({ error: message }, { status: 502 });
+    return NextResponse.json({ error: safeMessage(err, "the rewrite failed") }, { status: 502 });
   }
 }
