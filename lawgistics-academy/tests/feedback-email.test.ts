@@ -21,12 +21,12 @@ const base = {
 };
 
 test('the subject says what happened, for each kind of mark', () => {
-  assert.equal(feedbackEmail(base).subject, 'Your coach marked “Draft the letter before action”: Good');
+  assert.equal(feedbackEmail(base).subject, 'Your supervisor marked “Draft the letter before action”: Good');
   assert.equal(
     feedbackEmail({ ...base, verdict: 'again' }).subject,
-    'Your coach asked for another go at “Draft the letter before action”',
+    'Your supervisor asked for another go at “Draft the letter before action”',
   );
-  assert.match(feedbackEmail({ ...base, kind: 'studio', verdict: null }).subject, /^Your coach reviewed your recording/);
+  assert.match(feedbackEmail({ ...base, kind: 'studio', verdict: null }).subject, /^Your supervisor reviewed your recording/);
   assert.match(feedbackEmail({ ...base, kind: 'matter' }).subject, /: Good$/);
 });
 

@@ -72,7 +72,7 @@ test('work taken on: what still needs doing first, soonest due first, then hande
   assert.equal(items[0].meta, 'Hand in today');
   assert.equal(items[0].urgent, true);
   assert.equal(items[2].done, true);
-  assert.equal(items[2].meta, 'Handed in · waiting for your coach');
+  assert.equal(items[2].meta, 'Handed in · waiting for your supervisor');
 });
 
 test('a video is listed but never ticked, so it does not count towards done', () => {
@@ -150,7 +150,7 @@ test('sent back with a reply: the reply does not hide that another go is wanted 
     trainingOpen: false,
     work: [{ id: 'a', title: 'Letter', dueOn: null, state: 'again', replyWaiting: true }],
   });
-  assert.equal(items[0].meta, 'Your coach asked for another go · and has replied');
+  assert.equal(items[0].meta, 'Your supervisor asked for another go · and has replied');
   assert.equal(items[0].urgent, true);
   assert.equal(items[0].done, false);
 });
@@ -162,12 +162,12 @@ test('a reply from the coach is said, and work open to take is a line', () => {
     work: [{ id: 'a', title: 'Letter', dueOn: null, state: 'waiting', replyWaiting: true }],
     workOpen: 2,
   });
-  assert.equal(items[0].meta, 'Your coach has replied');
+  assert.equal(items[0].meta, 'Your supervisor has replied');
   assert.equal(items[0].urgent, true);
   assert.deepEqual(items[1], {
     key: 'work-open',
     label: '2 pieces of work you can take',
-    meta: 'From your coach · put your name on one',
+    meta: 'From your supervisor · put your name on one',
     href: '/work',
     done: null,
   });

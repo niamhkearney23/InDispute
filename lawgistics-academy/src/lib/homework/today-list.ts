@@ -193,7 +193,7 @@ export function todaysHomework(input: TodayInput): TodayItem[] {
     items.push({
       key: 'session',
       label: input.session.title,
-      meta: 'Watch: from your coach this morning',
+      meta: 'Watch: from your supervisor this morning',
       href: '#session',
       done: null,
     });
@@ -218,12 +218,12 @@ export function todaysHomework(input: TodayInput): TodayItem[] {
       label: w.title,
       meta: again
         ? w.replyWaiting
-          ? 'Your coach asked for another go · and has replied'
-          : 'Your coach asked for another go'
+          ? 'Your supervisor asked for another go · and has replied'
+          : 'Your supervisor asked for another go'
         : w.replyWaiting
-        ? 'Your coach has replied'
+        ? 'Your supervisor has replied'
         : waiting
-        ? 'Handed in · waiting for your coach'
+        ? 'Handed in · waiting for your supervisor'
         : dueToday
             ? 'Hand in today'
             : overdue
@@ -253,7 +253,7 @@ export function todaysHomework(input: TodayInput): TodayItem[] {
     items.push({
       key: 'work-open',
       label: input.workOpen === 1 ? 'A piece of work you can take' : `${input.workOpen} pieces of work you can take`,
-      meta: 'From your coach · put your name on one',
+      meta: 'From your supervisor · put your name on one',
       href: '/work',
       done: null,
     });

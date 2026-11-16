@@ -91,7 +91,7 @@ export default async function ModulesPage() {
     <div className="space-y-9">
       <PageHeader
         title="Learn"
-        description="Optional, at your own pace: modules, practice and reference. What your coach sets you is on Today."
+        description="Optional, at your own pace: modules, practice and reference. What your supervisor sets you is on Today."
       />
 
       {resume ? (

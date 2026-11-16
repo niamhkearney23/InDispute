@@ -13,7 +13,7 @@ export function Materials({ posts }: { posts: WorkPost[] }) {
 
   return (
     <div className="mt-4 border-t border-rule pt-3">
-      <p className="eyebrow mb-2">From your coach</p>
+      <p className="eyebrow mb-2">From your supervisor</p>
       <ul className="space-y-1">
         {posts.map((post) => (
           <li key={post.id}>

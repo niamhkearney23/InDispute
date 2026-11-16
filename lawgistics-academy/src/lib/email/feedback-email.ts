@@ -51,26 +51,26 @@ export function feedbackEmail(input: FeedbackEmailInput): Email {
   const quoted = `“${title}”`;
   const subject =
     input.kind === 'studio'
-      ? `Your coach reviewed your recording: ${quoted}`
+      ? `Your supervisor reviewed your recording: ${quoted}`
       : input.verdict === 'good'
-        ? `Your coach marked ${quoted}: Good`
+        ? `Your supervisor marked ${quoted}: Good`
         : input.verdict === 'again'
-          ? `Your coach asked for another go at ${quoted}`
-          : `Your coach marked ${quoted}`;
+          ? `Your supervisor asked for another go at ${quoted}`
+          : `Your supervisor marked ${quoted}`;
 
   const lead =
     input.kind === 'studio'
-      ? `Your coach has reviewed your Advocacy Studio recording, ${quoted}.`
+      ? `Your supervisor has reviewed your Advocacy Studio recording, ${quoted}.`
       : input.verdict === 'good'
-        ? `Your coach has marked ${quoted} Good. It counts on your Progress page.`
+        ? `Your supervisor has marked ${quoted} Good. It counts on your Progress page.`
         : input.verdict === 'again'
-          ? `Your coach has asked for another go at ${quoted}. Read what they said, change what they pointed to, and hand in the new version.`
-          : `Your coach has marked ${quoted}.`;
+          ? `Your supervisor has asked for another go at ${quoted}. Read what they said, change what they pointed to, and hand in the new version.`
+          : `Your supervisor has marked ${quoted}.`;
 
   const where = input.link
     ? 'Their comments are in the academy, under what you handed in:'
     : `Their comments are in the ${input.academy}, under what you handed in. Sign in to read them.`;
-  const why = `You are getting this because your coach marked your work in the ${input.academy}. The comments are kept there, not in this email.`;
+  const why = `You are getting this because your supervisor marked your work in the ${input.academy}. The comments are kept there, not in this email.`;
   const greeting = input.firstName ? `Hello ${oneLine(input.firstName, 40)},` : 'Hello,';
 
   const text = [greeting, '', lead, '', where, ...(input.link ? [input.link] : []), '', why].join('\n');

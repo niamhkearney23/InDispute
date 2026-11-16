@@ -125,7 +125,7 @@ export default async function DiagnosticResultsPage({
             Each area is the share right of the multiple-choice questions asked about it, so an area
             with two questions moves a long way on one answer. Advocacy and Drafting here are
             questions about them: they do not measure how you speak or write. Those are marked by
-            your coach, and in the Advocacy Studio.
+            your supervisor, and in the Advocacy Studio.
           </p>
         </Card>
       </section>

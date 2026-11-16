@@ -58,8 +58,8 @@ export function tourSteps({
       where: 'Menu: Today',
       title: 'Today',
       body: trainee
-        ? 'Your day starts here: a note from your coach when they leave one, then everything set for today, with a button to start the round that is open.'
-        : 'Your day starts here: a note from your coach when they leave one, then everything set for today, with a button to start training.',
+        ? 'Your day starts here: a note from your supervisor when they leave one, then everything set for today, with a button to start the round that is open.'
+        : 'Your day starts here: a note from your supervisor when they leave one, then everything set for today, with a button to start training.',
       icon: 'spark',
     },
   ];
@@ -143,7 +143,7 @@ export function tourSteps({
         key: 'month',
         where: 'On Today: Your programme',
         title: 'Your month',
-        body: 'The month week by week, today’s concept, the training file you work on, a short homework task for each working day, your coach’s videos, and what earns the certificate. All of it is on Your programme, linked from Today.',
+        body: 'The month week by week, today’s concept, the training file you work on, a short homework task for each working day, your supervisor’s videos, and what earns the certificate. All of it is on Your programme, linked from Today.',
         icon: 'calendar',
       },
     );
@@ -173,7 +173,7 @@ export function tourFinish({ trainee, open, needsDiagnostic }: TourFor): TourFin
     title: 'That’s the tour.',
     body:
       !open && trainee
-        ? 'The questions open once our lawyers have signed them off. Until then, Today has your homework and anything from your coach.'
+        ? 'The questions open once our lawyers have signed them off. Until then, Today has your homework and anything from your supervisor.'
         : 'Everything starts from Today.',
     label: 'Go to Today',
     href: '/dashboard',

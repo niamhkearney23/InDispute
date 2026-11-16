@@ -31,9 +31,8 @@ import { requireAccess } from '@/lib/access/service';
 import { scheduleForPerson } from '@/lib/training/cohorts';
 import { morningNoteFor } from '@/lib/notes/service';
 import { MorningNoteCard } from '@/components/morning-note';
-import { NextTaskCard } from '@/components/next-task';
 import { LearnerTour } from '@/components/learner-tour';
-import { nextTask, recentlyMarkedGood } from '@/lib/homework/next-task';
+import { nextTask } from '@/lib/homework/next-task';
 import { homeworkLines, todaysHomework } from '@/lib/homework/today-list';
 import { TodayList } from '@/components/today-list';
 import { readingForWeek, readingWeekOf, startsAWeek } from '@/content/seed/reading';
@@ -306,7 +305,6 @@ export default async function DashboardPage({
     goal: rounds ? null : { questions: questionCount, answered: overview.answeredToday },
     trainingOpen: open && !needsDiagnostic,
   });
-  const markedGood = recentlyMarkedGood(myWork, new Date());
 
   const trainingLine = setForToday.find((i) => i.key === 'training');
   const startLabel = (short: string) =>
@@ -344,10 +342,10 @@ export default async function DashboardPage({
         forceOpen={tourAsked}
         steps={[
           {
-            title: 'Today: your next task',
-            text: 'The navy card is what to do now, when it is due and where the feedback appears. Below it, what is required today and what is not counted.',
-            href: '/dashboard#next-task',
-            action: 'See your next task',
+            title: 'Today: one list',
+            text: 'Everything set for today, in order. The one to do first is marked Up next. Below it, what is not counted.',
+            href: '/dashboard#training',
+            action: 'See the list',
           },
           {
             title: 'Learn: optional, at your own pace',
@@ -359,8 +357,8 @@ export default async function DashboardPage({
             title: 'Work: assignments and feedback',
             text:
               profile.track === 'litigation_trainee' && !profile.traineeConfirmed
-                ? 'Work your coaches set, and their feedback on it. Trainee work appears once your supervisor confirms you.'
-                : 'Work your coaches set. Put your name on a task, hand it in, and read their feedback there.',
+                ? 'Work your supervisors set, and their feedback on it. Trainee work appears once your supervisor confirms you.'
+                : 'Work your supervisors set. Put your name on a task, hand it in, and read their feedback there.',
             href: '/work',
             action: 'Open Work',
           },
@@ -389,17 +387,6 @@ export default async function DashboardPage({
         <div className="min-w-0 space-y-6">
           {note ? <MorningNoteCard note={note} timezone={profile.timezone} /> : null}
 
-          <NextTaskCard
-            task={firstTask}
-            markedGood={markedGood}
-            start={
-              // Starting training is a real action, not a link: the card carries
-              // the same button the list would have, so there is one Start.
-              firstTask?.startsTraining && trainingLine?.start ? (
-                <BeginSessionButton kind="daily" variant="light" label={startLabel(trainingLine.start)} />
-              ) : undefined
-            }
-          />
 
           <div id="training" className="scroll-mt-24">
             <TodayList
@@ -425,7 +412,7 @@ export default async function DashboardPage({
                         profile.startsOn
                           ? ''
                           : supervised
-                            ? ' Anything your coach posts for you will appear here, and your homework starts once your supervisor sets your start date.'
+                            ? ' Anything your supervisor posts for you will appear here, and your homework starts once your supervisor sets your start date.'
                             : ' Anything posted for you will appear here.'
                       }`}
               </p>

@@ -30,22 +30,12 @@ export function LearnerTour({
   forceOpen?: boolean;
 }) {
   const storageKey = `academy:learner-tour:v1:${userId}`;
-  const [open, setOpen] = useState(false);
+  // Opened from Help only (the owner, November 2026: Today was too busy); it no
+  // longer opens by itself on a first visit.
+  const [open, setOpen] = useState(forceOpen);
   const [index, setIndex] = useState(0);
   const heading = useRef<HTMLHeadingElement>(null);
   const region = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    let seen = false;
-    try {
-      seen = localStorage.getItem(storageKey) === 'done';
-    } catch {
-      // No storage: show it, and it simply shows again next time.
-    }
-    // Read once on arrival: what was remembered on this browser decides.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (forceOpen || !seen) setOpen(true);
-  }, [forceOpen, storageKey]);
 
   useEffect(() => {
     if (forceOpen && open) region.current?.scrollIntoView({ block: 'nearest' });

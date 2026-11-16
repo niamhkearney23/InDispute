@@ -67,8 +67,8 @@ const partsFor = (questionsOpen: boolean, schedule: Schedule) => [
   },
   {
     icon: BookIcon,
-    when: 'From your coach',
-    title: 'Videos from your coach',
+    when: 'From your supervisor',
+    title: 'Videos from your supervisor',
     body: 'What’s happening this week, and what to focus on. These are for trainees only.',
   },
 ];

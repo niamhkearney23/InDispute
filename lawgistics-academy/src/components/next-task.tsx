@@ -67,13 +67,13 @@ export function NextTaskCard({
               You are up to date
             </h2>
             <p className="mt-2 max-w-xl text-paper/75">
-              Nothing is due from you right now. Anything your coach sets will appear here first.
+              Nothing is due from you right now. Anything your supervisor sets will appear here first.
             </p>
           </>
         )}
         {markedGood ? (
           <p className="mt-6 border-t border-paper/15 pt-4 text-sm text-paper/75">
-            Your coach marked <strong className="font-semibold text-paper">{markedGood.title}</strong> Good.{' '}
+            Your supervisor marked <strong className="font-semibold text-paper">{markedGood.title}</strong> Good.{' '}
             <Link
               href={`/work/${markedGood.id}#feedback`}
               className="-my-2 inline-block py-2 font-medium text-paper underline underline-offset-2"

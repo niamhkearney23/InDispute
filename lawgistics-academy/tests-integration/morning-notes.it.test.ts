@@ -192,7 +192,7 @@ test('a coach writes a note on the website and a learner sees it at the top of T
   const lc = await browser.newContext();
   const today = await signedIn(lc, learner);
   await today.goto(`${APP}/dashboard`, { waitUntil: 'domcontentloaded' });
-  const note = today.getByRole('region', { name: 'A note from your coach' });
+  const note = today.getByRole('region', { name: 'A note from your supervisor' });
   await note.waitFor({ timeout: 15000 });
   const text = await note.innerText();
   // Several coaches may have written for today; the latest is shown, and it is this one.

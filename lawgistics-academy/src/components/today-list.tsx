@@ -89,7 +89,7 @@ export function TodayList({
         // Said, not left blank: a new learner with nothing set yet should
         // know that is expected, and where it will come from.
         <p className="rounded-xl border border-rule bg-paper-raised px-4 py-4 text-sm text-slate sm:px-5">
-          Nothing is set for today yet. When your coach sets work, or your training opens, it
+          Nothing is set for today yet. When your supervisor sets work, or your training opens, it
           appears here.
         </p>
       ) : (

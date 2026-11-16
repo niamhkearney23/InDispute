@@ -105,7 +105,7 @@ export default async function WorkPostPage({ params }: { params: Promise<{ id: s
         ) : null}
         {post.expectedMinutes ? (
           <p className="mt-1 text-sm text-slate">
-            Your coach expects this to take {describeMinutes(post.expectedMinutes)}. If it is
+            Your supervisor expects this to take {describeMinutes(post.expectedMinutes)}. If it is
             taking a lot longer, say so below rather than pushing on.
           </p>
         ) : null}
@@ -118,7 +118,7 @@ export default async function WorkPostPage({ params }: { params: Promise<{ id: s
 
       {memoUrl ? (
         <Card>
-          <p className="eyebrow mb-2">Your coach, in their own words</p>
+          <p className="eyebrow mb-2">Your supervisor, in their own words</p>
           <audio controls src={memoUrl} className="w-full" />
         </Card>
       ) : null}
@@ -170,20 +170,20 @@ export default async function WorkPostPage({ params }: { params: Promise<{ id: s
           {state === 'good' ? (
             <>
               <Pill tone="correct">Good</Pill>
-              <p className="mt-2 text-slate">Your coach was happy with this one.</p>
+              <p className="mt-2 text-slate">Your supervisor was happy with this one.</p>
             </>
           ) : state === 'again' ? (
             <>
               <Pill tone="warn">Needs another go</Pill>
               <p className="mt-2 text-slate">
-                Read what your coach said below, then hand in your next go.
+                Read what your supervisor said below, then hand in your next go.
               </p>
             </>
           ) : state === 'waiting' ? (
             <>
               <Pill tone="accent">Handed in</Pill>
               <p className="mt-2 text-slate">
-                Waiting for your coach to look at it. You can hand in a newer version if you
+                Waiting for your supervisor to look at it. You can hand in a newer version if you
                 spot something.
               </p>
             </>
@@ -281,7 +281,7 @@ export default async function WorkPostPage({ params }: { params: Promise<{ id: s
       </Card>
 
       <Card className="scroll-mt-24" id="messages">
-        <p className="eyebrow mb-1">Message your coach privately</p>
+        <p className="eyebrow mb-1">Message your supervisor privately</p>
         <p className="mb-3 text-sm text-slate">
           Not sure what is wanted, or whether to take it? Ask here. Only you and the coaches see
           this.
@@ -293,14 +293,14 @@ export default async function WorkPostPage({ params }: { params: Promise<{ id: s
             body: m.body,
             sentAt: m.sentAt,
             mine: m.senderId === user.id,
-            from: m.senderId === user.id ? 'You' : 'Your coach',
+            from: m.senderId === user.id ? 'You' : 'Your supervisor',
           }))}
           empty="Nothing asked yet."
         />
         <MessageForm
           postId={post.id}
           threadUserId={user.id}
-          placeholder="Message your coach for more information"
+          placeholder="Message your supervisor for more information"
         />
       </Card>
     </div>

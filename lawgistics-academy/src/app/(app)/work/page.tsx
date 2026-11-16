@@ -87,7 +87,7 @@ export default async function WorkBoardPage() {
           description={
             pending
               ? 'Nothing posted for everyone yet either. Your modules and questions work now.'
-              : 'When your coach posts a task, it appears here and on Today. Your modules work now.'
+              : 'When your supervisor posts a task, it appears here and on Today. Your modules work now.'
           }
           action={
             <ButtonLink href="/modules" variant="outline">
@@ -181,7 +181,7 @@ function WorkRow({ item, today }: { item: WorkBoardItem; today: string }) {
               <PeopleOnPost people={item.people} size="sm" max={5} />
             </span>
           ) : null}
-          {!post.published ? <span className="mt-1 block text-xs text-muted">Taken down by your coach</span> : null}
+          {!post.published ? <span className="mt-1 block text-xs text-muted">Taken down by your supervisor</span> : null}
         </span>
         <span className="shrink-0 pt-0.5">{badge}</span>
       </Link>

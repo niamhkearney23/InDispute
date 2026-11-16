@@ -1276,3 +1276,12 @@ guarantee for it, and plant a deliberate error to prove the test catches it.
 - **Studio consent notice versions may end in a letter** (`0059`). The consent
   table refused "2026-11b" (0053 allowed only YYYY-MM), so every Studio choice
   failed with "Your choice could not be saved". Relaxed, nothing else changed.
+
+- **Today made clearer** (the owner, November 2026: "its WAY to confusing").
+  The navy "Your next task" card is gone from Today: it repeated the list's
+  first line, which the list already marks "Up next". The learner tour no
+  longer opens by itself (Account menu, Help, opens it). Learner pages, the
+  tour and the feedback emails say "supervisor" where they said "coach";
+  the Studio consent notice keeps its words, because changing them asks
+  everybody to agree again. `NextTaskCard` and `nextTask` stay in the code
+  (`nextTask` still picks the Up next line).

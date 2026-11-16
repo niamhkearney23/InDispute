@@ -162,14 +162,14 @@ test('work with no due date: taken, handed in, sent back, handed in again, repli
   };
 
   await hand(1);
-  assert.match(await line(), /Handed in · waiting for your coach/);
+  assert.match(await line(), /Handed in · waiting for your supervisor/);
   await mark('again');
-  assert.match(await line(), /Your coach asked for another go/);
+  assert.match(await line(), /Your supervisor asked for another go/);
   await hand(2);
-  assert.match(await line(), /Handed in · waiting for your coach/, 'the second hand-in replaces the sent-back state');
+  assert.match(await line(), /Handed in · waiting for your supervisor/, 'the second hand-in replaces the sent-back state');
   const msg = await db.from('work_messages').insert({ post_id: postId, thread_user_id: p.id, sender_id: coach.id, body: 'Better. One question on paragraph 3.' });
   if (msg.error) throw msg.error;
-  assert.match(await line(), /Your coach has replied/);
+  assert.match(await line(), /Your supervisor has replied/);
   await mark('good');
   assert.equal(await line(), '', 'work marked Good stays on the list');
   await page.context().close();

@@ -56,7 +56,7 @@ export default async function LearnerSessionsPage() {
     <div className="space-y-6">
       <section>
         <p className="eyebrow mb-2">Sessions</p>
-        <h1 className="text-3xl">From your coach</h1>
+        <h1 className="text-3xl">From your supervisor</h1>
         <p className="mt-3 max-w-2xl text-slate">
           Everything that has been put up, most recent first. Missing a morning is not the
           end of anything; it is all still here.
@@ -66,7 +66,7 @@ export default async function LearnerSessionsPage() {
       {sessions.length === 0 ? (
         <EmptyState
           title="Nothing up yet"
-          description="When your coach records something it will appear here, and on your dashboard on the morning it is for."
+          description="When your supervisor records something it will appear here, and on your dashboard on the morning it is for."
         />
       ) : null}
 

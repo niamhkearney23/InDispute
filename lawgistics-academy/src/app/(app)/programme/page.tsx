@@ -107,8 +107,8 @@ export default async function ProgrammePage() {
           [
             ['The training file', 'The one case you work on', '/programme/file'],
             ['Homework', 'One task a day', '/homework'],
-            ['From your coach', 'Work and marking', '/work'],
-            ['Sessions', 'Your coach\u2019s videos', '/sessions'],
+            ['From your supervisor', 'Work and marking', '/work'],
+            ['Sessions', 'Your supervisor\u2019s videos', '/sessions'],
             ['Certificate', 'What earns it', '/certificate'],
             ['Your progress', 'Streak, level, scores', '/skills'],
           ] as const

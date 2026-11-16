@@ -5,9 +5,9 @@ import { sentTime, type MorningNote } from '@/lib/notes/rules';
  * under their own name, like a note left on a junior's desk.
  */
 export function MorningNoteCard({ note, timezone }: { note: MorningNote; timezone: string }) {
-  const name = note.authorName ?? 'Your coach';
+  const name = note.authorName ?? 'Your supervisor';
   return (
-    <section aria-label="A note from your coach" className="rounded-xl border border-rule bg-paper-raised p-4 sm:p-5">
+    <section aria-label="A note from your supervisor" className="rounded-xl border border-rule bg-paper-raised p-4 sm:p-5">
       <div className="flex items-center gap-3">
         <span
           aria-hidden
@@ -17,7 +17,7 @@ export function MorningNoteCard({ note, timezone }: { note: MorningNote; timezon
         </span>
         <div className="min-w-0">
           <p className="font-semibold">{name}</p>
-          <p className="text-xs text-muted">Your coach · sent {sentTime(note.createdAt, timezone)}</p>
+          <p className="text-xs text-muted">Your supervisor · sent {sentTime(note.createdAt, timezone)}</p>
         </div>
       </div>
       <blockquote className="mt-3 font-serif text-[1.0625rem] leading-relaxed whitespace-pre-line italic">

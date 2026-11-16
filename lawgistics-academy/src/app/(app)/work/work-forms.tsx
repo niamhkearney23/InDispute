@@ -81,7 +81,7 @@ export function SubmitForm({
 
       <div>
         <label htmlFor="note" className="mb-1.5 block text-sm font-medium">
-          A note for your coach (optional)
+          A note for your supervisor (optional)
         </label>
         <textarea
           id="note"
