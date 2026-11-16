@@ -1285,3 +1285,10 @@ guarantee for it, and plant a deliberate error to prove the test catches it.
   the Studio consent notice keeps its words, because changing them asks
   everybody to agree again. `NextTaskCard` and `nextTask` stay in the code
   (`nextTask` still picks the Up next line).
+- **Learn and Work tidied** (the owner, November 2026: "tidy them"). Learn says
+  once, under Modules, that "Not open yet" means a lawyer has not yet checked
+  the questions, and each such module carries that small label instead of a
+  sentence on every row. Work keeps tasks someone could still take ("You can
+  take these") apart from tasks whose every place is taken ("Already full", at
+  the end), and drops the "For everyone" pill from the learner's list (Admin
+  still shows how many places a task has).

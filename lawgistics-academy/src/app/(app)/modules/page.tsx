@@ -91,7 +91,7 @@ export default async function ModulesPage() {
     <div className="space-y-9">
       <PageHeader
         title="Learn"
-        description="Optional, at your own pace: modules, practice and reference. What your supervisor sets you is on Today."
+        description="Work through these at your own pace. Anything your supervisor sets you is on Today."
       />
 
       {resume ? (
@@ -147,9 +147,17 @@ export default async function ModulesPage() {
           how far along, in one list. No pictures: the owner found the
           illustrated cards "very AI". */}
       <section aria-labelledby="your-modules">
-        <h2 id="your-modules" className="mb-3 text-xl">
+        <h2 id="your-modules" className="text-xl">
           Modules
         </h2>
+        {progress.some((e) => e.total === 0) ? (
+          // Said once, not under every row.
+          <p className="mt-1 mb-3 text-sm text-slate">
+            A module marked Not open yet opens once a lawyer has checked its questions.
+          </p>
+        ) : (
+          <div className="mb-3" />
+        )}
         <ol className="divide-y divide-rule overflow-hidden rounded-xl border border-rule bg-paper-raised">
           {progress.map((entry, i) => {
             const st = status(entry);
@@ -163,6 +171,7 @@ export default async function ModulesPage() {
                     <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
                       <span className="text-[0.9375rem] font-semibold leading-snug">{entry.module.name}</span>
                       {entry.module.required ? <Pill tone="accent">Required</Pill> : null}
+                      {entry.total === 0 ? <Pill>Not open yet</Pill> : null}
                       {st === 'complete' ? <StatusBadge status="complete" /> : null}
                     </span>
                     <span className="mt-0.5 block text-sm text-slate">{entry.module.summary}</span>
@@ -173,11 +182,7 @@ export default async function ModulesPage() {
                         max={entry.total}
                         label={`${entry.correctOnce} of ${entry.total} questions right`}
                       />
-                    ) : (
-                      <span className="mt-1.5 block text-xs text-muted">
-                        Questions appear once a lawyer has signed them off.
-                      </span>
-                    )}
+                    ) : null}
                   </span>
                   {action[st] ? (
                     <span className="hidden shrink-0 self-center text-sm font-medium text-periwinkle-ink sm:inline">

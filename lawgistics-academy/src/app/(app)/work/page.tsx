@@ -5,7 +5,7 @@ import { getCurrentUser } from '@/lib/supabase/server';
 import { getLearnerProfile } from '@/lib/learner-overview';
 import { isFull, workBoardFor } from '@/lib/work/service';
 import type { WorkBoardItem } from '@/lib/work/service';
-import { describeMinutes, isLate, slotsLabel } from '@/lib/work/links';
+import { describeMinutes, isLate } from '@/lib/work/links';
 import { ButtonLink, EmptyState, PageHeader, Pill } from '@/components/ui';
 import { PeopleOnPost } from '@/components/people-on-post';
 import { requireAccess } from '@/lib/access/service';
@@ -54,7 +54,10 @@ export default async function WorkBoardPage() {
   const toDo = mine.filter((i) => i.state === 'none' && !i.replyWaiting);
   const awaiting = mine.filter((i) => i.state === 'waiting' && !i.replyWaiting);
   const done = mine.filter((i) => i.state === 'good');
-  const open = tasks.filter((i) => !i.claimed);
+  // Work they could still take, and work every place on is taken: kept apart, so
+  // nothing under "You can take these" turns out to be full.
+  const open = tasks.filter((i) => !i.claimed && !isFull(i.post, i.claims));
+  const full = tasks.filter((i) => !i.claimed && isFull(i.post, i.claims));
   const pending = profile.track === 'litigation_trainee' && !profile.traineeConfirmed;
 
   return (
@@ -100,9 +103,10 @@ export default async function WorkBoardPage() {
       {feedback.length > 0 ? <Pile title="Feedback for you" hint="Read it, then act on it" items={feedback} today={today} /> : null}
       {toDo.length > 0 ? <Pile title="To do" hint="You put your name on these" items={toDo} today={today} /> : null}
       {awaiting.length > 0 ? <Pile title="Awaiting feedback" hint="Handed in" items={awaiting} today={today} /> : null}
-      {open.length > 0 ? <Pile title="Open to take" items={open} today={today} /> : null}
+      {open.length > 0 ? <Pile title="You can take these" hint="Put your name on one to start" items={open} today={today} /> : null}
       {reading.length > 0 ? <Pile title="To read" items={reading} today={today} /> : null}
       {done.length > 0 ? <Pile title="Done" hint="Marked Good" items={done} today={today} /> : null}
+      {full.length > 0 ? <Pile title="Already full" hint="Every place is taken" items={full} today={today} /> : null}
     </div>
   );
 }
@@ -152,7 +156,7 @@ function WorkRow({ item, today }: { item: WorkBoardItem; today: string }) {
     ) : item.state === 'again' ? (
       <Pill tone="warn">Another go</Pill>
     ) : item.replyWaiting ? (
-      <Pill tone="warn">Coach replied</Pill>
+      <Pill tone="warn">Supervisor replied</Pill>
     ) : item.state === 'good' ? (
       <Pill tone="correct">Good</Pill>
     ) : item.state === 'waiting' ? (
@@ -160,10 +164,8 @@ function WorkRow({ item, today }: { item: WorkBoardItem; today: string }) {
     ) : item.claimed ? (
       <Pill tone={late ? 'wrong' : 'accent'}>{late ? 'Overdue' : 'To do'}</Pill>
     ) : full ? (
-      <Pill>Taken</Pill>
-    ) : (
-      <Pill>{slotsLabel(post.maxClaims)}</Pill>
-    );
+      <Pill>Full</Pill>
+    ) : null;
 
   return (
     <li>
