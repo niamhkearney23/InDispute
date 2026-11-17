@@ -1,4 +1,33 @@
 {
-  "generatedDate": "2026-11-15",
-  "cases": []
+  "generatedDate": "2026-11-17",
+  "cases": [
+    {
+      "title": "Dato' Seri Timor Shah Rafiq v Nautilus Tug & Towage Sdn. Bhd.",
+      "suit": "WA-24NCC-629-11/2023",
+      "court": "High Court of Malaya at Kuala Lumpur (Mahkamah Tinggi) — Commercial Division (NCC)",
+      "coram": "YA Puan Elaine Yap Chin Gaik",
+      "date": "2026-10-12",
+      "dateRaw": "12 October 2026 (grounds of judgment uploaded to the e-Judgment portal on 13 November 2026)",
+      "category": "Commercial",
+      "outcome": "The defendant's application to set aside the earlier, already-perfected order granting leave to commence a statutory derivative action was dismissed.",
+      "summary": "The applicant, Dato' Seri Timor Shah Rafiq, had earlier obtained leave from the High Court to commence a statutory derivative action in the name of and on behalf of Nautilus Tug & Towage Sdn. Bhd. — the mechanism by which a shareholder or director may sue on a company's behalf when the company itself will not act. That leave order was granted and then perfected (formally sealed and entered). After the leave order was perfected, the applicant's office as a director of the company was vacated. The company then applied to set aside the leave order, arguing in substance that the loss of office undermined or invalidated the leave that had been given. The court's published catchwords frame the issues as: whether the court was functus officio (that is, whether it had already exhausted its authority over the matter once the leave order was perfected, so that it could not revisit its own order); whether the applicant's subsequent loss of directorship operated retrospectively to invalidate the leave order; and whether any of the recognised exceptions permitting a court to set aside or vary a perfected order had been made out. The court held that none of the recognised exceptions were established and dismissed the setting-aside application, leaving the leave order intact.",
+      "keyPoint": "Once an order granting leave to bring a statutory derivative action has been perfected, the court is generally functus officio, and a change in the applicant's status (such as later ceasing to be a director) does not retrospectively invalidate that leave unless a recognised exception to the finality of perfected orders applies.",
+      "plain": "A company director got the court's permission to sue on behalf of his company — something you need special permission for, because normally only the company can bring its own lawsuits. After that permission was formally issued, he stopped being a director. The company went back to the judge and said the permission should be cancelled because he no longer held that post. The judge said no: once a court order has been properly issued and sealed, the same court can't simply undo it except in a few narrow situations, and losing the directorship later doesn't reach back in time to cancel permission that was validly granted. So the permission stands and the case can go on.",
+      "source": "https://ejudgment.kehakiman.gov.my/ejudgmentweb/searchpage.aspx?JurisdictionType=ALL"
+    },
+    {
+      "title": "Ng Yin Ping v Derek Kwok Kee Yeung & Anor (Kang Cheow Sean, Party Cited)",
+      "suit": "PA-33-340-10/2025",
+      "court": "High Court of Malaya at Penang (Mahkamah Tinggi) — divorce and matrimonial proceedings",
+      "coram": "YA Dr Choong Yeow Choy",
+      "date": "2026-11-10",
+      "dateRaw": "10 November 2026 (grounds of judgment uploaded to the e-Judgment portal on 13 November 2026)",
+      "category": "Family",
+      "outcome": "The judgment deals with the Party Cited's application (Enclosure 19) to be struck out or removed from the husband's Answer and Cross-Petition. The portal listing available to me sets out the facts and the issue but does not state the final disposal, and I will not guess at it — the PDF grounds on the e-Judgment portal should be read for the order made.",
+      "summary": "This is a divorce proceeding begun by the wife, Ng Yin Ping, against the husband, Derek Kwok Kee Yeung, in which she seeks various reliefs arising from the breakdown of the marriage. The wife named a woman, Olga Marianne Rostaqui ep. Petithomme, as Co-Respondent on allegations that the husband had committed adultery with her. The husband filed an Answer and Cross-Petition dated 26 November 2025, in which he in turn named Kang Cheow Sean as a 'Party Cited', alleging that the Party Cited was involved in an adulterous relationship with the wife, and seeking, among other things, an order that the Party Cited pay him damages for adultery. The judgment concerns the Party Cited's own application, in Enclosure 19, to be struck out and/or removed as a party to the husband's Answer and Cross-Petition. That application was brought under Order 18 rule 19 and Order 92 rule 4 of the Rules of Court 2012, read with rule 103 of the Divorce and Matrimonial Proceedings Rules 1980. The question the court identified for determination was whether, on these facts, the Party Cited should be removed on the basis that the pleadings disclose no reasonable cause of action against him, and/or that naming him was scandalous, frivolous, vexatious or an abuse of the court's process.",
+      "keyPoint": "A person named as a 'Party Cited' in a cross-petition alleging adultery may apply to be struck out where the pleadings disclose no reasonable cause of action against him or where his joinder is scandalous, frivolous, vexatious or an abuse of process, under O.18 r.19 and O.92 r.4 of the Rules of Court 2012 read with rule 103 of the Divorce and Matrimonial Proceedings Rules 1980.",
+      "plain": "A wife asked the court for a divorce and accused her husband of having an affair, naming the other woman in her petition. The husband fought back with his own cross-claim, accusing the wife of having an affair too, and dragged the man he said she was involved with into the case — asking the court to make that man pay him compensation. That man then asked to be taken out of the case entirely, saying there was no proper legal claim against him and that naming him was just harassment. This judgment is the court dealing with that request to be removed from the divorce proceedings. The published court listing explains the background and the question the judge had to answer, but does not show what the judge finally ordered, so the full written grounds on the e-Judgment portal need to be read for the result.",
+      "source": "https://ejudgment.kehakiman.gov.my/ejudgmentweb/searchpage.aspx?JurisdictionType=ALL"
+    }
+  ]
 }
