@@ -1,55 +1,35 @@
 {
-  "generatedDate": "2026-11-19",
+  "generatedDate": "2026-11-20",
   "jobs": [
     {
-      "employer": "The Law Society of New South Wales (scheme-wide, all participating firms)",
-      "program": "Summer Clerkship 2027/28 (NSW Clerkship Recruitment Program)",
+      "employer": "The Law Society of New South Wales (scheme-wide, all participating employers)",
+      "program": "Summer Clerkship 2027/28 — NSW Clerkship Recruitment Program",
       "jurisdiction": "NSW",
       "opens": "2027-06-09",
       "closes": null,
-      "notes": "Official scheme page lists the next cycle as opening Wednesday 9 June at 9:00am AEST, with each participating firm choosing either Sunday 4 July or Sunday 11 July (11:59pm AEST) as its closing date, so a single scheme-wide close date cannot be stated; open to students in their penultimate or final year.",
+      "notes": "Scheme-wide open date is confirmed (9 June 2027, 9:00am AEST) with offers from 8 September 2027, but the page lists two alternative closing dates (Sunday 4 July and Sunday 11 July 2027) depending on the employer, so no single close date can be stated; individual signatory firms apply these dates to their own programs.",
       "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Clerkship-Recruitment-Program",
-      "verifiedDate": "2026-11-19"
+      "verifiedDate": "2026-11-20"
     },
     {
-      "employer": "The Law Society of New South Wales (scheme-wide, all participating firms)",
-      "program": "Graduate Program 2028 (NSW Graduate Recruitment Program – market offers)",
-      "jurisdiction": "NSW",
-      "opens": "2027-02-22",
-      "closes": "2027-04-04",
-      "notes": "Scheme page lists market-offer applications opening Monday 22 February 9:00am AEST and closing Sunday 4 April 11:59pm AEST, with interviews from 27 April and offers from 2 June; final-year students, and priority offers to existing clerks/staff are made separately before the market round.",
-      "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Graduate-Recruitment-Program",
-      "verifiedDate": "2026-11-19"
-    },
-    {
-      "employer": "Clayton Utz",
-      "program": "Seasonal Clerkship 2027/28",
-      "jurisdiction": "National (Sydney, Melbourne, Brisbane, Perth, Canberra, Darwin)",
-      "opens": null,
-      "closes": null,
-      "notes": "Firm's own early careers page states applications are currently closed and will open in June for the 2027/28 seasonal clerkship program, but no exact 2027 open or close date is published yet, so both fields are null.",
-      "url": "https://www.claytonutz.com/careers/early-careers/seasonal-clerkships",
-      "verifiedDate": "2026-11-19"
-    },
-    {
-      "employer": "HWL Ebsworth Lawyers",
-      "program": "Clerkship Program 2027/28",
-      "jurisdiction": "National (incl. Sydney/Norwest, Melbourne, Brisbane)",
-      "opens": null,
-      "closes": null,
-      "notes": "Firm's graduate centre confirms the 2026/27 round has closed and that the 2027/28 program will be advertised in line with the relevant Law Society/Law Institute guidelines, but no 2027 dates are published yet, so both fields are null.",
-      "url": "https://hwlebsworth.com.au/graduate-centre/",
-      "verifiedDate": "2026-11-19"
-    },
-    {
-      "employer": "Queensland Law Society (scheme-wide, signatory firms)",
-      "program": "Seasonal Clerkship 2028 cycle / Graduate recruitment",
+      "employer": "Queensland Law Society (scheme-wide, all signatory firms)",
+      "program": "Seasonal Clerkship and Graduate Recruitment — 2027 program cycle",
       "jurisdiction": "QLD",
       "opens": null,
       "closes": null,
-      "notes": "The official QLS page confirms the annual cycle commences with clerkship recruitment in July/August each year, but only the 2027 program cycle dates (offers 7–8 October 2026) are currently published, so the next cycle's open and close dates are unconfirmed.",
+      "notes": "QLS publishes a 2027 key-dates table and states the cycle commences with clerkship recruitment in July/August, but the exact 2027 open and close dates could not be read off the live page, so they are left null rather than guessed.",
       "url": "https://www.qls.com.au/the-hub-early-career-lawyers/your-legal-career/seasonal-clerkship-and-graduate-recruitment",
-      "verifiedDate": "2026-11-19"
+      "verifiedDate": "2026-11-20"
+    },
+    {
+      "employer": "HWL Ebsworth Lawyers",
+      "program": "Clerkship Program 2027/2028",
+      "jurisdiction": "National",
+      "opens": null,
+      "closes": null,
+      "notes": "Firm's own early careers page confirms the 2026/2027 round has closed and that 2027/2028 clerkships will be advertised in line with the relevant Law Society/Institute guidelines, but no 2027/28 dates are yet published.",
+      "url": "https://hwlebsworth.com.au/graduate-centre/",
+      "verifiedDate": "2026-11-20"
     }
   ]
 }
