@@ -269,13 +269,35 @@ export default function Page() {
               <h2>
                 What do you want to <em>write about</em> today?
               </h2>
-              <p>
-                One line is enough, or paste a note or draft and it will build the post from that. Leave out client
-                names and confidential details: what you type is sent to OpenAI or Anthropic, overseas, to write
-                the post. Nothing posts on its own.
-              </p>
+              <p>One line is enough, or paste a note or a draft.</p>
             </div>
-            <div className="askcontrols">
+            <div className="starters" id="starters" role="group" aria-label="Start from an idea">
+              <span className="starters-label">Or start from</span>
+              <button type="button" data-starter="A question clients keep asking me: ">
+                A question clients keep asking
+              </button>
+              <button type="button" data-starter="A recent change in the law my clients should know about: ">
+                A recent change in the law
+              </button>
+              <button type="button" data-starter="A mistake I often see people make: ">
+                A mistake I often see
+              </button>
+              <button type="button" data-starter="What to expect when you: ">
+                What to expect
+              </button>
+            </div>
+            <textarea
+              className="askbox"
+              id="askInput"
+              rows={5}
+              placeholder="e.g. what to bring to your first appointment&#10;or: the new rules on casual conversion"
+            />
+            <p className="askstatus" id="askStatus" role="status"></p>
+            <p className="asknote">
+              Leave out client names and confidential details. What you type is sent to OpenAI or Anthropic, overseas,
+              to write the post. Nothing posts on its own.
+            </p>
+            <div className="askcontrols" id="askControls">
               <div className="segmented formatpick" id="formatPick">
                 <button type="button" data-format="carousel">Slides</button>
                 <button type="button" data-format="poster">One poster</button>
@@ -299,13 +321,6 @@ export default function Page() {
             </div>
             <div className="firmbar" id="firmBar" hidden></div>
             <div className="brandbar" id="brandBar"></div>
-            <textarea
-              className="askbox"
-              id="askInput"
-              rows={5}
-              placeholder="e.g. what to bring to your first appointment&#10;or: the new rules on casual conversion"
-            />
-            <p className="askstatus" id="askStatus" role="status"></p>
             <div className="stepfoot">
               <button type="button" className="linkbtn" id="btnSeeExample">
                 Show me an example
@@ -354,6 +369,12 @@ export default function Page() {
             <div className="strip" id="strip"></div>
             </div>
             <div className="reviewright">
+            <div className="lookpick" id="lookPick" hidden>
+              <p className="panel-title">
+                Pick a look <span className="hint">same words, different design</span>
+              </p>
+              <div className="lookrow" id="lookRow"></div>
+            </div>
 
             <div className="captionblock">
               <p className="panel-title striptitle">
@@ -453,7 +474,7 @@ export default function Page() {
             </div>
             <div className="exportbar" id="downloadBar">
               <button className="btn btn-accent" id="btnExportAll" type="button">
-                Download all slides (ZIP)
+                Save slides and copy post
               </button>
               <button className="btn" id="btnExportOne" type="button">
                 Download this slide (PNG)

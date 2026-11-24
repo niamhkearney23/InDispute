@@ -1211,3 +1211,39 @@ body{background:var(--bg);}
 @media (max-width:600px){.stepfoot,#shareBar{background:rgba(247,245,241,.9) !important;}}
 .gatecard h2{font-family:'Studio Serif',Georgia,serif;font-weight:500;letter-spacing:-.015em;}
 .gatecard h2 em{color:var(--accent);}
+
+
+/* ---------- five minutes, once a week ---------- */
+/* once you are set up, the bar is only the three things you do each visit, numbered */
+body.pastsetup .journey li[data-stage="setup"]{display:none;}
+.journey ol{counter-reset:stage;}
+.journey li{counter-increment:stage;}
+.journey li::after{content:counter(stage);position:absolute;right:0;top:11px;font-size:11px;font-weight:600;color:var(--ink-faint);opacity:.7;}
+
+/* topic screen: the box is the screen; ideas above it, small print below it */
+.starters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 14px;}
+.starters-label{font-size:12.5px;color:var(--ink-faint);margin-right:2px;}
+.starters button{
+  font:inherit;font-size:13px;font-weight:500;color:var(--ink-soft);background:var(--surface-2);
+  border:1px solid var(--border-strong);border-radius:999px;padding:7px 13px;cursor:pointer;transition:border-color .12s,color .12s;
+}
+.starters button:hover{border-color:var(--accent);color:var(--accent);}
+.starters button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.asknote{margin:10px 0 0;font-size:12px;line-height:1.5;color:var(--ink-faint);max-width:62ch;}
+@media (max-width:600px){.starters button{padding:10px 14px;font-size:13.5px;}}
+
+/* review: the same post in a few looks */
+.lookpick{margin-bottom:22px;}
+.lookrow{display:flex;gap:12px;flex-wrap:wrap;}
+.lookbtn{
+  font:inherit;background:none;border:0;padding:0;cursor:pointer;display:flex;flex-direction:column;gap:7px;align-items:center;color:var(--ink-soft);
+}
+.lookthumb{display:block;position:relative;overflow:hidden;border-radius:4px;box-shadow:0 0 0 1px var(--border-strong);transition:box-shadow .12s, transform .12s;}
+.lookbtn:hover .lookthumb{transform:translateY(-2px);}
+.lookbtn.active .lookthumb{box-shadow:0 0 0 2px var(--accent), 0 6px 16px rgba(21,18,15,.14);}
+.lookbtn.active{color:var(--ink);}
+.lookname{font-size:12px;font-weight:600;}
+.lookbtn:focus-visible .lookthumb{outline:2px solid var(--accent);outline-offset:3px;}
+@media (max-width:999px){.lookpick{margin-top:20px;}.lookrow{flex-wrap:nowrap;overflow-x:auto;padding:3px 3px 8px;}}
+/* the format switch and brand line sit under the box now: secondary, so quieter */
+.asknote + .askcontrols{margin-top:18px;}
