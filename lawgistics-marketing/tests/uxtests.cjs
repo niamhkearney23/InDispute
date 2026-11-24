@@ -62,7 +62,7 @@ const go = async (pg, path) => { for (let i = 0; i < 3; i++) { try { return awai
     await page.waitForTimeout(300);
   }
   ok((await active()) === 'ask', 'with a name, the setup steps go through to the topic screen', await active());
-  const lede = await page.innerText('.step.active .stephead p');
+  const lede = await page.innerText('.step.active .asknote');
   ok(/overseas/.test(lede) && /client/i.test(lede), 'the topic screen says where the text goes and to leave out client details', lede);
 
   // the demo is fictional

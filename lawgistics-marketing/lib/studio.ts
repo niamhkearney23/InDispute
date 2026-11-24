@@ -597,7 +597,7 @@ export function initStudio(){
     document.querySelectorAll('.step').forEach(function(sec){
       sec.classList.toggle('active', sec.dataset.step===name);
     });
-    if(name==='review'){ renderStrip(); setTimeout(updatePreview, 0); renderReviewNote(); }
+    if(name==='review'){ renderStrip(); setTimeout(updatePreview, 0); renderReviewNote(); setTimeout(renderLookPick, 0); }
     if(name==='save'){ captionOut.value = state.caption || ''; renderApprovalGate(); rememberApproved(); if(state.consented) prepareBlobs(); }
     if(name==='look') setTimeout(renderBrandPreview, 0);
     if(name==='you') setTimeout(function(){ brandName.focus(); }, 0);
@@ -606,6 +606,7 @@ export function initStudio(){
     window.scrollTo(0,0);
     // the bar across the top: what is done, where you are, what is left
     var stageNow = (name==='you'||name==='look'||name==='voice') ? 'setup' : name, seen = false;
+    document.body.classList.toggle('pastsetup', stageNow!=='setup');
     document.querySelectorAll('#journey li').forEach(function(li){
       var cur = li.dataset.stage===stageNow;
       li.classList.toggle('current', cur);
@@ -1045,6 +1046,45 @@ export function initStudio(){
       if(state.step==='review'){ renderStrip(); updatePreview(); }
       if(state.step==='look') renderBrandPreview();
     }, 120);
+  });
+
+  // The same post in a few looks, so choosing a design is one click instead of a trip back to
+  // setup. Only the drawing changes, so it is instant and costs nothing. A firm's look is set by
+  // the firm, so its members are not offered this.
+  var LOOK_CHOICES = ['editorial', 'bold', 'minimal', 'swiss'];
+  function renderLookPick(){
+    var box = $('lookPick'), row = $('lookRow'); if(!box || !row) return;
+    if(firm || !state.slides.length){ box.hidden = true; return; }
+    box.hidden = false; row.innerHTML = '';
+    var now = state.brand.style || 'editorial';
+    var keys = LOOK_CHOICES.indexOf(now)>=0 ? LOOK_CHOICES : [now].concat(LOOK_CHOICES.slice(0,3));
+    var W = 104, scale = W/1080;
+    keys.forEach(function(k){
+      var meta = STYLES.filter(function(x){ return x.key===k; })[0]; if(!meta) return;
+      var btn = document.createElement('button');
+      btn.type = 'button'; btn.className = 'lookbtn' + (k===now ? ' active' : '');
+      btn.dataset.look = k; btn.setAttribute('aria-pressed', k===now ? 'true' : 'false');
+      btn.setAttribute('aria-label', meta.name + ' look');
+      var thumb = document.createElement('span'); thumb.className = 'lookthumb';
+      thumb.style.width = W+'px'; thumb.style.height = Math.round(1350*scale)+'px';
+      var canvas = buildCanvasEl(state.slides[0], Object.assign({}, state.brand, {style:k}));
+      canvas.style.transform = 'scale('+scale+')'; canvas.style.transformOrigin = 'top left';
+      canvas.setAttribute('aria-hidden', 'true');
+      thumb.appendChild(canvas); btn.appendChild(thumb);
+      var name = document.createElement('span'); name.className = 'lookname'; name.textContent = meta.name;
+      btn.appendChild(name);
+      row.appendChild(btn);
+    });
+  }
+  document.addEventListener('click', function(e){
+    var b = e.target.closest && e.target.closest('[data-look]'); if(!b || firm) return;
+    state.brand.style = b.dataset.look; saveLocal(); renderAll(); renderLookPick();
+  });
+  // a starter puts the first half of a sentence in the box, ready to finish
+  document.addEventListener('click', function(e){
+    var b = e.target.closest && e.target.closest('[data-starter]'); if(!b) return;
+    askInput.value = b.dataset.starter; askInput.focus();
+    try{ askInput.setSelectionRange(askInput.value.length, askInput.value.length); }catch(err){}
   });
 
   // a one-line instruction that rewrites just this piece of text
@@ -1876,6 +1916,8 @@ export function initStudio(){
   });
   btnExportAll.addEventListener('click', async function(){
     if(!state.consented) return;
+    var copied = false;
+    if((state.caption||'').trim()){ try{ await navigator.clipboard.writeText(state.caption); copied = true; }catch(err){} }
     btnExportAll.disabled = true; var label = btnExportAll.textContent;
     try{
       var JSZip = (await import('jszip')).default;
@@ -1887,6 +1929,7 @@ export function initStudio(){
       if(state.caption) zip.file('post.txt', state.caption);
       btnExportAll.textContent = 'Zipping…';
       saveBlob('carousel.zip', await zip.generateAsync({type:'blob'}));
+      showToast(copied ? 'Slides saved and post copied. Paste it into LinkedIn.' : 'Slides saved. Use Copy post for the text.');
     }catch(e){ showToast('Export failed, try again'); }
     finally{ btnExportAll.disabled = !state.consented; btnExportAll.textContent = label; }
   });
