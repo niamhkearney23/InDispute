@@ -49,6 +49,16 @@ export default function Page() {
           </div>
         </div>
 
+        {/* where you are in the whole journey, on every screen */}
+        <nav className="journey" id="journey" aria-label="Progress">
+          <ol>
+            <li data-stage="setup">Set up</li>
+            <li data-stage="ask">Topic</li>
+            <li data-stage="review">Review</li>
+            <li data-stage="save">Save</li>
+          </ol>
+        </nav>
+
         {/* 1. who */}
         <section className="step" data-step="you">
           <div className="stepcard panel">
@@ -325,13 +335,25 @@ export default function Page() {
 
             <div className="reviewnote" id="reviewNote" hidden role="status"></div>
 
+            <div className="reviewcols">
+            <div className="reviewleft">
             <div className="stage">
               <div className="previewframe">
                 <div className="canvasholder" id="previewHolder"></div>
               </div>
-              <p className="stagecount" id="stageCount"></p>
+              <div className="stagenav">
+                <button type="button" className="stagearrow" id="btnPrevSlide" aria-label="Previous slide">
+                  &#8592;
+                </button>
+                <p className="stagecount" id="stageCount"></p>
+                <button type="button" className="stagearrow" id="btnNextSlide" aria-label="Next slide">
+                  &#8594;
+                </button>
+              </div>
             </div>
             <div className="strip" id="strip"></div>
+            </div>
+            <div className="reviewright">
 
             <div className="captionblock">
               <p className="panel-title striptitle">
@@ -394,6 +416,8 @@ export default function Page() {
               <button className="btn btn-accent" type="button" id="btnLooksGood">
                 Looks good
               </button>
+            </div>
+            </div>
             </div>
           </div>
         </section>

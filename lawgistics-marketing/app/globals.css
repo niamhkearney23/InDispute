@@ -1114,3 +1114,61 @@ body.firmcheck .step{visibility:hidden;}
 
 /* the "one post a week" strapline is the solo studio's promise, and a firm sets its own allowance */
 body.firmmode .mk-tag{display:none;}
+
+
+/* ---------- interface polish ---------- */
+/* a heading that takes focus when a step opens is a landing point, not a control: no box */
+.stephead h2:focus{outline:none;}
+
+/* the journey: one quiet line under the top bar that says where you are */
+.journey{margin:-4px 0 0;}
+.journey ol{list-style:none;margin:0 auto;padding:0;display:flex;gap:8px;max-width:720px;}
+.journey li{flex:1;position:relative;padding-top:11px;font-size:12px;font-weight:600;letter-spacing:.01em;color:var(--ink-faint);}
+.journey li::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;border-radius:2px;background:var(--border-strong);}
+.journey li.done{color:var(--ink-soft);}
+.journey li.done::before{background:color-mix(in srgb, var(--accent) 55%, var(--border-strong));}
+.journey li.current{color:var(--ink);}
+.journey li.current::before{background:var(--accent);}
+body.firmmode .journey li[data-stage="setup"]{display:none;}
+body.firmcheck .journey{visibility:hidden;}
+@media (max-width:600px){.journey li{font-size:11px;padding-top:9px;}}
+
+/* review: the slide beside its words on a wide screen, so the buttons are not below the fold */
+.stagenav{display:flex;align-items:center;justify-content:center;gap:14px;}
+.stagearrow{
+  width:38px;height:38px;border-radius:50%;border:1px solid var(--border-strong);background:var(--surface-2);
+  color:var(--ink);font-size:16px;line-height:1;cursor:pointer;display:grid;place-items:center;transition:background .15s,border-color .15s;
+}
+.stagearrow:hover:not(:disabled){background:var(--surface-3);border-color:var(--accent);}
+.stagearrow:disabled{opacity:.3;cursor:default;}
+.stagearrow:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.stagenav .stagecount{min-width:96px;text-align:center;}
+@media (min-width:1000px){
+  .reviewcols{display:grid;grid-template-columns:minmax(0,480px) minmax(0,1fr);gap:44px;align-items:start;}
+  .reviewleft{position:sticky;top:20px;}
+  .reviewleft .stage{margin-bottom:16px;}
+  .reviewleft .stage .previewframe{padding:22px;}
+  .reviewright .captionblock{margin-top:0;}
+  .reviewright .stepfoot{margin-top:26px;}
+  .reviewright #captionText{min-height:230px;}
+}
+
+/* below the two-column width the wrappers vanish, so the action bar pins to the card as before */
+@media (max-width:999px){.reviewcols,.reviewleft,.reviewright{display:contents;}}
+
+/* The toast must never sit on a control. On a phone the bottom belongs to the action bar, so it
+   drops in from the top. On a wide screen it sits in the bottom right corner, clear of the slide. */
+@media (max-width:600px){
+  .toast{top:calc(10px + env(safe-area-inset-top,0px));bottom:auto;transform:translateX(-50%) translateY(-6px);}
+  .toast.show{transform:translateX(-50%) translateY(0);}
+}
+@media (min-width:601px){
+  .toast{left:auto;right:24px;bottom:24px;transform:translateY(6px);border-radius:12px;}
+  .toast.show{transform:translateY(0);}
+}
+
+/* save: a checkbox in the brand colour, and a clear change when it is ticked */
+input[type=checkbox]{accent-color:var(--accent);}
+.consentbar input{width:18px;height:18px;}
+.consentbar{transition:border-color .2s, background .2s;cursor:pointer;}
+.consentbar:has(input:checked){border-color:var(--accent);background:color-mix(in srgb, var(--accent) 9%, var(--surface-2));}
