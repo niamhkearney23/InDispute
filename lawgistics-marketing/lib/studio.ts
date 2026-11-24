@@ -604,6 +604,14 @@ export function initStudio(){
     if(name==='ask'){ renderBrandBar(); renderSameRow(); renderModelPick(); setTimeout(function(){ askInput.focus(); }, 0); }
     saveLocal();
     window.scrollTo(0,0);
+    // the bar across the top: what is done, where you are, what is left
+    var stageNow = (name==='you'||name==='look'||name==='voice') ? 'setup' : name, seen = false;
+    document.querySelectorAll('#journey li').forEach(function(li){
+      var cur = li.dataset.stage===stageNow;
+      li.classList.toggle('current', cur);
+      li.classList.toggle('done', !cur && !seen);
+      if(cur){ li.setAttribute('aria-current', 'step'); seen = true; } else li.removeAttribute('aria-current');
+    });
     // Each step is a history entry, so the back button and the Android back gesture go to the
     // previous step instead of leaving the app. The first call only labels the page it opened on.
     try{
@@ -1173,7 +1181,11 @@ export function initStudio(){
     previewHolder.appendChild(wrap);
     stageCount.textContent = state.slides.length>1
       ? 'Slide '+(state.activeIndex+1)+' of '+state.slides.length
-      : 'Your poster';
+      : 'Your poster';    var many = state.slides.length>1, pv = $('btnPrevSlide'), nx = $('btnNextSlide');
+    if(pv && nx){
+      pv.hidden = nx.hidden = !many;
+      pv.disabled = state.activeIndex===0; nx.disabled = state.activeIndex===state.slides.length-1;
+    }
   }
 
   function renderCaption(){
@@ -1256,6 +1268,20 @@ export function initStudio(){
     updateButtons();
   }
   function select(i){ state.activeIndex = i; saveLocal(); renderAll(); }
+  // step through the slides with the arrows under the preview, or the arrow keys
+  function stepSlide(d){
+    var i = state.activeIndex + d;
+    if(i>=0 && i<state.slides.length) select(i);
+  }
+  if($('btnPrevSlide')) $('btnPrevSlide').addEventListener('click', function(){ stepSlide(-1); });
+  if($('btnNextSlide')) $('btnNextSlide').addEventListener('click', function(){ stepSlide(1); });
+  document.addEventListener('keydown', function(e){
+    if(state.step!=='review' || e.altKey || e.ctrlKey || e.metaKey) return;
+    var t = e.target, tag = t && t.tagName;
+    if(tag==='INPUT' || tag==='TEXTAREA' || tag==='SELECT' || (t && t.isContentEditable)) return;
+    if(e.key==='ArrowLeft'){ stepSlide(-1); e.preventDefault(); }
+    if(e.key==='ArrowRight'){ stepSlide(1); e.preventDefault(); }
+  });
 
   strip.addEventListener('click', function(e){
     var item = e.target.closest('.stripitem'); if(!item) return;
