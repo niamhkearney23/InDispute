@@ -162,7 +162,7 @@ Environments → Production**):
 - `app/api/draft/route.ts`: the server-side Claude call and the drafting
   brief (voice rules, no em dashes, no AI-sounding patterns, no invented
   citations). Accepts `current` for revisions.
-- `app/globals.css`: the dark studio chrome plus the house-style slide CSS,
+- `app/globals.css`: the studio chrome (light cream, ink and plum, matching `/firms`; the tokens are in the "light studio" block at the end) plus the house-style slide CSS,
   ported verbatim from `tools/carousel/house-style.py`.
 - `public/fonts/`: Playfair Display and TikTok Sans, self-hosted.
 

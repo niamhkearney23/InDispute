@@ -24,7 +24,7 @@
      reads as unfinished, and half this audience is looking at it outdoors */
   --ink:#F2F0EA; --ink-soft:#BEC4CE; --ink-faint:#8B93A0;
   --accent:#7C93D1; --accent-strong:#9BADE0; --accent-ink:#0A0C10;
-  --accent-glow:rgba(124,147,209,.30); --danger:#E8827B;
+  --accent-glow:color-mix(in srgb, var(--accent) calc(30% / 2.2), transparent); --danger:#E8827B;
   --mono:ui-monospace,'SF Mono','Cascadia Code',Menlo,monospace;
   --shadow:0 1px 0 rgba(255,255,255,.03) inset, 0 12px 32px rgba(0,0,0,.45);
 }
@@ -34,7 +34,7 @@ html,body{min-height:100%;}
 body{
   margin:0;
   background:
-    radial-gradient(1200px 420px at 15% -10%, rgba(124,147,209,.10), transparent 60%),
+    radial-gradient(1200px 420px at 15% -10%, color-mix(in srgb, var(--accent) calc(10% / 2.2), transparent), transparent 60%),
     var(--bg);
   color:var(--ink);
   font-family:'Studio UI',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
@@ -87,8 +87,8 @@ body{
 }
 .mk-suffix{
   font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--accent);background:rgba(124,147,209,.18);
-  border:1px solid rgba(124,147,209,.35);border-radius:6px;padding:3px 8px;
+  color:var(--accent);background:color-mix(in srgb, var(--accent) calc(18% / 2.2), transparent);
+  border:1px solid color-mix(in srgb, var(--accent) calc(35% / 2.2), transparent);border-radius:6px;padding:3px 8px;
 }
 .mk-tag{
   position:relative;padding-left:13px;
@@ -120,7 +120,7 @@ body{
 .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .btn-accent{
   background:var(--accent);color:var(--accent-ink);border-color:var(--accent);
-  box-shadow:0 0 0 1px rgba(124,147,209,.4), 0 6px 20px var(--accent-glow);
+  box-shadow:0 0 0 1px color-mix(in srgb, var(--accent) calc(40% / 2.2), transparent), 0 6px 20px var(--accent-glow);
 }
 .btn-accent:hover{background:var(--accent-strong);border-color:var(--accent-strong);}
 .btn-danger{color:var(--danger);}
@@ -256,7 +256,7 @@ body{
 .captionrow{display:flex;justify-content:flex-end;margin-top:10px;}
 
 .panel{
-  background:linear-gradient(180deg,#14171D 0%,var(--surface) 120px);border:1px solid var(--border);border-radius:12px;
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
   box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.04);
 }
 .panel-pad{padding:16px;}
@@ -315,7 +315,7 @@ body{
 .previewcol{display:flex;flex-direction:column;gap:14px;position:sticky;top:16px;}
 .previewframe{
   background:
-    radial-gradient(600px 300px at 50% 0%, rgba(124,147,209,.08), transparent 70%),
+    radial-gradient(600px 300px at 50% 0%, color-mix(in srgb, var(--accent) calc(08% / 2.2), transparent), transparent 70%),
     #020203;
   border:1px solid var(--border);border-radius:14px;
   display:flex;align-items:center;justify-content:center;padding:26px;
@@ -965,7 +965,7 @@ details.brandfields.on{display:block;}
 .stylebtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .stylebtn.active{
   border-color:var(--accent);color:var(--ink);
-  background:linear-gradient(180deg,rgba(124,147,209,.26),rgba(124,147,209,.12));
+  background:linear-gradient(180deg,color-mix(in srgb, var(--accent) calc(26% / 2.2), transparent),color-mix(in srgb, var(--accent) calc(12% / 2.2), transparent));
   box-shadow:0 0 0 1px var(--accent), 0 8px 24px -12px var(--accent-glow);
 }
 /* a tick, so the chosen one is obvious at a glance and not just outlined */
@@ -984,7 +984,7 @@ details.brandfields.on{display:block;}
 }
 .palette:hover{color:var(--ink);border-color:var(--ink-faint);}
 .palette.active{
-  border-color:var(--accent);color:var(--ink);background:rgba(124,147,209,.20);
+  border-color:var(--accent);color:var(--ink);background:color-mix(in srgb, var(--accent) calc(20% / 2.2), transparent);
   box-shadow:0 0 0 1px var(--accent);
 }
 .palette.active::after{
@@ -1100,13 +1100,13 @@ body.firmcheck .step{visibility:hidden;}
 .approvalbox b{color:var(--ink);font-size:15.5px;font-weight:600;}
 .approvalbox a{color:var(--accent-strong);}
 .approvalbox .btn{justify-self:start;margin-top:4px;}
-.approvalbox.ok{border-color:var(--accent);background:rgba(124,147,209,.14);}
+.approvalbox.ok{border-color:var(--accent);background:color-mix(in srgb, var(--accent) calc(14% / 2.2), transparent);}
 .approvalbox.ok{color:var(--ink);}
 #exportArea[hidden]{display:none;}
 
 .reviewnote{
   display:grid;gap:4px;margin:0 0 18px;padding:14px 18px;border-radius:12px;
-  border:1px solid var(--accent);background:rgba(124,147,209,.14);font-size:14.5px;line-height:1.5;color:var(--ink);
+  border:1px solid var(--accent);background:color-mix(in srgb, var(--accent) calc(14% / 2.2), transparent);font-size:14.5px;line-height:1.5;color:var(--ink);
 }
 .reviewnote[hidden]{display:none;}
 .reviewnote b{font-weight:600;}
@@ -1172,3 +1172,42 @@ input[type=checkbox]{accent-color:var(--accent);}
 .consentbar input{width:18px;height:18px;}
 .consentbar{transition:border-color .2s, background .2s;cursor:pointer;}
 .consentbar:has(input:checked){border-color:var(--accent);background:color-mix(in srgb, var(--accent) 9%, var(--surface-2));}
+
+/* ================= the light studio =================
+   The studio now wears the same cream, ink and plum as the page that sells it, so the product
+   reads as one thing and looks like a publication, not a developer tool. Everything above is
+   driven by these tokens, so the change lives here and nowhere else. */
+:root{
+  --bg:#efece6; --surface:#f7f5f1; --surface-2:#ffffff; --surface-3:#ece8e0;
+  --border:#ddd7cc; --border-strong:#c4bcae;
+  --ink:#15120f; --ink-soft:#4a443c; --ink-faint:#6a6258;
+  --accent:#3f1733; --accent-strong:#5c2a4d; --accent-ink:#f7f1f5;
+  --accent-glow:rgba(63,23,51,.14); --danger:#a8322a;
+  --mono:'Studio UI',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --shadow:0 1px 2px rgba(21,18,15,.05), 0 10px 30px rgba(21,18,15,.06);
+}
+body{background:var(--bg);}
+.panel{box-shadow:var(--shadow);}
+
+/* headings in the serif the slides use, in plain ink */
+.stephead h2{
+  font-family:'Studio Serif',Georgia,serif;font-weight:500;font-size:34px;letter-spacing:-.015em;
+  background:none;-webkit-background-clip:border-box;background-clip:border-box;color:var(--ink);
+}
+.stephead h2 em{-webkit-text-fill-color:currentColor;color:var(--accent);font-weight:500;}
+@media (max-width:600px){.stephead h2{font-size:29px;}}
+.mk-name{font-family:'Studio Serif',Georgia,serif;font-weight:600;letter-spacing:-.01em;}
+
+/* small print reads as small print, not as code */
+.hint,.panel-title,.stagecount,.stepdots b{letter-spacing:.01em;}
+.panel-title,.stagecount,.stepdots b{text-transform:none;font-size:12.5px;font-weight:600;color:var(--ink-soft);}
+.hint{font-size:12px;}
+
+/* the slide sits on a quiet mat instead of a black stage */
+.previewframe{background:var(--surface-3) !important;border-color:var(--border) !important;}
+.canvasholder{box-shadow:0 14px 34px rgba(21,18,15,.16), 0 0 0 1px rgba(21,18,15,.08);}
+.stripitem{background:var(--surface-3);box-shadow:0 3px 10px rgba(21,18,15,.12);}
+.palette .sw,.brandbar .sw{border-color:rgba(21,18,15,.16);}
+@media (max-width:600px){.stepfoot,#shareBar{background:rgba(247,245,241,.9) !important;}}
+.gatecard h2{font-family:'Studio Serif',Georgia,serif;font-weight:500;letter-spacing:-.015em;}
+.gatecard h2 em{color:var(--accent);}
