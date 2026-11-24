@@ -57,13 +57,13 @@ export default function Page() {
               <h2>
                 First, <em>who are you?</em>
               </h2>
-              <p>Two answers and you are set up for good. About three minutes to your first post.</p>
+              <p>Two answers and you are set up for good. Then straight to your first post.</p>
             </div>
 
             <div className="rowfields">
               <div className="field">
                 <label htmlFor="brandName">Your name</label>
-                <input type="text" id="brandName" data-brand="wordmark" maxLength={28} placeholder="e.g. Mathew Thomas Philip" />
+                <input type="text" id="brandName" data-brand="wordmark" maxLength={28} placeholder="e.g. Jane Citizen" />
               </div>
               <div className="field">
                 <label htmlFor="brandRole">
@@ -260,8 +260,9 @@ export default function Page() {
                 What do you want to <em>write about</em> today?
               </h2>
               <p>
-                One line is enough, or paste a whole case note, email or draft and it will build the post from that.
-                Nothing posts on its own.
+                One line is enough, or paste a note or draft and it will build the post from that. Leave out client
+                names and confidential details: what you type is sent to OpenAI or Anthropic, overseas, to write
+                the post. Nothing posts on its own.
               </p>
             </div>
             <div className="askcontrols">
@@ -294,7 +295,7 @@ export default function Page() {
               rows={5}
               placeholder="e.g. what to bring to your first appointment&#10;or: the new rules on casual conversion"
             />
-            <p className="askstatus" id="askStatus"></p>
+            <p className="askstatus" id="askStatus" role="status"></p>
             <div className="stepfoot">
               <button type="button" className="linkbtn" id="btnSeeExample">
                 Show me an example
@@ -336,7 +337,7 @@ export default function Page() {
               <p className="panel-title striptitle">
                 Your post <span className="hint">this is the text, the slides go with it</span>
               </p>
-              <textarea id="captionText" rows={7} />
+              <textarea id="captionText" rows={7} aria-label="Post text" />
             </div>
 
             <div className="changepanel" id="changePanel" hidden>
@@ -355,7 +356,7 @@ export default function Page() {
                   </button>
                 ))}
               </div>
-              <div className="chatlog" id="chatLog"></div>
+              <div className="chatlog" id="chatLog" role="log" aria-live="polite" aria-label="Conversation about this post"></div>
               <div className="chatbar">
                 <textarea id="chatInput" rows={2} placeholder="Shorter. Punchier hook. Slide 3 should name the case." />
                 <button className="btn btn-accent" id="btnSend" type="button">
@@ -438,7 +439,7 @@ export default function Page() {
 
             <div className="captionblock">
               <p className="panel-title">Your post</p>
-              <textarea id="captionOut" rows={7} readOnly />
+              <textarea id="captionOut" rows={7} readOnly aria-label="Post text, ready to copy" />
               <div className="captionrow">
                 <button className="btn" id="btnCopyCaption" type="button">
                   Copy post
@@ -486,7 +487,7 @@ export default function Page() {
       </div>
 
       <div style={{ position: "fixed", left: -99999, top: 0 }} id="exportStage"></div>
-      <div className="toast" id="toast"></div>
+      <div className="toast" id="toast" role="status" aria-live="polite"></div>
     </>
   );
 }

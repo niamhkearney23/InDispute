@@ -56,6 +56,15 @@ const SLIDE_STRINGS: Record<string, number> = {
   photoKind: 10,
   photoMode: 10,
 };
+const SLIDE_CHOICES: Record<string, string[]> = {
+  size: ["lg", "md"],
+  ground: ["light", "dark", "accent"],
+  anchor: ["top", "mid", "bottom"],
+  align: ["left", "centre"],
+  photoKind: ["photo", "design"],
+  photoMode: ["scrim", "plain", "card"],
+};
+const SLUG = /^[a-z0-9_-]{0,20}$/i;
 // a photo's identity. It survives being shrunk for storage, and a replaced photo gets a new one,
 // which is how a changed picture is told apart from the same picture stored smaller
 const PHOTO_ID = /^[a-z0-9]{0,24}$/i;
@@ -70,6 +79,14 @@ export function cleanSlides(input: unknown): Record<string, unknown>[] | null {
     const s = raw as Record<string, unknown>;
     const slide: Record<string, unknown> = {};
     for (const [k, max] of Object.entries(SLIDE_STRINGS)) slide[k] = str(s[k], max);
+    // values that end up in a class attribute when a slide is drawn are closed lists, not free text
+    for (const [k, allowed] of Object.entries(SLIDE_CHOICES)) {
+      const v = slide[k];
+      slide[k] = typeof v === "string" && allowed.includes(v) ? v : "";
+    }
+    for (const k of ["layout", "motif"]) {
+      if (!SLUG.test(String(slide[k]))) slide[k] = "";
+    }
     for (const k of SLIDE_FLAGS) slide[k] = !!s[k];
     if (typeof s.photoId === "string" && PHOTO_ID.test(s.photoId)) slide.photoId = s.photoId;
     // a stored photo is shown in an <img>, so it must be an inline image and nothing else

@@ -85,6 +85,10 @@ export async function PATCH(req: Request, { params }: Ctx) {
       inviteCode = inv.code;
       add("invite_hash = ?", inv.hash);
       add(`invite_expires = now() + interval '${INVITE_DAYS} days'`);
+      // The lost phone path: a new invite must also end any session the person already has, or a
+      // stolen cookie would keep working after the admin thought they had locked it out. An admin
+      // issuing themselves a new invite keeps the session they are using.
+      if (id !== r.ctx.member.id) add("session_gen = session_gen + 1");
     }
     if (!sets.length) return { status: 400, body: { error: "Nothing to change." } };
 

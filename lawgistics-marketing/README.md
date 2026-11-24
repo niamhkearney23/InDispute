@@ -35,7 +35,7 @@ loop is screens 4 to 6.
 
 Older description of the three-screen version follows.
 
-1. **Brand**, set once: "Who is this post coming from?" — **Me** (the
+1. **Brand**, set once: "Who is this post coming from?" **Me** (the
    default, since a personal LinkedIn post reaches further than a company
    page), **My law firm**, or **My business**. Then a name, one of four
    layouts (Editorial, Bold, Minimal, Colour block), one of ten colour
@@ -235,7 +235,7 @@ None of these are needed for the firm layer to work. Each switches on one thing 
 | Setting | What it does |
 |---|---|
 | `RESEND_API_KEY` and `EMAIL_FROM` | Emails invites. Both are needed. See below. |
-| `APP_URL` | The address put in emailed links, e.g. `https://marketing.example.com`. Without it the address of the request is used, which is right on your own domain but can be a preview address on a preview deployment. |
+| `APP_URL` | The address put in emailed links, e.g. `https://marketing.example.com`. Without it, on Vercel the deployment's own address is used. Anywhere else the address of the request is used, which a caller can influence, so set `APP_URL` on a self hosted server. |
 | `BOOKING_URL` | Your Calendly or booking form. The "Book a demo" buttons on `/firms` and the "Ask for one" link on the access gate point at it. It must be `https://`. **If it is not set the buttons are left out**, rather than shown pointing nowhere. |
 | `ACCESS_CODES` | Closes the solo studio to people without a code. See above. |
 
@@ -319,26 +319,43 @@ post, as with any AI tool.
 Every route that touches firm data takes the firm from the signed session and never
 from the request, and every query is scoped to it, so another firm's valid id is a
 plain 404. Request bodies are shaped by closed allow lists before they are stored or
-drawn. Mutating requests with a foreign `Origin` are refused. Sessions are signed
+drawn: anything that ends up in an HTML attribute (a slide's size, ground, layout and so
+on) is one of a short list of values or it is stored as empty, and the studio checks again
+when it draws. Mutating requests with a foreign `Origin` are refused. Sessions are signed
 cookies (HttpOnly, SameSite=Lax, Secure over https) that are re-checked against the
-database on every request.
+database on every request. Responses carry headers that stop the app being framed
+(`/team` and `/owner` cannot be put in a frame to trick a click), stop content type
+guessing, and send a short referrer. A script policy is deliberately not set, because
+Next's own inline scripts would need a nonce on every request.
+
+**When a session ends.** Switching someone off ends their sessions on their next request.
+Issuing someone a new invite does the same, which is what the lost phone path needs (an
+admin issuing themselves one keeps the session they are using). **Signing out does not
+revoke a copied cookie**: sessions are stateless and last 30 days, so someone who had
+already copied the cookie keeps access until then. If that matters, switch the person off
+and on again.
+
+**Paid calls.** Every call to a model costs money, so they are limited at the server and
+not only in the interface. A signed in member's new posts use the monthly allowance. Their
+revisions and rewrites are counted separately and capped at 20 for every post the allowance
+allows. Both are only a hard limit when the studio is closed to people without an account
+(`ACCESS_CODES`), otherwise anyone can call the routes without signing in. Sizes are capped
+before anything is sent to a provider. Use long random access codes (16 or more characters),
+and set a spend limit with each provider.
+
+**What it does not do.** There is no rate limit on the access code check or the owner key
+check beyond a small per instance counter, which is fine for a 24 character key and not for
+a short access code. An admin can approve their own post. `/api/setup` is public by design
+(so you can open it in a browser from a phone) and reports only yes and no flags, which
+providers accept their keys, the deployed commit, and whether the studio is open.
+
+Dependencies were audited with `npm audit --omit=dev` and are clean at the time of writing.
+Run it again whenever you update.
 
 ### Tests
 
-The firm layer, email, booking link and key handling were tested against a real
-Postgres wire protocol with the real `pg`
-driver: tenant isolation, forged, expired and wrongly signed sessions, forged
-origins, the approval rules, people management, the allowance across a month
-boundary, the layer switched off, and the access gate combined with accounts. The
-interface was driven end to end in a browser with an owner, an admin and a lawyer.
-Email and the model providers were tested against local stand-ins that record what
-they were sent: the bearer token, the single recipient, the link and code, escaping
-of hostile names, the 30 a day cap, a failing service, a refusing service, a rejected
-model key and the fallback. A stand-in proves what the app sends and how it reacts.
-**It cannot prove that Resend accepts your domain or that OpenAI accepts your key.**
-Only a real invite email, and `/api/setup` reading `ok` for both keys, show that.
-
-One honest limit: the test database runs every connection on one shared backend, so
-it proves the logic but cannot demonstrate two requests racing across real
-connections. The allowance's correctness under true parallelism rests on a row lock
-on the member, which is the standard fix and was reasoned, not exercised.
+See [`tests/README.md`](tests/README.md). `bash tests/run.sh` runs about 300 checks across ten suites
+with nothing real called: a Postgres in memory, and local stand-ins for OpenAI, Anthropic and Resend.
+The stand-ins prove what the app sends and how it reacts. They cannot prove that Resend accepts your
+domain or that OpenAI accepts your key: only a real invite email, and `/api/setup` reading `ok` for
+both keys, show that.

@@ -78,7 +78,13 @@ function cookieFrom(req: Request): string {
   const header = req.headers.get("cookie") || "";
   for (const part of header.split(";")) {
     const i = part.indexOf("=");
-    if (i > 0 && part.slice(0, i).trim() === COOKIE) return decodeURIComponent(part.slice(i + 1).trim());
+    if (i > 0 && part.slice(0, i).trim() === COOKIE) {
+      try {
+        return decodeURIComponent(part.slice(i + 1).trim());
+      } catch {
+        return ""; // a malformed escape is not a session, and must not become a 500
+      }
+    }
   }
   return "";
 }
@@ -181,7 +187,8 @@ export function notConfigured(): NextResponse | null {
 export function foreignOrigin(req: Request): NextResponse | null {
   const origin = req.headers.get("origin");
   if (!origin) return null; // not a browser, and a cookie is not what is being relied on
-  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "";
+  // not X-Forwarded-Host: a caller can send that, and the link goes out in an email
+  const host = req.headers.get("host") || new URL(req.url).host;
   try {
     if (new URL(origin).host !== host) return json({ error: "Request refused." }, 403);
   } catch {
@@ -225,11 +232,18 @@ export async function readJson<T = Record<string, unknown>>(req: Request, maxByt
   }
 }
 
-/** The sign in link for an invite. APP_URL wins if set, so links never depend on a request header. */
+/**
+ * The sign in link for an invite. It goes out in an email, so it must never depend on a header a
+ * caller can set. In order: APP_URL (set this to your own domain), then the address Vercel itself
+ * gives the deployment, and only when neither exists (a laptop, a self hosted server) the address
+ * the request came to.
+ */
 export function joinUrlFor(req: Request, code: string): string {
   const fixed = (process.env.APP_URL || "").trim().replace(/\/+$/, "");
   if (/^https?:\/\/[^\s/]+$/i.test(fixed)) return `${fixed}/join#${code}`;
-  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "";
+  const platformHost = (process.env.VERCEL_ENV === "production" ? process.env.VERCEL_PROJECT_PRODUCTION_URL : process.env.VERCEL_URL) || "";
+  if (/^[a-z0-9.-]+$/i.test(platformHost)) return `https://${platformHost}/join#${code}`;
+  const host = req.headers.get("host") || new URL(req.url).host;
   const proto = req.headers.get("x-forwarded-proto") || new URL(req.url).protocol.replace(":", "");
   return `${proto}://${host}/join#${code}`;
 }

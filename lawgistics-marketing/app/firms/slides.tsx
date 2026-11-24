@@ -86,8 +86,8 @@ export const SLIDES: Slide[] = [
         <div className="page">
           <div className="kicker">Casual conversion</div>
           <div className="content">
-            <div className="statement lg">A roster that never changes is not casual work.</div>
-            <div className="sub">What the amendments actually changed</div>
+            <div className="statement lg">A regular roster is <em>one factor</em> in whether work is casual.</div>
+            <div className="sub">Look at the whole arrangement, not only the label.</div>
           </div>
           <div className="foot">
             <Cite />
@@ -109,9 +109,9 @@ export const SLIDES: Slide[] = [
           <div className="kicker">The deadline nobody diarises</div>
           <div className="content">
             <div className="statement md">
-              Twenty one days, and the clock starts <em>earlier</em> than people think.
+              Twenty one days from the day the dismissal <em>takes effect.</em>
             </div>
-            <div className="sub">Time runs from the decision, not from the day it started to hurt.</div>
+            <div className="sub">Put the date in the diary the day it happens.</div>
           </div>
           <div className="foot">
             <Cite />

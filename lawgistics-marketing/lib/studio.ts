@@ -19,31 +19,34 @@ function markText(brand){
   return r ? n+' · '+r : n;
 }
 
+// The example shown to someone who has not drafted anything yet. It is invented, about nothing
+// but practical advice, and names no case, court, firm or person, so there is nothing in it to
+// mistake for a real matter or to post by accident.
 function exampleSlides(){
-  var kicker = "Daily Court Intelligence · 16.09.26";
-  var cite = "**Brauer v Coburn Resources Pty Ltd** [2026] FCA 1110\nFederal Court of Australia · Jackson J";
+  var kicker = "Client guide · Example";
+  var cite = "";
   return [
     {dark:false,size:'lg',swipe:true,kicker:kicker,cite:cite,
-      statement:"Which company employed 166 workers? *The Commonwealth wanted another.*",
-      sub:"A secured-lender priority fight inside a mining group's collapse.", body:'', learn:''},
+      statement:"Your first meeting with a lawyer. *Bring these five things.*",
+      sub:"A short guide for people who have never had to hire one.", body:'', learn:''},
     {dark:false,size:'md',swipe:false,kicker:kicker,cite:cite,
-      statement:"Two companies, *one mine site.*", sub:'',
-      body:"Strandline Resources and its subsidiary Coburn Resources ran a mineral sands project together. Both collapsed into receivership and voluntary administration on the same day.\n\n166 workers had contracts naming **Strandline** as their employer, even though the work was on Coburn's project.",
+      statement:"Start with *the timeline.*", sub:'',
+      body:"Write down what happened, in order, with dates. One page is enough.\n\nIt saves the first half hour of the meeting, and your lawyer will ask for it anyway.",
       learn:''},
     {dark:false,size:'md',swipe:false,kicker:kicker,cite:cite,
-      statement:"Why the employer's name matters.", sub:'',
-      body:"Unpaid employee entitlements get priority in an insolvency, ahead of some other creditors.\n\nThe Commonwealth, standing in those workers' shoes after paying out their entitlements, wanted that priority to attach to **Coburn**, where more value sat.",
+      statement:"Bring *every document,* even the awkward ones.", sub:'',
+      body:"Contracts, emails, letters, photos, messages.\n\nInclude the ones that do not help you. A lawyer can plan around a bad document. They cannot plan around one they never saw.",
       learn:''},
     {dark:false,size:'md',swipe:false,kicker:kicker,cite:cite,
-      statement:"The Federal Court said: *read the contract.*", sub:'',
-      body:"Justice Jackson held the written contracts naming Strandline as employer **ordinarily prevail.**",
-      learn:"In a group insolvency, the written employment contract is the starting point for identifying the true employer, not which company's project the work was actually done for."},
+      statement:"Know *what you want.*", sub:'',
+      body:"A refund, an apology, a deal, a decision. Say it in one sentence.\n\nIt shapes the advice you get, and what it takes to get there.",
+      learn:''},
     {dark:false,size:'lg',swipe:false,kicker:kicker,cite:cite,
-      statement:"\"An intelligible business objective\" is relevant. It is *not* a standalone test.",
-      sub:"The contract still comes first.", body:'', learn:''},
+      statement:"Ask how you will be charged *before* you start.",
+      sub:"And ask for an estimate in writing.", body:'', learn:''},
     {dark:true,size:'md',swipe:false,kicker:kicker,cite:cite,
-      statement:"Why it matters.", sub:'',
-      body:"The ruling protected Coburn's secured lenders from being leapfrogged by the Commonwealth's priority claim.\n\nFor anyone advising on group structures: **get the employment contracts right.** Insolvency will test exactly who they name.",
+      statement:"Come ready. *Leave with a plan.*", sub:'',
+      body:"A prepared first meeting is usually shorter and clearer.\n\n**Write down your questions** before you go, and ask them before you leave.",
       learn:''}
   ];
 }
@@ -51,16 +54,13 @@ function exampleSlides(){
 function exampleCaption(disclaimer){
   var note = (disclaimer||'').trim();
   return [
-    "166 workers. Two companies. One question: who actually employed them?",
-    "Strandline Resources and its subsidiary Coburn Resources ran a mineral sands project together.",
-    "Both collapsed on the same day.",
-    "The workers' contracts named Strandline as the employer. The work was on Coburn's project.",
-    "The Commonwealth, having paid out the workers' entitlements, wanted the priority claim to sit with Coburn, where the money was.",
-    "The Federal Court said no. Read the contract.",
-    "Justice Jackson held that written employment contracts naming the employer ordinarily prevail.",
-    "For anyone advising on group structures, that is the whole lesson.",
-    "Get the employment contracts right before the group is under stress. Insolvency will test exactly who they name.",
-    "Brauer v Coburn Resources Pty Ltd [2026] FCA 1110."
+    "Most people walk into their first meeting with a lawyer unprepared. That is not their fault. Nobody tells them what to bring.",
+    "Bring a one page timeline of what happened, with dates.",
+    "Bring every document, including the awkward ones.",
+    "Know the outcome you want, in one sentence.",
+    "Ask how fees will be charged, and for an estimate in writing.",
+    "A prepared first meeting is usually shorter and clearer.",
+    "Write down your questions before you go, and ask them before you leave."
   ].concat(note ? [note] : []).join("\n\n");
 }
 
@@ -88,12 +88,12 @@ function computeBrandTokens(brand){
   return {
     cream: cream, navy: navy,
     inkOnCream: navy, inkOnNavy: cream,
-    kickerOnCream: mixHex(navy, cream, .55), kickerOnNavy: mixHex(cream, navy, .55),
+    kickerOnCream: mixHex(navy, cream, .66), kickerOnNavy: mixHex(cream, navy, .55),
     bodyOnCream: mixHex(navy, cream, .88), bodyOnNavy: mixHex(cream, navy, .82),
     subOnCream: mixHex(navy, cream, .70), subOnNavy: mixHex(cream, navy, .78),
-    mutedOnCream: mixHex(navy, cream, .40), mutedOnNavy: mixHex(cream, navy, .40),
+    mutedOnCream: mixHex(navy, cream, .66), mutedOnNavy: mixHex(cream, navy, .62),
     accent: accent, accentOnNavy: mixHex(accent, '#ffffff', .68),
-    inkOnAccent: cream, kickerOnAccent: mixHex(cream, accent, .72), bodyOnAccent: mixHex(cream, accent, .9), mutedOnAccent: mixHex(cream, accent, .62)
+    inkOnAccent: cream, kickerOnAccent: mixHex(cream, accent, .9), bodyOnAccent: mixHex(cream, accent, .95), mutedOnAccent: mixHex(cream, accent, .85)
   };
 }
 var STYLES = [
@@ -174,6 +174,7 @@ function unescapeBreaks(s){
 function typeset(s){
   var t = unescapeBreaks(s);
   t = t.replace(/\*\*\s*\*\*|\*\s*\*/g, '');   // emphasis wrapped around nothing
+  t = t.replace(/\s*\u2014\s*/g, ', ');            // no em dashes, whatever the model sent
   t = t.replace(/[ \t]+/g, ' ');
   t = t.replace(/ +([,.;:!?%)\]])/g, '$1');      // no space before punctuation
   t = t.replace(/([(\[]) +/g, '$1');
@@ -240,6 +241,8 @@ var HAS_FURNITURE = {frame:1, band:1, duo:1, sidebar:1, split:1, twocol:1, numer
 var ANCHORS = ['top','mid','bottom'];
 var ALIGNS = ['left','centre'];
 function alignOf(slide){ return slide.align==='centre' ? 'centre' : 'left'; }
+// size goes into a class attribute, so it is whitelisted like every other value that does
+function sizeOf(slide){ return slide.size==='lg' ? 'lg' : 'md'; }
 function anchorOf(slide){ return ANCHORS.indexOf(slide.anchor)>=0 ? slide.anchor : 'mid'; }
 
 // Drawn geometry that sits behind the words. Kept to the accent colour and
@@ -320,7 +323,7 @@ function slideInnerHtml(slide, brand){
 
   if(layout==='list' || layout==='checklist'){
     var items = rowsFrom(slide.body);
-    inner = '<div class="statement '+(slide.size||'md')+'">'+noWidow(mdInline(slide.statement))+'</div>';
+    inner = '<div class="statement '+sizeOf(slide)+'">'+noWidow(mdInline(slide.statement))+'</div>';
     if(slide.sub) inner += '<div class="sub">'+noWidow(mdInline(slide.sub))+'</div>';
     inner += '<ol class="listrows'+(layout==='checklist' ? ' checks' : '')+'">'+items.map(function(it,i){
       var marker = layout==='checklist'
@@ -332,7 +335,7 @@ function slideInnerHtml(slide, brand){
     // first line is the top tier, so the widths grow as you read down
     var tiers = rowsFrom(slide.body);
     var n = Math.max(tiers.length, 1);
-    inner = '<div class="statement '+(slide.size||'md')+'">'+noWidow(mdInline(slide.statement))+'</div>';
+    inner = '<div class="statement '+sizeOf(slide)+'">'+noWidow(mdInline(slide.statement))+'</div>';
     if(slide.sub) inner += '<div class="sub">'+noWidow(mdInline(slide.sub))+'</div>';
     inner += '<div class="pyramid">'+tiers.map(function(t,i){
       var w = Math.round(44 + (56 * (n===1 ? 1 : i/(n-1))));
@@ -340,7 +343,7 @@ function slideInnerHtml(slide, brand){
     }).join('')+'</div>';
   } else if(layout==='steps'){
     var steps = rowsFrom(slide.body);
-    inner = '<div class="statement '+(slide.size||'md')+'">'+noWidow(mdInline(slide.statement))+'</div>';
+    inner = '<div class="statement '+sizeOf(slide)+'">'+noWidow(mdInline(slide.statement))+'</div>';
     if(slide.sub) inner += '<div class="sub">'+noWidow(mdInline(slide.sub))+'</div>';
     inner += '<ol class="steprows">'+steps.map(function(s,i){
       return '<li><span class="dot">'+(i+1)+'</span><span class="t">'+rowHtml(s, mdInline)+'</span></li>';
@@ -351,7 +354,7 @@ function slideInnerHtml(slide, brand){
       var lines = block.split(/\n+/).map(function(l){ return l.replace(/^\s*[-*•]\s*/,'').trim(); }).filter(Boolean);
       return {head: lines.shift() || '', items: lines};
     });
-    inner = '<div class="statement '+(slide.size||'md')+'">'+noWidow(mdInline(slide.statement))+'</div>';
+    inner = '<div class="statement '+sizeOf(slide)+'">'+noWidow(mdInline(slide.statement))+'</div>';
     if(slide.sub) inner += '<div class="sub">'+noWidow(mdInline(slide.sub))+'</div>';
     inner += '<div class="compare">'+cols.map(function(c,i){
       return '<div class="col'+(i===1?' alt':'')+'">'+
@@ -374,7 +377,7 @@ function slideInnerHtml(slide, brand){
       '<div class="quotetext">'+noWidow(mdInline(slide.statement))+'</div>';
     if(slide.sub) inner += '<div class="quoteattrib">'+mdInline(slide.sub)+'</div>';
   } else {
-    inner = '<div class="statement '+(slide.size||'md')+'">'+noWidow(mdInline(slide.statement))+'</div>';
+    inner = '<div class="statement '+sizeOf(slide)+'">'+noWidow(mdInline(slide.statement))+'</div>';
     if(slide.sub) inner += '<div class="sub">'+noWidow(mdInline(slide.sub))+'</div>';
     if(bodyParas.length) inner += '<div class="body">'+bodyParas.map(function(p){return '<p>'+mdInline(p)+'</p>';}).join('')+'</div>';
   }
@@ -389,7 +392,7 @@ function slideInnerHtml(slide, brand){
     : '<div class="foot"><div class="cite">'+citeHtml+'</div>'+sw+'</div>';
 
   if(ZONED[layout]){
-    var lede = '<div class="statement '+(slide.size||'md')+'">'+noWidow(mdInline(slide.statement))+'</div>';
+    var lede = '<div class="statement '+sizeOf(slide)+'">'+noWidow(mdInline(slide.statement))+'</div>';
     var rest = '';
     if(slide.sub) rest += '<div class="sub">'+noWidow(mdInline(slide.sub))+'</div>';
     if(bodyParas.length) rest += '<div class="body">'+bodyParas.map(function(p){return '<p>'+mdInline(p)+'</p>';}).join('')+'</div>';
@@ -503,7 +506,18 @@ export function initStudio(){
   function loadLocal(){
     try{ var raw = localStorage.getItem('lgm_state_v1'); return raw ? JSON.parse(raw) : null; }catch(e){ return null; }
   }
-  function saveLocal(){ try{ localStorage.setItem('lgm_state_v1', JSON.stringify(state)); }catch(e){} }
+  // A browser keeps only about 5MB per site, and several big photos can fill it. Failing silently
+  // meant a reload quietly lost the latest changes, so say so, once, until a save works again.
+  var saveWarned = false;
+  function saveLocal(){
+    try{ localStorage.setItem('lgm_state_v1', JSON.stringify(state)); saveWarned = false; }
+    catch(e){
+      if(!saveWarned){
+        saveWarned = true;
+        try{ showToast('This device is full, so your latest changes are not saved here. Finish this post now, or remove a photo.'); }catch(err){}
+      }
+    }
+  }
 
   var $ = function(id){ return document.getElementById(id); };
   var editorPanel = $('editorPanel'), previewHolder = $('previewHolder'), strip = $('strip'), editDrawer = $('editDrawer'), stageCount = $('stageCount');
@@ -552,7 +566,7 @@ export function initStudio(){
       btn.type = 'button';
       btn.className = 'stripitem' + (i===state.activeIndex ? ' active' : '');
       btn.dataset.idx = String(i);
-      btn.setAttribute('aria-label', 'Slide '+(i+1));
+      btn.setAttribute('aria-label', 'Slide '+(i+1)+(s.statement ? ': '+String(s.statement).replace(/[*_]/g,'').slice(0,70) : ''));
       btn.style.width = STRIP_WIDTH+'px';
       btn.style.height = Math.round(1350*scale)+'px';
       btn.style.position = 'relative';
@@ -573,7 +587,8 @@ export function initStudio(){
   var stripTimer = null;
   function renderStripSoon(){ clearTimeout(stripTimer); stripTimer = setTimeout(renderStrip, 250); }
 
-  function showStep(name){
+  var stepsShown = 0;
+  function showStep(name, fromHistory){
     if(STEP_KEYS.indexOf(name)<0) name = 'ask';
     // a firm member's brand is set by the firm, so the setup screens are not theirs to use
     if(firm && (name==='you' || name==='look' || name==='voice')){ location.href = '/team'; return; }
@@ -589,12 +604,33 @@ export function initStudio(){
     if(name==='ask'){ renderBrandBar(); renderSameRow(); renderModelPick(); setTimeout(function(){ askInput.focus(); }, 0); }
     saveLocal();
     window.scrollTo(0,0);
+    // Each step is a history entry, so the back button and the Android back gesture go to the
+    // previous step instead of leaving the app. The first call only labels the page it opened on.
+    try{
+      var here = history.state && history.state.lgmStep;
+      if(!fromHistory && here !== name){
+        var url = location.pathname + location.search;
+        if(stepsShown===0) history.replaceState({lgmStep:name}, '', url); else history.pushState({lgmStep:name}, '', url);
+      }
+    }catch(err){}
+    // Moving to a new step moves focus to its heading, so a keyboard or screen reader user is not
+    // left behind on the button they pressed. Not on first load, which must not grab focus.
+    if(stepsShown>0 && name!=='ask' && name!=='you'){
+      var head = document.querySelector('.step.active h2');
+      if(head){ head.setAttribute('tabindex', '-1'); head.focus({preventScroll:true}); }
+    }
+    stepsShown++;
   }
+  window.addEventListener('popstate', function(e){
+    var st = e.state && e.state.lgmStep;
+    if(st && STEP_KEYS.indexOf(st)>=0) showStep(st, true);
+  });
 
   function renderBrandPreview(){
     var frame = brandPreview.parentElement;
     var pad = parseFloat(getComputedStyle(frame).paddingLeft) || 0;
-    var width = Math.max(120, Math.min(300, frame.clientWidth - pad*2));
+    var cap = window.innerHeight < 760 ? 190 : 300;
+    var width = Math.max(120, Math.min(cap, frame.clientWidth - pad*2));
     var scale = width/1080;
     // show a stand-in name so the corner is never empty before they type one
     var shown = JSON.parse(JSON.stringify(state.brand));
@@ -1010,9 +1046,31 @@ export function initStudio(){
       '<div class="refinechips">'+REFINE_CHIPS.map(function(c){
         return '<button type="button" class="chip" data-refinechip="'+attrEsc(c)+'">'+textEsc(c)+'</button>';
       }).join('')+
-      '<input type="text" class="refineinput" placeholder="or say it yourself, e.g. name the case">'+
+      '<input type="text" class="refineinput" aria-label="Say in your own words what to change" placeholder="or say it yourself, e.g. name the case">'+
       '</div><p class="refinestatus"></p></div>';
   }
+
+  // The editor's labels sit above their inputs but were never linked to them, so a screen reader
+  // read each field as "edit text" with no name. Link every label to the control in its own field,
+  // and name a group of buttons by the label above it.
+  var labelSeq = 0;
+  function linkLabels(root){
+    root.querySelectorAll('.field').forEach(function(f){
+      var lab = f.querySelector(':scope > label'); if(!lab || lab.htmlFor) return;
+      var ctl = f.querySelector('input:not([type=hidden]), textarea, select');
+      if(ctl){ if(!ctl.id) ctl.id = 'fld' + (++labelSeq); lab.htmlFor = ctl.id; return; }
+      var grp = f.querySelector('.segmented, .palettes, .styles');
+      if(grp){ if(!lab.id) lab.id = 'lbl' + (++labelSeq); grp.setAttribute('role', 'group'); grp.setAttribute('aria-labelledby', lab.id); }
+    });
+  }
+  // A choice shown only by colour is invisible to a screen reader, so say which one is on.
+  function syncPressed(){
+    document.querySelectorAll('.segmented button, #palettes button, #styles button').forEach(function(b){
+      if(b.hasAttribute('data-go')) return;
+      b.setAttribute('aria-pressed', b.classList.contains('active') ? 'true' : 'false');
+    });
+  }
+  document.addEventListener('click', function(){ setTimeout(syncPressed, 0); });
 
   function renderEditor(){
     var idx = state.activeIndex, total = state.slides.length, slide = state.slides[idx];
@@ -1054,7 +1112,7 @@ export function initStudio(){
                 return '<button type="button" data-act="setPhotoMode" data-val="'+m+'" class="'+(on?'active':'')+'">'+label+'</button>';
               }).join('')+
             '</div>'
-          : '<textarea data-photo-prompt rows="2" placeholder="Optional for a design. For a photo, describe it: a quiet courtroom corridor in morning light">'+textEsc(defaultPhotoPrompt(slide))+'</textarea>'+
+          : '<textarea data-photo-prompt rows="2" aria-label="Describe the picture" placeholder="Optional for a design. For a photo, describe it: a quiet courtroom corridor in morning light">'+textEsc(defaultPhotoPrompt(slide))+'</textarea>'+
             '<div class="photobar">'+
               '<button type="button" class="btn btn-sm btn-accent" data-act="genDesign">Design with AI</button>'+
               '<button type="button" class="btn btn-sm" data-act="genPhoto">Photo with AI</button>'+
@@ -1094,6 +1152,8 @@ export function initStudio(){
         '</div></div>'+
       '</details>';
   }
+  var renderEditorBase = renderEditor;
+  renderEditor = function(){ renderEditorBase(); linkLabels(document.body); syncPressed(); };
 
   function updatePreview(){
     var slide = state.slides[state.activeIndex];
@@ -1139,6 +1199,9 @@ export function initStudio(){
     btnExportAll.disabled = !state.consented;
     btnShareAll.disabled = !state.consented;
     btnShareOne.disabled = !state.consented;
+    var HINT = 'Tick the box above to turn on saving.';
+    if(!state.consented && !exportNote.textContent) exportNote.textContent = HINT;
+    else if(state.consented && exportNote.textContent===HINT) exportNote.textContent = '';
   }
 
   function syncBrandFields(){
@@ -1200,7 +1263,14 @@ export function initStudio(){
   });
   editDrawer.addEventListener('toggle', function(){ if(editDrawer.open) updatePreview(); });
   document.addEventListener('click', function(e){
-    var go = e.target.closest('[data-go]'); if(!go) return; showStep(go.dataset.go);
+    var go = e.target.closest('[data-go]'); if(!go) return;
+    // every slide carries this name in its corner, so there is no point in going on without one
+    if(state.step==='you' && go.dataset.go!=='you' && !firm && !String(state.brand.wordmark||'').trim()){
+      showToast('Add your name first. It goes in the corner of every slide.');
+      try{ brandName.focus(); }catch(err){}
+      return;
+    }
+    showStep(go.dataset.go);
   });
 
   editorPanel.addEventListener('input', function(e){
@@ -1249,7 +1319,7 @@ export function initStudio(){
     var btns = editorPanel.querySelectorAll('[data-act="genPhoto"],[data-act="genDesign"]');
     btns.forEach(function(b){ b.disabled = true; });
     var index = state.activeIndex;
-    setPhotoStatus(mode==='design' ? 'Designing in your colours. About 20 seconds.' : 'Generating. About 20 seconds.', 'busy');
+    setPhotoStatus(mode==='design' ? 'Designing in your colours. This can take up to a minute.' : 'Generating. This can take up to a minute.', 'busy');
     try{
       var res = await fetch('/api/image', {method:'POST', headers:authHeaders(),
         body: JSON.stringify({prompt: prompt, mode: mode, colours: {navy: state.brand.navy, accent: state.brand.accent, cream: state.brand.cream}})});
@@ -1385,7 +1455,11 @@ export function initStudio(){
     askInput.value = ''; setAskStatus('', '');
     saveLocal(); renderAll(); showStep('ask');
   }
-  btnNewPost.addEventListener('click', startNewPost);
+  btnNewPost.addEventListener('click', function(){
+    // one tap used to throw away the slides, the post and the chat without a word
+    if(state.drafted && (state.caption || state.slides.length>1) && !window.confirm('Start a new post? The one on screen will be cleared.')) return;
+    startNewPost();
+  });
   btnSeeExample.addEventListener('click', function(){
     state.slides = exampleSlides(); state.activeIndex = 0; state.caption = exampleCaption(state.brand.disclaimer); state.consented = false;
     state.messages = [{role:'bot', text: EXAMPLE_INTRO}]; state.drafted = true;
@@ -1439,7 +1513,7 @@ export function initStudio(){
       kicker: s0.kicker || '', cite: s0.cite || '', caption: state.caption || '',
       slides: state.slides.map(function(s){
         return {layout:layoutOf(s), ground:groundOf(s), anchor:anchorOf(s), align:alignOf(s), tag:s.tag||'',
-          size:s.size||'md', swipe:!!s.swipe,
+          size:sizeOf(s), swipe:!!s.swipe,
           statement:s.statement||'', sub:s.sub||'', body:s.body||'', learn:s.learn||''};
       })
     };
@@ -1465,14 +1539,18 @@ export function initStudio(){
   var INVENTED_NOTE = /^(general information|this is not legal advice|not legal advice|nothing (here|in this post)|no legal advice|for informational purposes|this post does not)/i;
   function tidyCaption(text){
     var note = (state.brand.disclaimer||'').trim();
-    var lines = String(text||'').split('\n');
+    var lines = String(text||'').replace(/\s*\u2014\s*/g, ', ').split('\n');
     while(lines.length){
       var last = lines[lines.length-1].trim();
       if(!last){ lines.pop(); continue; }
-      if(!note && INVENTED_NOTE.test(last)){ lines.pop(); continue; }
+      // a notice the model wrote is never the author's wording, with or without one set
+      if(INVENTED_NOTE.test(last) && last.toLowerCase() !== note.toLowerCase()){ lines.pop(); continue; }
       break;
     }
-    return lines.join('\n').trim();
+    var out = lines.join('\n').trim();
+    // the author's own footer note is added here, not left to the model to remember
+    if(note && out.slice(-note.length).toLowerCase() !== note.toLowerCase()) out = out + '\n\n' + note;
+    return out;
   }
 
   // ---- the art director pass ----
@@ -1536,7 +1614,9 @@ export function initStudio(){
   function applyDraft(result, keepPhotos){
     var kicker = result.kicker || '';
     var realCite = (result.cite || '').trim();
-    var cite = realCite || (state.brand.disclaimer || '');
+    var footNote = (state.brand.disclaimer || '').trim();
+    // a real citation and the author's note can sit together, so a citation never replaces the note
+    var cite = realCite && footNote && realCite.toLowerCase().indexOf(footNote.toLowerCase()) < 0 ? realCite + '\n' + footNote : (realCite || footNote);
     var old = state.slides;
     var slides = (result.slides || []).map(function(s, i){
       var ground = (s.ground==='dark' || s.ground==='accent' || s.ground==='light') ? s.ground : (s.dark ? 'dark' : 'light');
@@ -1595,12 +1675,12 @@ export function initStudio(){
     var revising = !fromAsk && state.drafted;
     if(fromAsk){ state.messages = []; state.drafted = false; state.lastTopic = text; }
     state.messages.push({role:'user', text:text});
-    var pending = {role:'bot', text: revising ? 'On it.' : 'Drafting your post. Usually under a minute.', busy:true};
+    var pending = {role:'bot', text: revising ? 'On it.' : 'Drafting your post. This can take up to a minute.', busy:true};
     state.messages.push(pending);
     saveLocal(); renderChat();
     btnSend.disabled = true; btnAsk.disabled = true;
     var askLabel = btnAsk.textContent;
-    if(fromAsk){ btnAsk.textContent = 'Writing…'; setAskStatus('Drafting your post and slides. Usually under a minute.', 'busy'); }
+    if(fromAsk){ btnAsk.textContent = 'Writing…'; setAskStatus('Drafting your post and slides. This can take up to a minute.', 'busy'); }
     var ok = false;
     var fellMsg = '';
     try{
@@ -1611,7 +1691,11 @@ export function initStudio(){
       if(fromAsk && state.sameAsLast && state.lastPattern && state.lastPattern.length) payload.pattern = state.lastPattern;
       if(Array.isArray(state.approved) && state.approved.length) payload.approved = state.approved.slice(-6);
       if(state.bothModels) payload.provider = providerChoice();
-      var res = await fetch('/api/draft', {method:'POST', headers:authHeaders(), body: JSON.stringify(payload)});
+      // the server gives up at 60 seconds, so do not wait on a silent connection past a little after that
+      var ctl = new AbortController(); var stall = setTimeout(function(){ ctl.abort(); }, 80000);
+      var res;
+      try{ res = await fetch('/api/draft', {method:'POST', headers:authHeaders(), body: JSON.stringify(payload), signal: ctl.signal}); }
+      finally{ clearTimeout(stall); }
       var data = await res.json();
       if(res.status===401 && firm){ location.href = '/join'; return; }
       if(res.status===401){ try{ localStorage.removeItem('lgm_access'); }catch(e){} openGate('Enter your access code to continue.'); }
@@ -1630,7 +1714,8 @@ export function initStudio(){
       ok = true;
       editDrawer.open = false;
     }catch(err){
-      var msg = 'Could not do that: '+((err && err.message) ? err.message : 'please try again')+'.';
+      var why = (err && err.name==='AbortError') ? 'that took too long. Try again, or try a shorter topic' : ((err && err.message) ? err.message : 'please try again');
+      var msg = 'Could not do that: '+String(why).replace(/[.\s]+$/,'')+'.';
       pending.text = msg; pending.error = true;
       if(fromAsk) setAskStatus(msg, 'bad');
     } finally {

@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Lawgistics Marketing",
     short_name: "Lawgistics",
-    description: "One on-brand post a day: describe it, check it, save it.",
+    description: "Describe the idea, check the draft, save the slides.",
     start_url: "/",
     display: "standalone",
     background_color: "#08090B",

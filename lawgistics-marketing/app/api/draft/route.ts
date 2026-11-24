@@ -179,15 +179,24 @@ function buildPrompt(
       : "\n\nWhat to post about. This may be a one-line topic, or it may be source material " +
         "(a case note, an email, a draft, a judgment summary) to build the post from. If it is " +
         "source material, use it as the substance and do not simply summarise it:\n" + topic + "\n\n") +
-    "If this is a real case, event or statistic you are not fully certain of the exact citation, date or " +
-    "figures for, keep the copy general and do NOT invent a specific citation, party name, date or number. " +
-    "Write the substantive point clearly instead of guessing at specifics.\n\n" +
+    "FACTS. This goes out under a lawyer's name, so an invented fact does real harm. State a case name, " +
+    "citation, court, judge, date, statistic, dollar figure, outcome, statute section or quotation ONLY if it " +
+    "appears in what the author gave you, or you are certain it is real and exactly right. If you are not " +
+    "certain, do not state it: write the principle in general terms instead. Never invent a quotation, a " +
+    "client, a testimonial, an outcome or a statistic, and never put words in a real person's mouth. If a slide " +
+    "would be stronger with a figure or a quote you do not have, write it without one. Do not use placeholders.\n\n" +
+    "ADVERTISING RULES. Australian lawyers' advertising is regulated. Never call the author or firm a " +
+    "specialist, an expert, leading or the best unless the author's own words in the topic say so. Never " +
+    "promise or suggest an outcome. Never include a client testimonial, or any client's name or details. " +
+    "Never state fee arrangements such as 'no win, no fee' unless the author gave them. Do not compare the " +
+    "author with other lawyers or firms. If the source material seems to describe a real client or matter, " +
+    "write about the situation in general terms and identify no one.\n\n" +
     "Respond with ONLY JSON (no prose, no code fence) matching exactly this shape:\n" +
     '{"kicker":"an optional short label used where a slide has no label of its own. Leave it EMPTY unless the post genuinely has a series name or date",' +
     '"cite":"' + (brand.hasDisclaimer
       ? "a real case citation if this post is about a specific decision you are certain of, otherwise the EMPTY STRING. " +
         "The author has set their own footer note, which is used whenever this is empty, so do not write a disclaimer here"
-      : "a real citation if you have one, otherwise a short honest note like 'General information, not legal advice.', use \\\\n for a second line") +
+      : "a real citation if you are certain of it, otherwise the EMPTY STRING. Do not write a disclaimer here, use \\\\n for a second line") +
     '",' +
     '"caption":"the post caption, written and spaced the way a strong LinkedIn post is: ' +
     "line 1 is a hook that stands on its own and earns the click on 'see more', then one idea per line, " +
@@ -296,6 +305,25 @@ export async function POST(req: Request) {
     body.current && typeof body.current === "object" && Array.isArray((body.current as { slides?: unknown }).slides)
       ? body.current
       : undefined;
+  // "current" only counts as a revision of something if there is real text in it. An empty one is a
+  // new post in disguise, and must not skip the allowance.
+  const hasContent =
+    !!current &&
+    (current as { slides: unknown[] }).slides.some((s) => {
+      if (!s || typeof s !== "object") return false;
+      const o = s as Record<string, unknown>;
+      return ["statement", "sub", "body"].some((k) => typeof o[k] === "string" && (o[k] as string).trim().length > 0);
+    });
+  // a hostile body can be nested deeply enough that serialising it throws, so check once up front
+  if (current) {
+    try {
+      if (JSON.stringify(current).length > 100_000) {
+        return NextResponse.json({ error: "That draft is too large to revise. Start a new post." }, { status: 400 });
+      }
+    } catch {
+      return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
+    }
+  }
 
   const rawBrand = (body.brand && typeof body.brand === "object" ? body.brand : {}) as {
     kind?: unknown;
@@ -332,7 +360,7 @@ export async function POST(req: Request) {
 
   const str = (v: unknown, n: number) => (typeof v === "string" ? v.slice(0, n) : "");
   const strs = (v: unknown, n: number) =>
-    Array.isArray(v) ? v.filter((x) => typeof x === "string").slice(0, 10).map((x) => String(x).slice(0, 20)) : [];
+    Array.isArray(v) ? v.filter((x) => typeof x === "string").slice(0, n).map((x) => String(x).slice(0, 20)) : [];
   const approved: Approved | undefined = Array.isArray(body.approved)
     ? (body.approved as unknown[])
         .slice(-6)
@@ -345,18 +373,21 @@ export async function POST(req: Request) {
         }))
     : undefined;
 
-  const prompt = buildPrompt(topic, voiceSample, current, brand, format, pattern, approved);
+  const prompt = buildPrompt(topic, voiceSample, hasContent ? current : undefined, brand, format, pattern, approved);
 
   // A signed in firm member has a monthly allowance of new posts. Revising an
   // existing draft (current is set) is free. Solo users have no ctx and skip this.
   let slot: number | null = null;
   const ctx = await getContext(req).catch(() => null);
-  if (ctx && !current) {
-    const res = await reserveDraft(ctx);
+  if (ctx) {
+    const res = await reserveDraft(ctx, hasContent ? "revision" : "draft");
     if (!res.ok) {
       return NextResponse.json(
         {
-          error: `You have used all ${res.quota} posts for this month. Your allowance renews on the 1st, or ask your firm admin to raise it.`,
+          error:
+            res.kind === "revision"
+              ? "You have reached this month's limit on revisions. It renews on the 1st, or ask your firm admin to raise the allowance."
+              : `You have used all ${res.quota} posts for this month. Your allowance renews on the 1st, or ask your firm admin to raise it.`,
           quotaReached: true,
           used: res.used,
           quota: res.quota,

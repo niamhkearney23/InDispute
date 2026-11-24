@@ -13,24 +13,32 @@ import type { Ctx } from "./auth";
 // If the model then fails, the slot is given back: nobody pays an allowance for
 // an error.
 
-export type Reservation = { ok: true; id: number | null } | { ok: false; used: number; quota: number };
+export type Kind = "draft" | "revision";
+export type Reservation = { ok: true; id: number | null } | { ok: false; used: number; quota: number; kind: Kind };
 
-export async function reserveDraft(ctx: Ctx): Promise<Reservation> {
+// Revisions do not use up the allowance of new posts, but they are not free to call without
+// end either: every one is a paid model call. They are counted separately and capped at this many
+// per allowed post, which is far more than anyone refining their own posts will use.
+const REVISIONS_PER_POST = 20;
+
+export async function reserveDraft(ctx: Ctx, kind: Kind = "draft"): Promise<Reservation> {
   const quota = ctx.firm.monthlyQuota;
+  const limit = kind === "draft" ? quota : quota * REVISIONS_PER_POST;
   return tx(async (c) => {
     await c.query(`select 1 from members where id = $1 for update`, [ctx.member.id]);
-    if (quota > 0) {
+    if (limit > 0) {
       const used = await c.query(
         `select count(*)::int as n from usage
-          where member_id = $1 and kind = 'draft' and created_at >= ${MONTH_START_SQL}`,
-        [ctx.member.id],
+          where member_id = $1 and kind = $2 and created_at >= ${MONTH_START_SQL}`,
+        [ctx.member.id, kind],
       );
-      if (used.rows[0].n >= quota) return { ok: false as const, used: used.rows[0].n, quota };
+      if (used.rows[0].n >= limit) return { ok: false as const, used: used.rows[0].n, quota: limit, kind };
     }
-    // a quota of 0 means no limit, but the draft is still counted so usage is visible
-    const ins = await c.query(`insert into usage (firm_id, member_id, kind) values ($1,$2,'draft') returning id`, [
+    // a quota of 0 means no limit, but the call is still counted so usage is visible
+    const ins = await c.query(`insert into usage (firm_id, member_id, kind) values ($1,$2,$3) returning id`, [
       ctx.firm.id,
       ctx.member.id,
+      kind,
     ]);
     return { ok: true as const, id: ins.rows[0].id as number };
   });

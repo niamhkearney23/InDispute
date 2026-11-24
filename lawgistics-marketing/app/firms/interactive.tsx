@@ -75,13 +75,15 @@ function usePrefersReducedMotion() {
 export function Deck() {
   const [i, setI] = useState(0);
   const [paused, setPaused] = useState(false);
+  // a way to stop it that does not depend on a mouse or on focus (WCAG 2.2.2: moving content)
+  const [stopped, setStopped] = useState(false);
   const reduced = usePrefersReducedMotion();
 
   useEffect(() => {
-    if (paused || reduced) return;
+    if (paused || stopped || reduced) return;
     const t = setTimeout(() => setI((n) => (n + 1) % SLIDES.length), 3400);
     return () => clearTimeout(t);
-  }, [i, paused, reduced]);
+  }, [i, paused, stopped, reduced]);
 
   return (
     <div
@@ -100,6 +102,11 @@ export function Deck() {
       </div>
       <div className="deckbar">
         <p className="decklabel">{SLIDES[i].label}</p>
+        {reduced ? null : (
+          <button type="button" className="deckpause" aria-pressed={stopped} onClick={() => setStopped((v) => !v)}>
+            {stopped ? "Play slides" : "Pause slides"}
+          </button>
+        )}
         <div className="deckdots" role="tablist" aria-label="Slides">
           {SLIDES.map((s, n) => (
             <button

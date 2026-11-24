@@ -20,7 +20,9 @@ export async function POST(req: Request, { params }: Ctx) {
   if (body instanceof Response) return body;
   const decision = body.decision === "approve" ? "approved" : body.decision === "changes" ? "changes_requested" : null;
   if (!decision) return json({ error: "Choose approve or request changes." }, 400);
-  if (!Number.isInteger(body.rev)) return json({ error: "Reload the post and try again." }, 400);
+  if (!Number.isInteger(body.rev) || (body.rev as number) < 0 || (body.rev as number) > 2_147_483_647) {
+    return json({ error: "Reload the post and try again." }, 400);
+  }
   const note = typeof body.note === "string" ? body.note.trim().slice(0, 1000) : "";
   if (decision === "changes_requested" && !note) {
     return json({ error: "Say what needs changing, so the author knows what to do." }, 400);
