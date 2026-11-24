@@ -55,13 +55,15 @@ export async function sendInviteEmail(opts: {
     `${opts.firmName} has added you to Lawgistics Marketing, where the firm's posts are written and reviewed.\n\n` +
     `Open this link to sign in on this device:\n${opts.joinUrl}\n\n` +
     `Or go to ${origin}/join and enter this code:\n${opts.code}\n\n` +
-    `It works once and expires in ${opts.days} days. If you were not expecting this, you can ignore it.\n`;
+    `It works once and expires in ${opts.days} days. If you were not expecting this, you can ignore it.\n\n` +
+    `You are receiving this because ${opts.firmName} gave us your name and email address to set up your access. They are used only to run the firm's workspace.\n`;
   const html =
     `<p>Hi ${esc(first)},</p>` +
     `<p>${esc(opts.firmName)} has added you to Lawgistics Marketing, where the firm's posts are written and reviewed.</p>` +
     `<p><a href="${esc(opts.joinUrl)}">Open this link to sign in on this device</a></p>` +
     `<p>Or go to ${esc(origin)}/join and enter this code:<br><b style="font-family:monospace;font-size:16px">${esc(opts.code)}</b></p>` +
-    `<p>It works once and expires in ${opts.days} days. If you were not expecting this, you can ignore it.</p>`;
+    `<p>It works once and expires in ${opts.days} days. If you were not expecting this, you can ignore it.</p>` +
+    `<p style="color:#666;font-size:13px">You are receiving this because ${esc(opts.firmName)} gave us your name and email address to set up your access. They are used only to run the firm's workspace.</p>`;
 
   const base = (process.env.RESEND_API_BASE || "https://api.resend.com").replace(/\/+$/, "");
   try {

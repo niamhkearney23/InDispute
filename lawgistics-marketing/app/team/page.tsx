@@ -231,7 +231,7 @@ function MyProfile({ me, onSaved }: { me: Me; onSaved: (p: Profile) => void }) {
       </div>
       <div className="field">
         <label htmlFor="pVoice">
-          Something you have written <span className="hint">it copies your rhythm, not your topic</span>
+          Something you have written <span className="hint">it copies your rhythm, not your topic. Use something public, never client work</span>
         </label>
         <textarea id="pVoice" rows={7} maxLength={4000} value={p.voice} onChange={set("voice")} />
       </div>
@@ -481,11 +481,11 @@ function PeopleTab({ me }: { me: Me }) {
                     and stepping down is one click away from locking yourself out. Ask another admin. */}
                 {m.id !== me.member.id ? (
                   <>
-                    <button className="btn btn-sm" type="button" onClick={() => patch(m, { role: m.role === "admin" ? "lawyer" : "admin" })}>
+                    <button className="btn btn-sm" type="button" onClick={() => { if (window.confirm(m.role === "admin" ? `Make ${m.name} a lawyer? They will lose access to review, people and brand.` : `Make ${m.name} an admin? They will be able to approve posts and manage the team.`)) patch(m, { role: m.role === "admin" ? "lawyer" : "admin" }); }}>
                       Make {m.role === "admin" ? "lawyer" : "admin"}
                     </button>
                     {m.active ? (
-                      <button className="btn btn-sm btn-danger" type="button" onClick={() => patch(m, { active: false })}>
+                      <button className="btn btn-sm btn-danger" type="button" onClick={() => { if (window.confirm(`Switch off ${m.name}? They are signed out straight away and cannot sign in until you switch them back on.`)) patch(m, { active: false }); }}>
                         Switch off
                       </button>
                     ) : (
@@ -570,7 +570,7 @@ function BrandTab({ me, onSaved }: { me: Me; onSaved: (b: Brand, ra: boolean, q:
         <div className="tm-head">
           <h3>Firm brand</h3>
         </div>
-        <p className="hint tm-lede">Set once. Every lawyer's slides use it, and they cannot change it.</p>
+        <p className="hint tm-lede">Set once. Every lawyer&apos;s slides use it, and they cannot change it.</p>
         <div className="tm-colours">
           {(["cream", "navy", "accent"] as const).map((k) => (
             <div className="colorfield" key={k}>

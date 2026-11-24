@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { guard } from "@/lib/access";
+import { getContext } from "@/lib/firm/auth";
+import { reserveDraft, refundDraft } from "@/lib/firm/quota";
 import { draftWithFallback, pickProvider, safeMessage } from "@/lib/provider";
 
 export const runtime = "nodejs";
@@ -41,6 +43,8 @@ export async function POST(req: Request) {
   const text = typeof body.text === "string" ? body.text : "";
   const instruction = typeof body.instruction === "string" ? body.instruction.trim() : "";
   if (!text.trim()) return NextResponse.json({ error: "There is nothing to rewrite yet." }, { status: 400 });
+  // no slide field or caption is anywhere near this long, and each character is paid for
+  if (text.length > 8000) return NextResponse.json({ error: "That is too long to rewrite in one go. Rewrite a shorter part." }, { status: 400 });
   if (!instruction || instruction.length > 300) {
     return NextResponse.json({ error: "Say what to change, in a few words." }, { status: 400 });
   }
@@ -68,12 +72,28 @@ export async function POST(req: Request) {
     "\n\nThe text:\n" +
     text;
 
+  // A signed in firm member's rewrites are counted like their other revisions, so the limit on
+  // paid calls holds here too. Solo users have no account and skip this.
+  const ctx = await getContext(req).catch(() => null);
+  let slot: number | null = null;
+  if (ctx) {
+    const res = await reserveDraft(ctx, "revision");
+    if (!res.ok) {
+      return NextResponse.json(
+        { error: "You have reached this month's limit on revisions. It renews on the 1st, or ask your firm admin to raise the allowance.", quotaReached: true },
+        { status: 429 },
+      );
+    }
+    slot = res.id;
+  }
+
   try {
     const { text: out } = await draftWithFallback(provider, prompt, 1500);
     const cleaned = out.trim().replace(/^["“”']+|["“”']+$/g, "");
     if (!cleaned) throw new Error("nothing came back");
     return NextResponse.json({ text: cleaned });
   } catch (err) {
+    await refundDraft(slot);
     return NextResponse.json({ error: safeMessage(err, "the rewrite failed") }, { status: 502 });
   }
 }

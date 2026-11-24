@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { guard } from "@/lib/access";
-import { ProviderAuthError, openaiBase, safeMessage } from "@/lib/provider";
+import { ProviderAuthError, ProviderError, openaiBase, safeMessage } from "@/lib/provider";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -56,10 +56,14 @@ async function generate(model: string, prompt: string, size: string, extra: Reco
     body: JSON.stringify({ model, prompt, size, n: 1, ...extra }),
   });
   const data = (await res.json().catch(() => ({}))) as { data?: { b64_json?: string }[]; error?: { message?: string } };
-  if (res.status === 401 || res.status === 403) throw new ProviderAuthError("openai");
-  if (!res.ok) throw new Error(data.error?.message || `image request failed (${res.status})`);
+  // 401 is a rejected key. A 403 saying the organisation must be verified is not: the account is
+  // fine, that one model is just not open to it yet, and the older model can still be used.
+  if (res.status === 401 || (res.status === 403 && !/verif/i.test(data.error?.message || ""))) {
+    throw new ProviderAuthError("openai");
+  }
+  if (!res.ok) throw new ProviderError(res.status);
   const b64 = data.data?.[0]?.b64_json;
-  if (!b64) throw new Error("no image came back");
+  if (!b64) throw new ProviderError(502);
   return b64;
 }
 
@@ -90,8 +94,10 @@ export async function POST(req: Request) {
     try {
       b64 = await generate("gpt-image-1", prompt, "1024x1536", { quality: "medium" });
     } catch (first) {
-      // a rejected key will be rejected again by the second model, so do not try it
-      if (first instanceof ProviderAuthError) throw first;
+      // Only fall back when the first model is not available to this account. A rejected key
+      // would be rejected again, and a busy or failing service would charge twice for one picture.
+      const unavailable = first instanceof ProviderError && [400, 403, 404].includes(first.status);
+      if (!unavailable) throw first;
       b64 = await generate("dall-e-3", prompt, "1024x1792", { response_format: "b64_json", quality: "standard" });
     }
     return NextResponse.json({ image: "data:image/png;base64," + b64 });

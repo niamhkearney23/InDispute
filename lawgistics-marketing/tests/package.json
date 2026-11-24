@@ -1,0 +1,13 @@
+{
+  "name": "lawgistics-marketing-tests",
+  "private": true,
+  "description": "End to end tests for the studio and the firm workspace. Run with: bash run.sh",
+  "scripts": { "test": "bash run.sh all" },
+  "dependencies": {
+    "@electric-sql/pglite": "^0.5.16",
+    "@electric-sql/pglite-socket": "^0.2.19"
+  },
+  "devDependencies": {
+    "playwright": "^1.50.0"
+  }
+}

@@ -64,7 +64,7 @@ body{
     border-top:1px solid var(--border);border-radius:0 0 16px 16px;
   }
   #shareBar + #downloadBar{margin-top:26px;}
-  .toast{bottom:calc(20px + env(safe-area-inset-bottom,0px));max-width:calc(100vw - 32px);text-align:center;}
+  .toast{bottom:calc(96px + env(safe-area-inset-bottom,0px));max-width:calc(100vw - 32px);text-align:center;}
   /* everything you can tap is at least a thumb wide */
   .segmented button{min-height:44px;padding:10px 16px;font-size:14px;}
   .mdbar button{width:34px;height:34px;font-size:14px;border-radius:8px;}
@@ -297,11 +297,12 @@ body{
   color:var(--ink-soft);border-radius:6px;width:22px;height:22px;cursor:pointer;line-height:1;
 }
 .mdbar button:hover{color:var(--ink);border-color:var(--border-strong);}
+@media (max-width:600px){.mdbar button{width:40px;height:40px;font-size:15px;}}
 
-.rowfields{display:flex;gap:10px;}
-.rowfields>.field{flex:1;margin-bottom:14px;}
+.rowfields{display:flex;gap:10px;flex-wrap:wrap;}
+.rowfields>.field{flex:1 1 150px;min-width:0;margin-bottom:14px;}
 
-.segmented{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.segmented{display:inline-flex;flex-wrap:wrap;max-width:100%;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
 .segmented button{
   font:inherit;font-size:12.5px;font-weight:600;padding:7px 12px;border:none;background:var(--surface-2);
   color:var(--ink-soft);cursor:pointer;
@@ -351,7 +352,7 @@ body{
   font-family:var(--f-sans,'Studio Sans'),'TikTok Sans',sans-serif;-webkit-font-smoothing:antialiased;flex:none;}
 .slide-canvas.dark{background:var(--t-navy,#141A28);color:var(--t-ink-navy,#EDE7DC);}
 .slide-canvas .page{position:absolute;inset:0;padding:88px 84px 76px;display:flex;flex-direction:column;}
-.slide-canvas .kicker{font-family:var(--f-sans,'Studio Sans'),'TikTok Sans',sans-serif;font-size:19px;font-weight:500;
+.slide-canvas .kicker{font-family:var(--f-sans,'Studio Sans'),'TikTok Sans',sans-serif;font-size:22px;font-weight:500;
   letter-spacing:.28em;text-transform:uppercase;color:var(--t-kicker-cream,#8C8577);}
 .slide-canvas.dark .kicker{color:var(--t-kicker-navy,#8892A6);}
 .slide-canvas .statement{font-family:var(--f-serif,'Studio Serif'),'Playfair',serif;font-weight:600;color:inherit;}
@@ -382,12 +383,12 @@ body{
 /* it carries its own emphasis now that it has no label in front of it */
 .slide-canvas .learn{font-size:35px;}
 .slide-canvas .foot{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;gap:50px;}
-.slide-canvas .cite{font-family:var(--f-sans,'Studio Sans'),'TikTok Sans',sans-serif;font-size:19px;line-height:1.55;
+.slide-canvas .cite{font-family:var(--f-sans,'Studio Sans'),'TikTok Sans',sans-serif;font-size:22px;line-height:1.55;
   font-weight:500;color:var(--t-muted-cream,#9A9384);max-width:680px;}
 .slide-canvas .cite b{color:var(--t-sub-cream,#5E5A4F);font-weight:600;}
 .slide-canvas.dark .cite{color:var(--t-muted-navy,#7C8598);}
 .slide-canvas.dark .cite b{color:var(--t-sub-navy,#C4CBDA);}
-.slide-canvas .mark{font-family:var(--f-sans,'Studio Sans'),'TikTok Sans',sans-serif;font-size:18px;font-weight:600;
+.slide-canvas .mark{font-family:var(--f-sans,'Studio Sans'),'TikTok Sans',sans-serif;font-size:21px;font-weight:600;
   letter-spacing:.34em;color:var(--t-muted-cream,#9A9384);white-space:nowrap;}
 .slide-canvas.dark .mark{color:var(--t-muted-navy,#7C8598);}
 .slide-canvas .swipe{font-family:var(--f-serif,'Studio Serif'),'Playfair',serif;font-style:italic;font-size:26px;color:var(--t-kicker-cream,#8C8577);}

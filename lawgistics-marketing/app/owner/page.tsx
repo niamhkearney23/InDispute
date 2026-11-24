@@ -110,7 +110,7 @@ export default function OwnerPage() {
         {!authed ? (
           <div className="tm-form" style={{ maxWidth: 440 }}>
             <div className="tm-head">
-              <h3>Owner key</h3>
+              <h2>Owner key</h2>
             </div>
             <div className="field">
               <label htmlFor="ok">Enter the OWNER_KEY set on the server</label>
@@ -157,7 +157,7 @@ export default function OwnerPage() {
               </div>
             ) : null}
             <div className="tm-head">
-              <h3>New firm</h3>
+              <h2>New firm</h2>
             </div>
             <div className="tm-add">
               <div className="field">
@@ -180,7 +180,7 @@ export default function OwnerPage() {
             </div>
             {msg ? <p className="askstatus bad">{msg}</p> : null}
             <div className="tm-head" style={{ marginTop: 26 }}>
-              <h3>Firms</h3>
+              <h2>Firms</h2>
             </div>
             {!firms ? (
               <p className="hint">Loading…</p>

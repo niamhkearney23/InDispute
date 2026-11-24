@@ -8,7 +8,7 @@
   --paper: #f7f5f1;
   --ink: #15120f;
   --ink-soft: #4a443c;
-  --ink-faint: #7d756a;
+  --ink-faint: #6a6258;
   --plum: #3f1733;
   --plum-soft: #5c2a4d;
   --rule: #d6d0c5;
@@ -605,6 +605,30 @@ body:has(.firms) {
 .firms .deckdots button.on {
   background: var(--plum);
 }
+/* a 3px line is a poor thing to tap, so the tap area is taller than it looks */
+.firms .deckdots button {
+  position: relative;
+}
+.firms .deckdots button::after {
+  content: "";
+  position: absolute;
+  inset: -20px -3px;
+}
+.firms .deckpause {
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink-soft);
+  background: none;
+  border: 0;
+  padding: 12px 4px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.firms .deckpause:focus-visible {
+  outline: 2px solid var(--plum);
+  outline-offset: 2px;
+}
 .firms .deckdots button:focus-visible {
   outline: 2px solid var(--plum);
   outline-offset: 3px;
@@ -705,5 +729,6 @@ body:has(.firms) {
 }
 
 .firms .barlinks{display:flex;align-items:center;gap:22px;}
+.firms .barlink{display:inline-block;padding-block:12px;}
 .firms .barlink.quiet{color:var(--ink-soft);border-bottom-color:transparent;}
 .firms .barlink.quiet:hover{color:var(--plum);border-bottom-color:var(--plum);}

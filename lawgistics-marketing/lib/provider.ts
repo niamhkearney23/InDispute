@@ -17,14 +17,33 @@ export class ProviderAuthError extends Error {
   }
 }
 
-/** Anything that goes back to a browser passes through this first. */
+/** An upstream failure that is not a rejected key. Its message is ours, never the provider's text. */
+export class ProviderError extends Error {
+  status: number;
+  constructor(status: number) {
+    super(
+      status === 429
+        ? "The AI service is busy or rate limited right now. Try again in a minute."
+        : status === 400 || status === 413 || status === 422
+          ? "The AI service could not process that request. Try a shorter or simpler one."
+          : status >= 500
+            ? "The AI service is having trouble right now. Try again in a minute."
+            : `The AI service returned an error (code ${status}).`,
+    );
+    this.status = status;
+  }
+}
+
+/**
+ * Anything that goes back to a browser passes through this first. Only text we wrote ourselves is
+ * shown. A provider's own error text can echo part of a prompt or a key, so it never leaves the server.
+ */
 export function safeMessage(err: unknown, fallback = "the request failed"): string {
   if (err instanceof ProviderAuthError) {
     return `${err.message} Whoever runs this studio needs to replace it.`;
   }
-  const raw = err instanceof Error ? err.message : fallback;
-  // belt and braces: nothing shaped like a key or a bearer token leaves the server
-  return raw.replace(/sk-[A-Za-z0-9_\-*.]{4,}/g, "[key]").replace(/Bearer\s+\S+/gi, "Bearer [key]").slice(0, 300);
+  if (err instanceof ProviderError) return err.message;
+  return `Something went wrong: ${fallback}. Try again.`;
 }
 
 // Either provider can write. DRAFT_PROVIDER pins one; otherwise whichever key
@@ -111,9 +130,9 @@ async function withOpenAI(prompt: string, maxTokens: number, json: boolean): Pro
     error?: { message?: string };
   };
   if (res.status === 401 || res.status === 403) throw new ProviderAuthError("openai");
-  if (!res.ok) throw new Error(data.error?.message || `OpenAI request failed (${res.status})`);
+  if (!res.ok) throw new ProviderError(res.status);
   const text = data.choices?.[0]?.message?.content;
-  if (!text) throw new Error("OpenAI returned nothing");
+  if (!text) throw new ProviderError(502);
   return text;
 }
 
@@ -127,7 +146,7 @@ async function withAnthropic(prompt: string, maxTokens: number): Promise<string>
     })
     .catch((e: { status?: number }) => {
       if (e && (e.status === 401 || e.status === 403)) throw new ProviderAuthError("anthropic");
-      throw e;
+      throw typeof e?.status === "number" ? new ProviderError(e.status) : e;
     });
   return response.content
     .filter((b) => b.type === "text")

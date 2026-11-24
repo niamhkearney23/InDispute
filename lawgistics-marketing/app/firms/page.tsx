@@ -53,7 +53,7 @@ export default function FirmsPage() {
         </div>
       </header>
 
-      <main>
+      <div>
         <section className="hero">
           <div className="fwrap herogrid">
             <div className="herotext">
@@ -63,8 +63,8 @@ export default function FirmsPage() {
               </h1>
               <p className="lede">
                 A lawyer writes a rough note. Lawgistics returns a LinkedIn post and a designed carousel, in
-                their voice, inside your firm&rsquo;s brand. A person reads and approves every one before it goes
-                anywhere.
+                their voice, inside your firm&rsquo;s brand. Where your firm turns approval on, a reviewer reads and
+                approves each one before the app will save it.
               </p>
               <div className="ctas">
                 {BOOK ? (
@@ -83,14 +83,14 @@ export default function FirmsPage() {
 
         <section style={{ paddingTop: 0 }}>
           <div className="fwrap">
-            <p className="eyebrow">Real output</p>
-            <h2 className="serif">These are not mockups.</h2>
+            <p className="eyebrow">Sample slides</p>
+            <h2 className="serif">Drawn by the product.</h2>
             <p className="lede">
-              Every slide here was drawn by the product, by the same code that will draw yours. Scroll sideways.
+              The words on these slides were written for this page. They were drawn by the same code that will draw yours. Scroll sideways.
             </p>
           </div>
           <div className="fwrap" style={{ marginTop: 34 }} data-reveal>
-            <div className="shelf">
+            <div className="shelf" tabIndex={0} role="region" aria-label="Sample slides, scroll sideways">
               {SLIDES.map((sl) => (
                 <div className="frame" key={sl.key}>
                   {sl.node}
@@ -121,7 +121,7 @@ export default function FirmsPage() {
         <section>
           <div className="fwrap">
             <p className="eyebrow">How it works</p>
-            <h2 className="serif">Four steps, about three minutes.</h2>
+            <h2 className="serif">Four steps.</h2>
             <div className="fsteps" data-reveal>
               <div className="fstep">
                 <span className="n">01</span>
@@ -177,7 +177,7 @@ export default function FirmsPage() {
               <div className="fcol now">
                 <p className="fcolhead">Working now</p>
                 <ul>
-                  <li>One idea becomes a post and a six slide carousel</li>
+                  <li>One idea becomes a post and a carousel of five or six slides</li>
                   <li>The lawyer&rsquo;s own voice, taken from a writing sample</li>
                   <li>Your colours, your typefaces, your footer note on every slide</li>
                   <li>Twenty compositions, so a feed never looks automated</li>
@@ -188,7 +188,7 @@ export default function FirmsPage() {
                     <>
                       <li>A separate profile for each lawyer, with their own voice</li>
                       <li>One firm brand, set once by an admin and locked for everyone else</li>
-                      <li>Review before saving: a post cannot be saved or copied until a reviewer approves it, and any edit sends it back</li>
+                      <li>Review before saving, where your firm turns it on: the app will not save the slides until a reviewer approves them, and any edit sends them back</li>
                       <li>A monthly allowance per lawyer, and usage visible to whoever runs marketing</li>
                     </>
                   ) : null}
@@ -217,7 +217,7 @@ export default function FirmsPage() {
             <p className="ledgernote">
               {live
                 ? "Review is a workflow, not a lock. It stops this app saving or copying a post nobody has approved. It cannot stop someone taking a screenshot of what is on their screen, so treat it as a process your firm follows, not as security."
-                : "Today this is strong for one lawyer at a time, and a lawyer sets themselves up in about three minutes. The firm layer is genuinely not finished, and we would rather you heard that here than at the demo."}
+                : "Today this is strong for one lawyer at a time, and a lawyer can set themselves up in a few minutes. The firm layer is genuinely not finished, and we would rather you heard that here than at the demo."}
             </p>
           </div>
         </section>
@@ -253,7 +253,7 @@ export default function FirmsPage() {
                 <li>
                   {live ? (
                     <>
-                      <i>&#10003;</i> Review before saving, so nothing leaves your firm unapproved
+                      <i>&#10003;</i> Review before saving, so the app holds back anything not yet approved
                     </>
                   ) : (
                     <>
@@ -289,8 +289,8 @@ export default function FirmsPage() {
               <div>
                 <h3 className="serif">Who is responsible for what goes out?</h3>
                 <p>
-                  Your firm. Every draft is written by AI, and the app will not export anything until the lawyer has
-                  ticked to say they read every slide and checked the facts themselves.
+                  Your firm. Every draft is written by AI. Before the app exports anything, the lawyer has to tick to
+                  say they read every slide and checked the facts themselves.
                 </p>
               </div>
               <div>
@@ -303,8 +303,8 @@ export default function FirmsPage() {
               <div>
                 <h3 className="serif">Will every lawyer&rsquo;s posts look the same?</h3>
                 <p>
-                  No. There are twenty compositions, and the generator is blocked from using the same one twice in a
-                  row or putting three slides in a row on the same background.
+                  No. There are twenty compositions, and the generator is told not to use the same one twice in a
+                  row or to put three slides in a row on the same background. A second pass swaps repeats where it can.
                 </p>
               </div>
               {live ? (
@@ -321,15 +321,15 @@ export default function FirmsPage() {
                 <h3 className="serif">What happens to what we type?</h3>
                 {live ? (
                   <p>
-                    What a lawyer types is sent to the AI provider to write the post, the same way any AI tool works. For
+                    What a lawyer types is sent to OpenAI or Anthropic, overseas, to write the post, and the provider handles it under its own terms. Client names and confidential details should not be typed in. For
                     a firm workspace we also store the firm brand, each lawyer&rsquo;s profile, and any post they submit
                     for review, so a reviewer can open it. Nothing is stored for someone using the studio on their own: that
                     stays in their own browser.
                   </p>
                 ) : (
                   <p>
-                    Your brand settings and drafts stay in your own browser. The idea you type is sent to the AI
-                    provider to write the post, the same way any AI tool works. We keep no copy of your drafts.
+                    Your brand settings and drafts stay in your own browser. The idea you type is sent to OpenAI or
+                    Anthropic, overseas, to write the post, and the provider handles it under its own terms. Leave out client names and confidential details. We do not store your drafts.
                   </p>
                 )}
               </div>
@@ -354,7 +354,7 @@ export default function FirmsPage() {
             </div>
           </div>
         </section>
-      </main>
+      </div>
 
       <footer>
         <div className="fwrap">
