@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Describe the idea, check the draft, save the slides.",
     start_url: "/",
     display: "standalone",
-    background_color: "#08090B",
-    theme_color: "#08090B",
+    background_color: "#efece6",
+    theme_color: "#efece6",
     orientation: "portrait",
     icons: [
       { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
