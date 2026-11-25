@@ -453,7 +453,8 @@ var SETUP_STEPS = ['you','look','voice'];
 
 // A calendar invite is the only reminder that works with no accounts and no
 // push permission, and it survives the browser being closed.
-function weeklyReminderIcs(){
+function weeklyReminderIcs(freq){
+  var rule = freq==='monthly' ? 'RRULE:FREQ=MONTHLY' : (freq==='fortnightly' ? 'RRULE:FREQ=WEEKLY;INTERVAL=2' : 'RRULE:FREQ=WEEKLY');
   function pad(n){ return (n<10?'0':'')+n; }
   function stamp(d){
     return d.getUTCFullYear()+pad(d.getUTCMonth()+1)+pad(d.getUTCDate())+'T'+
@@ -470,11 +471,11 @@ function weeklyReminderIcs(){
     'DTSTAMP:'+stamp(new Date()),
     'DTSTART:'+stamp(start),
     'DTEND:'+stamp(end),
-    'RRULE:FREQ=WEEKLY',
-    'SUMMARY:Write this week\'s post',
-    'DESCRIPTION:Open Lawgistics Marketing and draft this week\'s post.',
+    rule,
+    'SUMMARY:Write your next post',
+    'DESCRIPTION:Open Lawgistics Marketing and draft your next post.',
     'URL:'+(typeof location!=='undefined' ? location.origin : ''),
-    'BEGIN:VALARM','TRIGGER:-PT10M','ACTION:DISPLAY','DESCRIPTION:Write this week\'s post','END:VALARM',
+    'BEGIN:VALARM','TRIGGER:-PT10M','ACTION:DISPLAY','DESCRIPTION:Write your next post','END:VALARM',
     'END:VEVENT','END:VCALENDAR'
   ].join('\r\n');
 }
@@ -1559,8 +1560,9 @@ export function initStudio(){
   btnAnother.addEventListener('click', function(){ startNewPost(); });
   btnLooksGood.addEventListener('click', function(){ if(firm) submitForReview(); else showStep('save'); });
   btnRemindWeekly.addEventListener('click', function(){
-    var blob = new Blob([weeklyReminderIcs()], {type:'text/calendar'});
-    saveBlob('weekly-post-reminder.ics', blob);
+    var freq = ($('remindFreq') && $('remindFreq').value) || 'weekly';
+    var blob = new Blob([weeklyReminderIcs(freq)], {type:'text/calendar'});
+    saveBlob('post-reminder.ics', blob);
     showToast('Open the file to add it to your calendar');
   });
 
