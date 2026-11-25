@@ -82,33 +82,14 @@ body{
    software. It is still the one Lawgistics wordmark, not a second logo. */
 .brandmark{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
 .brandmark h1{margin:0;display:inline-flex;align-items:center;gap:12px;}
-.mk-name{
-  font-size:22px;font-weight:600;letter-spacing:-.035em;color:var(--ink);
-}
-.mk-suffix{
-  font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--accent);background:color-mix(in srgb, var(--accent) calc(18% / 2.2), transparent);
-  border:1px solid color-mix(in srgb, var(--accent) calc(35% / 2.2), transparent);border-radius:6px;padding:3px 8px;
-}
-.mk-tag{
-  position:relative;padding-left:13px;
-  font-size:13px;font-weight:500;letter-spacing:-.01em;color:var(--ink-faint);
-}
-.mk-tag::before{
-  content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
-  width:1px;height:16px;background:var(--border-strong);
-}
 .topbar-actions{display:flex;gap:8px;flex-wrap:wrap;}
 /* On a phone the lockup and the two actions share about 358px. The strapline
    goes, and the chip tightens, so the header stays on one row instead of
    wrapping and pushing the question down the screen. */
 @media (max-width:600px){
   .topbar{gap:10px;}
-  .mk-tag{display:none;}
-  .mk-name{font-size:18px;}
-  .brandmark h1{gap:7px;}
-  .mk-suffix{font-size:8.5px;padding:2px 5px;letter-spacing:.06em;border-radius:5px;}
-}
+      .brandmark h1{gap:7px;}
+  }
 
 .btn{
   font:inherit;font-size:13.5px;font-weight:600;border-radius:8px;border:1px solid var(--border-strong);
@@ -1112,9 +1093,7 @@ body.firmcheck .step{visibility:hidden;}
 .reviewnote b{font-weight:600;}
 .reviewnote span{color:var(--ink-soft);}
 
-/* the "one post a week" strapline is the solo studio's promise, and a firm sets its own allowance */
-body.firmmode .mk-tag{display:none;}
-
+body.firmmode 
 
 /* ---------- interface polish ---------- */
 /* a heading that takes focus when a step opens is a landing point, not a control: no box */
@@ -1177,26 +1156,33 @@ input[type=checkbox]{accent-color:var(--accent);}
    The studio now wears the same cream, ink and plum as the page that sells it, so the product
    reads as one thing and looks like a publication, not a developer tool. Everything above is
    driven by these tokens, so the change lives here and nowhere else. */
+@font-face{font-family:'Lora';font-weight:500;font-style:normal;src:url('/fonts/lora-latin-500-normal.woff2') format('woff2');font-display:swap;}
+@font-face{font-family:'Lora';font-weight:600;font-style:normal;src:url('/fonts/lora-latin-600-normal.woff2') format('woff2');font-display:swap;}
+@font-face{font-family:'Lora';font-weight:700;font-style:normal;src:url('/fonts/lora-latin-700-normal.woff2') format('woff2');font-display:swap;}
+@font-face{font-family:'Lora';font-weight:500;font-style:italic;src:url('/fonts/lora-latin-500-italic.woff2') format('woff2');font-display:swap;}
+@font-face{font-family:'Lora';font-weight:600;font-style:italic;src:url('/fonts/lora-latin-600-italic.woff2') format('woff2');font-display:swap;}
+/* the main Lawgistics site's own values (lawgistics-site/assets/css/site.css), so the two match */
 :root{
-  --bg:#efece6; --surface:#f7f5f1; --surface-2:#ffffff; --surface-3:#ece8e0;
-  --border:#ddd7cc; --border-strong:#c4bcae;
-  --ink:#15120f; --ink-soft:#4a443c; --ink-faint:#6a6258;
-  --accent:#3f1733; --accent-strong:#5c2a4d; --accent-ink:#f7f1f5;
-  --accent-glow:rgba(63,23,51,.14); --danger:#a8322a;
+  --bg:#f4f1ea; --surface:#ffffff; --surface-2:#ffffff; --surface-3:#ebe6dc;
+  --border:#ddd8cd; --border-strong:#c9c2b4;
+  --ink:#1a1f28; --ink-soft:#3a4250; --ink-faint:#556c8a;
+  --accent:#2d4a75; --accent-strong:#23395c; --accent-ink:#ffffff;
+  --accent-glow:transparent; --danger:#a63d3d;
   --mono:'Studio UI',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-  --shadow:0 1px 2px rgba(21,18,15,.05), 0 10px 30px rgba(21,18,15,.06);
+  --shadow:0 1px 2px rgba(26,31,40,.04);
+  --serif-ui:'Lora',Georgia,'Times New Roman',serif;
 }
 body{background:var(--bg);}
 .panel{box-shadow:var(--shadow);}
 
 /* headings in the serif the slides use, in plain ink */
 .stephead h2{
-  font-family:'Studio Serif',Georgia,serif;font-weight:500;font-size:34px;letter-spacing:-.015em;
+  font-family:var(--serif-ui);font-weight:600;font-size:34px;letter-spacing:-.015em;
   background:none;-webkit-background-clip:border-box;background-clip:border-box;color:var(--ink);
 }
 .stephead h2 em{-webkit-text-fill-color:currentColor;color:var(--accent);font-weight:500;}
 @media (max-width:600px){.stephead h2{font-size:29px;}}
-.mk-name{font-family:'Studio Serif',Georgia,serif;font-weight:600;letter-spacing:-.01em;}
+
 
 /* small print reads as small print, not as code */
 .hint,.panel-title,.stagecount,.stepdots b{letter-spacing:.01em;}
@@ -1209,7 +1195,7 @@ body{background:var(--bg);}
 .stripitem{background:var(--surface-3);box-shadow:0 3px 10px rgba(21,18,15,.12);}
 .palette .sw,.brandbar .sw{border-color:rgba(21,18,15,.16);}
 @media (max-width:600px){.stepfoot,#shareBar{background:rgba(247,245,241,.9) !important;}}
-.gatecard h2{font-family:'Studio Serif',Georgia,serif;font-weight:500;letter-spacing:-.015em;}
+.gatecard h2{font-family:var(--serif-ui);font-weight:600;letter-spacing:-.015em;}
 .gatecard h2 em{color:var(--accent);}
 
 
@@ -1247,3 +1233,49 @@ body.pastsetup .journey li[data-stage="setup"]{display:none;}
 @media (max-width:999px){.lookpick{margin-top:20px;}.lookrow{flex-wrap:nowrap;overflow-x:auto;padding:3px 3px 8px;}}
 /* the format switch and brand line sit under the box now: secondary, so quieter */
 .asknote + .askcontrols{margin-top:18px;}
+
+
+/* ================= in line with Lawgistics =================
+   The main site's rules, applied here: one wordmark, navy as the only colour that means
+   "act", white cards with a hairline, 8px corners, no glows, and pills only for status tags. */
+.brandh1{margin:0;line-height:1;font-size:inherit;}
+.lg-brand{
+  font-family:var(--serif-ui);font-weight:700;font-size:1.42rem;letter-spacing:.01em;line-height:1;
+  color:var(--ink);display:inline-flex;align-items:baseline;text-decoration:none;
+}
+.lg-brand:hover{color:var(--ink);}
+.lg-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#2d4a75;margin-left:5px;transform:translateY(-1px);}
+.lg-brand--light{color:#f4f1ea;}
+.lg-brand--light .lg-dot{background:#8fa3bf;}
+@media (max-width:600px){.lg-brand{font-size:1.25rem;}}
+
+.stephead h2 em{font-style:italic;font-weight:500;color:var(--accent);-webkit-text-fill-color:currentColor;}
+.tm-card h1,.tm-card h2,.stepcard h3{font-family:var(--serif-ui);font-weight:600;letter-spacing:-.015em;}
+
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:none;}
+.btn{border-radius:8px;font-size:.92rem;font-weight:600;letter-spacing:.005em;}
+.btn-sm{border-radius:6px;font-size:.84rem;}
+.btn-accent,.btn-accent:hover{box-shadow:none;}
+.btn:hover{border-color:var(--ink);background:var(--surface-2);}
+.btn-accent:hover{background:var(--accent-strong);border-color:var(--accent-strong);}
+
+/* buttons are buttons, not lozenges */
+.dirbtn,.chip,.refineinput,.randombtn,.palette,.starters button{border-radius:6px;}
+.toast{border-radius:8px;}
+.randombtn{text-transform:none;letter-spacing:.005em;font-size:12.5px;padding:6px 12px;}
+.segmented{border-radius:8px;}
+.stylebtn{border-radius:8px;}
+.lookthumb{border-radius:3px;}
+
+/* labels: the main site's eyebrow is small capitals in navy; everything else is sentence case */
+.gatekicker{color:var(--accent);}
+
+/* the reminder sits as one quiet line */
+.remindrow{align-items:center;gap:10px;font-size:13px;color:var(--ink-soft);}
+.remindlabel{font-weight:600;color:var(--ink-soft);}
+.remindselect{font:inherit;font-size:13px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;background:var(--surface-2);color:var(--ink);}
+.remindselect:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+/* one progress indicator, not two: inside a setup card the count is a small navy label */
+.stepdots i{display:none;}
+.stepdots b{margin-left:0;color:var(--accent);font-size:.72rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;}

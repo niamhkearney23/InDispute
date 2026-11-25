@@ -5,9 +5,10 @@ import { BrandControl, Deck, RevealScript } from "./interactive";
 import { firmStatus } from "@/lib/firm/db";
 import { bookingUrl } from "@/lib/booking";
 import { emailStatus } from "@/lib/firm/email";
+import { Brand } from "@/app/Brand";
 
 export const metadata: Metadata = {
-  title: "Lawgistics Marketing for firms",
+  title: "Marketing for law firms, Lawgistics",
   description:
     "One idea in, a post your firm would sign off. LinkedIn posts and designed carousels in each lawyer's voice, inside one firm brand.",
 };
@@ -33,11 +34,7 @@ export default function FirmsPage() {
       <RevealScript />
       <header className="bar">
         <div className="fwrap">
-          <a className="lockup" href="/firms" style={{ textDecoration: "none", color: "inherit" }}>
-            <span className="lmark">L</span>
-            <span className="lname">Lawgistics</span>
-            <span className="lsuffix">Marketing</span>
-          </a>
+          <Brand href="/firms" />
           <div className="barlinks">
             {live ? (
               <a className="barlink quiet" href="/join">
@@ -69,7 +66,7 @@ export default function FirmsPage() {
               <div className="ctas">
                 {BOOK ? (
                   <a className="fbtn" {...bookProps}>
-                    Book a firm demo
+                    Book a demo for your firm
                   </a>
                 ) : null}
                 <a className={BOOK ? "fbtn fbtn-ghost" : "fbtn"} href="/">
@@ -345,7 +342,7 @@ export default function FirmsPage() {
             <div className="ctas">
               {BOOK ? (
                 <a className="fbtn" {...bookProps}>
-                  Book a firm demo
+                  Book a demo for your firm
                 </a>
               ) : null}
               <a className={BOOK ? "fbtn fbtn-ghost" : "fbtn"} href="/">
@@ -358,11 +355,7 @@ export default function FirmsPage() {
 
       <footer>
         <div className="fwrap">
-          <span className="lockup">
-            <span className="lmark">L</span>
-            <span className="lname">Lawgistics</span>
-            <span className="lsuffix">Marketing</span>
-          </span>
+          <Brand href="/firms" />
           <span>Built by Lawgistics in Australia.</span>
           <span>&copy; 2026 Lawgistics</span>
         </div>

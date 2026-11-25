@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { buildCanvasEl, defaultBrand, ensureGoogleFont } from "@/lib/studio";
 import "./team.css";
+import { Brand } from "@/app/Brand";
 
 /* ---------------------------------------------------------------- plumbing */
 
@@ -766,9 +767,8 @@ export default function TeamPage() {
     <div className="wrap">
       <div className="topbar">
         <div className="brandmark">
-          <h1>
-            <span className="mk-name">Lawgistics</span>
-            <span className="mk-suffix">Marketing</span>
+          <h1 className="brandh1">
+            <Brand />
           </h1>
         </div>
         <div className="topbar-actions">

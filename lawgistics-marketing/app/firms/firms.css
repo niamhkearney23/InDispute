@@ -4,39 +4,39 @@
    direction already in use, so the two pages read as one company. */
 
 .firms {
-  --cream: #efece6;
-  --paper: #f7f5f1;
-  --ink: #15120f;
-  --ink-soft: #4a443c;
-  --ink-faint: #6a6258;
-  --plum: #3f1733;
-  --plum-soft: #5c2a4d;
-  --rule: #d6d0c5;
-  --onplum: #f4ecf1;
-  --onplum-soft: #cbb4c4;
+  --cream: #f4f1ea;
+  --paper: #ffffff;
+  --ink: #1a1f28;
+  --ink-soft: #3a4250;
+  --ink-faint: #556c8a;
+  --plum: #2d4a75;
+  --plum-soft: #23395c;
+  --rule: #ddd8cd;
+  --onplum: #f4f1ea;
+  --onplum-soft: #b9c2d1;
 
   /* The slide tokens live here, not on each slide, so the brand switcher can
      re-skin every slide on the page by setting five variables in one place.
      These are the defaults the server renders, so the page is correct before
      any JavaScript runs. */
-  --t-cream: #f2efe9;
-  --t-navy: #241320;
-  --t-ink-cream: #241320;
-  --t-ink-navy: #f2efe9;
-  --t-kicker-cream: #8a7f7a;
-  --t-kicker-navy: #a697a0;
-  --t-body-cream: #3a2e32;
-  --t-body-navy: #d8ccd4;
-  --t-sub-cream: #5a4b52;
-  --t-sub-navy: #cfc0c9;
-  --t-muted-cream: #9a8f89;
-  --t-muted-navy: #8d7e88;
-  --t-accent: #6b2450;
-  --t-accent-navy: #c08bae;
-  --t-ink-accent: #f6eef3;
-  --t-kicker-accent: #d7b9cc;
-  --t-body-accent: #eedfe8;
-  --t-muted-accent: #c9a8bc;
+  --t-cream: #EDE7DC;
+  --t-navy: #171D2B;
+  --t-ink-cream: #171D2B;
+  --t-ink-navy: #EDE7DC;
+  --t-kicker-cream: #77787b;
+  --t-kicker-navy: #8d8c8c;
+  --t-body-cream: #313540;
+  --t-body-navy: #c6c3bc;
+  --t-sub-cream: #575a60;
+  --t-sub-navy: #bebbb5;
+  --t-muted-cream: #979695;
+  --t-muted-navy: #6d6e72;
+  --t-accent: #3A5697;
+  --t-accent-navy: #798cb8;
+  --t-ink-accent: #EDE7DC;
+  --t-kicker-accent: #bbbec9;
+  --t-body-accent: #dbd8d5;
+  --t-muted-accent: #a9b0c2;
   --f-serif: "Studio Serif";
   --f-sans: "Studio Sans";
 
@@ -732,3 +732,13 @@ body:has(.firms) {
 .firms .barlink{display:inline-block;padding-block:12px;}
 .firms .barlink.quiet{color:var(--ink-soft);border-bottom-color:transparent;}
 .firms .barlink.quiet:hover{color:var(--plum);border-bottom-color:var(--plum);}
+
+
+/* in line with Lawgistics: page headings in Lora, as on the main site. Slides keep their own
+   typefaces, because those are the firm's brand, not ours. */
+.firms h1,.firms h2,.firms h3,.firms .serif{font-family:"Lora",Georgia,"Times New Roman",serif;font-weight:600;letter-spacing:-.015em;}
+.firms h1 em,.firms h2 em,.firms h3 em{font-weight:500;}
+.firms .slide-canvas .serif{font-family:var(--f-serif,"Studio Serif"),"Playfair",serif;}
+.firms .fbtn{text-transform:none;letter-spacing:.005em;border-radius:8px;font-size:.92rem;}
+.firms .swatch{border-radius:8px;}
+.firms .lg-brand{font-size:1.42rem;}

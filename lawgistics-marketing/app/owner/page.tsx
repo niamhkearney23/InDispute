@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import "../team/team.css";
+import { Brand } from "@/app/Brand";
 
 type Firm = { id: string; name: string; people: number; posts: number; created_at: string; monthly_quota: number; require_approval: boolean };
 type Invite = { label: string; code: string; url: string; days: number; emailedTo?: string | null; emailNote?: string | null };
@@ -100,9 +101,8 @@ export default function OwnerPage() {
     <div className="wrap">
       <div className="topbar">
         <div className="brandmark">
-          <h1>
-            <span className="mk-name">Lawgistics</span>
-            <span className="mk-suffix">Owner</span>
+          <h1 className="brandh1">
+            <Brand />
           </h1>
         </div>
       </div>

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { initStudio } from "@/lib/studio";
+import { Brand } from "@/app/Brand";
 
 function Dots({ on }: { on: "you" | "look" | "voice" }) {
   const steps = ["you", "look", "voice"] as const;
@@ -30,14 +31,11 @@ export default function Page() {
     <>
       <div className="wrap">
         <div className="topbar">
-          {/* master brand, then a quiet product label, matching the Academy's
-              lockup so the two read as one company rather than two */}
+          {/* the same wordmark as the main Lawgistics site, and nothing else beside it */}
           <div className="brandmark">
-            <h1>
-              <span className="mk-name">Lawgistics</span>
-              <span className="mk-suffix">Marketing</span>
+            <h1 className="brandh1">
+              <Brand />
             </h1>
-            <span className="mk-tag">one post a week</span>
           </div>
           <div className="topbar-actions">
             <button className="btn btn-sm" type="button" data-go="you" id="btnBrandTop">
@@ -330,10 +328,17 @@ export default function Page() {
               </button>
             </div>
             <p className="remindrow">
+              <label className="remindlabel" htmlFor="remindFreq">
+                Post reminder
+              </label>
+              <select id="remindFreq" className="remindselect" defaultValue="weekly">
+                <option value="weekly">Every week</option>
+                <option value="fortnightly">Every two weeks</option>
+                <option value="monthly">Every month</option>
+              </select>
               <button type="button" className="linkbtn" id="btnRemindWeekly">
-                Remind me to post every week
+                Add to my calendar
               </button>
-              <span className="hint">adds a repeating reminder to your calendar</span>
             </p>
           </div>
         </section>

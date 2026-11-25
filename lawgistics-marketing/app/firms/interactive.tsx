@@ -23,11 +23,12 @@ function mix(a: string, b: string, t: number) {
 export type Palette = { name: string; cream: string; navy: string; accent: string };
 
 export const PALETTES: Palette[] = [
+  // first, and the default the page is drawn in: the Lawgistics navy and cream
+  { name: "Navy", cream: "#EDE7DC", navy: "#171D2B", accent: "#3A5697" },
   { name: "Plum", cream: "#F2EFE9", navy: "#241320", accent: "#6B2450" },
   { name: "Ink", cream: "#EFEEEA", navy: "#16181A", accent: "#2E3338" },
   { name: "Forest", cream: "#EAEFEA", navy: "#0F1C15", accent: "#2F6B43" },
   { name: "Oxblood", cream: "#F4EEEA", navy: "#241414", accent: "#8A2E25" },
-  { name: "Steel", cream: "#EDE7DC", navy: "#171D2B", accent: "#3A5697" },
   { name: "Sand", cream: "#F5EFE2", navy: "#2B2416", accent: "#A6782C" },
 ];
 

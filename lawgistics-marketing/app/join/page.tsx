@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Brand } from "@/app/Brand";
 
 // Redeems an invite. The code arrives in the URL fragment (/join#XXXX-...), which
 // a browser never sends to a server, so it cannot end up in a log or a referrer.
@@ -66,9 +67,8 @@ export default function JoinPage() {
     <div className="wrap">
       <div className="topbar">
         <div className="brandmark">
-          <h1>
-            <span className="mk-name">Lawgistics</span>
-            <span className="mk-suffix">Marketing</span>
+          <h1 className="brandh1">
+            <Brand />
           </h1>
         </div>
       </div>
