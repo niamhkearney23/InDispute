@@ -1,45 +1,65 @@
 {
-  "generatedDate": "2026-11-25",
+  "generatedDate": "2026-11-26",
   "jobs": [
     {
-      "employer": "The Law Society of New South Wales (scheme-wide, all participating firms)",
-      "program": "Summer Clerkship — 2027 recruitment cycle (clerkships over summer 2027/28)",
+      "employer": "The Law Society of New South Wales (scheme-wide window for participating NSW employers)",
+      "program": "Summer Clerkship 2027/28 — NSW Clerkship Recruitment Program window",
       "jurisdiction": "NSW",
       "opens": "2027-06-09",
       "closes": null,
-      "notes": "Applications open 9:00am AEST Wed 9 June 2027 and offers can be made from 9:00am Wed 8 September 2027; 'closes' is null because the Law Society publishes two alternative closing dates (Sunday 4 and Sunday 11 July, 11:59pm AEST) and each participating firm picks one, so no single confirmed close date applies — applicants must be in their penultimate or final year.",
+      "notes": "Official scheme page publishes 2027 dates: applications open 9:00am AEST Wed 9 June 2027, offers from 9:00am Wed 8 September 2027; 'closes' is null because the Society permits two different closing dates (11:59pm Sun 4 July and Sun 11 July 2027) depending on the participating firm, so the exact close date must be checked per employer.",
       "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Clerkship-Recruitment-Program",
-      "verifiedDate": "2026-11-25"
+      "verifiedDate": "2026-11-26"
     },
     {
-      "employer": "The Law Society of New South Wales (scheme-wide, all participating firms)",
-      "program": "Graduate Program — 2027 recruitment cycle",
-      "jurisdiction": "NSW",
+      "employer": "Clayton Utz",
+      "program": "Seasonal Clerkship 2027/28",
+      "jurisdiction": "National",
       "opens": null,
       "closes": null,
-      "notes": "The Law Society runs a combined Graduate and Clerkship Recruitment Program and links its 2027 guidelines, but the public page currently lists only the 2027 clerkship key dates, so the 2027 graduate open/close dates could not be confirmed and have been left null rather than extrapolated from the 2026 cycle.",
-      "url": "https://www.lawsociety.com.au/Legal-Communities/Law-Students/Clerkship-Recruitment-Program",
-      "verifiedDate": "2026-11-25"
+      "notes": "Firm's own early-careers page states applications are currently closed and will open in June for the 2027/28 seasonal clerkship program — only the month is confirmed, no exact dates are published yet, so both fields are null.",
+      "url": "https://www.claytonutz.com/early-careers/clerkship-program/",
+      "verifiedDate": "2026-11-26"
     },
     {
-      "employer": "Queensland Law Society (scheme-wide, signatory firms)",
-      "program": "Graduate Recruitment — 2027 program cycle",
+      "employer": "Allens",
+      "program": "Dive In (early-careers insight program), May 2027 intake",
+      "jurisdiction": "National",
+      "opens": null,
+      "closes": null,
+      "notes": "Allens' graduate site states applications for the May 2027 Dive In program will open in March 2027 — month only, no exact dates published; note this is a pre-clerkship insight program rather than a clerkship or graduate role, and Allens' 2026/27 clerkship applications are shown as closed.",
+      "url": "https://graduates.allens.com.au/our-programs/",
+      "verifiedDate": "2026-11-26"
+    },
+    {
+      "employer": "HWL Ebsworth",
+      "program": "Clerkship Program 2027/28",
+      "jurisdiction": "National",
+      "opens": null,
+      "closes": null,
+      "notes": "Firm's graduate centre confirms the 2026/27 program is closed and that 2027/28 clerkships will be advertised in line with the relevant Law Society/Institute guidelines, but no firm dates are published yet.",
+      "url": "https://hwlebsworth.com.au/graduate-centre/",
+      "verifiedDate": "2026-11-26"
+    },
+    {
+      "employer": "Queensland Law Society (scheme-wide window for signatory QLD firms)",
+      "program": "Seasonal Clerkship — 2028 program cycle",
       "jurisdiction": "QLD",
       "opens": null,
       "closes": null,
-      "notes": "QLS publishes 2027-cycle key dates for both seasonal clerkships and graduate positions, but the graduate open/close dates could not be read in full from the source, so they are null; note the 2027-cycle clerkship window (13 July – 7 August 2026) has already closed.",
+      "notes": "QLS publishes only the 2027 cycle, whose window has already passed (opened 13 July 2026, closed 5pm AEST 7 August 2026); dates for the next cycle are not yet published on the official page, so no future window can be confirmed.",
       "url": "https://www.qls.com.au/the-hub-early-career-lawyers/your-legal-career/seasonal-clerkship-and-graduate-recruitment",
-      "verifiedDate": "2026-11-25"
+      "verifiedDate": "2026-11-26"
     },
     {
-      "employer": "HWL Ebsworth Lawyers",
-      "program": "Clerkship Program 2027/2028",
-      "jurisdiction": "National (incl. Sydney/Norwest, Melbourne, Brisbane, Hobart)",
+      "employer": "Law Institute of Victoria (scheme-wide window for signatory VIC firms)",
+      "program": "Seasonal Clerkship / Graduate Program — 2027 guidelines",
+      "jurisdiction": "VIC",
       "opens": null,
       "closes": null,
-      "notes": "The firm confirms its 2026/2027 clerkship round is closed and that the 2027/2028 round will be advertised in line with the relevant Law Society/Law Institute guidelines, but no 2027/2028 dates are published yet, so both fields are null.",
-      "url": "https://hwlebsworth.com.au/graduate-centre/",
-      "verifiedDate": "2026-11-25"
+      "notes": "The current published LIV guidelines are the 2026 edition, under which clerkship applications opened no earlier than 9am Monday 6 July 2026 (now passed); the 2027 guidelines with the next Schedule 1 dates could not be located on the LIV site, so no future dates are asserted.",
+      "url": "https://www.liv.asn.au/Common/Uploaded%20files/Young-Lawyers/2026-LIV-clerkship-graduate-program-guidelines.pdf",
+      "verifiedDate": "2026-11-26"
     }
   ]
 }
